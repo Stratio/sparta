@@ -36,33 +36,13 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
-  def getHostsPorts(key: K): HostsPortsModel = {
-    implicit val json4sJacksonFormats: Formats =
-      DefaultFormats +
-        new JsoneyStringSerializer()
-
-    read[HostsPortsModel](
-      s"""{"hostsPorts": ${m.get(key).fold("[]") { values => values.toString }}}""""
-    )
-  }
-
-  def getPropertiesQueries(key: K): PropertiesQueriesModel = {
-    implicit val json4sJacksonFormats: Formats =
-      DefaultFormats +
-        new JsoneyStringSerializer()
-
-    read[PropertiesQueriesModel](
-      s"""{"queries": ${m.get(key).fold("[]") { values => values.toString }}}""""
-    )
-  }
-
   def getPropertiesFields(key: K): PropertiesFieldsModel = {
     implicit val json4sJacksonFormats: Formats =
       DefaultFormats +
         new JsoneyStringSerializer()
 
     read[PropertiesFieldsModel](
-      s"""{"fields": ${m.get(key).fold("[]") { values => values.toString }}}""""
+      s"""{"fields": ${m.get(key).fold("[]") { values => values.toString }}}"""
     )
   }
 

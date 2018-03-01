@@ -66,9 +66,6 @@ class ParquetOutputStepIT extends TemporalSparkContext
     File(tempPath).deleteRecursively()
   }
 
-  "it" should "thrown an exception when path is not defined" in {
-    an[Exception] should be thrownBy new ParquetOutputStep("parquet-test", sparkSession, Map())
-  }
 }
 
 case class Person(name: String, age: Int, minute: Long) extends Serializable

@@ -23,7 +23,7 @@ import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
@@ -39,9 +39,22 @@ class CrossdataInputStepBatch(
                              )
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val query = properties.getString("query")
+  lazy val query: String = properties.getString("query", "").trim
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (query.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name input query can not be empty"
+      )
+
+    validation
+  }
 
   def init(): DistributedMonad[RDD] = {
+    require(query.nonEmpty, "The input query can not be empty")
     xDSession.sql(query).rdd
   }
 

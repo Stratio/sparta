@@ -19,11 +19,11 @@ package com.stratio.sparta.driver
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
-import com.stratio.sparta.driver.exception.{DriverException, ErrorManagerException}
-import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.exception.{DriverException, ErrorManagerException}
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
@@ -83,10 +83,10 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
-        val streamingContextService = StreamingContextService(curatorInstance, statusListenerActor)
+        val contextService = ContextsService(curatorInstance, statusListenerActor)
         val spartaWorkflow = if(workflow.executionEngine == WorkflowExecutionEngine.Batch) {
-          streamingContextService.clusterContext(workflow, localPlugins)
-        } else streamingContextService.clusterStreamingContext(workflow, localPlugins)
+          contextService.clusterContext(workflow, localPlugins)
+        } else contextService.clusterStreamingContext(workflow, localPlugins)
 
         spartaWorkflow.cleanUp()
       } match {

@@ -17,19 +17,17 @@
 package com.stratio.sparta.serving.api.helpers
 
 import scala.util.Try
-
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import spray.can.Http
-
 import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
 

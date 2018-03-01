@@ -21,7 +21,7 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -39,13 +39,27 @@ class FileSystemInputStepBatch(
                               ) extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties)
   with SLF4JLogging {
 
-  def init(): DistributedMonad[RDD] = {
+  lazy val path: String = properties.getString("path", "").trim
 
-    val path = properties.getString("path", "")
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (path.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name input path can not be empty"
+      )
+
+    validation
+  }
+
+  def init(): DistributedMonad[RDD] = {
+    require(path.nonEmpty, "Input path can not be empty")
+
     val outputField = properties.getString("outputField", DefaultRawDataField)
     val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 
-    xDSession.sparkContext.textFile(path).map{ text =>
+    xDSession.sparkContext.textFile(path).map { text =>
       new GenericRowWithSchema(Array(text), outputSchema).asInstanceOf[Row]
     }
   }

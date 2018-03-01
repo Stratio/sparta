@@ -59,6 +59,9 @@ trait GraphStep extends CustomProperties {
 
   def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
+  def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations =
+    ErrorValidations(valid = true, messages = Seq.empty)
+
 
   /* METHODS IMPLEMENTED */
 

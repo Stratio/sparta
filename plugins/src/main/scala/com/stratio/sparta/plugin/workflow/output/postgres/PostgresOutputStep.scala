@@ -22,7 +22,7 @@ import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum.SpartaSaveMode
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 import com.stratio.sparta.sdk.workflow.step.OutputStep._
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
@@ -38,23 +38,37 @@ import scala.util.{Failure, Success, Try}
 class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
-  require(properties.getString("url", None).isDefined, "Postgres url must be provided")
-
-  lazy val url = properties.getString("url")
+  lazy val url = properties.getString("url", "")
   lazy val delimiter = properties.getString("delimiter", "\t")
   lazy val newLineSubstitution = properties.getString("newLineSubstitution", " ")
   lazy val quotesSubstitution = properties.getString("newQuotesSubstitution", """\b""")
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = PostgresSaveMode.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
-  val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+  lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
   val urlWithSSL = if (tlsEnable) url + securityUri else url
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if(url.isEmpty)
+      validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name url must be provided")
+    if(tlsEnable && securityUri.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name when TLS is enable the sparkConf must contain the security options"
+      )
+
+    validation
+  }
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
+    require(url.nonEmpty, "Postgres url must be provided")
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)

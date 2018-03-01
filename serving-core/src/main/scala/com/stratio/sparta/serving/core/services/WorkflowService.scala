@@ -22,7 +22,6 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
@@ -31,6 +30,7 @@ import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 
 import scala.collection.JavaConversions
 import scala.util._
@@ -90,6 +90,7 @@ class WorkflowService(
   def create(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {
     log.debug(s"Creating workflow with name ${workflow.name}, version ${workflow.version} " +
       s"and group ${workflow.group.name}")
+
     validateWorkflow(workflow, workflowWithEnv)
 
     val workflowWithFields = addCreationDate(addId(workflow))

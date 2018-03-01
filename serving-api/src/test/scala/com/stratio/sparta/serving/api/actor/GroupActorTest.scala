@@ -24,8 +24,8 @@ import java.util
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.SpartaSerializer

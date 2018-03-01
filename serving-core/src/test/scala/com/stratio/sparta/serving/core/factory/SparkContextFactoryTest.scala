@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.test.factory
+package com.stratio.sparta.serving.core.factory
 
-import com.stratio.sparta.driver.factory.SparkContextFactory
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.Duration
 import org.junit.runner.RunWith
@@ -29,7 +26,7 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
   self: FlatSpec =>
 
   override def afterAll {
-    SparkContextFactory.destroySparkContext()
+    SparkContextFactory.stopSparkContext()
   }
 
   trait WithConfig {
@@ -43,32 +40,32 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
   }
 
   "SparkContextFactorySpec" should "fails when properties is missing" in new WithConfig {
-    an[Exception] should be thrownBy SparkContextFactory.sparkStandAloneContextInstance(
+    an[Exception] should be thrownBy SparkContextFactory.getOrCreateClusterSparkContext(
       Map.empty[String, String], Seq())
   }
 
   it should "create and reuse same context" in new WithConfig {
-    val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
-    val otherSc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
+    val sc = SparkContextFactory.getOrCreateClusterSparkContext(specificConfig, Seq())
+    val otherSc = SparkContextFactory.getOrCreateClusterSparkContext(specificConfig, Seq())
     sc should be equals (otherSc)
-    SparkContextFactory.destroySparkContext()
+    SparkContextFactory.stopSparkContext()
   }
 
   it should "create and reuse same XDSession" in new WithConfig {
-    val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
-    val xdSession = SparkContextFactory.xdSessionInstance
+    val sc = SparkContextFactory.getOrCreateClusterSparkContext(specificConfig, Seq())
+    val xdSession = SparkContextFactory.getOrCreateXDSession()
     xdSession shouldNot be equals (null)
-    val otherSqc = SparkContextFactory.xdSessionInstance
+    val otherSqc = SparkContextFactory.getOrCreateXDSession()
     xdSession should be equals (otherSqc)
-    SparkContextFactory.destroySparkContext()
+    SparkContextFactory.stopSparkContext()
   }
 
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
     val checkpointDir = Some("checkpoint/SparkContextFactorySpec")
-    val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
-    val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)
+    val sc = SparkContextFactory.getOrCreateClusterSparkContext(specificConfig, Seq())
+    val ssc = SparkContextFactory.getOrCreateStreamingContext(batchDuraction, checkpointDir, None)
     ssc shouldNot be equals (None)
-    val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)
+    val otherSsc = SparkContextFactory.getOrCreateStreamingContext(batchDuraction, checkpointDir, None)
     ssc should be equals (otherSsc)
   }
 }

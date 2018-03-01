@@ -70,7 +70,16 @@ class MarathonAppActor(
                 clusterLauncherActor ! StartWithRequest(workflow, executionSubmit)
               case Failure(exception) => throw exception
             }
-          } else throw new Exception("Workflow App launched by Marathon with incorrect state, the job was not executed")
+          } else {
+            val information = "Workflow App launched by Marathon with incorrect state, the job was not executed"
+            log.info(information)
+            preStopActions()
+            statusService.update(WorkflowStatus(
+              id = workflow.id.get,
+              status = if(status.status == Stopping) Stopped else status.status,
+              statusInfo = Option(information)
+            ))
+          }
         case Failure(e) => throw e
       }
     } match {

@@ -59,14 +59,6 @@ class AvroOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
     val output = new AvroOutputStep("avro-test", sparkSession, properties)
   }
 
-  "AvroOutputStep" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new AvroOutputStep("avro-test", sparkSession, Map.empty)
-  }
-
-  it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new AvroOutputStep("avro-test", sparkSession, Map("path" -> "    "))
-  }
-
   it should "save a dataframe " in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
     val read = xdSession.read.avro(s"$tmpPath/person")

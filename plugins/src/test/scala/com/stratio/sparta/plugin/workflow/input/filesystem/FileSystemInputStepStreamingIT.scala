@@ -57,7 +57,7 @@ class FileSystemInputStepStreamingIT extends TemporalSparkContext with Matchers 
   "Events counted" should "match the lines in both the created file and an existing one" in {
 
     val properties = Map(
-      "directory" -> s"file://$parentDir",
+      "path" -> s"file://$parentDir",
       "newFilesOnly" -> "false"
     )
 
@@ -87,7 +87,7 @@ class FileSystemInputStepStreamingIT extends TemporalSparkContext with Matchers 
   it should "just match the lines of not filtered files" in {
 
     val properties = Map(
-      "directory" -> s"file://$parentDir",
+      "path" -> s"file://$parentDir",
       "newFilesOnly" -> "false",
       "filterString" -> "filtered,existing"
     )

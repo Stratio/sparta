@@ -20,22 +20,22 @@ import java.io.File
 
 import akka.actor.{Actor, ActorRef, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
-
-import com.stratio.sparta.driver.factory.SparkContextFactory
-import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{HdfsFilesService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
+
 import scala.util.{Failure, Success, Try}
 
 class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: CuratorFramework)
   extends Actor with SLF4JLogging {
 
-  private val streamingContextService: StreamingContextService = StreamingContextService(curatorFramework, statusListenerActor)
+  private val contextService: ContextsService = ContextsService(curatorFramework, statusListenerActor)
   lazy private val statusService = new WorkflowStatusService(curatorFramework)
   lazy private val hdfsFilesService = HdfsFilesService()
 
@@ -50,7 +50,6 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
       val jars = userPluginsFiles(workflow)
 
       jars.foreach(file => JarsHelper.addJarToClasspath(file))
-      JarsHelper.addJdbcDriversToClassPath()
 
       val startingInfo = s"Starting local execution for the workflow"
       log.info(startingInfo)
@@ -68,7 +67,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
         executeLocalBatchContext(workflow, jars)
     } match {
       case Success(_) =>
-        SparkContextFactory.destroySparkContext()
+        SparkContextFactory.stopSparkContext()
         val information = s"Workflow stopped correctly"
         log.info(information)
         statusService.update(WorkflowStatus(
@@ -86,13 +85,13 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
           statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
-        SparkContextFactory.destroySparkContext()
+        SparkContextFactory.stopSparkContext()
         self ! PoisonPill
     }
   }
 
   private def executeLocalStreamingContext(workflow: Workflow, jars: Seq[File]): Unit = {
-    val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(workflow, jars)
+    val (spartaWorkflow, ssc) = contextService.localStreamingContext(workflow, jars)
     spartaWorkflow.setup()
     ssc.start()
     val startedInformation = s"Workflow started correctly"
@@ -115,7 +114,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
       statusInfo = Some(startedInformation)
     ))
 
-    val spartaWorkflow = streamingContextService.localContext(workflow, jars)
+    val spartaWorkflow = contextService.localContext(workflow, jars)
     spartaWorkflow.cleanUp()
   }
 

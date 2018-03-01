@@ -29,6 +29,7 @@ object PhaseEnum extends Enumeration {
   val Execution = Value("Execution")
   val Launch = Value("Launch")
   val Stop = Value("Stop")
+  val Validate = Value("Validate")
 }
 
 case class WorkflowError(

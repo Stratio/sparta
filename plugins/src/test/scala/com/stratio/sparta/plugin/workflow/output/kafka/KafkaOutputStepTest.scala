@@ -51,18 +51,6 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
     "batch.size" -> ""
   )
 
-  "getProducerKey" should "concatenate topic with broker list" in {
-    val kafkatest = new KafkaOutputStep("kafka", sparkSession, validProperties)
-
-    kafkatest.producerConnectionKey shouldBe "kafkalocalhost:9092,localhost2:90922"
-  }
-
-  "getProducerKey" should "return default connection" in {
-    val kafkatest = new KafkaOutputStep("kafka", sparkSession, noValidProperties)
-
-    kafkatest.producerConnectionKey shouldBe "kafkalocalhost:9092"
-  }
-
   "extractOptions" should "extract mandatory options" in {
     val kafkatest = new KafkaOutputStep("kafka", sparkSession, mandatoryOptions)
 
@@ -80,8 +68,7 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
     val kafkatest = new KafkaOutputStep("kafka", sparkSession, Map.empty)
 
     val options = kafkatest.mandatoryOptions
-    options.size shouldBe 5
-    options("bootstrap.servers") shouldBe "localhost:9092"
+    options.size shouldBe 4
     options("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options("value.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
     options("acks") shouldBe "0"

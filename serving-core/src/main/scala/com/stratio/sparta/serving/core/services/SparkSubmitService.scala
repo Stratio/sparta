@@ -27,15 +27,15 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.{SubmitMasterConf, _}
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.services.SparkSubmitService._
 import com.stratio.sparta.serving.core.utils.ArgumentsUtils
 import com.typesafe.config.Config
 import org.apache.spark.security.VaultHelper._
-import SparkSubmitService._
-import com.stratio.sparta.serving.core.helpers.JarsHelper
-import scala.collection.JavaConversions._
 
+import scala.collection.JavaConversions._
 import scala.util.{Properties, Try}
 
 class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
@@ -132,17 +132,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     uploadedPlugins ++ userPlugins ++ JarsHelper.getJdbcDriverPaths
   }
 
-  def getSparkLocalConfig: Map[String, String] = {
-    val defaultConf = Map(
-      SubmitNameConf -> "sparta-server",
-      SubmitMasterConf -> "local[*]"
-    )
-    val referenceConf = SpartaConfig.initSparkConfig().fold(defaultConf) { sparkConfig =>
-      sparkConfig.entrySet().iterator().toSeq.map { values =>
-        s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
-      }.toMap
-    }
-    defaultConf ++ referenceConf ++ getUserSparkConfig
+  def getSparkLocalWorkflowConfig: Map[String, String] = {
+    SparkSubmitService.getSparkLocalConfig ++ getUserSparkConfig
   }
 
   /** Private Methods **/
@@ -439,6 +430,10 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
 object SparkSubmitService {
 
+  lazy val spartaTenant = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
+    Properties.envOrElse("TENANT_NAME", "sparta"))
+  lazy val spartaLocalAppName = s"$spartaTenant-spark-standalone"
+
   def getJarsSparkConfigurations(jarFiles: Seq[String]): Map[String, String] =
     if (jarFiles.exists(_.trim.nonEmpty)) {
       val jarFilesFiltered = jarFiles.filter(file =>
@@ -466,6 +461,19 @@ object SparkSubmitService {
         } else Option(confKey -> value)
       } else None
     }
+  }
+
+  def getSparkLocalConfig: Map[String, String] = {
+    val defaultConf = Map(
+      SubmitNameConf -> spartaLocalAppName,
+      SubmitMasterConf -> "local[*]"
+    )
+    val referenceConf = SpartaConfig.initSparkConfig().fold(defaultConf) { sparkConfig =>
+      sparkConfig.entrySet().iterator().toSeq.map { values =>
+        s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
+      }.toMap
+    }
+    defaultConf ++ referenceConf
   }
 
 }

@@ -29,6 +29,7 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
@@ -43,12 +44,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Properties, Try}
+import org.json4s.jackson.Serialization._
 
 //scalastyle:off
 class MarathonService(context: ActorContext,
                       val curatorFramework: CuratorFramework,
                       workflowModel: Option[Workflow],
-                      sparkSubmitRequest: Option[WorkflowExecution]) {
+                      sparkSubmitRequest: Option[WorkflowExecution]) extends SpartaSerializer {
 
   def this(context: ActorContext,
            curatorFramework: CuratorFramework,
@@ -118,8 +120,9 @@ class MarathonService(context: ActorContext,
   /* PUBLIC METHODS */
 
   def launch(): Unit = {
-    assert(workflowModel.isDefined && sparkSubmitRequest.isDefined, "It is mandatory to specify a workflow and a request")
+    require(workflowModel.isDefined && sparkSubmitRequest.isDefined, "It is mandatory to specify a workflow and a request")
     val createApp = addRequirements(getMarathonAppFromFile, workflowModel.get, sparkSubmitRequest.get)
+    log.info(s"Submitting Marathon application: ${write(createApp)}")
     for {
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
     } response match {

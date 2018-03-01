@@ -8,8 +8,8 @@
     "description": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
     "properties": [
       {
-        "propertyId": "directory",
-        "propertyName": "_DIRECTORY_",
+        "propertyId": "path",
+        "propertyName": "_PATH_",
         "propertyType": "text",
         "required": true,
         "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",

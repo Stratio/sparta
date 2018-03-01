@@ -21,11 +21,12 @@ import java.io.{Serializable => JSerializable}
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.plugin.workflow.input.crossdata.models.OffsetFieldItem
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
@@ -41,21 +42,20 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Properties, Try}
 
-import DistributedMonad.Implicits._
-
 class CrossdataInputStepStreaming(
-                          name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable]
-                        )
+                                   name: String,
+                                   outputOptions: OutputOptions,
+                                   ssc: Option[StreamingContext],
+                                   xDSession: XDSession,
+                                   properties: Map[String, JSerializable]
+                                 )
   extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val query = properties.getString("query")
-  lazy val finishApplicationWhenEmpty = properties.getBoolean("finishAppWhenEmpty", default = false)
-  lazy val limitRecords = properties.getLong("limitRecords", None)
-  lazy val stopContexts = properties.getBoolean("stopContexts", default = false)
+  lazy val query = properties.getString("query", "").trim
+  lazy val finishApplicationWhenEmpty = Try(properties.getBoolean("finishAppWhenEmpty", default = false))
+    .getOrElse(false)
+  lazy val limitRecords = Try(properties.getLong("limitRecords", None)).getOrElse(None)
+  lazy val stopContexts = Try(properties.getBoolean("stopContexts", default = false)).getOrElse(false)
   lazy val zookeeperPath = Properties.envOrElse("SPARTA_ZOOKEEPER_PATH", "/stratio/sparta") + {
     val path = properties.getString("zookeeperPath", "/crossdata/offsets")
     if (path.startsWith("/")) path
@@ -70,17 +70,36 @@ class CrossdataInputStepStreaming(
       throw new RuntimeException(message)
     }
   }
-
-  lazy val offsetItems: Seq[OffsetField] = {
+  lazy val offsetItems = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
-    read[Seq[OffsetFieldItem]](
-      s"""${properties.get("offsetFields").fold("[]") { values => values.toString }}""""
-    ).map(item => new OffsetField(item.offsetField,
+    val offsetFields =
+      s"""${properties.getString("offsetFields", None).notBlank.fold("[]") { values => values.toString}}""".stripMargin
+
+    read[Seq[OffsetFieldItem]](offsetFields).map(item => new OffsetField(item.offsetField,
       OffsetOperator.withName(item.offsetOperator),
       item.offsetValue.notBlank))
   }
 
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (query.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name input query can not be empty"
+      )
+    if (offsetItems.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name the offsets fields can not be empty"
+      )
+
+    validation
+  }
+
   def init(): DistributedMonad[DStream] = {
+    require(query.nonEmpty, "The input query can not be empty")
+
     val inputSentences = InputSentences(
       query,
       OffsetConditions(
@@ -125,6 +144,7 @@ class CrossdataInputStepStreaming(
       }
     }
   }
+
 }
 
 object CrossdataInputStepStreaming {

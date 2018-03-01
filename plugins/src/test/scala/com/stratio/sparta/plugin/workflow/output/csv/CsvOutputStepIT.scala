@@ -56,15 +56,6 @@ class CsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
     val output = new CsvOutputStep("csv-test", sparkSession, properties)
   }
 
-
-  "CsvOutputStep" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new CsvOutputStep("csv-test", sparkSession, Map.empty)
-  }
-
-  it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new CsvOutputStep("csv-test", sparkSession, Map("path" -> "    "))
-  }
-
   it should "save a dataframe " in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
     val read = sparkSession.read.csv(s"$tmpPath/person.csv")

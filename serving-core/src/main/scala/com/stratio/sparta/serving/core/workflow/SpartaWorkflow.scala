@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.driver
+package com.stratio.sparta.serving.core.workflow
 
 import java.io.Serializable
 
+import akka.event.Logging
+import akka.event.Logging.LogLevel
 import akka.util.Timeout
-import com.stratio.sparta.driver.error._
-import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.error.ZooKeeperError
+import com.stratio.sparta.serving.core.exception.DriverException
+import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
@@ -46,9 +48,6 @@ import scalax.collection.GraphTraversal.{Parameters, Predecessors}
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, curatorFramework: CuratorFramework)
   extends CheckpointUtils with ZooKeeperError with DistributedMonadImplicits {
 
-  // Clear last error if it was saved in Zookeeper
-  clearError()
-
   private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
 
@@ -58,13 +57,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   private var steps = Seq.empty[GraphStep]
 
   /**
-    * Execute the setup function associated to all the steps. Previously is mandatory execute the streamingStages
+    * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
     * function because the steps variable is mutable and is initialized to empty value.
     */
   def setup(): Unit = {
     val phaseEnum = PhaseEnum.Setup
-    val errorMessage = s"An error was encountered while executing the setup steps."
-    val okMessage = s"Setup steps executed successfully."
+    val errorMessage = s"An error was encountered while executing the setup steps"
+    val okMessage = s"Setup steps executed successfully"
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       steps.foreach(step => step.setUp())
@@ -72,13 +71,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   }
 
   /**
-    * Execute the cleanUp function associated to all the steps. Previously is mandatory execute the streamingStages
+    * Execute the cleanUp function associated to all the steps. Previously is mandatory execute the stages
     * function because the steps variable is mutable and is initialized to empty value.
     */
   def cleanUp(): Unit = {
     val phaseEnum = PhaseEnum.Cleanup
     val errorMessage = s"An error was encountered while executing the cleanup steps."
-    val okMessage = s"Cleanup steps executed successfully."
+    val okMessage = s"Cleanup steps executed successfully"
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       steps.foreach(step => step.cleanUp())
@@ -86,14 +85,39 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   }
 
   /**
+    * Execute the validate function associated to all the steps. Previously is mandatory execute the stages
+    * function because the steps variable is mutable and is initialized to empty value.
+    */
+  def validate(): Seq[ErrorValidations] = {
+    val phaseEnum = PhaseEnum.Validate
+    val errorMessage = s"An error was encountered while executing the validate steps"
+    val okMessage = s"Validate steps executed successfully"
+
+    /*traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
+      steps.map(step => step.validate())
+    }*/
+    steps.map(step => step.validate())
+  }
+
+  //scalastyle:off
+  /**
     * Initialize the Spark contexts, create the steps for setup and cleanup functions and execute the workflow.
     *
     * @return The streaming context created, is used by the desing pattern in the Spark Streaming Context creation
     */
-  def stages(): Unit = {
-    clearError()
+  def stages(execute: Boolean = true): Unit = {
 
-    val xDSession = xdSessionInstance
+    log.debug("Creating workflow stages")
+
+    if(execute) clearError()
+
+    val withStandAloneExtraConf = !execute || workflow.settings.global.executionMode == AppConstant.ConfigLocal
+    val initSqlSentences = {
+      if(execute)
+        workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
+      else Seq.empty[String]
+    }
+    val xDSession = getOrCreateXDSession(withStandAloneExtraConf, initSqlSentences)
 
     implicit val workflowContext = implicitly[ContextBuilder[Underlying]].buildContext(classpathUtils, xDSession) {
       /* Prepare Workflow Context variables with the Spark Contexts used in steps
@@ -103,11 +127,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
         .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
       val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
-      sparkStreamingInstance(Duration(window),
+      getOrCreateStreamingContext(Duration(window),
         workflowCheckpointPath.notBlank,
         workflow.settings.streamingSettings.remember.notBlank
-      ) get
+      )
     }
+
+    //scalastyle:on
 
     steps = workflow.pipelineGraph.nodes.map { node =>
       node.stepType.toLowerCase match {
@@ -122,7 +148,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       }
     }
 
-    executeWorkflow
+    if(execute) executeWorkflow
   }
 
   //scalastyle:off
@@ -137,7 +163,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     *
     * @param workflowContext The Spark Contexts used in the steps creation
     */
-  private[driver] def executeWorkflow(implicit workflowContext: WorkflowContext): Unit = {
+  def executeWorkflow(implicit workflowContext: WorkflowContext): Unit = {
+
+    log.debug("Executing workflow")
+
     val nodesModel = workflow.pipelineGraph.nodes
     val graph: Graph[NodeGraph, DiEdge] = createGraph(workflow)
     val nodeOrdering = graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
@@ -173,8 +202,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
         if (predecessor.stepType.toLowerCase == InputStep.StepType) {
           val phaseEnum = PhaseEnum.Write
-          val errorMessage = s"An error was encountered while writing input step ${predecessor.name}."
-          val okMessage = s"Input step ${predecessor.name} written successfully."
+          val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
+          val okMessage = s"Input step ${predecessor.name} written successfully"
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             inputs.find(_._1 == predecessor.name).foreach {
@@ -191,8 +220,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
         }
         if (predecessor.stepType.toLowerCase == TransformStep.StepType) {
           val phaseEnum = PhaseEnum.Write
-          val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}."
-          val okMessage = s"Transform step ${predecessor.name} written successfully."
+          val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}"
+          val okMessage = s"Transform step ${predecessor.name} written successfully"
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             transformations.find(_._1 == predecessor.name).foreach { case (_, transform) =>
@@ -219,7 +248,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param workflowContext The Spark contexts are contained into this parameter
     * @param graphContext    The context contains the graph and the steps created
     */
-  private[driver] def createStep(node: NodeGraph)
+  private[core] def createStep(node: NodeGraph)
                                 (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying])
   : Unit =
     node.stepType.toLowerCase match {
@@ -252,10 +281,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           s"\tWrong type: ${node.stepType}")
     }
 
-  private[driver] def inputIdentificationName(step: InputStep[Underlying]): String =
+  private[core] def inputIdentificationName(step: InputStep[Underlying]): String =
     s"${InputStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
 
-  private[driver] def transformIdentificationName(step: TransformStep[Underlying]): String =
+  private[core] def transformIdentificationName(step: TransformStep[Underlying]): String =
     s"${TransformStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
 
   /**
@@ -265,7 +294,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param context The context that contains the graph and the steps created
     * @return The predecessors steps
     */
-  private[driver] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
+  private[core] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, InputStepData[Underlying]] =
     context.inputs.filter(input =>
       context.graph.get(node).diPredecessors
@@ -280,7 +309,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param context The context that contains the graph and the steps created
     * @return The predecessors steps
     */
-  private[driver] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
+  private[core] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, TransformStepData[Underlying]] =
     context.transformations.filter(transform =>
       context.graph.get(node).diPredecessors
@@ -296,13 +325,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param workflowContext The Spark contexts are contained into this parameter
     * @return The new transform step
     */
-  private[driver] def createTransformStep(node: NodeGraph)
+  private[core] def createTransformStep(node: NodeGraph)
                                          (implicit workflowContext: WorkflowContext): TransformStep[Underlying] = {
     val phaseEnum = PhaseEnum.Transform
-    val errorMessage = s"An error was encountered while creating transform step ${node.name}."
-    val okMessage = s"Transform step ${node.name} created successfully."
+    val errorMessage = s"An error was encountered while creating transform step ${node.name}"
+    val okMessage = s"Transform step ${node.name} created successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage) {
+    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
@@ -335,13 +364,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param workflowContext The Spark contexts are contained into this parameter
     * @return The new input step
     */
-  private[driver] def createInputStep(node: NodeGraph)
+  private[core] def createInputStep(node: NodeGraph)
                                      (implicit workflowContext: WorkflowContext): InputStep[Underlying] = {
     val phaseEnum = PhaseEnum.Input
     val errorMessage = s"An error was encountered while creating input step ${node.name}."
     val okMessage = s"Input step ${node.name} created successfully."
 
-    traceFunction(phaseEnum, okMessage, errorMessage) {
+    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
@@ -372,13 +401,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param workflowContext The Spark contexts are contained into this parameter
     * @return The new Output step
     */
-  private[driver] def createOutputStep(node: NodeGraph)
+  private[core] def createOutputStep(node: NodeGraph)
                                       (implicit workflowContext: WorkflowContext): OutputStep[Underlying] = {
     val phaseEnum = PhaseEnum.Output
-    val errorMessage = s"An error was encountered while creating output step ${node.name}."
-    val okMessage = s"Output step ${node.name} created successfully."
+    val errorMessage = s"An error was encountered while creating output step ${node.name}"
+    val okMessage = s"Output step ${node.name} created successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage) {
+    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(

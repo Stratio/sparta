@@ -20,13 +20,13 @@ import java.util.UUID
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Group, WorkflowsQuery}
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}

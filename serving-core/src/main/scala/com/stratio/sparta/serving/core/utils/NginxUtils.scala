@@ -138,9 +138,9 @@ object NginxUtils {
       "Cannot retrieve workflows status" + explanation.map(exp => s": $exp").getOrElse("")
     )
 
-    object AlreadyRunning extends Error("Can't start Nginx as it is currently running")
+    object AlreadyRunning extends Error("Can not start Nginx as it is currently running")
 
-    object NotRunning extends Error("Can't stop Nginx as it is currently stopped")
+    object NotRunning extends Error("Can not stop Nginx as it is currently stopped")
 
   }
 

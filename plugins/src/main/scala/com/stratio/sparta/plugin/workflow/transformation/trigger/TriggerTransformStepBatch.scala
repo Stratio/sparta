@@ -38,6 +38,8 @@ class TriggerTransformStepBatch(
     with SLF4JLogging {
 
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] = {
+    require(sql.nonEmpty, "The input query can not be empty")
+
     val emptySteps = scala.collection.mutable.HashSet[String]()
     val wrongNameSteps = scala.collection.mutable.HashSet[String]()
 

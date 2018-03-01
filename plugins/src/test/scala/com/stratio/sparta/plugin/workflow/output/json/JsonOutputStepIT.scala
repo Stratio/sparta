@@ -55,14 +55,14 @@ class JsonOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
 
   "Given a DataFrame, a directory" should "be created with the data inside in JSON format" in new CommonValues {
     jsonStep.save(inputDataFrame, SaveModeEnum.Append, Map(jsonStep.TableNameKey -> "test"))
-    fileExists(jsonStep.path.get) should equal(true)
+    fileExists(jsonStep.path) should equal(true)
     val read = xdSession.read.json(s"$tempPath/test")
     read.count should be(3)
   }
 
   it should "exist with the given path and be deleted" in {
-    if (fileExists(s"${jsonStep.path.get}/test"))
-      FileUtils.deleteDirectory(new File(s"${jsonStep.path.get}/test"))
-    fileExists(s"${jsonStep.path.get}/test") should equal(false)
+    if (fileExists(s"${jsonStep.path}/test"))
+      FileUtils.deleteDirectory(new File(s"${jsonStep.path}/test"))
+    fileExists(s"${jsonStep.path}/test") should equal(false)
   }
 }

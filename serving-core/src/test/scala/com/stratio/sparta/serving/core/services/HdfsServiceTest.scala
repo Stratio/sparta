@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.service
+package com.stratio.sparta.serving.core.services
 
 import java.io.{FileNotFoundException, InputStream}
 
-import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.hadoop.fs.{FileSystem, _}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._

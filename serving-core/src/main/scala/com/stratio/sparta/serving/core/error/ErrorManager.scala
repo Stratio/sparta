@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.driver.error
+package com.stratio.sparta.serving.core.error
 
+import akka.event.Logging
+import akka.event.Logging.LogLevel
+import akka.event.Logging.LogLevel._
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.exception.ErrorManagerException
+import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.WorkflowStatusService
@@ -29,10 +32,21 @@ trait ErrorManager extends SLF4JLogging {
 
   val workflow: Workflow
 
-  def traceFunction[T](code: PhaseEnum.Value, okMessage: String, errorMessage: String)(f: => T): T = {
+  def traceFunction[T](
+                        code: PhaseEnum.Value,
+                        okMessage: String,
+                        errorMessage: String,
+                        logLevel: LogLevel = Logging.InfoLevel
+                      )(f: => T): T = {
     Try(f) match {
       case Success(result) =>
-        log.info(okMessage)
+        logLevel.asInt match {
+          case 1 => log.error(okMessage)
+          case 2 => log.warn(okMessage)
+          case 3 => log.info(okMessage)
+          case _ => log.debug(okMessage)
+        }
+
         result
       case Failure(ex) =>
         throw logAndCreateEx(code, ex, workflow, errorMessage)
@@ -71,7 +85,8 @@ trait ZooKeeperError extends ErrorManager {
     statusService.update(WorkflowStatus(workflow.id.get, NotDefined, None, None, lastError = Some(error)))
 
   def clearError(): Unit =
-    statusService.clearLastError(workflow.id.get)
+    workflow.id.foreach(id => statusService.clearLastError(id))
+
 }
 
 trait LogError extends ErrorManager with SLF4JLogging {

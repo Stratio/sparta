@@ -103,12 +103,16 @@ object SpartaJdbcUtils extends SLF4JLogging {
     synchronized {
       if (!connections.containsKey(outputName) || connections.get(outputName).isClosed) {
         log.debug(s"Connecting to database with url: ${properties.url}")
-        Try(createConnectionFactory(properties)()) match {
-          case Success(conn) =>
+        Try(Option(createConnectionFactory(properties)())) match {
+          case Success(Some(conn)) =>
             if (connections.containsKey(outputName)) {
               connections.get(outputName).close()
               connections.replace(outputName, conn)
             } else connections.put(outputName, conn)
+          case Success(None) =>
+            val information = s"Error creating connection on output $outputName see logs for full message"
+            log.error(information)
+            throw new Exception(information)
           case Failure(e) =>
             log.error(s"Error creating connection on output $outputName ${e.getLocalizedMessage}", e)
             throw e
@@ -212,7 +216,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
   private def getJdbcType(dt: DataType, dialect: JdbcDialect): JdbcType = {
     dialect.getJDBCType(dt).orElse(getCommonJDBCType(dt)).getOrElse(
-      throw new IllegalArgumentException(s"Can't get JDBC type for ${dt.simpleString}"))
+      throw new IllegalArgumentException(s"can not get JDBC type for ${dt.simpleString}"))
   }
 
   private def updateSql(table: String, rddSchema: StructType, searchFields: Seq[String]): String = {
@@ -304,7 +308,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
     case _ =>
       (_: PreparedStatement, _: Row, pos: Int) =>
         throw new IllegalArgumentException(
-          s"Can't translate non-null value for field $pos")
+          s"can not translate non-null value for field $pos")
   }
 
   private def savePartition(
@@ -681,6 +685,6 @@ object SpartaJdbcUtils extends SLF4JLogging {
             updateStmt.foreach(st => st.setArray(indexSearch + 1, array))
           }
       case _ => throw new IllegalArgumentException(
-        s"Can't translate non-null value for field $fieldIndex")
+        s"can not translate non-null value for field $fieldIndex")
     }
 }

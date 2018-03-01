@@ -26,30 +26,42 @@ import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.hadoop.fs.Path
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
 import org.apache.hadoop.io.{LongWritable, Text}
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
-
 import DistributedMonad.Implicits._
 
 class FileSystemInputStepStreaming(
-                                 name: String,
-                                 outputOptions: OutputOptions,
-                                 ssc: Option[StreamingContext],
-                                 xDSession: XDSession,
-                                 properties: Map[String, JSerializable]
-                               ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties)
+                                    name: String,
+                                    outputOptions: OutputOptions,
+                                    ssc: Option[StreamingContext],
+                                    xDSession: XDSession,
+                                    properties: Map[String, JSerializable]
+                                  ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties)
   with SLF4JLogging {
+
+  lazy val path: String = properties.getString("path", "").trim
 
   protected def defaultFilter(path: Path): Boolean =
     !path.getName.startsWith(".") && !path.getName.endsWith("_COPYING_") &&
       !path.getName.startsWith("_")
 
-  def init(): DistributedMonad[DStream] = {
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
-    val directory = properties.getString("directory", "")
+    if (path.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name input path can not be empty")
+
+    validation
+  }
+
+  def init(): DistributedMonad[DStream] = {
+    require(path.nonEmpty, "Input path can not be empty")
+
     val filters = properties.getString("filterString", None).notBlank
     val flagNewFiles = properties.getBoolean("newFilesOnly")
     val outputField = properties.getString("outputField", DefaultRawDataField)
@@ -59,7 +71,7 @@ class FileSystemInputStepStreaming(
     val applyFilters = (path: Path) =>
       defaultFilter(path) && filters.forall(_.split(",").forall(!path.getName.contains(_)))
 
-    ssc.get.fileStream[LongWritable, Text, TextInputFormat](directory, applyFilters, flagNewFiles) map {
+    ssc.get.fileStream[LongWritable, Text, TextInputFormat](path, applyFilters, flagNewFiles) map {
       case (_, text) => new GenericRowWithSchema(Array(text.toString), outputSchema).asInstanceOf[Row]
     }
 

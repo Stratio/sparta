@@ -19,10 +19,11 @@ package com.stratio.sparta.plugin.common.kafka
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.SparkConf
-
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.sdk.properties.models.HostsPortsModel
+import org.json4s.jackson.Serialization.read
+import org.json4s.{DefaultFormats, Formats}
 
 trait KafkaBase extends SLF4JLogging {
 
@@ -34,22 +35,29 @@ trait KafkaBase extends SLF4JLogging {
 
   /** HOSTS and PORT extractions **/
 
-  def getHostPort(key: String,
-                  defaultHost: String,
-                  defaultPort: String): Map[String, String] = {
+  def getHostPort(key: String): Map[String, String] = {
     val connection = try {
-      if(properties.contains(key))
-        properties.getHostsPorts(key).hostsPorts
-        .map(hostHortModel => s"${hostHortModel.host}:${hostHortModel.port}")
-        .mkString(",")
-      else s"$defaultHost:$defaultPort"
+      if (properties.contains(key)) {
+        implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+        val hostsPortsModel = read[HostsPortsModel](
+          s"""{"hostsPorts": ${properties.getString(key, None).notBlank.fold("[]") { values => values.toString }}}"""
+        )
+        if (hostsPortsModel.hostsPorts.nonEmpty)
+          Option(hostsPortsModel.hostsPorts.map(hostHortModel =>
+            s"${hostHortModel.host}:${hostHortModel.port}").mkString(",")
+          )
+        else None
+      } else None
     } catch {
       case e: Exception =>
         log.warn(s"Error extracting kafka connection chain, using default values... Error: ${e.getLocalizedMessage}")
-        s"$defaultHost:$defaultPort"
+        None
     }
 
-    Map(key -> connection)
+    connection match {
+      case Some(connectionKey) => Map(key -> connectionKey)
+      case None => Map.empty
+    }
   }
 
 }

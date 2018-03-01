@@ -25,7 +25,6 @@ import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.MetadataActor.{ExecuteBackup, _}
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFile}
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
@@ -37,6 +36,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import spray.http.BodyPart
 import com.stratio.sparta.serving.core.constants._
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 

@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.constants
+package com.stratio.sparta.serving.core.exception
 
-object ErrorCodes {
+case class ErrorManagerException(msg: String) extends RuntimeException(msg)
 
-  object Policy {
+object ErrorManagerException {
 
-    val ParsingInput = 1
-    val ParsingParser = 2
-    val ParsingOperator = 3
-    val ParsingCube = 4
-    val ParsingOutput = 5
-    val ParsingTrigger = 6
-  }
-
+  def apply(msg: String, cause: Throwable): Throwable = new ErrorManagerException(msg).initCause(cause)
 }

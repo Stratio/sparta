@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.services
 import java.util
 
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.workflow.{SparkSubmitExecution, WorkflowExecution}
 import com.stratio.sparta.serving.core.services.ExecutionService
 import org.apache.curator.framework.CuratorFramework

@@ -23,7 +23,7 @@ import com.stratio.sparta.plugin.helper.SecurityHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum.SpartaSaveMode
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
@@ -35,13 +35,26 @@ import scala.util.{Failure, Success, Try}
 class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
-  require(properties.getString("url", None).isDefined, "url must be provided")
-
   lazy val url = properties.getString("url")
-  val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+  lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
   val urlWithSSL = if (tlsEnable) url + securityUri else url
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if(url.isEmpty)
+      validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name url must be provided")
+    if(tlsEnable && securityUri.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name when TLS is enable the sparkConf must contain the security options"
+      )
+
+    validation
+  }
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite,
@@ -49,6 +62,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
 
   //scalastyle:off
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
+    require(url.nonEmpty, "JDBC url must be provided")
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)

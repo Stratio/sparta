@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.exception
-
+package com.stratio.sparta.serving.core.exception
 
 case class DriverException(msg: String) extends RuntimeException(msg)
 

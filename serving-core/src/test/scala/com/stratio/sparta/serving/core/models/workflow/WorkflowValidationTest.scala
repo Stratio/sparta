@@ -17,7 +17,7 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService

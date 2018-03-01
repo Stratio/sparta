@@ -19,7 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
@@ -31,20 +31,32 @@ class CsvOutputStep(
                      properties: Map[String, JSerializable]
                    ) extends OutputStep(name, xDSession, properties) {
 
-  lazy val path = properties.getString("path", None).notBlank
+  lazy val path: String = properties.getString("path", "").trim
   lazy val header = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
   lazy val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
   lazy val codecOption = properties.getString("codec", None).notBlank
   lazy val compressExtension = properties.getString("compressExtension", None).notBlank.getOrElse(".gz")
 
-  require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
-
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (path.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name destination path can not be empty"
+      )
+
+    validation
+  }
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
+    require(path.nonEmpty, "Input path can not be empty")
+
+    val pathParsed = if (path.endsWith("/")) path else path + "/"
     val tableName = getTableNameFromOptions(options)
     val optionsParsed =
       Map(

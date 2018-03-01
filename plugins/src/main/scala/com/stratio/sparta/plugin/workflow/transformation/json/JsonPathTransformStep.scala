@@ -21,6 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import com.stratio.sparta.sdk.workflow.step._
@@ -29,6 +30,8 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.streaming.StreamingContext
+import org.json4s.jackson.Serialization.read
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.{Failure, Success, Try}
 
@@ -42,7 +45,17 @@ abstract class JsonPathTransformStep[Underlying[Row]](
                                                      )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  lazy val queriesModel: PropertiesQueriesModel = properties.getPropertiesQueries("queries")
+  lazy val queriesModel: PropertiesQueriesModel = {
+    {
+      implicit val json4sJacksonFormats: Formats =
+        DefaultFormats +
+          new JsoneyStringSerializer()
+
+      read[PropertiesQueriesModel](
+        s"""{"queries": ${properties.getString("queries", None).notBlank.fold("[]") { values => values.toString }}}"""
+      )
+    }
+  }
 
   lazy val supportNullValues: Boolean = properties.getBoolean("supportNullValues", default = true)
 

@@ -40,13 +40,14 @@ class TriggerTransformStepStreaming(
     with SLF4JLogging {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    assert(inputData.size == 2 || inputData.size == 1,
+    require(sql.nonEmpty, "The input query can not be empty")
+    require(inputData.size == 2 || inputData.size == 1,
       s"The trigger $name must have one or two input steps, now have: ${inputData.keys}")
 
     if (inputData.size == 1) {
       val (firstStep, firstStream) = inputData.head
 
-      assert(isCorrectTableName(firstStep),
+      require(isCorrectTableName(firstStep),
         s"The step($firstStep) have wrong name and is not possible to register as temporal table. ${inputData.keys}")
 
       firstStream.ds.transform { rdd =>
@@ -63,7 +64,7 @@ class TriggerTransformStepStreaming(
       val (firstStep, firstStream) = inputData.head
       val (secondStep, secondStream) = inputData.drop(1).head
 
-      assert(isCorrectTableName(firstStep) && isCorrectTableName(secondStep),
+      require(isCorrectTableName(firstStep) && isCorrectTableName(secondStep),
         s"The input steps have incorrect names and is not possible to register as temporal table in Spark." +
           s" ${inputData.keys}")
 

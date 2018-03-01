@@ -17,6 +17,7 @@ package com.stratio.sparta.serving.core.curator
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.typesafe.config._
 import org.apache.curator.framework.api.ExistsBuilder
 import org.apache.curator.test.TestingCluster

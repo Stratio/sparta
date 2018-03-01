@@ -162,37 +162,6 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
     ))
   }
 
-  it should "parse to hostPort Model" in {
-    val portStr = "20304"
-    val conn = """[{"host":"host1","port":20304},{"host":"host2","port":"20304"},{"host":"host3","port":"20304"}]"""
-    val validating: ValidatingPropertyMap[String, JsoneyString] =
-      new ValidatingPropertyMap[String, JsoneyString](Map("hostsPorts" -> JsoneyString(conn)))
-
-    validating.getHostsPorts("hostsPorts") should be(HostsPortsModel(Seq(
-      HostPortModel("host1", portStr),
-      HostPortModel("host2", portStr),
-      HostPortModel("host3", portStr)
-    )))
-  }
-
-  it should "parse to queries Model" in {
-    val query = "select"
-    val conn =
-      """[
-        |{"field":"field1","query":"select"},
-        |{"field":"field2","query":"select"},
-        |{"field":"field3","query":"select"}
-        |]""".stripMargin
-    val validating: ValidatingPropertyMap[String, JsoneyString] =
-      new ValidatingPropertyMap[String, JsoneyString](Map("queries" -> JsoneyString(conn)))
-
-    validating.getPropertiesQueries("queries") should be(PropertiesQueriesModel(Seq(
-      PropertiesQueryModel("field1", query),
-      PropertiesQueryModel("field2", query),
-      PropertiesQueryModel("field3", query)
-    )))
-  }
-
   it should "parse to options" in {
     val query = "select"
     val conn =

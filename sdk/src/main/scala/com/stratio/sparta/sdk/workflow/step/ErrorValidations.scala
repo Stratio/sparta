@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.exception
 
-case class ErrorManagerException(msg: String) extends RuntimeException(msg)
+package com.stratio.sparta.sdk.workflow.step
 
-object ErrorManagerException {
-
-  def apply(msg: String, cause: Throwable): Throwable = new ErrorManagerException(msg).initCause(cause)
-}
+case class ErrorValidations(valid: Boolean, messages: Seq[String])

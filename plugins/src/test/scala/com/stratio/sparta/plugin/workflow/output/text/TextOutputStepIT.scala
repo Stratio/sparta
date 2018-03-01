@@ -56,14 +56,14 @@ class TextOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
 
   "Given a DataFrame, a directory" should "be created with the data written inside" in new CommonValues {
     textStep.save(inputDataFrame, SaveModeEnum.Append, Map(textStep.TableNameKey -> "test"))
-    fileExists(textStep.path.get) should equal(true)
+    fileExists(textStep.path) should equal(true)
     val read = xdSession.read.text(s"$tempPath/test")
     read.count should be(3)
   }
 
   it should "exist with the given path and be deleted" in {
-    if (fileExists(textStep.path.get))
-      FileUtils.deleteDirectory(new File(textStep.path.get))
-    fileExists(textStep.path.get) should equal(false)
+    if (fileExists(textStep.path))
+      FileUtils.deleteDirectory(new File(textStep.path))
+    fileExists(textStep.path) should equal(false)
   }
 }

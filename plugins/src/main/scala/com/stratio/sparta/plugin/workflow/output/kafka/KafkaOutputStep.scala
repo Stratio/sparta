@@ -26,7 +26,7 @@ import com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 import org.apache.kafka.clients.producer.ProducerConfig._
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
@@ -38,21 +38,13 @@ import scala.util.Try
 class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) with KafkaBase {
 
-  lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
-  val sparkConf: Map[String, String] = xDSession.conf.getAll
-  val securityOpts: Map[String, AnyRef] =
-    if(tlsEnabled)
-      SecurityHelper.getDataStoreSecurityOptions(sparkConf)
-    else Map.empty
-  
+  lazy val tlsEnabled: Boolean = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
+  lazy val brokerList: Map[String, String] = getHostPort(BOOTSTRAP_SERVERS_CONFIG)
   lazy val keySeparator: String = properties.getString("keySeparator", ",")
   lazy val DefaultProducerPort = "9092"
-  lazy val producerConnectionKey: String = {
-    name + getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultProducerPort)
-      .getOrElse(BOOTSTRAP_SERVERS_CONFIG, throw new Exception("Invalid metadata broker list"))
-  }
+  lazy val producerConnectionKey: String = name + brokerList
   lazy val mandatoryOptions: Map[String, String] = {
-    getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultProducerPort) ++
+    getHostPort(BOOTSTRAP_SERVERS_CONFIG) ++
       Map(
         KEY_SERIALIZER_CLASS_CONFIG -> classOf[StringSerializer].getName,
         VALUE_SERIALIZER_CLASS_CONFIG -> classOf[RowSerializer].getName,
@@ -61,7 +53,28 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
       )
   }
 
+  val sparkConf: Map[String, String] = xDSession.conf.getAll
+  val securityOpts: Map[String, AnyRef] = {
+    if (tlsEnabled)
+      SecurityHelper.getDataStoreSecurityOptions(sparkConf)
+    else Map.empty
+  }
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (brokerList.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name bootstrap servers list can not be empty"
+      )
+
+    validation
+  }
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
+    require(brokerList.nonEmpty, s"The bootstrap servers can not be empty")
+
     val tableName = getTableNameFromOptions(options)
     val partitionKey = options.get(PartitionByKey).notBlank
 
@@ -145,7 +158,7 @@ object KafkaOutput extends SLF4JLogging {
     producers.getOrElse(key, {
       val propertiesProducer = createProducerProps(properties,
         additionalProperties ++ securityOptions.mapValues(_.toString))
-      log.info(s"Creating Kafka Producer with properties:\t$propertiesProducer")
+      log.debug(s"Creating Kafka Producer with properties:\t$propertiesProducer")
       val producer = new KafkaProducer[String, Row](propertiesProducer)
       producers.put(key, producer)
       producer

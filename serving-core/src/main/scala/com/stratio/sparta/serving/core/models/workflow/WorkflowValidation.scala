@@ -16,21 +16,28 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.services.GroupService
+import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.curator.framework.CuratorFramework
+import org.apache.spark.sql.Dataset
+import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.Visitor
 
-case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
+case class WorkflowValidation(valid: Boolean, messages: Seq[String])
+  extends DistributedMonadImplicits with ContextBuilderImplicits {
 
   def this(valid: Boolean) = this(valid, messages = Seq.empty[String])
 
@@ -90,7 +97,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
     if ((workflow.settings.global.executionMode == AppConstant.ConfigMarathon ||
       workflow.settings.global.executionMode == AppConstant.ConfigMesos) &&
       workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isDefined &&
-        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
+      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
       workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble <
         workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble)
       copy(
@@ -134,14 +141,14 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
         valid = false,
         messages = messages :+ s"The Mesos constraints must be two alphanumeric strings separated by a colon"
       )
-    else if(workflow.settings.global.mesosConstraint.notBlank.isDefined &&
+    else if (workflow.settings.global.mesosConstraint.notBlank.isDefined &&
       workflow.settings.global.mesosConstraint.get.toString.contains(":") &&
       workflow.settings.global.mesosConstraint.get.toString.count(_ == ':') > 1)
       copy(
         valid = false,
         messages = messages :+ s"The colon may appear only once in the Mesos constraint definition"
       )
-    else if(workflow.settings.global.mesosConstraint.notBlank.isDefined &&
+    else if (workflow.settings.global.mesosConstraint.notBlank.isDefined &&
       workflow.settings.global.mesosConstraint.get.toString.contains(":") &&
       (workflow.settings.global.mesosConstraint.get.toString.indexOf(":") == 0 ||
         workflow.settings.global.mesosConstraint.get.toString.indexOf(":") ==
@@ -151,6 +158,23 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
         messages = messages :+ s"The colon cannot be situated at the edges of the Mesos constraint definition"
       )
     else this
+  }
+
+  def validatePlugins(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
+    val pluginsValidations = if (workflow.executionEngine == WorkflowExecutionEngine.Streaming && curator.isDefined) {
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, curator.get)
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.validate()
+    } else if (workflow.executionEngine == WorkflowExecutionEngine.Batch && curator.isDefined) {
+      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curator.get)
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.validate()
+    } else Seq.empty
+
+    pluginsValidations.map(errorValidation => WorkflowValidation(errorValidation.valid, errorValidation.messages))
+      .foldLeft(this) { case (lastValidation, newValidation) =>
+        combineWithAnd(lastValidation, newValidation)
+      }
   }
 
   def validateErrorOutputs(implicit workflow: Workflow): WorkflowValidation = {

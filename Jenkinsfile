@@ -85,7 +85,7 @@ hose {
             doStaticAnalysis(config)
         }, DEPLOY: {
             doDeploy(config)
-        }, DOCKER : {    
+        }, DOCKER : {
             doDocker(config)
         }, failFast: config.FAILFAST)
 
