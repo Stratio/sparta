@@ -27,35 +27,39 @@ import org.json4s.{DefaultFormats, Formats}
 
 trait KafkaBase extends SLF4JLogging {
 
-  lazy val DefaultHost = "localhost"
-  lazy val DefaultBrokerPort = "9092"
-  lazy val EmptyOpts = Map.empty[String, AnyRef]
-
   val properties: Map[String, JSerializable]
 
   /** HOSTS and PORT extractions **/
 
-  def getHostPort(key: String): Map[String, String] = {
+  def getBootstrapServers(bootstrapServers: String): Map[String, String] = {
     val connection = try {
-      if (properties.contains(key)) {
+      if (properties.contains(bootstrapServers)) {
         implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
         val hostsPortsModel = read[HostsPortsModel](
-          s"""{"hostsPorts": ${properties.getString(key, None).notBlank.fold("[]") { values => values.toString }}}"""
+          s"""{"hostsPorts": ${properties.getString(bootstrapServers, None)
+            .notBlank.fold("[]") { values => values.toString }}}"""
         )
-        if (hostsPortsModel.hostsPorts.nonEmpty)
+        if (hostsPortsModel.hostsPorts.nonEmpty &&
+          hostsPortsModel.hostsPorts.forall(model => model.host.nonEmpty && model.port.nonEmpty))
           Option(hostsPortsModel.hostsPorts.map(hostHortModel =>
             s"${hostHortModel.host}:${hostHortModel.port}").mkString(",")
           )
-        else None
-      } else None
+        else {
+          log.warn(s"Hosts ports extracted is empty or have incorrect host or port. Model: $hostsPortsModel")
+          None
+        }
+      } else {
+        log.warn(s"The properties do not contain the $bootstrapServers")
+        None
+      }
     } catch {
       case e: Exception =>
-        log.warn(s"Error extracting kafka connection chain, using default values... Error: ${e.getLocalizedMessage}")
+        log.warn(s"Error extracting kafka connection chain. Error: ${e.getLocalizedMessage}")
         None
     }
 
     connection match {
-      case Some(connectionKey) => Map(key -> connectionKey)
+      case Some(connectionKey) => Map(bootstrapServers -> connectionKey)
       case None => Map.empty
     }
   }

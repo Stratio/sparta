@@ -39,12 +39,11 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
   extends OutputStep(name, xDSession, properties) with KafkaBase {
 
   lazy val tlsEnabled: Boolean = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
-  lazy val brokerList: Map[String, String] = getHostPort(BOOTSTRAP_SERVERS_CONFIG)
+  lazy val brokerList: Map[String, String] = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
   lazy val keySeparator: String = properties.getString("keySeparator", ",")
-  lazy val DefaultProducerPort = "9092"
   lazy val producerConnectionKey: String = name + brokerList
   lazy val mandatoryOptions: Map[String, String] = {
-    getHostPort(BOOTSTRAP_SERVERS_CONFIG) ++
+    getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG) ++
       Map(
         KEY_SERIALIZER_CLASS_CONFIG -> classOf[StringSerializer].getName,
         VALUE_SERIALIZER_CLASS_CONFIG -> classOf[RowSerializer].getName,
@@ -66,14 +65,14 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     if (brokerList.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name bootstrap servers list can not be empty"
+        messages = validation.messages :+ s"$name bootstrap server definition is wrong"
       )
 
     validation
   }
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    require(brokerList.nonEmpty, s"The bootstrap servers can not be empty")
+    require(brokerList.nonEmpty, s"The bootstrap server definition is wrong")
 
     val tableName = getTableNameFromOptions(options)
     val partitionKey = options.get(PartitionByKey).notBlank

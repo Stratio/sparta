@@ -41,6 +41,7 @@ import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 import DistributedMonad.Implicits._
+import org.apache.kafka.clients.consumer.ConsumerConfig._
 
 class KafkaInputStepStreaming(
                                name: String,
@@ -54,7 +55,7 @@ class KafkaInputStepStreaming(
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
   lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
-  lazy val brokerList = getHostPort("bootstrap.servers")
+  lazy val brokerList = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
   lazy val serializers = getSerializers
   lazy val topics = extractTopics
   lazy val autoCommit = getAutoCommit
@@ -64,6 +65,10 @@ class KafkaInputStepStreaming(
   lazy val partitionStrategy = getPartitionStrategy
   lazy val offsets = getOffsets
   lazy val locationStrategy = getLocationStrategy
+  lazy val requestTimeoutMs = Try(propertiesWithCustom.getInt(REQUEST_TIMEOUT_MS_CONFIG)).getOrElse(40 * 1000)
+  lazy val heartbeatIntervalMs = Try(propertiesWithCustom.getInt(HEARTBEAT_INTERVAL_MS_CONFIG)).getOrElse(3000)
+  lazy val sessionTimeOutMs = Try(propertiesWithCustom.getInt(SESSION_TIMEOUT_MS_CONFIG)).getOrElse(30000)
+  lazy val fetchMaxWaitMs = Try(propertiesWithCustom.getInt(FETCH_MAX_WAIT_MS_CONFIG)).getOrElse(500)
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -71,12 +76,33 @@ class KafkaInputStepStreaming(
     if (brokerList.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name bootstrap servers list can not be empty"
+        messages = validation.messages :+ s"$name the bootstrap server definition is wrong"
       )
     if (topics.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name the topics can not be empty"
+        messages = validation.messages :+ s"$name the topic cannot be empty"
+      )
+
+    if (heartbeatIntervalMs >= sessionTimeOutMs)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+
+          s"$name the $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG"
+      )
+
+    if (requestTimeoutMs <= sessionTimeOutMs)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+
+          s"$name the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG"
+      )
+
+    if (requestTimeoutMs <= fetchMaxWaitMs)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+
+          s"$name the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG"
       )
 
     validation
@@ -84,7 +110,13 @@ class KafkaInputStepStreaming(
 
   def init(): DistributedMonad[DStream] = {
     require(topics.nonEmpty, s"The topics can not be empty")
-    require(brokerList.nonEmpty, s"The bootstrap servers can not be empty")
+    require(brokerList.nonEmpty, s"The bootstrap server definition is wrong")
+    require(requestTimeoutMs >= sessionTimeOutMs,
+      s"The $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG")
+    require(requestTimeoutMs >= fetchMaxWaitMs,
+      s"The $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG")
+    require(heartbeatIntervalMs <= sessionTimeOutMs,
+      s"The $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG")
 
     val kafkaSecurityOptions = if (tlsEnabled) {
       val securityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
@@ -119,12 +151,17 @@ class KafkaInputStepStreaming(
   /** GROUP ID extractions **/
 
   private[kafka] def getGroupId: Map[String, String] =
-    Map("group.id" -> properties.getString("group.id", s"sparta-${System.currentTimeMillis}"))
+    Map(GROUP_ID_CONFIG -> properties.getString(GROUP_ID_CONFIG, s"sparta-${System.currentTimeMillis}"))
 
   /** TOPICS extractions **/
 
-  private[kafka] def extractTopics: Set[String] =
-    getTopicsPartitions.topics.map(topicPartitionModel => topicPartitionModel.topic).toSet
+  private[kafka] def extractTopics: Set[String] = {
+    val topicsModel = getTopicsPartitions
+
+    if(topicsModel.topics.forall(topicModel => topicModel.topic.nonEmpty))
+      topicsModel.topics.map(topicPartitionModel => topicPartitionModel.topic).toSet
+    else Set.empty[String]
+  }
 
   private[kafka] def getTopicsPartitions: TopicsModel = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -177,11 +214,11 @@ class KafkaInputStepStreaming(
   /** OFFSETS MANAGEMENT **/
 
   private[kafka] def getAutoOffset: Map[String, String] =
-    Map("auto.offset.reset" -> properties.getString("auto.offset.reset", "latest"))
+    Map(AUTO_OFFSET_RESET_CONFIG -> properties.getString(AUTO_OFFSET_RESET_CONFIG, "latest"))
 
   private[kafka] def getAutoCommit: Map[String, java.lang.Boolean] = {
-    val autoCommit = properties.getBoolean("enable.auto.commit", default = false)
-    Map("enable.auto.commit" -> autoCommit)
+    val autoCommit = properties.getBoolean(ENABLE_AUTO_COMMIT_CONFIG, default = false)
+    Map(ENABLE_AUTO_COMMIT_CONFIG -> autoCommit)
   }
 
   private[kafka] def getAutoCommitInKafka: Boolean =
@@ -199,13 +236,13 @@ class KafkaInputStepStreaming(
   /** PARTITION ASSIGNMENT STRATEGY **/
 
   private[kafka] def getPartitionStrategy: Map[String, String] = {
-    val strategy = properties.getString("partition.assignment.strategy", None) match {
+    val strategy = properties.getString(PARTITION_ASSIGNMENT_STRATEGY_CONFIG, None) match {
       case Some("range") => classOf[RangeAssignor].getCanonicalName
       case Some("roundrobin") => classOf[RoundRobinAssignor].getCanonicalName
       case _ => classOf[RangeAssignor].getCanonicalName
     }
 
-    Map("partition.assignment.strategy" -> strategy)
+    Map(PARTITION_ASSIGNMENT_STRATEGY_CONFIG -> strategy)
   }
 }
 
@@ -217,8 +254,12 @@ object KafkaInputStepStreaming {
 
   def getSparkConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     val maxPollTimeout = "spark.streaming.kafka.consumer.poll.ms"
+    val cachedKafkaConsumer = "spark.streaming.kafka.consumer.cache.enabled"
 
-    Seq((maxPollTimeout, configuration.getString(maxPollTimeout, "512")))
+    Seq(
+      (maxPollTimeout, configuration.getString(maxPollTimeout, "512")),
+      (cachedKafkaConsumer, Try(configuration.getBoolean(cachedKafkaConsumer, false)).getOrElse(false).toString)
+    )
   }
 
 }

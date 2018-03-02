@@ -405,6 +405,7 @@
    "_KAFKA_AUTO_OFFSET_": "Auto offset",
    "_KAFKA_ENABLE_AUTOCOMMIT_": "Auto commit",
    "_MAX_POLL_TIMEOUT_": "Spark consumer poll timeout",
+   "_CACHED_CONSUMER_": "Cached consumer",
    "_KAFKA_PROPERTY_KEY_": "Kafka property",
    "_TIME_STAMP_MAPPING_": "Timestamp data format",
    "_KAFKA_PROPERTY_VALUE_": "Value",

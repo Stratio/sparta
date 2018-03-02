@@ -53,7 +53,7 @@ class KafkaBaseTest extends WordSpec with Matchers {
 
       val properties = Map("bootstrap.servers" -> JsoneyString(hosts))
       val input = new KafkaBaseToTest(properties)
-      val result = input.getHostPort("bootstrap.servers")
+      val result = input.getBootstrapServers("bootstrap.servers")
       result should be(Map("bootstrap.servers" -> "kafkaHost:9092,kafkaHost2:9092"))
     }
 
@@ -65,7 +65,7 @@ class KafkaBaseTest extends WordSpec with Matchers {
           |""".stripMargin
       val properties = Map("bootstrap.servers" -> JsoneyString(hosts))
       val input = new KafkaBaseToTest(properties)
-      val result = input.getHostPort("bootstrap.servers")
+      val result = input.getBootstrapServers("bootstrap.servers")
       result should be(Map())
     }
   }

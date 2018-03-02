@@ -260,6 +260,15 @@
           "tooltip": "if the timeout is too low and the Kafka brokers need more time to answer there will be many “TASK FAILED”s, which causes a delay in the preparation of the assigned tasks into the Executors. However, if this timeout is too high the Spark executor wastes a lot of time doing nothing and produces large delays (pollTimeout + task scheduling in the new executor)",
           "qa": "fragment-details-kafka-maxPollTimeout"
        },
+       {
+          "propertyId": "spark.streaming.kafka.consumer.cache.enabled",
+          "propertyName": "_CACHED_CONSUMER_",
+          "propertyType": "boolean",
+          "default": false,
+          "required": true,
+          "tooltip": "Disable the caching for Kafka consumers. Disabling the cache may be needed to workaround the problem described in SPARK-19185",
+          "qa": "fragment-details-kafka-cacheConsumer"
+       },
       {
         "propertyId": "enable.auto.commit",
         "propertyName": "_KAFKA_ENABLE_AUTOCOMMIT_",
