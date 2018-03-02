@@ -38,14 +38,15 @@ export class WorkflowsTableComponent implements OnInit {
 
     @Input() workflowList: Array<any> = [];
     @Input() selectedWorkflowsIds: Array<string> = [];
+    @Input() currentPage = 1;
 
     @Output() onChangeOrder = new EventEmitter<any>();
     @Output() selectWorkflow = new EventEmitter<any>();
     @Output() deselectWorkflow = new EventEmitter<any>();
     @Output() onChangePage = new EventEmitter<any>();
+    @Output() changeCurrentPage = new EventEmitter<number>();
 
     public fields: StTableHeader[];
-    public currentPage = 1;
     public perPage = 20;
     public generatedId: string;
     public perPageOptions: any = [
@@ -74,7 +75,7 @@ export class WorkflowsTableComponent implements OnInit {
     changePage($event: any) {
         this.onChangePage.emit();
         this.perPage = $event.perPage;
-        this.currentPage = $event.currentPage;
+        this.changeCurrentPage.emit($event.currentPage);
     }
 
     showSparkUI(url: string) {

@@ -80,6 +80,7 @@ export class GetMenuTemplatesErrorAction implements Action {
 
 export class ResetWizardAction implements Action {
     readonly type = RESET_WIZARD;
+    constructor(public payload: any) { }
 }
 
 export class ModifyWorkflowAction implements Action {

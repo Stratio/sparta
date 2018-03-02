@@ -61,6 +61,7 @@
 
 .template-link {
    cursor: pointer;
+   white-space: nowrap;
    &:hover {
       color: $action-secondary-07;
       text-decoration: underline;

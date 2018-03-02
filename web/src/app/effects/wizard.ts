@@ -116,7 +116,7 @@ export class WizardEffect {
                 return this.workflowService.updateWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.of(new errorActions.ServerErrorAction(error));
+                    return Observable.from([new errorActions.ServerErrorAction(error), new wizardActions.SaveWorkflowErrorAction('')]);
                 });
             } else {
                 delete workflow.id;
@@ -124,7 +124,7 @@ export class WizardEffect {
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.of(new errorActions.ServerErrorAction(error));
+                    return Observable.from([new errorActions.ServerErrorAction(error), new wizardActions.SaveWorkflowErrorAction('')]);
                 });
             }
 

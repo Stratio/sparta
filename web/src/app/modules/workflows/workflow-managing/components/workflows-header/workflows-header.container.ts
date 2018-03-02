@@ -32,7 +32,6 @@ import { Router } from '@angular/router';
             [selectedVersions]="selectedVersions"
             [selectedVersionsData]="selectedVersionsData$ | async"
             [selectedGroupsList]="selectedGroupsList"
-            [workflowVersions]="workflowVersions$ | async"
             [versionsListMode]="versionsListMode"
             [showDetails]="showDetails"
             [levelOptions]="levelOptions"

@@ -47,6 +47,8 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     @Input() isNodeSelected = false;
     @Input() selectedSegment: any;
+    @Input() workflowName = '';
+    @Input() workflowVersion = 0;
 
     @ViewChild('titleFocus') titleElement: any;
     @ViewChild('nameForm') public nameForm: NgForm;
@@ -55,8 +57,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public workflowNamePattern = '^[a-z0-9-]*$';
     public isShowedEntityDetails$: Observable<boolean>;
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
-    public workflowName = '';
-    public workflowVersion = 0;
+    public isLoading$: Observable<boolean>;
     public showErrors = false;
     public workflowType = '';
 
@@ -79,7 +80,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         },
 
     ];
-    private _nameSubscription: Subscription;
     private _validationSubscription: Subscription;
     private _areUndoRedoEnabledSubscription: Subscription;
     private _isPristineSubscription: Subscription;
@@ -92,10 +92,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._modalService.container = this.target;
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails).distinctUntilChanged();
-        this._nameSubscription = this.store.select(fromRoot.getWorkflowHeaderData).subscribe((data: any) => {
-            this.workflowName = data.name;
-            this.workflowVersion = data.version;
-        });
+        this.isLoading$ = this.store.select(fromRoot.isLoading);
 
         this._areUndoRedoEnabledSubscription = this.store.select(fromRoot.areUndoRedoEnabled).subscribe((actions: any) => {
             this.undoEnabled = actions.undo;
@@ -180,7 +177,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this._nameSubscription && this._nameSubscription.unsubscribe();
         this._areUndoRedoEnabledSubscription && this._areUndoRedoEnabledSubscription.unsubscribe();
         this._validationSubscription && this._validationSubscription.unsubscribe();
         this._isPristineSubscription && this._isPristineSubscription.unsubscribe();

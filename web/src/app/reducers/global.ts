@@ -19,18 +19,21 @@ import * as userActions from 'actions/user';
 export interface State {
     userName: string;
     editFromMonitoring: boolean;
+    xDSparkUi: string;
 }
 
 const initialState: State = {
     userName: '',
-    editFromMonitoring: false
+    editFromMonitoring: false,
+    xDSparkUi: ''
 };
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case userActions.GET_USER_PROFILE_COMPLETE: {
             return Object.assign({}, state, {
-                userName: action.payload.userName
+                userName: action.payload.userName,
+                xDSparkUi: action.payload.xDSparkUi
             });
         }
         case userActions.SET_EDIT_MONITORING_MODE: {
@@ -45,3 +48,4 @@ export function reducer(state: State = initialState, action: any): State {
 
 export const getUsername: any = (state: State) => state.userName;
 export const getEditMonitoringMode: any = (state: State) => state.editFromMonitoring;
+export const getSparkUILink: any = (state: State) => state.xDSparkUi;

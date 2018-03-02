@@ -88,9 +88,11 @@ export const areUndoRedoEnabled: any = createSelector(getWizardState, fromWizard
 export const getValidationErrors: any = createSelector(getWizardState, fromWizard.getValidationErrors);
 export const isPristine: any = createSelector(getWizardState, fromWizard.isPristine);
 export const getWorkflowType: any = createSelector(getWizardState, fromWizard.getWorkflowType);
+export const isLoading: any = createSelector(getWizardState, fromWizard.isLoading);
 export const getWorkflowHeaderData: any = createSelector(getWizardState, fromWizard.getWorkflowHeaderData);
 export const getValidatedEntityName: any = createSelector(getWizardState, fromWizard.getValidatedEntityName);
 export const getErrorsManagementOutputs: any = createSelector(getWizardState, fromWizard.getErrorsManagementOutputs);
 
 // user
 export const getUsername: any = createSelector(getUserState, fromGlobal.getUsername);
+export const getSparkUILink: any = createSelector(getUserState, fromGlobal.getSparkUILink);

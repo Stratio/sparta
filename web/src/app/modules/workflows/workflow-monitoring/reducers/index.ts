@@ -47,3 +47,4 @@ export const getExecutionInfo: any = createSelector(getWorkflowsEntityState, fro
 export const getJsonValidationErrors: any = createSelector(getWorkflowsEntityState, (state) => state.jsonValidationError);
 export const getMonitoringStatus: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getMonitoringStatus);
 export const getSelectedFilter: any = createSelector(getWorkflowsEntityState, (state) => state.currentFilterStatus);
+export const getPaginationNumber: any = createSelector(getWorkflowsEntityState, (state) => state.currentPage);

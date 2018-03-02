@@ -84,8 +84,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     private creationMode: any;
     private newOrigin = '';
 
+    public workflowName = '';
+    public workflowVersion = '';
+
     private zoom: ZoomBehavior<any, any>;
     private drag: DragBehavior<any, any, any>;
+    private _nameSubscription: Subscription;
 
     @ViewChild('editorArea') editorArea: ElementRef;
     @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
@@ -113,12 +117,17 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     }
 
     constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService,
-     private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>,
-        private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) { 
-            this.isMobile = isMobile;
-        }
+        private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>,
+        private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) {
+        this.isMobile = isMobile;
+    }
 
     ngOnInit(): void {
+
+        this._nameSubscription = this.store.select(fromRoot.getWorkflowHeaderData).subscribe((data: any) => {
+            this.workflowName = data.name;
+            this.workflowVersion = data.version;
+        });
         this.creationModeSubscription = this.store.select(fromRoot.isCreationMode).subscribe((data) => { this.creationMode = data; });
         this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData)
             .subscribe((data) => { this.entitiesData = data; });
@@ -174,14 +183,15 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                         offsetX: event.x,
                         offsetY: event.y
                     };
-                    this.clickDetected.call(this, position)}));
+                    this.clickDetected.call(this, position);
+                }));
 
             let lastUpdateCall: any;
             this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
                 const e: any = d3.event;
                 if (pristine) {
                     if (repaints < 2) {
-                        repaints ++;
+                        repaints++;
                     } else {
                         if (this.entities.length) {
                             pristine = false;
@@ -199,7 +209,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             })).on('dblclick.zoom', null);
 
 
-         });
+        });
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
             this.svgPosition = position;
@@ -254,14 +264,14 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 name: event.name
             };
             const w = this.documentRef
-            .on('click', () => {
-                w.on('click', null).on('click', null);
-                this.newOrigin = '';
-                event.event.target.classList.remove('over-output2');
-                this.drawingConnectionStatus = {
-                    status: false
-                };
-            });
+                .on('click', () => {
+                    w.on('click', null).on('click', null);
+                    this.newOrigin = '';
+                    event.event.target.classList.remove('over-output2');
+                    this.drawingConnectionStatus = {
+                        status: false
+                    };
+                });
         } else {
             this.drawConnector(event);
         }
@@ -331,7 +341,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         const svgHeight = svgParent.height;
         const translateX = ((svgWidth - containerWidth) / 2 - container.left) / this.svgPosition.k;
         const translateY = ((svgHeight - containerHeight) / 2 - container.top) / this.svgPosition.k;
-        this.SVGParent.call(this.zoom.translateBy, translateX, translateY + 127 / this.svgPosition.k);
+        this.SVGParent.call(this.zoom.translateBy, translateX, translateY + 135 / this.svgPosition.k);
     }
 
     selectEntity(entity: any) {
@@ -414,5 +424,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
         this.getSeletedEntitiesDataSubscription && this.getSeletedEntitiesDataSubscription.unsubscribe();
         this.selectedSegmentSubscription && this.selectedSegmentSubscription.unsubscribe();
+        this._nameSubscription && this._nameSubscription.unsubscribe();
+
     }
 }

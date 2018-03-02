@@ -1,5 +1,14 @@
 @import '~@stratio/egeo/theme/constants';
 $cloudy-black: #cdd6df;
+
+.wizard-header {
+    position:relative;
+    .loading-bar{
+        position:absolute;
+        z-index:1;
+        bottom:0;
+    }
+}
 .title-header {
    background-color: white;
    border-bottom: 1px solid $cloudy-black;

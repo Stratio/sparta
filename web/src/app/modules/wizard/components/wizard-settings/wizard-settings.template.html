@@ -18,10 +18,15 @@
                      class="advanced-settings" *ngIf="advancedSettings.length">
                      <div>
                         <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>
-                        <div class="row">
+                        <div class="row">   
                            <div class="col-sm-6">
-                              <st-tag-input class="st-form-field tag-input" name="tag-input-reactive" [label]="'Version tags'" [id]="'tag-input-reactive'"
-                                 [(ngModel)]="tags" [placeholder]="'Add tags separated by commas'" [tooltip]="'This is a Tag Input component tooltip'">
+                              <st-tag-input class="st-form-field tag-input" 
+                                name="tag-input-reactive" 
+                                [label]="'Version tags'" 
+                                [id]="'tag-input-reactive'"
+                                [(ngModel)]="tags" 
+                                [placeholder]="'Add tags separated by commas'"
+                                [tooltip]="'This is a Tag Input component tooltip'">
                               </st-tag-input>
                            </div>
                         </div>

@@ -14,9 +14,13 @@
 /// limitations under the License.
 ///
 
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Store } from '@ngrx/store';
 
 import { BreadcrumbMenuService } from 'services';
+import { CrossdataTables } from './components/crossdata-tables/crossdata-tables.component';
+import * as fromRoot from 'reducers';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'crossdata',
@@ -25,6 +29,9 @@ import { BreadcrumbMenuService } from 'services';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrossdataComponent {
+
+    public sparkUILink$: Observable<string>;
+    @ViewChild(CrossdataTables) crossdataTablesChild;
 
     public options: Array<any> = [
         {
@@ -44,12 +51,22 @@ export class CrossdataComponent {
     public breadcrumbOptions: Array<any>;
 
 
-    public onChangedOption(event: string) {
+    public onChangedOption(event: any) {
+        if (event.id === 'catalog') {
+            this.crossdataTablesChild.reloadDatabases();
+        }
         this.activeMenuOption = event;
         this._cd.markForCheck();
     }
 
-    constructor(public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef) {
-        this.breadcrumbOptions = breadcrumbMenuService.getOptions();
+    public openSparkUI() {
+        this.sparkUILink$.take(1).subscribe((uiLink: string) => window.open(uiLink, '_blank'));
     }
+
+    constructor(public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef,
+        private _store: Store<fromRoot.State>) {
+        this.breadcrumbOptions = breadcrumbMenuService.getOptions();
+        this.sparkUILink$ = this._store.select(fromRoot.getSparkUILink);
+    }
+
 }

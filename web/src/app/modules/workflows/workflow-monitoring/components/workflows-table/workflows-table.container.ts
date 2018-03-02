@@ -19,33 +19,43 @@ import {
     Component,
     EventEmitter,
     Input,
-    Output
+    Output,
+    OnInit
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { StModalService } from '@stratio/egeo';
+import { Observable } from 'rxjs/Rx';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State } from './../../reducers';
+import { State, getPaginationNumber } from './../../reducers';
 
 @Component({
     selector: 'workflows-table-container',
     template: `
         <workflows-table [workflowList]="workflowList"
             [selectedWorkflowsIds]="selectedWorkflowsIds"
+            [currentPage]="currentPage$ | async"
             (onChangeOrder)="changeOrder($event)"
             (onChangePage)="changePage()"
+            (changeCurrentPage)="changeCurrentPage($event)"
             (selectWorkflow)="selectWorkflow($event)"
             (deselectWorkflow)="deselectWorkflow($event)"></workflows-table>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class WorkflowsTableContainer {
+export class WorkflowsTableContainer implements OnInit {
 
     @Input() selectedWorkflowsIds: Array<string> = [];
     @Input() workflowList: Array<any> = [];
 
     @Output() showWorkflowInfo = new EventEmitter<void>();
+
+    public currentPage$: Observable<number>;
+
+    ngOnInit(): void {
+        this.currentPage$ = this._store.select(getPaginationNumber);
+    }
 
     changeOrder(event: any) {
         this._store.dispatch(new workflowActions.ChangeOrderAction(event));
@@ -56,11 +66,15 @@ export class WorkflowsTableContainer {
     }
 
     deselectWorkflow(event: any) {
-         this._store.dispatch(new workflowActions.DeselectWorkflowAction(event));
+        this._store.dispatch(new workflowActions.DeselectWorkflowAction(event));
     }
 
     changePage() {
         this._store.dispatch(new workflowActions.ResetSelectionAction());
+    }
+
+    changeCurrentPage(page: number) {
+        this._store.dispatch(new workflowActions.SetPaginationNumber(page));
     }
 
     constructor(private _store: Store<State>, private _modalService: StModalService) { }

@@ -53,13 +53,16 @@ export class WizardComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _wizardService: WizardService,
         private _location: Location) {
-
-        this._store.dispatch(new wizardActions.ResetWizardAction()); // Reset wizard to default settings
-        const type = this._route.snapshot.params.type === 'streaming' ? 'Streaming' : 'Batch';
         const id = this._route.snapshot.params.id;
 
         if (id && id.length) {
             this.isEdit = true;
+        }
+
+        this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit)); // Reset wizard to default settings
+        const type = this._route.snapshot.params.type === 'streaming' ? 'Streaming' : 'Batch';
+
+        if (this.isEdit) {
             this._store.dispatch(new wizardActions.ModifyWorkflowAction(id));
         } else {
             this._wizardService.workflowType = type;
@@ -77,7 +80,7 @@ export class WizardComponent implements OnInit, OnDestroy {
         this.creationMode$ = this._store.select(fromRoot.isCreationMode);               // show create node pointer icon
         this.editionConfigMode$ = this._store.select(fromRoot.getEditionConfigMode);    // show node/settings editor view
         this.showSettings$ = this._store.select(fromRoot.showSettings);
-        this._saveSubscription = this._store.select(fromRoot.isSavedWorkflow).subscribe((isSaved: boolean) => {
+        /* this._saveSubscription = this._store.select(fromRoot.isSavedWorkflow).subscribe((isSaved: boolean) => {
             if (isSaved) {
                 if (window.history.length > 2) {
                     this._location.back();
@@ -85,7 +88,7 @@ export class WizardComponent implements OnInit, OnDestroy {
                     this._router.navigate(['workflow-managing']);
                 }
             }
-        });
+        });*/
     }
 
     ngOnDestroy(): void {

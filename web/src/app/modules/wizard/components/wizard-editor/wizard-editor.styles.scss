@@ -3,6 +3,8 @@
    bottom: 0;
    height: calc(100% - 135px);
    width: 100%;
+      background-image: url('../../../../../assets/images/workflow-base.png');
+   background-position: 11px 8px;
 }
 
 .composition {
@@ -12,8 +14,11 @@
    position: absolute;
    top: 0;
    left: 0;
-   background-image: url('../../../../../assets/images/workflow-base.png');
-   background-position: 11px 8px;
+   opacity:0;
+   transition: opacity 0.35s;
+   &.loaded {
+       opacity:1;
+   }
 }
 
 .wizard-header {

@@ -3,7 +3,7 @@
       <div class="container">
          <div class="row">
             <div class="col-sm-12">
-               <div class="header-info">
+               <div class="header-info" *ngIf="workflowName.length">
                   <span class="icon icon-infinite workflow-type" *ngIf="workflowType === 'Streaming'"></span>
                   <span class="icon icon-channel workflow-type" *ngIf="workflowType === 'Batch'"></span>
                   <div class="workflow-name-container">
@@ -120,4 +120,5 @@
          </div>
       </div>
    </div>
+   <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
 </div>

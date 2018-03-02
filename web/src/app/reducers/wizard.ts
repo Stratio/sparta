@@ -23,10 +23,12 @@ import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 
 export interface State {
+    editionMode: boolean;
     workflowId: string;
     workflowGroup: string;
     workflowVersion: string;
     workflowType: string;
+    loading: boolean;
     nodes: Array<any>;
     edges: Array<any>;
     redoStates: any;
@@ -54,10 +56,12 @@ export interface State {
 const defaultSettings = InitializeSchemaService.setDefaultWorkflowSettings(settingsTemplate);
 
 const initialState: State = {
+    editionMode: false,
     workflowId: '',
     workflowGroup: '',
     workflowType: '',
     workflowVersion: '0',
+    loading: true,
     settings: Object.assign({}, defaultSettings),
     svgPosition: {
         x: 0,
@@ -118,14 +122,24 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case wizardActions.RESET_WIZARD: {
-            return Object.assign({}, initialState)
+            return action.payload ? {
+                ...initialState,
+                settings: {
+                    ...initialState.settings,
+                    basic: {
+                        ...initialState.settings.basic,
+                        name: ''
+                    }
+                }
+            } : initialState;
         }
         case wizardActions.SELECTED_CREATION_ENTITY: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 selectedCreationEntity: action.payload,
                 entityNameValidation: false,
                 entityCreationMode: true
-            });
+            };
         }
         case wizardActions.DESELECTED_CREATION_ENTITY: {
             return Object.assign({}, state, {
@@ -162,7 +176,6 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.DELETE_NODE_RELATION: {
-
             return Object.assign({}, state, {
                 edges: state.edges.filter((edge: any) => {
                     return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
@@ -285,6 +298,7 @@ export function reducer(state: State = initialState, action: any): State {
         case wizardActions.MODIFY_WORKFLOW_COMPLETE: {
             const workflow = action.payload;
             return Object.assign({}, state, {
+                loading: false,
                 svgPosition: workflow.uiSettings.position,
                 nodes: workflow.pipelineGraph.nodes,
                 edges: workflow.pipelineGraph.edges,
@@ -301,15 +315,27 @@ export function reducer(state: State = initialState, action: any): State {
                 }
             });
         }
+        case wizardActions.SAVE_WORKFLOW: {
+            return Object.assign({}, state, {
+                loading: true
+            });
+        }
         case wizardActions.SAVE_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
-                savedWorkflow: true
+                savedWorkflow: true,
+                pristineWorkflow: true,
+                loading: false
+            });
+        }
+        case wizardActions.SAVE_WORKFLOW_ERROR: {
+            return Object.assign({}, state, {
+                loading: false
             });
         }
         case wizardActions.GET_MENU_TEMPLATES_COMPLETE: {
             const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
             menuOptions[0].subMenus[0].subMenus = action.payload.input.filter((input: any) =>
-                input.supportedEngines.indexOf(state.workflowType) > -1)
+                input.executionEngine === state.workflowType)
                 .map((template: any) => {
                     return {
                         name: template.name,
@@ -319,7 +345,7 @@ export function reducer(state: State = initialState, action: any): State {
                     };
                 });
             menuOptions[2].subMenus[0].subMenus = action.payload.output.filter((output: any) =>
-                output.supportedEngines.indexOf(state.workflowType) > -1)
+                output.executionEngine === state.workflowType)
                 .map((template: any) => {
                     return {
                         name: template.name,
@@ -329,7 +355,7 @@ export function reducer(state: State = initialState, action: any): State {
                     };
                 });
             menuOptions[1].subMenus[0].subMenus = action.payload.transformation.filter((transformation: any) =>
-                transformation.supportedEngines.indexOf(state.workflowType) > -1)
+                transformation.executionEngine === state.workflowType)
                 .map((template: any) => {
                     return {
                         name: template.name,
@@ -397,6 +423,7 @@ export function reducer(state: State = initialState, action: any): State {
             const menuOptions = JSON.parse(JSON.stringify(state.menuOptions));
             return Object.assign({}, state, {
                 workflowType: action.payload,
+                loading: false,
                 menuOptions: menuOptions.map((option: any) => {
                     switch (option.name) {
                         case 'Input':
@@ -439,7 +466,7 @@ function getUndoState(state: any) {
     const undoState: any = {
         nodes: JSON.parse(JSON.stringify(state.nodes)),
         edges: JSON.parse(JSON.stringify(state.edges))
-    }
+    };
     return [undoState, ...state.undoStates.filter((value: any, index: number) => {
         return index < 4;
     })];
@@ -449,7 +476,7 @@ function getRedoState(state: any) {
     const redoState: any = {
         nodes: JSON.parse(JSON.stringify(state.nodes)),
         edges: JSON.parse(JSON.stringify(state.edges))
-    }
+    };
     return [redoState, ...state.redoStates.filter((value: any, index: number) => {
         return index < 4;
     })];
@@ -467,7 +494,7 @@ export const getMenuOptions: any = (state: State) => {
                 if (!type.subMenus && type.name.toLowerCase().indexOf(matchString) != -1) {
                     options.push(Object.assign({}, type, {
                         icon: icon
-                    }))
+                    }));
                 }
             });
             menu = menu.concat(options);
@@ -481,6 +508,7 @@ export const getMenuOptions: any = (state: State) => {
 export const getSelectedEntities: any = (state: State) => state.selectedEntity;
 export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => node.name === state.selectedEntity);
 export const isPristine: any = (state: State) => state.pristineWorkflow;
+export const isLoading: any = (state: State) => state.loading;
 export const isShowedEntityDetails: any = (state: State) => state.showEntityDetails;
 export const showSettings: any = (state: State) => state.showSettings;
 export const getWorkflowRelations: any = (state: State) => state.edges;
@@ -524,4 +552,3 @@ export const getErrorsManagementOutputs: any = (state: State) => state.nodes.red
     }
     return filtered;
 }, []);
-

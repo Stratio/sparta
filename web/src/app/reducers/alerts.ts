@@ -349,11 +349,11 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case wizardActions.SAVE_WORKFLOW_ERROR: {
             return Object.assign({}, state, {
-                currentAlert: [{
+                currentAlert: action.payload.title ? [{
                     type: STALERT_SEVERITY.ERROR,
                     title: action.payload.title ? action.payload.title : 'ERROR',
                     description: action.payload.description ? action.payload.description : (action.payload.exception ? action.payload.exception : 'SERVER_ERROR')
-                }]
+                }] : []
             });
         }
         case environmentActions.SAVE_ENVIRONMENT: {

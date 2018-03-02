@@ -48,7 +48,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     @Input() selectedWorkflows: Array<string>;
     @Input() selectedVersions: Array<string>;
     @Input() selectedVersionsData: Array<any>;
-    @Input() workflowVersions: Array<any>;
     @Input() selectedGroupsList: Array<string>;
     @Input() showDetails = false;
     @Input() levelOptions: Array<string>;

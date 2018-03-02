@@ -53,6 +53,7 @@ export const RESET_JSON_MODAL = '[Workflow] Reset JSON Modal';
 export const CHANGE_FILTER = '[Workflow] Change filter';
 export const SEARCH_WORKFLOWS = '[Workflow] Search workflow';
 export const RESET_SELECTION = '[Workflow] Reset selection';
+export const SET_PAGINATION_NUMBER = '[Workflow] Set pagination number';
 
 export class ListWorkflowAction implements Action {
   readonly type = LIST_WORKFLOW;
@@ -249,6 +250,11 @@ export class ResetSelectionAction implements Action {
   readonly type = RESET_SELECTION;
 }
 
+export class SetPaginationNumber implements Action {
+  readonly type = SET_PAGINATION_NUMBER;
+  constructor(public payload: any) {}
+}
+
 export type Actions =
   ListWorkflowAction |
   ListWorkflowFailAction |
@@ -281,4 +287,5 @@ export type Actions =
   ChangeFilterAction |
   ResetJSONModal |
   SearchWorkflowsAction |
-  ResetSelectionAction;
+  ResetSelectionAction |
+  SetPaginationNumber;

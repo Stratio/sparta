@@ -1,17 +1,20 @@
 <section [ngClass]="{'mobile' : isMobile}">
    <wizard-header class="wizard-header" 
       (onZoomIn)="changeZoom(true)" 
-      [isNodeSelected]="selectedEntity && selectedEntity.length" 
+      [isNodeSelected]="selectedEntity && selectedEntity.length"
+      [workflowName]="workflowName"
+      [workflowVersion]="workflowVersion"
       [selectedSegment]="selectedSegment"
       (onZoomOut)="changeZoom(false)" 
-      (onCenter)="centerWorkflow()" 
+      (onCenter)="centerWorkflow()"
       (onShowSettings)="showSettings()" 
       (onSaveWorkflow)="saveWorkflow()"
       (onEditEntity)="editButtonEntity()"
       (onDuplicateNode)="duplicateNode()"
       (deleteSelection)="deleteSelection()"></wizard-header>
+
    <div class="editor">
-      <svg id="composition" class="composition" (click)="clickDetected($event)" #editorArea>
+      <svg id="composition" class="composition" (click)="clickDetected($event)" [ngClass]="{'loaded' : workflowName.length}" #editorArea>
          <svg:g id="svg-container">
             <g *ngFor="let relation of workflowRelations; trackBy: trackBySegmentFn; let i=index;" 
                wizard-edge
