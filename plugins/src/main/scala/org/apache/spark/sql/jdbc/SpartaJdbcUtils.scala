@@ -358,8 +358,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
     try {
       if (supportsTransactions){
-        conn.setAutoCommit(false)
-        conn.setTransactionIsolation(finalIsolationLevel)
+        if(conn.getAutoCommit)
+          conn.setAutoCommit(false)
+        if(conn.getTransactionIsolation != finalIsolationLevel)
+          conn.setTransactionIsolation(finalIsolationLevel)
       }
       val stmt = conn.prepareStatement(insertStmt)
       val setters = rddSchema.fields.map(f => makeSetter(conn, dialect, f.dataType))
@@ -416,7 +418,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
         throw e
     } finally {
       if (!committed) {
-        if (supportsTransactions) conn.rollback()
+        if (supportsTransactions && !conn.getAutoCommit) {
+          log.warn(s"Transaction not succeeded, rollback it")
+          conn.rollback()
+        }
       }
     }
   }
@@ -462,7 +467,12 @@ object SpartaJdbcUtils extends SLF4JLogging {
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
 
     try {
-      if (supportsTransactions) conn.setAutoCommit(false)
+      if (supportsTransactions){
+        if(conn.getAutoCommit)
+          conn.setAutoCommit(false)
+        if(conn.getTransactionIsolation != finalIsolationLevel)
+          conn.setTransactionIsolation(finalIsolationLevel)
+      }
       val insertStmt = if(insertSql.nonEmpty) Option(conn.prepareStatement(insertSql)) else None
       val updateStmt = if(updateSql.nonEmpty) Option(conn.prepareStatement(updateSql)) else None
       try {
@@ -519,7 +529,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
         if (supportsTransactions) conn.commit()
       } catch {
         case e: Exception =>
-          if (supportsTransactions) {
+          if (supportsTransactions && !conn.getAutoCommit){
             log.warn(s"Transaction not succeeded, rollback it. ${e.getLocalizedMessage}")
             conn.rollback()
           }

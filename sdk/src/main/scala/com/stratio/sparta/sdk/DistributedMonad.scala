@@ -179,13 +179,13 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
   //scalastyle:off
 
   protected def writeRDDTemplate(
-                        rdd: RDD[Row],
-                        outputOptions: OutputOptions,
-                        errorsManagement: ErrorsManagement,
-                        errorOutputs: Seq[OutputStep[Underlying]],
-                        predecessors: Seq[String],
-                        save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
-                      ): Unit = {
+                                  rdd: RDD[Row],
+                                  outputOptions: OutputOptions,
+                                  errorsManagement: ErrorsManagement,
+                                  errorOutputs: Seq[OutputStep[Underlying]],
+                                  predecessors: Seq[String],
+                                  save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
+                                ): Unit = {
     Try {
       if (!rdd.isEmpty()) {
         val schema = rdd.first().schema
@@ -206,17 +206,18 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
           }
           val currentDate = new Timestamp(Calendar.getInstance().getTimeInMillis)
 
-          if (sendInputData)
+          if (sendInputData && outputsToSend.nonEmpty)
             redirectDependencies(
               RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
               Seq(InputStep.StepType)
             )
-          if (sendPredecessorsData)
+          if (sendPredecessorsData && outputsToSend.nonEmpty)
             redirectDependencies(
               RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
               predecessors
             )
-          if (sendStepData && Option(rdd.name).notBlank.isDefined && rdd.name != processedKey && !rdd.isEmpty())
+          if (sendStepData && outputsToSend.nonEmpty && Option(rdd.name).notBlank.isDefined &&
+            rdd.name != processedKey && !rdd.isEmpty())
             redirectToOutput(
               RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
               Map(TableNameKey -> outputOptions.errorTableName.getOrElse(outputOptions.tableName))

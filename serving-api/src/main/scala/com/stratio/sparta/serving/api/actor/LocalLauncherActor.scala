@@ -23,6 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowStatusEnum}
@@ -75,6 +76,13 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
           status = WorkflowStatusEnum.Finished,
           statusInfo = Some(information)
         ))
+        self ! PoisonPill
+      case Failure(_: ErrorManagerException) =>
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = WorkflowStatusEnum.Failed
+        ))
+        SparkContextFactory.stopSparkContext()
         self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating the workflow"

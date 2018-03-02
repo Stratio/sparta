@@ -96,7 +96,7 @@
           "propertyName": "_OUTPUT_FIELD_",
           "propertyType": "text",
           "default": "{{DEFAULT_OUTPUT_FIELD}}",
-          "required": true,
+          "required": false,
           "visible": [
              [
                 {

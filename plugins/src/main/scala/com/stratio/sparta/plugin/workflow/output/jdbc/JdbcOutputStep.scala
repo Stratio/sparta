@@ -80,28 +80,35 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
       }
     } match {
       case Success(tableExists) =>
-        if (tableExists) {
-          if (saveMode == SaveModeEnum.Upsert) {
-            val updateFields = getPrimaryKeyOptions(options) match {
-              case Some(pk) => pk.split(",").toSeq
-              case None => Seq.empty[String]
+        try {
+          if (tableExists) {
+            if (saveMode == SaveModeEnum.Upsert) {
+              val updateFields = getPrimaryKeyOptions(options) match {
+                case Some(pk) => pk.split(",").toSeq
+                case None => Seq.empty[String]
+              }
+
+              require(updateFields.nonEmpty, "The primary key fields must be provided")
+
+              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
             }
 
-            require(updateFields.nonEmpty, "The primary key fields must be provided")
+            if (saveMode == SaveModeEnum.Ignore) return
 
-            SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
-          }
+            if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
 
-          if (saveMode == SaveModeEnum.Ignore) return
-
-          if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
-
-          if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
-            SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
-        } else log.warn(s"Table not created: $tableName")
+            if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
+              SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
+          } else log.warn(s"Table not created: $tableName")
+        } catch {
+          case e: Exception =>
+            closeConnection(name)
+            log.error(s"Error saving data into table $tableName with Error: ${e.getLocalizedMessage}")
+            throw e
+        }
       case Failure(e) =>
         closeConnection(name)
-        log.error(s"Error creating/dropping table $tableName", e)
+        log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
         throw e
     }
   }

@@ -53,9 +53,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
-    if(url.isEmpty)
+    if (url.isEmpty)
       validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name url must be provided")
-    if(tlsEnable && securityUri.isEmpty)
+    if (tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name when TLS is enable the sparkConf must contain the security options"
@@ -67,6 +67,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
 
+  //scalastyle:off
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "Postgres url must be provided")
     validateSaveMode(saveMode)
@@ -86,38 +87,47 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       }
     } match {
       case Success(tableExists) =>
-        if (tableExists) {
-          if (saveMode == SaveModeEnum.Upsert) {
-            val updateFields = getPrimaryKeyOptions(options) match {
-              case Some(pk) => pk.split(",").toSeq
-              case None => Seq.empty[String]
-            }
-
-            require(updateFields.nonEmpty, "The primary key fields must be provided")
-
-            SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
-          } else {
-            if (postgresSaveMode == PostgresSaveMode.COPYIN) {
-              dataFrame.foreachPartition { rows =>
-                val conn = getConnection(connectionProperties, name)
-                val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-
-                cm.copyIn(
-                  s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
-                  rowsToInputStream(rows)
-                )
+        try {
+          if (tableExists) {
+            if (saveMode == SaveModeEnum.Upsert) {
+              val updateFields = getPrimaryKeyOptions(options) match {
+                case Some(pk) => pk.split(",").toSeq
+                case None => Seq.empty[String]
               }
+
+              require(updateFields.nonEmpty, "The primary key fields must be provided")
+
+              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
             } else {
-              SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
+              if (postgresSaveMode == PostgresSaveMode.COPYIN) {
+                dataFrame.foreachPartition { rows =>
+                  val conn = getConnection(connectionProperties, name)
+                  val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+
+                  cm.copyIn(
+                    s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
+                    rowsToInputStream(rows)
+                  )
+                }
+              } else {
+                SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
+              }
             }
-          }
-        } else log.warn(s"Table not created in Postgres: $tableName")
+          } else log.warn(s"Table not created in Postgres: $tableName")
+        } catch {
+          case e: Exception =>
+            closeConnection(name)
+            log.error(s"Error saving data into Postgres table $tableName with Error: ${e.getLocalizedMessage}")
+            throw e
+        }
       case Failure(e) =>
         closeConnection(name)
-        log.error(s"Error creating/dropping table $tableName", e)
+        log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
         throw e
     }
   }
+
+  //scalastyle:on
 
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
     val bytes: Iterator[Byte] = rows.flatMap { row =>

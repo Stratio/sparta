@@ -79,7 +79,7 @@
           "propertyId": "offsetFields",
           "propertyName": "_OFFSET_FIELDS_",
           "propertyType": "list",
-          "required": true,
+          "required": false,
           "tooltip": " Specify a list of fields to format into Datetime",
           "qa": "fragment-details-datetime-fields",
           "fields": [
@@ -145,7 +145,7 @@
           }
         ],
         "default": "MEMORY",
-        "required": true,
+        "required": false,
         "tooltip": "Location where the offsets are saved",
         "qa": "fragment-details-crossdata-offsetLocation"
       },
