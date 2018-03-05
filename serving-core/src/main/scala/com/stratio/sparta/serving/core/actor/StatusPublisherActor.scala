@@ -42,9 +42,9 @@ class StatusPublisherActor(curatorFramework: CuratorFramework) extends Actor wit
         } foreach { status =>
           event.getType match {
             case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
-              self ! WorkflowStatusChange(event.getData.getPath, status)
+              self ! StatusChange(event.getData.getPath, status)
             case Type.CHILD_REMOVED =>
-              self ! WorkflowStatusRemove(event.getData.getPath, status)
+              self ! StatusRemove(event.getData.getPath, status)
             case _ => {}
           }
         }
@@ -60,9 +60,9 @@ class StatusPublisherActor(curatorFramework: CuratorFramework) extends Actor wit
     pathCache.foreach(_.close())
 
   override def receive: Receive = {
-    case cd: WorkflowStatusChange =>
+    case cd: StatusChange =>
       context.system.eventStream.publish(cd)
-    case cd: WorkflowStatusRemove =>
+    case cd: StatusRemove =>
       context.system.eventStream.publish(cd)
     case _ =>
       log.debug("Unrecognized message in Workflow Status Publisher Actor")
@@ -75,8 +75,8 @@ object StatusPublisherActor {
 
   trait Notification
 
-  case class WorkflowStatusChange(path: String, workflowStatus: WorkflowStatus) extends Notification
+  case class StatusChange(path: String, workflowStatus: WorkflowStatus) extends Notification
 
-  case class WorkflowStatusRemove(path: String, workflowStatus: WorkflowStatus) extends Notification
+  case class StatusRemove(path: String, workflowStatus: WorkflowStatus) extends Notification
 
 }

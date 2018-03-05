@@ -21,7 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
-import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._

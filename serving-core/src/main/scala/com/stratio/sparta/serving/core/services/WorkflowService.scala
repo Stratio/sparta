@@ -168,26 +168,28 @@ class WorkflowService(
   }
 
   def createVersion(workflowVersion: WorkflowVersion): Workflow = {
-    log.debug(s"Creating workflow version $workflowVersion")
-    existsById(workflowVersion.id) match {
-      case Some(workflow) =>
-        val workflowWithVersionFields = workflow.copy(
-          tags = workflowVersion.tags,
-          group = workflowVersion.group.getOrElse(workflow.group)
-        )
-        val workflowWithFields = addCreationDate(incVersion(addId(workflowWithVersionFields, force = true)))
+    synchronized {
+      log.debug(s"Creating workflow version $workflowVersion")
+      existsById(workflowVersion.id) match {
+        case Some(workflow) =>
+          val workflowWithVersionFields = workflow.copy(
+            tags = workflowVersion.tags,
+            group = workflowVersion.group.getOrElse(workflow.group)
+          )
+          val workflowWithFields = addCreationDate(incVersion(addId(workflowWithVersionFields, force = true)))
 
-        validateWorkflow(workflowWithFields)
+          validateWorkflow(workflowWithFields)
 
-        curatorFramework.create.creatingParentsIfNeeded.forPath(
-          s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
-        statusService.update(WorkflowStatus(
-          id = workflowWithFields.id.get,
-          status = WorkflowStatusEnum.Created
-        ))
+          curatorFramework.create.creatingParentsIfNeeded.forPath(
+            s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
+          statusService.update(WorkflowStatus(
+            id = workflowWithFields.id.get,
+            status = WorkflowStatusEnum.Created
+          ))
 
-        workflowWithFields
-      case None => throw new ServerException(s"Workflow with id ${workflowVersion.id} does not exist.")
+          workflowWithFields
+        case None => throw new ServerException(s"Workflow with id ${workflowVersion.id} does not exist.")
+      }
     }
   }
 

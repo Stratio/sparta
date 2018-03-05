@@ -16,30 +16,32 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import scala.util.Try
-
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-import org.apache.curator.framework.CuratorFramework
-import org.apache.zookeeper.KeeperException.NoNodeException
-
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
+import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
+import org.apache.curator.framework.CuratorFramework
+import org.apache.zookeeper.KeeperException.NoNodeException
+
+import scala.util.Try
 
 class WorkflowActor(
                      val curatorFramework: CuratorFramework,
+                     inMemoryWorkflowApi: ActorRef,
                      launcherActor: ActorRef,
                      envStateActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with CheckpointUtils with ActionUserAuthorize {
 
   import WorkflowActor._
+  import WorkflowDtoImplicit._
 
   val ResourceWorkflow = "workflow"
   val ResourceCP = "checkpoint"
@@ -68,7 +70,7 @@ class WorkflowActor(
     case FindAllMonitoring(user) => findAllMonitoring(user)
     case FindAllByGroup(group, user) => findAllByGroup(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
-    case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete,user)
+    case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case DeleteAll(user) => deleteAll(user)
     case DeleteCheckpoint(id, user) => deleteCheckpoint(id, user)
@@ -116,73 +118,75 @@ class WorkflowActor(
     }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try {
-        workflowService.findAll
-      } recover {
-        case _: NoNodeException => Seq.empty[Workflow]
-      }
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindAllMemoryWorkflowRaw
     }
 
   def findAllMonitoring(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try {
-        val workflowsDto: Seq[WorkflowDto] = workflowService.findAll
-        workflowsDto
-      } recover {
-        case _: NoNodeException => Seq.empty[WorkflowDto]
-      }
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindAllMemoryWorkflowDto
     }
 
   def findAllWithEnv(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View, ResourceStatus -> View,
-      ResourceEnvironment -> View)) {
-      Try {
-        wServiceWithEnv.findAll
-      } recover {
-        case _: NoNodeException => Seq.empty[Workflow]
-      }
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View, ResourceEnvironment -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindAllMemoryWorkflowWithEnv
     }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try(workflowService.findById(id)).recover {
-        case _: NoNodeException =>
-          throw new ServerException(s"No workflow with id $id.")
-      }
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindMemoryWorkflowRaw(id)
     }
 
-  /**
-    * Implicit transformation to WorkflowDto {@see DtoImplicits.scala} {@see WorkFlowActor.workFlowToDto}
-    *
-    */
   def findAllByGroup(groupID: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try {
-        val groups: Seq[WorkflowDto] = workflowService.findByGroupID(groupID)
-        groups
-      }.recover {
-        case _: NoNodeException => Seq.empty[WorkflowDto]
-      }
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindByGroupMemoryWorkflowDto(groupID)
     }
 
   def findWithEnv(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View, ResourceStatus -> View,
-      ResourceEnvironment -> View)) {
-      Try(wServiceWithEnv.findById(id)).recover {
-        case _: NoNodeException =>
-          throw new ServerException(s"No workflow with id $id.")
-      }
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View, ResourceEnvironment -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindMemoryWorkflowWithEnv(id)
     }
 
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try(workflowService.findByIdList(workflowIds))
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindByIdsMemoryWorkflowRaw(workflowIds)
     }
 
   def doQuery(query: WorkflowQuery, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try(workflowService.find(query))
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryWorkflowApi)
+    ) {
+      FindByQueryMemoryWorkflowRaw(query)
     }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
@@ -225,7 +229,7 @@ class WorkflowActor(
       workflowService.delete(id)
     }
 
-  def deleteWithAllVersion(workflowDelete: WorkflowDelete ,user: Option[LoggedUser]): Unit =
+  def deleteWithAllVersion(workflowDelete: WorkflowDelete, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceCP -> Delete)) {
       workflowService.deleteWithAllVersions(workflowDelete)
     }
@@ -340,18 +344,5 @@ object WorkflowActor extends SLF4JLogging {
 
   type ResponseWorkflowValidation = Try[WorkflowValidation]
 
-  implicit def workFlowToDto(workflow: Workflow): WorkflowDto =
-    WorkflowDto(
-      id = workflow.id,
-      name = workflow.name,
-      description = workflow.description,
-      settings = workflow.settings.global,
-      nodes = workflow.pipelineGraph.nodes.map(nodeToDto),
-      executionEngine = workflow.executionEngine,
-      lastUpdateDate = workflow.lastUpdateDate,
-      version = workflow.version,
-      group = workflow.group.name,
-      status = workflow.status)
-
-  private[sparta] def nodeToDto(node: NodeGraph): NodeGraphDto = NodeGraphDto(node.name, node.stepType)
 }
+

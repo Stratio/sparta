@@ -114,6 +114,9 @@
         <java.moustache.version>0.9.5</java.moustache.version>
         <bijection.version>0.9.6</bijection.version>
         <avro.version>1.7.6</avro.version>
+        <akka-kryo.version>0.5.0</akka-kryo.version>
+        <leveldb.version>0.7</leveldb.version>
+        <leveldbjni.version>1.8</leveldbjni.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -434,6 +437,16 @@
                 <version>${akka.persistence.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.iq80.leveldb</groupId>
+                <artifactId>leveldb</artifactId>
+                <version>${leveldb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.leveldbjni</groupId>
+                <artifactId>leveldbjni-all</artifactId>
+                <version>${leveldbjni.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.spray</groupId>
                 <artifactId>spray-can_${scala.binary.version}</artifactId>
                 <version>${spray.version}</version>
@@ -681,6 +694,11 @@
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
                 <version>0.9.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.romix.akka</groupId>
+                <artifactId>akka-kryo-serialization_${scala.binary.version}</artifactId>
+                <version>${akka-kryo.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

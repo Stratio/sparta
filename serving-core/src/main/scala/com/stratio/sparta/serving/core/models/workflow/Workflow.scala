@@ -51,4 +51,5 @@ case class WorkflowDto(id: Option[String],
                        lastUpdateDate: Option[DateTime],
                        version: Long,
                        group: String,
+                       tags: Option[Seq[String]] = None,
                        status: Option[WorkflowStatus]) extends Dto

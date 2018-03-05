@@ -219,13 +219,13 @@
                                     <path>/var/sds/sparta/dg-agent</path>
                                 </mkdirs>
                                 <mkdirs>
-                                    <path>/var/sds/sparta/persistence</path>
+                                    <path>/var/sds/sparta/dg-agent/persistence</path>
                                 </mkdirs>
                                 <mkdirs>
-                                    <path>/var/sds/sparta/persistence/journal</path>
+                                    <path>/var/sds/sparta/dg-agent/persistence/journal</path>
                                 </mkdirs>
                                 <mkdirs>
-                                    <path>/var/sds/sparta/persistence/snapshots</path>
+                                    <path>/var/sds/sparta/dg-agent/persistence/snapshots</path>
                                 </mkdirs>
                                 <mkdirs>
                                     <path>/var/log/sds/sparta</path>

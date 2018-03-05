@@ -33,7 +33,7 @@ object OauthTokenUtils extends SLF4JLogging {
   lazy private val clientIdField = "sparta.marathon.sso.clientId"
   lazy private val redirectUriField = "sparta.marathon.sso.redirectUri"
   lazy private val retriesField = "sparta.marathon.sso.retries"
-  lazy private val defaultRetries = 5
+  lazy private val defaultRetries = 10
 
   lazy private val ssoUri = ConfigComponent.getString(ssoUriField)
     .getOrElse(throw new Exception("SSO Uri not defined"))

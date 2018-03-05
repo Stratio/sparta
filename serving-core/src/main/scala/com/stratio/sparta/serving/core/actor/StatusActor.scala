@@ -19,6 +19,7 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.{Actor, _}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.StatusActor._
+import com.stratio.sparta.serving.core.actor.StatusInMemoryApi._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.stratio.sparta.serving.core.services.{ListenerService, WorkflowStatusService}
@@ -27,7 +28,10 @@ import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class StatusActor(curatorFramework: CuratorFramework, statusListenerActor: ActorRef
+class StatusActor(
+                   curatorFramework: CuratorFramework,
+                   statusListenerActor: ActorRef,
+                   inMemoryStatusApi: ActorRef
                  )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -61,15 +65,24 @@ class StatusActor(curatorFramework: CuratorFramework, statusListenerActor: Actor
     }
 
 
-  def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      statusService.findAll()
+  def findAll(user: Option[LoggedUser]): Unit = {
+    securityActionAuthorizer(
+      user,
+      Map(ResourceType -> View),
+      Option(inMemoryStatusApi)
+    ) {
+      FindAllMemoryStatus
     }
+  }
 
 
   def findById(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      statusService.findById(id)
+    securityActionAuthorizer(
+      user,
+      Map(ResourceType -> View),
+      Option(inMemoryStatusApi)
+    ) {
+      FindMemoryStatus(id)
     }
 
   def deleteAll(user: Option[LoggedUser]): Unit =

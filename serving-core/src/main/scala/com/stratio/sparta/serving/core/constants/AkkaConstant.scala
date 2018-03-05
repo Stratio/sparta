@@ -37,6 +37,11 @@ object AkkaConstant {
   val NginxActorName = "nginxActor"
   val EnvironmentActorName = "environmentActor"
   val GroupActorName = "groupActor"
+  val GroupApiActorName = "GroupApiActor"
+  val ExecutionApiActorName = "ExecutionApiActor"
+  val WorkflowApiActorName = "WorkflowApiActor"
+  val StatusApiActorName = "StatusApiActor"
+  val StatusChangeActorName = "StatusChangeActor"
 
   val DefaultInstances = 3
 

@@ -81,19 +81,30 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
-        val workflowStatusWithFields = addUpdateDate(workflowStatus)
-        val newStatus = workflowStatusWithFields.copy(
-          status = if (workflowStatusWithFields.status == NotDefined) actualStatus.status
-          else workflowStatusWithFields.status,
-          lastError = if (workflowStatusWithFields.lastError.isDefined) workflowStatusWithFields.lastError
-          else if (workflowStatusWithFields.status == Created || workflowStatusWithFields.status == NotStarted) None
-          else actualStatus.lastError,
-          statusInfo = if (workflowStatusWithFields.statusInfo.isEmpty) actualStatus.statusInfo
-          else workflowStatusWithFields.statusInfo,
-          lastExecutionMode = if (workflowStatusWithFields.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
-          else workflowStatusWithFields.lastExecutionMode,
-          sparkURI = updateSparkURI(workflowStatusWithFields, actualStatus),
-          lastUpdateDateWorkflow = if(workflowStatusWithFields.lastUpdateDateWorkflow.isEmpty) actualStatus.lastUpdateDateWorkflow else workflowStatusWithFields.lastUpdateDateWorkflow
+        val newStatus = workflowStatus.copy(
+          status = {
+            if (workflowStatus.status == NotDefined) actualStatus.status
+            else workflowStatus.status
+          },
+          lastError = {
+            if (workflowStatus.lastError.isDefined) workflowStatus.lastError
+            else if (workflowStatus.status == Created || workflowStatus.status == NotStarted) None
+            else actualStatus.lastError
+          },
+          statusInfo = {
+            if (workflowStatus.statusInfo.isEmpty) actualStatus.statusInfo
+            else workflowStatus.statusInfo
+          },
+          lastExecutionMode = {
+            if (workflowStatus.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
+            else workflowStatus.lastExecutionMode
+          },
+          sparkURI = updateSparkURI(workflowStatus, actualStatus),
+          lastUpdateDateWorkflow = {
+            if (workflowStatus.status == NotDefined || workflowStatus.status == actualStatus.status)
+              actualStatus.lastUpdateDateWorkflow
+            else getNewUpdateDate
+          }
         )
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
 
@@ -163,8 +174,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         false
     }
 
-  private[sparta] def addUpdateDate(workflowStatus: WorkflowStatus): WorkflowStatus =
-    workflowStatus.copy(lastUpdateDate = Some(new DateTime()))
+  private[sparta] def getNewUpdateDate: Option[DateTime] = Option(new DateTime())
 
   private[sparta] def addCreationDate(workflowStatus: WorkflowStatus): WorkflowStatus =
     workflowStatus.creationDate match {

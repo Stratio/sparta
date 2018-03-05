@@ -38,6 +38,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 class WorkflowHttpServiceTest extends WordSpec
 with WorkflowHttpService
 with HttpServiceBaseTest {
+  import WorkflowDtoImplicit._
   override val supervisor: ActorRef = testProbe.ref
   val sparkStreamingTestProbe = TestProbe()
   val id = UUID.randomUUID.toString

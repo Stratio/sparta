@@ -20,7 +20,7 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
+import com.stratio.sparta.serving.core.models.workflow.Group
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
@@ -28,33 +28,32 @@ import org.json4s.jackson.Serialization.read
 
 import scala.util.Try
 
-class ExecutionPublisherActor(curatorFramework: CuratorFramework)
-  extends Actor with SpartaSerializer with SLF4JLogging {
+class GroupPublisherActor(curatorFramework: CuratorFramework) extends Actor with SpartaSerializer with SLF4JLogging {
 
-  import ExecutionPublisherActor._
+  import GroupPublisherActor._
 
   private var pathCache: Option[PathChildrenCache] = None
 
   override def preStart(): Unit = {
-    val executionsPath = AppConstant.WorkflowExecutionsZkPath
+    val groupZkPath = AppConstant.GroupZkPath
     val nodeListener = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
         val eventData = event.getData
         Try {
-          read[WorkflowExecution](new String(eventData.getData))
-        } foreach { execution =>
+          read[Group](new String(eventData.getData))
+        } foreach { group =>
           event.getType match {
             case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
-              self ! ExecutionChange(event.getData.getPath, execution)
+              self ! GroupChange(event.getData.getPath, group)
             case Type.CHILD_REMOVED =>
-              self ! ExecutionRemove(event.getData.getPath, execution)
+              self ! GroupRemove(event.getData.getPath, group)
             case _ => {}
           }
         }
       }
     }
 
-    pathCache = Option(new PathChildrenCache(curatorFramework, executionsPath, true))
+    pathCache = Option(new PathChildrenCache(curatorFramework, groupZkPath, true))
     pathCache.foreach(_.getListenable.addListener(nodeListener, context.dispatcher))
     pathCache.foreach(_.start())
   }
@@ -63,22 +62,22 @@ class ExecutionPublisherActor(curatorFramework: CuratorFramework)
     pathCache.foreach(_.close())
 
   override def receive: Receive = {
-    case cd: ExecutionChange =>
+    case cd: GroupChange =>
       context.system.eventStream.publish(cd)
-    case cd: ExecutionRemove =>
+    case cd: GroupRemove =>
       context.system.eventStream.publish(cd)
     case _ =>
-      log.debug("Unrecognized message in Workflow Execution Publisher Actor")
+      log.debug("Unrecognized message in Group Publisher Actor")
   }
 
 }
 
-object ExecutionPublisherActor {
+object GroupPublisherActor {
 
   trait Notification
 
-  case class ExecutionChange(path: String, execution: WorkflowExecution) extends Notification
+  case class GroupChange(path: String, group: Group) extends Notification
 
-  case class ExecutionRemove(path: String, execution: WorkflowExecution) extends Notification
+  case class GroupRemove(path: String, group: Group) extends Notification
 
 }

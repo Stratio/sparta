@@ -23,7 +23,7 @@ import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
 import com.stratio.sparta.serving.api.actor.NginxActor._
-import com.stratio.sparta.serving.core.actor.StatusPublisherActor.WorkflowStatusChange
+import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 
@@ -38,7 +38,7 @@ class NginxActor extends Actor {
   import context.dispatcher
 
   override def preStart(): Unit = {
-    context.system.eventStream.subscribe(self, classOf[WorkflowStatusChange])
+    context.system.eventStream.subscribe(self, classOf[StatusChange])
     context.system.scheduler.scheduleOnce(Duration(30, TimeUnit.SECONDS),
       self,
       UpdateAndMakeSureIsRunning)
@@ -84,7 +84,7 @@ class NginxActor extends Actor {
       updateAndMakeSureIsRunning
     case UpdateAndMakeSureIsRunning =>
       updateAndMakeSureIsRunning
-    case workflowStatusChange: WorkflowStatusChange =>
+    case workflowStatusChange: StatusChange =>
       updateIfNecessary(workflowStatusChange.workflowStatus)
   }
 

@@ -8,6 +8,10 @@
  source /sparta-server-utils.sh
  INFO "[SPARTA-SERVER] Loaded Sparta server functions"
 
+ INFO "[SPARTA-MARATHON] Creating persistence paths ... "
+ initPersistencePaths
+ INFO "[SPARTA-MARATHON] Created persistence paths"
+
  INFO "[SPARTA-SERVER] Loading Sparta Java options ... "
  initJavaOptions
  INFO "[SPARTA-SERVER] Loaded Sparta Java options"

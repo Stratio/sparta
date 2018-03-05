@@ -42,6 +42,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   implicit val secManager = Option(new DummySecurityClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
   val contextService = ContextsService(curatorFramework, system.actorOf(TestActors.echoActorProps))
+  val inMemoryApiActors = InMemoryApiActors(ActorRef.noSender,ActorRef.noSender, ActorRef.noSender,ActorRef.noSender)
 
   def this() =
     this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
@@ -52,7 +53,8 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   "ControllerActor" should {
     "set up the controller actor that contains all Sparta's routes without any error" in {
-      _system.actorOf(Props(new ControllerActor(curatorFramework,ActorRef.noSender,ActorRef.noSender)))
+      _system.actorOf(Props(new ControllerActor(
+        curatorFramework,ActorRef.noSender,ActorRef.noSender, inMemoryApiActors)))
     }
   }
 }

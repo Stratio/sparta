@@ -18,15 +18,15 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{Notification, WorkflowStatusChange}
-import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{Notification, StatusChange}
+import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
 
-class WorkflowStatusListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec", SpartaConfig.daemonicAkkaConfig))
+class StatusListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender
@@ -37,7 +37,7 @@ class WorkflowStatusListenerActorTest extends TestKit(ActorSystem("ListenerActor
 
   "A Workflow Status Listener Actor" should {
 
-    val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
+    val statusListenerActor = system.actorOf(Props(new StatusListenerActor))
 
     val testWorkflowStatus01 = WorkflowStatus("workflow-01", WorkflowStatusEnum.Finished)
     val testWorkflowStatus02 = WorkflowStatus("workflow-02", WorkflowStatusEnum.Launched)
@@ -48,9 +48,9 @@ class WorkflowStatusListenerActorTest extends TestKit(ActorSystem("ListenerActor
     }
 
     "Execute registered callbacks when the right event has been published" in {
-      publishEvent(WorkflowStatusChange("whatever", testWorkflowStatus01))
+      publishEvent(StatusChange("whatever", testWorkflowStatus01))
       expectMsg(testWorkflowStatus01)
-      publishEvent(WorkflowStatusChange("whatever", testWorkflowStatus02))
+      publishEvent(StatusChange("whatever", testWorkflowStatus02))
       expectNoMsg()
     }
 
@@ -58,20 +58,20 @@ class WorkflowStatusListenerActorTest extends TestKit(ActorSystem("ListenerActor
       statusListenerActor ! OnWorkflowStatusChangeDo(testWorkflowStatus02.id)(self ! _)
       expectNoMsg()
 
-      publishEvent(WorkflowStatusChange("whatever", testWorkflowStatus01))
+      publishEvent(StatusChange("whatever", testWorkflowStatus01))
       expectMsg(testWorkflowStatus01)
 
-      publishEvent(WorkflowStatusChange("whatever", testWorkflowStatus02))
+      publishEvent(StatusChange("whatever", testWorkflowStatus02))
       expectMsg(testWorkflowStatus02)
     }
 
     "Remove all callbacks associated with a workflow id" in {
       statusListenerActor ! ForgetWorkflowStatusActions(testWorkflowStatus01.id)
 
-      publishEvent(WorkflowStatusChange("whatever", testWorkflowStatus01))
+      publishEvent(StatusChange("whatever", testWorkflowStatus01))
       expectNoMsg()
 
-      publishEvent(WorkflowStatusChange("whatever", testWorkflowStatus02))
+      publishEvent(StatusChange("whatever", testWorkflowStatus02))
       expectMsg(testWorkflowStatus02)
     }
 

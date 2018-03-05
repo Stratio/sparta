@@ -42,7 +42,12 @@ import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 
-class ControllerActor(curatorFramework: CuratorFramework, stListenerActor: ActorRef, envListenerActor: ActorRef)
+class ControllerActor(
+                       curatorFramework: CuratorFramework,
+                       stListenerActor: ActorRef,
+                       envListenerActor: ActorRef,
+                       inMemoryApiActors: InMemoryApiActors
+                     )
                      (implicit secManager: Option[SpartaSecurityManager])
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
 
@@ -52,20 +57,20 @@ class ControllerActor(curatorFramework: CuratorFramework, stListenerActor: Actor
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
-  val isNginxRequired: Boolean = Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true }
-
   log.debug("Initializing actors in Controller Actor")
 
   val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new StatusActor(curatorFramework, stListenerActor))), StatusActorName)
+    .props(Props(new StatusActor(
+      curatorFramework, stListenerActor, inMemoryApiActors.statusInMemoryApi))), StatusActorName)
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor(curatorFramework))), TemplateActorName)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new LauncherActor(curatorFramework, stListenerActor, envListenerActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new WorkflowActor(curatorFramework, launcherActor, envListenerActor))), WorkflowActorName)
+    .props(Props(new WorkflowActor(
+      curatorFramework, inMemoryApiActors.workflowInMemoryApi, launcherActor, envListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new ExecutionActor(curatorFramework))), ExecutionActorName)
+    .props(Props(new ExecutionActor(curatorFramework, inMemoryApiActors.executionInMemoryApi))), ExecutionActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new PluginActor())), PluginActorName)
   val driverActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -75,15 +80,11 @@ class ControllerActor(curatorFramework: CuratorFramework, stListenerActor: Actor
   val environmentActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new EnvironmentActor(curatorFramework))), EnvironmentActorName)
   val groupActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new GroupActor(curatorFramework))), GroupActorName)
+    .props(Props(new GroupActor(curatorFramework, inMemoryApiActors.groupInMemoryApi))), GroupActorName)
   val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
-  val nginxActor =
-    if (isNginxRequired)
-      Option(context.actorOf(Props(new NginxActor()), NginxActorName))
-    else None
 
   val actorsMap = Map(
     StatusActorName -> statusActor,
@@ -98,9 +99,7 @@ class ControllerActor(curatorFramework: CuratorFramework, stListenerActor: Actor
     MetadataActorName -> metadataActor,
     EnvironmentActorName -> environmentActor,
     GroupActorName -> groupActor
-  ) ++ {
-    if (isNginxRequired) Map(NginxActorName -> nginxActor.get) else Map.empty
-  }
+  )
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
@@ -177,6 +176,13 @@ class ControllerActor(curatorFramework: CuratorFramework, stListenerActor: Actor
         } ~ getFromResourceDirectory("web")
     }
 }
+
+case class InMemoryApiActors(
+                              workflowInMemoryApi: ActorRef,
+                              statusInMemoryApi: ActorRef,
+                              groupInMemoryApi: ActorRef,
+                              executionInMemoryApi: ActorRef
+                            )
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
 

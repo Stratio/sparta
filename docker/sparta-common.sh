@@ -7,6 +7,15 @@ function loadVariables() {
 
 }
 
+function initPersistencePaths() {
+
+  mkdir -p /var/sds/sparta/dg-agent
+  mkdir -p /var/sds/sparta/dg-agent/persistence
+  mkdir -p /var/sds/sparta/dg-agent/persistence/journal
+  mkdir -p /var/sds/sparta/dg-agent/persistence/snapshots
+
+}
+
 function initSpark() {
 
   if [[ ! -v SPARK_HOME ]]; then

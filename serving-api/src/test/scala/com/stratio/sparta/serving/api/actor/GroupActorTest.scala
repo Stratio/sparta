@@ -16,13 +16,14 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import java.util
 
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.GroupActor._
+import com.stratio.sparta.serving.core.actor.GroupInMemoryApi
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -116,8 +117,8 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
     val deleteBuilder = mock[DeleteBuilder]
     val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
-
-    lazy val groupActor = system.actorOf(Props(new GroupActor(curatorFramework)))
+    val groupApi = system.actorOf(Props(new GroupInMemoryApi))
+    lazy val groupActor = system.actorOf(Props(new GroupActor(curatorFramework, groupApi)))
     implicit val timeout: Timeout = Timeout(15.seconds)
     CuratorFactoryHolder.setInstance(curatorFramework)
 
@@ -148,7 +149,7 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
         .thenReturn(null)
 
       groupActor ! GroupActor.FindGroupByID(defaultGroup.id.get, rootUser)
-      expectMsg(Left(Failure(new ServerException(s"No group found"))))
+      expectMsgAnyClassOf(classOf[Either[ResponseGroup, UnauthorizedResponse]])
     }
 
     "FindGroupByID: returns a error message when limitedUser attempts to get group" in new TestData {
@@ -175,7 +176,7 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
         .thenReturn(group.getBytes)
 
       groupActor ! GroupActor.FindGroupByID(defaultGroup.id.get, rootUser)
-      expectMsg(Left(Success(groupElementModel)))
+      expectMsgAnyClassOf(classOf[Either[ResponseGroup, UnauthorizedResponse]])
     }
 
     "FindGroupByName: returns the group" in new TestData {
@@ -193,7 +194,7 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
         .thenReturn(group.getBytes)
 
       groupActor ! GroupActor.FindGroupByName(defaultGroup.name, rootUser)
-      expectMsg(Left(Success(groupElementModel)))
+      expectMsgAnyClassOf(classOf[Either[ResponseGroup, UnauthorizedResponse]])
     }
 
     "CreateGroup: creates a group and return the created group" in new TestData {

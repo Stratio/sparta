@@ -48,9 +48,13 @@ class WorkflowPublisherActor(
         } foreach { workflow =>
           event.getType match {
             case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
-              self ! WorkflowChange(event.getData.getPath, workflow)
+              if(serializerSystem.isDefined && environmentStateActor.isDefined)
+                self ! WorkflowChange(event.getData.getPath, workflow)
+              else self ! WorkflowRawChange(event.getData.getPath, workflow)
             case Type.CHILD_REMOVED =>
-              self ! WorkflowRemove(event.getData.getPath, workflow)
+              if(serializerSystem.isDefined && environmentStateActor.isDefined)
+                self ! WorkflowRemove(event.getData.getPath, workflow)
+              else self ! WorkflowRawRemove(event.getData.getPath, workflow)
             case _ => {}
           }
         }
@@ -70,6 +74,10 @@ class WorkflowPublisherActor(
       context.system.eventStream.publish(cd)
     case cd: WorkflowRemove =>
       context.system.eventStream.publish(cd)
+    case cd: WorkflowRawChange =>
+      context.system.eventStream.publish(cd)
+    case cd: WorkflowRawRemove =>
+      context.system.eventStream.publish(cd)
     case _ =>
       log.debug("Unrecognized message in Workflow Publisher Actor")
   }
@@ -82,6 +90,10 @@ object WorkflowPublisherActor {
 
   case class WorkflowChange(path: String, workflow: Workflow) extends Notification
 
+  case class WorkflowRawChange(path: String, workflow: Workflow) extends Notification
+
   case class WorkflowRemove(path: String, workflow: Workflow) extends Notification
+
+  case class WorkflowRawRemove(path: String, workflow: Workflow) extends Notification
 
 }

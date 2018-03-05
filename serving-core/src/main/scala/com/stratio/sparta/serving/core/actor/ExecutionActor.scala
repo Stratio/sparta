@@ -16,18 +16,19 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.Actor
-import com.stratio.sparta.security.{Create, Delete, Edit, SpartaSecurityManager, View}
+import akka.actor.{Actor, ActorRef}
+import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.ExecutionActor._
+import com.stratio.sparta.serving.core.actor.ExecutionInMemoryApi._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.stratio.sparta.serving.core.services.ExecutionService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
-class ExecutionActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with ActionUserAuthorize{
-
+class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecution: ActorRef)
+                    (implicit val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with ActionUserAuthorize {
 
   private val executionService = new ExecutionService(curatorFramework)
   private val ResourceType = "execution"
@@ -53,13 +54,21 @@ class ExecutionActor(val curatorFramework: CuratorFramework)(implicit val secMan
     }
 
   def findAllExecutions(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      executionService.findAll
+    securityActionAuthorizer(
+      user,
+      Map(ResourceType -> View),
+      Option(inMemoryApiExecution)
+    ) {
+      FindAllMemoryExecution
     }
 
   def findExecutionById(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      executionService.findById(id)
+    securityActionAuthorizer(
+      user,
+      Map(ResourceType -> View),
+      Option(inMemoryApiExecution)
+    ) {
+      FindMemoryExecution(id)
     }
 
   def deleteAllExecutions(user: Option[LoggedUser]): Unit =
@@ -68,7 +77,7 @@ class ExecutionActor(val curatorFramework: CuratorFramework)(implicit val secMan
     }
 
 
-  def deleteExecution(id:String, user: Option[LoggedUser]): Unit =
+  def deleteExecution(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
       executionService.delete(id)
     }
@@ -88,4 +97,5 @@ object ExecutionActor {
   case class FindAll(user: Option[LoggedUser])
 
   case class FindById(id: String, user: Option[LoggedUser])
+
 }

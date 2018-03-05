@@ -22,7 +22,7 @@ import akka.testkit.{EventFilter, ImplicitSender, TestActorRef, TestKit}
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
+import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, StatusListenerActor}
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
@@ -89,7 +89,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
 
   trait CommonActors {
 
-    val stListenerActor = TestActorRef[WorkflowStatusListenerActor](Props[WorkflowStatusListenerActor])
+    val stListenerActor = TestActorRef[StatusListenerActor](Props[StatusListenerActor])
     val workflowListenerActor = TestActorRef[WorkflowListenerActor](Props[WorkflowListenerActor])
     val lineageService = TestActorRef[LineageService](LineageService.props(stListenerActor, workflowListenerActor))
   }

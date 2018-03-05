@@ -29,7 +29,7 @@ import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
-import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor._
+import com.stratio.sparta.serving.core.actor.StatusListenerActor._
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.NodeGraph
 

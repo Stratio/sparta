@@ -126,6 +126,8 @@ object NginxUtils {
 
     object Unauthorized extends Error("Unauthorized in Marathon API")
 
+    case class UnExpectedError(ex: Exception) extends Error(s"Unexpected error with message: ${ex.toString}")
+
     case class CouldNotWriteConfig(
                                     file: File,
                                     explanation: Option[Exception] = None) extends Error(
@@ -346,36 +348,45 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
     val GroupPath = s"v2/groups/sparta/$instanceName/workflows"
     val UnauthorizedKey = "<title>Unauthorized</title>"
 
-    for {
-      group <- doRequest[String](marathonApiUri.get, GroupPath, cookies = Seq(getToken))
-      seqApps = {
-        if (!group.contains(UnauthorizedKey)) {
-          extractAppsId(group) match {
-            case Some(appsId) =>
-              Future.sequence {
-                appsId.map { appId =>
-                  val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
-                  appResponse.flatMap { response =>
-                    if (response.contains(UnauthorizedKey))
-                      responseUnauthorized()
-                    else Future(response)
+      for {
+        group <- doRequest[String](marathonApiUri.get, GroupPath, cookies = Seq(getToken))
+        seqApps = {
+          if (!group.contains(UnauthorizedKey)) {
+            extractAppsId(group) match {
+              case Some(appsId) =>
+                Future.sequence {
+                  appsId.map { appId =>
+                    val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
+                    appResponse.flatMap { response =>
+                      if (response.contains(UnauthorizedKey))
+                        responseUnauthorized()
+                      else Future(response)
+                    }
                   }
                 }
-              }
-            case None => Future(Seq.empty[String])
-          }
-        } else responseUnauthorized()
+              case None => Future(Seq.empty[String])
+            }
+          } else responseUnauthorized()
+        }
+        appsStrings <- seqApps
+      } yield {
+        log.debug(s"Marathon API responses from AppsIds: $appsStrings")
+        appsStrings.flatMap(extractAppParameters)
       }
-      appsStrings <- seqApps
-    } yield {
-      log.debug(s"Marathon API responses from AppsIds: $appsStrings")
-      appsStrings.flatMap(extractAppParameters)
-    }
+  } recoverWith {
+    case exception: Exception =>
+      responseUnExpectedError(exception)
   }
 
   private[utils] def responseUnauthorized(): Future[Nothing] = {
     expireToken()
     val problem = Unauthorized
+    log.error(problem.getMessage)
+    Future.failed(problem)
+  }
+
+  private[utils] def responseUnExpectedError(exception: Exception): Future[Nothing] = {
+    val problem = UnExpectedError(exception)
     log.error(problem.getMessage)
     Future.failed(problem)
   }

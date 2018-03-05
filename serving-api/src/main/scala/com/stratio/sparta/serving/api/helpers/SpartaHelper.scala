@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.serving.api.helpers
 
-import scala.util.Try
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
@@ -27,15 +26,18 @@ import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
+import scala.util.{Properties, Try}
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
   */
 object SpartaHelper extends SLF4JLogging with SSLSupport {
 
+  //scalastyle:off
   /**
     * Initializes Sparta's akka system running an embedded http server with the REST API.
     *
@@ -43,7 +45,6 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
     */
   def initSpartaAPI(appName: String): Unit = {
     if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
-
       val curatorFramework = CuratorFactoryHolder.getInstance()
       implicit val secManager = SecurityManagerHelper.securityManager
 
@@ -57,28 +58,41 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val envListenerActor = system.actorOf(Props[EnvironmentListenerActor])
       system.actorOf(Props(new EnvironmentPublisherActor(curatorFramework)))
 
-      val stListenerActor = system.actorOf(Props[WorkflowStatusListenerActor])
+      val groupApiActor = system.actorOf(Props[GroupInMemoryApi])
+      val executionApiActor = system.actorOf(Props[ExecutionInMemoryApi])
+      val workflowApiActor = system.actorOf(Props[WorkflowInMemoryApi])
+      val statusApiActor = system.actorOf(Props[StatusInMemoryApi])
+      val stListenerActor = system.actorOf(Props[StatusListenerActor])
       val workflowListenerActor = system.actorOf(Props[WorkflowListenerActor])
+
       if (Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
         log.debug("Initializing lineage service ...")
         system.actorOf(LineageService.props(stListenerActor, workflowListenerActor))
       }
-
       system.actorOf(Props(
         new WorkflowPublisherActor(curatorFramework, Option(system), Option(envListenerActor))))
-
+      system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
+      system.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
       system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
       system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
 
-      val controllerActor =
-        system.actorOf(Props(new ControllerActor(curatorFramework,
-          stListenerActor, envListenerActor)), ControllerActorName)
+      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor)
+      val controllerActor = system.actorOf(Props(new ControllerActor(
+          curatorFramework,
+          stListenerActor,
+          envListenerActor,
+          inMemoryApiActors
+        )), ControllerActorName)
 
       log.debug("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
         interface = SpartaConfig.apiConfig.get.getString("host"),
         port = SpartaConfig.apiConfig.get.getInt("port")
       )
+
+      if(Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true })
+        Option(system.actorOf(Props(new NginxActor()), NginxActorName))
+
       log.info("Sparta System initiated correctly")
     } else log.info("Sparta Configuration is not defined")
   }

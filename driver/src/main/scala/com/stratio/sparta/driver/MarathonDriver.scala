@@ -57,7 +57,7 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
       val statusService = new WorkflowStatusService(curatorInstance)
 
       Try {
-        val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
+        val statusListenerActor = system.actorOf(Props(new StatusListenerActor))
         system.actorOf(Props(new ExecutionPublisherActor(curatorInstance)))
         system.actorOf(Props(new WorkflowPublisherActor(curatorInstance)))
         system.actorOf(Props(new StatusPublisherActor(curatorInstance)))

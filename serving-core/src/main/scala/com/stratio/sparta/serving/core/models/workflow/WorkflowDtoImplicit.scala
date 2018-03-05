@@ -16,10 +16,21 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.constants.AppConstant._
+object WorkflowDtoImplicit {
 
-case class WorkflowQuery(
-                          name: String,
-                          version: Option[Long] = Option(0L),
-                          group: Option[String] = Option(DefaultGroup.id.get)
-                        )
+  implicit def workFlowToDto(workflow: Workflow): WorkflowDto =
+    WorkflowDto(
+      id = workflow.id,
+      name = workflow.name,
+      description = workflow.description,
+      settings = workflow.settings.global,
+      nodes = workflow.pipelineGraph.nodes.map(nodeToDto),
+      executionEngine = workflow.executionEngine,
+      lastUpdateDate = workflow.lastUpdateDate,
+      version = workflow.version,
+      group = workflow.group.name,
+      tags = workflow.tags,
+      status = workflow.status)
+
+  private[sparta] def nodeToDto(node: NodeGraph): NodeGraphDto = NodeGraphDto(node.name, node.stepType)
+}

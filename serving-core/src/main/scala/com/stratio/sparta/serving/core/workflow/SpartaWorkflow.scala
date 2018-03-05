@@ -93,10 +93,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while executing the validate steps"
     val okMessage = s"Validate steps executed successfully"
 
-    /*traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
+    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       steps.map(step => step.validate())
-    }*/
-    steps.map(step => step.validate())
+    }
   }
 
   //scalastyle:off

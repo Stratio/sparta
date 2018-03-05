@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
@@ -26,10 +26,11 @@ import com.stratio.sparta.serving.core.services.GroupService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 import GroupActor._
+import com.stratio.sparta.serving.core.actor.GroupInMemoryApi._
 
 import scala.util.Try
 
-class GroupActor(val curatorFramework: CuratorFramework)
+class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: ActorRef)
                 (implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
@@ -37,7 +38,6 @@ class GroupActor(val curatorFramework: CuratorFramework)
   private val ResourceGroupType = "group"
   private val ResourceWorkflowType = "workflow"
 
-  //scalastyle:off
   override def receive: Receive = {
     case CreateGroup(request, user) => createGroup(request, user)
     case UpdateGroup(request, user) => updateGroup(request, user)
@@ -49,8 +49,6 @@ class GroupActor(val curatorFramework: CuratorFramework)
     case DeleteGroupByName(name, user) => deleteGroupByName(name, user)
     case _ => log.info("Unrecognized message in Group Actor")
   }
-
-  //scalastyle:on
 
   def createGroup(request: Group, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceGroupType -> Create)) {
@@ -64,18 +62,30 @@ class GroupActor(val curatorFramework: CuratorFramework)
     }
 
   def findGroupByName(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> View)) {
-      groupService.findByName(name)
+    securityActionAuthorizer(
+      user,
+      Map(ResourceGroupType -> View),
+      Option(inMemoryApiGroup)
+    ) {
+      FindMemoryGroupByName(name)
     }
 
   def findGroupByID(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> View)) {
-      groupService.findByID(id)
+    securityActionAuthorizer(
+      user,
+      Map(ResourceGroupType -> View),
+      Option(inMemoryApiGroup)
+    ) {
+      FindMemoryGroup(id)
     }
 
   def findAllGroups(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> View)) {
-      Try(groupService.findAll)
+    securityActionAuthorizer(
+      user,
+      Map(ResourceGroupType -> View),
+      Option(inMemoryApiGroup)
+    ) {
+      FindAllMemoryGroup
     }
 
   def deleteAllGroups(user: Option[LoggedUser]): Unit =

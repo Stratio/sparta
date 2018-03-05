@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.services
 
 import akka.actor.{ActorContext, ActorRef, Cancellable}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.SpartaSerializer

@@ -11,6 +11,10 @@
  source /sparta-marathon-utils.sh
  INFO "[SPARTA-MARATHON] Loaded Sparta marathon functions"
 
+ INFO "[SPARTA-MARATHON] Creating persistence paths ... "
+ initPersistencePaths
+ INFO "[SPARTA-MARATHON] Created persistence paths"
+
  INFO "[SPARTA-MARATHON] Loading Sparta Java options ... "
  initJavaOptions
  INFO "[SPARTA-MARATHON] Loaded Sparta Java options"
