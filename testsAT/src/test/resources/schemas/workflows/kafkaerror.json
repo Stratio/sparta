@@ -1,0 +1,239 @@
+{
+  "id": "f8f5672d-baeb-46d3-969f-e1c5fcb0a3b7",
+  "name": "kafkaerror",
+  "description": "Automatic Workflow testinput kafka 400ev",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true
+    },
+    "streamingSettings": {
+      "window": "2s",
+      "remember": "",
+      "blockInterval": "100ms",
+      "checkpointSettings": {
+        "checkpointPath": "sparta/checkpoint",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "-XX:+UseConcMarkSweepGC"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "1",
+          "executorMemory": "2G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "2G",
+          "mesosExtraCores": "",
+          "localityWait": "100",
+          "taskMaxFailures": "8",
+          "sparkMemoryFraction": "0.6"
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "/opt/spark/dist",
+        "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2",
+        "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Discard"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": false,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "Test",
+        "stepType": "Input",
+        "className": "TestInputStepStream",
+        "classPrettyName": "Test",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "description": "Json with ID",
+        "uiConfiguration": {
+          "position": {
+            "x": 476,
+            "y": 234
+          }
+        },
+        "configuration": {
+          "maxNumbEvents": "400",
+          "eventType": "STRING",
+          "outputField": "raw",
+          "event": "{\"id\":\"550\"}",
+          "numEvents": "400"
+        }
+      },
+      {
+        "name": "JsonPath",
+        "stepType": "Transformation",
+        "className": "JsonPathTransformStepStream",
+        "classPrettyName": "JsonPath",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 729,
+            "y": 234
+          }
+        },
+        "configuration": {
+          "queries": [
+            {
+              "field": "id",
+              "query": "$.id",
+              "type": "string"
+            },
+            {
+              "field": "problema",
+              "query": "$.problema",
+              "type": "string"
+            }
+          ],
+          "supportNullValues": true,
+          "whenFieldError": "",
+          "whenRowError": "",
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
+        }
+      },
+      {
+        "name": "Kafka",
+        "stepType": "Output",
+        "className": "KafkaOutputStep",
+        "classPrettyName": "Kafka",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "description": "Kafka Output",
+        "uiConfiguration": {
+          "position": {
+            "x": 1243,
+            "y": 231
+          }
+        },
+        "configuration": {
+          "value.serializer.outputFormat": "JSON",
+          "errorSink": false,
+          "tlsEnabled": true,
+          "security.protocol": "PLAINTEXT",
+          "bootstrap.servers": [
+            {
+              "port": "9092",
+              "host": "broker-0009.kafka-sec.mesos"
+            }
+          ],
+          "acks": "0",
+          "ssl.client.auth": "required",
+          "saveOptions": "[]",
+          "keySeparator": ",",
+          "batch.size": "200"
+        }
+      },
+      {
+        "name": "idtable",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStream",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "idtopic",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 954,
+            "y": 234
+          }
+        },
+        "configuration": {
+          "sql": "select id from JsonPath"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Test",
+        "destination": "JsonPath"
+      },
+      {
+        "origin": "JsonPath",
+        "destination": "idtable"
+      },
+      {
+        "origin": "idtable",
+        "destination": "Kafka"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": -216,
+      "y": -1,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2018-03-05T14:42:55Z",
+  "version": 3,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "f8f5672d-baeb-46d3-969f-e1c5fcb0a3b7",
+    "status": "Started",
+    "statusInfo": "Workflow in Spark driver was properly launched",
+    "lastExecutionMode": "marathon",
+    "lastUpdateDate": "2018-03-05T14:43:37Z",
+    "lastUpdateDateWorkflow": "2018-03-05T14:42:55Z"
+  }
+}

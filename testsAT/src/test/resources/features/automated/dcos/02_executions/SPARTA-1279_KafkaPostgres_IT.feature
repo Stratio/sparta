@@ -74,9 +74,8 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   #**************************************************
   # INSTALLL AND EXECUTE testInput to kafka WORKFLOW*
   #**************************************************
-  Scenario:[SPARTA-1279][07] Install kafka-postgres workflow
+  Scenario:[SPARTA-1279][07] Install testInput-Kafka workflow
     #include workflow
-
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/testinput-kafka.json' as 'json' with:
       | id | DELETE | N/A|
     Then the service response status must be '200'
