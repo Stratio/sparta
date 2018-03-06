@@ -14,6 +14,11 @@ function initPersistencePaths() {
   mkdir -p /var/sds/sparta/dg-agent/persistence/journal
   mkdir -p /var/sds/sparta/dg-agent/persistence/snapshots
 
+  mkdir -p /var/sds/sparta/spark-driver
+  mkdir -p /var/sds/sparta/spark-driver/persistence
+  mkdir -p /var/sds/sparta/spark-driver/persistence/journal
+  mkdir -p /var/sds/sparta/spark-driver/persistence/snapshots
+
 }
 
 function initSpark() {

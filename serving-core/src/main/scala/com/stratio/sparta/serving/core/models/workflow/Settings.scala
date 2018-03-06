@@ -67,7 +67,7 @@ case class SubmitArguments(
                             userArguments: Seq[UserSubmitArgument] = Seq.empty[UserSubmitArgument],
                             deployMode: Option[String] = Option("client"),
                             driverJavaOptions: Option[JsoneyString] = Option(JsoneyString(
-                              "-Dconfig.file=/etc/sds/sparta/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"))
+                              "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"))
                           )
 
 case class SparkConf(

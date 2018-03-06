@@ -228,6 +228,21 @@
                                     <path>/var/sds/sparta/dg-agent/persistence/snapshots</path>
                                 </mkdirs>
                                 <mkdirs>
+                                    <path>/var/sds/sparta/spark-driver</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/spark-driver</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/spark-driver/persistence</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/spark-driver/persistence/journal</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/spark-driver/persistence/snapshots</path>
+                                </mkdirs>
+                                <mkdirs>
                                     <path>/var/log/sds/sparta</path>
                                 </mkdirs>
                                 <!-- For the jars plugin -->
