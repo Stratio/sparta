@@ -83,11 +83,11 @@ class ClasspathUtils extends SLF4JLogging {
       block(clazz)
     } catch {
       case e: ClassNotFoundException =>
-        throw new Exception("Class with name " + classAndPackage + " Cannot be found in the classpath.", e)
+        throw new Exception(s"Class $classAndPackage cannot be found in the classpath. ${e.toString}", e)
       case e: InstantiationException =>
-        throw new Exception("Class with name " + classAndPackage + " cannot be instantiated", e)
+        throw new Exception(s"Class $classAndPackage cannot be instantiated. ${e.toString}", e)
       case e: Exception =>
-        throw new Exception("Generic error trying to instantiate " + classAndPackage, e)
+        throw new Exception(s"Generic error trying to instantiate $classAndPackage. ${e.toString}", e)
     }
   }
 

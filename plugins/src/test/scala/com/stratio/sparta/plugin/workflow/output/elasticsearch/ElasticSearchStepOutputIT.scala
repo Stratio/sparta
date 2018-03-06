@@ -83,10 +83,7 @@ class ElasticSearchStepOutputIT extends TemporalSparkContext
       .options(Map("es.nodes" -> s"$esHost", "es.port" -> "9200")).load("sparta")
     loadData.count() should be (3)
   }
-
-  "it" should "thrown an exception when the path is not defined" in {
-    an[Exception] should be thrownBy new ElasticSearchOutputStep("es-test", sparkSession, Map())
-  }
+  
 }
 
 case class Person(name: String, age: Int, minute: Long) extends Serializable

@@ -26,11 +26,11 @@ import org.apache.spark.sql.crossdata.XDSession
 
 import scala.util.Try
 
-class ElasticSearchOutputStep (
-                                name : String,
-                                xDSession: XDSession,
-                                properties: Map[String, JSerializable]
-                              ) extends OutputStep(name, xDSession, properties){
+class ElasticSearchOutputStep(
+                               name: String,
+                               xDSession: XDSession,
+                               properties: Map[String, JSerializable]
+                             ) extends OutputStep(name, xDSession, properties) {
 
 
   val DefaultIndexType = "sparta"
@@ -70,7 +70,7 @@ class ElasticSearchOutputStep (
       .save(indexNameType(tableName))
   }
 
-  def indexNameType(tableName : String) : String =
+  def indexNameType(tableName: String): String =
     s"${tableName.toLowerCase}/$mappingType"
 
 
@@ -79,20 +79,23 @@ class ElasticSearchOutputStep (
                       defaultPort: String,
                       nodeName: String,
                       portName: String): Seq[(String, Int)] = {
-    properties.getMapFromArrayOfValues(key).map (c =>
+    val values = Try(properties.getMapFromArrayOfValues(key)).getOrElse(Seq.empty[Map[String, String]])
+
+    values.map(c =>
       (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }
 
   def getSparkConfig(saveMode: SaveModeEnum.Value, primaryKey: Option[String])
-    : Map[String,String] = {
+  : Map[String, String] = {
     saveMode match {
-      case SaveModeEnum.Upsert => primaryKey.fold(Map.empty[String,String]){field =>
-        Map("es.mapping.id" -> field)}
-      case _ => Map.empty[String,String]
+      case SaveModeEnum.Upsert => primaryKey.fold(Map.empty[String, String]) { field =>
+        Map("es.mapping.id" -> field)
+      }
+      case _ => Map.empty[String, String]
     }
   } ++ {
     Map("es.nodes" -> httpNodes.head._1, "es.port" -> httpNodes.head._2.toString,
-        "es.index.auto.create" -> autoCreateIndex.toString)
+      "es.index.auto.create" -> autoCreateIndex.toString)
   } ++ {
     timeStampMapper match {
       case Some(timeStampMapperValue) => Map("es.mapping.timestamp" -> timeStampMapperValue)
@@ -108,14 +111,14 @@ class ElasticSearchOutputStep (
     if (sparkConf.get(prefixSparkElastic + "enabled").isDefined &&
       sparkConf(prefixSparkElastic + "enabled") == "true") {
 
-      val configElastic = sparkConf.flatMap{ case(key, value) =>
+      val configElastic = sparkConf.flatMap { case (key, value) =>
         if (key.startsWith(prefixSparkElastic))
           Option(key.replace(prefixSparkElastic, "") -> value)
         else None
       }
 
       val mappedProps = Map(
-        s"$prefixElasticSecurity"-> configElastic("enabled"),
+        s"$prefixElasticSecurity" -> configElastic("enabled"),
         s"$prefixElasticSecurity.keystore.pass" -> configElastic("keyStorePassword"),
         s"$prefixElasticSecurity.keystore.location" -> s"file:${configElastic("keyStore")}",
         s"$prefixElasticSecurity.truststore.location" -> s"file:${configElastic("trustStore")}",
@@ -128,7 +131,7 @@ class ElasticSearchOutputStep (
   }
 }
 
-object ElasticSearchOutputStep{
+object ElasticSearchOutputStep {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     SecurityHelper.dataStoreSecurityConf(configuration)

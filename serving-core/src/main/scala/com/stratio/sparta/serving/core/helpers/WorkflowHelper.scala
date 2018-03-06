@@ -52,8 +52,7 @@ object WorkflowHelper extends SLF4JLogging {
       } match {
         case Success(configurations) =>
           configurations
-        case Failure(e) =>
-          log.warn(s"Error obtaining configurations from singleton objects. ${e.getLocalizedMessage}")
+        case Failure(_) =>
           Seq.empty[(String, String)]
       }
     }.toMap

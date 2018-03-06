@@ -60,10 +60,7 @@ trait ErrorManager extends SLF4JLogging {
                      workflow: Workflow,
                      message: String
                     ): Throwable = {
-    val originalMsg = exception.getCause match {
-      case _: ClassNotFoundException => "The component couldn't be found in classpath. Please check the type."
-      case _ => exception.toString
-    }
+    val originalMsg = exception.getCause.toString
     val workflowError = WorkflowError(message, code, originalMsg)
     log.error("An error was detected : {}", workflowError)
     Try {
@@ -72,7 +69,7 @@ trait ErrorManager extends SLF4JLogging {
       case e => log.error(s"Error while persisting error: $workflowError", e)
     }
 
-    ErrorManagerException(message, exception)
+    ErrorManagerException(s"$message. Message: ${exception.getLocalizedMessage}", exception)
   }
 }
 
