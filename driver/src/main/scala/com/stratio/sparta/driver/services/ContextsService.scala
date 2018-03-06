@@ -23,7 +23,6 @@ import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
-import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
@@ -35,7 +34,6 @@ import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -47,8 +45,6 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
   private val executionService = new ExecutionService(curatorFramework)
 
   def localStreamingContext(workflow: Workflow, files: Seq[File]): (SpartaWorkflow[DStream], StreamingContext) = {
-    killLocalContextListener(workflow, workflow.name)
-
     import workflow.settings.streamingSettings.checkpointSettings._
 
     if (enableCheckpointing) {
@@ -71,8 +67,6 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
   }
 
   def localContext(workflow: Workflow, files: Seq[File]): SpartaWorkflow[RDD] = {
-    killLocalContextListener(workflow, workflow.name)
-
     val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalWorkflowConfig
@@ -126,33 +120,6 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
     notifyWorkflowStarted(workflow)
     spartaWorkflow.stages()
     spartaWorkflow
-  }
-
-  private[driver] def killLocalContextListener(workflow: Workflow, name: String): Unit = {
-    log.info(s"Listener added for workflow ${workflow.name}")
-
-    listenerActor ! OnWorkflowStatusChangeDo(workflow.id.get) { workflowStatusStream =>
-      if (workflowStatusStream.workflowStatus.status == Stopping ||
-        workflowStatusStream.workflowStatus.status == Stopped)
-        try {
-          log.info("Stopping message received from Zookeeper")
-          closeContexts(workflow.id.get)
-        } finally {
-          listenerActor ! ForgetWorkflowStatusActions(workflow.id.get)
-        }
-    }
-
-  }
-
-  private[driver] def closeContexts(workflowId: String): Unit = {
-    val information = "The Context was successfully closed in the local listener"
-    log.info(information)
-    statusService.update(WorkflowStatus(
-      id = workflowId,
-      status = Finished,
-      statusInfo = Some(information)
-    ))
-    stopSparkContext()
   }
 
   private[driver] def setDispatcherSettings(workflow: Workflow, sparkContext: SparkContext): Unit = {

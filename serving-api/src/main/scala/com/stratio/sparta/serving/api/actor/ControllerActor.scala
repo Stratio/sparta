@@ -16,24 +16,15 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import scala.concurrent.duration._
-import scala.util.{Properties, Try}
-
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
-import com.typesafe.config.Config
-import org.apache.curator.framework.CuratorFramework
-import spray.http.StatusCodes._
-import spray.routing._
-
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
@@ -41,6 +32,13 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
+import com.typesafe.config.Config
+import org.apache.curator.framework.CuratorFramework
+import spray.http.StatusCodes._
+import spray.routing._
+
+import scala.concurrent.duration._
+import scala.util.Try
 
 class ControllerActor(
                        curatorFramework: CuratorFramework,
@@ -105,13 +103,6 @@ class ControllerActor(
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
-
-  override def preStart(): Unit = {
-
-    log.debug("Creating status listeners")
-    statusActor ! AddClusterListeners
-
-  }
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 

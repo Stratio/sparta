@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: CuratorFramework)
   extends Actor with SLF4JLogging {
 
-  private val contextService: ContextsService = ContextsService(curatorFramework, statusListenerActor)
+  lazy private val contextService: ContextsService = ContextsService(curatorFramework, statusListenerActor)
   lazy private val statusService = new WorkflowStatusService(curatorFramework)
   lazy private val hdfsFilesService = HdfsFilesService()
 
@@ -68,21 +68,12 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
         executeLocalBatchContext(workflow, jars)
     } match {
       case Success(_) =>
-        SparkContextFactory.stopSparkContext()
-        val information = s"Workflow stopped correctly"
-        log.info(information)
-        statusService.update(WorkflowStatus(
-          id = workflow.id.get,
-          status = WorkflowStatusEnum.Finished,
-          statusInfo = Some(information)
-        ))
         self ! PoisonPill
       case Failure(_: ErrorManagerException) =>
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = WorkflowStatusEnum.Failed
         ))
-        SparkContextFactory.stopSparkContext()
         self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating the workflow"
@@ -93,9 +84,9 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
           statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
-        SparkContextFactory.stopSparkContext()
         self ! PoisonPill
     }
+    SparkContextFactory.stopSparkContext()
   }
 
   private def executeLocalStreamingContext(workflow: Workflow, jars: Seq[File]): Unit = {

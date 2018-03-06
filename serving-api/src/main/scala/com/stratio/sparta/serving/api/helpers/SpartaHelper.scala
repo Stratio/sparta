@@ -51,12 +51,10 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       log.debug("Initializing Sparta system ...")
       implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
 
-      log.debug("Initializing Sparta data ...")
-      new EnvironmentService(curatorFramework).initialize()
-      new GroupService(curatorFramework).initialize()
-
       val envListenerActor = system.actorOf(Props[EnvironmentListenerActor])
       system.actorOf(Props(new EnvironmentPublisherActor(curatorFramework)))
+
+      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitEnvInit")).getOrElse(500L))
 
       val groupApiActor = system.actorOf(Props[GroupInMemoryApi])
       val executionApiActor = system.actorOf(Props[ExecutionInMemoryApi])
@@ -64,19 +62,28 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val statusApiActor = system.actorOf(Props[StatusInMemoryApi])
       val stListenerActor = system.actorOf(Props[StatusListenerActor])
       val workflowListenerActor = system.actorOf(Props[WorkflowListenerActor])
+      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor)
+
+      system.actorOf(Props[SchedulerMonitorActor])
 
       if (Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
         log.debug("Initializing lineage service ...")
         system.actorOf(LineageService.props(stListenerActor, workflowListenerActor))
       }
+
+      log.debug("Initializing Sparta data ...")
+      new EnvironmentService(curatorFramework).initialize()
+      new GroupService(curatorFramework).initialize()
+
+      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitRecovery")).getOrElse(2000L))
+
+      system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
       system.actorOf(Props(
         new WorkflowPublisherActor(curatorFramework, Option(system), Option(envListenerActor))))
-      system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
       system.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
-      system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
+      system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
       system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
 
-      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor)
       val controllerActor = system.actorOf(Props(new ControllerActor(
           curatorFramework,
           stListenerActor,
@@ -84,7 +91,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
           inMemoryApiActors
         )), ControllerActorName)
 
-      log.debug("Binding Sparta API ...")
+      log.info("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
         interface = SpartaConfig.apiConfig.get.getString("host"),
         port = SpartaConfig.apiConfig.get.getInt("port")
@@ -93,7 +100,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       if(Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true })
         Option(system.actorOf(Props(new NginxActor()), NginxActorName))
 
-      log.info("Sparta System initiated correctly")
-    } else log.info("Sparta Configuration is not defined")
+      log.info("Sparta server initiated correctly")
+    } else log.info("Sparta configuration is not defined")
   }
 }

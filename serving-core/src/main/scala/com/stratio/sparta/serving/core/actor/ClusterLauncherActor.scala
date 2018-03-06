@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.{Actor, ActorRef, Cancellable}
+import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -36,17 +36,13 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
 
   private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val clusterListenerService = new ListenerService(curatorFramework, statusListenerActor)
-  private val launcherService = new LauncherService(curatorFramework)
-  private val checkersWorkflowStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
+  private val listenerService = new ListenerService(curatorFramework, statusListenerActor)
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
     case StartWithRequest(workflow: Workflow, submitRequest: WorkflowExecution) => launch(workflow, submitRequest)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
-
-  override def postStop(): Unit = checkersWorkflowStatus.foreach(task => if (!task.isCancelled) task.cancel())
 
   //scalastyle:off
   def initializeSubmitRequest(workflow: Workflow): Unit = {
@@ -58,7 +54,11 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         log.error(message)
         throw new RuntimeException(message)
       }
-      val zookeeperConfig = launcherService.getZookeeperConfig
+      val zookeeperConfig = SpartaConfig.getZookeeperConfig.getOrElse {
+        val message = "Impossible to extract Zookeeper Configuration"
+        log.error(message)
+        throw new RuntimeException(message)
+      }
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
       val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
@@ -146,7 +146,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       //Redirect options
       spartaLauncher.redirectError()
       // Launch SparkApp
-      spartaLauncher.startApplication(clusterListenerService.addSparkListener(workflow))
+      spartaLauncher.startApplication()
     } match {
       case Failure(exception) =>
         val information = s"An error was encountered while launching the workflow"
@@ -165,14 +165,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           status = Launched,
           statusInfo = Option(information)
         ))
-        val scheduledTask = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
-          launcherService.checkWorkflowStatus(workflow))
-        checkersWorkflowStatus += scheduledTask
-        if (workflow.settings.global.executionMode.contains(ConfigMesos))
-          clusterListenerService.addMesosDispatcherListener(workflow.id.get, Option(scheduledTask))
         if (workflow.settings.global.executionMode.contains(ConfigMarathon))
-          clusterListenerService.addSparkClientListener(workflow.id.get, sparkHandler, scheduledTask)
-
+          listenerService.addSparkClientListener(workflow.id.get, sparkHandler)
     }
   }
 }

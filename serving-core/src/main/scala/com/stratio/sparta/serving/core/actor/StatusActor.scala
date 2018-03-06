@@ -37,7 +37,6 @@ class StatusActor(
 
   private val ResourceType = "status"
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val listenerService = new ListenerService(curatorFramework, statusListenerActor)
 
   //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
@@ -47,7 +46,6 @@ class StatusActor(
     case FindAll(user) => findAll(user)
     case FindById(id, user) => findById(id, user)
     case DeleteAll(user) => deleteAll(user)
-    case AddClusterListeners => listenerService.addClusterListeners(statusService.findAll(), context)
     case DeleteStatus(id, user) => deleteStatus(id, user)
     case _ => log.info("Unrecognized message in Status Actor")
   }
@@ -111,8 +109,6 @@ object StatusActor {
   case class FindById(id: String, user: Option[LoggedUser])
 
   case class ClearLastError(id: String)
-
-  case object AddClusterListeners
 
   type Response = Try[Unit]
 

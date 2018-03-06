@@ -16,10 +16,9 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, ActorRef, Cancellable, PoisonPill}
+import akka.actor.{Actor, ActorRef, PoisonPill}
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.marathon.MarathonService
@@ -36,16 +35,11 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
 
   private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val launcherService = new LauncherService(curatorFramework)
-  private val clusterListenerService = new ListenerService(curatorFramework, statusListenerActor)
-  private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
-
-  override def postStop(): Unit = checkersPolicyStatus.foreach(task => if(!task.isCancelled) task.cancel())
 
   //scalastyle:off
   def initializeSubmitRequest(workflow: Workflow): Unit = {
@@ -57,7 +51,11 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
         log.error(message)
         throw new RuntimeException(message)
       }
-      val zookeeperConfig = launcherService.getZookeeperConfig
+      val zookeeperConfig = SpartaConfig.getZookeeperConfig.getOrElse {
+        val message = "Impossible to extract Zookeeper Configuration"
+        log.error(message)
+        throw new RuntimeException(message)
+      }
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
       val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
       val localPluginJars = JarsHelper.getLocalPathFromJars(pluginJars)
@@ -113,10 +111,6 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
               sparkURI = NginxUtils.buildSparkUI(
                 s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
             ))
-            val scheduledTask = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
-              launcherService.checkWorkflowStatus(workflow))
-            clusterListenerService.addMarathonListener(workflow.id.get, context, Option(scheduledTask))
-            checkersPolicyStatus += scheduledTask
           case Failure(e) =>
             val information = s"An error was encountered while launching the Workflow App in the Marathon API"
             statusService.update(WorkflowStatus(
