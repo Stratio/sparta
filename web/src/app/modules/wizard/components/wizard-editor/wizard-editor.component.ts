@@ -176,6 +176,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             let pristine = true;
             let repaints = 0;
             const SVGContainer = this.SVGContainer;
+            const repaint = function () {
+                SVGContainer.attr('transform', this.toString());
+            };
             this.SVGParent.call(this.drag
                 .on('start', () => {
                     const event = d3.event;
@@ -202,13 +205,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 if (lastUpdateCall) {
                     cancelAnimationFrame(lastUpdateCall);
                 }
-                lastUpdateCall = requestAnimationFrame(() => {
-                    this.svgPosition = e.transform;
-                    SVGContainer.attr('transform', e.transform.toString())
-                });
+                this.svgPosition = e.transform;
+                lastUpdateCall = requestAnimationFrame(repaint.bind(e.transform));
             })).on('dblclick.zoom', null);
-
-
         });
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {

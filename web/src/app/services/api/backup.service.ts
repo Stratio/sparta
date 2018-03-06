@@ -75,9 +75,9 @@ export class BackupService extends ApiService {
     }
 
     createBackupFile(data: any, fileName: string): void {
-        const backupData = 'text/json;charset=utf-8,' + JSON.stringify(data);
+        const file = new Blob([JSON.stringify(data)], {type: 'json'});
         const a = document.createElement('a');
-        a.href = 'data:' + backupData;
+        a.href = URL.createObjectURL(file);
         a.download = fileName + '.json';
         document.body.appendChild(a);
         a.click();

@@ -29,7 +29,7 @@ import { NgForm, FormBuilder, FormGroup, FormArray, Validators } from '@angular/
 
 import * as fromRoot from './reducers';
 import * as environmentActions from './actions/environment';
-import { generateJsonFile } from 'utils';
+import { generateJsonFile } from '@utils';
 
 import { ImportEnvironmentModalComponent } from './components/import-environment-modal/import-environment-modal.component';
 import { StModalService } from '@stratio/egeo';

@@ -24,45 +24,45 @@ import { EnvironmentComponent } from './environment/environment.component';
 
 
 const settingsRoutes: Routes = [
-   {
-      path: '',
-      component: SettingsComponent,
-      children: [
-         {
-            path: '',
-            redirectTo: 'backups'
-         },
-         {
-            path: 'backups',
-            component: SpartaBackups
-         },
-        {
-            path: 'resources',
-            redirectTo: 'resources/plugins'
-         },
-         {
-            path: 'resources/drivers',
-            component: SpartaDrivers
-         },
-         {
-            path: 'plugins',
-            component: SpartaPlugins
-         },
-         {
-            path: 'environment',
-            component: EnvironmentComponent
-         }
-      ]
-   }
+    {
+        path: '',
+        component: SettingsComponent,
+        children: [
+            {
+                path: '',
+                redirectTo: 'backups'
+            },
+            {
+                path: 'backups',
+                loadChildren: './backups/backups.module#BackupsModule'
+            },
+            {
+                path: 'resources',
+                redirectTo: 'resources/plugins'
+            },
+            {
+                path: 'resources/drivers',
+                component: SpartaDrivers
+            },
+            {
+                path: 'plugins',
+                component: SpartaPlugins
+            },
+            {
+                path: 'environment',
+                loadChildren: './environment/environment.module#EnvironmentModule'
+            },
+        ]
+    }
 ];
 
 @NgModule({
-   exports: [
-      RouterModule
-   ],
-   imports: [
-      RouterModule.forChild(settingsRoutes)
-   ]
+    exports: [
+        RouterModule
+    ],
+    imports: [
+        RouterModule.forChild(settingsRoutes)
+    ]
 })
 
 export class SettingsRoutingModule { }

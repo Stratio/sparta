@@ -8,7 +8,7 @@
 
       </div>
       <div general-tools>
-         <button class="button button-toolbar" *ngIf="(sparkUILink$ | async).length" id="sparkui-link-button" (click)="openSparkUI()">
+         <button class="button button-toolbar" *ngIf="(sparkUILink$ | async) && (sparkUILink$ | async).length" id="sparkui-link-button" (click)="openSparkUI()">
             <i class="icon-globe"></i>
         </button>
       </div>

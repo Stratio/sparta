@@ -25,7 +25,6 @@ import { reducers } from './reducers';
 import { BrowserModule } from '@angular/platform-browser';
 import { EffectsModule } from '@ngrx/effects';
 
-import { BackupsEffect } from './effects/backups';
 import { ResourcesEffect } from './effects/resources';
 import { GlobalEffect } from './effects/global';
 import { WizardEffect } from './effects/wizard';
@@ -47,7 +46,6 @@ export const APP_IMPORTS: Array<any> = [
         TranslateModule.forRoot(TRANSLATE_CONFIG),
         StoreModule.forRoot(reducers),
         EffectsModule.forRoot([
-                BackupsEffect,
                 ResourcesEffect,
                 WizardEffect,
                 GlobalEffect

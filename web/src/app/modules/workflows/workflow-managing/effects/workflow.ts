@@ -23,7 +23,7 @@ import * as workflowActions from './../actions/workflow-list';
 import * as errorActions from 'actions/errors';
 import * as fromRoot from './../reducers';
 import { WorkflowService } from 'services/workflow.service';
-import { generateJsonFile } from 'utils';
+import { generateJsonFile } from '@utils';
 import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../workflow.constants';
 
 

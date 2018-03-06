@@ -15,7 +15,7 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
+import { type } from '@utils';
 
 export const LIST_OUTPUT = '[Output] List outputs';
 export const LIST_OUTPUT_COMPLETE = '[Output] List outputs complete';

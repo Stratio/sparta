@@ -22,6 +22,7 @@ import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/cor
     styleUrls: ['./execute-backup.styles.scss']
 })
 export class ExecuteBackup implements OnInit {
+
     @Output() onCloseExecuteModal = new EventEmitter<any>();
 
     public removeData = false;
@@ -32,7 +33,7 @@ export class ExecuteBackup implements OnInit {
         this.removeData = value;
     }
 
-    submitExecute(){
+    submitExecute() {
         this.onCloseExecuteModal.emit({
             execute: true,
             removeData: this.removeData

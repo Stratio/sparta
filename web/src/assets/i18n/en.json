@@ -519,6 +519,8 @@
       "SUCCESS": "Success",
       "ERROR": "Error",
       "WARNING": "Warning",
+      "EXECUTE_BACKUP_DESCRIPTION": "Backup executed correctly",
+      "UPLOAD_BACKUP_DESCRIPTION": "Backup uploaded correctly",
       "GENERATE_BACKUP_DESCRIPTION": "Backup generated correctly",
       "DELETE_BACKUP_DESCRIPTION": "The backup has been deleted",
       "DELETE_METADATA_DESCRIPTION": "Metadata has been deleted",

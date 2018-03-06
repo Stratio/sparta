@@ -24,7 +24,7 @@
          "services": [
             "./app/services"
          ],
-         "utils": [
+         "@utils": [
             "./app/utils"
          ],
          "data-templates/*": [

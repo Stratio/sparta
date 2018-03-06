@@ -15,8 +15,8 @@
 ///
 
 import { BackupType } from 'app/models/backup.model';
-import * as backupsActions from 'actions/backups';
-import { orderBy } from '../utils';
+import * as backupsActions from './../actions/backups';
+import { orderBy } from '@utils';
 
 export interface State {
     backupList: Array<BackupType>;

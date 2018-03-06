@@ -90,7 +90,7 @@ export class WorkflowsHeaderComponent {
     }
 
     public runWorkflow(workflow: any): void {
-        const policyStatus = workflow.context.status;
+        const policyStatus = workflow.status.status;
         if (this.isRunning(policyStatus)) {
             const stopPolicy = {
                 'id': workflow.id,

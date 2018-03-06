@@ -16,14 +16,14 @@
 
 import { WorkflowListType } from 'app/models/workflow.model';
 import * as workflowActions from '../actions/workflow-list';
-import { orderBy, formatDate, getFilterStatus } from 'utils';
+import { orderBy, formatDate, getFilterStatus } from '@utils';
 
 export interface State {
   workflowList: Array<WorkflowListType>;
   filteredWorkflow: Array<any>;
   currentFilterStatus: string;
   searchQuery: string;
-  currentPage: number;
+  paginationOptions: any;
   selectedWorkflows: Array<WorkflowListType>;
   selectedWorkflowsIds: Array<string>;
   workflowNameValidation: {
@@ -44,7 +44,10 @@ const initialState: State = {
   selectedWorkflows: [],
   selectedWorkflowsIds: [],
   searchQuery: '',
-  currentPage: 1,
+  paginationOptions: {
+    currentPage: 1,
+    perPage: 10
+  },
   executionInfo: null,
   jsonValidationError: false,
   sortOrder: true,
@@ -72,9 +75,7 @@ export function reducer(state: State = initialState, action: any): State {
     case workflowActions.REMOVE_WORKFLOW_SELECTION: {
       return Object.assign({}, state, {
         selectedWorkflows: [],
-        selectedWorkflowsIds: [],
-        sortOrder: true,
-        orderBy: 'name'
+        selectedWorkflowsIds: []
       });
     }
     case workflowActions.SELECT_WORKFLOW: {
@@ -94,28 +95,6 @@ export function reducer(state: State = initialState, action: any): State {
         selectedWorkflowsIds: newSelection.map((workflow) => {
           return workflow.id;
         })
-      });
-    }
-    case workflowActions.UPDATE_WORKFLOWS_COMPLETE: {
-      const context = action.payload;
-      const contexts = {};
-      for (let i = 0; i < context.length; i++) {
-        contexts[context[i].id] = context[i];
-      }
-      const workflowList = state.workflowList.map((workflow: any) => {
-        const c = contexts[workflow.id];
-        try {
-          workflow.lastUpdate = c.lastUpdateDate ? formatDate(c.lastUpdateDate) : '';
-          workflow.lastUpdateOrder = c.lastUpdateDate ? new Date(c.lastUpdateDate).getTime() : 0;
-        } catch (error) { }
-        workflow.filterStatus = getFilterStatus(c.status);
-        workflow.context = c ? c : {};
-        return workflow;
-      });
-      return Object.assign({}, state, {
-        workflowList: workflowList,
-        filteredWorkflow: getFilteredWorkflow(workflowList, state.searchQuery),
-        selectedWorkflows: Object.assign([], state.selectedWorkflows)
       });
     }
     case workflowActions.SAVE_JSON_WORKFLOW_ERROR: {
@@ -182,7 +161,7 @@ export function reducer(state: State = initialState, action: any): State {
     case workflowActions.CHANGE_FILTER: {
       return Object.assign({}, state, {
         currentFilterStatus: action.payload,
-        currentPage: 1
+        paginationOptions: {...state.paginationOptions, currentPage: 1 }
       });
     }
     case workflowActions.RESET_SELECTION: {
@@ -193,7 +172,7 @@ export function reducer(state: State = initialState, action: any): State {
     }
     case workflowActions.SET_PAGINATION_NUMBER: {
       return Object.assign({}, state, {
-        currentPage: action.payload
+        paginationOptions: action.payload
       });
     }
     default:
@@ -231,14 +210,14 @@ export const getMonitoringStatus: any = (state: State) => {
 function getFilteredWorkflow(workflowList: Array<any>, searchQuery: string) {
   return searchQuery.length ? workflowList.filter((workflow: any) => {
     let search = false;
-    const status = workflow.context.status === 'Started' ? 'Running' : workflow.context.status;
+    const status = workflow.status.status === 'Started' ? 'Running' : workflow.status.status;
     const query = searchQuery.toLowerCase();
     const queryNoSpaces = query.replace(' ', '');
     if (('v' + workflow.version + ' - ' + workflow.name).toLowerCase().indexOf(query) > -1) {
       search = true;
     } else if (workflow.tagsAux && workflow.tagsAux.toLowerCase().indexOf(query) > -1) {
       search = true;
-    } else if (workflow.group && workflow.group.name.indexOf(query) > -1) {
+    } else if (workflow.group && workflow.group.indexOf(query) > -1) {
       search = true;
     } else if (workflow.executionEngine.toLowerCase().indexOf(query) > -1) {
       search = true;

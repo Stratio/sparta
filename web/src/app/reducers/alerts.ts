@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import * as backupsActions from 'actions/backups';
+import * as backupsActions from './../modules/settings/backups/actions/backups';
 import * as inputActions from './../modules/templates/actions/input';
 import * as outputActions from './../modules/templates/actions/output';
 import * as transformationActions from './../modules/templates/actions/transformation';
@@ -114,6 +114,24 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
                     description: 'UPDATE_OUTPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case backupsActions.EXECUTE_BACKUP_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'EXECUTE_BACKUP_DESCRIPTION'
+                }]
+            });
+        }
+        case backupsActions.UPLOAD_BACKUP_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'UPLOAD_BACKUP_DESCRIPTION'
                 }]
             });
         }

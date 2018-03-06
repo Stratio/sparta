@@ -38,7 +38,8 @@ export class WorkflowsTableComponent implements OnInit {
 
     @Input() workflowList: Array<any> = [];
     @Input() selectedWorkflowsIds: Array<string> = [];
-    @Input() currentPage = 1;
+    @Input() paginationOptions;
+    @Input() currentOrder;
 
     @Output() onChangeOrder = new EventEmitter<any>();
     @Output() selectWorkflow = new EventEmitter<any>();
@@ -47,8 +48,8 @@ export class WorkflowsTableComponent implements OnInit {
     @Output() changeCurrentPage = new EventEmitter<number>();
 
     public fields: StTableHeader[];
-    public perPage = 20;
     public generatedId: string;
+
     public perPageOptions: any = [
         { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
     ];
@@ -74,8 +75,7 @@ export class WorkflowsTableComponent implements OnInit {
 
     changePage($event: any) {
         this.onChangePage.emit();
-        this.perPage = $event.perPage;
-        this.changeCurrentPage.emit($event.currentPage);
+        this.changeCurrentPage.emit($event);
     }
 
     showSparkUI(url: string) {
@@ -88,10 +88,7 @@ export class WorkflowsTableComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.changePage({
-            perPage: 10,
-            currentPage: 1
-        });
+
     }
 
     constructor(private route: Router, private _cd: ChangeDetectorRef) {

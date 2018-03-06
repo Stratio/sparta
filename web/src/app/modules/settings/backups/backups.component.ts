@@ -16,18 +16,17 @@
 
 import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { BackupType } from 'app/models/backup.model';
 import { OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
-
-import * as fromRoot from 'reducers';
-import * as backupsActions from 'actions/backups';
-
+import { TranslateService } from '@ngx-translate/core';
 import {
     StTableHeader, StModalButton, StModalResponse, StModalService
 } from '@stratio/egeo';
-import { TranslateService } from '@ngx-translate/core';
-import { ExecuteBackup } from './execute-backup/execute-backup.component';
+
+import * as fromBackups from './reducers';
+import * as backupsActions from './actions/backups';
+import { BackupType } from 'app/models/backup.model';
+import { ExecuteBackup } from './components/execute-backup/execute-backup.component';
 import { BreadcrumbMenuService } from 'services';
 
 @Component({
@@ -66,11 +65,11 @@ export class SpartaBackups implements OnInit, OnDestroy {
     ngOnInit() {
         this._modalService.container = this.target;
         this.store.dispatch(new backupsActions.ListBackupAction());
-        this.backupListSubscription = this.store.select(fromRoot.getBackupList).subscribe((backup: any) => {
+        this.backupListSubscription = this.store.select(fromBackups.getBackupList).subscribe((backup: any) => {
             this.backupList = backup;
             this._cd.detectChanges();
         });
-        this.selectedBackupsSubscription = this.store.select(fromRoot.getSelectedBackups).subscribe((selectedBackups: Array<string>) => {
+        this.selectedBackupsSubscription = this.store.select(fromBackups.getSelectedBackups).subscribe((selectedBackups: Array<string>) => {
             this.selectedBackups = selectedBackups;
             this._cd.detectChanges();
         });
@@ -193,7 +192,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
         }
     }
 
-    constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
+    constructor(private store: Store<fromBackups.State>, private _modalService: StModalService, private translate: TranslateService,
         public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef) {
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         const deleteBackupModalTitle = 'DASHBOARD.DELETE_BACKUP_TITLE';

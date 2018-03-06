@@ -81,6 +81,11 @@ export class WorkflowService extends ApiService {
         return this.request('workflowStatuses', 'get', options);
     }
 
+    findAllMonitoring(): Observable<any> {
+        const options: any = {};
+        return this.request('workflows/findAllMonitoring', 'get', options);
+    }
+
     getWorkflowById(id: string): Observable<any> {
         const options: any = {};
         return this.request('workflows/findById/' + id, 'get', options);
@@ -122,7 +127,6 @@ export class WorkflowService extends ApiService {
         };
         return this.request('workflowStatuses', 'put', options);
     }
-
 
 
     deleteWorkflow(id: string): Observable<any> {

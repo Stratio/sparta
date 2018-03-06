@@ -18,59 +18,46 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
+import * as _ from 'underscore';
 
 import * as errorActions from 'actions/errors';
 import * as workflowActions from './../actions/workflow-list';
 import * as fromRoot from './../reducers';
 import { WorkflowService } from 'services/workflow.service';
-import { generateJsonFile, formatDate, getFilterStatus } from 'utils';
+import { generateJsonFile, formatDate, getFilterStatus } from '@utils';
 
 
 @Injectable()
 export class WorkflowEffect {
 
     @Effect()
-    getWorkflowList$: Observable<Action> = this.actions$
-        .ofType(workflowActions.LIST_WORKFLOW).switchMap((response: any) => {
-            const context$ = this.workflowService.getWorkFlowContextList();
-            const workflows$ = this.workflowService.getWorkflowList();
-            return Observable.combineLatest(workflows$, context$, (workflows, context) => {
-                const contexts = {};
-                for ( let i = 0; i < context.length; i++) {
-                    contexts[context[i].id] = context[i];
-                }
+    getWorkflowList$: Observable<any> = this.actions$
+        .ofType(workflowActions.LIST_WORKFLOW)
+        .withLatestFrom(this.store.select(state => state.workflows.workflows))
+        .switchMap(([payload, workflowsState]: [any, any]) => {
+            return this.workflowService.findAllMonitoring().mergeMap((workflows: any) => {
                 workflows.map((workflow: any) => {
-                    const c = contexts[workflow.id];
-                    workflow.filterStatus = getFilterStatus(c.status);
+                    workflow.filterStatus = getFilterStatus(workflow.status.status);
                     workflow.tagsAux = workflow.tags ? workflow.tags.join(', ') : '';
                     try {
-                        workflow.lastUpdate = c.lastUpdateDate ? formatDate(c.lastUpdateDate) : '';
-                        workflow.lastUpdateOrder = c.lastUpdateDate ? new Date(c.lastUpdateDate).getTime() : 0;
+                        workflow.lastUpdate = workflow.lastUpdateDate ? formatDate(workflow.lastUpdateDate) : '';
+                        workflow.lastUpdateOrder = workflow.lastUpdateDate ? new Date(workflow.lastUpdateDate).getTime() : 0;
                     } catch (error) { }
-                    return workflow.context = c ? c : {};
                 });
-                return new workflowActions.ListWorkflowCompleteAction(workflows);
-            }).catch((error: any) => {
-                return error.statusText === 'Unknown Error' ?
-                    Observable.from([
-                        new workflowActions.ListWorkflowFailAction(),
-                        new errorActions.ServerErrorAction(error)
-                    ]) : Observable.of(new errorActions.ServerErrorAction(error));
+                if (_.isEqual(workflows, workflowsState.workflowList)) {
+                    return Observable.empty();
+                } else {
+                    return Observable.of(new workflowActions.ListWorkflowCompleteAction(workflows));
+                }
             });
+
+        }).catch((error: any) => {
+            return error.statusText === 'Unknown Error' ?
+                Observable.from([
+                    new workflowActions.ListWorkflowFailAction(),
+                    new errorActions.ServerErrorAction(error)
+                ]) : Observable.of(new errorActions.ServerErrorAction(error));
         });
-
-
-    @Effect()
-    updateWorkflowStatus$: Observable<Action> = this.actions$
-        .ofType(workflowActions.UPDATE_WORKFLOWS)
-        .switchMap((r: any) => {
-            return this.workflowService.getWorkFlowContextList().map((response: any) => {
-                return new workflowActions.UpdateWorkflowStatusCompleteAction(response);
-            }).catch(function (error) {
-                return Observable.of(new workflowActions.UpdateWorkflowStatusErrorAction());
-            });
-        });
-
 
     @Effect()
     deleteWorkflow$: Observable<Action> = this.actions$

@@ -23,18 +23,19 @@ import {
     OnInit
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { StModalService } from '@stratio/egeo';
+import { StModalService, Order } from '@stratio/egeo';
 import { Observable } from 'rxjs/Rx';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getPaginationNumber } from './../../reducers';
+import { State, getPaginationNumber, getTableOrder } from './../../reducers';
 
 @Component({
     selector: 'workflows-table-container',
     template: `
         <workflows-table [workflowList]="workflowList"
             [selectedWorkflowsIds]="selectedWorkflowsIds"
-            [currentPage]="currentPage$ | async"
+            [paginationOptions]="paginationOptions$ | async"
+            [currentOrder]="currentOrder$ | async"
             (onChangeOrder)="changeOrder($event)"
             (onChangePage)="changePage()"
             (changeCurrentPage)="changeCurrentPage($event)"
@@ -51,10 +52,12 @@ export class WorkflowsTableContainer implements OnInit {
 
     @Output() showWorkflowInfo = new EventEmitter<void>();
 
-    public currentPage$: Observable<number>;
+    public paginationOptions$: Observable<any>;
+    public currentOrder$: Observable<Order>;
 
     ngOnInit(): void {
-        this.currentPage$ = this._store.select(getPaginationNumber);
+        this.paginationOptions$ = this._store.select(getPaginationNumber);
+        this.currentOrder$ = this._store.select(getTableOrder);
     }
 
     changeOrder(event: any) {
@@ -73,8 +76,8 @@ export class WorkflowsTableContainer implements OnInit {
         this._store.dispatch(new workflowActions.ResetSelectionAction());
     }
 
-    changeCurrentPage(page: number) {
-        this._store.dispatch(new workflowActions.SetPaginationNumber(page));
+    changeCurrentPage(pageOptions: any) {
+        this._store.dispatch(new workflowActions.SetPaginationNumber(pageOptions));
     }
 
     constructor(private _store: Store<State>, private _modalService: StModalService) { }

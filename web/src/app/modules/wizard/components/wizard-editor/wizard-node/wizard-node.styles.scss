@@ -2,8 +2,8 @@
 .entity {
    cursor: move;
    &.active {
-     -webkit-filter: drop-shadow(193, 193, 193, 0.5);
-      filter: url(#drop-shadow); 
+      /* -webkit-filter: drop-shadow(193, 193, 193, 0.5);
+      filter: url(#drop-shadow);*/
    }
 }
 
@@ -15,6 +15,8 @@
    cursor: move;
    letter-spacing: -0.6px;
    user-select: none;
+   word-break: break-word;
+   line-height: 17px;
 }
 
 .Input {
@@ -82,22 +84,19 @@
    }
 }
 
-.created-new{
-    .entity {
-        stroke: #ddd;
-    }
-
-    .entity-name{
-        fill:#aaa;        
-    }
-
-    .entity-icon {
-        fill:#aaa;
-    }
-
-    .entity-icon2 {
-        display:none;
-    }
+.created-new {
+   .entity {
+      stroke: #ddd;
+   }
+   .entity-name {
+      fill: #aaa;
+   }
+   .entity-icon {
+      fill: #aaa;
+   }
+   .entity-icon2 {
+      display: none;
+   }
 }
 
 :host .relation.relation.over-output2 {

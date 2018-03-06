@@ -1,6 +1,6 @@
 @import '~@stratio/egeo/theme/constants';
 .spark-submit {
-    margin-top:20px;
+   margin-top: 20px;
    .title {
       font-size: $egeo-font-size-xxsmall;
       font-weight: 600;
@@ -14,8 +14,8 @@
 }
 
 .execution-info-container {
-   overflow-x: hidden;
-   overflow-y: auto;
+
+   width: 100%;
 }
 
 .info-data {

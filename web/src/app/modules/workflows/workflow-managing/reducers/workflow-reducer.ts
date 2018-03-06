@@ -17,7 +17,7 @@
 import { WorkflowListType } from 'app/models/workflow.model';
 import * as workflowActions from '../actions/workflow-list';
 import { FOLDER_SEPARATOR } from './../workflow.constants';
-import { orderBy, formatDate } from 'utils';
+import { orderBy, formatDate } from '@utils';
 import { homeGroup } from '@app/shared/constants/global';
 import { DataDetails } from './../models/data-details';
 

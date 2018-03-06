@@ -16,7 +16,7 @@
 
 import { InputType } from 'app/models/input.model';
 import * as inputActions from './../actions/input';
-import { orderBy } from 'utils';
+import { orderBy } from '@utils';
 
 export interface State {
     inputList: Array<InputType>;

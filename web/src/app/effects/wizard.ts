@@ -40,7 +40,7 @@ export class WizardEffect {
                     output: [],
                     transformation: []
                 };
-                results.map((template: any) => {
+                results.forEach((template: any) => {
                     templatesObj[template.templateType].push(template);
                 });
                 return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);

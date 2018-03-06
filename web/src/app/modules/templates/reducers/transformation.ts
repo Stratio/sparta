@@ -15,7 +15,7 @@
 ///
 
 import * as transformationActions from './../actions/transformation';
-import { orderBy } from 'utils';
+import { orderBy } from '@utils';
 
 export interface State {
     transformationList: any;

@@ -18,7 +18,6 @@ import { createSelector } from 'reselect';
 import { ActionReducer, combineReducers, createFeatureSelector } from '@ngrx/store';
 import { ActionReducerMap } from '@ngrx/store';
 
-import * as fromBackups from './backups';
 import * as fromResources from './resources';
 import * as fromAlerts from './alerts';
 import * as fromGlobal from './global';
@@ -26,7 +25,6 @@ import * as fromWizard from './wizard';
 
 export interface State {
     user: fromGlobal.State;
-    backups: fromBackups.State;
     resources: fromResources.State;
     alerts: fromAlerts.State;
     wizard: fromWizard.State;
@@ -34,7 +32,6 @@ export interface State {
 
 export const reducers: ActionReducerMap<State> = {
     user: fromGlobal.reducer,
-    backups: fromBackups.reducer,
     resources: fromResources.reducer,
     alerts: fromAlerts.reducer,
     wizard: fromWizard.reducer,
@@ -48,14 +45,9 @@ export function reducer(state: any, action: any): any {
 }
 
 export const getUserState: any = (state: State) => state.user;
-export const getBackupsState: any = createFeatureSelector<fromBackups.State>('backups');
 export const getResourcesState: any = createFeatureSelector<fromResources.State>('resources');
 export const getAlertsState: any = createFeatureSelector<fromAlerts.State>('alerts');
 export const getWizardState: any = createFeatureSelector<fromWizard.State>('wizard');
-
-// backups
-export const getBackupList: any = createSelector(getBackupsState, fromBackups.getBackupList);
-export const getSelectedBackups: any =  createSelector(getBackupsState, fromBackups.getSelectedBackups);
 
 // resources
 export const getPluginsList: any = createSelector(getResourcesState, fromResources.getPluginsList);

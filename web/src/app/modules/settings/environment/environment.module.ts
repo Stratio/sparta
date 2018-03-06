@@ -24,6 +24,7 @@ import { EnvironmentEffect } from './effects/environment';
 import { reducers } from './reducers/';
 import { ImportEnvironmentModalComponent } from './components/import-environment-modal/import-environment-modal.component';
 import { SharedModule } from '@app/shared';
+import { EnvironmentRoutingModule } from './environment.routes';
 
 @NgModule({
     declarations: [
@@ -36,6 +37,7 @@ import { SharedModule } from '@app/shared';
         EffectsModule.forFeature([EnvironmentEffect]),
         StModalModule.withComponents([ImportEnvironmentModalComponent]),
         ReactiveFormsModule,
+        EnvironmentRoutingModule,
         SharedModule,
         StSearchModule,
         StBreadcrumbsModule,

@@ -20,9 +20,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import * as errorActions from 'actions/errors';
-import * as backupsActions from 'actions/backups';
+import * as backupsActions from './../actions/backups';
 import { BackupService } from 'app/services';
-import * as fromRoot from 'reducers';
+import * as fromBackups from './../reducers';
 
 
 @Injectable()
@@ -60,7 +60,7 @@ export class BackupsEffect {
     @Effect()
     deleteBackup$: Observable<Action> = this.actions$
         .ofType(backupsActions.DELETE_BACKUP)
-        .withLatestFrom(this.store.select(state => state.backups))
+        .withLatestFrom(this.store.select(state => state.backups.backups))
         .switchMap(([payload, backups]: [any, any]) => {
             const joinObservables: Observable<any>[] = [];
             backups.selectedBackups.forEach((fileName: string) => {
@@ -79,7 +79,7 @@ export class BackupsEffect {
     @Effect()
     downloadBackup$: Observable<Action> = this.actions$
         .ofType(backupsActions.DOWNLOAD_BACKUP)
-        .withLatestFrom(this.store.select(state => state.backups))
+        .withLatestFrom(this.store.select(state => state.backups.backups))
         .switchMap(([payload, backups]: [any, any]) => {
             const joinObservables: Observable<any>[] = [];
             backups.selectedBackups.forEach((fileName: string) => {
@@ -98,7 +98,7 @@ export class BackupsEffect {
     executeBackup$: Observable<Action> = this.actions$
         .ofType(backupsActions.EXECUTE_BACKUP)
         .map((action: backupsActions.ExecuteBackupAction) => action.payload)
-        .withLatestFrom(this.store.select(state => state.backups))
+        .withLatestFrom(this.store.select(state => state.backups.backups))
         .switchMap(([data, backups]: [any, any]) => {
             return this.backupService.executeBackup(backups.selectedBackups[0], data)
                 .map((response) => {
@@ -155,6 +155,6 @@ export class BackupsEffect {
     constructor(
         private actions$: Actions,
         private backupService: BackupService,
-        private store: Store<fromRoot.State>
+        private store: Store<fromBackups.State>
     ) { }
 }

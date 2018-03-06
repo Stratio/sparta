@@ -15,7 +15,7 @@
 ///
 
 import * as resourcesActions from 'actions/resources';
-import { orderBy } from '../utils';
+import { orderBy } from '@utils';
 
 export interface State {
     pluginsList: Array<any>;

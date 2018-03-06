@@ -16,7 +16,7 @@
 
 import { OutputType } from 'app/models/output.model';
 import * as outputActions from './../actions/output';
-import { orderBy } from 'utils';
+import { orderBy } from '@utils';
 
 export interface State {
     outputList: Array<OutputType>;

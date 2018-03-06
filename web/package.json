@@ -31,8 +31,9 @@
       "@ngrx/store": "4.1.0",
       "@ngx-translate/core": "8.0.0",
       "@ngx-translate/http-loader": "2.0.0",
-      "@stratio/egeo": "8.3.2",
+      "@stratio/egeo": "8.4.0",
       "@types/d3": "4.10.0",
+      "@types/underscore": "^1.8.7",
       "codemirror": "^5.31.0",
       "core-js": "2.4.1",
       "d3": "4.10.0",
@@ -40,6 +41,7 @@
       "intl": "1.2.5",
       "reselect": "^3.0.1",
       "rxjs": "5.5.2",
+      "underscore": "^1.8.3",
       "zone.js": "0.8.16"
    },
    "devDependencies": {

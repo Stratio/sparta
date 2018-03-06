@@ -110,7 +110,7 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
     generateEntry() {
         const that = this;
         this.relationSelector.on('mousedown', function () {
-            if(that.drawingConnectionStatus.status) {
+            if (that.drawingConnectionStatus.status) {
                 return;
             }
             d3.select(this)
@@ -136,9 +136,9 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
                     this.onFinishConnector.emit(this.data);
                 });
 
-                if(isMobile) {
+                if (isMobile) {
                     this.relationSelector.on('click', () => {
-                        if(this.drawingConnectionStatus.status && this.drawingConnectionStatus.name !== this.data.name) {
+                        if (this.drawingConnectionStatus.status && this.drawingConnectionStatus.name !== this.data.name) {
                             this.onFinishConnector.emit(this.data);
                         }
                     });

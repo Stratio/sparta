@@ -20,7 +20,7 @@ import { Action } from '@ngrx/store';
 import { Effect, Actions } from '@ngrx/effects';
 
 import { Observable } from 'rxjs/Observable';
-import { generateJsonFile } from 'utils';
+import { generateJsonFile } from '@utils';
 import * as errorActions from 'actions/errors';
 import * as environmentActions from './../actions/environment';
 

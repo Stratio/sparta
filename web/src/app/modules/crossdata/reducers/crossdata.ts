@@ -15,7 +15,7 @@
 ///
 
 import * as crossdataActions from './../actions/crossdata';
-import { orderBy } from 'utils';
+import { orderBy } from '@utils';
 
 export interface State {
     databases: Array<any>;

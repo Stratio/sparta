@@ -72,7 +72,7 @@
     <st-checkbox *ngIf="field.propertyType == 'boolean' && isVisible" 
       [formControl]="stFormControl"
       [checked]="stModel"
-      contextualHelp="field.tooltip"
+      [contextualHelp]="field.tooltip"
       [name]="field.propertyId"
       class="st-form-field" 
       [qaTag]="field.qa">{{field.propertyName | translate}}</st-checkbox>

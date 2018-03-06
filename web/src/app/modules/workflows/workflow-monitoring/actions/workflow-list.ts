@@ -22,9 +22,6 @@ export const LIST_WORKFLOW_FAIL = '[Workflow] List workflow fail';
 export const SELECT_WORKFLOW = '[Workflow] Select workflow';
 export const DESELECT_WORKFLOW = '[Workflow] Deselect workflow';
 export const REMOVE_WORKFLOW_SELECTION = '[Workflow] Remove workflow selection';
-export const UPDATE_WORKFLOWS = '[Workflow] Update workflows status';
-export const UPDATE_WORKFLOWS_COMPLETE = '[Worflow] Update workflows status complete';
-export const UPDATE_WORKFLOWS_ERROR = '[Worflow] Update workflows error';
 export const DELETE_WORKFLOW = '[Workflow] Delete workflow';
 export const DELETE_WORKFLOW_COMPLETE = '[Workflow] Delete workflow complete';
 export const DELETE_WORKFLOW_ERROR = '[Workflow] Delete workflow error';
@@ -82,22 +79,6 @@ export class DeselectWorkflowAction implements Action {
 
 export class RemoveWorkflowSelectionAction implements Action {
   readonly type = REMOVE_WORKFLOW_SELECTION;
-}
-
-
-export class UpdateWorkflowStatusAction implements Action {
-  readonly type = UPDATE_WORKFLOWS;
-}
-
-
-export class UpdateWorkflowStatusCompleteAction implements Action {
-  readonly type = UPDATE_WORKFLOWS_COMPLETE;
-
-  constructor(public payload: any) { }
-}
-
-export class UpdateWorkflowStatusErrorAction implements Action {
-  readonly type = UPDATE_WORKFLOWS_ERROR;
 }
 
 export class DeleteWorkflowAction implements Action {
@@ -262,9 +243,6 @@ export type Actions =
   SelectWorkflowAction |
   DeselectWorkflowAction |
   RemoveWorkflowSelectionAction |
-  UpdateWorkflowStatusAction |
-  UpdateWorkflowStatusCompleteAction |
-  UpdateWorkflowStatusErrorAction |
   DeleteWorkflowAction |
   DeleteWorkflowCompleteAction |
   DeleteWorkflowErrorAction |

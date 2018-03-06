@@ -93,7 +93,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     }
 
     updateWorkflowsStatus(): void {
-        this.timer = setInterval(() => this._store.dispatch(new workflowActions.UpdateWorkflowStatusAction()), 5000);
+        this.timer = setInterval(() => this._store.dispatch(new workflowActions.ListWorkflowAction()), 3000);
     }
 
     showWorkflowInfo() {

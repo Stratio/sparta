@@ -65,7 +65,7 @@ hr {
 
 .status-field {
    font-family: $egeo-nunito-sans-semiBold;
-   &.Started {
+   &.Started, &.Running {
       color: $status-success-hover;
    }
    &.Failed {
