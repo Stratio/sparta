@@ -22,7 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -44,9 +44,9 @@ abstract class TestInputStep[Underlying[Row]](
   extends InputStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val eventType: EventType.Value = EventType.withName(properties.getString("eventType", "STRING").toUpperCase)
-  lazy val event: String = properties.getString("event", "dummyEvent")
-  lazy val maxNumber: Int = properties.getInt("maxNumber", 1)
-  lazy val numEvents: Long = properties.getLong("numEvents", 1L)
+  lazy val event = properties.getString("event", None)
+  lazy val maxNumber = Try(properties.getInt("maxNumber")).toOption
+  lazy val numEvents = Try(properties.getLong("numEvents")).toOption
   lazy val outputField: String = properties.getString("outputField", DefaultRawDataField)
   protected val stopAfterNumbEvents: Option[Long] =
     Try(Option(properties.getString("maxNumbEvents")).notBlank.map(_.toLong)).getOrElse(None)
@@ -57,11 +57,35 @@ abstract class TestInputStep[Underlying[Row]](
     else numberSchema
   }
 
-  val eventsToGenerate : Long =
-    if(stopAfterNumbEvents.isDefined)
-      math.min(numEvents, stopAfterNumbEvents.get)
-    else numEvents
+  lazy val eventsToGenerate : Long = {
+    require(numEvents.isDefined, "The field number of events cannot be empty")
 
+    if (stopAfterNumbEvents.isDefined)
+      math.min(numEvents.get, stopAfterNumbEvents.get)
+    else numEvents.get
+  }
+
+  override def validate(options: Map[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if(eventType.equals(EventType.STRING) && event.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name event field cannot be empty"
+      )
+    else if (eventType.equals(EventType.RANDOM_NUMBER) && maxNumber.isDefined)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name max number field cannot be empty"
+      )
+
+    if (properties.getString("numEvents", None).isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name number of events field cannot be empty"
+      )
+    validation
+  }
 }
 
 class TestInputStepStreaming(
@@ -81,15 +105,18 @@ class TestInputStepStreaming(
 
     val registers = for (_ <- 1L to eventsToGenerate) yield {
       if (eventType == EventType.STRING)
-        new GenericRowWithSchema(Array(event), stringSchema).asInstanceOf[Row]
-      else new GenericRowWithSchema(Array(Random.nextInt(maxNumber)), numberSchema).asInstanceOf[Row]
+        new GenericRowWithSchema(Array(event.get), stringSchema).asInstanceOf[Row]
+      else {
+        require(maxNumber.isDefined, "The field max number cannot be empty")
+        new GenericRowWithSchema(Array(Random.nextInt(maxNumber.get)), numberSchema).asInstanceOf[Row]
+      }
     }
 
     val defaultRDD = ssc.get.sparkContext.parallelize(registers)
 
     if(stopAfterNumbEvents.isDefined)
-      new TestDStream(ssc.get, defaultRDD, Option(numEvents), stopAfterNumbEvents)
-    else new TestDStream(ssc.get, defaultRDD, Option(numEvents))
+      new TestDStream(ssc.get, defaultRDD, numEvents, stopAfterNumbEvents)
+    else new TestDStream(ssc.get, defaultRDD, numEvents)
   }
 
 }
@@ -108,10 +135,10 @@ class TestInputStepBatch(
     */
   override def init(): DistributedMonad[RDD] = {
 
-    val registers = for (_ <- 1L to numEvents) yield {
+    val registers = for (_ <- 1L to numEvents.get) yield {
       if (eventType == EventType.STRING)
-        new GenericRowWithSchema(Array(event), stringSchema).asInstanceOf[Row]
-      else new GenericRowWithSchema(Array(Random.nextInt(maxNumber)), numberSchema).asInstanceOf[Row]
+        new GenericRowWithSchema(Array(event.get), stringSchema).asInstanceOf[Row]
+      else new GenericRowWithSchema(Array(Random.nextInt(maxNumber.get)), numberSchema).asInstanceOf[Row]
     }
     val defaultRDD = xDSession.sparkContext.parallelize(registers)
 

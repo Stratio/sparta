@@ -30,6 +30,7 @@ class TestInputStepStreamingIT extends TemporalSparkContext with Matchers {
   "TestInputStepStream " should "generate event specified on each streaming batch" in {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val eventsPerBatch = 100
+    val maxNumber = "500"
     val event = "testEvent"
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val properties = Map(

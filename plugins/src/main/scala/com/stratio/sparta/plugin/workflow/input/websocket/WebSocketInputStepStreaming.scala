@@ -50,13 +50,13 @@ class WebSocketInputStepStreaming(
     if (url.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input url can not be empty")
+        messages = validation.messages :+ s"$name url cannot be empty")
 
     validation
   }
 
   def init(): DistributedMonad[DStream] = {
-    require(url.nonEmpty, "Input url can not be empty")
+    require(url.nonEmpty, "Input url cannot be empty")
     ssc.get.receiverStream(new WebSocketReceiver(url, storageLevel, outputSchema))
   }
 }

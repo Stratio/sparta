@@ -86,13 +86,13 @@ class CrossdataInputStepStreaming(
     if (query.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input query can not be empty"
+        messages = validation.messages :+ s"$name input query cannot be empty"
       )
 
     if (offsetItems.nonEmpty && offsetItems.exists(offsetField => offsetField.name.isEmpty))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name there are offset items with incorrect name"
+        messages = validation.messages :+ s"$name there are offset items with an incorrect definition"
       )
 
     validation
@@ -101,7 +101,7 @@ class CrossdataInputStepStreaming(
   def init(): DistributedMonad[DStream] = {
     require(query.nonEmpty, "The input query can not be empty")
     require(offsetItems.isEmpty || offsetItems.forall(offsetField => offsetField.name.nonEmpty),
-      "There are offset items with incorrect name")
+      "There are offset items with an incorrect definition")
 
     val inputSentences = InputSentences(
       query,

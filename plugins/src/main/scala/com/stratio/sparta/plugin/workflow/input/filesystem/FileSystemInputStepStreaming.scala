@@ -54,7 +54,7 @@ class FileSystemInputStepStreaming(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input path can not be empty")
+        messages = validation.messages :+ s"$name path cannot be empty")
 
     validation
   }

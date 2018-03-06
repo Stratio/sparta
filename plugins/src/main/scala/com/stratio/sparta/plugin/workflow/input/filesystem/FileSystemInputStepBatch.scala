@@ -47,14 +47,14 @@ class FileSystemInputStepBatch(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input path can not be empty"
+        messages = validation.messages :+ s"$name path cannot be empty"
       )
 
     validation
   }
 
   def init(): DistributedMonad[RDD] = {
-    require(path.nonEmpty, "Input path can not be empty")
+    require(path.nonEmpty, "Input path cannot be empty")
 
     val outputField = properties.getString("outputField", DefaultRawDataField)
     val outputSchema = StructType(Seq(StructField(outputField, StringType)))

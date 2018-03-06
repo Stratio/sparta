@@ -47,14 +47,14 @@ class CrossdataInputStepBatch(
     if (query.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input query can not be empty"
+        messages = validation.messages :+ s"$name query cannot be empty"
       )
 
     validation
   }
 
   def init(): DistributedMonad[RDD] = {
-    require(query.nonEmpty, "The input query can not be empty")
+    require(query.nonEmpty, "The input query cannot be empty")
     xDSession.sql(query).rdd
   }
 
