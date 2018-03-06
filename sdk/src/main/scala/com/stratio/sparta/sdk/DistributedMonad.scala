@@ -227,12 +227,17 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
             log.debug(s"Error management executed correctly in ${outputOptions.tableName}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
               throw e
+            else log.warn(s"Error executing the workflow, the error will be discarded by the errors management." +
+              s" The exception is: ${e.toString}")
           case Failure(exception) =>
             log.debug(s"Error management executed with errors in ${outputOptions.tableName}." +
               s" ${exception.getLocalizedMessage}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
               throw new Exception(s"Main exception: ${e.getLocalizedMessage}." +
                 s" Error management exception: ${exception.getLocalizedMessage}", e)
+            else log.warn(s"Error executing the workflow and executing the errors management," +
+              s" the error will be discarded by the errors management." +
+              s" Main exception: ${e.toString}. Error management exception: ${exception.toString}")
         }
     }
   }
