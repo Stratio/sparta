@@ -23,7 +23,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1656_StreamingListWorkflows_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1656_StreamingListWorkflows_IT.feature",
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1730_WorkflowDetail_IT.feature"
 
 })
 public class SPARTA_1196_StreamingListWorkflows_IT extends BaseTest {

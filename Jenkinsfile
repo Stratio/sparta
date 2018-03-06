@@ -138,7 +138,7 @@ hose {
             config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
           doAT(conf: config)
         } else {
-            doAT(conf: config, groups: ['dcos_installations_executions','dcos_streaming'])
+            doAT(conf: config, groups: ['dcos_installations_executions','dcos_streaming','dcos_centralLoggin','dcos_enviroments'])
         }
      }
 }

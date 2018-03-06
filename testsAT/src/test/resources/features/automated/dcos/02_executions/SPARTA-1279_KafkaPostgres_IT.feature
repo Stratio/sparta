@@ -5,13 +5,17 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And I wait '3' seconds
-    And I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME}%2Fplan-v2-json&_='
-    And the service response status must be '200'
+
+    When in less than '300' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
+    Then I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME}%2Fplan-v2-json&_='
     And I save element '$.str' in environment variable 'exhibitor_answer'
     And I save ''!{exhibitor_answer}'' in variable 'parsed_answer'
     And I run 'echo !{parsed_answer} | jq '.phases[0]' | jq '."0001".steps[0]'| jq '."0"'.agent_hostname | sed 's/^.\|.$//g'' in the ssh connection with exit status '0' and save the value in environment variable 'pgIP'
     And I run 'echo !{pgIP}' in the ssh connection
     Then I wait '10' seconds
+    When in less than '300' seconds, checking each '20' seconds, I send a 'GET' request to '/service/${POSTGRES_NAME:-postgrestls}/v1/service/status' so that the response contains 'status'
+    Then the service response status must be '200'
+    And I save element in position '0' in '$.status[?(@.role == "master")].assignedHost' in environment variable 'pgIPCalico'
 
   #********************
   # ADD SPARTA POLICY *
@@ -28,7 +32,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   #******************************
   Scenario:[SPARTA-1279][02] Obtain postgres docker
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    Then I run 'docker ps | grep postgresql-community:${STRATIO_POSTGRES_VERSION:-0.18.1} | awk '{print $1}'' in the ssh connection and save the value in environment variable 'postgresDocker'
+    When I run 'docker ps -q | xargs -n 1 docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{ .Name }}' | sed 's/ \// /'| grep !{pgIPCalico} | awk '{print $2}'' in the ssh connection and save the value in environment variable 'postgresDocker'
     And I run 'echo !{postgresDocker}' locally
     And I wait '10' seconds
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'

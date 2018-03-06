@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 public class SPARTA_1678_Centralized_Loggin_IT extends BaseTest  {
     public SPARTA_1678_Centralized_Loggin_IT() {this.browser = browser;
     }
-    @Test(enabled = true, groups = {"dcos_centralLoggin"})
+    @Test(enabled = true, groups = {"dcos_centralLoggin"}, dependsOnGroups = {"dcos_installations_executions"})
     public void ExecuteWorkflow() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
