@@ -10,7 +10,7 @@
       "addAllUploadedPlugins": true
     },
     "streamingSettings": {
-      "window": "2s",
+      "window": "10s",
       "remember": "",
       "checkpointSettings": {
         "checkpointPath": "sparta/checkpoint",
