@@ -155,19 +155,18 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
   }
 
   def localStop(workflowStatus: WorkflowStatus): Unit = {
-    if (workflowStatus.status == Stopped || workflowStatus.status == Stopping) {
+    if (workflowStatus.status == Stopping) {
       log.info("Stop message received from Zookeeper")
       scheduledActions.filter(_._1 == workflowStatus.id).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
         scheduledActions -= task
       }
-      log.info(s"Finishing workflow with Context Factory")
       Try {
         stopSparkContext()
       } match {
         case Success(_) =>
           val information = "The workflow was successfully stopped"
-          val newStatus = Finished
+          val newStatus = Stopped
           val newInformation = Option(information)
           log.info(information)
           statusService.update(WorkflowStatus(
@@ -187,6 +186,17 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             ))
           }
       }
+    }
+    if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
+      scheduledActions.filter(_._1 == workflowStatus.id).foreach { task =>
+        if (!task._2.isCancelled) task._2.cancel()
+        scheduledActions -= task
+      }
+      val newStatus = if (workflowStatus.status == Failed) NotDefined else Finished
+      statusService.update(WorkflowStatus(
+        id = workflowStatus.id,
+        status = newStatus
+      ))
     }
   }
 

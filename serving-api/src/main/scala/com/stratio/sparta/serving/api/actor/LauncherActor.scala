@@ -64,10 +64,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
             log.info(s"Launching workflow: ${workflow.name} in cluster mode")
             clusterLauncherActor
           case AppConstant.ConfigLocal if !statusService.isAnyLocalWorkflowStarted =>
-            log.info(s"Local Context available, launching workflow ${workflow.name} ... ")
             val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
             val childLauncherActor = context.children.find(children => children.path.name == actorName)
-            log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in local mode")
+            log.info(s"Launching workflow: ${workflow.name} in local mode")
             childLauncherActor.getOrElse(context.actorOf(Props(
               new LocalLauncherActor(statusListenerActor,curatorFramework)), actorName))
           case _ =>
@@ -79,7 +78,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
         (workflow, workflowLauncherActor)
       } match {
         case Success((workflow, launcherActor)) =>
-          log.info(s"Workflow ${workflow.name} launched to: ${launcherActor.toString()}")
+          log.debug(s"Workflow ${workflow.name} launched to: ${launcherActor.toString()}")
         case Failure(exception) =>
           val information = s"Error launching workflow with the selected execution mode"
           log.error(information)

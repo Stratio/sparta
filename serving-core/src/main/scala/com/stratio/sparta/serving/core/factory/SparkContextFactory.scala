@@ -87,7 +87,7 @@ object SparkContextFactory extends SLF4JLogging {
             case Failure(e) =>
               val refFile = "/reference.conf"
               log.debug(s"Error loading Crossdata configuration file with error: ${e.getLocalizedMessage}")
-              log.info(s"Loading Crossdata configuration from resource file $refFile")
+              log.debug(s"Loading Crossdata configuration from resource file $refFile")
               new File(getClass.getResource(refFile).getPath)
           }
 
@@ -172,12 +172,12 @@ object SparkContextFactory extends SLF4JLogging {
   def stopSparkContext(stopStreaming: Boolean = true): Unit = {
     if (stopStreaming) stopStreamingContext()
 
-    sc.fold(log.info("Spark Context is empty")) { sparkContext =>
+    sc.fold(log.debug("Spark Context is empty")) { sparkContext =>
       synchronized {
         try {
-          log.info("Stopping SparkContext: " + sparkContext.appName)
+          log.debug("Stopping SparkContext: " + sparkContext.appName)
           sparkContext.stop()
-          log.info("SparkContext: " + sparkContext.appName + " stopped correctly")
+          log.debug("SparkContext: " + sparkContext.appName + " stopped correctly")
         } finally {
           xdSession = None
           ssc = None
@@ -252,15 +252,15 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
   private[core] def stopStreamingContext(): Unit = {
-    ssc.fold(log.info("Spark Streaming Context is empty")) { streamingContext =>
+    ssc.fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
       try {
         synchronized {
-          log.info(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
+          log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
           Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
             case Success(_) =>
-              log.info("Streaming Context has been stopped")
+              log.debug("Streaming Context has been stopped")
             case Failure(error) =>
-              log.error("Streaming Context not properly stopped", error)
+              log.debug("Streaming Context not properly stopped", error)
           }
         }
       } finally {

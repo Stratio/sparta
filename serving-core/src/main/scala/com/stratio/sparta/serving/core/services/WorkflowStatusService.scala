@@ -76,7 +76,6 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
 
   //scalastyle:off
   def update(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
-    log.debug(s"Updating workflow ${workflowStatus.id} with status ${workflowStatus.status}")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {

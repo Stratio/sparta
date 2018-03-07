@@ -44,7 +44,7 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val executionService = new ExecutionService(curatorFramework)
 
-  def localStreamingContext(workflow: Workflow, files: Seq[File]): (SpartaWorkflow[DStream], StreamingContext) = {
+  def localStreamingContext(workflow: Workflow, files: Seq[File]): Unit = {
     import workflow.settings.streamingSettings.checkpointSettings._
 
     if (enableCheckpointing) {
@@ -60,13 +60,16 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
 
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, curatorFramework)
     spartaWorkflow.stages()
-
     val ssc = getStreamingContext
 
-    (spartaWorkflow, ssc)
+    spartaWorkflow.setup()
+    ssc.start()
+    notifyWorkflowStarted(workflow)
+    ssc.awaitTermination()
+    spartaWorkflow.cleanUp()
   }
 
-  def localContext(workflow: Workflow, files: Seq[File]): SpartaWorkflow[RDD] = {
+  def localContext(workflow: Workflow, files: Seq[File]): Unit = {
     val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalWorkflowConfig
@@ -76,11 +79,12 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
     val spartaWorkflow = SpartaWorkflow[RDD](workflow, curatorFramework)
 
     spartaWorkflow.setup()
+    notifyWorkflowStarted(workflow)
     spartaWorkflow.stages()
-    spartaWorkflow
+    spartaWorkflow.cleanUp()
   }
 
-  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): SpartaWorkflow[DStream] = {
+  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): Unit = {
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, curatorFramework)
     val ssc = {
       import workflow.settings.streamingSettings.checkpointSettings._
@@ -107,10 +111,10 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
     ssc.start
     notifyWorkflowStarted(workflow)
     ssc.awaitTermination()
-    spartaWorkflow
+    spartaWorkflow.cleanUp()
   }
 
-  def clusterContext(workflow: Workflow, files: Seq[String]): SpartaWorkflow[RDD] = {
+  def clusterContext(workflow: Workflow, files: Seq[String]): Unit = {
     val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
     val sparkContext = getOrCreateClusterSparkContext(stepsSparkConfig, files)
     val spartaWorkflow = SpartaWorkflow[RDD](workflow, curatorFramework)
@@ -119,7 +123,7 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
     spartaWorkflow.setup()
     notifyWorkflowStarted(workflow)
     spartaWorkflow.stages()
-    spartaWorkflow
+    spartaWorkflow.cleanUp()
   }
 
   private[driver] def setDispatcherSettings(workflow: Workflow, sparkContext: SparkContext): Unit = {
@@ -149,7 +153,7 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
   }
 
   private[driver] def notifyWorkflowStarted(workflow: Workflow): Unit = {
-    val startedInfo = s"Workflow in Spark driver was properly launched"
+    val startedInfo = s"Workflow started correctly"
     log.info(startedInfo)
     statusService.update(WorkflowStatus(
       id = workflow.id.get,
