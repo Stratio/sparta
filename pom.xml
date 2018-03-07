@@ -101,12 +101,12 @@
         <scalaj.version>2.3.0</scalaj.version>
         <stratio.common.utils.version>0.6.0</stratio.common.utils.version>
         <commons-configuration.version>1.6</commons-configuration.version>
-        <stratio.spark.version>2.2.0.5-RC2</stratio.spark.version>
+        <stratio.spark.version>2.2.0.5</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <sparta.dyplon.version>0.14.0</sparta.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>3.1.0-M1</crossdata.version>
+        <crossdata.version>2.12.0</crossdata.version>
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>

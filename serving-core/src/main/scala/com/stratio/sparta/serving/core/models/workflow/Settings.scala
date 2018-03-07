@@ -77,7 +77,7 @@ case class SparkConf(
                       sparkUser: Option[JsoneyString] = None,
                       sparkLocalDir: Option[JsoneyString] = None,
                       executorDockerImage: Option[JsoneyString] = Option(JsoneyString(
-                        "qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2")),
+                        "qa.stratio.com/stratio/stratio-spark:2.2.0.5")),
                       sparkKryoSerialization: Option[Boolean] = None,
                       sparkSqlCaseSensitive: Option[Boolean] = None,
                       logStagesProgress: Option[Boolean] = None,
