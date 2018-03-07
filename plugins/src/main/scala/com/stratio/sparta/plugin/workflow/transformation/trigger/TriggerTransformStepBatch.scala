@@ -37,36 +37,25 @@ class TriggerTransformStepBatch(
   extends TriggerTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
+  //scalastyle:off
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] = {
     require(sql.nonEmpty, "The input query can not be empty")
-
-    val emptySteps = scala.collection.mutable.HashSet[String]()
-    val wrongNameSteps = scala.collection.mutable.HashSet[String]()
+    validateSchemas(inputData)
 
     inputData.foreach { case (stepName, stepData) =>
-      if (!isCorrectTableName(stepName))
-        wrongNameSteps.+=(stepName)
-      if (stepData.ds.isEmpty())
-        emptySteps.+=(stepName)
-      if (emptySteps.isEmpty && wrongNameSteps.isEmpty) {
-        val schema = stepData.ds.first().schema
+      if (!isCorrectTableName(stepName)) {
+        throw new RuntimeException(s"The step($stepName) have wrong name and is not possible to register as temporal table.")
+      }
+      val schema = inputsModel.inputSchemas.filter(is => is.stepName == stepName) match {
+        case Nil => if (!stepData.ds.isEmpty()) Some(stepData.ds.first().schema) else None
+        case x :: Nil => parserInputSchema(x.schema).toOption
+      }
+      schema.foreach { s =>
         log.debug(s"Registering temporal table in Spark with name: $stepName")
-        xDSession.createDataFrame(stepData.ds, schema).createOrReplaceTempView(stepName)
+        xDSession.createDataFrame(stepData.ds, s).createOrReplaceTempView(stepName)
       }
     }
-
-    if (wrongNameSteps.nonEmpty || emptySteps.nonEmpty) {
-      val wrongNameError = wrongNameSteps.map(stepName =>
-        s"The step($stepName) have wrong name and is not possible to register as temporal table."
-      ).mkString("\n\t")
-      val emptyStepsError = wrongNameSteps.map(stepName =>
-        s"The step($stepName) is empty and is not possible to register as temporal table."
-      ).mkString("\n\t")
-      throw new RuntimeException(
-        s"Impossible to execute trigger ($name). With errors: \n\t$wrongNameError\n\t$emptyStepsError")
-    } else {
-      executeSQL
-    }
+    executeSQL
   }
 }
 

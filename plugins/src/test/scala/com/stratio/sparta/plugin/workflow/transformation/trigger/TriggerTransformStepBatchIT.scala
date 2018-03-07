@@ -16,11 +16,6 @@
 
 package com.stratio.sparta.plugin.workflow.transformation.trigger
 
-import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
@@ -28,7 +23,11 @@ import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
-import scala.collection.mutable
+import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 
 @RunWith(classOf[JUnitRunner])
 class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
@@ -43,13 +42,14 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputData = Map("step1" -> inputRdd)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val query = s"SELECT * FROM step1 ORDER BY step1.color"
+    val inputSchema = """[{"stepName":"step1","schema":"{\"color\":\"1\",\"price\":15.5}"}]"""
     val result = new TriggerTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
  Option(ssc),
       sparkSession,
-      Map("sql" -> query)
+      Map("sql" -> query,"inputSchemas" -> JsoneyString(inputSchema))
     ).transform(inputData)
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()

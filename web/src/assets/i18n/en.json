@@ -509,6 +509,8 @@
    "_FIELDS_PRESERVATION_": "Build output row by",
    "_KEY_": "Name",
    "_VALUE_": "Value",
+   "_INPUTS_TRIGGER_SCHEMA_": "Input trigger schema",
+   "_INPUT_STEP_NAME_" : "Step name",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

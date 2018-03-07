@@ -90,7 +90,7 @@ object SchemaHelper extends SLF4JLogging {
         s"Avro schema cannot be converted to a Spark SQL StructType: ${avroSchema.toString(true)}")
     }
 
-  private def getSparkSchemaFromString(schemaStr: String): Try[StructType] =
+  def getSparkSchemaFromString(schemaStr: String): Try[StructType] =
     Try { // Try to deserialize the schema assuming it is in JSON format
       DataType.fromJson(schemaStr)
     } orElse Try { // If it wasn't a JSON, try assuming it is an string serialization of `StructType`
