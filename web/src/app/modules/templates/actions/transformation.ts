@@ -16,27 +16,30 @@
 
 import { Action } from '@ngrx/store';
 
-export const LIST_TRANSFORMATION = '[Transformation] List inputs';
-export const LIST_TRANSFORMATION_COMPLETE = '[Transformation] List inputs complete';
-export const LIST_TRANSFORMATION_FAIL = '[Transformation] List inputs fail';
-export const SELECT_TRANSFORMATION = '[Transformation] Select input';
-export const DESELECT_TRANSFORMATION = '[Transformation] Deselect input';
-export const DELETE_TRANSFORMATION = '[Transformation] Delete input';
-export const DELETE_TRANSFORMATION_COMPLETE = '[Transformation] Delete input complete';
-export const DELETE_TRANSFORMATION_ERROR = '[Transformation] Delete input error';
+export const LIST_TRANSFORMATION = '[Transformation] List transformations';
+export const LIST_TRANSFORMATION_COMPLETE = '[Transformation] List transformations complete';
+export const LIST_TRANSFORMATION_FAIL = '[Transformation] List transformations fail';
+export const GET_EDITED_TRANSFORMATION = '[Transformation] Get edited output';
+export const GET_EDITED_TRANSFORMATION_COMPLETE = '[Transformation] Get edited output complete';
+export const GET_EDITED_TRANSFORMATION_ERROR = '[Transformation] Get edited output error';
+export const SELECT_TRANSFORMATION = '[Transformation] Select transformation';
+export const DESELECT_TRANSFORMATION = '[Transformation] Deselect transformation';
+export const DELETE_TRANSFORMATION = '[Transformation] Delete transformation';
+export const DELETE_TRANSFORMATION_COMPLETE = '[Transformation] Delete transformation complete';
+export const DELETE_TRANSFORMATION_ERROR = '[Transformation] Delete transformation error';
 export const DISPLAY_MODE = '[Transformation] change display mode';
-export const DUPLICATE_TRANSFORMATION = '[Transformation] duplicate selected input';
-export const DUPLICATE_TRANSFORMATION_COMPLETE = '[Transformation] Duplicate input complete';
-export const DUPLICATE_TRANSFORMATION_ERROR = '[Transformation] duplicate input error';
-export const EDIT_TRANSFORMATION = '[Transformation] Edit input';
-export const CREATE_TRANSFORMATION = '[Transformation] Create input';
-export const CREATE_TRANSFORMATION_COMPLETE = '[Transformation] Create input complete';
-export const CREATE_TRANSFORMATION_ERROR = '[Transformation] Create input error';
-export const UPDATE_TRANSFORMATION = '[Transformation] Update input';
-export const UPDATE_TRANSFORMATION_COMPLETE = '[Transformation] Update input complete';
-export const UPDATE_TRANSFORMATION_ERROR = '[Transformation] Update input error';
-export const RESET_TRANSFORMATION_FORM = '[Transformation] Reset input form';
-export const VALIDATE_TRANSFORMATION_NAME = '[Transformation] Validate input name';
+export const DUPLICATE_TRANSFORMATION = '[Transformation] duplicate selected transformation';
+export const DUPLICATE_TRANSFORMATION_COMPLETE = '[Transformation] Duplicate transformation complete';
+export const DUPLICATE_TRANSFORMATION_ERROR = '[Transformation] duplicate transformation error';
+export const EDIT_TRANSFORMATION = '[Transformation] Edit transformation';
+export const CREATE_TRANSFORMATION = '[Transformation] Create transformation';
+export const CREATE_TRANSFORMATION_COMPLETE = '[Transformation] Create transformation complete';
+export const CREATE_TRANSFORMATION_ERROR = '[Transformation] Create transformation error';
+export const UPDATE_TRANSFORMATION = '[Transformation] Update transformation';
+export const UPDATE_TRANSFORMATION_COMPLETE = '[Transformation] Update transformation complete';
+export const UPDATE_TRANSFORMATION_ERROR = '[Transformation] Update transformation error';
+export const RESET_TRANSFORMATION_FORM = '[Transformation] Reset transformation form';
+export const VALIDATE_TRANSFORMATION_NAME = '[Transformation] Validate transformation name';
 export const CHANGE_ORDER = '[Transformation] Change order';
 
 export class ListTransformationAction implements Action {
@@ -54,6 +57,21 @@ export class ListTransformationCompleteAction implements Action {
   readonly type = LIST_TRANSFORMATION_COMPLETE;
 
   constructor(public payload: any) { }
+}
+
+export class GetEditedTransformationAction implements Action {
+  readonly type = GET_EDITED_TRANSFORMATION;
+    constructor(public payload: any) { }
+}
+
+export class GetEditedTransformationCompleteAction implements Action {
+  readonly type = GET_EDITED_TRANSFORMATION_COMPLETE;
+  constructor(public payload: any) { }
+}
+
+export class GetEditedTransformationErrorAction implements Action {
+  readonly type = GET_EDITED_TRANSFORMATION_ERROR;
+    constructor(public payload: any) { }
 }
 
 export class SelectTransformationAction implements Action {
@@ -165,6 +183,9 @@ export type Actions =
   ListTransformationAction |
   ListTransformationFailAction |
   ListTransformationCompleteAction |
+  GetEditedTransformationAction |
+  GetEditedTransformationCompleteAction |
+  GetEditedTransformationErrorAction |
   SelectTransformationAction |
   DeselectTransformationAction |
   DeleteTransformationAction |

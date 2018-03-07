@@ -123,8 +123,7 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     }
 
     public editTemplate(template: any) {
-        this.editTemplateAction(template);
-        this.route.navigate(['edit'], { relativeTo: this.currentActivatedRoute });
+        this.route.navigate(['edit/' + template.id], { relativeTo: this.currentActivatedRoute });
     }
 
     public trackByTemplateFn(index: number, item: any) {

@@ -8,7 +8,7 @@
       (onZoomOut)="changeZoom(false)" 
       (onCenter)="centerWorkflow()"
       (onShowSettings)="showSettings()" 
-      (onSaveWorkflow)="saveWorkflow()"
+      (onSaveWorkflow)="saveWorkflow($event)"
       (onEditEntity)="editButtonEntity()"
       (onDuplicateNode)="duplicateNode()"
       (deleteSelection)="deleteSelection()"></wizard-header>

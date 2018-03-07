@@ -84,6 +84,7 @@ export const isLoading: any = createSelector(getWizardState, fromWizard.isLoadin
 export const getWorkflowHeaderData: any = createSelector(getWizardState, fromWizard.getWorkflowHeaderData);
 export const getValidatedEntityName: any = createSelector(getWizardState, fromWizard.getValidatedEntityName);
 export const getErrorsManagementOutputs: any = createSelector(getWizardState, fromWizard.getErrorsManagementOutputs);
+export const getTemplates: any = createSelector(getWizardState, fromWizard.getTemplates);
 
 // user
 export const getUsername: any = createSelector(getUserState, fromGlobal.getUsername);

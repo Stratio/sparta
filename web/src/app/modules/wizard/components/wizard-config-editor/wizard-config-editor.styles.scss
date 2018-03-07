@@ -1,5 +1,6 @@
+@import '~@stratio/egeo/theme/constants';
 .name-validation {
-    margin-top: -10px;
+   margin-top: -10px;
 }
 
 .cancel-button {
@@ -25,4 +26,28 @@
 .basic-settings {
    margin-top: 30px;
    display: block;
+}
+
+.template-data {
+   .title {
+      color: $action-secondary-06;
+      font-size: 14px;
+      margin-top: 6px;
+      display: block;
+   }
+   .values {
+      display: block;
+      word-break: break-all;
+   }
+   .advice-params {
+      color: $neutral-11;
+      font-family: $egeo-nunito-sans;
+      font-size: $egeo-font-size-small;
+      line-height: $egeo-line-height-small;
+      margin: 30px 0px;
+      .link {
+         cursor: pointer;
+         color: $action-primary-default;
+      }
+   }
 }

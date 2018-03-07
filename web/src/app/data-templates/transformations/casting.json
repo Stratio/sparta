@@ -13,6 +13,7 @@
            "propertyType": "select",
            "default": "FIELDS",
            "required": true,
+           "float": true,
            "values": [
               {
                  "label": "String",

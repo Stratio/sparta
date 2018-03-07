@@ -7,7 +7,7 @@
     <svg [attr.width]="boxConfig.width" [attr.height]="boxConfig.height" class="text-container">
         <svg:foreignObject text x="20" y="42" height="38" width="110">
             <xhtml:p class="entity-name" >
-                {{data.name}}
+                <span class="template-label" *ngIf="data.nodeTemplate">T</span>{{data.name}}
             </xhtml:p>
         </svg:foreignObject>
     </svg>

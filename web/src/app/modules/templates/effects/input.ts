@@ -41,6 +41,20 @@ export class InputEffect {
         });
 
     @Effect()
+    getInputTemplate$: Observable<Action> = this.actions$
+        .ofType(inputActions.GET_EDITED_INPUT)
+        .map((action: any) => action.payload)
+        .switchMap((param: any) => {
+            return this.templatesService.getTemplateById('input', param)
+                .map((input: any) => {
+                    return new inputActions.GetEditedInputCompleteAction(input)
+                }).catch(function (error: any) {
+                    console.log(error)
+                    return error.statusText === 'Unknown Error' ? Observable.of(new inputActions.GetEditedInputErrorAction(''))
+                        : Observable.of(new errorActions.ServerErrorAction(error));
+                });
+        });
+    @Effect()
     deleteInput$: Observable<Action> = this.actions$
         .ofType(inputActions.DELETE_INPUT)
         .map((action: any) => action.payload.selected)

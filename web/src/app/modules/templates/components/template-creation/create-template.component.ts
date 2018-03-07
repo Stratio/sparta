@@ -43,6 +43,7 @@ export abstract class CreateTemplateComponent implements OnInit {
     };
     public configuration: FormGroup;
     public editMode = false;
+    public loaded = false;
 
     constructor(protected store: Store<fromTemplates.State>,
         protected route: Router,
@@ -51,8 +52,7 @@ export abstract class CreateTemplateComponent implements OnInit {
         private formBuilder: FormBuilder,
         public breadcrumbMenuService: BreadcrumbMenuService,
         protected initializeSchemaService: InitializeSchemaService) {
-
-        this.breadcrumbOptions = breadcrumbMenuService.getOptions();
+        this.breadcrumbOptions = [];
         this.configuration = new FormGroup({});
     }
 
@@ -74,10 +74,6 @@ export abstract class CreateTemplateComponent implements OnInit {
         this.inputForm.form.markAsPristine();
     }
 
-    cancelCreate() {
-        this.route.navigate(['..'], { relativeTo: this.currentActivatedRoute });
-    }
-
     changeFragment($event: any) {
     }
 
@@ -85,14 +81,16 @@ export abstract class CreateTemplateComponent implements OnInit {
         //edition-mode
         if (this.route.url.indexOf('edit') > -1) {
             this.editMode = true;
-            this.getEditedTemplate();
+            this.getEditedTemplate(this.currentActivatedRoute.snapshot.params.id);
         } else {
+            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions();
             this.inputFormModel.executionEngine = 'Streaming';
             this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.inputFormModel.executionEngine,
                 this.listData[0], this.stepType); this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
             this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
             this.inputFormModel.description = '';
             this.inputFormModel.className = this.listData[this.fragmentIndex].className;
+            this.loaded = true;
         }
     }
 
@@ -108,5 +106,5 @@ export abstract class CreateTemplateComponent implements OnInit {
         }
     }
 
-    abstract getEditedTemplate(): void;
+    abstract getEditedTemplate(id: string): void;
 }

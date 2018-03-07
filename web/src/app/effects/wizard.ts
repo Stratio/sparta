@@ -19,6 +19,8 @@ import { Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Effect, Actions, toPayload } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
+import { Location } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import * as fromRoot from 'reducers';
 import * as errorActions from 'actions/errors';
@@ -45,9 +47,9 @@ export class WizardEffect {
                 });
                 return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);
             }).catch((error) => {
-                return  Observable.if(() => error.statusText === 'Unknown Error',
-                Observable.of(new wizardActions.GetMenuTemplatesErrorAction()),
-                Observable.of(new errorActions.ServerErrorAction(error)));
+                return Observable.if(() => error.statusText === 'Unknown Error',
+                    Observable.of(new wizardActions.GetMenuTemplatesErrorAction()),
+                    Observable.of(new errorActions.ServerErrorAction(error)));
             });
         });
 
@@ -80,7 +82,7 @@ export class WizardEffect {
         .map(toPayload)
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state))
-        .switchMap(([payload, state]: [any, any]) => {
+        .switchMap(([redirectOnSave, state]: [any, any]) => {
             const wizard = state.wizard;
             if (!wizard.nodes.length) {
                 return Observable.of(new wizardActions.SaveWorkflowErrorAction({
@@ -96,7 +98,6 @@ export class WizardEffect {
                     }));
                 }
             };
-
             const workflow = Object.assign({
                 id: wizard.workflowId,
                 version: wizard.workflowVersion,
@@ -114,6 +115,7 @@ export class WizardEffect {
             if (wizard.workflowId && wizard.workflowId.length) {
                 workflow.group = wizard.workflowGroup;
                 return this.workflowService.updateWorkflow(workflow).map(() => {
+                    redirectOnSave && this.redirectOnSave();
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
                     return Observable.from([new errorActions.ServerErrorAction(error), new wizardActions.SaveWorkflowErrorAction('')]);
@@ -122,6 +124,7 @@ export class WizardEffect {
                 delete workflow.id;
                 workflow.group = state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup;
                 return this.workflowService.saveWorkflow(workflow).map(() => {
+                    redirectOnSave && this.redirectOnSave();
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
                     return Observable.from([new errorActions.ServerErrorAction(error), new wizardActions.SaveWorkflowErrorAction('')]);
@@ -129,7 +132,6 @@ export class WizardEffect {
             }
 
         });
-
 
     @Effect()
     createNodeRelation$: Observable<Action> = this.actions$
@@ -196,13 +198,22 @@ export class WizardEffect {
             return Observable.of(new wizardActions.ValidateWorkflowErrorAction());
         });
 
-
+    redirectOnSave() {
+        if (window.history.length > 2) {
+            this._location.back();
+        } else {
+            this.route.navigate(['workflow-managing']);
+        }
+    }
     constructor(
         private actions$: Actions,
         private store: Store<fromRoot.State>,
         private workflowService: WorkflowService,
         private templatesService: TemplatesService,
-        private initializeWorkflowService: InitializeWorkflowService
+        private initializeWorkflowService: InitializeWorkflowService,
+        private route: Router, 
+        private currentActivatedRoute: ActivatedRoute,
+        private _location: Location
     ) { }
 
 

@@ -42,6 +42,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
     @Input() field: any;
     @Input() stFormGroup: FormGroup;
     @Input() forceValidations = false;
+    @Input() disabled = false;
 
     public stFormControl: FormControl;
     public stFormControlSubcription: Subscription;
@@ -53,34 +54,37 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
 
     ngOnInit(): void {
         this.stFormControl = new FormControl();
-        setTimeout(() => {
-            if (this.field.visible && this.field.visible.length) {
-                for (const field of this.field.visible[0]) {
-                    this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
-                        this.disableField();
-                    }));
-                }
-            }
-
-            if (this.field.visibleOR && this.field.visibleOR.length) {
-                for (const field of this.field.visibleOR[0]) {
-                    this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
-                        this.disableFieldOR();
-                    }));
-                }
-            }
-
-            if (this.field.visibleOR && this.field.visibleOR.length) {
-                for (const field of this.field.visibleOR[0]) {
-                    this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
-                        this.disableFieldOR();
-                    }));
-                }
-            }
+        if (!this.disabled) {
             setTimeout(() => {
-                this.stFormControl.updateValueAndValidity();
+                if (this.field.visible && this.field.visible.length) {
+                    for (const field of this.field.visible[0]) {
+                        this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+                            this.disableField();
+                        }));
+                    }
+                }
+
+                if (this.field.visibleOR && this.field.visibleOR.length) {
+                    for (const field of this.field.visibleOR[0]) {
+                        this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+                            this.disableFieldOR();
+                        }));
+                    }
+                }
+
+                if (this.field.visibleOR && this.field.visibleOR.length) {
+                    for (const field of this.field.visibleOR[0]) {
+                        this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+                            this.disableFieldOR();
+                        }));
+                    }
+                }
+                setTimeout(() => {
+                    this.stFormControl.updateValueAndValidity();
+                });
             });
-        });
+        }
+
     }
 
     // TODO: refactor in only one method
@@ -91,7 +95,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
                 enable = false;
             }
         });
-        if (enable) {
+        if (enable && !this.isDisabled) {
             this.stFormGroup.controls[this.field.propertyId].enable();
         } else {
             this.stFormGroup.controls[this.field.propertyId].disable();
@@ -105,7 +109,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
                 enable = true;
             }
         });
-        if (enable) {
+        if (enable && !this.isDisabled) {
             this.stFormGroup.controls[this.field.propertyId].enable();
         } else {
             this.stFormGroup.controls[this.field.propertyId].disable();
@@ -151,6 +155,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
     }
 
     setDisabledState(isDisabled: boolean) {
+        this.isDisabled = isDisabled;
         if (isDisabled) {
             this.stFormControl.disable();
         } else {

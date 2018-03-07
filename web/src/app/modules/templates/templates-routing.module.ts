@@ -46,6 +46,10 @@ const templatesRoutes: Routes = [
                 component: CreateInputComponent
             },
             {
+                path: 'inputs/edit/:id',
+                component: CreateInputComponent
+            },
+            {
                 path: 'outputs',
                 component: OutputsComponent
             },
@@ -55,6 +59,10 @@ const templatesRoutes: Routes = [
             },
             {
                 path: 'outputs/edit',
+                component: CreateOutputComponent
+            },
+            {
+                path: 'outputs/edit/:id',
                 component: CreateOutputComponent
             },
             {
@@ -69,6 +77,10 @@ const templatesRoutes: Routes = [
                 path: 'transformations/edit',
                 component: CreateTransformationsComponent
             },
+            {
+                path: 'transformations/edit/:id',
+                component: CreateTransformationsComponent
+            }
         ]
     }
 ];

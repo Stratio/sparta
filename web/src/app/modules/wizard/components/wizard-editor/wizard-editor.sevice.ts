@@ -44,7 +44,7 @@ export class WizardEditorService {
     initializeEntity(workflowType: string, entityData: any, entities: any): any {
         let entity: any = {};
         if (entityData.type === 'template') {
-            entity = Object.assign({}, entityData.data);
+            entity = this.initializeSchemaService.setTemplateEntityModel(entityData.data);
             // outputs havent got writer
             if (entityData.stepType !== 'Output') {
                 entity.writer = this.initializeSchemaService.getDefaultWriterModel();
@@ -53,18 +53,19 @@ export class WizardEditorService {
         } else {
             entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);
             entity.name = this.getNewEntityName(entityData.value.classPrettyName, entities);
+            // validation of the model
+            const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
+            if (errors && errors.length) {
+                entity.hasErrors = true;
+                entity.errors = errors;
+                entity.createdNew = true; // grey box
+            }
+            entity.created = true; // shows created fadeIn animation
         }
         entity.stepType = entityData.stepType;
-        // validation of the model
-        const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
-        if (errors && errors.length) {
-            entity.hasErrors = true;
-            entity.errors = errors;
-            entity.createdNew = true; // grey box
-        }
-        entity.created = true; // shows created fadeIn animation
+
         return entity;
     }
 
-    constructor(private initializeSchemaService: InitializeSchemaService, private validateSchemaService: ValidateSchemaService){}
+    constructor(private initializeSchemaService: InitializeSchemaService, private validateSchemaService: ValidateSchemaService) { }
 }

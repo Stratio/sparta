@@ -73,6 +73,24 @@ export class InitializeSchemaService {
         return model;
     }
 
+    setTemplateEntityModel(template: any): any {
+        const model: any = {};
+        model.configuration = template.configuration;
+        model.supportedEngines = template.supportedEngines;
+        model.executionEngine = template.executionEngine;
+        model.classPrettyName = template.classPrettyName;
+        model.className = template.className;
+        model.nodeTemplate = {
+            id: template.id,
+            name: template.name
+        };
+        if (template.templateType !== 'output') {
+            model.writer = this.getDefaultWriterModel();
+        }
+
+        return model;
+    }
+
     getDefaultWriterModel(): any {
         const writerTpl = <any>writerTemplate;
         const writer: any = {};

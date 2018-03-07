@@ -175,7 +175,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
                 enable = false;
             }
         });
-        if (enable) {
+        if (enable && !this.isDisabled) {
             group.controls[propertyId].enable();
         } else {
             group.controls[propertyId].disable();
@@ -212,7 +212,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
                 const item: any = {};
                 for (const field of this.formListData) {
                     item[field.propertyId] = this.addItemValidation(field);
-                    item[field.propertyId][0] = value[field.propertyId];
+                    item[field.propertyId][0] = { value: value[field.propertyId], disabled: this.isDisabled};
                 }
                 const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);

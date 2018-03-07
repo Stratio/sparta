@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -54,7 +54,7 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
     constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
-        protected initializeSchemaService: InitializeSchemaService) {
+        protected initializeSchemaService: InitializeSchemaService, private _cd: ChangeDetectorRef) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new outputActions.ResetOutputFormAction());
         this.listData = outputsTemplate.streamingOutputs;
@@ -68,9 +68,14 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
         this.saveSubscription = this.store.select(fromTemplates.isOutputSaved).subscribe((isSaved) => {
             if (isSaved) {
-                this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
+                this.route.navigate(['templates', 'outputs']);
             }
         });
+    }
+
+
+    cancelCreate() {
+        this.route.navigate(['templates', 'outputs']);
     }
 
     onSubmitInputForm(): void {
@@ -98,10 +103,11 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
         });
     }
 
-    getEditedTemplate() {
+    getEditedTemplate(templateId: string) {
+        this.store.dispatch(new outputActions.GetEditedOutputAction(templateId));
         this.selectedSubscription = this.store.select(fromTemplates.getEditedOutput).subscribe((editedOutput: any) => {
             if (!editedOutput.id) {
-                return this.cancelCreate();
+                return;
             }
             this.inputFormModel.executionEngine = editedOutput.executionEngine;
             this.listData = editedOutput.executionEngine === 'Batch' ? outputsTemplate.batchOutputs :
@@ -109,7 +115,14 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
             this.setEditedTemplateIndex(editedOutput.classPrettyName);
             this.inputFormModel = editedOutput;
             this.editedTemplateName = editedOutput.name;
-            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedOutput.name);
+            const urlOptions = this.breadcrumbMenuService.getOptions(editedOutput.name);
+            this.breadcrumbOptions = urlOptions.filter(option => option !== 'edit');
+            this._cd.markForCheck();
+
+            setTimeout(() => {
+                this.loaded = true;
+                this._cd.markForCheck();
+            });
         });
     }
 

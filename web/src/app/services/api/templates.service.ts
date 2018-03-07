@@ -16,7 +16,7 @@
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
-import { ApiService} from './api.service';
+import { ApiService } from './api.service';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { HttpClient } from '@angular/common/http';
@@ -36,6 +36,11 @@ export class TemplatesService extends ApiService {
     getTemplateList(templateType: string): Observable<any> {
         const options: any = {};
         return this.request('template/' + templateType, 'get', options);
+    }
+
+    getTemplateById(templateType: string, templateId: string): Observable<any> {
+        const options: any = {};
+        return this.request('template/' + templateType + '/id/' + templateId, 'get', options);
     }
 
     deleteTemplate(templateType: string, templateId: string): Observable<any> {

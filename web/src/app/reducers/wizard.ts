@@ -28,6 +28,7 @@ export interface State {
     workflowGroup: string;
     workflowVersion: string;
     workflowType: string;
+    templates: any;
     loading: boolean;
     nodes: Array<any>;
     edges: Array<any>;
@@ -61,6 +62,7 @@ const initialState: State = {
     workflowGroup: '',
     workflowType: '',
     workflowVersion: '0',
+    templates: {},
     loading: true,
     settings: Object.assign({}, defaultSettings),
     svgPosition: {
@@ -365,7 +367,8 @@ export function reducer(state: State = initialState, action: any): State {
                     };
                 });
             return Object.assign({}, state, {
-                menuOptions: menuOptions
+                menuOptions: menuOptions,
+                templates: action.payload
             });
         }
         case wizardActions.SAVE_WORKFLOW_COMPLETE: {
@@ -552,3 +555,4 @@ export const getErrorsManagementOutputs: any = (state: State) => state.nodes.red
     }
     return filtered;
 }, []);
+export const getTemplates: any = (state: State) => state.templates;

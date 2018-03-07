@@ -3,13 +3,13 @@
    <div class="col-sm-12" [ngClass]="{'disabled' : isDisabled}">
       <span class="list-title">{{label}}</span>
    </div>
-   <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length && !isDisabled">
+   <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length">
       <div formArrayName="items">
          <div *ngFor="let item of items.controls; let i = index; let last = last;">
             <div [formGroup]="item" class="row">
                <div class="list-field" [ngClass]="{'last' : last}">
                   <ng-container *ngFor="let field of formListData; let j = index;">
-                     <div *ngIf="item.controls[field.propertyId].enabled" [className]="getItemClass(field)">
+                     <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="getItemClass(field)">
                         <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                            label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
                            [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
@@ -23,7 +23,7 @@
                      </div>
                      <div class="col-sm-12" *ngIf="item.controls[field.propertyId].enabled && field.float !== undefined && field.float === false"></div>
                   </ng-container>
-                  <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
+                  <div *ngIf="!isDisabled"><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
                </div>
 
             </div>

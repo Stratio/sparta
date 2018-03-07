@@ -52,6 +52,11 @@ export function reducer(state: State = initialState, action: any): State {
             });
 
         }
+        case outputActions.GET_EDITED_OUTPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                editedOutput: action.payload
+            });
+        }
         case outputActions.SELECT_OUTPUT: {
             return Object.assign({}, state, {
                 selectedOutputs: [...state.selectedOutputs, action.payload],

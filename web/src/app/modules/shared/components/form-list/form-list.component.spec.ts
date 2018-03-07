@@ -260,10 +260,6 @@ describe('FormListComponent in reactive form', () => {
         let htmlInput: HTMLInputElement = reactiveFixture.debugElement.query(By.css('input')).nativeElement;
         expect(htmlInput).toBeDefined();
         expect(htmlInput.classList).not.toContain('disabled');
-
-        reactiveComp.disableInput();
-        reactiveFixture.detectChanges();
-        expect(reactiveFixture.debugElement.query(By.css('input'))).toBeNull();
     });
 
 });

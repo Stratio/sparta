@@ -371,11 +371,11 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }));
     }
 
-    saveWorkflow(): void {
+    saveWorkflow(closeOnSave: boolean): void {
         // save entities position
         this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
         this.store.dispatch(new wizardActions.SaveEditorPosition(this.svgPosition));
-        this.store.dispatch(new wizardActions.SaveWorkflowAction());
+        this.store.dispatch(new wizardActions.SaveWorkflowAction(closeOnSave));
     }
 
 

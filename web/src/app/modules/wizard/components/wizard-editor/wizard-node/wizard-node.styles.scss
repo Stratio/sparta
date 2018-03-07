@@ -84,12 +84,27 @@
    }
 }
 
+.template-label {
+   font-family: Nunito Sans Bold;
+   margin-right: 6px;
+   font-size: 12px;
+   .Input+.text-container & {
+      color: #e67905;
+   }
+   .Transformation+.text-container & {
+      color: #9349bc;
+   }
+   .Output+.text-container & {
+      color: #2d96b4;
+   }
+}
+
 .created-new {
    .entity {
       stroke: #ddd;
    }
    .entity-name {
-      fill: #aaa;
+      color: #aaa;
    }
    .entity-icon {
       fill: #aaa;

@@ -51,6 +51,11 @@ export function reducer(state: State = initialState, action: any): State {
             });
 
         }
+        case transformationActions.GET_EDITED_TRANSFORMATION_COMPLETE: {
+            return Object.assign({}, state, {
+                editedTransformation: action.payload
+            });
+        }
         case transformationActions.SELECT_TRANSFORMATION: {
             return Object.assign({}, state, {
                 selectedTransformations: [...state.selectedTransformations, action.payload],

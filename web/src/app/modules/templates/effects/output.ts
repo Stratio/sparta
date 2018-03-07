@@ -40,6 +40,20 @@ export class OutputEffect {
         });
 
     @Effect()
+    getOutputTemplate$: Observable<Action> = this.actions$
+        .ofType(outputActions.GET_EDITED_OUTPUT)
+        .map((action: any) => action.payload)
+        .switchMap((param: any) => {
+            return this.templatesService.getTemplateById('output', param)
+                .map((output: any) => {
+                    return new outputActions.GetEditedOutputCompleteAction(output)
+                }).catch(function (error: any) {
+                    console.log(error)
+                    return error.statusText === 'Unknown Error' ? Observable.of(new outputActions.GetEditedOutputErrorAction(''))
+                        : Observable.of(new errorActions.ServerErrorAction(error));
+                });
+        });
+    @Effect()
     deleteOutput$: Observable<Action> = this.actions$
         .ofType(outputActions.DELETE_OUTPUT)
         .map((action: any) => action.payload.selected)

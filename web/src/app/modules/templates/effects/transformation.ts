@@ -40,6 +40,20 @@ export class TransformationEffect {
         });
 
     @Effect()
+    getTransformationTemplate$: Observable<Action> = this.actions$
+        .ofType(transformationActions.GET_EDITED_TRANSFORMATION)
+        .map((action: any) => action.payload)
+        .switchMap((param: any) => {
+            return this.templatesService.getTemplateById('transformation', param)
+                .map((transformation: any) => {
+                    return new transformationActions.GetEditedTransformationCompleteAction(transformation)
+                }).catch(function (error: any) {
+                    console.log(error)
+                    return error.statusText === 'Unknown Error' ? Observable.of(new transformationActions.GetEditedTransformationErrorAction(''))
+                        : Observable.of(new errorActions.ServerErrorAction(error));
+                });
+        });
+    @Effect()
     deleteTransformation$: Observable<Action> = this.actions$
         .ofType(transformationActions.DELETE_TRANSFORMATION)
         .map((action: any) => action.payload.selected)

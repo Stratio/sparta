@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -56,7 +56,7 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
 
     constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
-        protected initializeSchemaService: InitializeSchemaService) {
+        protected initializeSchemaService: InitializeSchemaService, private _cd: ChangeDetectorRef) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new transformationActions.ResetTransformationFormAction());
         this.listData = transformationsTemplate.streamingTransformations;
@@ -70,9 +70,14 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
 
         this.saveSubscription = this.store.select(fromTemplates.isTransformationSaved).subscribe((isSaved) => {
             if (isSaved) {
-                this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
+                this.route.navigate(['templates', 'transformations']);
             }
         });
+    }
+
+
+    cancelCreate() {
+        this.route.navigate(['templates', 'transformations']);
     }
 
     onSubmitInputForm(): void {
@@ -101,10 +106,11 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
         this.changeTemplateType(this.listData[0].name);
     }
 
-    getEditedTemplate() {
+    getEditedTemplate(templateId: string) {
+        this.store.dispatch(new transformationActions.GetEditedTransformationAction(templateId));
         this.selectedSubscription = this.store.select(fromTemplates.getEditedTransformation).subscribe((editedTransformation: any) => {
             if (!editedTransformation.id) {
-                return this.cancelCreate();
+                return;
             }
             this.inputFormModel.executionEngine = editedTransformation.executionEngine;
             this.listData = editedTransformation.executionEngine === 'Batch' ? transformationsTemplate.batchTransformations :
@@ -112,7 +118,15 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
             this.setEditedTemplateIndex(editedTransformation.classPrettyName);
             this.inputFormModel = editedTransformation;
             this.editedTemplateName = editedTransformation.name;
-            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedTransformation.name);
+            const urlOptions = this.breadcrumbMenuService.getOptions(editedTransformation.name);
+            this.breadcrumbOptions = urlOptions.filter(option => option !== 'edit');
+
+            this._cd.markForCheck();
+
+            setTimeout(() => {
+                this.loaded = true;
+                this._cd.markForCheck();
+            });
         });
     }
 

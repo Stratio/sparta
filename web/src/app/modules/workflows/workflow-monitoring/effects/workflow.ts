@@ -40,7 +40,7 @@ export class WorkflowEffect {
                     workflow.filterStatus = getFilterStatus(workflow.status.status);
                     workflow.tagsAux = workflow.tags ? workflow.tags.join(', ') : '';
                     try {
-                        workflow.lastUpdate = workflow.lastUpdateDate ? formatDate(workflow.lastUpdateDate) : '';
+                        workflow.lastUpdate = workflow.status.lastUpdateDate ? formatDate(workflow.status.lastUpdateDate) : '';
                         workflow.lastUpdateOrder = workflow.lastUpdateDate ? new Date(workflow.lastUpdateDate).getTime() : 0;
                     } catch (error) { }
                 });

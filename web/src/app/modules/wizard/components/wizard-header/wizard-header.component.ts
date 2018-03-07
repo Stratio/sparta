@@ -40,7 +40,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Output() onZoomOut = new EventEmitter();
     @Output() onCenter = new EventEmitter();
     @Output() onDelete = new EventEmitter();
-    @Output() onSaveWorkflow = new EventEmitter();
+    @Output() onSaveWorkflow = new EventEmitter<boolean>();
     @Output() onEditEntity = new EventEmitter();
     @Output() deleteSelection = new EventEmitter();
     @Output() onDuplicateNode = new EventEmitter();
@@ -154,7 +154,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
         if (event === '1') {
-            this.onSaveWorkflow.emit();
+            this.onSaveWorkflow.emit(true);
         } else {
             this.redirectPrevious();
         }

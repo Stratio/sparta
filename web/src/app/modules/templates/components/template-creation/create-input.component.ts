@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Rx';
@@ -58,7 +58,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
     constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
-        protected initializeSchemaService: InitializeSchemaService) {
+        protected initializeSchemaService: InitializeSchemaService, private _cd: ChangeDetectorRef) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new inputActions.ResetInputFormAction());
         this.listData = inputsTemplate.streamingInputs;
@@ -72,9 +72,13 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
         this.saveSubscription = this.store.select(fromTemplates.isInputSaved).subscribe((isSaved) => {
             if (isSaved) {
-                this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
+                this.route.navigate(['templates', 'inputs']);
             }
         });
+    }
+
+    cancelCreate() {
+        this.route.navigate(['templates', 'inputs']);
     }
 
     onSubmitInputForm(): void {
@@ -102,17 +106,25 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
         });
     }
 
-    getEditedTemplate() {
+    getEditedTemplate(templateId: string) {
+        this.store.dispatch(new inputActions.GetEditedInputAction(templateId));
         this.selectedSubscription = this.store.select(fromTemplates.getEditedInput).subscribe((editedInput: any) => {
             if (!editedInput.id) {
-                return this.cancelCreate();
+                return;
             }
-            this.inputFormModel.executionEngine = editedInput.executionEngine;
             this.listData = editedInput.executionEngine === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
             this.setEditedTemplateIndex(editedInput.classPrettyName);
             this.inputFormModel = editedInput;
             this.editedTemplateName = editedInput.name;
-            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
+            const urlOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
+            this.breadcrumbOptions = urlOptions.filter(option => option !== 'edit');
+            this._cd.markForCheck();
+
+            setTimeout(() => {
+                this.loaded = true;
+                this._cd.markForCheck();
+            });
+
         });
     }
 

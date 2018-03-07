@@ -52,6 +52,11 @@ export function reducer(state: State = initialState, action: any): State {
             });
 
         }
+        case inputActions.GET_EDITED_INPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                editedInput: action.payload
+            });
+        }
         case inputActions.SELECT_INPUT: {
             return Object.assign({}, state, {
                 selectedInputs: [...state.selectedInputs, action.payload],
@@ -103,6 +108,7 @@ export function reducer(state: State = initialState, action: any): State {
                 isSaved: false,
                 selectedInputs: [],
                 selectedInputsIds: [],
+                editedInput: {},
                 sortOrder: true,
                 orderBy: 'name',
             });

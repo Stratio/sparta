@@ -20,6 +20,9 @@ import { type } from '@utils';
 export const LIST_OUTPUT = '[Output] List outputs';
 export const LIST_OUTPUT_COMPLETE = '[Output] List outputs complete';
 export const LIST_OUTPUT_FAIL = '[Output] List outputs fail';
+export const GET_EDITED_OUTPUT = '[Output] Get edited output';
+export const GET_EDITED_OUTPUT_COMPLETE = '[Output] Get edited output complete';
+export const GET_EDITED_OUTPUT_ERROR = '[Output] Get edited output error';
 export const SELECT_OUTPUT = '[Output] Select output';
 export const DESELECT_OUTPUT = '[Output] Deselect output';
 export const DELETE_OUTPUT = '[Output] Delete output';
@@ -55,6 +58,21 @@ export class ListOutputCompleteAction implements Action {
   readonly type = LIST_OUTPUT_COMPLETE;
 
   constructor(public payload: any) { }
+}
+
+export class GetEditedOutputAction implements Action {
+  readonly type = GET_EDITED_OUTPUT;
+    constructor(public payload: any) { }
+}
+
+export class GetEditedOutputCompleteAction implements Action {
+  readonly type = GET_EDITED_OUTPUT_COMPLETE;
+  constructor(public payload: any) { }
+}
+
+export class GetEditedOutputErrorAction implements Action {
+  readonly type = GET_EDITED_OUTPUT_ERROR;
+    constructor(public payload: any) { }
 }
 
 export class SelectOutputAction implements Action {
@@ -165,6 +183,9 @@ export type Actions =
   ListOutputAction |
   ListOutputFailAction |
   ListOutputCompleteAction |
+  GetEditedOutputAction |
+  GetEditedOutputCompleteAction |
+  GetEditedOutputErrorAction |
   SelectOutputAction |
   DeselectOutputAction |
   DeleteOutputAction |

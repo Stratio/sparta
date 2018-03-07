@@ -19,6 +19,9 @@ import { Action } from '@ngrx/store';
 export const LIST_INPUT = '[Input] List inputs';
 export const LIST_INPUT_COMPLETE = '[Input] List inputs complete';
 export const LIST_INPUT_FAIL = '[Input] List inputs fail';
+export const GET_EDITED_INPUT = '[Input] Get edited input';
+export const GET_EDITED_INPUT_COMPLETE = '[Input] Get edited input complete';
+export const GET_EDITED_INPUT_ERROR = '[Input] Get edited input error';
 export const SELECT_INPUT = '[Input] Select input';
 export const DESELECT_INPUT = '[Input] Deselect input';
 export const DELETE_INPUT = '[Input] Delete input';
@@ -54,6 +57,21 @@ export class ListInputCompleteAction implements Action {
   readonly type = LIST_INPUT_COMPLETE;
 
   constructor(public payload: any) { }
+}
+
+export class GetEditedInputAction implements Action {
+  readonly type = GET_EDITED_INPUT;
+    constructor(public payload: any) { }
+}
+
+export class GetEditedInputCompleteAction implements Action {
+  readonly type = GET_EDITED_INPUT_COMPLETE;
+  constructor(public payload: any) { }
+}
+
+export class GetEditedInputErrorAction implements Action {
+  readonly type = GET_EDITED_INPUT_ERROR;
+    constructor(public payload: any) { }
 }
 
 export class SelectInputAction implements Action {
@@ -165,6 +183,9 @@ export type Actions =
   ListInputAction |
   ListInputFailAction |
   ListInputCompleteAction |
+  GetEditedInputAction |
+  GetEditedInputCompleteAction |
+  GetEditedInputErrorAction |
   SelectInputAction |
   DeselectInputAction |
   DeleteInputAction |

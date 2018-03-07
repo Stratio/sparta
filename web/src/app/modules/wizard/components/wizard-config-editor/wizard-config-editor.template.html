@@ -31,8 +31,15 @@
                </div>
                <form-generator *ngIf="config.editionType.stepType !== 'Output'" [hidden]="activeOption !== 'Writer'" [forceValidations]="submitted"
                   name="writer" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
-               <form-generator [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')" [forceValidations]="submitted"
+
+               <form-generator *ngIf="!isTemplate" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')" [forceValidations]="submitted"
                   name="global" [formData]="basicSettings" [(ngModel)]="entityFormModel.configuration"></form-generator>
+               <div class="template-data" *ngIf="isTemplate && templateData && activeOption === 'Global'">
+                     <div class="egeo-title-medium">Template configuration</div>
+                     <div class="advice-params">These are read-only parameters. To edit them, <span class="link" (click)="editTemplate(templateData.id)">go to the Templates section</span>.</div>
+                  <form-generator [forceValidations]="submitted" [disabled]="true" 
+                        name="global" [formData]="basicSettings" [(ngModel)]="templateData.configuration"></form-generator>
+               </div>
             </div>
          </form>
       </div>

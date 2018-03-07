@@ -209,6 +209,7 @@ export class SaveEntityErrorAction implements Action {
 
 export class SaveWorkflowAction implements Action {
     readonly type = SAVE_WORKFLOW;
+    constructor(public payload: any) { }
 }
 
 export class SaveWorkflowCompleteAction implements Action {

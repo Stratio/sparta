@@ -76,7 +76,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
                     formControl: formControl,
                     field: prop
                 });
-            }
+            }  
         }
     }
 
@@ -109,6 +109,14 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     ngOnDestroy(): void {
         if (this.stFormGroupSubcription) {
             this.stFormGroupSubcription.unsubscribe();
+        }
+    }
+
+    setDisabledState(isDisabled: boolean) {
+        if (isDisabled) {
+            this.stFormGroup.disable();
+        } else {
+            this.stFormGroup.enable();
         }
     }
 }

@@ -18,8 +18,9 @@
             <div class="egeo-title-giant" *ngIf="editMode">{{ 'DASHBOARD.EDIT' | translate }} {{editedTemplateName}}</div>
          </div>
          <br>
-         <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off">
-            <div class="row">
+         <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" >
+            <div class="row" *ngIf="loaded">
+ 
                <div class="col-xs-6">
                   <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
                      qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"

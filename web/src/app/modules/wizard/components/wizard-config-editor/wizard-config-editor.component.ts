@@ -21,6 +21,7 @@ import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 import * as wizardActions from 'actions/wizard';
+import { Router } from '@angular/router';
 
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Subscription';
@@ -47,6 +48,9 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     public currentName = '';
     public arity: any;
 
+    public isTemplate = false;
+    public templateData: any;
+
     public validatedName = false;
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
@@ -61,7 +65,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }];
 
     private saveSubscription: Subscription;
-    public validatedNameSubcription: Subscription;
+    private validatedNameSubcription: Subscription;
     ngOnInit(): void {
         this.validatedNameSubcription = this.store.select(fromRoot.getValidatedEntityName).subscribe((validation: boolean) => {
             this.validatedName = validation;
@@ -88,13 +92,20 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
         this.activeOption = $event.id;
     }
 
+    editTemplate(templateId) {
+        const ask = window.confirm('If you leave this page you will lose the unsaved changes of the workflow');
+        if (ask) {
+            this._router.navigate(['templates', 'inputs', 'edit', templateId]);
+        }
+
+    }
+
     getFormTemplate() {
         if (this.config.editionType.data.createdNew) {
             this.submitted = false;
         }
         this.entityFormModel = Object.assign({}, this.config.editionType.data);
         this.currentName = this.entityFormModel['name'];
-
         let template: any;
         switch (this.config.editionType.stepType) {
             case 'Input':
@@ -110,8 +121,18 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 break;
         }
         this.basicSettings = template.properties;
-        if (template.arity) {
-            this.arity = template.arity;
+        if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
+            this.isTemplate = true;
+            const nodeTemplate = this.entityFormModel.nodeTemplate;
+            this.store.select(fromRoot.getTemplates).take(1).subscribe((templates: any) => {
+                this.templateData = templates[this.config.editionType.stepType.toLowerCase()]
+                    .find((templateD: any) => templateD.id === nodeTemplate.id);
+            });
+        } else {
+            this.isTemplate = false;
+            if (template.arity) {
+                this.arity = template.arity;
+            }
         }
     }
 
@@ -119,6 +140,9 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
         this.entityFormModel.hasErrors = this.entityForm.invalid;
         if (this.arity) {
             this.entityFormModel.arity = this.arity;
+        }
+        if (this.isTemplate) {
+            this.entityFormModel.configuration = this.templateData.configuration;
         }
         this.entityFormModel.createdNew = false;
         this.store.dispatch(new wizardActions.SaveEntityAction({
@@ -128,6 +152,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
 
     constructor(private store: Store<fromRoot.State>,
+        private _router: Router,
         private _wizardService: WizardService,
         public errorsService: ErrorMessagesService) {
     }
