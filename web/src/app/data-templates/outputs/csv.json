@@ -40,7 +40,6 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Any character is accepted except: \\ \" #",
-        "maxlength": "1",
         "default": "{{DEFAULT_DELIMITER}}",
         "trim": false,
         "required": true,

@@ -58,7 +58,6 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Only eligible if Output Format is set to Row. Any character is accepted except: \\ \" #",
-        "maxLength": "1",
         "default": "{{DEFAULT_DELIMITER}}",
         "trim": false,
         "required": false,
