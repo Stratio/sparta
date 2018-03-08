@@ -324,6 +324,7 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case wizardActions.SAVE_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
+                workflowId: action.payload,
                 savedWorkflow: true,
                 pristineWorkflow: true,
                 loading: false
@@ -369,11 +370,6 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 menuOptions: menuOptions,
                 templates: action.payload
-            });
-        }
-        case wizardActions.SAVE_WORKFLOW_COMPLETE: {
-            return Object.assign({}, state, {
-                savedWorkflow: true
             });
         }
         case wizardActions.SELECT_SEGMENT: {

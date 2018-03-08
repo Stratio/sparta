@@ -16,7 +16,8 @@
 
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StRadioMenuModule, StRadioModule, StPaginationModule } from '@stratio/egeo';
+import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StRadioMenuModule, StRadioModule, 
+    StPaginationModule, StProgressBarModule } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 
@@ -34,6 +35,7 @@ import { reducers } from './reducers';
 import { InputEffect} from './effects/input';
 import { TransformationEffect} from './effects/transformation';
 import { OutputEffect} from './effects/output';
+import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
 
 @NgModule({
     declarations: [
@@ -52,7 +54,9 @@ import { OutputEffect} from './effects/output';
         ReactiveFormsModule,
         TemplatesRoutingModule,
         SharedModule,
+        TableNotificationModule,
         StRadioMenuModule,
+        StProgressBarModule,
         StPaginationModule,
         StRadioModule,
         StBreadcrumbsModule,

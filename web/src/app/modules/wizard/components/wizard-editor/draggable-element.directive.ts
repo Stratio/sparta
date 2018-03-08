@@ -1,4 +1,3 @@
-import { last } from 'rxjs/operator/last';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -15,27 +14,29 @@ import { last } from 'rxjs/operator/last';
 /// limitations under the License.
 ///
 
-import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, Input, NgZone } from '@angular/core';
+import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
+import * as d3 from 'd3';
+
 import * as wizardActions from 'actions/wizard';
 import * as fromRoot from 'reducers';
-import * as d3 from 'd3';
+import { WizardNodePosition } from './../../models/node';
 
 @Directive({ selector: '[svg-draggable]' })
 export class DraggableSvgDirective implements AfterContentInit, OnInit {
 
-    @Input() position: any;
-    @Output() positionChange = new EventEmitter<any>();
+    @Input() position: WizardNodePosition;
+
+    @Output() positionChange = new EventEmitter<WizardNodePosition>();
     @Output() onClickEvent = new EventEmitter();
     @Output() onDoubleClickEvent = new EventEmitter();
 
     private clicks = 0;
-    private element: any;
-    private lastUpdateCall: any;
+    private element: d3.Selection<HTMLElement, any, any, any>;
+    private lastUpdateCall: number;
 
     ngOnInit(): void {
-        const value = 'translate(' + this.position.x + ',' + this.position.y + ')';
-        this.element.attr('transform', value);
+        this.setPosition();
     }
 
     ngAfterContentInit() {
@@ -44,11 +45,12 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
             .call(d3.drag()
                 .on('drag', this.dragmove.bind(this))
                 .on('start', () => {
-                this.store.dispatch(new wizardActions.SetWizardStateDirtyAction()); // set wizard state dirty (enable save button)
-            }));
+                    // set wizard state dirty (enable save button)
+                    this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+                }));
     }
 
-    dragmove(e: any, f: any) {
+    dragmove() {
         const event = d3.event;
         this.position = {
             x: this.position.x + event.dx,
@@ -63,7 +65,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     }
 
     setPosition() {
-        const value = 'translate(' + this.position.x + ',' + this.position.y + ')';
+        const value = `translate(${this.position.x},${this.position.y})`;
         this.element.attr('transform', value);
     }
 
@@ -72,9 +74,11 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
         this.clicks++;
         if (this.clicks === 1) {
             setTimeout(() => {
-                if (this.clicks === 1) { //single click
+                if (this.clicks === 1) {
+                    // single click
                     this.onClickEvent.emit();
-                } else {                //double click
+                } else {
+                    // double click
                     this.onDoubleClickEvent.emit();
                 }
                 this.clicks = 0;
@@ -83,7 +87,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     }
 
 
-    constructor(private elementRef: ElementRef, private zone: NgZone, private store: Store<fromRoot.State>) {
+    constructor(private elementRef: ElementRef, private store: Store<fromRoot.State>) {
         this.element = d3.select(this.elementRef.nativeElement);
     }
 }

@@ -41,6 +41,7 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     public breadcrumbOptions: string[] = [];
     public orderBy = 'name';
     public sortOrder = true;
+    public noItemsMessage = '';
     public icons = icons;
 
     public currentPage = 1;

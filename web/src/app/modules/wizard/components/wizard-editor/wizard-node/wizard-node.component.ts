@@ -23,7 +23,8 @@ import * as d3 from 'd3';
 import { ENTITY_BOX } from './../../../wizard.constants';
 import { UtilsService } from '@app/shared/services/utils.service';
 import { icons } from '@app/shared/constants/icons';
-import {isMobile} from 'constants/global';
+import { isMobile } from 'constants/global';
+import { WizardNode } from '@app/wizard/models/node';
 
 
 @Component({
@@ -34,7 +35,7 @@ import {isMobile} from 'constants/global';
 })
 export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit {
 
-    @Input() data: any;
+    @Input() data: WizardNode;
     @Input() createdNew: boolean;
     @Input() selected: boolean;
     @Input() drawingConnectionStatus: any = {
@@ -46,8 +47,8 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
     @Output() onFinishConnector = new EventEmitter<any>();
 
     private el: HTMLElement;
-    private svg: any;
-    private relationSelector: any;
+    private svg: d3.Selection<HTMLElement, any, any, any>;
+    private relationSelector: d3.Selection<Element, any, any, any>;
 
     public boxConfig = ENTITY_BOX;
     public relationClasses = '';

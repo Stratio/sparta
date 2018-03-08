@@ -10,7 +10,7 @@
     </button>
       </div>
       <div general-tools>
-         <form-file type="button-toolbar" class="form-file" (onFileUpload)="uploadPlugin($event)"></form-file>
+         <form-file type="button-toolbar" class="form-file" #fileInput (onFileUpload)="uploadPlugin($event)"></form-file>
       </div>
    </tool-bar>
    <div class="container">
@@ -37,6 +37,7 @@
                </td>
             </tr>
          </st-table>
+         <table-notification *ngIf="!pluginsList.length && (loaded$ | async)" (onClickLink)="fileInput.click()" [text]="'PLUGINS.NO_ITEMS' | translate" [link]="'PLUGINS.NO_ITEMS_LINK' | translate"></table-notification>
       </div>
    </div>
 </div>

@@ -14,14 +14,16 @@
 /// limitations under the License.
 ///
 
-export const ENTITY_BOX = {
-    width: 140,
-    height: 80,
-    nameYposition: 50,
-    strokeWidth: 2
-};
+import { NgModule } from '@angular/core';
+import { TableNotificationComponent } from './table-notification.component';
 
-export const KEYS = {
-    ESC_KEYCODE: 27,
-    SUPR_KEYCODE: 46
-};
+@NgModule({
+    exports: [
+        TableNotificationComponent
+    ],
+    declarations: [
+        TableNotificationComponent
+    ]
+})
+
+export class TableNotificationModule { }

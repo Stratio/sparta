@@ -19,6 +19,7 @@ import * as outputActions from './../actions/output';
 import { orderBy } from '@utils';
 
 export interface State {
+    loaded: boolean;
     outputList: Array<OutputType>;
     selectedDisplayOption: string;
     editedOutput: any;
@@ -30,6 +31,7 @@ export interface State {
 };
 
 const initialState: State = {
+    loaded: false,
     outputList: [],
     selectedDisplayOption: 'BLOCKS',
     editedOutput: {},
@@ -48,7 +50,8 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case outputActions.LIST_OUTPUT_COMPLETE: {
             return Object.assign({}, state, {
-                outputList: action.payload
+                outputList: action.payload,
+                loaded: true
             });
 
         }

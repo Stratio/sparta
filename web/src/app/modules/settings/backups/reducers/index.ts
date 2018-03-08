@@ -42,3 +42,4 @@ export const getBackupsEntityState = createSelector(
 // backups
 export const getBackupList: any = createSelector(getBackupsEntityState, fromBackups.getBackupList);
 export const getSelectedBackups: any =  createSelector(getBackupsEntityState, fromBackups.getSelectedBackups);
+export const isLoaded: any =  createSelector(getBackupsEntityState, (state) => state.loaded);

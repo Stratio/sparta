@@ -68,7 +68,9 @@ export function reducer(state: State = initialState, action: any): State {
     case workflowActions.LIST_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
         workflowList: action.payload,
-        selectedWorkflows: [...state.selectedWorkflows],
+        selectedWorkflows: state.selectedWorkflowsIds.length ?
+        action.payload.filter((workflow: any) => state.selectedWorkflowsIds.indexOf(workflow.id) > -1) : [],
+        selectedWorkflowsIds: [...state.selectedWorkflowsIds],
         reload: true,
         filteredWorkflow: getFilteredWorkflow(action.payload, state.searchQuery)
       });

@@ -26,6 +26,7 @@ import { BackupsRoutingModule } from './backups.routes';
 import { ExecuteBackup } from './components/execute-backup/execute-backup.component';
 import { BackupsEffect } from './effects/backups';
 import { reducers } from './reducers';
+import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import { reducers } from './reducers';
         FormsModule,
         StSwitchModule,
         SharedModule,
+        TableNotificationModule,
         StTableModule
     ]
 })

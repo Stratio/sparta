@@ -1,0 +1,18 @@
+@import '~@stratio/egeo/theme/constants';
+:host {
+   width: 100%;
+   display: block;
+   text-align: center;
+   font-size: $egeo-font-size-xsmall;
+   margin: 40px 0;
+}
+
+.text {
+   color: $neutral-09;
+   font-family: $egeo-nunito-sans-semiBold;
+}
+
+.link {
+   color: $action-primary-default;
+   cursor: pointer;
+}

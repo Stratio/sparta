@@ -26,6 +26,7 @@ import { EnvironmentModule } from './environment/environment.module';
 import { SettingsComponent } from './settings.component';
 import { SharedModule } from '@app/shared';
 import { BackupsModule } from './backups/backups.module';
+import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
 
 @NgModule({
     declarations: [
@@ -41,7 +42,8 @@ import { BackupsModule } from './backups/backups.module';
         BackupsModule,
         SpTooltipModule,
         SettingsRoutingModule,
-        SharedModule
+        SharedModule,
+        TableNotificationModule
     ]
 })
 

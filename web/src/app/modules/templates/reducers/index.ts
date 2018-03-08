@@ -61,6 +61,7 @@ export const getSelectedInputs: any = createSelector(getInputsEntityState, input
 export const getSelectedInputDisplayOption: any = createSelector(getInputsEntityState, inputs.getSelectedDisplayOption);
 export const getEditedInput: any = createSelector(getInputsEntityState, inputs.getEditedInput);
 export const isInputSaved: any = createSelector(getInputsEntityState, inputs.isInputSaved);
+export const isInputsLoaded: any = createSelector(getInputsEntityState, (state) => state.loaded);
 
 // outputs
 export const getOutputList: any = createSelector(getOutputsEntityState, outputs.getOutputList);
@@ -68,6 +69,8 @@ export const getSelectedOutputs: any = createSelector(getOutputsEntityState, out
 export const getSelectedOutputDisplayOption: any = createSelector(getOutputsEntityState, outputs.getSelectedDisplayOption);
 export const getEditedOutput: any = createSelector(getOutputsEntityState, outputs.getEditedOutput);
 export const isOutputSaved: any = createSelector(getOutputsEntityState, outputs.isOutputSaved);
+export const isOutputsLoaded: any = createSelector(getOutputsEntityState, (state) => state.loaded);
+
 
 // transformations
 export const getTransformationList: any = createSelector(getTransformationsEntityState, transformations.getTransformationList);
@@ -76,4 +79,6 @@ export const getSelectedTransformationDisplayOption: any = createSelector(getTra
     transformations.getSelectedDisplayOption);
 export const getEditedTransformation: any = createSelector(getTransformationsEntityState, transformations.getEditedTransformation);
 export const isTransformationSaved: any = createSelector(getTransformationsEntityState, transformations.isTransformationSaved);
+export const isTransformationsLoaded: any = createSelector(getTransformationsEntityState, (state) => state.loaded);
+
 

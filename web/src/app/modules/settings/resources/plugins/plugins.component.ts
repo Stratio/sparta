@@ -1,5 +1,3 @@
-import { OnDestroy } from '@angular/core/core';
-import { Subscription } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -16,9 +14,19 @@ import { Subscription } from 'rxjs/Rx';
 /// limitations under the License.
 ///
 
-import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewContainerRef
+} from '@angular/core';
 import { Store } from '@ngrx/store';
 import resourcesMenu from '@app/settings/resources/resources-menu';
+import { Observable, Subscription } from 'rxjs/Rx';
 
 import * as fromRoot from 'reducers';
 import * as resourcesActions from 'actions/resources';
@@ -29,6 +37,7 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbMenuService } from 'app/services';
+import { FormFileComponent } from '@app/shared/components/form-file/form-file.component';
 
 @Component({
     selector: 'sparta-plugins',
@@ -39,6 +48,7 @@ import { BreadcrumbMenuService } from 'app/services';
 export class SpartaPlugins implements OnInit, OnDestroy {
 
     @ViewChild('pluginModal', { read: ViewContainerRef }) target: any;
+    @ViewChild(FormFileComponent) fileInput: FormFileComponent;
 
     public pluginsList:Array<any> = [];
     public deletePluginModalTitle: string;
@@ -52,6 +62,7 @@ export class SpartaPlugins implements OnInit, OnDestroy {
         { id: 'fileName', label: 'Name' },
         { id: 'uri', label: 'URI' }
     ];
+    public loaded$: Observable<boolean>;
 
     private selectedPluginsSubscription: Subscription;
     private pluginsListSubscription: Subscription;
@@ -63,6 +74,8 @@ export class SpartaPlugins implements OnInit, OnDestroy {
             this.pluginsList = pluginsList;
             this._cd.markForCheck();
         });
+
+        this.loaded$ = this.store.select(fromRoot.isLoaded);
 
         this.selectedPluginsSubscription = this.store.select(fromRoot.getSelectedPlugins).subscribe((selectedPlugins: Array<string>) => {
             this.selectedPlugins = selectedPlugins;

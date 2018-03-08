@@ -15,15 +15,17 @@
 ///
 
 import {
-    Component, OnInit, OnDestroy, ElementRef, Input,
-    ChangeDetectionStrategy, EventEmitter, Output, ChangeDetectorRef, SimpleChanges
+    Component, ElementRef, Input,
+    ChangeDetectionStrategy, EventEmitter, Output, ChangeDetectorRef, SimpleChanges,
+    AfterContentInit, OnChanges
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
-import { ENTITY_BOX } from './../../../wizard.constants';
 import * as d3 from 'd3';
+
+import * as fromRoot from 'reducers';
 import * as wizardActions from 'actions/wizard';
-import { AfterContentInit, OnChanges } from '@angular/core';
+import { ENTITY_BOX } from './../../../wizard.constants';
+import { WizardNodePosition } from './../../../models/node';
 
 @Component({
     selector: '[wizard-edge]',
@@ -31,16 +33,16 @@ import { AfterContentInit, OnChanges } from '@angular/core';
     templateUrl: 'wizard-edge.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges, OnDestroy {
-
+export class WizardEdgeComponent implements AfterContentInit, OnChanges {
 
     @Input() initialEntityName: string;
     @Input() finalEntityName: string;
-    @Output() onRemoveSegment = new EventEmitter<any>();
     @Input() selectedSegment: any;
     @Input() index = 0;
-    @Input() position1: any;
-    @Input() position2: any;
+    @Input() position1: WizardNodePosition;
+    @Input() position2: WizardNodePosition;
+
+    @Output() onRemoveSegment = new EventEmitter<any>();
 
     public segment = '';
     public isSelected = false;
@@ -49,7 +51,6 @@ export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges,
     private w = ENTITY_BOX.width;
 
     private svgPathVar: any;
-
 
     constructor(private elementRef: ElementRef, private store: Store<fromRoot.State>,
     private _cd: ChangeDetectorRef) { }
@@ -125,14 +126,5 @@ export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges,
                 destination: this.finalEntityName
             }));
         }
-    }
-
-
-    ngOnInit(): void {
-
-    }
-
-    ngOnDestroy(): void {
-
     }
 }

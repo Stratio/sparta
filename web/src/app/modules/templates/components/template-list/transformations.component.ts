@@ -20,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Rx';
 
 import { BreadcrumbMenuService } from 'services';
 import * as fromTemplates from './../../reducers';
@@ -33,8 +34,12 @@ import * as transformationActions from './../../actions/transformation';
 
 export class TransformationsComponent extends TemplatesBaseComponent {
 
+    public loaded$: Observable<boolean>;
+
     ngOnInit() {
         super.ngOnInit();
+        this.loaded$ = this.store.select(fromTemplates.isTransformationsLoaded);
+
         this.templateListSubscription = this.store.select(fromTemplates.getTransformationList).subscribe((data: any) => {
             this.templateList = data;
             this._cd.detectChanges();
@@ -102,15 +107,17 @@ export class TransformationsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_TRANSFORMATION_MESSAGE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_TRANSFORMATION';
         const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_TRANSFORMATION_MESSAGE_TITLE';
-
+        const noItemsMessage = 'TEMPLATES.TRANSFORMATIONS.NO_ITEMS';
         this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle,
-            deleteTemplateModalMessageTitle]).subscribe(
+            deleteTemplateModalMessageTitle,noItemsMessage]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
                 this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
+                this.noItemsMessage = value[noItemsMessage];
+
             }
-        );
+            );
     }
 }

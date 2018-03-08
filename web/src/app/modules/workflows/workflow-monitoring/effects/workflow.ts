@@ -29,7 +29,7 @@ import { generateJsonFile, formatDate, getFilterStatus } from '@utils';
 
 @Injectable()
 export class WorkflowEffect {
-
+    reverse = true;
     @Effect()
     getWorkflowList$: Observable<any> = this.actions$
         .ofType(workflowActions.LIST_WORKFLOW)

@@ -54,6 +54,7 @@ export const getPluginsList: any = createSelector(getResourcesState, fromResourc
 export const getDriversList: any = createSelector(getResourcesState, fromResources.getDriversList);
 export const getSelectedPlugins: any = createSelector(getResourcesState, fromResources.getSelectedPlugins);
 export const getSelectedDrivers: any = createSelector(getResourcesState, fromResources.getSelectedDrivers);
+export const isLoaded: any = createSelector(getResourcesState, fromResources.isLoaded);
 
 // alerts
 export const getCurrentAlert: any = createSelector(getAlertsState, fromAlerts.getCurrentAlert);

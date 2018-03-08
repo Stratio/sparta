@@ -19,6 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Rx';
 
 import * as fromTemplates from './../../reducers';
 import * as inputActions from './../../actions/input';
@@ -34,12 +35,15 @@ import { TemplatesBaseComponent } from './templates-base.component';
 
 export class InputsComponent extends TemplatesBaseComponent {
 
+    public loaded$: Observable<boolean>;
+
     ngOnInit() {
         super.ngOnInit();
         this.templateListSubscription = this.store.select(fromTemplates.getInputList).subscribe((data: any) => {
             this.templateList = data;
             this._cd.markForCheck();
         });
+        this.loaded$ = this.store.select(fromTemplates.isInputsLoaded);
 
         this.selectedDisplayOption$ = this.store.select(fromTemplates.getSelectedInputDisplayOption);
 
@@ -97,14 +101,16 @@ export class InputsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_INPUT_MESSAGE';
         const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_INPUT_MESSAGE_TITLE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_INPUT';
+        const noItemsMessage = 'TEMPLATES.INPUTS.NO_ITEMS';
 
         this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle,
-            deleteTemplateModalMessageTitle]).subscribe(
+            deleteTemplateModalMessageTitle, noItemsMessage]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
                 this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
+                this.noItemsMessage = value[noItemsMessage];
             }
             );
     }

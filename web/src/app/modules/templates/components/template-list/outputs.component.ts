@@ -19,6 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Rx';
 
 import { TemplatesBaseComponent } from './templates-base.component';
 import { BreadcrumbMenuService } from 'services';
@@ -33,8 +34,11 @@ import * as outputActions from './../../actions/output';
 
 export class OutputsComponent extends TemplatesBaseComponent {
 
+    public loaded$: Observable<boolean>;
+
     ngOnInit() {
         super.ngOnInit();
+        this.loaded$ = this.store.select(fromTemplates.isOutputsLoaded);
 
         this.templateListSubscription = this.store.select(fromTemplates.getOutputList).subscribe((data: any) => {
             this.templateList = data;
@@ -100,13 +104,15 @@ export class OutputsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_OUTPUT_MESSAGE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_OUTPUT';
         const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_OUTPUT_MESSAGE_TITLE';
-
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, deleteTemplateModalMessageTitle]).subscribe(
+        const noItemsMessage = 'TEMPLATES.OUTPUTS.NO_ITEMS';
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, 
+        deleteTemplateModalMessageTitle, noItemsMessage]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
                 this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
+                this.noItemsMessage = value[noItemsMessage];
             }
         );
     }

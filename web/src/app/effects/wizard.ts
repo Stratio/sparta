@@ -114,18 +114,18 @@ export class WizardEffect {
 
             if (wizard.workflowId && wizard.workflowId.length) {
                 workflow.group = wizard.workflowGroup;
-                return this.workflowService.updateWorkflow(workflow).map(() => {
+                return this.workflowService.updateWorkflow(workflow).map((res) => {
                     redirectOnSave && this.redirectOnSave();
-                    return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
+                    return new wizardActions.SaveWorkflowCompleteAction(workflow.id);
                 }).catch(function (error) {
                     return Observable.from([new errorActions.ServerErrorAction(error), new wizardActions.SaveWorkflowErrorAction('')]);
                 });
             } else {
                 delete workflow.id;
                 workflow.group = state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup;
-                return this.workflowService.saveWorkflow(workflow).map(() => {
+                return this.workflowService.saveWorkflow(workflow).map((res) => {
                     redirectOnSave && this.redirectOnSave();
-                    return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
+                    return new wizardActions.SaveWorkflowCompleteAction(res.id);
                 }).catch(function (error) {
                     return Observable.from([new errorActions.ServerErrorAction(error), new wizardActions.SaveWorkflowErrorAction('')]);
                 });
@@ -176,10 +176,12 @@ export class WizardEffect {
     validateWorkflow$: Observable<Action> = this.actions$
         .ofType(wizardActions.VALIDATE_WORKFLOW)
         .map(toPayload)
-        .withLatestFrom(this.store.select(state => state.wizard))
-        .switchMap(([payload, wizard]: [any, any]) => {
+        .withLatestFrom(this.store.select(state => state))
+        .switchMap(([payload, state]: [any, any]) => {
+            const wizard = state.wizard;
             const workflow = Object.assign({
                 id: wizard.workflowId,
+                version: wizard.workflowVersion,
                 uiSettings: {
                     position: wizard.svgPosition
                 },
@@ -187,8 +189,11 @@ export class WizardEffect {
                     nodes: wizard.nodes,
                     edges: wizard.edges
                 },
+                group: wizard.workflowGroup && wizard.workflowGroup.length ?
+                    wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,
                 settings: wizard.settings.advancedSettings
             }, wizard.settings.basic);
+
             return this.workflowService.validateWorkflow(workflow).map((response: any) => {
                 return new wizardActions.ValidateWorkflowCompleteAction(response);
             }).catch((error: any) => {

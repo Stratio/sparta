@@ -35,6 +35,8 @@ import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 import { isMobile } from 'constants/global';
+import { WizardNode } from '@app/wizard/models/node';
+import { KEYS } from '@app/wizard/wizard.constants';
 
 @Component({
     selector: 'wizard-editor',
@@ -46,11 +48,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     @Input() workflowType: string;
 
-    ESC_KEYCODE = 27;
-    SUPR_KEYCODE = 46;
-
-    public entities: any = [];
-    public entitiesData: any = [];
+    public entities: Array<WizardNode> = [];
+    public entitiesData: WizardNode;
 
     private svgPosition: any;
     public isMobile = false;
@@ -93,13 +92,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     @ViewChild('editorArea') editorArea: ElementRef;
     @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-        if (event.keyCode === this.ESC_KEYCODE) {
+        if (event.keyCode === KEYS.ESC_KEYCODE) {
             if (this.selectedEntity.length) {
                 this.store.dispatch(new wizardActions.UnselectEntityAction());
             }
             this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
 
-        } else if (event.keyCode === this.SUPR_KEYCODE) {
+        } else if (event.keyCode === KEYS.SUPR_KEYCODE) {
             this.deleteSelection();
         }
     }

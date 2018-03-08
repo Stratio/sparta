@@ -51,7 +51,9 @@ export class WorkflowsTableComponent implements OnInit {
     public generatedId: string;
 
     public perPageOptions: any = [
-        { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
+        { value: 10, showFrom: 0 },
+        { value: 20, showFrom: 0 },
+        { value: 30, showFrom: 0 }
     ];
 
     changeOrder($event: any): void {

@@ -517,6 +517,26 @@
       "ERRORSMANAGEMENT": "Errors Management",
       "GLOBAL": "Global"
    },
+   "PLUGINS": {
+      "NO_ITEMS": "There are no plugins created yet.",
+      "NO_ITEMS_LINK": "Upload one"
+   },
+   "BACKUPS": {
+      "NO_ITEMS": "There are no backups created yet.",
+      "NO_ITEMS_LINK": "Create one"
+   },
+   "TEMPLATES": {
+      "NO_ITEMS_LINK": "Add one",
+      "INPUTS": {
+         "NO_ITEMS": "There are no input templates created yet."
+      },
+      "OUTPUTS": {
+         "NO_ITEMS": "There are no output templates created yet."
+      },
+      "TRANSFORMATIONS": {
+         "NO_ITEMS": "There are no transformation templates created yet."
+      }
+   },
    "ALERTS": {
       "SUCCESS": "Success",
       "ERROR": "Error",

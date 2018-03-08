@@ -19,6 +19,7 @@ import * as backupsActions from './../actions/backups';
 import { orderBy } from '@utils';
 
 export interface State {
+    loaded: boolean;
     backupList: Array<BackupType>;
     selectedBackups: Array<string>;
     selectAll: boolean;
@@ -27,6 +28,7 @@ export interface State {
 };
 
 const initialState: State = {
+    loaded: false,
     backupList: [],
     selectedBackups: [],
     selectAll: false,
@@ -38,7 +40,8 @@ export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case backupsActions.LIST_BACKUP_COMPLETE: {
             return Object.assign({}, state, {
-                backupList: action.payload
+                backupList: action.payload,
+                loaded: true
             });
         }
         case backupsActions.SELECT_BACKUP: {

@@ -17,7 +17,7 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs/Rx';
 import { TranslateService } from '@ngx-translate/core';
 import {
     StTableHeader, StModalButton, StModalResponse, StModalService
@@ -57,7 +57,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
         { id: 'fileName', label: 'Name' },
         { id: 'path', label: 'Path' },
     ];
-
+    public loaded$: Observable<boolean>;
     private selectedBackupsSubscription: Subscription;
     private backupListSubscription: Subscription;
 
@@ -73,6 +73,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
             this.selectedBackups = selectedBackups;
             this._cd.detectChanges();
         });
+        this.loaded$ = this.store.select(fromBackups.isLoaded);
     }
 
     selectAll($event: any) {

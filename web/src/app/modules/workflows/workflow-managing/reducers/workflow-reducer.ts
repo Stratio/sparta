@@ -123,6 +123,8 @@ export function reducer(state: State = initialState, action: any): State {
           return workflows[key];
         }),
         selectedVersions: [...state.selectedVersions],
+        selectedVersionsData: state.selectedVersions.length ?
+          action.payload.filter((version: any) => state.selectedVersions.indexOf(version.id) > -1) : [],
         reload: true
       });
     }

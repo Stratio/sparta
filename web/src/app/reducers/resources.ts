@@ -18,6 +18,7 @@ import * as resourcesActions from 'actions/resources';
 import { orderBy } from '@utils';
 
 export interface State {
+    loaded: boolean;
     pluginsList: Array<any>;
     driversList: Array<any>;
     selectedPlugins: Array<string>;
@@ -29,6 +30,7 @@ export interface State {
 };
 
 const initialState: State = {
+    loaded: false,
     pluginsList: [],
     driversList: [],
     selectedPlugins: [],
@@ -43,6 +45,7 @@ export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case resourcesActions.LIST_PLUGINS_COMPLETE: {
             return Object.assign({}, state, {
+                loaded: true,
                 pluginsList: action.payload
             });
         }
@@ -112,5 +115,5 @@ export const getPluginsList: any = (state: State) =>
 export const getDriversList: any = (state: State) => state.driversList;
 export const getSelectedDrivers: any = (state: State) => state.selectedDrivers;
 export const getSelectedPlugins: any = (state: State) => state.selectedPlugins;
-
+export const isLoaded: any = (state: State) => state.loaded;
 

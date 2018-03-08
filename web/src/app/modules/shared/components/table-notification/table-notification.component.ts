@@ -14,14 +14,16 @@
 /// limitations under the License.
 ///
 
-export const ENTITY_BOX = {
-    width: 140,
-    height: 80,
-    nameYposition: 50,
-    strokeWidth: 2
-};
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
-export const KEYS = {
-    ESC_KEYCODE: 27,
-    SUPR_KEYCODE: 46
-};
+@Component({
+    selector: 'table-notification',
+    templateUrl: './table-notification.template.html',
+    styleUrls: ['./table-notification.styles.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class TableNotificationComponent {
+    @Input() text: string;
+    @Input() link: string;
+    @Output() onClickLink = new EventEmitter();
+}

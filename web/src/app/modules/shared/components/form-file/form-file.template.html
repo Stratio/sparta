@@ -3,5 +3,5 @@
     <i [ngClass]="icon"></i>
     <span>{{text}}</span>
     </button>
-   <input type="file" #fileUpload (change)="onChange($event)" #file/>
+   <input type="file" (change)="onChange($event)" #file/>
 </div>

@@ -18,6 +18,7 @@ import * as transformationActions from './../actions/transformation';
 import { orderBy } from '@utils';
 
 export interface State {
+    loaded: boolean;
     transformationList: any;
     selectedDisplayOption: string;
     editedTransformation: any;
@@ -29,6 +30,7 @@ export interface State {
 }
 
 const initialState: State = {
+    loaded: false,
     transformationList: [],
     selectedDisplayOption: 'BLOCKS',
     editedTransformation: {},
@@ -47,7 +49,8 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case transformationActions.LIST_TRANSFORMATION_COMPLETE: {
             return Object.assign({}, state, {
-                transformationList: action.payload
+                transformationList: action.payload,
+                loaded: true
             });
 
         }

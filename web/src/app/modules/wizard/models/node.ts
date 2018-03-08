@@ -14,14 +14,19 @@
 /// limitations under the License.
 ///
 
-export const ENTITY_BOX = {
-    width: 140,
-    height: 80,
-    nameYposition: 50,
-    strokeWidth: 2
+export interface WizardNode {
+    stepType: 'Input' | 'Transformation' | 'Output';
+    name: string;
+    created: boolean;
+    classPrettyName: string;
+    hasErrors: boolean;
+    nodeTemplate: any;
+    uiConfiguration: {
+        position: WizardNodePosition
+    };
 };
 
-export const KEYS = {
-    ESC_KEYCODE: 27,
-    SUPR_KEYCODE: 46
-};
+export interface WizardNodePosition {
+    x: number;
+    y: number;
+}

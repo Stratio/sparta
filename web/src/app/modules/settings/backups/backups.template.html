@@ -49,6 +49,7 @@
                </td>
             </tr>
          </st-table>
+        <table-notification *ngIf="!backupList.length && (loaded$ | async)" (onClickLink)="generatebackup()" [text]="'BACKUPS.NO_ITEMS' | translate" [link]="'BACKUPS.NO_ITEMS_LINK' | translate"></table-notification>
       </div>
    </div>
 </div>

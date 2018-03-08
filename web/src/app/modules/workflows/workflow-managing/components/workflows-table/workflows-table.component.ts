@@ -111,7 +111,7 @@ export class WorkflowsManagingTableComponent {
         this.versionFields = [
             { id: 'isChecked', label: '', sortable: false },
             { id: 'version', label: 'Version' },
-            { id: 'status.status', label: 'Status' },
+            { id: 'status.status', label: 'Advanced Status' },
             { id: 'lastUpdateAux', label: 'Last update' }
         ];
     }

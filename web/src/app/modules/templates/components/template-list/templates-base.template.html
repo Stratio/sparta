@@ -22,6 +22,8 @@
         </button>
       </div>
    </tool-bar>
+   <st-progress-bar class="loading-bar" *ngIf="!(loaded$ | async)"></st-progress-bar>
+
    <div class="container top-separation">
       <div class="row">
          <div class="col-xs-12">
@@ -47,6 +49,8 @@
                   </td>
                </tr>
             </st-table>
+            <table-notification *ngIf="!templateList.length && (loaded$ | async)" (onClickLink)="createTemplate()" [text]="noItemsMessage"
+               [link]="'TEMPLATES.NO_ITEMS_LINK' | translate"></table-notification>
             <div *ngIf="templateList.length && templateList.length > 10">
                <hr>
                <st-pagination [id]="generatedId" [total]="templateList.length" [perPage]="perPage" [currentPage]="currentPage" [perPageOptions]="perPageOptions"
