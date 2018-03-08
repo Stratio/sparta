@@ -25,13 +25,15 @@ import org.apache.spark.sql.crossdata.XDSession
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.{OutputFormatEnum, SaveModeEnum}
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 
 class HttpOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
   val MaxReadTimeout = 5000
   val MaxConnTimeout = 1000
+
+  val urlRegex = "\\b(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".r
 
   require(properties.getString("url", None).isDefined, "url must be provided")
 
@@ -80,6 +82,18 @@ class HttpOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           .option(HttpOptions.readTimeout(readTimeout)).asString
       }
     }
+  }
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (urlRegex.findFirstIn(url).isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: url must be valid and start with http(s)://"
+      )
+
+    validation
   }
 }
 

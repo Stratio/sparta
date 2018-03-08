@@ -18,12 +18,11 @@ package com.stratio.sparta.plugin.workflow.output.elasticsearch
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
-
 import scala.util.Try
 
 class ElasticSearchOutputStep(
@@ -128,6 +127,32 @@ class ElasticSearchOutputStep(
     } else {
       Map()
     }
+  }
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (httpNodes.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: nodes should have at least one host"
+      )
+
+    if(httpNodes.nonEmpty) {
+      if (httpNodes.forall(_._1.trim.isEmpty))
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: nodes host should be a valid url"
+        )
+
+      if (httpNodes.forall(hp => hp._2.isInstanceOf[Int] && hp._2 <= 0))
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: nodes port should be a positive number"
+        )
+    }
+
+    validation
   }
 }
 
