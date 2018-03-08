@@ -315,7 +315,8 @@
                      "label": "Year",
                      "value": "year"
                   }
-               ]
+               ],
+               "default": "millisecond"
             },
             {
                "propertyId": "fieldsPreservationPolicy",
