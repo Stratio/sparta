@@ -10,7 +10,7 @@
     - Moustache substitution on workflow properties with environment variables
 * Workflow groups management
 * Workflow versioning
-* Batch execution mode (experimental)
+* Batch execution mode (project ready)
 * New plugins implementation: 
     - Avro
     - Casting
@@ -28,19 +28,24 @@
     - Cube
     - Datetime
     - Filter
-     - JDBC/Postgres
+    - JDBC/Postgres
     - Trigger
 * Centralized logging integration
 * Errors management at workflow, row or field level
-* Reprocessing process with error outputs policies
+* Reprocessing process with error outputs
+* In-memory API
+* Plugins validations
 * Security settings refactor
-* Plugins management integrated with HDFS
+* Custom plugins management integrated with HDFS
 * Update Spark Image (2.2.0.5)
 * Avro/Json serializers and deserializers for kafka input and output
 * Cube optimization with mapWithState
 * Spark Streaming jobs optimized with less stages
 * Nginx integration for monitoring workflows with the Spark UI
 * Error catalog for API calls
+* Dto models for frontend requeriments
+* Fault torelance for server with Akka persistence
+* Lineage integration with Data-Governance
 * Bugfixing over all reported errors on the 1.x Sparta version
 
 
