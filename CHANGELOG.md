@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 (upcoming)
+
+* Pending changelog
+
 ## 2.0.0 (upcoming)
 
 * New UI with a powerful data pipeline and workflow designer
