@@ -71,18 +71,18 @@ abstract class TestInputStep[Underlying[Row]](
     if(eventType.equals(EventType.STRING) && event.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name event field cannot be empty"
+        messages = validation.messages :+ s"$name: the event field cannot be empty"
       )
     else if (eventType.equals(EventType.RANDOM_NUMBER) && maxNumber.isDefined)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name max number field cannot be empty"
+        messages = validation.messages :+ s"$name: the max number field cannot be empty"
       )
 
     if (properties.getString("numEvents", None).isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name number of events field cannot be empty"
+        messages = validation.messages :+ s"$name: the number of events field cannot be empty"
       )
     validation
   }

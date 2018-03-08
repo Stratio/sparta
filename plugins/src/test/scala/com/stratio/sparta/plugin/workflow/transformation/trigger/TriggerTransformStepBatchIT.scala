@@ -47,9 +47,9 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
-      Map("sql" -> query,"inputSchemas" -> JsoneyString(inputSchema))
+      Map("sql" -> query, "inputSchemas" -> JsoneyString(inputSchema))
     ).transform(inputData)
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
@@ -83,7 +83,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("sql" -> query)
     ).transform(inputData)

@@ -48,7 +48,7 @@ class ParquetOutputStep(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name destination path can not be empty"
+        messages = validation.messages :+ s"$name: the destination path can not be empty"
       )
 
     validation

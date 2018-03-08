@@ -29,6 +29,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 
 import scala.language.implicitConversions
+import scala.util.{Failure, Success, Try}
 
 class CrossdataInputStepBatch(
                                name: String,
@@ -47,7 +48,13 @@ class CrossdataInputStepBatch(
     if (query.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name query cannot be empty"
+        messages = validation.messages :+ s"$name: the input sql query cannot be empty"
+      )
+
+    if (query.nonEmpty && !validateSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input sql query is invalid"
       )
 
     validation
@@ -55,8 +62,18 @@ class CrossdataInputStepBatch(
 
   def init(): DistributedMonad[RDD] = {
     require(query.nonEmpty, "The input query cannot be empty")
+    require(validateSql, "The input query is invalid")
     xDSession.sql(query).rdd
   }
+
+  def validateSql: Boolean =
+    Try(xDSession.sessionState.sqlParser.parsePlan(query)) match {
+      case Success(_) =>
+        true
+      case Failure(e) =>
+        log.error(s"$name invalid sql", e)
+        false
+    }
 
 }
 

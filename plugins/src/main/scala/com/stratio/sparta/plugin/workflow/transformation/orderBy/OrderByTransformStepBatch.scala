@@ -36,6 +36,8 @@ class OrderByTransformStepBatch(
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] =
 
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      transformFunc(inputStream.ds)
+      orderExpression.fold(inputStream.ds) { expression =>
+        transformFunc(expression)(inputStream.ds)
+      }
     }
 }

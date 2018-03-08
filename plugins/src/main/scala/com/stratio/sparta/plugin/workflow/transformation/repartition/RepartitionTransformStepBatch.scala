@@ -39,7 +39,8 @@ class RepartitionTransformStepBatch(
 
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      inputStream.ds.repartition(partitions)
+      partitions.fold(inputStream.ds) { partition => inputStream.ds.repartition(partition)
+      }
     }
 
 }

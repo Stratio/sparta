@@ -21,10 +21,12 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep, TransformationStepManagement}
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
+
+import scala.util.Try
 
 class WindowTransformStepStreaming(
                            name: String,
@@ -36,10 +38,22 @@ class WindowTransformStepStreaming(
                          )
   extends TransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  lazy val overLast: Option[Duration] = properties.getString("overLast", None)
-    .notBlank.map(over => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(over)))
-  lazy val computeEvery: Option[Duration] = properties.getString("computeEvery", None)
-    .notBlank.map(every => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(every)))
+  lazy val overLast: Option[Duration] = Try(properties.getString("overLast", None)
+    .notBlank.map(over => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(over)))).toOption.flatten
+  lazy val computeEvery: Option[Duration] = Try(properties.getString("computeEvery", None)
+    .notBlank.map(every => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(every)))).toOption.flatten
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (overLast.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the over last time is invalid"
+      )
+
+    validation
+  }
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (_, inputDistributedMonad) =>

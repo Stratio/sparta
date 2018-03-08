@@ -187,8 +187,8 @@
                 <version>${slf4j.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -229,8 +229,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -248,8 +248,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -267,8 +267,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -286,8 +286,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
                 <classifier>tests</classifier>
@@ -306,8 +306,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -325,8 +325,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -344,8 +344,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
                 <classifier>tests</classifier>
@@ -369,6 +369,10 @@
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
                         <artifactId>log4j-1.2-api</artifactId>
                     </exclusion>
                     <exclusion>
@@ -376,8 +380,8 @@
                         <artifactId>log4j-core</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -589,8 +593,8 @@
                 <version>${zookeeper.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -615,8 +619,8 @@
                 <version>${curator.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -666,8 +670,8 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
-                        <artifactId>log4j</artifactId>
                         <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.zookeeper</groupId>
@@ -714,8 +718,8 @@
             <version>${slf4j.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>log4j</artifactId>
                     <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

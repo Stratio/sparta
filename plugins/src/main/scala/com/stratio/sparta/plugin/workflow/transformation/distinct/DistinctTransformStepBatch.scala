@@ -35,10 +35,8 @@ class DistinctTransformStepBatch(name: String,
   extends DistinctTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  def transformFunction(inputSchema: String, inputStream: DistributedMonad[RDD]): DistributedMonad[RDD] = {
-    if (inputStream.ds.isEmpty()) inputStream.ds
-    else partitions.fold(inputStream.ds.distinct()) { numPartitions => inputStream.ds.distinct(numPartitions) }
-  }
+  def transformFunction(inputSchema: String, inputStream: DistributedMonad[RDD]): DistributedMonad[RDD] =
+    partitions.fold(inputStream.ds.distinct()) { numPartitions => inputStream.ds.distinct(numPartitions) }
 
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] =
     applyHeadTransform(inputData)(transformFunction)

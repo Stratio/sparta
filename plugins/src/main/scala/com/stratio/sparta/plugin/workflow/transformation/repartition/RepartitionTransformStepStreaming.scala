@@ -34,11 +34,13 @@ class RepartitionTransformStepStreaming(
                                          xDSession: XDSession,
                                          properties: Map[String, JSerializable]
                                        )
-  extends RepartitionTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
-    with SLF4JLogging {
+  extends RepartitionTransformStep[DStream](
+    name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) with SLF4JLogging {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      inputStream.ds.repartition(partitions)
+      partitions.fold(inputStream.ds) { partition =>
+        inputStream.ds.repartition(partition)
+      }
     }
 }

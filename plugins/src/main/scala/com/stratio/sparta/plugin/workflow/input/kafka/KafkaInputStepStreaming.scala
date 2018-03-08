@@ -76,33 +76,33 @@ class KafkaInputStepStreaming(
     if (brokerList.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name the bootstrap server definition is wrong"
+        messages = validation.messages :+ s"$name: the bootstrap server definition is wrong"
       )
     if (topics.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name the topic cannot be empty"
+        messages = validation.messages :+ s"$name: the topic cannot be empty"
       )
 
     if (heartbeatIntervalMs >= sessionTimeOutMs)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+
-          s"$name the $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG"
+          s"$name: the $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG"
       )
 
     if (requestTimeoutMs <= sessionTimeOutMs)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+
-          s"$name the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG"
+          s"$name: the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG"
       )
 
     if (requestTimeoutMs <= fetchMaxWaitMs)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+
-          s"$name the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG"
+          s"$name: the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG"
       )
 
     validation

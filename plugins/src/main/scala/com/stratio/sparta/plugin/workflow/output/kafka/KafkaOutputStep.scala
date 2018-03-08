@@ -65,7 +65,7 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     if (brokerList.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name bootstrap server definition is wrong"
+        messages = validation.messages :+ s"$name: the bootstrap server definition is wrong"
       )
 
     validation

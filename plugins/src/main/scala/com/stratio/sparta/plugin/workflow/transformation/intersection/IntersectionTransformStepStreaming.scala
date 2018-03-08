@@ -36,7 +36,7 @@ class IntersectionTransformStepStreaming(
   extends IntersectionTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    assert(inputData.size == 2,
+    require(inputData.size == 2,
       s"The intersection step $name must have two input steps, now have: ${inputData.keys}")
 
     val (_, firstStream) = inputData.head

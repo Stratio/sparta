@@ -33,10 +33,11 @@ class IntersectionTransformStepBatch(
                                       xDSession: XDSession,
                                       properties: Map[String, JSerializable]
                                     )
-  extends IntersectionTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+  extends IntersectionTransformStep[RDD](
+    name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] = {
-    assert(inputData.size == 2,
+    require(inputData.size == 2,
       s"The intersection step $name must have two input steps, now have: ${inputData.keys}")
 
     val (_, firstStream) = inputData.head

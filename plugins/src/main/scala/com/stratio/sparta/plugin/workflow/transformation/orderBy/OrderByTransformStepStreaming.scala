@@ -32,11 +32,14 @@ class OrderByTransformStepStreaming(
                                      xDSession: XDSession,
                                      properties: Map[String, JSerializable]
                                    )
-  extends OrderByTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+  extends OrderByTransformStep[DStream](
+    name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      inputStream.ds.transform(transformFunc)
+      orderExpression.fold(inputStream.ds) { expression =>
+        inputStream.ds.transform(rdd => transformFunc(expression)(rdd))
+      }
     }
 }

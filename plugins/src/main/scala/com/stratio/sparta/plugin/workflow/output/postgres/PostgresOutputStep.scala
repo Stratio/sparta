@@ -54,11 +54,11 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
     if (url.isEmpty)
-      validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name url must be provided")
+      validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name: the url must be provided")
     if (tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name when TLS is enable the sparkConf must contain the security options"
+        messages = validation.messages :+ s"$name: when TLS is enable the sparkConf must contain the security options"
       )
 
     validation

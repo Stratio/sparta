@@ -34,7 +34,8 @@ class PersistTransformStepStreaming(
                                      xDSession: XDSession,
                                      properties: Map[String, JSerializable]
                                    )
-  extends PersistTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+  extends PersistTransformStep[DStream](
+    name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (_, inputStream) =>

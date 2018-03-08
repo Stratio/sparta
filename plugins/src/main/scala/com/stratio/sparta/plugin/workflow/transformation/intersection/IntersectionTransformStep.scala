@@ -35,8 +35,7 @@ abstract class IntersectionTransformStep[Underlying[Row]](
                                                            xDSession: XDSession,
                                                            properties: Map[String, JSerializable]
                                                          )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
-    with SLF4JLogging {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val partitions = properties.getInt("partitions", None)
 

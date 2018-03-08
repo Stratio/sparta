@@ -47,7 +47,7 @@ class FileSystemInputStepBatch(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name path cannot be empty"
+        messages = validation.messages :+ s"$name: the path cannot be empty"
       )
 
     validation

@@ -37,12 +37,10 @@ class DistinctTransformStepStreaming(
   extends DistinctTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
+  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
     inputStream.ds.transform { rdd =>
-      if (rdd.isEmpty()) rdd
-      else partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
+      partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
     }
-  }
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData)(transformFunction)

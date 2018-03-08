@@ -57,7 +57,11 @@ abstract class TriggerTransformStep[Underlying[Row]](
       implicit val json4sJacksonFormats: Formats =
         DefaultFormats + new JsoneyStringSerializer()
       read[PropertiesTriggerInputsModel](
-        s"""{"inputSchemas": ${properties.getString("inputSchemas", None).notBlank.fold("[]") { values => values.toString }}}"""
+        s"""{"inputSchemas": ${
+          properties.getString("inputSchemas", None).notBlank.fold("[]") { values =>
+            values.toString
+          }
+        }}"""
       )
     }
   }
@@ -69,33 +73,42 @@ abstract class TriggerTransformStep[Underlying[Row]](
     */
   def validateSchemas(inputData: Map[String, DistributedMonad[Underlying]]) = {
     if (inputsModel.inputSchemas.nonEmpty) {
-      require(inputData.size == inputsModel.inputSchemas.size, s"$name  The inputs size must be equal than provided input trigger schemas")
+      require(inputData.size == inputsModel.inputSchemas.size,
+        s"$name  The inputs size must be equal than provided input trigger schemas")
       //If any of them fails
-      require(!inputsModel.inputSchemas.exists(input => parserInputSchema(input.schema).isFailure), s"$name input schemas contains errors")
-      require(inputData.keys.forall(stepName => {
-        inputsModel.inputSchemas.map(_.stepName.toLowerCase).contains(stepName.toLowerCase)
-      }), s"$name input schemas are not the same as the input step names")
+      require(!inputsModel.inputSchemas.exists(input => parserInputSchema(input.schema).isFailure),
+        s"$name input schemas contains errors")
+      require(inputData.keys.forall { stepName =>
+        inputsModel.inputSchemas.map(_.stepName).contains(stepName)
+      }, s"$name input schemas are not the same as the input step names")
     }
   }
 
-  def parserInputSchema(schema: String): Try[StructType] = {
+  def parserInputSchema(schema: String): Try[StructType] =
     Try {
       SchemaHelper.getSparkSchemaFromString(schema) match {
-        case Success(structType) => structType
-        case Failure(f) => {
-          log.error( s"$name Error parsing input schema ${schema} with SparkSchemaFromString")
+        case Success(structType) =>
+          structType
+        case Failure(f) =>
+          log.warn(s"$name Error parsing input schema $schema with SparkSchemaFromString. ${f.getLocalizedMessage}")
           Try(RowJsonHelper.extractSchemaFromJson(schema, Map())) match {
-            case Success(structType) => structType
-            case Failure(f) => {
-              val msg = s"$name Error parsing input schema ${schema} with SchemaFromJson"
-              log.error(msg, f)
-              throw new Exception(msg)
-            }
+            case Success(structType) =>
+              structType
+            case Failure(e) =>
+              log.warn(s"$name Error parsing input schema $schema with SchemaFromJson. ${e.getLocalizedMessage}")
+              throw new Exception(s"$name Error parsing input schema")
           }
-        }
       }
     }
-  }
+
+  def validateSql: Boolean =
+    Try(xDSession.sessionState.sqlParser.parsePlan(sql)) match {
+      case Success(_) =>
+        true
+      case Failure(e) =>
+        log.warn(s"$name invalid sql. ${e.getLocalizedMessage}")
+        false
+    }
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -103,46 +116,32 @@ abstract class TriggerTransformStep[Underlying[Row]](
     if (sql.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input query can not be empty"
+        messages = validation.messages :+ s"$name: the input sql query can not be empty"
+      )
+
+    if (sql.nonEmpty && !validateSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input sql query is invalid"
       )
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
-      inputsModel.inputSchemas.foreach(input => {
-        if (parserInputSchema(input.schema).isFailure) {
+      inputsModel.inputSchemas.foreach { input =>
+        if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ s"$name input schema from step ${input.stepName} is not valid")
-        }
+            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
       }
-      )
 
-      inputsModel.inputSchemas.filterNot(is => isCorrectTableName(is.stepName)).foreach(is => {
+      inputsModel.inputSchemas.filterNot(is => isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name input Table Name ${is.stepName} is not valid")
-      })
+          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+      }
     }
 
     validation
-  }
-
-  def executeSQL: RDD[Row] = {
-    log.debug(s"Executing query in Spark: $sql")
-
-    val queryDf = Try(xDSession.sql(sql)) match {
-      case Success(sqlResult) => sqlResult
-      case Failure(e: org.apache.spark.sql.AnalysisException) =>
-        val info = s"Error while running analysis in Catalyst, query $sql in the trigger $name. ${e.getMessage}"
-        log.warn(info)
-        throw new RuntimeException(info, e)
-      case Failure(e) =>
-        val info = s"Error while running query $sql in the trigger $name. ${e.getMessage}"
-        log.warn(info)
-        throw new RuntimeException(info, e)
-    }
-
-    queryDf.rdd
   }
 
   def isCorrectTableName(tableName: String): Boolean =

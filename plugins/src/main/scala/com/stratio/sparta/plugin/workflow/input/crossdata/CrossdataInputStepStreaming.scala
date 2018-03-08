@@ -40,7 +40,7 @@ import org.json4s.{DefaultFormats, Formats}
 
 import scala.concurrent.duration._
 import scala.language.implicitConversions
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 class CrossdataInputStepStreaming(
                                    name: String,
@@ -73,7 +73,7 @@ class CrossdataInputStepStreaming(
   lazy val offsetItems = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
     val offsetFields =
-      s"""${properties.getString("offsetFields", None).notBlank.fold("[]") { values => values.toString}}""".stripMargin
+      s"""${properties.getString("offsetFields", None).notBlank.fold("[]") { values => values.toString }}""".stripMargin
 
     read[Seq[OffsetFieldItem]](offsetFields).map(item => new OffsetField(item.offsetField,
       OffsetOperator.withName(item.offsetOperator),
@@ -86,13 +86,19 @@ class CrossdataInputStepStreaming(
     if (query.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name input query cannot be empty"
+        messages = validation.messages :+ s"$name: the input sql query cannot be empty"
+      )
+
+    if (query.nonEmpty && !validateSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input sql query is invalid"
       )
 
     if (offsetItems.nonEmpty && offsetItems.exists(offsetField => offsetField.name.isEmpty))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name there are offset items with an incorrect definition"
+        messages = validation.messages :+ s"$name: there are offset items with an incorrect definition"
       )
 
     validation
@@ -100,6 +106,7 @@ class CrossdataInputStepStreaming(
 
   def init(): DistributedMonad[DStream] = {
     require(query.nonEmpty, "The input query can not be empty")
+    require(validateSql, "The input query is invalid")
     require(offsetItems.isEmpty || offsetItems.forall(offsetField => offsetField.name.nonEmpty),
       "There are offset items with an incorrect definition")
 
@@ -147,6 +154,15 @@ class CrossdataInputStepStreaming(
       }
     }
   }
+
+  def validateSql: Boolean =
+    Try(xDSession.sessionState.sqlParser.parsePlan(query)) match {
+      case Success(_) =>
+        true
+      case Failure(e) =>
+        log.error(s"$name invalid sql", e)
+        false
+    }
 
 }
 
