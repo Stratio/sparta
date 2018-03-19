@@ -131,6 +131,7 @@ hose {
             | -DNGINX_ACTIVE=false
             | -DPOSTGRES_NODE=pg-0001
             | -DPOSTGRES_NAME=postgrestls
+            | -DURL_GOSEC=/opt/stratio/gosec-sso/conf
             """
             
     INSTALL = { config ->
