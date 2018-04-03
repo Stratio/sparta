@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 2.0.0 (upcoming)
+## 2.0.0 (April 03, 2018)
 
 * New UI with a powerful data pipeline and workflow designer
 * Monitoring view
