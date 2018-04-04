@@ -51,7 +51,8 @@ class ExecutionServiceTest extends WordSpecLike
       submitArguments = Map(),
       sparkConfigurations = Map(),
       driverArguments = Map(),
-      sparkHome = "sparkHome"
+      sparkHome = "sparkHome",
+      userId = None
     )
   )
   val executionRaw =

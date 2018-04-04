@@ -33,7 +33,7 @@
         "packages": "",
         "excludePackages": "",
         "repositories": "",
-        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
+        "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml",
         "driverLibraryPath": "",
         "driverClassPath": ""
       },
@@ -117,7 +117,7 @@
       {
         "name": "tabletest",
         "stepType": "Transformation",
-        "className": "TriggerTransformStepStream",
+        "className": "TriggerTransformStepStreaming",
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",

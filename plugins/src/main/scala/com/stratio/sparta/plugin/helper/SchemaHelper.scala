@@ -15,10 +15,11 @@ import org.apache.avro.Schema
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
+import org.apache.spark.sql.json.RowJsonHelper
 import org.apache.spark.sql.json.RowJsonHelper.extractSchemaFromJson
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 object SchemaHelper extends SLF4JLogging {
 
@@ -86,6 +87,23 @@ object SchemaHelper extends SLF4JLogging {
       LegacyTypeStringParser.parse(schemaStr)
     } flatMap { schema =>
       Try(schema.asInstanceOf[StructType])
+    }
+
+  def parserInputSchema(schema: String): Try[StructType] =
+    Try {
+      getSparkSchemaFromString(schema) match {
+        case Success(structType) =>
+          structType
+        case Failure(f) =>
+          log.warn(s"Error parsing input schema $schema with SparkSchemaFromString. ${f.getLocalizedMessage}")
+          Try(RowJsonHelper.extractSchemaFromJson(schema, Map())) match {
+            case Success(structType) =>
+              structType
+            case Failure(e) =>
+              log.warn(s"Error parsing input schema $schema with SchemaFromJson. ${e.getLocalizedMessage}")
+              throw new Exception(s"Error parsing input schema")
+          }
+      }
     }
 
   def getNewOutputSchema(inputSchema: StructType, preservationPolicy: FieldsPreservationPolicy.Value,

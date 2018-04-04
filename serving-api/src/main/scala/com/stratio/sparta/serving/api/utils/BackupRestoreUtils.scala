@@ -3,27 +3,28 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.utils
 
 import java.io.File
 import java.nio.file.{Files, Paths}
-
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import kafka.utils.ZkUtils
-import org.I0Itec.zkclient.exception.ZkNoNodeException
-import org.I0Itec.zkclient.{ZkClient, ZkConnection}
-import org.apache.zookeeper.KeeperException.NotEmptyException
-import org.apache.zookeeper.data.{ACL, Id}
-import org.json4s.jackson.Serialization.write
-
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.immutable.Queue
 import scala.util.parsing.json.JSON
 import scala.util.{Failure, Success, Try}
 
+import akka.event.slf4j.SLF4JLogging
+import org.I0Itec.zkclient.exception.ZkNoNodeException
+import org.apache.zookeeper.KeeperException.NotEmptyException
+import org.apache.zookeeper.data.{ACL, Id}
+import org.json4s.jackson.Serialization.write
+
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+
+//scalastyle:off
 trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
 
   // Configuration
@@ -33,15 +34,14 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
 
   // Zookeeper Client
 
-  lazy val (client, zkConnection): (ZkClient, ZkConnection) =
-    ZkUtils.createZkClientAndConnection(uri, connectionTimeout, sessionTimeout)
+  lazy val client = CuratorFactoryHolder.getInstance()
 
   /**
-   * Create a backup from a Zookeeper node in a json file
-   *
-   * @param zkPath Origin path of Zookeeper's backup
-   * @param file   Path of the json file
-   */
+    * Create a backup from a Zookeeper node in a json file
+    *
+    * @param zkPath Origin path of Zookeeper's backup
+    * @param file   Path of the json file
+    */
   def dump(zkPath: String, file: String): Unit = {
     val json = jsonPretify(zkPath)
     Try(writer(json, file)) match {
@@ -51,12 +51,12 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
   }
 
   /**
-   * Import data from a json file
-   *
-   * @param zkPath Path where the data will be imported
-   * @param file   Path of the json file
-   * @param clean  flag to clean data before apply the import
-   */
+    * Import data from a json file
+    *
+    * @param zkPath Path where the data will be imported
+    * @param file   Path of the json file
+    * @param clean  flag to clean data before apply the import
+    */
   def importer(zkPath: String = "", file: String, clean: Boolean): Unit = {
     val jsonMaped: Seq[Map[String, Any]] = jsonParser(file)
     val rootRelativePath = jsonMaped.head("node").asInstanceOf[String]
@@ -71,21 +71,16 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
   }
 
   /**
-   * Clean data from a Zookeeper node recursively
-   *
-   * @param zkPath Origin path to clean data
-   */
+    * Clean data from a Zookeeper node recursively
+    *
+    * @param zkPath Origin path to clean data
+    */
   def cleanZk(zkPath: String): Unit =
     Try {
-      if (!client.exists(zkPath))
+      if (client.checkExists().forPath(zkPath) == null)
         log.warn(s"ZKPath $zkPath does NOT exist")
-      else if (client.countChildren(zkPath) != 0) {
-        log.debug(s"ZKPath $zkPath has children. Deleting recursively.")
-        client.deleteRecursive(zkPath)
-      } else {
-        log.debug(s"ZKPath $zkPath has no children.")
-        client.delete(zkPath)
-      }
+      else
+        client.delete().deletingChildrenIfNeeded().forPath(zkPath)
     } match {
       case Success(_) => log.info("Clean completed")
       case Failure(ex: NotEmptyException) => throw ex
@@ -94,15 +89,15 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
     }
 
   /**
-   * Close the connection
-   */
+    * Close the connection
+    */
   def stop(): Unit =
     client.close()
 
   // Extract data from all Zookeeper nodes from a specific path
   @tailrec
   private def plainDump(path: String, pending: Queue[String], acc: Seq[String]): Seq[String] = {
-    val newQueue = (client.getChildren(path) foldLeft pending) { (q, child) =>
+    val newQueue = (client.getChildren.forPath(path) foldLeft pending) { (q, child) =>
       q.enqueue(s"$path/$child".replace("//", "/"))
     }
     if (newQueue.nonEmpty) {
@@ -113,10 +108,9 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
 
   // Extract data from a Zookeeper node
   private def getZkNode(path: String): Map[String, Any] = {
-    val content: String = Option(client.readData(path)).getOrElse("")
+    val content: String = Option(new String(client.getData.forPath(path))).getOrElse("")
     val acls: Seq[Map[String, String]] =
-      client.getAcl(path)
-        .getKey
+      client.getACL.forPath(path)
         .map { acl =>
           Map(
             "principal" -> acl.getId.getId,
@@ -157,11 +151,14 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
       val fullPath = (zkPath + path).replace("//", "/")
       val reg = "(/stratio/sparta/sparta.*?(?=/))".r
       val restorePath = reg.replaceAllIn(fullPath, AppConstant.BaseZkPath)
-
-      if (client.exists(restorePath)) client.setAcl(restorePath, acls)
-      else client.createPersistent(restorePath, true, acls)
-
-      client.writeData(restorePath, content)
+      if (client.checkExists.forPath(restorePath) != null) {
+        client.setACL().withACL(acls).forPath(restorePath)
+      }
+      else {
+        client.create().creatingParentContainersIfNeeded().forPath(restorePath, content.getBytes())
+        client.setACL().withACL(acls).forPath(restorePath)
+      }
+      client.setData().forPath(restorePath, content.getBytes())
     }
 
   // Deserialize json file in a collection of Maps.

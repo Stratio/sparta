@@ -41,25 +41,25 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
     executions += (execution.id -> execution)
 
   def removeStatus(id: String): Unit =
-    statuses.filterKeys(key => key != id)
+    statuses -= id
 
   def removeExecution(id: String): Unit =
-    executions.filterKeys(key => key != id)
+    executions -= id
 
   def addGroup(group: Group): Unit =
     group.id.foreach(id => groups += (id -> group))
 
   def removeGroup(group: Group): Unit =
-    group.id.foreach(id => groups.filterKeys(key => key != id))
+    group.id.foreach(id => groups -= id)
 
   def addWorkflowsRaw(workflow: Workflow): Unit =
     workflow.id.foreach(id => workflowsRaw += (id -> workflow))
 
   def removeWorkflowsRaw(workflow: Workflow): Unit =
-    workflow.id.foreach(id => workflowsRaw.filterKeys(key => key != id))
+    workflow.id.foreach(id => workflowsRaw -= id)
 
   def removeWorkflowsWithEnv(workflow: Workflow): Unit =
-    workflow.id.foreach(id => workflowsWithEnv.filterKeys(key => key != id))
+    workflow.id.foreach(id => workflowsWithEnv -= id)
 
   val receiveRecover: Receive = eventsReceive.orElse(snapshotRecover).orElse(recoverComplete)
 

@@ -103,6 +103,7 @@
                "regexp": "",
                "default": "",
                "hidden": false,
+               "width": 4,
                "required": false,
                "qa": "fragment-details-elasticsearch-saveOptionsKey"
             },
@@ -112,6 +113,7 @@
                "propertyType": "text",
                "regexp": "",
                "default": "",
+               "width": 4,
                "hidden": false,
                "required": false,
                "qa": "fragment-details-elasticsearch-saveOptionsValue"

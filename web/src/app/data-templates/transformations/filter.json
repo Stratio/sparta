@@ -10,7 +10,8 @@
      {
         "propertyId": "filterExp",
         "propertyName": "_FILTER_EXPRESSION_",
-        "propertyType": "text",
+        "propertyType": "textarea",
+        "contentType": "JSON",
         "required": false,
         "tooltip": "Filter the events based in one expression, support UDFs, logical operators, etc ...",
         "qa": "fragment-details-filter-expression"

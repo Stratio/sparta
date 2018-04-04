@@ -16,28 +16,28 @@ import scala.util.{Failure, Success, Try}
 
 class CrossdataService() extends SLF4JLogging {
 
-  def listTables(dbName: Option[String], temporary: Boolean): Try[Array[Table]] =
+  def listTables(dbName: Option[String], temporary: Boolean, userId: Option[String]): Try[Array[Table]] =
     Try {
       (dbName.notBlank, temporary) match {
         case (Some(database), true) =>
-          getOrCreateXDSession().catalog.listTables(database).collect().filter(_.isTemporary)
+          getOrCreateXDSession(userId).catalog.listTables(database).collect().filter(_.isTemporary)
         case (Some(database), false) =>
-          getOrCreateXDSession().catalog.listTables(database).collect().filterNot(_.isTemporary)
+          getOrCreateXDSession(userId).catalog.listTables(database).collect().filterNot(_.isTemporary)
         case (None, true) =>
-          getOrCreateXDSession().catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateXDSession().catalog.listTables(db.name).collect()
+          getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+            getOrCreateXDSession(userId).catalog.listTables(db.name).collect()
           ).filter(_.isTemporary)
         case (None, false) =>
-          getOrCreateXDSession().catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateXDSession().catalog.listTables(db.name).collect()
+          getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+            getOrCreateXDSession(userId).catalog.listTables(db.name).collect()
           ).filterNot(_.isTemporary)
       }
     }
 
-  def listAllTables: Try[Array[Table]] =
+  def listAllTables(userId: Option[String]): Try[Array[Table]] =
     Try {
-      getOrCreateXDSession().catalog.listDatabases().collect().flatMap(db =>
-        Try(getOrCreateXDSession().catalog.listTables(db.name).collect()) match {
+      getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+        Try(getOrCreateXDSession(userId).catalog.listTables(db.name).collect()) match {
           case Success(table) => Option(table)
           case Failure(e) =>
             log.debug(s"Error obtaining tables from database ${db.name}", e)
@@ -46,35 +46,33 @@ class CrossdataService() extends SLF4JLogging {
       ).flatten
     }
 
-  def listDatabases: Try[Array[Database]] =
-    Try(getOrCreateXDSession().catalog.listDatabases().collect())
+  def listDatabases(userId: Option[String]): Try[Array[Database]] =
+    Try(getOrCreateXDSession(userId).catalog.listDatabases().collect())
 
-  def listColumns(tableName: String, dbName: Option[String]): Try[Array[Column]] =
+  def listColumns(tableName: String, dbName: Option[String], userId: Option[String]): Try[Array[Column]] =
     Try {
       dbName match {
         case Some(database) =>
-          getOrCreateXDSession().catalog.listColumns(database, tableName).collect()
+          getOrCreateXDSession(userId).catalog.listColumns(database, tableName).collect()
         case None =>
-          val table = getOrCreateXDSession().catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateXDSession().catalog.listTables(db.name).collect()
+          val table = getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+            getOrCreateXDSession(userId).catalog.listTables(db.name).collect()
           ).find(_.name == tableName).getOrElse(throw new Exception(s"Unable to find table $tableName in XDCatalog"))
-          getOrCreateXDSession().catalog.listColumns(table.database, table.name).collect()
+          getOrCreateXDSession(userId).catalog.listColumns(table.database, table.name).collect()
       }
     }
 
-  def executeQuery(query: String): Try[Array[Map[String, Any]]] =
+  def executeQuery(query: String, userId: Option[String]): Try[Array[Map[String, Any]]] =
     Try {
       if (validateQuery(query.trim))
-        getOrCreateXDSession().sql(query.trim)
+        getOrCreateXDSession(userId).sql(query.trim)
           .collect()
           .map { row =>
             row.schema.fields.zipWithIndex.map { case (field, index) =>
               val oldValue = row.get(index)
               val newValue = oldValue match {
                 case v: java.math.BigDecimal => BigDecimal(v)
-                case v: GenericRowWithSchema => {
-                  toJSON(v, Map.empty[String, String])
-                }
+                case v: GenericRowWithSchema => toJSON(v, Map.empty[String, String])
                 case _ => oldValue
               }
               field.name -> newValue

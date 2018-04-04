@@ -28,13 +28,13 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
   private val listenerService = new ListenerService(curatorFramework, statusListenerActor)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
+    case Start(workflow: Workflow, userId: Option[String]) => initializeSubmitRequest(workflow, userId: Option[String])
     case StartWithRequest(workflow: Workflow, submitRequest: WorkflowExecution) => launch(workflow, submitRequest)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
   //scalastyle:off
-  def initializeSubmitRequest(workflow: Workflow): Unit = {
+  def initializeSubmitRequest(workflow: Workflow, userId: Option[String]): Unit = {
     Try {
       log.info(s"Initializing cluster options submitted by workflow: ${workflow.name}")
       val sparkSubmitService = new SparkSubmitService(workflow)
@@ -64,7 +64,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,
-          sparkHome = sparkHome
+          sparkHome = sparkHome,
+          userId
         ),
         sparkDispatcherExecution = None,
         marathonExecution = None

@@ -36,14 +36,14 @@ class AvroOutputStep(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the destination path can not be empty"
+        messages = validation.messages :+ s"$name: destination path cannot be empty"
       )
 
     validation
   }
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    require(path.nonEmpty, "Input path can not be empty")
+    require(path.nonEmpty, "Input path cannot be empty")
     validateSaveMode(saveMode)
 
     val tableName = getTableNameFromOptions(options)

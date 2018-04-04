@@ -143,9 +143,9 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup(rootUser)
       expectMsgPF() {
-        case Left(Failure(e: Exception)) => e.getLocalizedMessage shouldBe
-          "org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for " +
-            s"${AppConstant.DefaultZKPath}"
+        case Left(Failure(e: Exception)) => {
+          e.getLocalizedMessage shouldBe "KeeperErrorCode = NoNode for " + s"${AppConstant.DefaultZKPath}"
+        }
       }
       metadataActor ! DeleteBackups(rootUser)
       expectMsgPF() {

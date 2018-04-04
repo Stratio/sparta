@@ -62,7 +62,6 @@ export TENANT_NORM="${TENANT_UNDERSCORE^^}"
 export SPARTA_TLS_JKS_NAME="/etc/sds/sparta/security/$TENANT_NAME.jks"
 export SPARTA_TRUST_JKS_NAME="/etc/sds/sparta/security/truststore.jks"
 export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
-export GOSEC_PLUGIN_JKS_NAME=${SPARTA_TLS_JKS_NAME}
 
 export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/$TRUSTSTORE_CA_NAME"
 export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="/v1/ca-trust/passwords/default/keystore"

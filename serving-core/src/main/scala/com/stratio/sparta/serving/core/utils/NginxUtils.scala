@@ -343,13 +343,16 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
           if (!group.contains(UnauthorizedKey)) {
             extractAppsId(group) match {
               case Some(appsId) =>
+                log.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
                 Future.sequence {
                   appsId.map { appId =>
                     val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
                     appResponse.flatMap { response =>
                       if (response.contains(UnauthorizedKey))
                         responseUnauthorized()
-                      else Future(response)
+                      else{
+                        log.debug(s"Extracted info for appID $appId: $response")
+                        Future(response)}
                     }
                   }
                 }
@@ -397,9 +400,9 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
     else {
       apps.asScala.toList.flatMap(app =>
         if (app.elements().asScala.toList.nonEmpty)
-          Try(app.findValue("id").asText) match {
-            case Success(id) if !id.isEmpty =>
-              Option(id.toString)
+          Try(app.findValues("id").asScala.toList) match {
+            case Success(list) if list.nonEmpty =>
+              list.flatMap( node => Try(node.asText).toOption.notBlank)
             case Failure(e) =>
               log.warn(s"Impossible to extract App in JsonNode: ${jsonNode.toString} .Error: ${e.getLocalizedMessage}")
               None

@@ -1,0 +1,60 @@
+{
+   "name": "Trigger",
+   "icon": "Trigger",
+   "className": "TriggerTransformStep",
+   "supportedEngines": ["Batch"],
+   "classPrettyName": "Trigger",
+   "arity": ["BinaryToNary", "UnaryToNary", "NaryToNary"],
+   "description": "Execute one trigger with one SQL query",
+   "properties": [
+      {
+         "propertyId": "sql",
+         "propertyName": "_SQL_",
+         "propertyType": "textarea",
+         "contentType": "SQL",
+         "width": 8,
+         "required": true,
+         "tooltip": "Query in SQL language",
+         "qa": "fragment-details-trigger-sql"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "Schema definition for input steps",
+         "qa": "fragment-details-casting-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 2,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "text",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      },
+      {
+         "propertyId": "executeSqlWhenEmpty",
+         "propertyName": "_EXECUTE_WHEN_EMPTY_",
+         "propertyType": "boolean",
+         "default": true,
+         "required": true,
+         "tooltip": "Execute the query when any, or both, of the steps are empty and no schema is provided. This is a useful feature when the query contains joins",
+         "qa": "fragment-trigger-executeSqlWhenEmpty"
+      }
+   ]
+}

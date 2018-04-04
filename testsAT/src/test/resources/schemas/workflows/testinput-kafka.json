@@ -1,5 +1,5 @@
 {
-  "id": "d3857ce0-9966-4ec4-ba86-42872cf9cb72",
+  "id": "85b5bcf4-301f-4d24-9d13-81c033275875",
   "name": "testinput-kafka",
   "description": "Automatic Workflow testinput kafka 400ev",
   "settings": {
@@ -7,11 +7,16 @@
       "executionMode": "marathon",
       "userPluginsJars": [],
       "initSqlSentences": [],
-      "addAllUploadedPlugins": true
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER"
     },
     "streamingSettings": {
       "window": "10s",
       "remember": "",
+      "backpressure": false,
+      "blockInterval": "100ms",
+      "stopGracefully": false,
       "checkpointSettings": {
         "checkpointPath": "sparta/checkpoint",
         "enableCheckpointing": true,
@@ -27,15 +32,7 @@
       "submitArguments": {
         "userArguments": [],
         "deployMode": "client",
-        "supervise": false,
-        "jars": "",
-        "propertiesFile": "",
-        "packages": "",
-        "excludePackages": "",
-        "repositories": "",
-        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
-        "driverLibraryPath": "",
-        "driverClassPath": ""
+        "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
       },
       "sparkConf": {
         "sparkResourcesConf": {
@@ -47,25 +44,35 @@
           "mesosExtraCores": "",
           "localityWait": "100",
           "taskMaxFailures": "8",
-          "sparkMemoryFraction": "0.6"
-        },
-        "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
-          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
-          "executorForcePullImage": false
-        },
-        "sparkMesosConf": {
-          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
-          "mesosHDFSConfURI": ""
+          "sparkMemoryFraction": "0.6",
+          "sparkParallelism": ""
         },
         "userSparkConf": [],
         "coarse": true,
-        "stopGracefully": true,
-        "stopGracefulTimeout": "",
         "sparkUser": "",
         "sparkLocalDir": "/opt/spark/dist",
-        "parquetBinaryAsString": true,
+        "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0.5",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": false,
+        "logStagesProgress": false,
+        "hdfsTokenCache": true,
         "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": false,
+        "sendInputData": true
       }
     }
   },
@@ -74,7 +81,7 @@
       {
         "name": "Test",
         "stepType": "Input",
-        "className": "TestInputStepStream",
+        "className": "TestInputStepStreaming",
         "classPrettyName": "Test",
         "arity": [
           "NullaryToNary"
@@ -97,12 +104,14 @@
           "outputField": "raw",
           "event": "{\"id\":\"550\"}",
           "numEvents": "400"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "JsonPath",
         "stepType": "Transformation",
-        "className": "JsonPathTransformStepStream",
+        "className": "JsonPathTransformStepStreaming",
         "classPrettyName": "JsonPath",
         "arity": [
           "UnaryToNary"
@@ -130,7 +139,9 @@
           "supportNullValues": true,
           "fieldsPreservationPolicy": "REPLACE",
           "inputField": "raw"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "Kafka",
@@ -165,12 +176,14 @@
           "saveOptions": "[]",
           "keySeparator": ",",
           "batch.size": "200"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "idtable",
         "stepType": "Transformation",
-        "className": "TriggerTransformStepStream",
+        "className": "TriggerTransformStepStreaming",
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",
@@ -189,7 +202,9 @@
         },
         "configuration": {
           "sql": "select id from JsonPath"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       }
     ],
     "edges": [
@@ -215,5 +230,19 @@
       "k": 1
     }
   },
-  "lastUpdateDate": "2018-01-11T08:20:12Z"
+  "lastUpdateDate": "2018-04-02T17:12:45Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "85b5bcf4-301f-4d24-9d13-81c033275875",
+    "status": "Started",
+    "statusInfo": "Workflow started correctly",
+    "lastExecutionMode": "marathon",
+    "lastUpdateDate": "2018-04-02T17:35:31Z",
+    "sparkURI": "https://sparta.nightly.labs.stratio.com/workflows-sparta-server/home/testinput-kafka/testinput-kafka-v0/",
+    "lastUpdateDateWorkflow": "2018-04-02T17:12:45Z"
+  }
 }

@@ -1,0 +1,134 @@
+{
+  "id": "spartaxd",
+  "name": "spartaxd",
+  "users": [
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "crossdata2",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "*"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "database",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Audit",
+                "Manage",
+                "ViewPolicies",
+                "Delete",
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "table",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Other",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            }
+          ]
+        },
+        {
+          "instances": [
+            {
+              "name": "sparta-server"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "database",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Audit",
+                "Manage",
+                "ViewPolicies",
+                "Delete",
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "table",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Other",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            }
+          ]
+        },
+        {
+          "instances": [
+            {
+              "name": "sparta-dg"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "database",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Audit",
+                "Manage",
+                "ViewPolicies",
+                "Delete",
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "table",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Other",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

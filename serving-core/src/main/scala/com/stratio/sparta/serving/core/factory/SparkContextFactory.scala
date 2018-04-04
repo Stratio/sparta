@@ -28,8 +28,8 @@ object SparkContextFactory extends SLF4JLogging {
   /* MUTABLE VARIABLES */
 
   private var sc: Option[SparkContext] = None
-  private var xdSession: Option[XDSession] = None
   private var ssc: Option[StreamingContext] = None
+  private val xdSession = scala.collection.mutable.Map[String, XDSession]()
 
 
   /* LAZY VARIABLES */
@@ -38,7 +38,7 @@ object SparkContextFactory extends SLF4JLogging {
   private lazy val hdfsWithUgiService = Try(HdfsService()).toOption
     .flatMap(utils => utils.ugiOption.flatMap(_ => Option(utils)))
   private lazy val jdbcDriverVariables: Seq[(String, String)] =
-    SparkSubmitService.getJarsSparkConfigurations(JarsHelper.getJdbcDriverPaths).toSeq
+    SparkSubmitService.getJarsSparkConfigurations(JarsHelper.getJdbcDriverPaths, true).toSeq
   private lazy val kerberosYarnDefaultVariables: Seq[(String, String)] = {
     val hdfsConfig = SpartaConfig.getHdfsConfig
     (HdfsService.getPrincipalName(hdfsConfig).notBlank, HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
@@ -60,13 +60,19 @@ object SparkContextFactory extends SLF4JLogging {
   def maybeWithHdfsUgiService(f: => Unit): Unit = hdfsWithUgiService.map(_.runFunction(f)).getOrElse(f)
 
   //scalastyle:off
+
+  def getOrCreateXDSession(userId: Option[String]): XDSession =
+    getOrCreateXDSession(withStandAloneExtraConf = true, initSqlSentences = Seq.empty, userId)
+
   def getOrCreateXDSession(
                             withStandAloneExtraConf: Boolean = true,
-                            initSqlSentences: Seq[String] = Seq.empty[String]
+                            initSqlSentences: Seq[String] = Seq.empty[String],
+                            userId: Option[String] = None
                           ): XDSession = {
     synchronized {
-      xdSession.getOrElse {
-        maybeWithHdfsUgiService {
+      val sessionId = userId.getOrElse(spartaTenant)
+      maybeWithHdfsUgiService {
+        if (xdSession.isEmpty) {
           val referenceFile = Try {
             new File(xDConfPath)
           } match {
@@ -88,40 +94,52 @@ object SparkContextFactory extends SLF4JLogging {
 
               if (withStandAloneExtraConf) addStandAloneExtraConf(sparkConf)
 
-              xdSession = Option(XDSession.builder()
+              log.debug(s"Creating session($sessionId) from file $referenceFile with sparkConf: ${sparkConf.toDebugString}")
+
+              val newSession = XDSession.builder()
                 .config(referenceFile)
                 .config(sparkConf)
-                .create(spartaTenant)
-              )
+                .create(sessionId)
+
+              xdSession += (sessionId -> newSession)
             case None =>
               val sparkConf = new SparkConf()
 
               if (withStandAloneExtraConf) addStandAloneExtraConf(sparkConf)
+
+              log.debug(s"Creating session($sessionId) and sparkContext from file $referenceFile with sparkConf: ${sparkConf.toDebugString}")
 
               getOrCreateSparkContext(
                 extraConfiguration = SparkSubmitService.getSparkLocalConfig ++ sparkConf.getAll.toMap,
                 jars = Seq.empty,
                 forceStop = false
               )
-
-              xdSession = Option(XDSession.builder()
+              val newSession = XDSession.builder()
                 .config(referenceFile)
                 .config(sparkConf)
-                .create(spartaTenant)
-              )
+                .create(sessionId)
+
+              xdSession += (sessionId -> newSession)
           }
 
-          xdSession.foreach { session =>
-            initSqlSentences.filter(_.nonEmpty).foreach { sentence =>
-              val trimSentence = sentence.trim
-              if (trimSentence.startsWith("CREATE") || trimSentence.startsWith("IMPORT"))
-                session.sql(trimSentence)
-              else log.warn(s"Initial query ($trimSentence) not supported. Available operations: CREATE and IMPORT")
-            }
-          }
+
+        } else if (!xdSession.contains(sessionId)) {
+          xdSession += (sessionId -> xdSession.head._2.newSession(sessionId))
         }
+        executeSentences(sessionId, initSqlSentences)
+      }
 
-        xdSession.getOrElse(throw new Exception("Spark Session not initialized"))
+      xdSession.getOrElse(sessionId, throw new Exception("Spark Session not initialized"))
+    }
+  }
+
+  def executeSentences(sessionId: String, initSqlSentences: Seq[String]): Unit = {
+    xdSession.get(sessionId).foreach { session =>
+      initSqlSentences.filter(_.nonEmpty).foreach { sentence =>
+        val trimSentence = sentence.trim
+        if (trimSentence.startsWith("CREATE") || trimSentence.startsWith("IMPORT"))
+          session.sql(trimSentence)
+        else log.warn(s"Initial query ($trimSentence) not supported. Available operations: CREATE and IMPORT")
       }
     }
   }
@@ -168,7 +186,7 @@ object SparkContextFactory extends SLF4JLogging {
           sparkContext.stop()
           log.debug("SparkContext: " + sparkContext.appName + " stopped correctly")
         } finally {
-          xdSession = None
+          xdSession.clear()
           ssc = None
           sc = None
         }
@@ -235,7 +253,7 @@ object SparkContextFactory extends SLF4JLogging {
   private[core] def configurationToSparkConf(configuration: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
     configuration.foreach { case (key, value) => conf.set(key, value) }
-    if(Try(conf.get("spark.app.name")).toOption.isEmpty)
+    if (Try(conf.get("spark.app.name")).toOption.isEmpty)
       conf.setAppName(SparkSubmitService.spartaLocalAppName)
     conf
   }

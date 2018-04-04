@@ -63,7 +63,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
               s"Invalid execution mode in workflow ${workflow.name}: ${workflow.settings.global.executionMode}")
         }
 
-        workflowLauncherActor ! Start(workflow)
+        workflowLauncherActor ! Start(workflow, user.map(_.id))
         (workflow, workflowLauncherActor)
       } match {
         case Success((workflow, launcherActor)) =>

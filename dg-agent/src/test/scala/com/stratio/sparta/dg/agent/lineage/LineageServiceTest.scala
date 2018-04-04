@@ -58,7 +58,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
     val settingsModel = Settings(
       GlobalSettings(executionMode = "local"),
       StreamingSettings(
-        JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+        JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(
         JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
         None, SubmitArguments(), SparkConf(SparkResourcesConf())

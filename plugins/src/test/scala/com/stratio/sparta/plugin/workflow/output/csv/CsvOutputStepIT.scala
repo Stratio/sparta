@@ -26,6 +26,7 @@ class CsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
+    val delimiter = ","
     val schema = StructType(Seq(
       StructField("name", StringType),
       StructField("age", IntegerType),
@@ -41,7 +42,7 @@ class CsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
   }
 
   trait WithEventData extends CommonValues {
-    val properties = Map("path" -> tmpPath)
+    val properties = Map("path" -> tmpPath, "delimiter" -> delimiter)
     val output = new CsvOutputStep("csv-test", sparkSession, properties)
   }
 

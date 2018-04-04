@@ -10,7 +10,7 @@
         {
            "propertyId": "selectExp",
            "propertyName": "_SELECT_EXPRESSION_",
-           "propertyType": "text",
+           "propertyType": "textarea",
            "required": false,
            "tooltip": "Select the fields based in one expression, support UDFs, fixed fields and aliases",
            "qa": "fragment-details-select-expression"

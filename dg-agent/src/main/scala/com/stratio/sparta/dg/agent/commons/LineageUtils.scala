@@ -111,7 +111,7 @@ object LineageUtils {
         status = mapSparta2GovernanceStatuses(workflowStatusStream.workflowStatus.status),
         error = if (workflowStatusStream.workflowStatus.status == Failed
           && workflowStatusStream.workflowStatus.lastError.isDefined)
-          Some(workflowStatusStream.workflowStatus.lastError.get.message) else None,
+          Some(workflowStatusStream.workflowStatus.lastError.get.message) else Some(""),
         key = workflowStatusStream.workflowStatus.id,
         metadataPath = workflowMetadataPathString(workflowStatusStream.workflow.get,
           Some(workflowStatusStream.workflowStatus),

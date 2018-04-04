@@ -323,7 +323,7 @@
                "propertyName": "_FIELDS_PRESERVATION_",
                "required": true,
                "propertyType": "select",
-               "default": "REPLACE",
+               "default": "APPEND",
                "width": 3,
                "float": false,
                "values": [

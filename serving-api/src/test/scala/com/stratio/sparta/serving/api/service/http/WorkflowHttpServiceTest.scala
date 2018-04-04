@@ -30,7 +30,6 @@ with WorkflowHttpService
 with HttpServiceBaseTest {
   import WorkflowDtoImplicit._
   override val supervisor: ActorRef = testProbe.ref
-  val sparkStreamingTestProbe = TestProbe()
   val id = UUID.randomUUID.toString
   val group = "default"
   val statusActorTestProbe = TestProbe()
@@ -38,11 +37,18 @@ with HttpServiceBaseTest {
   val dummyUser = Some(LoggedUserConstant.AnonymousUser)
 
   override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
+    //AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
     AkkaConstant.StatusActorName -> statusActorTestProbe.ref
   )
 
   "WorkflowHttpService.findById" should {
+    "burn workflow" in {
+      val initWorkflow = getWorkflowModel()
+      startAutopilot(Left(Success(initWorkflow)))
+      Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[Find]
+      }
+    }
     "return workflow" in {
       val initWorkflow = getWorkflowModel()
       startAutopilot(Left(Success(initWorkflow)))

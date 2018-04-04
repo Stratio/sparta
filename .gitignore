@@ -42,6 +42,7 @@ persistence
 .svn
 .CVS
 .hg*
+.vscode
 
 # switch to regexp syntax.
 #  syntax: regexp

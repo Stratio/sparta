@@ -24,7 +24,7 @@ class CsvOutputStep(
   lazy val path: String = properties.getString("path", "").trim
   lazy val header = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
-  lazy val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
+  lazy val delimiter = Try(getValidDelimiter(properties.getString("delimiter"))).toOption.notBlank
   lazy val codecOption = properties.getString("codec", None).notBlank
   lazy val compressExtension = properties.getString("compressExtension", None).notBlank.getOrElse(".gz")
 
@@ -37,21 +37,28 @@ class CsvOutputStep(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the destination path can not be empty"
+        messages = validation.messages :+ s"$name: destination path cannot be empty"
+      )
+
+    if (delimiter.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: delimiter cannot be empty"
       )
 
     validation
   }
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    require(path.nonEmpty, "Input path can not be empty")
+    require(path.nonEmpty, "Input path cannot be empty")
+    require(delimiter.nonEmpty, "Delimiter field cannot be empty")
 
     val pathParsed = if (path.endsWith("/")) path else path + "/"
     val tableName = getTableNameFromOptions(options)
     val optionsParsed =
       Map(
         "header" -> header.toString,
-        "delimiter" -> delimiter,
+        "delimiter" -> delimiter.get,
         "inferSchema" -> inferSchema.toString
       ) ++ codecOption.fold(Map.empty[String, String]) { codec => Map("codec" -> codec) }
     val fullPath = s"$pathParsed$tableName.csv"

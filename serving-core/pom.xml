@@ -41,6 +41,11 @@ This software – including all its source code – contains proprietary informa
             <artifactId>dyplon-sparta</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+            <artifactId>dyplon-crossdata</artifactId>
+            <classifier>minimal</classifier>
+        </dependency>
+        <dependency>
             <groupId>com.stratio.sparta</groupId>
             <artifactId>sdk</artifactId>
         </dependency>

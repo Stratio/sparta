@@ -8,6 +8,7 @@ $egeo-sanitize: true;
 
 html {
     font-size: 16px;
+    height: 100%;
 }
 
 body {
@@ -16,6 +17,7 @@ body {
     overflow-y: scroll;
     background: #fafafa;
     font-family: 'Nunito Sans';
+    min-height: 100%;
 }
 
 .selected-button {

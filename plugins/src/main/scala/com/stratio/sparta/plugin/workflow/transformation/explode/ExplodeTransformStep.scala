@@ -18,7 +18,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
-import com.stratio.sparta.plugin.helper.SchemaHelper.getNewOutputSchema
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSparkSchemaFromString}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
@@ -49,7 +49,7 @@ abstract class ExplodeTransformStep[Underlying[Row]](
       val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "FIELDS").toUpperCase)
       (schemaInputMode, sparkSchema, fieldsModel) match {
         case (SPARKFORMAT, Some(schema), _) =>
-          Option(schemaFromString(schema).asInstanceOf[StructType].fields.toSeq)
+          getSparkSchemaFromString(schema).map(_.fields.toSeq).toOption
         case (FIELDS, _, inputFields) if inputFields.fields.nonEmpty =>
           Option(inputFields.fields.map { fieldModel =>
             val outputType = fieldModel.`type`.notBlank.getOrElse("string")
@@ -84,7 +84,7 @@ abstract class ExplodeTransformStep[Underlying[Row]](
             case _ =>
               Try {
                 val valueInstance = checkArrayStructType(value).asInstanceOf[Seq[GenericRowWithSchema]]
-                if (valueInstance.size > 1) (valueInstance, valueInstance.head.schema)
+                if (valueInstance.nonEmpty) (valueInstance, valueInstance.head.schema)
                 else (valueInstance, StructType(Nil))
               } match {
                 case Success(x) => x

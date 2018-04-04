@@ -34,32 +34,32 @@ class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) 
 
   def findAllDatabases(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      crossdataService.listDatabases
+      crossdataService.listDatabases(user.map(_.id))
     }
   }
 
   def findAllTables(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      crossdataService.listAllTables
+      crossdataService.listAllTables(user.map(_.id))
     }
   }
 
   def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary)
+      crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary, user.map(_.id))
     }
   }
 
 
   def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
+      crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName, user.map(_.id))
     }
   }
 
   def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      crossdataService.executeQuery(queryRequest.query)
+      crossdataService.executeQuery(queryRequest.query, user.map(_.id))
     }
   }
 

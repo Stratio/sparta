@@ -127,3 +127,12 @@ export function getFilterStatus(status: string) {
       return '';
   }
 };
+
+export function isWorkflowRunning(policyStatus: string) {
+    const status = policyStatus ? policyStatus.toLowerCase() : '';
+    return status.length && (status === 'starting'
+        || status === 'started'
+        || status === 'uploaded'
+        || status === 'launched'
+        || status === 'notstarted');
+}

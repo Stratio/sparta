@@ -33,6 +33,13 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${ID_ELASTIC_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
     Then the service response status must be '201'
+  @runOnEnv(ID_XD_POLICY)
+  Scenario: [SPARTA-1162][03]Add Elastic policy to write in Elastic
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/xd_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_XD_POLICY}        | n/a |
+      |   $.name                  |  UPDATE    | ${ID_XD_POLICY}        | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+    Then the service response status must be '201'
 
   @runOnEnv(RESTART_SPARTA)
   Scenario: [SPARTA-1162] [04] Restart Sparta Application after gosec

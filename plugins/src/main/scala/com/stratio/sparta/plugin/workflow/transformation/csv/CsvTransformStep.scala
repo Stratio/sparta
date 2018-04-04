@@ -56,9 +56,10 @@ abstract class CsvTransformStep[Underlying[Row]](
   lazy val providedSchema: Seq[StructField] = {
     (schemaInputMode, header, sparkSchema, fieldsModel) match {
       case (HEADER, Some(headerStr), _, _) =>
-        headerStr.split(fieldsSeparator).map(fieldName => StructField(fieldName, StringType, nullable = true)).toSeq
+        headerStr.split(Pattern.quote(fieldsSeparator))
+          .map(fieldName => StructField(fieldName, StringType, nullable = true)).toSeq
       case (SPARKFORMAT, None, Some(schema), _) =>
-        schemaFromString(schema).asInstanceOf[StructType].fields.toSeq
+        getSparkSchemaFromString(schema).map(_.fields.toSeq).getOrElse(Seq.empty)
       case (FIELDS, _, _, inputFields) if inputFields.fields.nonEmpty =>
         inputFields.fields.map { fieldModel =>
           val outputType = fieldModel.`type`.notBlank.getOrElse("string")

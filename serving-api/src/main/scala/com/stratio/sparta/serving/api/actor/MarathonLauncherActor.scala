@@ -26,12 +26,12 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
   private val statusService = new WorkflowStatusService(curatorFramework)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
+    case Start(workflow: Workflow, userId: Option[String]) => initializeSubmitRequest(workflow, userId: Option[String])
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 
   //scalastyle:off
-  def initializeSubmitRequest(workflow: Workflow): Unit = {
+  def initializeSubmitRequest(workflow: Workflow, userId: Option[String]): Unit = {
     Try {
       val sparkSubmitService = new SparkSubmitService(workflow)
       log.info(s"Initializing options to submit the Workflow App associated to workflow: ${workflow.name}")
@@ -61,7 +61,8 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,
-          sparkHome = sparkHome
+          sparkHome = sparkHome,
+          userId
         ),
         sparkDispatcherExecution = None,
         marathonExecution = Option(MarathonExecution(marathonId = WorkflowHelper.getMarathonId(workflow)))
@@ -69,7 +70,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
 
       executionService.create(executionSubmit).getOrElse(
         throw new Exception("Unable to create an execution submit in Zookeeper"))
-      new MarathonService(context, curatorFramework, workflow, executionSubmit)
+      new MarathonService(context, workflow, executionSubmit)
     } match {
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"

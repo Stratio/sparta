@@ -5,22 +5,15 @@
  */
 package com.stratio.sparta.serving.core.services
 
-import akka.actor.{ActorContext, ActorRef, Cancellable}
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
-import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.spark.launcher.SparkAppHandle
-import org.json4s.jackson.Serialization._
 
-import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: ActorRef) extends SpartaSerializer
@@ -49,7 +42,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                 status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                 statusInfo = Some(information)
               ))
-            case Failure(e: Exception) =>
+            case Failure(e) =>
               val error = s"An error was encountered while stopping workflow with Spark Handler, killing it ..."
               log.warn(s"$error. With exception: ${e.getLocalizedMessage}")
               Try(handler.kill()) match {
@@ -61,7 +54,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                     status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                     statusInfo = Some(information)
                   ))
-                case Failure(e: Exception) =>
+                case Failure(e) =>
                   val error = s"Problems encountered while killing workflow with Spark Handler"
                   log.warn(error)
                   statusService.update(WorkflowStatus(

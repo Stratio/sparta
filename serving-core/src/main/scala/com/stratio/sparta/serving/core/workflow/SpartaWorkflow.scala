@@ -3,12 +3,12 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.workflow
 
 import java.io.Serializable
 
 import akka.event.Logging
-import akka.event.Logging.LogLevel
 import akka.util.Timeout
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
@@ -17,11 +17,12 @@ import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
 import com.stratio.sparta.serving.core.error.ZooKeeperError
 import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
@@ -29,7 +30,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Properties, Try}
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
@@ -97,15 +98,16 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     log.debug("Creating workflow stages")
 
-    if(execute) clearError()
+    if (execute) clearError()
 
     val withStandAloneExtraConf = !execute || workflow.settings.global.executionMode == AppConstant.ConfigLocal
     val initSqlSentences = {
-      if(execute)
+      if (execute)
         workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
       else Seq.empty[String]
     }
-    val xDSession = getOrCreateXDSession(withStandAloneExtraConf, initSqlSentences)
+    val userId = Properties.envOrNone(UserNameEnv)
+    val xDSession = getOrCreateXDSession(withStandAloneExtraConf, initSqlSentences, userId)
 
     implicit val workflowContext = implicitly[ContextBuilder[Underlying]].buildContext(classpathUtils, xDSession) {
       /* Prepare Workflow Context variables with the Spark Contexts used in steps
@@ -119,6 +121,16 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
         workflowCheckpointPath.notBlank,
         workflow.settings.streamingSettings.remember.notBlank
       )
+    }
+
+    implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter(_.className.matches("Custom[\\w]*Step")) match {
+      case Nil => Map[String, String]()
+      case x :: xs => {
+        val pluginsFiles = workflow.settings.global.userPluginsJars.map(_.jarPath.toString)
+        JarsHelper.addJarsToClassPath(pluginsFiles)
+        (x :: xs).map(jar => (jar.configuration.getString("customClassType"),
+          s"com.stratio.sparta.${jar.configuration.getString("customClassType")}")).toMap
+      }
     }
 
     //scalastyle:on
@@ -136,7 +148,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       }
     }
 
-    if(execute) executeWorkflow
+    if (execute) executeWorkflow
   }
 
   //scalastyle:off
@@ -151,7 +163,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     *
     * @param workflowContext The Spark Contexts used in the steps creation
     */
-  def executeWorkflow(implicit workflowContext: WorkflowContext): Unit = {
+  def executeWorkflow(implicit workflowContext: WorkflowContext, customClasspathClasses: Map[String, String]): Unit = {
 
     log.debug("Executing workflow")
 
@@ -237,7 +249,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param graphContext    The context contains the graph and the steps created
     */
   private[core] def createStep(node: NodeGraph)
-                                (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying])
+                              (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying], customClasspathClasses: Map[String, String])
   : Unit =
     node.stepType.toLowerCase match {
       case value if value == InputStep.StepType =>
@@ -309,12 +321,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   /**
     * Create the Transform step and trace the error if appears.
     *
-    * @param node            The node to create as transform step
-    * @param workflowContext The Spark contexts are contained into this parameter
+    * @param node                   The node to create as transform step
+    * @param workflowContext        The Spark contexts are contained into this parameter
+    * @param customClasspathClasses Custom classes to load from external jars
     * @return The new transform step
     */
   private[core] def createTransformStep(node: NodeGraph)
-                                         (implicit workflowContext: WorkflowContext): TransformStep[Underlying] = {
+                                       (implicit workflowContext: WorkflowContext, customClasspathClasses: Map[String, String]): TransformStep[Underlying] = {
     val phaseEnum = PhaseEnum.Transform
     val errorMessage = s"An error was encountered while creating transform step ${node.name}"
     val okMessage = s"Transform step ${node.name} created successfully"
@@ -340,7 +353,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           classOf[Map[String, Serializable]]
         ).newInstance(node.name, outputOptions, workflow.settings.errorsManagement.transformationStepsManagement,
           workflowContext.ssc, workflowContext.xDSession, node.configuration)
-          .asInstanceOf[TransformStep[Underlying]]
+          .asInstanceOf[TransformStep[Underlying]],
+        customClasspathClasses
       )
     }
   }
@@ -348,12 +362,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   /**
     * Create the Input step and trace the error if appears.
     *
-    * @param node            The node to create as input step
-    * @param workflowContext The Spark contexts are contained into this parameter
+    * @param node                   The node to create as input step
+    * @param workflowContext        The Spark contexts are contained into this parameter
+    * @param customClasspathClasses Custom classes to load from external jars
     * @return The new input step
     */
   private[core] def createInputStep(node: NodeGraph)
-                                     (implicit workflowContext: WorkflowContext): InputStep[Underlying] = {
+                                   (implicit workflowContext: WorkflowContext, customClasspathClasses: Map[String, String]): InputStep[Underlying] = {
     val phaseEnum = PhaseEnum.Input
     val errorMessage = s"An error was encountered while creating input step ${node.name}."
     val okMessage = s"Input step ${node.name} created successfully."
@@ -377,7 +392,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           classOf[XDSession],
           classOf[Map[String, Serializable]]
         ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
-          .asInstanceOf[InputStep[Underlying]]
+          .asInstanceOf[InputStep[Underlying]],
+        customClasspathClasses
       )
     }
   }
@@ -385,12 +401,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   /**
     * Create the Output step and trace the error if appears.
     *
-    * @param node            The node to create as Output step
-    * @param workflowContext The Spark contexts are contained into this parameter
+    * @param node                   The node to create as Output step
+    * @param workflowContext        The Spark contexts are contained into this parameter
+    * @param customClasspathClasses Custom classes to load from external jars
     * @return The new Output step
     */
   private[core] def createOutputStep(node: NodeGraph)
-                                      (implicit workflowContext: WorkflowContext): OutputStep[Underlying] = {
+                                    (implicit workflowContext: WorkflowContext, customClasspathClasses: Map[String, String]): OutputStep[Underlying] = {
     val phaseEnum = PhaseEnum.Output
     val errorMessage = s"An error was encountered while creating output step ${node.name}"
     val okMessage = s"Output step ${node.name} created successfully"
@@ -402,11 +419,11 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           classOf[String],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, workflowContext.xDSession, node.configuration).asInstanceOf[OutputStep[Underlying]]
+        ).newInstance(node.name, workflowContext.xDSession, node.configuration).asInstanceOf[OutputStep[Underlying]],
+        customClasspathClasses
       )
     }
   }
-
 }
 
 case class TransformStepData[Underlying[Row]](

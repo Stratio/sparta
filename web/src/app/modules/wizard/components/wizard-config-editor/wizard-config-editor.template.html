@@ -8,7 +8,7 @@
       </button>
    </div>
    <div class="st-fullscreen-layout-content">
-      <div class="container">
+      <div class="container node-edition">
          <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
             <div class="col-sm-12">
                <st-horizontal-tabs class="entity-categories" *ngIf="config.editionType.stepType !== 'Output'" [options]="options" [qaTag]="qaTag"
@@ -37,7 +37,7 @@
                <div class="template-data" *ngIf="isTemplate && templateData && activeOption === 'Global'">
                      <div class="egeo-title-medium">Template configuration</div>
                      <div class="advice-params">These are read-only parameters. To edit them, <span class="link" (click)="editTemplate(templateData.id)">go to the Templates section</span>.</div>
-                  <form-generator [forceValidations]="submitted" [disabled]="true" 
+                  <form-generator [forceValidations]="submitted" [disabled]="true" [disabledForm]="true"
                         name="global" [formData]="basicSettings" [(ngModel)]="templateData.configuration"></form-generator>
                </div>
             </div>

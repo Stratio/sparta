@@ -32,6 +32,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
     @Input() stFormGroup: FormGroup;
     @Input() forceValidations = false;
     @Input() disabled = false;
+    @Input() disabledForm = false;
 
     public stFormControl: FormControl;
     public stFormControlSubcription: Subscription;
@@ -43,7 +44,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
 
     ngOnInit(): void {
         this.stFormControl = new FormControl();
-        if (!this.disabled) {
+        if (!this.disabledForm) {
             setTimeout(() => {
                 if (this.field.visible && this.field.visible.length) {
                     for (const field of this.field.visible[0]) {
@@ -84,7 +85,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
                 enable = false;
             }
         });
-        if (enable && !this.isDisabled) {
+        if (enable) {
             this.stFormGroup.controls[this.field.propertyId].enable();
         } else {
             this.stFormGroup.controls[this.field.propertyId].disable();
@@ -98,7 +99,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
                 enable = true;
             }
         });
-        if (enable && !this.isDisabled) {
+        if (enable) {
             this.stFormGroup.controls[this.field.propertyId].enable();
         } else {
             this.stFormGroup.controls[this.field.propertyId].disable();

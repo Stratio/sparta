@@ -93,7 +93,8 @@ This software – including all its source code – contains proprietary informa
         <commons-configuration.version>1.6</commons-configuration.version>
         <stratio.spark.version>2.2.0.5</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
-        <sparta.dyplon.version>0.14.0</sparta.dyplon.version>
+        <sparta.dyplon.version>0.14.1</sparta.dyplon.version>
+        <crossdata.dyplon.version>0.14.1</crossdata.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
         <crossdata.version>2.12.0</crossdata.version>
@@ -107,6 +108,7 @@ This software – including all its source code – contains proprietary informa
         <akka-kryo.version>0.5.0</akka-kryo.version>
         <leveldb.version>0.7</leveldb.version>
         <leveldbjni.version>1.8</leveldbjni.version>
+        <license.header>LICENSE.txt</license.header>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -144,6 +146,24 @@ This software – including all its source code – contains proprietary informa
                 <groupId>com.stratio.sparta</groupId>
                 <artifactId>dg-agent</artifactId>
                 <version>${project.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
@@ -159,6 +179,112 @@ This software – including all its source code – contains proprietary informa
                 <groupId>com.stratio.gosec.dyplon.plugins</groupId>
                 <artifactId>dyplon-sparta</artifactId>
                 <version>${sparta.dyplon.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.json4s</groupId>
+                        <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.json4s</groupId>
+                        <artifactId>json4s-ext_${scala.binary.version}</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-1.2-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+                <artifactId>dyplon-crossdata</artifactId>
+                <version>${crossdata.dyplon.version}</version>
+                <classifier>minimal</classifier>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.json4s</groupId>
+                        <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.json4s</groupId>
+                        <artifactId>json4s-ext_${scala.binary.version}</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-slf4j-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-1.2-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.logging.log4j</groupId>
+                        <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.github.nscala-time</groupId>
@@ -352,6 +478,14 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
@@ -583,6 +717,18 @@ This software – including all its source code – contains proprietary informa
                 <version>${zookeeper.version}</version>
                 <exclusions>
                     <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
@@ -592,6 +738,24 @@ This software – including all its source code – contains proprietary informa
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-client</artifactId>
                 <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
@@ -654,6 +818,10 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-simple</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.slf4j</groupId>

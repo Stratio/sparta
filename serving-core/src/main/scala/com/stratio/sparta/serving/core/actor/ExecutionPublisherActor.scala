@@ -3,29 +3,27 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.Actor
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
+import scala.util.Try
+
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.json4s.jackson.Serialization.read
 
-import scala.util.Try
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 
 class ExecutionPublisherActor(curatorFramework: CuratorFramework)
-  extends Actor with SpartaSerializer with SLF4JLogging {
+  extends ListenerPublisher  {
 
   import ExecutionPublisherActor._
 
-  private var pathCache: Option[PathChildrenCache] = None
+  val relativePath = AppConstant.WorkflowExecutionsZkPath
 
-  override def preStart(): Unit = {
-    val executionsPath = AppConstant.WorkflowExecutionsZkPath
+  override def initNodeListener(): Unit = {
     val nodeListener = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
         val eventData = event.getData
@@ -42,24 +40,19 @@ class ExecutionPublisherActor(curatorFramework: CuratorFramework)
         }
       }
     }
-
-    pathCache = Option(new PathChildrenCache(curatorFramework, executionsPath, true))
+    pathCache = Option(new PathChildrenCache(curatorFramework, relativePath, true))
     pathCache.foreach(_.getListenable.addListener(nodeListener, context.dispatcher))
     pathCache.foreach(_.start())
   }
 
-  override def postStop(): Unit =
-    pathCache.foreach(_.close())
+  override def receive: Receive = executionReceive.orElse(listenerReceive)
 
-  override def receive: Receive = {
+  def executionReceive: Receive = {
     case cd: ExecutionChange =>
       context.system.eventStream.publish(cd)
     case cd: ExecutionRemove =>
       context.system.eventStream.publish(cd)
-    case _ =>
-      log.debug("Unrecognized message in Workflow Execution Publisher Actor")
   }
-
 }
 
 object ExecutionPublisherActor {

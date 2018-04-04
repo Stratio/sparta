@@ -31,7 +31,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
     val settingsModel = Settings(
       GlobalSettings(executionMode),
       StreamingSettings(
-        JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings()),
+        JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings()),
       SparkSettings(
         JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf()))

@@ -22,6 +22,7 @@ import { WorkflowsManagingService } from './../../workflows.service';
 import { WorkflowRenameModal } from './../workflow-rename-modal/workflow-rename.component';
 import { MoveGroupModal } from './../move-group-modal/move-group.component';
 import { DuplicateWorkflowComponent } from './../duplicate-workflow-modal/duplicate-workflow.component';
+import { isWorkflowRunning } from '@utils';
 
 @Component({
     selector: 'workflows-manage-header',
@@ -55,6 +56,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     public selectedGroupsListInner: Array<string> = [];
 
     public menuOptions: any = [];
+    public isRunning = isWorkflowRunning;
 
     public deleteWorkflowModalTitle: string;
     public deleteModalTitle: string;
@@ -153,7 +155,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     }
 
     public runWorkflow(version: any): void {
-        if (this.isRunning(version)) {
+        if (isWorkflowRunning(version.status.status)) {
             const stopPolicy = {
                 'id': version.id,
                 'status': 'Stopping'
@@ -162,13 +164,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
         } else {
             this.workflowsService.runWorkflow(version.id, '');
         }
-    }
-
-    public isRunning(version: any) {
-        const policyStatus = version.status.status;
-        return policyStatus && policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
-            policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
-            policyStatus.toLowerCase() !== 'finished' && policyStatus.toLowerCase() !== 'created';
     }
 
     public editWorkflowGroup(): void {

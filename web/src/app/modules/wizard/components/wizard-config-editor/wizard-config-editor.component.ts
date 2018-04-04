@@ -82,9 +82,23 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
 
     editTemplate(templateId) {
+        let routeType = '';
+        switch (this.config.editionType.data.stepType) {
+            case 'Input':
+                routeType = 'inputs';
+                break;
+            case 'Output':
+                routeType = 'outputs';
+                break;
+            case 'Transformation':
+                routeType = 'transformations';
+                break;
+            default:
+                return;
+        }
         const ask = window.confirm('If you leave this page you will lose the unsaved changes of the workflow');
         if (ask) {
-            this._router.navigate(['templates', 'inputs', 'edit', templateId]);
+            this._router.navigate(['templates', routeType, 'edit', templateId]);
         }
 
     }

@@ -258,7 +258,8 @@
       {
          "propertyId": "schema.sparkSchema",
          "propertyName": "_SPARK_SCHEMA_",
-         "propertyType": "text",
+         "propertyType": "textarea",
+         "contentType": "JSON",
          "visible": [
             [
                {

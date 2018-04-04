@@ -31,7 +31,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
   lazy private val hdfsFilesService = HdfsFilesService()
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow) => doInitSpartaContext(workflow)
+    case Start(workflow: Workflow, userId: Option[String]) => doInitSpartaContext(workflow)
     case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 

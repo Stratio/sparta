@@ -15,6 +15,7 @@ import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
@@ -35,15 +36,21 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
   def initSpartaAPI(appName: String): Unit = {
     if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
       val curatorFramework = CuratorFactoryHolder.getInstance()
+
+      log.debug("Initializing Dyplon authorization plugins ...")
       implicit val secManager = SecurityManagerHelper.securityManager
+      SecurityManagerHelper.initCrossdataSecurityManager()
 
       log.debug("Initializing Sparta system ...")
       implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
 
       val envListenerActor = system.actorOf(Props[EnvironmentListenerActor])
+
+      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitEnvInit")).getOrElse(DefaultEnvSleep) / 5)
+
       system.actorOf(Props(new EnvironmentPublisherActor(curatorFramework)))
 
-      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitEnvInit")).getOrElse(500L))
+      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitEnvInit")).getOrElse(DefaultEnvSleep))
 
       val groupApiActor = system.actorOf(Props[GroupInMemoryApi])
       val executionApiActor = system.actorOf(Props[ExecutionInMemoryApi])
@@ -64,7 +71,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       new EnvironmentService(curatorFramework).initialize()
       new GroupService(curatorFramework).initialize()
 
-      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitRecovery")).getOrElse(2000L))
+      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitRecovery")).getOrElse(DefaultRecoverySleep))
 
       system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
       system.actorOf(Props(

@@ -5,28 +5,24 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.Actor
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.env.Environment
+import scala.util.Try
+
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.json4s.jackson.Serialization.read
 
-import scala.util.Try
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.env.Environment
 
 class EnvironmentPublisherActor(curatorFramework: CuratorFramework)
-  extends Actor with SpartaSerializer with SLF4JLogging {
+  extends ListenerPublisher {
 
   import EnvironmentPublisherActor._
 
-  private var pathCache: Option[PathChildrenCache] = None
+  val relativePath = AppConstant.BaseZkPath
 
-  override def preStart(): Unit = {
-
-    val environmentPath = AppConstant.BaseZkPath
+  override def initNodeListener(): Unit = {
     val nodeListener1 = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
         val eventData = event.getData
@@ -43,25 +39,19 @@ class EnvironmentPublisherActor(curatorFramework: CuratorFramework)
         }
       }
     }
-
-    pathCache = Option(new PathChildrenCache(curatorFramework, environmentPath, true))
+    pathCache = Option(new PathChildrenCache(curatorFramework, relativePath, true))
     pathCache.foreach(_.getListenable.addListener(nodeListener1, context.dispatcher))
     pathCache.foreach(_.start())
-
   }
 
-  override def postStop(): Unit =
-    pathCache.foreach(_.close())
+  override def receive: Receive = environmentReceive.orElse(listenerReceive)
 
-  override def receive: Receive = {
+  def environmentReceive: Receive = {
     case cd: EnvironmentChange =>
       context.system.eventStream.publish(cd)
     case cd: EnvironmentRemove =>
       context.system.eventStream.publish(cd)
-    case _ =>
-      log.debug("Unrecognized message in Environment Publisher Actor")
   }
-
 }
 
 object EnvironmentPublisherActor {

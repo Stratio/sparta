@@ -8,11 +8,11 @@ package com.stratio.sparta.plugin.workflow.output.postgres
 import java.io.{InputStream, Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.helper.SecurityHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
-import com.stratio.sparta.sdk.workflow.step.OutputStep._
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
@@ -20,7 +20,6 @@ import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
-import SecurityHelper._
 
 import scala.util.{Failure, Success, Try}
 
@@ -80,11 +79,13 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
           if (tableExists) {
             if (saveMode == SaveModeEnum.Upsert) {
               val updateFields = getPrimaryKeyOptions(options) match {
-                case Some(pk) => pk.split(",").toSeq
+                case Some(pk) => pk.trim.split(",").toSeq
                 case None => Seq.empty[String]
               }
 
               require(updateFields.nonEmpty, "The primary key fields must be provided")
+              require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                "The all the primary key fields should be present in the dataFrame schema")
 
               SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
             } else {

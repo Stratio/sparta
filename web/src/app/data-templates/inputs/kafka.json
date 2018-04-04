@@ -261,6 +261,15 @@
           "qa": "fragment-details-kafka-maxPollTimeout"
        },
        {
+          "propertyId": "spark.streaming.kafka.maxRatePerPartition",
+          "propertyName": "_MAX_RATE_PER_PARTITION_",
+          "propertyType": "text",
+          "default": "{{KAFKA_MAX_RATE_PER_PARTITION}}",
+          "required": false,
+          "tooltip": "Limit the rate per partition when backpressure is enabled",
+          "qa": "fragment-details-kafka-maxRatePerPartition"
+       },
+       {
           "propertyId": "spark.streaming.kafka.consumer.cache.enabled",
           "propertyName": "_CACHED_CONSUMER_",
           "propertyType": "boolean",

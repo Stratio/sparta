@@ -17,7 +17,6 @@ This software – including all its source code – contains proprietary informa
     <artifactId>plugins</artifactId>
 
     <properties>
-        <cassandra.spark.version>2.0.6</cassandra.spark.version>
         <breeze.version>0.11.1</breeze.version>
         <amqp-client.version>3.5.1</amqp-client.version>
         <geo.version>0.6.7</geo.version>
@@ -26,8 +25,6 @@ This software – including all its source code – contains proprietary informa
         <mongodb.spark.version>0.12.0</mongodb.spark.version>
         <elastic.spark.version>6.1.1</elastic.spark.version>
         <avro.spark.version>4.0.0</avro.spark.version>
-        <rabbitmq.spark.version>0.5.1</rabbitmq.spark.version>
-        <twitter.spark.version>2.1.0</twitter.spark.version>
         <redis.version>2.15</redis.version>
         <async.http.version>1.8.17</async.http.version>
     </properties>
@@ -81,36 +78,6 @@ This software – including all its source code – contains proprietary informa
             <artifactId>kafka_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.bahir</groupId>
-            <artifactId>spark-streaming-twitter_${scala.binary.version}</artifactId>
-            <version>${twitter.spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-streaming-flume_${scala.binary.version}</artifactId>
-            <version>${stratio.spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>log4j</artifactId>
-                    <groupId>log4j</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>net.debasishg</groupId>
             <artifactId>redisclient_${scala.binary.version}</artifactId>
             <version>${redis.version}</version>
@@ -135,11 +102,6 @@ This software – including all its source code – contains proprietary informa
                     <artifactId>spark-streaming_${scala.binary.version}</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_${scala.binary.version}</artifactId>
-            <version>${cassandra.spark.version}</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.datasource</groupId>
@@ -170,17 +132,6 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.receiver</groupId>
-            <artifactId>spark-rabbitmq</artifactId>
-            <version>${rabbitmq.spark.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.spark</groupId>
-                    <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.davidmoten</groupId>

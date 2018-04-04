@@ -88,4 +88,73 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
 
     batchEvents should be(2)
   }
+
+  "A TriggerTransformStepBatch" should "make trigger over two RDD one empty" in {
+    val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema1).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema1).asInstanceOf[Row]
+    )
+    val inputRdd1 = sc.parallelize(data1)
+    val inputRdd2 = sc.emptyRDD[Row]
+    val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
+      s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
+    val result = new TriggerTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
+    ).transform(inputData)
+    val batchEvents = result.ds.count()
+
+    batchEvents should be(0)
+  }
+
+  "A TriggerTransformStepBatch" should "make trigger over one RDD empty" in {
+    val inputRdd1 = sc.emptyRDD[Row]
+    val inputData = Map("step1" -> inputRdd1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
+      s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
+    val result = new TriggerTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
+    ).transform(inputData)
+    val batchEvents = result.ds.count()
+
+    batchEvents should be(0)
+  }
+
+  "A TriggerTransformStepBatch" should "make trigger over two RDD one empty, but executes the query" in {
+    val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema1).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema1).asInstanceOf[Row]
+    )
+    val inputRdd1 = sc.parallelize(data1)
+    val inputRdd2 = sc.emptyRDD[Row]
+    val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val query = s"SELECT step1.color FROM step1"
+    val result = new TriggerTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("sql" -> query, "executeSqlWhenEmpty" -> "true")
+    ).transform(inputData)
+    val batchEvents = result.ds.count()
+
+    batchEvents should be(2)
+  }
+
 }

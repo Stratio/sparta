@@ -72,7 +72,7 @@
       {
         "name": "tabletestcrossdata",
         "stepType": "Transformation",
-        "className": "TriggerTransformStepStream",
+        "className": "TriggerTransformStepStreaming",
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",
@@ -159,7 +159,7 @@
       {
         "name": "Crossdata",
         "stepType": "Input",
-        "className": "CrossdataInputStepStream",
+        "className": "CrossdataInputStepStreaming",
         "classPrettyName": "Crossdata",
         "arity": [
           "NullaryToNary"
@@ -220,7 +220,7 @@
       {
         "name": "JsonPath",
         "stepType": "Transformation",
-        "className": "JsonPathTransformStepStream",
+        "className": "JsonPathTransformStepStreaming",
         "classPrettyName": "JsonPath",
         "arity": [
           "UnaryToNary"

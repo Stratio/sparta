@@ -15,6 +15,8 @@ import org.junit.runner.RunWith
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import java.io.{Serializable => JSerializable}
+
 
 @RunWith(classOf[JUnitRunner])
 class CrossdataInputStepStreamingTest extends WordSpec with Matchers with MockitoSugar {
@@ -103,6 +105,33 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
         .replaceAll("\\s+", " ")
       val expectedConditionsString = "ORDER BY id DESC, storeID DESC, cashierID DESC".replaceAll("\\s+", " ")
       Seq(actualConditionsComplexString, actualConditionsSimpleString).forall(_ == expectedConditionsString)
+    }
+
+    "if no offsetConditions are passed should not add any WHERE or ORDER BY query unless it is in the sql query" in {
+      val offsetFields = "[]"
+      val properties = Map("offsetFields" -> JsoneyString(offsetFields))
+      val input = new CrossdataInputStepStreaming("name",
+        outputOptions, Option(ssc), xdSession, properties)
+      val conditions = OffsetConditions(
+        input.offsetItems,
+        input.limitRecords)
+
+      val actualConditionsComplexString = conditions.extractConditionSentence(None)
+        .replaceAll("\\s+", " ")
+      val expectedConditionsString = ""
+      actualConditionsComplexString should be (expectedConditionsString)
+
+      val actualOrderComplexString = conditions.extractOrderSentence("select * from tableA")
+      val expectedOrderComplexString = ""
+
+      actualOrderComplexString should be (expectedOrderComplexString)
+
+      val actualConditionsComplexStringPrevious = conditions
+        .extractConditionSentence(Some("storeID = '75' AND id = '500'"))
+        .trim
+        .replaceAll("\\s+", " ")
+      val expectedConditionsStringPrevious = "WHERE storeID = '75' AND id = '500'"
+      actualConditionsComplexStringPrevious should equal (expectedConditionsStringPrevious)
     }
   }
 }

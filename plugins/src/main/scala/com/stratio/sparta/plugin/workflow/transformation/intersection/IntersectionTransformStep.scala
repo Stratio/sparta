@@ -7,7 +7,6 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 
 import java.io.{Serializable => JSerializable}
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep, TransformationStepManagement}
@@ -15,6 +14,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
+
+import scala.util.{Failure, Success, Try}
 
 abstract class IntersectionTransformStep[Underlying[Row]](
                                                            name: String,
@@ -31,7 +32,14 @@ abstract class IntersectionTransformStep[Underlying[Row]](
   def transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
     case (rdd1, rdd2) =>
       partitions.fold(rdd1.intersection(rdd2)) { numPartitions =>
-        rdd1.intersection(rdd2, numPartitions)
+        Try{
+          rdd1.intersection(rdd2, numPartitions)
+        } match {
+          case Success(result) =>
+            result
+          case Failure(e) =>
+            xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
+        }
       }
   }
 }

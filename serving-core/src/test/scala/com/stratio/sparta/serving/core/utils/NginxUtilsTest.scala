@@ -704,9 +704,11 @@ class NginxUtilsTest extends BaseUtilsTest {
   "retrieveAppId" should{
     "retrieve two appID" when {
       "it parses the testJson" in {
-        testNginx.extractAppsId(jsonApp).get should contain
-        ("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
+        val actualResult = testNginx.extractAppsId(jsonApp).get
+        val expectedResult =
+          Seq("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
           "/sparta/sparta-server/workflows/testinput-kafka2")
+        assert(actualResult.forall(item => expectedResult.contains(item)))
       }
     }
   }
@@ -714,7 +716,9 @@ class NginxUtilsTest extends BaseUtilsTest {
   "retrieveAppId" should{
     "retrieve an empty list" when {
       "it parses an empty JSON" in {
-        testNginx.extractAppsId("") shouldBe None
+        val actualResult = testNginx.extractAppsId("")
+        val expectedResult = None
+        assertResult(expectedResult)(actualResult)
       }
     }
   }
@@ -742,9 +746,43 @@ class NginxUtilsTest extends BaseUtilsTest {
             |}
           """.stripMargin
 
-        testNginx.extractAppsId(fakeJSON).get should contain
-        ("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
+        val actualResult = testNginx.extractAppsId(fakeJSON).get
+        val expectedResult =
+          Seq("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
           "/sparta/sparta-server/workflows/testinput-kafka2")
+        assert(actualResult.forall(item => expectedResult.contains(item)))
+      }
+    }
+  }
+
+  "retrieveAppId" should{
+    "retrieve a list with two elements" when {
+      "there are two versions of the same app" in {
+        val fakeJSON =
+          """{
+            |"apps":[],
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"apps": [
+            |    {"id": "/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1"},
+            |    {"id": "/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v0"},
+            |    {"id": []}
+            |    ]
+            |}]
+            |}]
+            |}]
+            |}]
+            |}]
+            |}
+          """.stripMargin
+
+        val actualResult = testNginx.extractAppsId(fakeJSON).get
+        val expectedResult = Seq("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
+          "/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v0")
+        assert(actualResult.forall(item => expectedResult.contains(item)))
       }
     }
   }
@@ -765,7 +803,9 @@ class NginxUtilsTest extends BaseUtilsTest {
             |}
           """.stripMargin
 
-        testNginx.extractAppsId(fakeJSON) shouldBe None
+        val actualResult = testNginx.extractAppsId(fakeJSON)
+        val expectedResult = None
+        assertResult(expectedResult)(actualResult)
       }
     }
   }

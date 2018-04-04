@@ -21,7 +21,8 @@ case class SparkSubmitExecution(
                                  submitArguments: Map[String, String],
                                  sparkConfigurations: Map[String, String],
                                  driverArguments: Map[String, String],
-                                 sparkHome: String
+                                 sparkHome: String,
+                                 userId: Option[String]
                                )
 
 case class SparkDispatcherExecution(killUrl: String)

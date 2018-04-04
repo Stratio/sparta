@@ -15,8 +15,8 @@
          <!-- end edit -->
 
          <button class="button button-toolbar" id="run-workflow-button" (click)="runWorkflow(selectedVersionsData[0])" *ngIf="selectedVersionsData && selectedVersionsData.length === 1">
-          <i class="icon-stop" *ngIf="isRunning(selectedVersionsData[0])"></i>
-          <i class="icon-play" *ngIf="!isRunning(selectedVersionsData[0])"></i>
+          <i class="icon-stop" *ngIf="isRunning(selectedVersionsData[0].status.status)"></i>
+          <i class="icon-play" *ngIf="!isRunning(selectedVersionsData[0].status.status)"></i>
         </button>
 
          <button class="button button-toolbar" id="download-button" (click)="downloadWorkflows.emit()" *ngIf="selectedVersionsInner.length && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">

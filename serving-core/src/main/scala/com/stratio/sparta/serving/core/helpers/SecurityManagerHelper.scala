@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.core.helpers
 
+import com.stratio.crossdata.security.CrossdataSecurityManager
+import com.stratio.gosec.dyplon.plugins.crossdata.GoSecCrossdataSecurityManager
 import com.stratio.gosec.dyplon.plugins.sparta.GoSecSpartaSecurityManager
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.config.SpartaConfig._
@@ -24,10 +26,21 @@ object SecurityManagerHelper {
       log.info("Authorization is not enabled, configure a security manager if needed")
       None
     } else {
+      log.debug("Starting Gosec Sparta Dyplon security manager")
       val secManager = new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
       secManager.start
       Some(secManager)
     }
+
+  def initCrossdataSecurityManager(): Unit =
+    if (!isCrossdataSecurityManagerEnabled) {
+      log.info("Crossdata authorization is not enabled, configure a security manager if needed")
+      None
+    } else{
+      log.debug("Starting Gosec Crossdata Dyplon security manager")
+      new GoSecCrossdataSecurityManager().asInstanceOf[CrossdataSecurityManager].start
+    }
+
 
   def isSecurityManagerEnabled: Boolean = Try(getSecurityConfig.get.getBoolean("manager.enabled")) match {
     case Success(value) =>
@@ -36,6 +49,15 @@ object SecurityManagerHelper {
       log.error("Incorrect value in security manager option, setting enabled value by default", e)
       true
   }
+
+  def isCrossdataSecurityManagerEnabled: Boolean =
+    Try(crossdataConfig.get.getBoolean("security.enable-manager")) match {
+      case Success(value) =>
+        value
+      case Failure(e) =>
+        log.error("Incorrect value in crossdata security manager option, setting enabled value by default", e)
+        true
+    }
 
   def getSecurityConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigSecurity, config))
 

@@ -1,0 +1,261 @@
+{
+  "id": "16e2bb34-2bf0-432a-b6c9-04d8130ef28d",
+  "name": "audit-job-workflow",
+  "description": "",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER"
+    },
+    "streamingSettings": {
+      "window": "{{SPARK_STREAMING_WINDOW}}",
+      "remember": "",
+      "backpressure": false,
+      "blockInterval": "{{SPARK_STREAMING_BLOCK_INTERVAL}}",
+      "stopGracefully": true,
+      "stopGracefulTimeout": "",
+      "checkpointSettings": {
+        "checkpointPath": "{{SPARTA_CHECKPOINT_PATH}}",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "{{SPARK_MASTER}}",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "{{{SPARK_DRIVER_JAVA_OPTIONS}}}"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "{{SPARK_CORES_MAX}}",
+          "executorMemory": "{{SPARK_EXECUTOR_MEMORY}}",
+          "executorCores": "{{SPARK_EXECUTOR_CORES}}",
+          "driverCores": "{{SPARK_DRIVER_CORES}}",
+          "driverMemory": "{{SPARK_DRIVER_MEMORY}}",
+          "mesosExtraCores": "",
+          "localityWait": "{{SPARK_LOCALITY_WAIT}}",
+          "taskMaxFailures": "{{SPARK_TASK_MAX_FAILURES}}",
+          "sparkMemoryFraction": "{{SPARK_MEMORY_FRACTION}}",
+          "sparkParallelism": ""
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "{{SPARK_LOCAL_PATH}}",
+        "executorDockerImage": "{{SPARK_EXECUTOR_BASE_IMAGE}}",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": true,
+        "logStagesProgress": false,
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "{{{SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "Error"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": true,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "AuditJob",
+        "stepType": "Input",
+        "className": "KafkaInputStep",
+        "classPrettyName": "Kafka",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 308,
+            "y": 194
+          }
+        },
+        "configuration": {
+          "spark.streaming.kafka.consumer.poll.ms": "{{KAFKA_MAX_POLL_TIMEOUT}}",
+          "locationStrategy": "preferconsistent",
+          "inputOptions": "[]",
+          "topics": [
+            {
+              "topic": "audit"
+            }
+          ],
+          "auto.offset.reset": "latest",
+          "partition.assignment.strategy": "range",
+          "outputField": "auditdata",
+          "value.deserializer.inputFormat": "STRING",
+          "tlsEnabled": true,
+          "spark.streaming.kafka.consumer.cache.enabled": false,
+          "group.id": "AuditJobId",
+          "bootstrap.servers": [
+            {
+              "host": "gosec1.node.paas.labs.stratio.com",
+              "port": "9092"
+            },
+            {
+              "host": "gosec2.node.paas.labs.stratio.com",
+              "port": "9092"
+            },
+            {
+              "host": "gosec3.node.paas.labs.stratio.com",
+              "port": "9092"
+            }
+          ],
+          "enable.auto.commit": false,
+          "storeOffsetInKafka": true
+        },
+        "supportedEngines": [
+          "Streaming"
+        ],
+        "executionEngine": "Streaming"
+      },
+      {
+        "name": "Json",
+        "stepType": "Transformation",
+        "className": "JsonTransformStep",
+        "classPrettyName": "Json",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "auditevents",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 614,
+            "y": 194
+          }
+        },
+        "configuration": {
+          "schema.inputMode": "EXAMPLE",
+          "schema.fromRow": false,
+          "whenRowError": "",
+          "schema.provided": {
+            "time": "2016-10-14T13:16:25",
+            "user": {
+              "id": "userId",
+              "name": "userName",
+              "email": "user@mail.com",
+              "custom": true
+            },
+            "resource": {
+              "service": "myService",
+              "instances": [
+                "myInstance"
+              ],
+              "resourceType": "rType",
+              "name": "rName"
+            },
+            "action": "Read",
+            "result": "Success",
+            "auditAddresses": {
+              "sourceIp": "127.0.0.1",
+              "destIp": "127.0.0.1"
+            },
+            "impersonation": false,
+            "audittype": "Operation"
+          },
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "auditdata"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming"
+      },
+      {
+        "name": "Parquet",
+        "stepType": "Output",
+        "className": "ParquetOutputStep",
+        "classPrettyName": "Parquet",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1064,
+            "y": 195
+          }
+        },
+        "configuration": {
+          "path": "auditjob",
+          "errorSink": false,
+          "saveOptions": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming"
+      }
+    ],
+    "edges": [
+      {
+        "origin": "AuditJob",
+        "destination": "Json"
+      },
+      {
+        "origin": "Json",
+        "destination": "Parquet"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": 2,
+      "y": 1,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2018-03-20T14:04:43Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "16e2bb34-2bf0-432a-b6c9-04d8130ef28d",
+    "status": "Finished",
+    "statusInfo": "Workflow correctly finished in Marathon API",
+    "lastExecutionMode": "marathon",
+    "lastUpdateDate": "2018-03-20T14:23:15Z",
+    "lastUpdateDateWorkflow": "2018-03-20T14:04:43Z"
+  }
+}

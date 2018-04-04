@@ -62,7 +62,7 @@ class WorkflowListenerActor extends Actor with SLF4JLogging {
         }
       }
     case WorkflowRemove(_, workflow) =>
-      workflowActions -= workflow.id.get
+      workflow.id.foreach(id => workflowActions -= id)
     case _ => log.debug("Unrecognized message in Workflow Listener Actor")
   }
 

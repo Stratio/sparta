@@ -6,15 +6,15 @@
 package com.stratio.sparta.plugin.workflow.output.http
 
 import java.io.{Serializable => JSerializable}
-import scala.util.Try
-import scalaj.http._
-
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.crossdata.XDSession
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.{OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.crossdata.XDSession
+
+import scala.util.Try
+import scalaj.http._
 
 class HttpOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
@@ -34,6 +34,19 @@ class HttpOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   val postType = PostType.withName(properties.getString("postType", "body").toUpperCase)
   val parameterName = properties.getString("parameterName", "")
   val contentType = if (outputFormat == OutputFormatEnum.ROW) "text/plain" else "application/json"
+
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (urlRegex.findFirstIn(url).isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: url must be valid and start with http(s)://"
+      )
+
+    validation
+  }
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append)
 
@@ -71,18 +84,6 @@ class HttpOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           .option(HttpOptions.readTimeout(readTimeout)).asString
       }
     }
-  }
-
-  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
-    var validation = ErrorValidations(valid = true, messages = Seq.empty)
-
-    if (urlRegex.findFirstIn(url).isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ s"$name: url must be valid and start with http(s)://"
-      )
-
-    validation
   }
 }
 

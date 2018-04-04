@@ -55,11 +55,13 @@ export function reducer(state: State = initialState, action: any): State {
       return Object.assign({}, state, {});
     }
     case workflowActions.LIST_WORKFLOW_COMPLETE: {
+      const selectedWorkflows = state.selectedWorkflowsIds.length ?
+        action.payload.filter((workflow: any) => state.selectedWorkflowsIds.indexOf(workflow.id) > -1
+        && (state.currentFilterStatus === '' || workflow.filterStatus === state.currentFilterStatus)) : [];
       return Object.assign({}, state, {
         workflowList: action.payload,
-        selectedWorkflows: state.selectedWorkflowsIds.length ?
-        action.payload.filter((workflow: any) => state.selectedWorkflowsIds.indexOf(workflow.id) > -1) : [],
-        selectedWorkflowsIds: [...state.selectedWorkflowsIds],
+        selectedWorkflows: selectedWorkflows,
+        selectedWorkflowsIds: selectedWorkflows.map(workflow => workflow.id),
         reload: true,
         filteredWorkflow: getFilteredWorkflow(action.payload, state.searchQuery)
       });

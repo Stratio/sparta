@@ -6,7 +6,7 @@
 package com.stratio.sparta.serving.core.services
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -25,34 +25,43 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   def initialize(): Try[Unit] = {
     log.debug("Initializing environment")
     Try {
-      if (find().toOption.isEmpty) {
-        create(Environment(AppConstant.DefaultEnvironment))
-        log.debug("The environment initialization has been completed")
-      } else log.debug("The environment is already created")
+      find() match {
+        case Success(env) =>
+          log.debug("The environment is already created, adding default variables if not exists")
+          val variablesNames = env.variables.map(_.name)
+          val variablesToAdd = DefaultEnvironment.filter(variable => !variablesNames.contains(variable.name))
+          log.debug(s"Variables not present in the actual environment: $variablesToAdd")
+          update(Environment(variablesToAdd ++ env.variables))
+        case Failure(_) =>
+          log.debug("The environment is empty, creating default environment variables")
+          create(Environment(DefaultEnvironment))
+      }
+      log.debug("The environment initialization has been completed")
     }
   }
   
   def find(): Try[Environment] = {
     log.debug("Finding environment")
     Try {
-      if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath))
-        read[Environment](new String(curatorFramework.getData.forPath(AppConstant.EnvironmentZkPath)))
+      if (CuratorFactoryHolder.existsPath(EnvironmentZkPath))
+        read[Environment](new String(curatorFramework.getData.forPath(EnvironmentZkPath)))
       else throw new ServerException(s"No environment found")
     }
   }
 
   def create(environment: Environment): Try[Environment] = {
     log.debug("Creating environment")
-    if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
+    val environmentSorted = environment.copy(variables = environment.variables.sortBy(_.name))
+    if (CuratorFactoryHolder.existsPath(EnvironmentZkPath)) {
       log.debug(s"The environment already exists, updating it")
-      update(environment)
+      update(environmentSorted)
     } else {
       Try {
         curatorFramework.create.creatingParentsIfNeeded.forPath(
-          AppConstant.EnvironmentZkPath,
-          write(environment).getBytes
+          EnvironmentZkPath,
+          write(environmentSorted).getBytes
         )
-        environment
+        environmentSorted
       }
     }
   }
@@ -60,9 +69,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   def update(environment: Environment): Try[Environment] = {
     log.debug(s"Updating environment")
     Try {
-      if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
-        curatorFramework.setData().forPath(AppConstant.EnvironmentZkPath, write(environment).getBytes)
-        environment
+      val environmentSorted = environment.copy(variables = environment.variables.sortBy(_.name))
+      if (CuratorFactoryHolder.existsPath(EnvironmentZkPath)) {
+        curatorFramework.setData().forPath(EnvironmentZkPath, write(environmentSorted).getBytes)
+        environmentSorted
       } else throw new ServerException(s"Unable to create environment")
     }
   }
@@ -70,9 +80,9 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   def delete(): Try[Unit] = {
     log.debug(s"Deleting environment")
     Try {
-      if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
+      if (CuratorFactoryHolder.existsPath(EnvironmentZkPath)) {
         log.debug(s"Deleting environment")
-        curatorFramework.delete().forPath(AppConstant.EnvironmentZkPath)
+        curatorFramework.delete().forPath(EnvironmentZkPath)
       } else throw new ServerException(s"No environment available to delete")
     }
   }
@@ -91,7 +101,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
                 else variable
               )
             } else environment.variables :+ environmentVariable
-          })
+          }.sortBy(_.name))
           update(newEnvironment).map(_ => environmentVariable)
             .getOrElse(throw new ServerException(s"Impossible to create variable"))
         case Failure(e) =>
@@ -113,7 +123,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
                 if (variable.name == environmentVariable.name)
                   environmentVariable
                 else variable
-              ))
+              ).sortBy(_.name))
             update(newEnvironment).map(_ => environmentVariable)
               .getOrElse(throw new ServerException(s"Impossible to update variable"))
           } else throw new ServerException(s"The environment variable doesn't exist")

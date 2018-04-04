@@ -26,14 +26,6 @@ const settingsRoutes: Routes = [
                 loadChildren: './backups/backups.module#BackupsModule'
             },
             {
-                path: 'resources',
-                redirectTo: 'resources/plugins'
-            },
-            {
-                path: 'resources/drivers',
-                component: SpartaDrivers
-            },
-            {
                 path: 'plugins',
                 component: SpartaPlugins
             },

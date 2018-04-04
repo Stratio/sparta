@@ -28,6 +28,21 @@
          <span class="title">{{'GLOBAL.OUTPUTS' | translate}}</span>
          <span class="values" *ngFor="let output of outputs">{{output}}</span>
       </div>
+      <div class="last-error" *ngIf="workflowData.status.lastError">
+         <span class="title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
+         <div class="errors">
+            <div>
+               <span class=""><!--<i class="icon icon-calendar"></i>--> Date: </span>
+               <span class="val">{{workflowData.status.lastError.date | date:'yyyy-mm-dd HH:mm'}}</span>
+            </div>
+            <div>
+               <span class=""><!--<i class="icon icon-evolution"></i>--> Phase: </span>
+               <span class="val">{{workflowData.status.lastError.phase}}</span>
+            </div>
+            <span class="message">{{workflowData.status.lastError.message}}</span>
+            <span class="original-msg">{{workflowData.status.lastError.originalMsg}}</span>
+         </div>
+      </div>
    </div>
 
    <div class="selected" *ngIf="data && data.type === 'workflow'">

@@ -6,16 +6,16 @@
 package com.stratio.sparta.sdk.utils
 
 import java.net.URLClassLoader
+import scala.collection.JavaConversions._
+import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
 import org.reflections.Reflections
 
-import scala.collection.JavaConversions._
-import scala.util.Try
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
 
 class ClasspathUtils extends SLF4JLogging {
 
@@ -60,12 +60,14 @@ class ClasspathUtils extends SLF4JLogging {
     result
   }
 
+  //scalastyle:off
   def tryToInstantiate[C](
                            classAndPackage: String,
                            block: Class[_] => C,
                            inputClazzMap: Map[String, String] = Map.empty[String, String]
                          ): C = {
-    val clazMap: Map[String, String] = if(inputClazzMap.isEmpty) defaultStepsInClasspath else inputClazzMap
+    //If non empty. the custom classes are added to Sparta internal classes
+    val clazMap: Map[String, String] = if(inputClazzMap.isEmpty) defaultStepsInClasspath else inputClazzMap ++ defaultStepsInClasspath
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
     try {
       val clazz = Class.forName(finalClazzToInstance)

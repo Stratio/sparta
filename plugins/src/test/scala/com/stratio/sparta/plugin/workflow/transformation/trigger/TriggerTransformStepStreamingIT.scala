@@ -41,7 +41,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("sql" -> query,"inputSchemas" -> JsoneyString(inputSchema))
     ).transform(inputData)
@@ -62,6 +62,39 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     ssc.stop()
 
     assert(totalEvents.value === 2)
+
+  }
+
+  "A TriggerTransformStep" should "make trigger over one DStream empty" in {
+
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq.empty
+    dataQueue1 += sc.parallelize(data1)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val inputData = Map("step1" -> stream1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val query = s"SELECT * FROM step1 ORDER BY step1.color"
+    val result = new TriggerTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
+    ).transform(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
+
+    assert(totalEvents.value === 0)
 
   }
 
@@ -112,6 +145,89 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
           new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee", 12.2), schemaResult))
         streamingRegisters.foreach(row => assert(queryData.contains(row)))
       }
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
+
+    assert(totalEvents.value === 2)
+
+  }
+
+  "A TriggerTransformStep" should "make trigger over two DStreams one empty" in {
+
+    val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val dataQueue2 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema1),
+      new GenericRowWithSchema(Array("red", 12.2), schema1)
+    )
+    val data2 = Seq.empty
+    dataQueue1 += sc.parallelize(data1)
+    dataQueue2 += sc.parallelize(data2)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val stream2 = ssc.queueStream(dataQueue2)
+    val inputData = Map("step1" -> stream1, "step2" -> stream2)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
+      s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
+    val result = new TriggerTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
+    ).transform(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
+
+    assert(totalEvents.value === 0)
+
+  }
+
+  "A TriggerTransformStep" should "make trigger over two DStreams one empty but executes the query" in {
+
+    val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val dataQueue2 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema1),
+      new GenericRowWithSchema(Array("red", 12.2), schema1)
+    )
+    val data2 = Seq.empty
+    dataQueue1 += sc.parallelize(data1)
+    dataQueue2 += sc.parallelize(data2)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val stream2 = ssc.queueStream(dataQueue2)
+    val inputData = Map("step1" -> stream1, "step2" -> stream2)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val query = s"SELECT step1.color FROM step1"
+    val result = new TriggerTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("sql" -> query, "executeSqlWhenEmpty" -> "true")
+    ).transform(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(3000L)

@@ -1,5 +1,5 @@
 {
-  "id": "19779487-bf3b-45b4-8408-5c42beed18b7",
+  "id": "56d54069-6844-4131-927b-4321a77fa9ed",
   "name": "kafka-postgres",
   "description": "Automatic Workflow kafka-postgres",
   "settings": {
@@ -7,12 +7,16 @@
       "executionMode": "marathon",
       "userPluginsJars": [],
       "initSqlSentences": [],
-      "addAllUploadedPlugins": true
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER"
     },
     "streamingSettings": {
       "window": "10s",
       "remember": "",
+      "backpressure": false,
       "blockInterval": "100ms",
+      "stopGracefully": false,
       "checkpointSettings": {
         "checkpointPath": "sparta/checkpoint",
         "enableCheckpointing": true,
@@ -28,7 +32,7 @@
       "submitArguments": {
         "userArguments": [],
         "deployMode": "client",
-        "driverJavaOptions": "-XX:+UseConcMarkSweepGC"
+        "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
       },
       "sparkConf": {
         "sparkResourcesConf": {
@@ -40,12 +44,18 @@
           "mesosExtraCores": "",
           "localityWait": "100",
           "taskMaxFailures": "8",
-          "sparkMemoryFraction": "0.6"
+          "sparkMemoryFraction": "0.6",
+          "sparkParallelism": ""
         },
         "userSparkConf": [],
         "coarse": true,
         "sparkUser": "",
         "sparkLocalDir": "/opt/spark/dist",
+        "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0.5",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": false,
+        "logStagesProgress": false,
+        "hdfsTokenCache": false,
         "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
       }
     },
@@ -61,6 +71,7 @@
       "transactionsManagement": {
         "sendToOutputs": [],
         "sendStepData": false,
+        "sendPredecessorsData": false,
         "sendInputData": true
       }
     }
@@ -78,7 +89,8 @@
         "writer": {
           "saveMode": "Append",
           "tableName": "",
-          "partitionBy": ""
+          "partitionBy": "",
+          "errorTableName": ""
         },
         "uiConfiguration": {
           "position": {
@@ -87,6 +99,7 @@
           }
         },
         "configuration": {
+          "spark.streaming.kafka.consumer.poll.ms": "10000",
           "locationStrategy": "preferconsistent",
           "inputOptions": "[]",
           "topics": [
@@ -97,23 +110,26 @@
           "auto.offset.reset": "latest",
           "partition.assignment.strategy": "range",
           "value.deserializer.inputFormat": "JSON",
-          "tlsEnabled": false,
+          "tlsEnabled": true,
+          "spark.streaming.kafka.consumer.cache.enabled": false,
           "group.id": "sparta_2",
           "bootstrap.servers": [
             {
-              "port": "9092",
-              "host": "broker-0001.kafka-sec.mesos"
+              "host": "broker-0001.kafka-sec.mesos",
+              "port": "9092"
             }
           ],
           "enable.auto.commit": false,
           "value.deserializer.json.schema.fromRow": true,
           "storeOffsetInKafka": true
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "tabletest",
         "stepType": "Transformation",
-        "className": "TriggerTransformStepStream",
+        "className": "TriggerTransformStepStreaming",
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",
@@ -132,7 +148,9 @@
         },
         "configuration": {
           "sql": "select id from Kafka"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "Postgres",
@@ -154,7 +172,7 @@
         },
         "configuration": {
           "errorSink": false,
-          "url": "jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server",
+          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
           "postgresSaveMode": "STATEMENT",
           "batchsize": "1000",
           "isolationLevel": "READ_UNCOMMITTED",
@@ -162,7 +180,9 @@
           "driver": "",
           "schemaFromDatabase": false,
           "saveOptions": "[]"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "Print",
@@ -186,7 +206,9 @@
           "logLevel": "warn",
           "printMetadata": true,
           "printData": true
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       },
       {
         "name": "Cube",
@@ -225,7 +247,9 @@
               "classType": "Count"
             }
           ]
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming"
       }
     ],
     "edges": [
@@ -259,17 +283,19 @@
       "k": 1
     }
   },
-  "lastUpdateDate": "2018-02-08T15:37:37Z",
+  "lastUpdateDate": "2018-04-02T17:38:58Z",
   "version": 0,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
     "name": "/home"
   },
   "status": {
-    "id": "19779487-bf3b-45b4-8408-5c42beed18b7",
-    "status": "Finished",
-    "statusInfo": "Workflow correctly finished in Marathon API",
+    "id": "56d54069-6844-4131-927b-4321a77fa9ed",
+    "status": "Started",
+    "statusInfo": "Workflow started correctly",
     "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-02-08T15:39:01Z"
+    "lastUpdateDate": "2018-04-02T17:39:18Z",
+    "sparkURI": "https://sparta.nightly.labs.stratio.com/workflows-sparta-server/home/kafka-postgres/kafka-postgres-v0/",
+    "lastUpdateDateWorkflow": "2018-04-02T17:38:58Z"
   }
 }

@@ -244,9 +244,11 @@ object KafkaInputStepStreaming {
   def getSparkConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     val maxPollTimeout = "spark.streaming.kafka.consumer.poll.ms"
     val cachedKafkaConsumer = "spark.streaming.kafka.consumer.cache.enabled"
+    val maxRatePerPartition = "spark.streaming.kafka.maxRatePerPartition"
 
     Seq(
       (maxPollTimeout, configuration.getString(maxPollTimeout, "512")),
+      (maxRatePerPartition, configuration.getString(maxRatePerPartition, "0")),
       (cachedKafkaConsumer, Try(configuration.getBoolean(cachedKafkaConsumer, false)).getOrElse(false).toString)
     )
   }

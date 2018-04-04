@@ -18,5 +18,6 @@ object Sparta extends App with SLF4JLogging {
   SpartaConfig.initMainConfig()
   SpartaConfig.initApiConfig()
   SpartaConfig.initSparkConfig()
+  SpartaConfig.initCrossdataConfig()
   SpartaHelper.initSpartaAPI(AppConstant.ConfigAppName)
 }

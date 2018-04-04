@@ -27,6 +27,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
   val ConfigSpark = "spark"
+  val ConfigCrossdata = "crossdata"
   val DefaultOauth2CookieName = "user"
   val ConfigLocal = "local"
   val ConfigMesos = "mesos"
@@ -52,7 +53,9 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20
-  val DefaultSerializationTimeout = 5
+  val DefaultSerializationTimeout = 5000
+  val DefaultEnvSleep = 5000L
+  val DefaultRecoverySleep = 5000L
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"
@@ -117,6 +120,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("KAFKA_BROKER_PORT", "9092"),
     EnvironmentVariable("KAFKA_GROUP_ID", "sparta"),
     EnvironmentVariable("KAFKA_MAX_POLL_TIMEOUT", "512"),
+    EnvironmentVariable("KAFKA_MAX_RATE_PER_PARTITION", "0"),
     EnvironmentVariable("WEBSOCKET_URL", "ws://stream.meetup.com/2/rsvps"),
     EnvironmentVariable("CASSANDRA_HOST", "localhost"),
     EnvironmentVariable("CASSANDRA_PORT", "9042"),

@@ -21,7 +21,7 @@ import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.types.{DataType, DoubleType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.json4s.jackson.Serialization.read
@@ -89,6 +89,8 @@ class CubeTransformStepStreaming(
       )
     }.toMap
   }
+
+  lazy val avgOperators: Seq[String] = cubeModel.operators.filter(operator => operator.classType == "Avg").map(_.name)
 
   def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
     val warnMessage = s"Discarding stream in Cube: $name"
@@ -163,12 +165,16 @@ class CubeTransformStepStreaming(
       s" Dimensions: $dimensionValues and Measures: $measures") {
       Try {
         val measuresValues = measures.values.map { case (measureName, measureValue) =>
-          val schema = operatorsSchema(measureName)
+          val schema = if(avgOperators.contains(measureName))
+            operatorsSchema(measureName).copy(dataType = DoubleType)
+          else operatorsSchema(measureName)
           (
             schema,
             measureValue match {
               case Some(value) =>
-                CastingUtils.castingToSchemaType(schema.dataType, value)
+                if(avgOperators.contains(measureName))
+                  CastingUtils.castingToSchemaType(schema.dataType, value.asInstanceOf[Map[String, Double]]("mean"))
+                else CastingUtils.castingToSchemaType(schema.dataType, value)
               case None =>
                 returnWhenFieldError(new Exception(s"Wrong value in measure $measureName"))
             }

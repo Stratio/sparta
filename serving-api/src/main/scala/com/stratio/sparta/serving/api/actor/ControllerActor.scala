@@ -18,6 +18,7 @@ import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
@@ -27,7 +28,7 @@ import spray.http.StatusCodes._
 import spray.routing._
 
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 class ControllerActor(
                        curatorFramework: CuratorFramework,
@@ -276,9 +277,19 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val swaggerService = new SwaggerService {
     override implicit def actorRefFactory: ActorRefFactory = context
 
-    override def baseUrl: String = getMarathonLBPath match {
-      case Some(marathonLBpath) => marathonLBpath
-      case None => "/"
+    override def baseUrl: String = {
+      val marathonLBPath = for {
+        marathonLB_host <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_VHOST").notBlank
+        marathonLB_path <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_PATH").notBlank
+      } yield {
+        val ssl = Properties.envOrElse("SECURITY_TLS_ENABLE", "false").toBoolean
+        s"http${if (ssl) "s" else ""}:" + s"//${marathonLB_host + marathonLB_path}"
+      }
+
+      marathonLBPath match {
+        case Some(marathonLBpath) => marathonLBpath
+        case None => "/"
+      }
     }
   }
 }

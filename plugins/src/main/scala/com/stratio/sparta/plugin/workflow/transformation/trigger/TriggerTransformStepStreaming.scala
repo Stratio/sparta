@@ -16,6 +16,8 @@ import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import org.apache.spark.sql.types.StructType
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 
 import scala.util.{Failure, Success, Try}
 
@@ -45,18 +47,29 @@ class TriggerTransformStepStreaming(
 
       firstStream.ds.transform { rdd =>
         Try {
+          var executeSql = true
           val schema = inputsModel.inputSchemas match {
             case Nil => if (!rdd.isEmpty()) Option(rdd.first().schema) else None
             case x :: Nil => parserInputSchema(x.schema).toOption
           }
-          schema.foreach { s =>
-            log.debug(s"Registering temporal table with name: $firstStep")
-            xDSession.createDataFrame(rdd, s).createOrReplaceTempView(firstStep)
+
+          schema match {
+            case Some(s) =>
+              log.debug(s"Registering temporal table with name: $firstStep")
+              xDSession.createDataFrame(rdd, s).createOrReplaceTempView(firstStep)
+            case None =>
+              if (executeSqlWhenEmpty) {
+                log.debug(s"Registering empty temporal table with name: $firstStep")
+                xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(firstStep)
+              } else executeSql = false
           }
-          log.debug(s"Executing query: $sql")
-          xDSession.sql(sql)
+
+          if(executeSql) {
+            log.debug(s"Executing query: $sql")
+            xDSession.sql(sql).rdd
+          } else rdd.filter(_ => false)
         } match {
-          case Success(sqlResult) => sqlResult.rdd
+          case Success(sqlResult) => sqlResult
           case Failure(e) =>
             rdd.map(_ => Row.fromSeq(throw e))
         }
@@ -65,18 +78,34 @@ class TriggerTransformStepStreaming(
       val (firstStep, firstStream) = inputData.head
       val (secondStep, secondStream) = inputData.drop(1).head
       require(isCorrectTableName(firstStep) && isCorrectTableName(secondStep),
-        s"The input steps have incorrect names and is not possible to register as temporal table in Spark." +
+        s"The input steps has an incorrect name and it's not possible to register it as a temporal table." +
           s" ${inputData.keys}")
 
       val transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
         case (rdd1, rdd2) =>
           Try {
+            var executeSql = true
             log.debug(s"Registering temporal tables with names: $firstStep, $secondStep")
             val schemas = inputsModel.inputSchemas match {
               case Nil =>
-                if (!rdd1.isEmpty() && !rdd2.isEmpty())
-                  List((rdd1, rdd1.first().schema, firstStep), (rdd2, rdd2.first().schema, secondStep))
-                else List.empty
+                val first = {
+                  if (!rdd1.isEmpty())
+                    List((rdd1, rdd1.first().schema, firstStep))
+                  else {
+                    if(!executeSqlWhenEmpty) executeSql = false
+                    List.empty
+                  }
+                }
+                val second = {
+                  if (!rdd2.isEmpty())
+                    List((rdd2, rdd2.first().schema, secondStep))
+                  else {
+                    if(!executeSqlWhenEmpty) executeSql = false
+                    List.empty
+                  }
+                }
+
+                first ++ second
               case s1 :: s2 :: Nil =>
                 if (firstStep == s1.stepName) List(
                   (rdd1, parserInputSchema(s1.schema).get, firstStep),
@@ -88,14 +117,24 @@ class TriggerTransformStepStreaming(
                 )
             }
 
-            schemas.foreach { case (rdd, schema, step) =>
-              xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(step)
-            }
-            log.debug(s"Executing query: $sql")
-            xDSession.sql(sql)
+            if(executeSql) {
+              if (!schemas.exists(_._3 == firstStep))
+                xDSession.createDataFrame(rdd1, StructType(Nil)).createOrReplaceTempView(firstStep)
+
+              if (!schemas.exists(_._3 == secondStep))
+                xDSession.createDataFrame(rdd2, StructType(Nil)).createOrReplaceTempView(secondStep)
+
+              schemas.foreach { case (rdd, schema, step) =>
+                xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(step)
+              }
+              log.debug(s"Executing query: $sql")
+              xDSession.sql(sql).rdd
+            } else xDSession.sparkContext.union(rdd1.filter(_ => false), rdd2.filter(_ => false))
           } match {
-            case Success(sqlResult) => sqlResult.rdd
-            case Failure(e) => rdd1.map(_ => Row.fromSeq(throw e))
+            case Success(sqlResult) =>
+              sqlResult
+            case Failure(e) =>
+              xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
           }
       }
 

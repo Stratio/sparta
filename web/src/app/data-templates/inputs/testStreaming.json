@@ -28,7 +28,8 @@
         {
            "propertyId": "event",
            "propertyName": "_EVENT_",
-           "propertyType": "text",
+           "propertyType": "textarea",
+           "contentType": "JSON",
            "visible": [
               [
                  {

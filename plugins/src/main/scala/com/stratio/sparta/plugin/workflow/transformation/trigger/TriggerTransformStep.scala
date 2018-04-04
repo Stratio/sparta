@@ -8,24 +8,19 @@ package com.stratio.sparta.plugin.workflow.transformation.trigger
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.models.PropertiesTriggerInputsModel
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import scala.util.{Failure, Success, Try}
-
-import org.apache.spark.sql.json.RowJsonHelper
-import org.apache.spark.sql.types.StructType
-import org.json4s.{DefaultFormats, Formats}
 import org.json4s.jackson.Serialization.read
+import org.json4s.{DefaultFormats, Formats}
 
-import com.stratio.sparta.plugin.helper.SchemaHelper
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import com.stratio.sparta.sdk.properties.models.PropertiesTriggerInputsModel
+import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
 abstract class TriggerTransformStep[Underlying[Row]](
@@ -40,6 +35,8 @@ abstract class TriggerTransformStep[Underlying[Row]](
     with SLF4JLogging {
 
   lazy val sql = properties.getString("sql").trim
+
+  lazy val executeSqlWhenEmpty = Try(properties.getBoolean("executeSqlWhenEmpty", default = true)).getOrElse(true)
 
   lazy val inputsModel: PropertiesTriggerInputsModel = {
     {
@@ -72,23 +69,6 @@ abstract class TriggerTransformStep[Underlying[Row]](
       }, s"$name input schemas are not the same as the input step names")
     }
   }
-
-  def parserInputSchema(schema: String): Try[StructType] =
-    Try {
-      SchemaHelper.getSparkSchemaFromString(schema) match {
-        case Success(structType) =>
-          structType
-        case Failure(f) =>
-          log.warn(s"$name Error parsing input schema $schema with SparkSchemaFromString. ${f.getLocalizedMessage}")
-          Try(RowJsonHelper.extractSchemaFromJson(schema, Map())) match {
-            case Success(structType) =>
-              structType
-            case Failure(e) =>
-              log.warn(s"$name Error parsing input schema $schema with SchemaFromJson. ${e.getLocalizedMessage}")
-              throw new Exception(s"$name Error parsing input schema")
-          }
-      }
-    }
 
   def validateSql: Boolean =
     Try(xDSession.sessionState.sqlParser.parsePlan(sql)) match {

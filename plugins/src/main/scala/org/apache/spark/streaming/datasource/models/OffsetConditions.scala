@@ -20,7 +20,8 @@ case class OffsetConditions(fromOffset: Seq[OffsetField],
     val changeToComplexQuery: Boolean = fromOffset.forall( item =>
       item.operator == OffsetOperator.incrementalOperator || item.operator == OffsetOperator.decrementalOperator)
     val stringConditions = if(changeToComplexQuery) createDisjointCondition else createJoinCondition
-    Option(stringConditions).notBlank.fold(previousWhereCondition.getOrElse("")){conditions =>
+    Option(stringConditions).notBlank.fold(
+      previousWhereCondition.fold(""){ conditions => s"WHERE $conditions" }) {conditions =>
       s" WHERE $conditions ${previousWhereCondition.fold(""){ prevCond => " AND " + prevCond}}"}
   }
 
@@ -32,24 +33,29 @@ case class OffsetConditions(fromOffset: Seq[OffsetField],
   }
 
   def createDisjointCondition: String = {
-    val reversedConditions = fromOffset.reverse
-    @tailrec
-    def createDisjointCondition(conditions: Seq[OffsetField], buildingString: String): String =
-      conditions match {
-        case condition :: Nil =>
-          buildingString + s" ${condition.name} ${OffsetOperator.toProgressOperator(condition.operator).toString}" +
-            s"${valueToSqlSentence(condition.value.get)} "
-        case condition :: tail => {
-          val stringCurrent =
-            " ( " + tail.map(currentCondition =>
-              s" ${currentCondition.name} = " +
-                s"${valueToSqlSentence(currentCondition.value.get)} ").mkString(" AND ") +
-              s" AND ${condition.name} ${OffsetOperator.toProgressOperator(condition.operator).toString}" +
-              s"${valueToSqlSentence(condition.value.get)} ) " + " OR "
-          createDisjointCondition(tail, buildingString + stringCurrent)
+    if (fromOffset.nonEmpty) {
+      val reversedConditions = fromOffset.reverse
+
+      @tailrec
+      def createDisjointCondition(conditions: Seq[OffsetField], buildingString: String): String =
+        conditions match {
+          case condition :: Nil =>
+            buildingString + s" ${condition.name} ${OffsetOperator.toProgressOperator(condition.operator).toString}" +
+              s"${valueToSqlSentence(condition.value.get)} "
+          case condition :: tail => {
+            val stringCurrent =
+              " ( " + tail.map(currentCondition =>
+                s" ${currentCondition.name} = " +
+                  s"${valueToSqlSentence(currentCondition.value.get)} ").mkString(" AND ") +
+                s" AND ${condition.name} ${OffsetOperator.toProgressOperator(condition.operator).toString}" +
+                s"${valueToSqlSentence(condition.value.get)} ) " + " OR "
+            createDisjointCondition(tail, buildingString + stringCurrent)
+          }
         }
-      }
-    createDisjointCondition(reversedConditions, "")
+
+      createDisjointCondition(reversedConditions, "")
+    }
+    else ""
   }
 
   def extractOrderSentence(sqlQuery: String, inverse: Boolean = true): String = {

@@ -5,13 +5,19 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import scala.util.{Failure, Try}
+
 import akka.actor.Actor
 import com.github.nscala_time.time.Imports.{DateTime, DateTimeFormat}
+import spray.http.BodyPart
+import spray.httpx.Json4sJacksonSupport
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
 import com.stratio.sparta.serving.api.actor.MetadataActor.{ExecuteBackup, _}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.{BackupRestoreUtils, FileActorUtils}
+import com.stratio.sparta.serving.core.actor.BusNotification.InitNodeListener
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -20,10 +26,6 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.BackupRequest
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import spray.http.BodyPart
-import spray.httpx.Json4sJacksonSupport
-
-import scala.util.{Failure, Try}
 
 class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with Json4sJacksonSupport
@@ -100,9 +102,11 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
 
   def executeBackup(backupRequest: BackupRequest, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Execute)) {
-      Try(importer("/", s"$targetDir/${backupRequest.fileName}", backupRequest.deleteAllBefore))
+      Try {
+        importer("/", s"$targetDir/${backupRequest.fileName}", backupRequest.deleteAllBefore)
+        context.system.eventStream.publish(InitNodeListener("emptyMessage"))
+      }
     }
-
 
 }
 

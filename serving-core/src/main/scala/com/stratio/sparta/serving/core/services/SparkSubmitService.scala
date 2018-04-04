@@ -133,6 +133,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
       SubmitGracefullyStopTimeoutConf -> workflow.settings.streamingSettings.stopGracefulTimeout.notBlank,
       SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString),
+      SubmitHdfsCacheConf -> workflow.settings.sparkSettings.sparkConf.hdfsTokenCache.map(_.toString),
       SubmitTotalExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank,
       SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory.notBlank,
       SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank,
@@ -146,6 +147,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitSqlCaseSensitiveConf -> workflow.settings.sparkSettings.sparkConf.sparkSqlCaseSensitive.map(_.toString),
       SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
       SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate.notBlank,
+      SubmitBackPressureMaxRateConf -> workflow.settings.streamingSettings.backpressureMaxRate.notBlank,
       SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions.notBlank,
       SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkMemoryFraction.notBlank,
@@ -214,7 +216,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod)
+    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod)  ++ getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
 
   //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =
@@ -423,7 +425,14 @@ object SparkSubmitService {
     Properties.envOrElse("TENANT_NAME", "sparta"))
   lazy val spartaLocalAppName = s"$spartaTenant-spark-standalone"
 
-  def getJarsSparkConfigurations(jarFiles: Seq[String]): Map[String, String] =
+  lazy val extraSparJarsPath = Try(SpartaConfig.crossdataConfig.get.getString("session.sparkjars-path")).getOrElse("/opt/sds/sparta/repo")
+
+  lazy val mapExtraSparkJars: Seq[String] = Seq(
+    s"$extraSparJarsPath/org/elasticsearch/elasticsearch-spark-20_2.11/6.1.1/elasticsearch-spark-20_2.11-6.1.1.jar",
+    s"$extraSparJarsPath/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar"
+  )
+
+  def getJarsSparkConfigurations(jarFiles: Seq[String],extraJars : Boolean  = false): Map[String, String] =
     if (jarFiles.exists(_.trim.nonEmpty)) {
       val jarFilesFiltered = jarFiles.filter(file =>
         !file.startsWith("hdfs") && !file.startsWith("http") && file.nonEmpty)
@@ -435,7 +444,11 @@ object SparkSubmitService {
         )
       } else Map.empty[String, String]
 
-      classpathConfs ++ Map(SubmitJarsConf -> jarFiles.filter(_.nonEmpty).mkString(","))
+      if (extraJars && !Try(SpartaConfig.sparkConfig.get.getString("master")).getOrElse("local").contains("local")) {
+        classpathConfs ++ Map(SubmitJarsConf -> (jarFiles ++: mapExtraSparkJars).filter(_.nonEmpty).mkString(","))
+      } else {
+        classpathConfs ++ Map(SubmitJarsConf -> jarFiles.filter(_.nonEmpty).mkString(","))
+      }
     } else Map.empty[String, String]
 
   def mixingSparkJarsConfigurations(
@@ -457,7 +470,7 @@ object SparkSubmitService {
       SubmitNameConf -> spartaLocalAppName,
       SubmitMasterConf -> "local[*]"
     )
-    val referenceConf = SpartaConfig.initSparkConfig().fold(defaultConf) { sparkConfig =>
+    val referenceConf = SpartaConfig.sparkConfig.fold(defaultConf) { sparkConfig =>
       sparkConfig.entrySet().iterator().toSeq.map { values =>
         s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
       }.toMap

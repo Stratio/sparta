@@ -10,8 +10,7 @@ import java.io.Serializable
 import com.stratio.sparta.plugin.workflow.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
-import com.stratio.sparta.sdk.workflow.step.OutputStep._
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row}
@@ -28,6 +27,25 @@ class RedisOutputStep(name: String, xDSession: XDSession, properties: Map[String
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
   override val port = properties.getString("port", DefaultRedisPort).toInt
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (properties.getString("hostname", None).isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: hostname cannot be empty"
+      )
+
+    if (properties.getString("port", None).isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: port cannot be empty"
+      )
+
+    validation
+  }
+
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)

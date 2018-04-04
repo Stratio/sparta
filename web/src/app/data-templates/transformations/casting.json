@@ -10,10 +10,9 @@
         {
            "propertyId": "outputFieldsFrom",
            "propertyName": "_OUTPUT_FIELDS_FROM_",
+           "required": true,
            "propertyType": "select",
            "default": "FIELDS",
-           "required": true,
-           "float": true,
            "values": [
               {
                  "label": "String",
@@ -30,7 +29,8 @@
         {
            "propertyId": "fieldsString",
            "propertyName": "_FIELDS_DEFINITION_STRING_",
-           "propertyType": "text",
+           "propertyType": "textarea",
+           "contentType": "JSON",
            "visible": [
               [
                  {

@@ -32,6 +32,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     @Input() forceValidations = false;
     @Input() public subFormNumber = 0;
     @Input() arity: any;
+    @Input() disabledForm = false;
 
     @Input() public stModel: any = {};
     @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();

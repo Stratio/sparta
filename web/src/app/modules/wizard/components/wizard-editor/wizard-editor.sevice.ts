@@ -13,7 +13,7 @@ export class WizardEditorService {
     getNewEntityName(entityType: string, entities: Array<any>, index: number = 0): string {
         let name = entityType;
         if (index > 0) {
-            name += '(' + index + ')';
+            name += '_' + index;
         }
         let valid = true;
         entities.forEach((ent: any) => {

@@ -58,8 +58,7 @@ abstract class OrderByTransformStep[Underlying[Row]](
         }
       } match {
         case Success(sqlResult) => sqlResult
-        case Failure(e) =>
-          rdd.map(_ => Row.fromSeq(throw e))
+        case Failure(e) => rdd.map(_ => Row.fromSeq(throw e))
       }
   }
 

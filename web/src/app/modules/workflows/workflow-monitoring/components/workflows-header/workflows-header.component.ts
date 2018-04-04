@@ -18,6 +18,7 @@ import { StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
 
 import { WorkflowsService } from './../../workflows.service';
 import { BreadcrumbMenuService } from 'services';
+import { isWorkflowRunning } from '@utils';
 
 @Component({
     selector: 'workflows-header',
@@ -43,6 +44,7 @@ export class WorkflowsHeaderComponent {
 
     public breadcrumbOptions: string[] = [];
     public menuOptions: any = [];
+    public isRunning = isWorkflowRunning;
 
     public filters: any = [{
         name: 'workflows',
@@ -80,7 +82,7 @@ export class WorkflowsHeaderComponent {
 
     public runWorkflow(workflow: any): void {
         const policyStatus = workflow.status.status;
-        if (this.isRunning(policyStatus)) {
+        if (isWorkflowRunning(policyStatus)) {
             const stopPolicy = {
                 'id': workflow.id,
                 'status': 'Stopping'
@@ -91,12 +93,14 @@ export class WorkflowsHeaderComponent {
         }
     }
 
-    public isRunning(policyStatus: string) {
-        return policyStatus && policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
-            policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
-            policyStatus.toLowerCase() !== 'finished' && policyStatus.toLowerCase() !== 'created';
-    }
 
+
+/* Launched, Starting, Started,  Stopping, Stopped, Finished, Killed,  NotStarted,  Uploaded, Created, Failed */
+/*
+    Run: Stopped, Finished, Created, Failed, Killed, Stopping,
+
+    Stop: Starting, Started, Uploaded, Launched, NotStarted
+*/
     public editWorkflow(): void {
         this.route.navigate(['wizard', 'edit', this.selectedWorkflows[0].id]);
     }

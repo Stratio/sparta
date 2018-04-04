@@ -30,6 +30,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
     context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.subscribe(self, classOf[GroupChange])
+    context.system.eventStream.subscribe(self, classOf[GroupRemove])
   }
 
   override def postStop(): Unit = {
@@ -39,6 +40,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRawChange])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRawRemove])
+    context.system.eventStream.unsubscribe(self, classOf[GroupChange])
     context.system.eventStream.unsubscribe(self, classOf[GroupRemove])
   }
 

@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.Cancellable
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
+import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.WorkflowRemove
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -33,6 +34,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
   val curatorFramework: CuratorFramework = CuratorFactoryHolder.getInstance()
   val statusService = new WorkflowStatusService(curatorFramework)
   val stopStates = Seq(Stopped, Failed, Stopping)
+  val finishedStates = Seq(Created, Finished, Failed)
 
   override def persistenceId: String = AkkaConstant.StatusChangeActorName
 
@@ -46,6 +48,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[StatusChange])
     context.system.eventStream.subscribe(self, classOf[StatusRemove])
+    context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
     context.system.eventStream.subscribe(self, classOf[ExecutionChange])
     context.system.eventStream.subscribe(self, classOf[ExecutionRemove])
 
@@ -58,6 +61,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
   override def postStop(): Unit = {
     context.system.eventStream.unsubscribe(self, classOf[StatusChange])
     context.system.eventStream.unsubscribe(self, classOf[StatusRemove])
+    context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionChange])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
 
@@ -77,6 +81,17 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         }
         executeActions(stChange.workflowStatus, invalidStateActions)
         addStatus(stChange.workflowStatus)
+        checkSaveSnapshot()
+      }
+    case request@WorkflowRemove(path, workflow) =>
+      persist(request) { wRemove =>
+        wRemove.workflow.id.foreach { id =>
+          statuses.get(id).foreach { wStatus =>
+            if(!finishedStates.contains(wStatus.status))
+              executeActions(wStatus.copy(status = Failed), onStatusChangeActions)
+          }
+          removeWorkflowsWithEnv(wRemove.workflow)
+        }
         checkSaveSnapshot()
       }
   }
@@ -199,7 +214,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
       }
       log.info(s"Finishing workflow with Marathon API")
       Try {
-        new MarathonService(context, curatorFramework).kill(execution.marathonExecution.get.marathonId)
+        new MarathonService(context).kill(execution.marathonExecution.get.marathonId)
       } match {
         case Success(_) =>
           val information = s"Workflow correctly finished in Marathon API"

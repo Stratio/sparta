@@ -178,7 +178,7 @@
           "propertyId": "backpressureInitialRate",
           "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_INITIAL_RATE_",
           "propertyType": "text",
-          "tooltip": "Maximum time a certain query will be executed before being aborted",
+          "tooltip": "Initial maximum receiving rate at which each receiver will receive data for the first batch. Only available with receiver inputs",
           "required": false,
            "visible": [
               [
@@ -191,6 +191,23 @@
            "width": 4,
           "qa": "spark-streaming-backpressure-initial-rate"
         },
+         {
+            "propertyId": "backpressureMaxRate",
+            "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_MAX_RATE_",
+            "propertyType": "text",
+            "tooltip": "Get the max rate limit, only available with receiver inputs",
+            "required": false,
+            "visible": [
+               [
+                  {
+                     "propertyId": "backpressure",
+                     "value": true
+                  }
+               ]
+            ],
+            "width": 4,
+            "qa": "spark-streaming-backpressure-max-rate"
+         },
          {
             "propertyId": "stopGracefully",
             "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
@@ -586,6 +603,16 @@
                 "default": false,
                 "tooltip": "Show in logs the stages progress",
                 "qa": "workflow-spark-logStagesProgress"
+             },
+             {
+                "propertyId": "hdfsTokenCache",
+                "propertyName": "SETTINGS._SPARK_HDFS_DISABLE_CACHE_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": true,
+                "tooltip": "Enable the Hdfs cache for delegation tokens",
+                "qa": "workflow-spark-hdfsDisableCache"
              }
           ]
         }
@@ -665,7 +692,7 @@
                     "propertyName": "SETTINGS._ERROR_WHEN_FIELD_ERROR_",
                     "propertyType": "select",
                     "width": 4,
-                    "default": "Error",
+                    "default": "FieldError",
                     "values": [
                        {
                           "label": "Error",

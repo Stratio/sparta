@@ -39,7 +39,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
     if(tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: when TLS is enable the sparkConf must contain the security options"
+        messages = validation.messages :+ s"$name: when TLS is enabled the sparkConf must contain the security options"
       )
 
     validation
@@ -73,11 +73,13 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           if (tableExists) {
             if (saveMode == SaveModeEnum.Upsert) {
               val updateFields = getPrimaryKeyOptions(options) match {
-                case Some(pk) => pk.split(",").toSeq
+                case Some(pk) => pk.trim.split(",").toSeq
                 case None => Seq.empty[String]
               }
 
               require(updateFields.nonEmpty, "The primary key fields must be provided")
+              require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                "The all the primary key fields should be present in the dataFrame schema")
 
               SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
             }

@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
@@ -48,7 +49,7 @@ abstract class CastingTransformStep[Underlying[Row]](
           }))
         } else None
       case OutputFieldsFrom.STRING =>
-        Try(schemaFromString(fieldsString.get).asInstanceOf[StructType]).toOption
+        SchemaHelper.getSparkSchemaFromString(fieldsString.get).toOption
       case _ =>
         throw new IllegalArgumentException("It's mandatory to specify the fields format")
     }

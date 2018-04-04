@@ -36,6 +36,7 @@ case class StreamingSettings(
                               remember: Option[JsoneyString] = None,
                               backpressure: Option[Boolean] = None,
                               backpressureInitialRate: Option[JsoneyString] = None,
+                              backpressureMaxRate: Option[JsoneyString] = None,
                               blockInterval: Option[JsoneyString] = Option(JsoneyString("100ms")),
                               stopGracefully: Option[Boolean] = None,
                               stopGracefulTimeout: Option[JsoneyString] = None,
@@ -70,6 +71,7 @@ case class SparkConf(
                       sparkKryoSerialization: Option[Boolean] = None,
                       sparkSqlCaseSensitive: Option[Boolean] = None,
                       logStagesProgress: Option[Boolean] = None,
+                      hdfsTokenCache: Option[Boolean] = None,
                       executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UseConcMarkSweepGC"))
                     )
 

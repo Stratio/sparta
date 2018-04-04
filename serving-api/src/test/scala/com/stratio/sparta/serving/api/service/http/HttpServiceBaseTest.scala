@@ -90,7 +90,7 @@ trait HttpServiceBaseTest extends WordSpec
     val settingsModel = Settings(
       GlobalSettings(),
       StreamingSettings(
-        JsoneyString("6s"), None, None, None, Some(JsoneyString("100")), None, None,
+        JsoneyString("6s"), None, None, None, None, Some(JsoneyString("100")), None, None,
         CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf()))
@@ -138,7 +138,8 @@ trait HttpServiceBaseTest extends WordSpec
         submitArguments = Map(),
         sparkConfigurations = Map(),
         driverArguments = Map(),
-        sparkHome = "sparkHome"
+        sparkHome = "sparkHome",
+        userId = None
       )
     )
 

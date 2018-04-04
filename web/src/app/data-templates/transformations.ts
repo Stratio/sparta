@@ -21,7 +21,8 @@ import * as persistTemplate from './transformations/persist.json';
 import * as repartitionTemplate from './transformations/repartition.json';
 import * as selectTemplate from './transformations/select.json';
 import * as splitTemplate from './transformations/split.json';
-import * as triggerTemplate from './transformations/trigger.json';
+import * as triggerStreamingTemplate from './transformations/triggerStreaming.json';
+import * as triggerBatchTemplate from './transformations/triggerBatch.json';
 import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
 
@@ -44,7 +45,8 @@ export const transformations: any = [
     repartitionTemplate,
     selectTemplate,
     splitTemplate,
-    triggerTemplate,
+    triggerStreamingTemplate,
+    triggerBatchTemplate,
     unionTemplate,
     windowTemplate
 ];

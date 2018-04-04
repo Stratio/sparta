@@ -29,9 +29,9 @@ object SpartaJdbcUtils extends SLF4JLogging {
   /** PUBLIC METHODS **/
 
   /**
-   * This methods override Spark JdbcUtils methods to optimize the connection and the exists check
-   *
-   */
+    * This methods override Spark JdbcUtils methods to optimize the connection and the exists check
+    *
+    */
 
   def tableExists(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): Boolean = {
     synchronized {
@@ -167,14 +167,14 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
     val searchTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
       if (searchFields.contains(field.name))
-        Option(index -> (searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
+        Option(index ->(searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
       else None
     }.toMap
     val updateTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
       if (!searchFields.contains(field.name))
         Option(index -> getJdbcType(field.dataType, dialect).jdbcNullType)
       else None
-    }.toMap.zipWithIndex.map { case ((index, nullType), updateIndex) => index -> (updateIndex, nullType) }
+    }.toMap.zipWithIndex.map { case ((index, nullType), updateIndex) => index ->(updateIndex, nullType) }
     val insert = insertWithExistsSql(properties.table, schema, searchFields)
     val update = updateSql(properties.table, schema, searchFields)
     val repartitionedDF = properties.numPartitions match {
@@ -214,7 +214,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
       .mkString(", ")
     val wherePlaceholders = searchFields.map(field => s"$field = ?").mkString(" AND ")
 
-    if(valuesPlaceholders.nonEmpty && wherePlaceholders.nonEmpty)
+    if (valuesPlaceholders.nonEmpty && wherePlaceholders.nonEmpty)
       s"UPDATE $table SET $valuesPlaceholders WHERE $wherePlaceholders"
     else ""
   }
@@ -313,9 +313,9 @@ object SpartaJdbcUtils extends SLF4JLogging {
     val conn = getConnection(properties, outputName)
     val schemaFromDatabase = Try(properties.asProperties.getProperty("schemaFromDatabase")).toOption
     val tableSchema = schemaFromDatabase.flatMap { value =>
-        if(Try(value.toBoolean).getOrElse(false))
-          JdbcUtils.getSchemaOption(conn, properties)
-        else None
+      if (Try(value.toBoolean).getOrElse(false))
+        JdbcUtils.getSchemaOption(conn, properties)
+      else None
     }
     val insertStmt = getInsertStatement(properties.table, rddSchema, tableSchema, isCaseSensitive, dialect)
     var committed = false
@@ -346,10 +346,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
 
     try {
-      if (supportsTransactions){
-        if(conn.getAutoCommit)
+      if (supportsTransactions) {
+        if (conn.getAutoCommit)
           conn.setAutoCommit(false)
-        if(conn.getTransactionIsolation != finalIsolationLevel)
+        if (conn.getTransactionIsolation != finalIsolationLevel)
           conn.setTransactionIsolation(finalIsolationLevel)
       }
       val stmt = conn.prepareStatement(insertStmt)
@@ -456,14 +456,14 @@ object SpartaJdbcUtils extends SLF4JLogging {
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
 
     try {
-      if (supportsTransactions){
-        if(conn.getAutoCommit)
+      if (supportsTransactions) {
+        if (conn.getAutoCommit)
           conn.setAutoCommit(false)
-        if(conn.getTransactionIsolation != finalIsolationLevel)
+        if (conn.getTransactionIsolation != finalIsolationLevel)
           conn.setTransactionIsolation(finalIsolationLevel)
       }
-      val insertStmt = if(insertSql.nonEmpty) Option(conn.prepareStatement(insertSql)) else None
-      val updateStmt = if(updateSql.nonEmpty) Option(conn.prepareStatement(updateSql)) else None
+      val insertStmt = if (insertSql.nonEmpty) Option(conn.prepareStatement(insertSql)) else None
+      val updateStmt = if (updateSql.nonEmpty) Option(conn.prepareStatement(updateSql)) else None
       try {
         var updatesCount = 0
         while (iterator.hasNext) {
@@ -487,30 +487,26 @@ object SpartaJdbcUtils extends SLF4JLogging {
                 rddSchema, i, numFields, row, searchTypes, updateTypes, conn, insertStmt, updateStmt, dialect)
             i = i + 1
           }
-          if(insertStmt.isDefined) {
+          if (insertStmt.isDefined) {
+            insertStmt.foreach(_.addBatch())
             updatesCount += 1
-            insertStmt.foreach(_.addBatch())
           }
-          if(updateStmt.isDefined) {
-            insertStmt.foreach(_.addBatch())
+          if (updateStmt.isDefined) {
+            updateStmt.foreach(_.addBatch())
             updatesCount += 1
           }
           if (updatesCount >= batchSize) {
-            if(insertStmt.isDefined)
-              insertStmt.foreach(_.executeBatch())
-            if(updateStmt.isDefined)
-              updateStmt.foreach(_.executeBatch())
+            insertStmt.foreach(_.executeBatch())
+            updateStmt.foreach(_.executeBatch())
             updatesCount = 0
           }
         }
         if (updatesCount > 0) {
-          if(insertStmt.isDefined)
-            insertStmt.foreach(_.executeBatch())
-          if(updateStmt.isDefined)
-            updateStmt.foreach(_.executeBatch())
+          insertStmt.foreach(_.executeBatch())
+          updateStmt.foreach(_.executeBatch())
         }
       } finally {
-        updateStmt.foreach(_.close())
+        insertStmt.foreach(_.close())
         updateStmt.foreach(_.close())
       }
     } finally {
@@ -518,7 +514,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
         if (supportsTransactions) conn.commit()
       } catch {
         case e: Exception =>
-          if (supportsTransactions && !conn.getAutoCommit){
+          if (supportsTransactions && !conn.getAutoCommit) {
             log.warn(s"Transaction not succeeded, rollback it. ${e.getLocalizedMessage}")
             conn.rollback()
           }
