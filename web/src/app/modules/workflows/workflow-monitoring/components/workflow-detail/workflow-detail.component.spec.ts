@@ -3,18 +3,29 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { SimpleChange } from '@angular/core';
+
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Http } from '@angular/http';
 import { RouterTestingModule } from '@angular/router/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 
-import { WorkflowDetailComponent } from "./workflow-detail.component";
+import { WorkflowDetailComponent } from './workflow-detail.component';
+import { MonitoringWorkflow } from './../../models/workflow';
 
 describe('WorkflowDetailComponent', () => {
     let component: WorkflowDetailComponent;
     let fixture: ComponentFixture<WorkflowDetailComponent>;
+
+    const fakeWorkflow: MonitoringWorkflow = {
+        id: '0',
+        name: 'workflow-name',
+        description: 'description',
+        nodes: [],
+        executionEngine: 'Batch',
+        version: 0,
+        group: '/home',
+    };
 
     beforeEach(
         async(() => {
@@ -28,9 +39,7 @@ describe('WorkflowDetailComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(WorkflowDetailComponent);
         component = fixture.componentInstance;
-        component.workflowData = {
-            name: 'workflow-name'
-        };
+        component.workflowData = fakeWorkflow;
     });
 
 

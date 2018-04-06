@@ -3,6 +3,9 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
+import { StepType, Engine } from "@models/enums";
+
 import * as avroTemplate from './transformations/avro.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
@@ -64,22 +67,22 @@ transformations.forEach((transformation: any) => {
     if (!transformation.supportedEngines) {
         return;
     }
-    if (transformation.supportedEngines.indexOf('Batch') > -1) {
+    if (transformation.supportedEngines.indexOf(Engine.Batch) > -1) {
         _batchTransformations.push(transformation);
         _batchTransformationsObject[transformation.classPrettyName] = transformation;
         _batchTransformationsNames.push({
             name: transformation.name,
             value: transformation,
-            stepType: 'Transformation'
+            stepType: StepType.Transformation
         });
     }
-    if (transformation.supportedEngines.indexOf('Streaming') > -1) {
+    if (transformation.supportedEngines.indexOf(Engine.Streaming) > -1) {
         _streamingTransformations.push(transformation);
         _streamingTransformationsObject[transformation.classPrettyName] = transformation;
         _streamingTransformationsNames.push({
             name: transformation.name,
             value: transformation,
-            stepType: 'Transformation'
+            stepType: StepType.Transformation
         });
     }
 });

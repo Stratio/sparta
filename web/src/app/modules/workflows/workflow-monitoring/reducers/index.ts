@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -5,42 +6,80 @@
  */
 
 import { createSelector } from 'reselect';
-import { createFeatureSelector } from '@ngrx/store';
+import { ActionReducerMap, combineReducers, createFeatureSelector } from '@ngrx/store';
+
+import { WorkflowUtils } from '../models/utils/utils';
+import { orderBy, reduceReducers } from '@utils';
 
 import * as fromRoot from 'reducers';
-import * as fromWorkflowList from './workflow-reducer';
+import * as fromWorkflowList from './workflows';
+import * as fromFilters from './filters';
+import { crossReducers } from './cross-reducers';
 
-export interface LauncherSettingsState {
-   workflows: fromWorkflowList.State;
+export interface WorkflowsMonitoringState {
+    workflows: fromWorkflowList.State;
+    filters: fromFilters.State;
 }
 
 export interface State extends fromRoot.State {
-   workflows: LauncherSettingsState;
+    workflows: WorkflowsMonitoringState;
 }
 
-export const reducers = {
-   workflows: fromWorkflowList.reducer
-};
+export const reducers = reduceReducers(combineReducers({
+    workflows: fromWorkflowList.reducer,
+    filters: fromFilters.reducer
+}), crossReducers);
 
-export const getWorkflowsState = createFeatureSelector<LauncherSettingsState>('workflows');
-export const getWorkflowsEntityState = createSelector(
-   getWorkflowsState,
-   state => state.workflows
+export const reducerToken = new InjectionToken<ActionReducerMap<WorkflowsMonitoringState>>('Reducers');
+
+export function getReducers() {
+    return  reducers;
+}
+
+export const reducerProvider = [
+    { provide: reducerToken, useFactory: getReducers }
+];
+export const getWorkflowsMonitoringState = createFeatureSelector<WorkflowsMonitoringState>('workflows');
+
+export const getWorkflowsState = createSelector(
+    getWorkflowsMonitoringState,
+    state => state.workflows
 );
 
-export const getWorkflowList: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getWorkFlowList);
-export const getSelectedWorkflows: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSelectedWorkflows);
-export const getWorkflowSearchQuery: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSearchQuery);
-export const getSelectedDisplayOption: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSelectedDisplayOption);
-export const getWorkflowNameValidation: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getWorkflowNameValidation);
-export const getExecutionInfo: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getExecutionInfo);
-export const getJsonValidationErrors: any = createSelector(getWorkflowsEntityState, (state) => state.jsonValidationError);
-export const getMonitoringStatus: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getMonitoringStatus);
-export const getSelectedFilter: any = createSelector(getWorkflowsEntityState, (state) => state.currentFilterStatus);
-export const getPaginationNumber: any = createSelector(getWorkflowsEntityState, (state) => state.paginationOptions);
-export const getTableOrder: any = createSelector(getWorkflowsEntityState, (state) => {
-    return {
-        orderBy: state.orderBy,
-        type: state.sortOrder ? 1 : 0
-    };
-});
+export const getFiltersState = createSelector(
+    getWorkflowsMonitoringState,
+    state => state.filters
+);
+
+export const getWorkflowsQueryResults = createSelector(
+    getWorkflowsState,
+    getFiltersState,
+    (workflows, filters) => WorkflowUtils.searchWorkflows(workflows.workflowList, filters.searchQuery)
+);
+
+export const getWorkflowList = createSelector(
+    getWorkflowsQueryResults,
+    getFiltersState,
+    (workflows, filters) => orderBy([...filters.currentFilterStatus.length ? workflows.filter(workflow =>
+        filters.currentFilterStatus === '' || workflow.filterStatus === filters.currentFilterStatus) : workflows],
+        filters.workflowOrder.orderBy, filters.workflowOrder.type ? true : false));
+
+export const getMonitoringStatus = createSelector(
+    getWorkflowsQueryResults,
+    getFiltersState,
+    (workflows, filters) => {
+        const monitoring = workflows.reduce((map: any, workflow: any) => {
+            const status = workflow.filterStatus.toLowerCase();
+            map[status] = (map[status] || 0) + 1;
+            return map;
+        }, Object.create(null));
+        monitoring.workflows = workflows.length;
+        return monitoring;
+    });
+
+export const getSelectedWorkflows = createSelector(getWorkflowsState, fromWorkflowList.getSelectedWorkflows);
+export const getExecutionInfo = createSelector(getWorkflowsState, fromWorkflowList.getExecutionInfo);
+export const getTableOrder = createSelector(getFiltersState, (state) => state.workflowOrder);
+export const getSelectedFilter = createSelector(getFiltersState, (state) => state.currentFilterStatus);
+export const getPaginationNumber = createSelector(getFiltersState, (state) => state.paginationOptions);
+export const getWorkflowSearchQuery = createSelector(getFiltersState, fromFilters.getSearchQuery);

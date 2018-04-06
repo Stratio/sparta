@@ -5,6 +5,7 @@
  */
 import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input } from '@angular/core';
 
+import { MonitoringWorkflow } from './../../models/workflow';
 @Component({
     selector: 'workflow-detail',
     templateUrl: './workflow-detail.template.html',
@@ -12,7 +13,7 @@ import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input } fro
 })
 export class WorkflowDetailComponent implements OnInit {
 
-    @Input() workflowData: any;
+    @Input() workflowData: MonitoringWorkflow;
     @Output() showWorkflowExecutionInfo = new EventEmitter<any>();
 
     public inputs: Array<string> = [];

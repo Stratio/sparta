@@ -13,8 +13,10 @@ import {
     OnInit,
     Output
 } from '@angular/core';
-import { StTableHeader } from '@stratio/egeo';
+import { StTableHeader, PaginateOptions, Order } from '@stratio/egeo';
 import { Router } from '@angular/router';
+
+import { MonitoringWorkflow } from './../../models/workflow';
 
 @Component({
     selector: 'workflows-table',
@@ -25,38 +27,31 @@ import { Router } from '@angular/router';
 
 export class WorkflowsTableComponent implements OnInit {
 
-    @Input() workflowList: Array<any> = [];
+    @Input() workflowList: Array<MonitoringWorkflow> = [];
     @Input() selectedWorkflowsIds: Array<string> = [];
     @Input() paginationOptions;
     @Input() currentOrder;
 
-    @Output() onChangeOrder = new EventEmitter<any>();
-    @Output() selectWorkflow = new EventEmitter<any>();
-    @Output() deselectWorkflow = new EventEmitter<any>();
+    @Output() onChangeOrder = new EventEmitter<Order>();
+    @Output() selectWorkflow = new EventEmitter<MonitoringWorkflow>();
+    @Output() deselectWorkflow = new EventEmitter<MonitoringWorkflow>();
     @Output() onChangePage = new EventEmitter<any>();
     @Output() changeCurrentPage = new EventEmitter<number>();
 
     public fields: StTableHeader[];
     public generatedId: string;
 
-    public perPageOptions: any = [
+    public perPageOptions: PaginateOptions[] = [
         { value: 10, showFrom: 0 },
         { value: 20, showFrom: 0 },
         { value: 30, showFrom: 0 }
     ];
 
-    changeOrder($event: any): void {
-        this.onChangeOrder.emit({
-            orderBy: $event.orderBy,
-            sortOrder: $event.type
-        });
-    }
-
     checkValue(event: any) {
         this.checkRow(event.checked, event.value);
     }
 
-    checkRow(isChecked: boolean, value: any) {
+    checkRow(isChecked: boolean, value: MonitoringWorkflow) {
         if (isChecked) {
             this.selectWorkflow.emit(value);
         } else {
@@ -64,16 +59,16 @@ export class WorkflowsTableComponent implements OnInit {
         }
     }
 
-    changePage($event: any) {
+    changePage(event) {
         this.onChangePage.emit();
-        this.changeCurrentPage.emit($event);
+        this.changeCurrentPage.emit(event);
     }
 
     showSparkUI(url: string) {
         window.open(url, '_blank');
     }
 
-    editSelectedWorkflow($event: any, workflowId: string) {
+    editSelectedWorkflow($event: Event, workflowId: string) {
         $event.stopPropagation();
         this.route.navigate(['wizard', 'edit', workflowId]);
     }

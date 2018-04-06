@@ -14,73 +14,73 @@ import { CreateOutputComponent } from './components/template-creation/create-out
 import { CreateTransformationsComponent } from './components/template-creation/create-transformation.component';
 
 const templatesRoutes: Routes = [
-    {
-        path: '',
-        component: TemplatesComponent,
-        children: [
-            {
-                path: '',
-                redirectTo: 'inputs'
-            },
-            {
-                path: 'inputs',
-                component: InputsComponent
-            },
-            {
-                path: 'inputs/create',
-                component: CreateInputComponent
-            },
-            {
-                path: 'inputs/edit',
-                component: CreateInputComponent
-            },
-            {
-                path: 'inputs/edit/:id',
-                component: CreateInputComponent
-            },
-            {
-                path: 'outputs',
-                component: OutputsComponent
-            },
-            {
-                path: 'outputs/create',
-                component: CreateOutputComponent
-            },
-            {
-                path: 'outputs/edit',
-                component: CreateOutputComponent
-            },
-            {
-                path: 'outputs/edit/:id',
-                component: CreateOutputComponent
-            },
-            {
-                path: 'transformations',
-                component: TransformationsComponent
-            },
-            {
-                path: 'transformations/create',
-                component: CreateTransformationsComponent
-            },
-            {
-                path: 'transformations/edit',
-                component: CreateTransformationsComponent
-            },
-            {
-                path: 'transformations/edit/:id',
-                component: CreateTransformationsComponent
-            }
-        ]
-    }
+   {
+      path: '',
+      redirectTo: 'inputs',
+   },
+   {
+      path: 'inputs',
+      component: InputsComponent,
+      children: [
+         {
+            path: 'create',
+            component: CreateInputComponent
+        },
+        {
+            path: 'edit',
+            component: CreateInputComponent
+        },
+        {
+            path: 'edit/:id',
+            component: CreateInputComponent
+        },
+      ]
+   },
+   {
+      path: 'outputs',
+      component: OutputsComponent,
+      children: [
+         {
+            path: 'create',
+            component: CreateOutputComponent
+        },
+        {
+            path: 'edit',
+            component: CreateOutputComponent
+        },
+        {
+            path: 'edit/:id',
+            component: CreateOutputComponent
+        }
+      ]
+   },
+   {
+      path: 'transformations',
+      component: TransformationsComponent,
+      children: [
+         {
+            path: 'create',
+            component: CreateTransformationsComponent
+        },
+        {
+            path: 'edit',
+            component: CreateTransformationsComponent
+        },
+        {
+            path: 'edit/:id',
+            component: CreateTransformationsComponent
+        }
+      ]
+   },
 ];
 
 @NgModule({
-    exports: [
-        RouterModule
-    ],
-    imports: [
-        RouterModule.forChild(templatesRoutes)
-    ]
+   exports: [
+      RouterModule
+   ],
+   imports: [
+      RouterModule.forChild(templatesRoutes)
+   ]
 })
 
 export class TemplatesRoutingModule { }

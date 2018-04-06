@@ -1,0 +1,53 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<div>
+   <div #pluginModal qaTag="plugin-modal"></div>
+   <tool-bar>
+      <div breadcrumb>
+         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="backups-breadcrumb"></st-breadcrumbs>
+      </div>
+      <div selection-tools>
+         <button class="button button-toolbar" *ngIf="selectedPlugins.length" (click)="deletePluginConfirmModal()">
+        <i class="icon-trash"></i>
+    </button>
+      </div>
+      <div general-tools>
+         <form-file type="button-toolbar" class="form-file" #fileInput (onFileUpload)="uploadPlugin($event)"></form-file>
+      </div>
+   </tool-bar>
+   <div class="container">
+      <br>
+      <div>
+         <!--<st-horizontal-tabs [options]="options" [qaTag]="'plugins-menu'" [activeOption]="activeOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>-->
+      </div>
+      <div class="row">
+         <st-table [fields]="fields" 
+            [sortable]="true" 
+            [selectableAll]="true" 
+            [selectedAll]="pluginsList.length && pluginsList.length === selectedPlugins.length" 
+            (selectAll)="selectAll($event)" qaTag="plugins-list-table" class="plugins-table col-sm-12" (changeOrder)="changeOrder($event)">
+            <tr st-table-row *ngFor="let plugin of pluginsList" (click)="checkRow(!((selectedPlugins.indexOf(plugin.fileName)) > -1), plugin)"
+               [selected]="selectedPlugins.indexOf(plugin.fileName) > -1" class="plugin-row">
+               <td st-table-cell st-table-row-content class="check-column">
+                  <st-checkbox [value]="plugin" (change)="checkValue($event)" [checked]="selectedPlugins.indexOf(plugin.fileName) > -1"></st-checkbox>
+               </td>
+               <td st-table-cell st-table-row-content>
+                  <label>{{plugin.fileName}}</label>
+               </td>
+               <td st-table-cell st-table-row-content>
+                  <label>{{plugin.uri}}</label>
+               </td>
+            </tr>
+         </st-table>
+         <table-notification *ngIf="!pluginsList.length && (loaded$ | async)" (onClickLink)="fileInput.click()" [text]="'PLUGINS.NO_ITEMS' | translate" [link]="'PLUGINS.NO_ITEMS_LINK' | translate"></table-notification>
+      </div>
+   </div>
+</div>

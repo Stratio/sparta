@@ -11,11 +11,12 @@ import { Observable, Subscription } from 'rxjs/Rx';
 import { Location } from '@angular/common';
 import { StModalService } from '@stratio/egeo';
 
-import * as fromRoot from 'reducers';
-import * as wizardActions from 'actions/wizard';
+import * as fromWizard from './../../reducers';
+import * as wizardActions from './../../actions/wizard';
+
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
-
+import { WizardEdge } from '@app/wizard/models/node';
 
 @Component({
     selector: 'wizard-header',
@@ -35,7 +36,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Output() onDuplicateNode = new EventEmitter();
 
     @Input() isNodeSelected = false;
-    @Input() selectedSegment: any;
+    @Input() isEdgeSelected = false;
     @Input() workflowName = '';
     @Input() workflowVersion = 0;
 
@@ -75,30 +76,30 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     private _workflowTypeSubscription: Subscription;
 
 
-    constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
+    constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromWizard.State>,
         private _cd: ChangeDetectorRef, private _modalService: StModalService, private _location: Location) { }
 
     ngOnInit(): void {
         this._modalService.container = this.target;
-        this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails).distinctUntilChanged();
-        this.isLoading$ = this.store.select(fromRoot.isLoading);
+        this.isShowedEntityDetails$ = this.store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
+        this.isLoading$ = this.store.select(fromWizard.isLoading);
 
-        this._areUndoRedoEnabledSubscription = this.store.select(fromRoot.areUndoRedoEnabled).subscribe((actions: any) => {
+        this._areUndoRedoEnabledSubscription = this.store.select(fromWizard.areUndoRedoEnabled).subscribe((actions: any) => {
             this.undoEnabled = actions.undo;
             this.redoEnabled = actions.redo;
         });
 
-        this._validationSubscription = this.store.select(fromRoot.getValidationErrors).subscribe((validations: any) => {
+        this._validationSubscription = this.store.select(fromWizard.getValidationErrors).subscribe((validations: any) => {
             this.validations = validations;
             this._cd.detectChanges();
         });
 
-        this._isPristineSubscription = this.store.select(fromRoot.isPristine).distinctUntilChanged().subscribe((isPristine: boolean) => {
+        this._isPristineSubscription = this.store.select(fromWizard.isPristine).distinctUntilChanged().subscribe((isPristine: boolean) => {
             this.isPristine = isPristine;
             this._cd.detectChanges();
         });
-        this._workflowTypeSubscription = this.store.select(fromRoot.getWorkflowType).subscribe((type) => this.workflowType = type);
-        this.menuOptions$ = this.store.select(fromRoot.getMenuOptions);
+        this._workflowTypeSubscription = this.store.select(fromWizard.getWorkflowType).subscribe((type) => this.workflowType = type);
+        this.menuOptions$ = this.store.select(fromWizard.getMenuOptions);
     }
 
     selectedMenuOption($event: any): void {

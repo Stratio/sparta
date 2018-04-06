@@ -1,78 +1,61 @@
-<section [ngClass]="{'mobile' : isMobile}">
-   <wizard-header class="wizard-header" 
-      (onZoomIn)="changeZoom(true)" 
-      [isNodeSelected]="selectedEntity && selectedEntity.length"
-      [workflowName]="workflowName"
-      [workflowVersion]="workflowVersion"
-      [selectedSegment]="selectedSegment"
-      (onZoomOut)="changeZoom(false)" 
-      (onCenter)="centerWorkflow()"
-      (onShowSettings)="showSettings()" 
-      (onSaveWorkflow)="saveWorkflow($event)"
-      (onEditEntity)="editButtonEntity()"
-      (onDuplicateNode)="duplicateNode()"
-      (deleteSelection)="deleteSelection()"></wizard-header>
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
 
-   <div class="editor">
-      <svg id="composition" class="composition" (click)="clickDetected($event)" [ngClass]="{'loaded' : workflowName.length}" #editorArea>
-         <svg:g id="svg-container">
-            <g *ngFor="let relation of workflowRelations; trackBy: trackBySegmentFn; let i=index;" 
-               wizard-edge
-               [initialEntityName]="relation.origin.name" 
-               [finalEntityName]="relation.destination.name"
-               [selectedSegment]="selectedSegment" 
-               [index]="i"
-               [position1]="relation.origin.uiConfiguration.position"
-               [position2]="relation.destination.uiConfiguration.position"
-               (onRemoveSegment)="removeSegment($event)"/>
+<svg id="composition" class="composition">
+   <svg:g id="svg-container">
+      <svg:g *ngFor="let relation of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
+         wizard-edge
+         [initialEntityName]="relation.origin.name"
+         [finalEntityName]="relation.destination.name"
+         [selectedSegment]="selectedEdge"
+         [index]="i"
+         [initPosition]="relation.origin.uiConfiguration.position"
+         [endPosition]="relation.destination.uiConfiguration.position"
+         (onRemoveSegment)="removeSegment($event)"/>
 
-            <g wizard-node svg-draggable *ngFor="let entity of entities;" 
-               [data]="entity" 
-               [attr.id]="entity.name + '-node'"
-               [createdNew]="entity.createdNew"
-               [selected]="selectedEntity === entity.name"
-               [drawingConnectionStatus]="drawingConnectionStatus" 
-               (onDrawConnector)="createEdge($event)" 
-               (onFinishConnector)="finishConnector($event)"
-               [(position)]="entity.uiConfiguration.position"
-               (onDoubleClickEvent)="editEntity(entity)" 
-               (onClickEvent)="selectEntity(entity)" 
-               [ngClass]="{'current-created': entity.created}" />
+      <svg:g wizard-node svg-draggable *ngFor="let nodeData of workflowNodes;"
+         [data]="nodeData"
+         [attr.id]="nodeData.name + '-node'"
+         [createdNew]="nodeData.createdNew"
+         [selected]="selectedNodeName === nodeData.name"
+         [drawingConnectionStatus]="drawingConnectionStatus"
+         (onDrawConnector)="createEdge($event)"
+         (onFinishConnector)="finishConnector($event)"
+         [(position)]="nodeData.uiConfiguration.position"
+         (onDoubleClickEvent)="this.editEntity.emit(nodeData)"
+         (onClickEvent)="selectNode.emit(nodeData)"
+         [ngClass]="{'current-created': nodeData.created}" />
+   </svg:g>
 
-         </svg:g>
+   <svg:filter id="drop-shadow">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
+      <feOffset dx="0" dy="0" result="offsetblur" />
+      <feFlood flood-color="rgba(193, 193, 193, 0.6)" />
+      <feComposite in2="offsetblur" operator="in" />
+      <feMerge>
+         <feMergeNode/>
+         <feMergeNode in="SourceGraphic" />
+      </feMerge>
+   </svg:filter>
 
-
-         <svg:filter id="drop-shadow">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
-            <feOffset dx="0" dy="0" result="offsetblur" />
-            <feFlood flood-color="rgba(193, 193, 193, 0.6)" />
-            <feComposite in2="offsetblur" operator="in" />
-            <feMerge>
-               <feMergeNode/>
-               <feMergeNode in="SourceGraphic" />
-            </feMerge>
-         </svg:filter>
-
-         <svg:defs>
-            <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
-               <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
-            </svg:marker>
-            <svg:marker id="UpArrowPreciseSelected" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1"
-               refY="4">
-               <svg:path d="M9,0 L9,8 L0,4 Z" fill="#128bde" />
-            </svg:marker>
-            <svg:marker id="createConnectorMarker" orient="auto" markerUnits="userSpaceOnUse" markerWidth="200" markerHeight="20" refX="13"
-               refY="7.5">
-               <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
-            </svg:marker>
-         </svg:defs>
-         
-         <svg:path stroke="#777" [ngClass]="{'show' : showConnector}"
-            stroke-width="2" fill="none" class="connector-line" marker-end="url(#createConnectorMarker)"></svg:path>
-      </svg>
-
-      <sparta-sidebar [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
-         <wizard-details [entityData]="entitiesData"></wizard-details>
-      </sparta-sidebar>
-   </div>
-</section>
+   <svg:defs>
+      <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
+      <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
+      </svg:marker>
+      <svg:marker id="UpArrowPreciseSelected" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
+      <svg:path d="M9,0 L9,8 L0,4 Z" fill="#128bde" />
+      </svg:marker>
+      <svg:marker id="createConnectorMarker" orient="auto" markerUnits="userSpaceOnUse" markerWidth="200" markerHeight="20" refX="13"refY="7.5">
+      <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
+      </svg:marker>
+   </svg:defs>
+   <svg:path stroke="#777" [ngClass]="{'show' : showConnector}"
+      stroke-width="2" fill="none" class="connector-line" marker-end="url(#createConnectorMarker)"></svg:path>
+</svg>

@@ -3,6 +3,9 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
+import { StepType, Engine } from "@models/enums";
+
 import * as avroTemplate from './outputs/avro.json';
 //import * as cassandraTemplate from './outputs/cassandra.json';
 import * as crossdataTemplate from './outputs/crossdata.json';
@@ -53,22 +56,22 @@ outputs.forEach((output: any) => {
     if (!output.supportedEngines) {
         return;
     }
-    if (output.supportedEngines.indexOf('Batch') > -1) {
+    if (output.supportedEngines.indexOf(Engine.Batch) > -1) {
         _batchOutputs.push(output);
         _batchOutputsObject[output.classPrettyName] = output;
         _batchOutputsNames.push({
             name: output.name,
             value: output,
-            stepType: 'Output'
+            stepType: StepType.Output
         });
     }
-    if (output.supportedEngines.indexOf('Streaming') > -1) {
+    if (output.supportedEngines.indexOf(Engine.Streaming) > -1) {
         _streamingOutputs.push(output);
         _streamingOutputsObject[output.classPrettyName] = output;
         _streamingOutputsNames.push({
             name: output.name,
             value: output,
-            stepType: 'Output'
+            stepType: StepType.Output
         });
     }
 });

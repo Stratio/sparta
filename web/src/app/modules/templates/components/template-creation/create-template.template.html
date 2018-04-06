@@ -1,54 +1,50 @@
-<section class="template-creation-page">
-   <tool-bar>
-      <div breadcrumb>
-         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="create-template-breadcrumb"></st-breadcrumbs>
-      </div>
-      <div selection-tools>
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
 
-      </div>
-      <div general-tools>
-         <button id="cancel-edit-button" class="button button-secondary-gray cancel-button" (click)="cancelCreate()">{{'DASHBOARD.CANCEL' | translate}}</button>
-         <button id="save-edit-button" class="button button-primary" (click)="onSubmitInputForm()">{{'DASHBOARD.SAVE' | translate}}</button>
-      </div>
-   </tool-bar>
-   <div class="container top-separation">
-      <div class="row">
-         <div class="col-sm-12 title">
-            <div class="egeo-title-giant" *ngIf="!editMode">{{('DASHBOARD.CREATE_' + stepKey) | translate }}</div>
-            <div class="egeo-title-giant" *ngIf="editMode">{{ 'DASHBOARD.EDIT' | translate }} {{editedTemplateName}}</div>
-         </div>
-         <br>
-         <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" >
-            <div class="row" *ngIf="loaded">
- 
-               <div class="col-xs-6">
-                  <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
-                     qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                     class="input-field st-form-field"></sp-input>
-                  <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
-                     fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
-                     class="input-field st-form-field"></sp-textarea>
-                  <div *ngIf="!editMode">
-                     <div class="st-form-field workflow-type">
-                        <label class="st-label">Template type</label>
-                        <st-radio-group class="radio-inline" name="type" [(ngModel)]="inputFormModel['executionEngine']" (change)="changeWorkflowType($event)">
-                           <st-radio value="Streaming">Streaming</st-radio>
-                           <st-radio value="Batch" [disabled]="false">Batch</st-radio>
-                        </st-radio-group>
+<st-fullscreen-layout [title]="editMode ? (('DASHBOARD.EDIT' | translate) + editedTemplateName) : (('DASHBOARD.CREATE_' + stepKey) | translate)">
+   <div class="st-fullscreen-layout-buttons">
+      <button id="cancel-edit-button" class="button button-secondary-gray cancel-button" (click)="cancelCreate()">{{'DASHBOARD.CANCEL' | translate}}</button>
+      <button id="save-edit-button" class="button button-primary" (click)="onSubmitInputForm()">{{'DASHBOARD.SAVE' | translate}}</button>
+   </div>
+   <div class="st-fullscreen-layout-content">
+      <section class="template-creation-page">
+         <div class="container">
+            <div class="row">
+               <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off">
+                  <div class="row" *ngIf="loaded">
+
+                     <div class="col-xs-6">
+                        <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                           qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                           class="input-field st-form-field"></sp-input>
+                        <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                           fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250"
+                           [errors]="errorsService.errors.inputErrors" class="input-field st-form-field"></sp-textarea>
+                        <div *ngIf="!editMode">
+                           <div class="st-form-field workflow-type">
+                              <label class="st-label">Template type</label>
+                              <st-radio-group class="radio-inline" name="type" [(ngModel)]="inputFormModel['executionEngine']" (change)="changeWorkflowType($event)">
+                                 <st-radio value="Streaming">Streaming</st-radio>
+                                 <st-radio value="Batch" [disabled]="false">Batch</st-radio>
+                              </st-radio-group>
+                           </div>
+                           <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.' + stepKey + '_TYPE' | translate}}"
+                              name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field st-form-field"></sp-select>
+                        </div>
                      </div>
-                     <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.' + stepKey + '_TYPE' | translate}}"
-                        name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field st-form-field"></sp-select>
-               </div>
+                     <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
+                        name="proper"></form-generator>
+                  </div>
+               </form>
             </div>
-            <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
-               name="proper"></form-generator>
-            <div class="col-sm-12 submit-button">
-               <button id="button-submit" class="button button-primary" (click)="onSubmitInputForm()">
-                      {{'DASHBOARD.SAVE' | translate}}
-                  </button>
-            </div>
-      </div>
-      </form>
+         </div>
+      </section>
    </div>
-   </div>
-</section>
+</st-fullscreen-layout>

@@ -7,8 +7,8 @@ import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, 
 import { Store } from '@ngrx/store';
 import * as d3 from 'd3';
 
-import * as wizardActions from 'actions/wizard';
-import * as fromRoot from 'reducers';
+import * as wizardActions from './../../actions/wizard';
+import * as fromWizard from './../../reducers';
 import { WizardNodePosition } from './../../models/node';
 
 @Directive({ selector: '[svg-draggable]' })
@@ -76,7 +76,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     }
 
 
-    constructor(private elementRef: ElementRef, private store: Store<fromRoot.State>) {
+    constructor(private elementRef: ElementRef, private store: Store<fromWizard.State>) {
         this.element = d3.select(this.elementRef.nativeElement);
     }
 }

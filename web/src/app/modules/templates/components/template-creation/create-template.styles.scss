@@ -1,5 +1,7 @@
 .template-creation-page {
    margin-bottom: 30px;
+   width:100%;
+   display: block;
 }
 
 .fragments {
@@ -23,10 +25,6 @@
    vertical-align: top;
    display: inline-block;
    padding-bottom: 8px;
-}
-
-.top-separation {
-   margin-top: 30px;
 }
 
 .cancel-button {

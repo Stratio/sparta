@@ -10,8 +10,9 @@ import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
-import * as fromRoot from 'reducers';
-import * as wizardActions from 'actions/wizard';
+import * as fromWizard from './../../reducers';
+import * as wizardActions from './../../actions/wizard';
+
 import { settingsTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
 
@@ -44,7 +45,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         // get all error management outputs
-        this.store.select(fromRoot.getErrorsManagementOutputs).take(1).subscribe((errorManagementOutputs: Array<string>) => {
+        this.store.select(fromWizard.getErrorsManagementOutputs).take(1).subscribe((errorManagementOutputs: Array<string>) => {
             this.errorManagementOutputs = errorManagementOutputs;
         });
         this.getFormTemplate();
@@ -55,7 +56,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
     }
 
     getFormTemplate() {
-        this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((currentSettings: any) => {
+        this.settingsSubscription = this.store.select(fromWizard.getWorkflowSettings).subscribe((currentSettings: any) => {
             const settings = JSON.parse(JSON.stringify(currentSettings));
             this.tags = settings.basic.tags;
 
@@ -97,7 +98,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
     }
 
 
-    constructor(private store: Store<fromRoot.State>,
+    constructor(private store: Store<fromWizard.State>,
         private _wizardService: WizardService) {
     }
 

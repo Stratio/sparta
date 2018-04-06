@@ -1,3 +1,13 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <tool-bar>
    <div breadcrumb>
       <h1 class="egeo-title-large monitoring-title">{{'DASHBOARD.HOME.MONITORING_TITLE' | translate}}</h1>
@@ -34,7 +44,7 @@
       <div class="col-sm-6">
          <div class="global-actions">
             <div *ngIf="selectedWorkflows.length" class="selection-tools">
-               <button class="button button-toolbar" id="run-button" (click)="runWorkflow(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
+               <button class="button button-toolbar" id="run-button" (click)="onRunWorkflow.emit(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
                   <i class="icon-stop" *ngIf="isRunning(selectedWorkflows[0].status.status)"></i>
                   <i class="icon-play" *ngIf="!isRunning(selectedWorkflows[0].status.status)"></i>
               </button>

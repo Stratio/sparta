@@ -1,4 +1,4 @@
-<div class="form-list">
+<div class="form-list" [ngClass]="{'complex-form' : complexForm}">
 
    <div class="col-sm-12" [ngClass]="{'disabled' : isDisabled}">
       <span class="list-title">{{label}}</span>
@@ -6,26 +6,33 @@
    <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length">
       <div formArrayName="items">
          <div *ngFor="let item of items.controls; let i = index; let last = last;">
-            <div [formGroup]="item" class="row">
-               <div class="list-field" [ngClass]="{'last' : last}">
-                  <ng-container *ngFor="let field of formListData; let j = index;">
-                     <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="getItemClass(field)">
-                        <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
-                           label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
-                           [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
-                           contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></sp-input>
+            <div class="form-row" [ngClass]="coplexForm ? 'form-row' : 'row'">
+               <div class="form-item" [formGroup]="item">
+                  <div class="list-field" [ngClass]="{'last' : last}">
+                     <ng-container *ngFor="let field of formListData; let j = index;">
+                        <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="getItemClass(field)">
+                           <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
+                              label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
+                              [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
+                              contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></sp-input>
+                           <sp-textarea [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'textarea'"
+                              label="{{field.propertyName | translate}}" placeholder="{{field.propertyName | translate}}"
+                              [formControl]="item.controls[field.propertyId]" [rows]="field.rows" qaTag="form-list-textarea" [required]="field.required"
+                              contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></sp-textarea>
+                           <sp-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
+                              label="{{field.propertyName | translate}}" tooltip="Select option from list" [errors]="errorsService.errors.inputErrors" placeholder="{{field.propertyName | translate}}"
+                              [required]="field.required" [formControl]="item.controls[field.propertyId]" class="st-form-field" ></sp-select>
 
-                        <sp-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
-                           label="{{field.propertyName | translate}}" tooltip="Select option from list" [errors]="errorsService.errors.inputErrors" placeholder="{{field.propertyName | translate}}"
-                           [required]="field.required" [formControl]="item.controls[field.propertyId]" class="st-form-field" ></sp-select>
-
-                        <st-checkbox *ngIf="field.propertyType == 'boolean'" class="st-form-field" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
+                           <st-checkbox *ngIf="field.propertyType == 'boolean'" class="st-form-field" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
+                        </div>
+                        <div class="col-sm-12" *ngIf="item.controls[field.propertyId].enabled && field.float !== undefined && field.float === false"></div>
+                     </ng-container>
+                     <div *ngIf="!isDisabled && !complexForm"><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
+                     <div class="col-sm-12" *ngIf="!isDisabled && complexForm">
+                        <span class="delete-group" (click)="deleteItem(i)">Delete group</span>
                      </div>
-                     <div class="col-sm-12" *ngIf="item.controls[field.propertyId].enabled && field.float !== undefined && field.float === false"></div>
-                  </ng-container>
-                  <div *ngIf="!isDisabled"><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
+                  </div>
                </div>
-
             </div>
          </div>
       </div>

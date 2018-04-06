@@ -3,415 +3,267 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import {
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    HostListener,
-    Input,
-    NgZone,
-    OnDestroy,
-    OnInit,
-    ViewChild
+   ChangeDetectionStrategy,
+   ChangeDetectorRef,
+   Component,
+   ElementRef,
+   EventEmitter,
+   Input,
+   NgZone,
+   OnInit,
+   Output,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
-import { Subscription, Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Rx';
 import * as d3 from 'd3';
-import * as wizardActions from 'actions/wizard';
 import { ZoomBehavior, DragBehavior } from 'd3';
+import { cloneDeep as _cloneDeep } from 'lodash';
+
+import * as fromWizard from './../../reducers';
+import * as wizardActions from './../../actions/wizard';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
-import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 import { isMobile } from 'constants/global';
-import { WizardNode } from '@app/wizard/models/node';
-import { KEYS } from '@app/wizard/wizard.constants';
+import { WizardNode, WizardEdge } from '@app/wizard/models/node';
+import { ZoomTransform, CreationData, NodeConnector } from '@app/wizard/models/drag';
 
 @Component({
-    selector: 'wizard-editor',
-    styleUrls: ['wizard-editor.styles.scss'],
-    templateUrl: 'wizard-editor.template.html'
+   selector: 'wizard-editor',
+   styleUrls: ['wizard-editor.styles.scss'],
+   templateUrl: 'wizard-editor.template.html',
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class WizardEditorComponent implements OnInit, OnDestroy {
+export class WizardEditorComponent implements OnInit {
 
-    @Input() workflowType: string;
+   @Input() workflowType: string;
+   @Input() workflowEdges: Array<WizardEdge> = [];
+   @Input()
+   get svgPosition(): ZoomTransform {
+      return this._svgPosition;
+   };
+   set svgPosition(value) {
+      this._svgPosition = _cloneDeep(value);
+      if (this._SVGParent) {
+         /** Update editor position */
+         this._SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
+         .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
+      }
+   }
+   @Input() workflowNodes: Array<WizardNode> = [];
+   @Input() creationMode: CreationData;
+   @Input() selectedNodeName = '';
+   @Input() selectedEdge: WizardEdge;
+   @Output() editEntity = new EventEmitter<WizardNode>();
+   @Output() selectNode = new EventEmitter<WizardNode>();
+   @Output() createNode = new EventEmitter<any>();
+   @Output() onCreateEdge = new EventEmitter<any>();
 
-    public entities: Array<WizardNode> = [];
-    public entitiesData: WizardNode;
+   public entitiesData: WizardNode;
+   public isMobile = false;
+   public showConnector = false;
 
-    private svgPosition: any;
-    public isMobile = false;
-    public showConnector = false;
+   /** Selectors */
+   private _SVGParent: d3.Selection<d3.BaseType, any, any, any>;
+   private _SVGContainer: d3.Selection<d3.BaseType, any, any, any>;
+   private _documentRef: d3.Selection<d3.BaseType, any, any, any>;
+   private _connectorElement: d3.Selection<d3.BaseType, any, any, any>;
 
-    // selectors
-    public SVGParent: any;
-    public SVGContainer: any;
-    private documentRef: any;
-    public connectorElement: any;
+   public drawingConnectionStatus: any = {
+      status: false,
+      name: ''
+   };
+   public isShowedEntityDetails$: Observable<boolean>;
+   public isPristine = true;
+   public _svgPosition: ZoomTransform;
 
-    public selectedEntity: any = '';
-    public drawingConnectionStatus: any = {
-        status: false,
-        name: ''
-    };
-    public isShowedEntityDetails$: Observable<boolean>;
-    public workflowRelations: Array<any> = [];
-    public selectedSegment: any = null;
-    public isPristine = true;
+   private newOrigin = '';
+   private zoom: ZoomBehavior<any, any>;
+   private drag: DragBehavior<any, any, any>;
 
-    /**** Subscriptions ****/
-    private creationModeSubscription: Subscription;
-    private getSeletedEntitiesSubscription: Subscription;
-    private getSeletedEntitiesDataSubscription: Subscription;
-    private getWorflowNodesSubscription: Subscription;
-    private workflowRelationsSubscription: Subscription;
-    private workflowPositionSubscription: Subscription;
-    private selectedSegmentSubscription: Subscription;
+   constructor(private _elementRef: ElementRef,
+      private _editorService: WizardEditorService,
+      private _store: Store<fromWizard.State>,
+      private _cd: ChangeDetectorRef,
+      private initializeSchemaService: InitializeSchemaService,
+      private _ngZone: NgZone) {
+      this.isMobile = isMobile;
+   }
 
-    private creationMode: any;
-    private newOrigin = '';
+   ngOnInit(): void {
+      this._initSelectors();
+      function deltaFn() {
+         return -d3.event.deltaY * (d3.event.deltaMode ? 0.0387 : 0.002258);
+      }
+      this.zoom = d3.zoom()
+         .scaleExtent([1 / 8, 3])
+         .wheelDelta(deltaFn);
+      this.drag = d3.drag();
+      this._ngZone.runOutsideAngular(() => {
+         this.setDraggableEditor();
+      });
+      // Set initial position
+      this._SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
+         .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
+   }
 
-    public workflowName = '';
-    public workflowVersion = '';
+   private _initSelectors() {
+      this._documentRef = d3.select(document);
+      const element: d3.Selection<Element, any, any, any> = d3.select(this._elementRef.nativeElement);
+      this._SVGParent = element.select('#composition');
+      this._SVGContainer = element.select('#svg-container');
+      this._connectorElement = element.select('.connector-line');
+   }
 
-    private zoom: ZoomBehavior<any, any>;
-    private drag: DragBehavior<any, any, any>;
-    private _nameSubscription: Subscription;
-
-    @ViewChild('editorArea') editorArea: ElementRef;
-    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-        if (event.keyCode === KEYS.ESC_KEYCODE) {
-            if (this.selectedEntity.length) {
-                this.store.dispatch(new wizardActions.UnselectEntityAction());
+   clickDetected($event: any) {
+      if (this.creationMode.active) {
+         let entity: any = {};
+         const entityData = this.creationMode.data;
+         if (entityData.type === 'copy') { // if its a copy, only sets the position
+            entity = entityData.data;
+         } else {
+            entity = this._editorService.initializeEntity(this.workflowType, entityData, this.workflowNodes);
+         }
+         entity.uiConfiguration = {
+            position: {
+               x: ($event.offsetX - this._svgPosition.x) / this._svgPosition.k,
+               y: ($event.offsetY - this._svgPosition.y) / this._svgPosition.k
             }
-            this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+         };
+         this.createNode.emit(entity);
+      }
+      this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+   }
 
-        } else if (event.keyCode === KEYS.SUPR_KEYCODE) {
-            this.deleteSelection();
-        }
-    }
-
-    @HostListener('click', ['$event'])
-    clickout(event: any) {
-        if (this.editorArea.nativeElement.contains(event.target)) {
-            if (this.selectedSegment) {
-                this.store.dispatch(new wizardActions.UnselectSegmentAction());
-            }
-            if (this.selectedEntity) {
-                this.store.dispatch(new wizardActions.UnselectEntityAction());
-            }
-        }
-    }
-
-    constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService,
-        private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>,
-        private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) {
-        this.isMobile = isMobile;
-    }
-
-    ngOnInit(): void {
-
-        this._nameSubscription = this.store.select(fromRoot.getWorkflowHeaderData).subscribe((data: any) => {
-            this.workflowName = data.name;
-            this.workflowVersion = data.version;
-        });
-        this.creationModeSubscription = this.store.select(fromRoot.isCreationMode).subscribe((data) => { this.creationMode = data; });
-        this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData)
-            .subscribe((data) => { this.entitiesData = data; });
-        this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
-        this.getSeletedEntitiesSubscription = this.store.select(fromRoot.getSelectedEntities).subscribe((data) => {
-            this.selectedEntity = data;
-        });
-        this.getWorflowNodesSubscription = this.store.select(fromRoot.getWorkflowNodes).subscribe((data: Array<any>) => {
-            this.entities = data;
-            this.store.dispatch(new wizardActions.ValidateWorkflowAction());
-        });
-        this.workflowRelationsSubscription = this.store.select(fromRoot.getWorkflowRelations).subscribe((data: Array<any>) => {
-            this.workflowRelations = data.map((relation: any) => {
-                return {
-                    origin: this.entities.find((entity: any) => {
-                        return entity.name === relation.origin;
-                    }),
-                    destination: this.entities.find((entity: any) => {
-                        return entity.name === relation.destination;
-                    }),
-                };
-            });
-            this._cd.markForCheck();
-            this.store.dispatch(new wizardActions.ValidateWorkflowAction());
-        });
-
-        this.selectedSegmentSubscription = this.store.select(fromRoot.getSelectedRelation).subscribe((relation) => {
-            this.selectedSegment = relation;
-            this._cd.markForCheck();
-        });
-
-        this.documentRef = d3.select(document);
-        this.SVGParent = d3.select(this.elementRef.nativeElement).select('#composition');
-        this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
-        this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
-        function deltaFn() {
-            return -d3.event.deltaY * (d3.event.deltaMode ? 0.0387 : 0.002258);
-        }
-        this.zoom = d3.zoom()
-            .scaleExtent([1 / 8, 3])
-            .wheelDelta(deltaFn);
-
-        this.drag = d3.drag();
-
-        this._ngZone.runOutsideAngular(() => {
-            let pristine = true;
-            let repaints = 0;
-            const SVGContainer = this.SVGContainer;
-            const repaint = function () {
-                SVGContainer.attr('transform', this.toString());
-            };
-            this.SVGParent.call(this.drag
-                .on('start', () => {
-                    const event = d3.event;
-                    const position = {
-                        offsetX: event.x,
-                        offsetY: event.y
-                    };
-                    this.clickDetected.call(this, position);
-                }));
-
-            let lastUpdateCall: any;
-            this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
-                const e: any = d3.event;
-                if (pristine) {
-                    if (repaints < 2) {
-                        repaints++;
-                    } else {
-                        if (this.entities.length) {
-                            pristine = false;
-                            this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
-                        }
-                    }
-                }
-                if (lastUpdateCall) {
-                    cancelAnimationFrame(lastUpdateCall);
-                }
-                this.svgPosition = e.transform;
-                lastUpdateCall = requestAnimationFrame(repaint.bind(e.transform));
-            })).on('dblclick.zoom', null);
-        });
-
-        this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
-            this.svgPosition = position;
-            this.SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this.svgPosition.x, this.svgPosition.y)
-                .scale(this.svgPosition.k === 0 ? 1 : this.svgPosition.k));
-        });
-    }
-
-    closeSideBar() {
-        this.store.dispatch(new wizardActions.ToggleDetailSidebarAction());
-    }
-
-    duplicateNode(): void {
-        if (this.selectedEntity) {
-            const data = JSON.parse(JSON.stringify((this.entities.find((node: any) => {
-                return node.name === this.selectedEntity;
-            }))));
-            data.name = this.editorService.getNewEntityName(data.name, this.entities);
-            const newEntity: any = {
-                type: 'copy',
-                data: data
-            };
-            this.store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
-        }
-    }
-
-    clickDetected($event: any) {
-        if (this.creationMode.active) {
-            let entity: any = {};
-            const entityData = this.creationMode.data;
-            if (entityData.type === 'copy') { // if its a copy, only sets the position
-                entity = entityData.data;
-            } else {
-                entity = this.editorService.initializeEntity(this.workflowType, entityData, this.entities);
-            }
-            entity.uiConfiguration = {
-                position: {
-                    x: ($event.offsetX - this.svgPosition.x) / this.svgPosition.k,
-                    y: ($event.offsetY - this.svgPosition.y) / this.svgPosition.k
-                }
-            };
-            this.store.dispatch(new wizardActions.CreateEntityAction(entity));
-        }
-        this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
-    }
-
-    createEdge(event: any) {
-        if (isMobile) {
-            this.newOrigin = event.name;
-            this.drawingConnectionStatus = {
-                status: true,
-                name: event.name
-            };
-            const w = this.documentRef
-                .on('click', () => {
-                    w.on('click', null).on('click', null);
-                    this.newOrigin = '';
-                    event.event.target.classList.remove('over-output2');
-                    this.drawingConnectionStatus = {
-                        status: false
-                    };
-                });
-        } else {
-            this.drawConnector(event);
-        }
-    }
-
-    drawConnector(event: any) {
-        const $event = event.event;
-        this.newOrigin = event.name;
-        const connector: any = {};
-        connector.x1 = $event.clientX;
-        connector.y1 = $event.clientY - 135;
-        connector.x2 = 0;
-        connector.y2 = 0;
-
-        this.drawingConnectionStatus = {
+   createEdge(event: any) {
+      if (isMobile) {
+         this.newOrigin = event.name;
+         this.drawingConnectionStatus = {
             status: true,
             name: event.name
-        };
-
-        const w = this.documentRef
-            .on('mousemove', drawConnector.bind(this))
-            .on('mouseup', mouseup.bind(this));
-
-        function mouseup() {
-            event.event.target.classList.remove('over-output2');
-            this.showConnector = false;
-            this.newOrigin = '';
-            this.drawingConnectionStatus = {
-                status: false
-            };
-            w.on('mousemove', null).on('mouseup', null);
-        }
-
-        function drawConnector() {
-            this.showConnector = true;
-            connector.x2 = d3.event.clientX - connector.x1;
-            connector.y2 = d3.event.clientY - connector.y1 - 135;
-            this.connectorElement.attr('d', 'M ' + connector.x1 + ' ' + connector.y1 + ' l ' + connector.x2 + ' ' + connector.y2);
-        }
-    }
-
-    finishConnector(destinationEntity: any) {
-        if (this.newOrigin && this.newOrigin.length) {
-            this.store.dispatch(new wizardActions.CreateNodeRelationAction({
-                origin: this.newOrigin,
-                destination: destinationEntity.name,
-                destinationData: destinationEntity
-            }));
-        }
-    }
-
-    changeZoom(zoomIn: boolean) {
-        if (zoomIn) {
-            this.svgPosition.k += this.svgPosition.k * 0.2;
-        } else {
-            this.svgPosition.k -= this.svgPosition.k * 0.2;
-        }
-        this.zoom.scaleTo(this.SVGParent, this.svgPosition.k);
-    }
-
-    centerWorkflow(): void {
-        const container = this.elementRef.nativeElement.querySelector('#svg-container').getBoundingClientRect();
-        const svgParent = this.elementRef.nativeElement.querySelector('#composition').getBoundingClientRect();
-        const containerWidth = container.width;
-        const containerHeight = container.height;
-        const svgWidth = svgParent.width;
-        const svgHeight = svgParent.height;
-        const translateX = ((svgWidth - containerWidth) / 2 - container.left) / this.svgPosition.k;
-        const translateY = ((svgHeight - containerHeight) / 2 - container.top) / this.svgPosition.k;
-        this.SVGParent.call(this.zoom.translateBy, translateX, translateY + 135 / this.svgPosition.k);
-    }
-
-    selectEntity(entity: any) {
-        if (this.selectedSegment) {
-            this.store.dispatch(new wizardActions.UnselectSegmentAction());
-        }
-        if (this.selectedEntity !== entity.name) {
-            this.store.dispatch(new wizardActions.SelectEntityAction(entity.name));
-        }
-    }
-
-    editButtonEntity() {
-        this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
-        this.store.dispatch(new wizardActions.EditEntityAction());
-    }
-
-    editEntity(entity: any) {
-        this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
-        this.store.dispatch(new wizardActions.ShowEditorConfigAction({
-            stepType: entity.stepType,
-            data: entity
-        }));
-    }
-
-    showSettings(): void {
-        this.store.dispatch(new wizardActions.ShowEditorConfigAction({
-            stepType: 'settings'
-        }));
-    }
-
-    saveWorkflow(closeOnSave: boolean): void {
-        // save entities position
-        this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
-        this.store.dispatch(new wizardActions.SaveEditorPosition(this.svgPosition));
-        this.store.dispatch(new wizardActions.SaveWorkflowAction(closeOnSave));
-    }
-
-
-    deleteSelection() {
-        if (this.selectedEntity && this.selectedEntity.length) {
-            this.deleteConfirmModal('Delete node', 'This node and its relations will be deleted.', () => {
-                this.store.dispatch(new wizardActions.DeleteEntityAction());
+         };
+         const w = this._documentRef
+            .on('click', () => {
+               w.on('click', null).on('click', null);
+               this.newOrigin = '';
+               event.event.target.classList.remove('over-output2');
+               this.drawingConnectionStatus = {
+                  status: false
+               };
             });
-        }
-        if (this.selectedSegment) {
-            this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-        }
-    }
+      } else {
+         this.drawConnector(event);
+      }
+   }
 
-    public deleteConfirmModal(modalTitle: string, modalMessage: string, handler: any): void {
-        const buttons: StModalButton[] = [
-            { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
-            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
-        ];
+   drawConnector(event: any) {
+      const $event = event.event;
+      this.newOrigin = event.name;
+      const connector: NodeConnector = {
+         x1: $event.clientX,
+         y1: $event.clientY - 135,
+         x2: 0,
+         y2: 0
+      };
 
-        this._modalService.show({
-            modalTitle: modalTitle,
-            buttons: buttons,
-            maxWidth: 500,
-            messageTitle: 'Are you sure?',
-            message: modalMessage,
-        }).subscribe((response: any) => {
-            if (response === 1) {
-                this._modalService.close();
-            } else if (response === 0) {
-                handler();
+      this.drawingConnectionStatus = {
+         status: true,
+         name: event.name
+      };
+      this._connectorElement.attr('d', ''); // reset connector position
+      this.showConnector = true;
+      const w = this._documentRef
+         .on('mousemove', drawConnector.bind(this))
+         .on('mouseup', mouseup.bind(this));
+
+      function mouseup() {
+         event.event.target.classList.remove('over-output2');
+         this.showConnector = false;
+         this.newOrigin = '';
+         this.drawingConnectionStatus = {
+            status: false
+         };
+         w.on('mousemove', null).on('mouseup', null);
+         this._cd.markForCheck();
+      }
+
+      function drawConnector() {
+         connector.x2 = d3.event.clientX - connector.x1;
+         connector.y2 = d3.event.clientY - connector.y1 - 135;
+         this._connectorElement.attr('d', 'M ' + connector.x1 + ' ' + connector.y1 + ' l ' + connector.x2 + ' ' + connector.y2);
+      }
+   }
+
+   finishConnector(destinationEntity: any) {
+      if (this.newOrigin && this.newOrigin.length) {
+         this.onCreateEdge.emit({
+            origin: this.newOrigin,
+            destination: destinationEntity.name
+         });
+      }
+   }
+
+   changeZoom(zoomIn: boolean) {
+      this._svgPosition.k += (zoomIn ? 0.2 : -0.2) * this._svgPosition.k;
+      this.zoom.scaleTo(this._SVGParent, this._svgPosition.k);
+   }
+
+   centerWorkflow(): void {
+      const container = this._elementRef.nativeElement.querySelector('#svg-container').getBoundingClientRect();
+      const _SVGParent = this._elementRef.nativeElement.querySelector('#composition').getBoundingClientRect();
+      const containerWidth = container.width;
+      const containerHeight = container.height;
+      const svgWidth = _SVGParent.width;
+      const svgHeight = _SVGParent.height;
+      const translateX = ((svgWidth - containerWidth) / 2 - container.left) / this._svgPosition.k;
+      const translateY = ((svgHeight - containerHeight) / 2 - container.top) / this._svgPosition.k;
+      this._SVGParent.call(this.zoom.translateBy, translateX, translateY + 135 / this._svgPosition.k);
+   }
+
+   trackBySegmentFn(index: number, item: any) {
+      return index; // or item.id
+   }
+
+   setDraggableEditor() {
+      this.setDragStart();
+      let pristine = true;
+      let repaints = 0;
+      const _SVGContainer = this._SVGContainer;
+      const repaint = function () {
+         _SVGContainer.attr('transform', this.toString());
+      };
+      let lastUpdateCall: number;
+      this._SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
+         const e: any = d3.event;
+         if (pristine) {
+            if (repaints < 2) {
+               repaints++;
+            } else {
+               if (this.workflowNodes.length) {
+                  pristine = false;
+                  this._store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+               }
             }
-        });
-    }
+         }
+         if (lastUpdateCall) {
+            cancelAnimationFrame(lastUpdateCall);
+         }
+         this._svgPosition = e.transform;
+         lastUpdateCall = requestAnimationFrame(repaint.bind(e.transform));
+      })).on('dblclick.zoom', null);
+   }
 
-    trackBySegmentFn(index: number, item: any) {
-        return index; // or item.id
-    }
-
-    ngOnDestroy(): void {
-        this.creationModeSubscription && this.creationModeSubscription.unsubscribe();
-        this.getSeletedEntitiesSubscription && this.getSeletedEntitiesSubscription.unsubscribe();
-        this.getWorflowNodesSubscription && this.getWorflowNodesSubscription.unsubscribe();
-        this.workflowRelationsSubscription && this.workflowRelationsSubscription.unsubscribe();
-        this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
-        this.getSeletedEntitiesDataSubscription && this.getSeletedEntitiesDataSubscription.unsubscribe();
-        this.selectedSegmentSubscription && this.selectedSegmentSubscription.unsubscribe();
-        this._nameSubscription && this._nameSubscription.unsubscribe();
-
-    }
+   setDragStart() {
+      this._SVGParent.call(this.drag
+         .on('start', () => {
+            const event = d3.event;
+            const position = {
+               offsetX: event.x,
+               offsetY: event.y
+            };
+            this.clickDetected.call(this, position);
+         }));
+   }
 }

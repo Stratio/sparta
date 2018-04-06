@@ -11,6 +11,7 @@
          "propertyId": "fieldsDatetime",
          "propertyName": "_FIELDS_DATETIME_DEFINITION_",
          "propertyType": "list",
+         "complexForm": true,
          "required": true,
          "tooltip": " Specify a list of fields to format into Datetime",
          "qa": "fragment-details-datetime-fields",

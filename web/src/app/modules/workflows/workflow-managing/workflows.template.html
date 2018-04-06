@@ -1,17 +1,27 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <div [hidden]="executionInfo">
    <div #newWorkflowModal qaTag="workflow-modal"></div>
-   <workflows-manage-header-container [showDetails]="showDetails" 
+   <workflows-manage-header-container [showDetails]="showDetails"
         [selectedWorkflows]="selectedWorkflows$ | async"
         [selectedGroupsList]="selectedGroupsList$ | async"
         [versionsListMode]="(workflowVersions$ | async) && (workflowVersions$ | async).length"
         [selectedVersions]="selectedVersions$ | async"
-        (showWorkflowInfo)="showWorkflowInfo()"></workflows-manage-header-container> 
+        (showWorkflowInfo)="showWorkflowInfo()"></workflows-manage-header-container>
    <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
    <div class="container">
        <div class="col-sm-12">
         <div class="row">
             <div class="workflow-list">
-                <workflows-manage-table-container [groupList]="groupsList$ | async" 
+                <workflows-manage-table-container [groupList]="groupsList$ | async"
                     [workflowList]="workflowList"
                     [selectedGroupsList]="selectedGroupsList$ | async"
                     [selectedVersions]="selectedVersions$ | async"
@@ -20,7 +30,7 @@
             </div>
             <div class="workflow-detail-container">
                 <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
-                    <workflow-managing-detail class="workflow-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)" 
+                    <workflow-managing-detail class="workflow-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
                         [data]="selectedVersion  ? selectedVersion  : (selectedEntity$ | async)"></workflow-managing-detail>
                 </sparta-sidebar>
             </div>

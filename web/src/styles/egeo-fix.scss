@@ -167,6 +167,11 @@ sp-textarea {
    }
 }
 
+.sth-header-menu-item .content div[pop-content] {
+    transform: none!important;
+    margin-top: 10px;
+}
+
 .st-tooltip {
    min-height: 18px!important;
    line-height: 18px!important;

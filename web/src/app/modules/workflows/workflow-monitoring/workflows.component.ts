@@ -8,15 +8,16 @@ import {
     ChangeDetectionStrategy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { StModalService } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
 
-import { WorkflowsService } from './workflows.service';
-import * as workflowActions from './actions/workflow-list';
+import * as workflowActions from './actions/workflows';
 import { State,
         getWorkflowList,
         getSelectedWorkflows,
-        getExecutionInfo} from './reducers';
+        getExecutionInfo
+} from './reducers';
+import { MonitoringWorkflow } from './models/workflow';
+import { ExecutionInfo } from './models/execution-info';
 
 
 @Component({
@@ -28,54 +29,43 @@ import { State,
 
 export class WorkflowsComponent implements OnInit, OnDestroy {
 
-    @ViewChild('newWorkflowModal', { read: ViewContainerRef }) target: any;
-
-    public workflowList: any = [];
+    public workflowList: Array<MonitoringWorkflow> = [];
     public showDetails = false;
 
-    public selectedWorkflows: any[] = [];
+    public selectedWorkflows: Array<MonitoringWorkflow> = [];
     public selectedWorkflowsIds: string[] = [];
-    public breadcrumbOptions: string[] = [];
-    public menuOptions: any = [];
-    public executionInfo = '';
+    public executionInfo: ExecutionInfo;
     public showExecutionInfo = false;
 
-    public groupList: Array<any>;
-    public currentLevel: string;
+    private _modalOpen: Subscription;
+    private _executionInfo: Subscription;
+    private _selectedWorkflows: Subscription;
+    private _groupList: Subscription;
+    private _workflowList: Subscription;
 
-    private _modalOpen$: Subscription;
-    private _executionInfo$: Subscription;
-    private _selectedWorkflows$: Subscription;
-    private _groupList$: Subscription;
-    private _workflowList$: Subscription;
-
-    private timer: any;
+    private timer;
 
     constructor(private _store: Store<State>,
-        private _modalService: StModalService,
-        public workflowsService: WorkflowsService,
         private _cd: ChangeDetectorRef) { }
 
     ngOnInit() {
-        this._modalService.container = this.target;
-
         this._store.dispatch(new workflowActions.ListWorkflowAction());
 
         this.updateWorkflowsStatus();
-        this._workflowList$ = this._store.select(getWorkflowList)
+        this._workflowList = this._store.select(getWorkflowList)
         .distinctUntilChanged()
-        .subscribe((workflowList: any) => {
+        .subscribe((workflowList: Array<MonitoringWorkflow>) => {
             this.workflowList = workflowList;
             this._cd.markForCheck();
         });
 
-        this._selectedWorkflows$ = this._store.select(getSelectedWorkflows).subscribe((data: any) => {
+        this._selectedWorkflows = this._store.select(getSelectedWorkflows).subscribe((data: any) => {
             this.selectedWorkflows = data.selected;
             this.selectedWorkflowsIds = data.selectedIds;
             this._cd.markForCheck();
         });
 
-        this._executionInfo$ = this._store.select(getExecutionInfo).subscribe((executionInfo: any) => {
+        this._executionInfo = this._store.select(getExecutionInfo).subscribe(executionInfo => {
             this.executionInfo = executionInfo;
             this._cd.markForCheck();
         });
@@ -98,11 +88,11 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     }
 
     public ngOnDestroy(): void {
-        this._workflowList$ && this._workflowList$.unsubscribe();
-        this._modalOpen$ && this._modalOpen$.unsubscribe();
-        this._executionInfo$ && this._executionInfo$.unsubscribe();
-        this._selectedWorkflows$ && this._selectedWorkflows$.unsubscribe();
-        this._groupList$ && this._groupList$.unsubscribe();
+        this._workflowList && this._workflowList.unsubscribe();
+        this._modalOpen && this._modalOpen.unsubscribe();
+        this._executionInfo && this._executionInfo.unsubscribe();
+        this._selectedWorkflows && this._selectedWorkflows.unsubscribe();
+        this._groupList  && this._groupList.unsubscribe();
 
         clearInterval(this.timer); // stop status requests
         this._store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());

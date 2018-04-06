@@ -1,3 +1,13 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <st-fullscreen-layout [title]="'WIZARD.SETTINGS' | translate">
    <div class="st-fullscreen-layout-buttons">
       <div class="return-link">
@@ -18,13 +28,13 @@
                      class="advanced-settings" *ngIf="advancedSettings.length">
                      <div>
                         <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>
-                        <div class="row">   
+                        <div class="row">
                            <div class="col-sm-6">
-                              <st-tag-input class="st-form-field tag-input" 
-                                name="tag-input-reactive" 
-                                [label]="'Version tags'" 
+                              <st-tag-input class="st-form-field tag-input"
+                                name="tag-input-reactive"
+                                [label]="'Version tags'"
                                 [id]="'tag-input-reactive'"
-                                [(ngModel)]="tags" 
+                                [(ngModel)]="tags"
                                 [placeholder]="'Add tags separated by commas'"
                                 [tooltip]="'This is a Tag Input component tooltip'">
                               </st-tag-input>

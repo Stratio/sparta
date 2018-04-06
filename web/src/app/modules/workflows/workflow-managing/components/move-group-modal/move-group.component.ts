@@ -19,7 +19,8 @@ import { Subscription } from 'rxjs/Rx';
 
 import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from './../../reducers';
-import { FOLDER_SEPARATOR, DEFAULT_FOLDER } from './../../workflow.constants';
+import { FOLDER_SEPARATOR } from './../../workflow.constants';
+import { Group } from './../../models/workflows';
 
 @Component({
     selector: 'move-group-modal',
@@ -40,10 +41,12 @@ export class MoveGroupModal implements OnInit, OnDestroy {
 
     public parentGroup = '';
     public workflowGroup = '';
-
-    private group: any;
     public selectedFolder = '';
+    public disableButton = false;
+
+    private group: Group;
     private openModal: Subscription;
+
 
     constructor(private _store: Store<fromRoot.State>) { }
 
@@ -74,6 +77,7 @@ export class MoveGroupModal implements OnInit, OnDestroy {
     }
 
     updateFolder() {
+        this.disableButton = true;
         if (this.workflow) {
             this._store.dispatch(new workflowActions.MoveWorkflowAction({
                 groupTarget: this.selectedFolder, // get target id
@@ -87,7 +91,6 @@ export class MoveGroupModal implements OnInit, OnDestroy {
                 newName: this.selectedFolder + FOLDER_SEPARATOR + split[split.length - 1]
             }));
         }
-
     }
 
     ngOnDestroy(): void {

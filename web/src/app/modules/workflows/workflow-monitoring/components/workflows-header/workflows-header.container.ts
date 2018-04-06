@@ -12,10 +12,13 @@ import {
     OnInit
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-
-import * as workflowActions from './../../actions/workflow-list';
-import { State, getMonitoringStatus, getSelectedFilter, getWorkflowSearchQuery } from './../../reducers';
 import { Observable } from 'rxjs/Observable';
+
+import * as workflowActions from './../../actions/workflows';
+import * as filtersActions from './../../actions/filters';
+
+import { State, getMonitoringStatus, getSelectedFilter, getWorkflowSearchQuery } from './../../reducers';
+import { MonitoringWorkflow } from '../../models/workflow';
 
 @Component({
     selector: 'workflows-header-container',
@@ -29,6 +32,8 @@ import { Observable } from 'rxjs/Observable';
             (downloadWorkflows)="downloadWorkflows()" 
             (showWorkflowInfo)="showWorkflowInfo.emit()"
             (onSelectFilter)="selectFilter($event)"
+            (onRunWorkflow)="runWorkflow($event)"
+            (onStopWorkflow)="stopWorkflow($event)"
             (onSearch)="searchWorkflows($event)"></workflows-header>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -60,12 +65,27 @@ export class WorkflowsHeaderContainer implements OnInit {
 
     selectFilter(filter: string): void {
         this._store.dispatch(new workflowActions.ResetSelectionAction());
-        this._store.dispatch(new workflowActions.ChangeFilterAction(filter));
+        this._store.dispatch(new filtersActions.ChangeFilterAction(filter));
     }
 
     searchWorkflows(text: string) {
         this._store.dispatch(new workflowActions.ResetSelectionAction());
-        this._store.dispatch(new workflowActions.SearchWorkflowsAction(text));
+        this._store.dispatch(new filtersActions.SearchWorkflowsAction(text));
+    }
+
+    runWorkflow(workflow: MonitoringWorkflow) {
+        this._store.dispatch(new workflowActions.RunWorkflowAction({
+            id: workflow.id,
+            name: workflow.name
+        }));
+    }
+
+    stopWorkflow(workflow: MonitoringWorkflow) {
+        const stopPolicy = {
+            id: workflow.id,
+            status: 'Stopping'
+        };
+        this._store.dispatch(new workflowActions.StopWorkflowAction(stopPolicy));
     }
 
 }

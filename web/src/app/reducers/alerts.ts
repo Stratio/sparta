@@ -8,8 +8,8 @@ import * as inputActions from './../modules/templates/actions/input';
 import * as outputActions from './../modules/templates/actions/output';
 import * as transformationActions from './../modules/templates/actions/transformation';
 import * as workflowActions from './../modules/workflows/workflow-managing/actions/workflow-list';
-import * as workflowMonitoringActions from './../modules/workflows/workflow-monitoring/actions/workflow-list';
-import * as wizardActions from 'actions/wizard';
+import * as workflowMonitoringActions from './../modules/workflows/workflow-monitoring/actions/workflows';
+import * as wizardActions from './../modules/wizard/actions/wizard';
 import * as errorsActions from 'actions/errors';
 import * as environmentActions from './../modules/settings/environment/actions/environment';
 

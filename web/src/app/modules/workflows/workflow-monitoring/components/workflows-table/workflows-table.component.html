@@ -1,9 +1,19 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <st-table [fields]="fields" 
     [sortable]="true"
     [currentOrder]="currentOrder"
     qaTag="monitoring-table" 
     class="workflow-table" 
-    (changeOrder)="changeOrder($event)">
+    (changeOrder)="onChangeOrder.emit($event)">
    <tr st-table-row [attr.id]="workflow.id + '-row'" *ngFor="let workflow of workflowList | paginate: { perPage: paginationOptions.perPage, currentPage: paginationOptions.currentPage }; let i = index;"
       [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1" (click)="checkRow(!((selectedWorkflowsIds.indexOf(workflow.id)) > -1), workflow)">
       <td st-table-cell st-table-row-content class="check-column">

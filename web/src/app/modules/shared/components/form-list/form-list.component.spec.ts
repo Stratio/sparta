@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { async, TestBed, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
+import { async, TestBed, ComponentFixture } from '@angular/core/testing';
 import { SharedModule } from '@app/shared';
 import { FormListComponent } from '@app/shared/components/form-list/form-list.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
@@ -12,12 +12,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
 import { EgeoModule } from '@stratio/egeo';
 import { SpSelectModule } from '../sp-select/sp-select.module';
-import { SpInputComponent } from '../sp-input/sp-input.component';
 import { ErrorMessagesService } from '../../../../services';
 import { FormGroup, FormArray, Validators } from '@angular/forms';
 import { DebugElement, Component, OnInit } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { SpInputError } from '@app/shared/components/sp-input/sp-input.error.model';
+import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
 
 let component: FormListComponent;
 let fixture: ComponentFixture<FormListComponent>;
@@ -65,7 +65,7 @@ const inputSchema = [
 describe('FormListComponent', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule, ReactiveFormsModule, TranslateModule.forRoot(), SpInputModule, SpSelectModule, EgeoModule],
+            imports: [FormsModule, ReactiveFormsModule, TranslateModule.forRoot(), SpInputModule, SpTextareaModule, SpSelectModule, EgeoModule],
             declarations: [FormListComponent],
             providers: [ErrorMessagesService]
         }).compileComponents();  // compile template and css
@@ -246,7 +246,7 @@ describe('FormListComponent in reactive form', () => {
 
         reactiveComp.enableInput();
         reactiveFixture.detectChanges();
-        let htmlInput: HTMLInputElement = reactiveFixture.debugElement.query(By.css('input')).nativeElement;
+        const htmlInput: HTMLInputElement = reactiveFixture.debugElement.query(By.css('input')).nativeElement;
         expect(htmlInput).toBeDefined();
         expect(htmlInput.classList).not.toContain('disabled');
     });

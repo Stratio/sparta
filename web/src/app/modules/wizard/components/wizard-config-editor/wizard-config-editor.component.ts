@@ -9,10 +9,11 @@ import {
 import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
-import * as wizardActions from 'actions/wizard';
 import { Router } from '@angular/router';
 
-import * as fromRoot from 'reducers';
+import * as fromWizard from './../../reducers';
+import * as wizardActions from './../../actions/wizard';
+
 import { Subscription } from 'rxjs/Subscription';
 import { ErrorMessagesService } from 'services';
 import { writerTemplate } from 'data-templates/index';
@@ -56,11 +57,11 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     private saveSubscription: Subscription;
     private validatedNameSubcription: Subscription;
     ngOnInit(): void {
-        this.validatedNameSubcription = this.store.select(fromRoot.getValidatedEntityName).subscribe((validation: boolean) => {
+        this.validatedNameSubcription = this.store.select(fromWizard.getValidatedEntityName).subscribe((validation: boolean) => {
             this.validatedName = validation;
         });
 
-        this.saveSubscription = this.store.select(fromRoot.isEntitySaved).subscribe((isEntitySaved) => {
+        this.saveSubscription = this.store.select(fromWizard.isEntitySaved).subscribe((isEntitySaved) => {
             if (isEntitySaved) {
                 // hide edition when its saved
                 this.store.dispatch(new wizardActions.HideEditorConfigAction());
@@ -127,7 +128,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
         if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
             this.isTemplate = true;
             const nodeTemplate = this.entityFormModel.nodeTemplate;
-            this.store.select(fromRoot.getTemplates).take(1).subscribe((templates: any) => {
+            this.store.select(fromWizard.getTemplates).take(1).subscribe((templates: any) => {
                 this.templateData = templates[this.config.editionType.stepType.toLowerCase()]
                     .find((templateD: any) => templateD.id === nodeTemplate.id);
             });
@@ -154,7 +155,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
         }));
     }
 
-    constructor(private store: Store<fromRoot.State>,
+    constructor(private store: Store<fromWizard.State>,
         private _router: Router,
         private _wizardService: WizardService,
         public errorsService: ErrorMessagesService) {

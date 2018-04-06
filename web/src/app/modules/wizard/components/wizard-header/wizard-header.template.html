@@ -1,3 +1,13 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <div class="wizard-header">
    <div class="title-header">
       <div class="container">
@@ -9,34 +19,14 @@
                   <div class="workflow-name-container">
                      <span class="title egeo-title-extra-large">{{workflowName}} -</span>
                      <span class="title egeo-title-giant">v{{workflowVersion}}</span>
-                     <!-- <span class="icon-edit"></span> -->
                   </div>
-                  <!--<form #nameForm="ngForm" novalidate autocomplete="off" class="workflow-name" [hidden]="(nameForm.valid && !editName)">
-                     <input type="text" #titleFocus required="true" [ngClass]="{'error': nameForm.invalid}" [pattern]="workflowNamePattern" (ngModelChange)="eventHandler()"
-                        (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant" name="workflow-name" [(ngModel)]="workflowName"
-                     />
-                  </form>-->
                </div>
                <div class="header-links">
                   <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
                   <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine">
                     {{'WIZARD.SAVE' | translate}}
                   </button>
-                  <!-- <div class="options-button">
-                     <div class="main-button">{{'WIZARD.SAVE' | translate}}</div>
-                     <div class="secondary-button">
-                        <span class="icon icon-arrow4_down"></span>
-                     </div>
-                    <floating-menu [menuOptions]="menuSaveOptions" class="show-options"
-                        (selectedOption)="selectedMenuOption($event)">
-                        <div menu-action>
-                           <button class="button button-toolbar">
-                        <i class="icon-plus"></i>
-                    </button>
-                           <i class="icon-arrow2_down"></i>
-                        </div>
-                     </floating-menu>
-                  </div>-->
+
                </div>
             </div>
          </div>
@@ -82,7 +72,7 @@
                   <button class="button button-toolbar" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected" id="copy-node-button">
                    <i class="icon-copy2"></i>
                  </button>
-                  <button class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || selectedSegment" id="delete-node-button">
+                  <button class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || isEdgeSelected" id="delete-node-button">
                     <i class="icon-trash"></i>
                   </button>
                </div>

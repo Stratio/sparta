@@ -1,0 +1,38 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<svg:g class="box">
+    <svg:rect x="-8" y="-8" fill="transparent" [attr.height]="boxConfig.height + 16" [attr.width]="boxConfig.width + 16"></svg:rect>
+    <svg:rect x="0" y="0" fill="white" [attr.height]="boxConfig.height" [attr.width]="boxConfig.width"
+    [attr.stroke-width]="boxConfig.strokeWidth" [ngClass]="{'active': selected}" [attr.class]="'entity ' + data.stepType" stroke-linecap="round"
+    class="entity" rx="6" ry="6">
+    </svg:rect>
+    <svg [attr.width]="boxConfig.width" [attr.height]="boxConfig.height" class="text-container">
+        <svg:foreignObject text x="20" y="42" height="38" width="110">
+            <xhtml:p class="entity-name" >
+                <span class="template-label" *ngIf="data.nodeTemplate">T</span>{{data.name}}
+            </xhtml:p>
+        </svg:foreignObject>
+    </svg>
+    <svg:g [attr.class]="'relations type-' + data.stepType | lowercase" [ngClass]="{'active' : drawingConnectionStatus.status && drawingConnectionStatus.name !== data.name}">
+        <svg:g transform="translate(64,-6)">
+            <svg:rect width="12" height="12" class="relation transformation-entry" [ngClass]="relationClasses"></svg:rect>
+        </svg:g>
+        <svg:g transform="translate(134,34)">
+            <svg:rect width="12" height="12" class="relation transformation-entry input-entry" [ngClass]="relationClasses"></svg:rect>
+        </svg:g>
+        <svg:g transform="translate(64 ,74)">
+            <svg:rect class="relation transformation-entry" width="12" height="12" [ngClass]="relationClasses"></svg:rect>
+        </svg:g>
+        <svg:g y="-6" x="64" transform="translate(-6,34)">
+            <svg:rect class="relation transformation-entry output-entry" width="12" height="12" [ngClass]="relationClasses"></svg:rect>
+        </svg:g>
+    </svg:g>
+</svg:g>

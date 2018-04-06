@@ -14,19 +14,20 @@ import { Observable, Subscription } from 'rxjs/Rx';
 import * as workflowActions from './actions/workflow-list';
 import {
     State,
-    getWorkflowList,
+    getWorkflowsOrderedList,
     getSelectedWorkflows,
     getExecutionInfo,
-    getGroupsList,
+    getGroupsOrderedList,
     getSelectedGroups,
     getSelectedEntity,
     getSelectedVersions,
     getSelectedVersion,
     getLoadingState,
-    getWorkflowVersions
+    getVersionsOrderedList
 } from './reducers';
 import { WorkflowsManagingService } from './workflows.service';
 import { DataDetails } from './models/data-details';
+import { GroupWorkflow, Group } from './models/workflows';
 
 
 @Component({
@@ -39,16 +40,16 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
 
     @ViewChild('newWorkflowModal', { read: ViewContainerRef }) target: any;
 
-    public workflowList: any = [];
+    public workflowList: GroupWorkflow[] = [];
     public showDetails = false;
 
-    public groupsList$: Observable<Array<any>>;
+    public groupsList$: Observable<Array<Group>>;
     public workflowStatuses: any = {};
     public selectedGroupsList$: Observable<Array<string>>;
     public selectedVersions$: Observable<Array<string>>;
     public selectedWorkflows$: Observable<Array<any>>;
     public selectedEntity$: Observable<DataDetails>;
-    public workflowVersions$: Observable<Array<any>>;
+    public workflowVersions$: Observable<Array<GroupWorkflow>>;
     public isLoading$: Observable<boolean>;
 
     public selectedWorkflowsIds: string[] = [];
@@ -80,7 +81,7 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
         this._store.dispatch(new workflowActions.ListGroupsAction());
         // this._store.dispatch(new workflowActions.ListGroupWorkflowsAction());
 
-        this._workflowList$ = this._store.select(getWorkflowList)
+        this._workflowList$ = this._store.select(getWorkflowsOrderedList)
             .distinctUntilChanged()
             .subscribe((workflowList: any) => {
                 this.workflowList = workflowList;
@@ -101,9 +102,9 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
             this._cd.markForCheck();
         });
 
-        this.workflowVersions$ = this._store.select(getWorkflowVersions);
+        this.workflowVersions$ = this._store.select(getVersionsOrderedList);
         this.selectedVersions$ = this._store.select(getSelectedVersions);
-        this.groupsList$ = this._store.select(getGroupsList);
+        this.groupsList$ = this._store.select(getGroupsOrderedList);
         this.selectedGroupsList$ = this._store.select(getSelectedGroups);
         this.selectedWorkflows$ = this._store.select(getSelectedWorkflows);
         this.selectedEntity$ = this._store.select(getSelectedEntity);

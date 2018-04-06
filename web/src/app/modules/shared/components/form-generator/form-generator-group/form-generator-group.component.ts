@@ -6,108 +6,100 @@
 import { Subject } from 'rxjs/Rx';
 import { OnDestroy } from '@angular/core/core';
 import {
-    Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef,
-    ChangeDetectionStrategy, ViewChild
+   Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef,
+   ChangeDetectionStrategy, ViewChild
 } from '@angular/core';
 import {
-    ControlValueAccessor, FormGroup, FormControl, FormArray,
-    NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm
+   ControlValueAccessor, FormGroup, FormControl, FormArray,
+   NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Rx';
 import { StHorizontalTab } from '@stratio/egeo';
-import { TranslateService } from "@ngx-translate/core";
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'form-generator-group',
-    templateUrl: './form-generator-group.template.html',
-    styleUrls: ['./form-generator-group.styles.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FormGeneratorGroupComponent),
-            multi: true
-        },
-        {
-            provide: NG_VALIDATORS,
-            useExisting: forwardRef(() => FormGeneratorGroupComponent),
-            multi: true
-        }],
-    changeDetection: ChangeDetectionStrategy.OnPush
+   selector: 'form-generator-group',
+   templateUrl: './form-generator-group.template.html',
+   styleUrls: ['./form-generator-group.styles.scss'],
+   providers: [
+      {
+         provide: NG_VALUE_ACCESSOR,
+         useExisting: forwardRef(() => FormGeneratorGroupComponent),
+         multi: true
+      },
+      {
+         provide: NG_VALIDATORS,
+         useExisting: forwardRef(() => FormGeneratorGroupComponent),
+         multi: true
+      }],
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormGeneratorGroupComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
-    @Input() public formData: Array<any>; // data template
-    @Input() public forceValidations = false;
-    @Input() public qaTag: string;
+   @Input() public formData: Array<any>; // data template
+   @Input() public forceValidations = false;
+   @Input() public qaTag: string;
+   @Input() public stModel: any = {};
 
-    @Input() public stModel: any = {};
-    @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
+   @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
+   @ViewChild('groupForm') public groupForm: NgForm;
 
-    private stFormGroupSubcription: Subscription;
-
-    @ViewChild('groupForm') public groupForm: NgForm;
-
-    public options: StHorizontalTab[] = [];
-    public activeOption = '';
-    public formGroup: FormGroup;
-
-    constructor(private _cd: ChangeDetectorRef, private translate: TranslateService) {
-    }
-
-    public changeFormOption($event: StHorizontalTab) {
-        this.activeOption = $event.id;
-    }
+   public options: StHorizontalTab[] = [];
+   public activeOption = '';
+   public formGroup: FormGroup;
+   private stFormGroupSubcription: Subscription;
 
 
-    ngOnInit(): void {
-        this._cd.detach();
-        this.options = this.formData.map((category: any) => {
-            return {
-                id: category.name,
-                text: ''
-            };
-        });
+   constructor(private _cd: ChangeDetectorRef, private translate: TranslateService) { }
 
-        const translateKey = 'FORM_TABS.';
+   public changeFormOption($event: StHorizontalTab) {
+      this.activeOption = $event.id;
+   }
 
-        this.translate.get(this.options.map((option: any) => {
-            return translateKey + option.id.toUpperCase();
-        })).subscribe((value: { [key: string]: string }) => {
-            this.options.map((option: any) => {
-                const key = value[translateKey + option.id.toUpperCase()];
-                option.text = key ? key : option.id;
-                return option;
-            });
-            this._cd.reattach();
-        });
-    }
+   ngOnInit(): void {
+      this._cd.detach();
+      this.options = this.formData.map((category: any) => ({
+         id: category.name,
+         text: ''
+      }));
 
-    writeValue(value: any): void {
-        if (value) {
-            this.stModel = value;
-        } else {
-            this.stModel = {};
-        }
-    }
+      const translateKey = 'FORM_TABS.';
+      this.translate.get(this.options.map((option: any) => {
+         return translateKey + option.id.toUpperCase();
+      })).subscribe((value: { [key: string]: string }) => {
+         this.options.map((option: any) => {
+            const key = value[translateKey + option.id.toUpperCase()];
+            option.text = key ? key : option.id;
+            return option;
+         });
+         this._cd.reattach();
+      });
+   }
 
-    registerOnChange(fn: any): void {
-        this.stFormGroupSubcription = this.groupForm.valueChanges.subscribe(fn);
-    }
+   writeValue(value: any): void {
+      if (value) {
+         this.stModel = value;
+      } else {
+         this.stModel = {};
+      }
+   }
 
-    registerOnTouched(fn: any): void {
+   registerOnChange(fn: any): void {
+      this.stFormGroupSubcription = this.groupForm.valueChanges.subscribe(fn);
+   }
 
-    }
+   registerOnTouched(fn: any): void { }
 
-    validate(c: FormGroup): { [key: string]: any; } {
-        return (this.groupForm.valid) ? null : {
-            formGeneratorGroupError: {
-                valid: false
-            }
-        };
-    }
+   validate(c: FormGroup): { [key: string]: any; } {
+      return (this.groupForm.valid) ? null : {
+         formGeneratorGroupError: {
+            valid: false
+         }
+      };
+   }
 
-    ngOnDestroy(): void {
-        this.stFormGroupSubcription && this.stFormGroupSubcription.unsubscribe();
-    }
+   ngOnDestroy(): void {
+      this.stFormGroupSubcription && this.stFormGroupSubcription.unsubscribe();
+   }
 }
 

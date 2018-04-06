@@ -1,3 +1,13 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <tool-bar>
    <div breadcrumb>
       <st-breadcrumbs [options]="levelOptions" (select)="selectLevel($event)" qaTag="workflows-breadcrumb"></st-breadcrumbs>
@@ -9,37 +19,53 @@
       <div class="selection-actions">
 
          <!-- Edit workflows / groups -->
-         <button class="button button-toolbar" id="edit-workflow-group-button" (click)="editWorkflowGroup()" *ngIf="(selectedWorkflowsInner.length === 1 && !selectedGroupsListInner.length) || (!selectedWorkflowsInner.length && selectedGroupsListInner.length === 1)">
+         <button class="button button-toolbar" 
+            id="edit-workflow-group-button" 
+            (click)="editWorkflowGroup()" 
+            *ngIf="(selectedWorkflowsInner.length === 1 && !selectedGroupsListInner.length) || (!selectedWorkflowsInner.length && selectedGroupsListInner.length === 1)">
             <i class="icon-edit"></i>
-        </button>
+         </button>
          <!-- end edit -->
 
          <button class="button button-toolbar" id="run-workflow-button" (click)="runWorkflow(selectedVersionsData[0])" *ngIf="selectedVersionsData && selectedVersionsData.length === 1">
           <i class="icon-stop" *ngIf="isRunning(selectedVersionsData[0].status.status)"></i>
           <i class="icon-play" *ngIf="!isRunning(selectedVersionsData[0].status.status)"></i>
         </button>
-
-         <button class="button button-toolbar" id="download-button" (click)="downloadWorkflows.emit()" *ngIf="selectedVersionsInner.length && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
+         <button class="button button-toolbar" 
+            id="download-button" 
+            (click)="downloadWorkflows.emit()" 
+            *ngIf="selectedVersionsInner.length && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
             <i class="icon-download"></i>
         </button>
-         <button class="button button-toolbar" id="edit-version-button" (click)="editVersion()" *ngIf="selectedVersionsInner.length === 1">
+         <button class="button button-toolbar" 
+            id="edit-version-button" 
+            (click)="editVersion()" 
+            *ngIf="selectedVersionsInner.length === 1">
             <i class="icon-edit"></i>
          </button>
 
-         <button class="button button-toolbar" id="move-group-button" *ngIf="(selectedGroupsListInner.length === 1 && !selectedWorkflowsInner.length) || (!selectedGroupsListInner.length && selectedWorkflowsInner.length === 1)" (click)="moveTo()">
+         <button class="button button-toolbar" 
+            id="move-group-button" 
+            *ngIf="(selectedGroupsListInner.length === 1 && !selectedWorkflowsInner.length) || (!selectedGroupsListInner.length && selectedWorkflowsInner.length === 1)" 
+            (click)="moveTo()">
             <i class="icon-move-to-folder"></i>
         </button>
-         <button class="button button-toolbar" id="delete-button" (click)="deleteWorkflows()" *ngIf="selectedVersionsInner.length || selectedGroupsListInner.length || selectedWorkflowsInner.length">
+         <button class="button button-toolbar" 
+            id="delete-button" (click)="deleteWorkflows()"
+            *ngIf="selectedVersionsInner.length || selectedGroupsListInner.length || selectedWorkflowsInner.length">
             <i class="icon-trash"></i>
         </button>
       </div>
       <div class="general-tools">
-         <floating-menu *ngIf="selectedVersionsInner.length === 1" [menuOptions]="menuOptionsDuplicate" position="right" class="show-options"
+         <floating-menu *ngIf="selectedVersionsInner.length === 1" 
+            [menuOptions]="menuOptionsDuplicate" 
+            position="right" 
+            class="show-options"
             (selectedOption)="selectedDuplicatedOption($event)">
             <div menu-action>
                <button class="button button-toolbar">
-                <i class="icon-copy"></i>
-            </button>
+                  <i class="icon-copy"></i>
+               </button>
             </div>
          </floating-menu>
          <floating-menu [menuOptions]="menuOptions" *ngIf="!versionsListMode" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">

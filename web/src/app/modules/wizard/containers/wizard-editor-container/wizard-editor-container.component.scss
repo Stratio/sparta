@@ -1,0 +1,29 @@
+.editor {
+   position: absolute;
+   bottom: 0;
+   top: 135px;
+   /*height: calc(100% - 135px);*/
+   width: 100%;
+   background-image: url('../../../../../assets/images/workflow-base.png');
+   background-position: 11px 8px;
+}
+
+.editor-component {
+   opacity: 0;
+   transition: opacity 0.35s;
+   &.loaded {
+      opacity: 1;
+   }
+}
+
+.wizard-header {
+   user-select: none;
+}
+
+.wizard-sidebar {
+   position: absolute;
+   top: 0;
+   right: 0;
+   height: 100%;
+   z-index: 10;
+}

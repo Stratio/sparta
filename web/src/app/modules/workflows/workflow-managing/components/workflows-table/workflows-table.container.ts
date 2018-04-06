@@ -15,7 +15,7 @@ import { Store } from '@ngrx/store';
 import { StModalService } from '@stratio/egeo';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getWorkflowVersions } from './../../reducers';
+import { State, getVersionsOrderedList } from './../../reducers';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -52,7 +52,7 @@ export class WorkflowsManagingTableContainer implements OnInit {
     public workflowVersions$: Observable<Array<any>>;
 
     ngOnInit(): void {
-        this.workflowVersions$ = this._store.select(getWorkflowVersions);
+        this.workflowVersions$ = this._store.select(getVersionsOrderedList);
     }
 
     changeOrder(event: any) {

@@ -3,272 +3,258 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    forwardRef,
-    Input,
-    OnDestroy,
-    OnInit,
-    ViewChild,
-    OnChanges,
-    SimpleChanges
+   ChangeDetectionStrategy,
+   ChangeDetectorRef,
+   Component,
+   forwardRef,
+   Input,
+   OnDestroy,
+   OnInit,
+   ViewChild,
 } from '@angular/core';
 import {
-    ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
+   ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+
 import { ErrorMessagesService } from 'app/services';
 
 @Component({
-    selector: 'form-list',
-    templateUrl: './form-list.template.html',
-    styleUrls: ['./form-list.styles.scss'],
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => FormListComponent),
-            multi: true
-        },
-        {
-            provide: NG_VALIDATORS,
-            useExisting: forwardRef(() => FormListComponent),
-            multi: true
-        }],
-    changeDetection: ChangeDetectionStrategy.OnPush
+   selector: 'form-list',
+   templateUrl: './form-list.template.html',
+   styleUrls: ['./form-list.styles.scss'],
+   providers: [
+      {
+         provide: NG_VALUE_ACCESSOR,
+         useExisting: forwardRef(() => FormListComponent),
+         multi: true
+      },
+      {
+         provide: NG_VALIDATORS,
+         useExisting: forwardRef(() => FormListComponent),
+         multi: true
+      }],
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormListComponent implements Validator, ControlValueAccessor, OnChanges, OnInit, OnDestroy {
+export class FormListComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
-    @Input() public formListData: any;
-    @Input() public label = '';
-    @Input() public qaTag = '';
-    @Input() required = false;
-    @Input() errors: any = {};
-    @Input() tooltip = '';
-    @Input() forceValidations = false;
+   @Input() public formListData: any;
+   @Input() public label = '';
+   @Input() public complexForm = false;
+   @Input() public qaTag = '';
+   @Input() required = false;
+   @Input() errors: any = {};
+   @Input() tooltip = '';
+   @Input() forceValidations = false;
 
-    @ViewChild('inputForm') public inputForm: NgForm;
+   @ViewChild('inputForm') public inputForm: NgForm;
 
-    public item: any = {};
-    public internalControl: FormGroup;
-    public items: FormArray;
-    public isError = false;
-    public isDisabled = false;
+   public item: any = {};
+   public internalControl: FormGroup;
+   public items: FormArray;
+   public isError = false;
+   public isDisabled = false;
 
-    public visibleConditions: any = [];
-    public visibleConditionsOR: any = [];
+   public visibleConditions: any = [];
+   public visibleConditionsOR: any = [];
 
-    private internalControlSubscription: Subscription;
+   private internalControlSubscription: Subscription;
+   private itemssubscription: Array<Array<Subscription>> = [];
 
-    private itemssubscription: Array<Subscription> = [];
+   onChange = (_: any) => { };
+   onTouched = () => { };
 
-    ngOnChanges(changes: SimpleChanges): void {
-        this._cd.markForCheck();
-    }
+   ngOnInit() {
+     this.initForm();
+     this.formListData.forEach(field => {
+         this.item[field.propertyId] = this.addItemValidation(field);
+         this.getDisabledConditions(field);
+      });
+   }
 
-    onChange = (_: any) => { };
-    onTouched = () => { };
+   initForm() {
+      this.items = this.formBuilder.array([]);
+      this.internalControl = new FormGroup({
+         items: this.items
+      });
+      this.internalControlSubscription = this.internalControl.valueChanges.subscribe((form: FormGroup) => {
+         this.onChange(this.items.value);
+      });
+   }
 
-    constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) { };
+   getDisabledConditions(field: any) {
+      if (field.visible && field.visible.length) {
+         this.visibleConditions.push({
+            propertyId: field.propertyId,
+            conditions: field.visible[0]
+         });
+      }
+      if (field.visibleOR && field.visibleOR.length) {
+         this.visibleConditionsOR.push({
+            propertyId: field.propertyId,
+            conditions: field.visibleOR[0]
+         });
+      }
+   }
 
-    ngOnInit() {
-        for (const field of this.formListData) {
-            this.item[field.propertyId] = this.addItemValidation(field);
+   addItemValidation(field: any) {
+      const value = field.default ? field.default : '';
+      if (field.propertyType === 'boolean' || !field.required) {
+         return [value];
+      } else {
+         return [value, Validators.required];
+      }
+   }
 
-            if (field.visible && field.visible.length) {
-                this.visibleConditions.push({
-                    propertyId: field.propertyId,
-                    conditions: field.visible[0]
-                });
-            }
+   //create empty item
+   createItem(): FormGroup {
+      return this.formBuilder.group(this.item);
+   }
 
-            if (field.visibleOR && field.visibleOR.length) {
-                this.visibleConditionsOR.push({
-                    propertyId: field.propertyId,
-                    conditions: field.visibleOR[0]
-                });
-            }
-        }
+   deleteItem(i: number) {
+      this.items.removeAt(i);
+      this.onChange(this.items.value);
+   }
 
-        this.items = this.formBuilder.array([]);
-        this.internalControl = new FormGroup({
-            items: this.items
-        });
+   addItem(): void {
+      this.items.push(this.createItem());
+      const i = this.items.length - 1;
+      this.addObservableVisibleRules(i);
+   }
 
-        this.internalControlSubscription = this.internalControl.valueChanges.subscribe((form: FormGroup) => {
-            this.onChange(this.items.value);
-        });
-    }
+   addObservableVisibleRules(index: number) {
+      const itemGroup: any = this.items.controls[index];
+      this.itemssubscription.push([
+         ...this._addRules(this.visibleConditions, itemGroup, 'AND'),
+         ...this._addRules(this.visibleConditionsOR, itemGroup, 'OR')
+      ]);
+   }
 
-    addItemValidation(field: any) {
-        const item: any = {};
-        const value = field.default ? field.default : '';
-        if (field.propertyType === 'boolean' || !field.required) {
-            return [value];
-        } else {
-            return [value, Validators.required];
-        }
-    }
-
-    //create empty item
-    createItem(): FormGroup {
-        return this.formBuilder.group(this.item);
-    }
-
-    deleteItem(i: number) {
-        this.items.removeAt(i);
-        this.onChange(this.items.value);
-    }
-
-    addItem(): void {
-        this.items.push(this.createItem());
-        const i = this.items.length - 1;
-        this.addObservableVisibleRule(i);
-    }
-
-    addObservableVisibleRule(index: number) {
-        const subscriptionsHandler: any = [];
-        const itemGroup: any = this.items.controls[index];
-
-        this.visibleConditions.forEach((propertyConditions: any) => {   // each property
-            propertyConditions.conditions.forEach((prop: any) => {      // each property conditions
-                const subscription: Subscription = itemGroup.controls[prop.propertyId].valueChanges.subscribe((value: any) => {
-                    this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'AND');
-                });
-                this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'AND');
-                subscriptionsHandler.push(subscription);
+   private _addRules(conditions: Array<any>, itemGroup: any, conditionType) {
+      const subscriptions = [];
+      conditions.forEach((propertyConditions: any) => {   // each property
+         propertyConditions.conditions.forEach((prop: any) => {      // each property conditions
+            const subscription: Subscription = itemGroup.controls[prop.propertyId].valueChanges.subscribe((value: any) => {
+               this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, conditionType === 'OR');
             });
-        });
+            this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, conditionType === 'OR');
+            subscriptions.push(subscription);
+         });
+      });
+      return subscriptions;
+   }
 
-        this.visibleConditionsOR.forEach((propertyConditions: any) => {   // each property
-            propertyConditions.conditions.forEach((prop: any) => {      // each property conditions
-                const subscription: Subscription = itemGroup.controls[prop.propertyId].valueChanges.subscribe((value: any) => {
-                    this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'OR');
-                });
-                this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'OR');
-                subscriptionsHandler.push(subscription);
+   checkDisabledField(propertyConditions: any, group: any, propertyId: string, orCondition: boolean) {
+      let enable = (!orCondition);
+      propertyConditions.forEach((rule: any) => {
+         if (orCondition && rule.value == group.controls[rule.propertyId].value) {
+            enable = true;
+         }
+         if (!orCondition && rule.value != group.controls[rule.propertyId].value && group.controls[rule.propertyId].enabled) {
+            enable = false;
+         }
+      });
+      enable && !this.isDisabled ? group.controls[propertyId].enable() : group.controls[propertyId].disable();
+   }
+
+   showError(): boolean {
+      return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.isDisabled;
+   }
+
+   getItemClass(field: any): string {
+      if (field.width) {
+         return 'list-item col-sm-' + field.width;
+      }
+      const type: string = field.propertyType;
+      if (type === 'boolean') {
+         return 'list-item check-column';
+      }
+      const length = this.formListData.length;
+      if (length === 1) {
+         return 'list-item col-sm-6';
+      } else if (length < 4) {
+         return 'list-item col-sm-' + 12 / length;
+      } else {
+         return 'list-item col-sm-4';
+      }
+   }
+
+   writeValue(data: any): void {
+      if (data && Array.isArray(data) && data.length) {
+         this.items.controls = [];
+         data.forEach(value => {
+            const item: any = {};
+            this.formListData.forEach(field => {
+               item[field.propertyId] = this.addItemValidation(field);
+               item[field.propertyId][0] = { value: value[field.propertyId], disabled: this.isDisabled };
             });
-        });
+            const form: FormGroup = this.formBuilder.group(item);
+            this.items.push(form);
+            const i = this.items.length - 1;
+            this.addObservableVisibleRules(i);
+         });
+         this._cd.markForCheck();
+      } else {
+         this.items.controls = [];
+      }
+   }
 
-        this.itemssubscription.push(subscriptionsHandler);
-    }
+   // Registry the change function to propagate internal model changes
+   registerOnChange(fn: (_: any) => void): void {
+      this.onChange = fn;
+   }
 
-    checkDisabledField(propertyConditions: any, group: any, propertyId: string, conditionType: string) {
-        let enable = (conditionType !== 'OR');
-        propertyConditions.forEach((rule: any) => {
-            if (conditionType === 'OR' && rule.value == group.controls[rule.propertyId].value) {
-                enable = true;
-            }
-            if (conditionType !== 'OR' && rule.value != group.controls[rule.propertyId].value && group.controls[rule.propertyId].enabled) {
-                enable = false;
-            }
-        });
-        if (enable && !this.isDisabled) {
-            group.controls[propertyId].enable();
-        } else {
-            group.controls[propertyId].disable();
-        }
-    }
+   registerOnTouched(fn: any): void {
+      this.onTouched = fn;
+   }
 
+   setDisabledState(disable: boolean): void {
+      this.isDisabled = disable;
+      if (this.isDisabled && this.internalControl && this.internalControl.enabled) {
+         this.internalControl.disable();
+      } else if (!this.isDisabled && this.internalControl && this.internalControl.disabled) {
+         this.internalControl.enable();
+      }
+      this._cd.markForCheck();
+   }
 
-    showError(): boolean {
-        return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.isDisabled;
-    }
+   validate(c: FormGroup): { [key: string]: any; } {
+      if (this.required) {
+         if (!this.items.controls.length) {
+            this.isError = true;
+            return {
+               formListError: {
+                  valid: false
+               }
+            };
+         }
+      }
+      let error = false;
+      this.items.controls.forEach((control: any) => {
+         if (control.invalid) {
+            error = true;
+         }
+      });
+      this.isError = error;
+      return error ? {
+         formListError: {
+            valid: false
+         }
+      } : null;
+   }
 
-    getItemClass(field: any): string {
-        if (field.width) {
-            return 'list-item col-xs-' + field.width;
-        }
-        const type: string = field.propertyType;
-        if (type === 'boolean') {
-            return 'list-item check-column';
-        }
-        const length = this.formListData.length;
-        if (length === 1) {
-            return 'list-item col-xs-6';
-        } else if (length < 4) {
-            return 'list-item col-xs-' + 12 / length;
-        } else {
-            return 'list-item col-xs-4';
-        }
-    }
+   constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) { };
 
-    writeValue(data: any): void {
-        if (data && Array.isArray(data) && data.length) {
-            this.items.controls = [];
-            for (const value of data) {
-                const item: any = {};
-                for (const field of this.formListData) {
-                    item[field.propertyId] = this.addItemValidation(field);
-                    item[field.propertyId][0] = { value: value[field.propertyId], disabled: this.isDisabled};
-                }
-                const form: FormGroup = this.formBuilder.group(item);
-                this.items.push(form);
-                const i = this.items.length - 1;
-                this.addObservableVisibleRule(i);
-            }
-            this._cd.markForCheck();
-        } else {
-            this.items.controls = [];
-        }
-    }
-
-
-    // Registry the change function to propagate internal model changes
-    registerOnChange(fn: (_: any) => void): void {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: any): void {
-        this.onTouched = fn;
-    }
-
-    setDisabledState(disable: boolean): void {
-        this.isDisabled = disable;
-        if (this.isDisabled && this.internalControl && this.internalControl.enabled) {
-            this.internalControl.disable();
-        } else if (!this.isDisabled && this.internalControl && this.internalControl.disabled) {
-            this.internalControl.enable();
-        }
-        this._cd.markForCheck();
-    }
-
-    validate(c: FormGroup): { [key: string]: any; } {
-        if (this.required) {
-            if (!this.items.controls.length) {
-                this.isError = true;
-                return {
-                    formListError: {
-                        valid: false
-                    }
-                };
-            }
-        }
-
-        let error = false;
-        this.items.controls.forEach((control: any) => {
-            if (control.invalid) {
-                error = true;
-            }
-        });
-        this.isError = error;
-        return error ? {
-            formListError: {
-                valid: false
-            }
-        } : null;
-
-    }
-
-    ngOnDestroy(): void {
-        this.internalControlSubscription && this.internalControlSubscription.unsubscribe();
-        if (this.itemssubscription.length) {
-            this.itemssubscription.forEach((rowSubscriptions: any) => {
-                rowSubscriptions.forEach((subscription: any) => {
-                    subscription.unsubscribe();
-                });
+   ngOnDestroy(): void {
+      this.internalControlSubscription && this.internalControlSubscription.unsubscribe();
+      if (this.itemssubscription.length) {
+         this.itemssubscription.forEach((rowSubscriptions: any) => {
+            rowSubscriptions.forEach((subscription: any) => {
+               subscription.unsubscribe();
             });
-        }
-    }
+         });
+      }
+   }
 }

@@ -3,9 +3,9 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { Subject } from 'rxjs/Subject';
-import { OnDestroy } from '@angular/core/core';
-import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -33,14 +33,13 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     @Input() public subFormNumber = 0;
     @Input() arity: any;
     @Input() disabledForm = false;
-
     @Input() public stModel: any = {};
+
     @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
 
     public formDataAux: any;
     public stFormGroupSubcription: Subscription;
     public formDataValues: any = [];
-    notifyChangeSubject: Subject<any> = new Subject();
 
     ngOnInit(): void { }
 
@@ -50,7 +49,6 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
         } else {
             this.stModel = {};
         }
-        this.notifyChangeSubject.next(value);
     }
 
     ngOnChanges(change: any): void {
@@ -66,7 +64,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
                     formControl: formControl,
                     field: prop
                 });
-            }  
+            }
         }
     }
 
@@ -74,9 +72,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
         this.stFormGroupSubcription = this.stFormGroup.valueChanges.subscribe(fn);
     }
 
-    registerOnTouched(fn: any): void {
-
-    }
+    registerOnTouched(fn: any): void { }
 
     validate(c: FormGroup): { [key: string]: any; } {
         return (this.stFormGroup.valid) ? null : {

@@ -1,8 +1,24 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <section class="workflow-wizard" [hidden]="(editionConfigMode$ | async).isEdition || (showSettings$ | async)">
     <div class="wizard-content">
-        <wizard-editor [workflowType]="workflowType"></wizard-editor>
+        <wizard-editor-container [workflowType]="workflowType"></wizard-editor-container>
     </div>
     <selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
 </section>
-<wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition" [workflowType]="workflowType" [config]="editionConfigMode$ | async"></wizard-config-editor>
-<wizard-settings [workflowType]="workflowType" [edition]="isEdit" [workflowType]="workflowType" *ngIf="workflowType.length && (showSettings$ | async)"></wizard-settings>
+
+<wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition"
+   [workflowType]="workflowType"
+   [config]="editionConfigMode$ | async"></wizard-config-editor>
+
+<wizard-settings [workflowType]="workflowType"
+   [edition]="isEdit" [workflowType]="workflowType"
+   *ngIf="workflowType.length && (showSettings$ | async)"></wizard-settings>

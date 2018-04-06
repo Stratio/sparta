@@ -28,40 +28,46 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case backupsActions.LIST_BACKUP_COMPLETE: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 backupList: action.payload,
                 loaded: true
-            });
+            };
         }
         case backupsActions.SELECT_BACKUP: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 selectedBackups: [...state.selectedBackups, action.payload],
-            });
+            };
         }
         case backupsActions.UNSELECT_BACKUP: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 selectedBackups: state.selectedBackups.filter(((backup: any) => {
                     return backup !== action.payload;
                 })),
-            });
+            };
         }
         case backupsActions.DELETE_BACKUP_COMPLETE: {
-            return Object.assign({}, state, {
-                selectedBackups: [],
-            });
+            return {
+                ...state,
+                selectedBackups: []
+            };
         }
         case backupsActions.SELECT_ALL_BACKUPS: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 selectedBackups: action.payload ? state.backupList.map(((backup: any) => {
                     return backup.fileName;
                 })) : []
-            });
+            };
         }
         case backupsActions.CHANGE_ORDER: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 orderBy: action.payload.orderBy,
                 sortOrder: action.payload.sortOrder
-            });
+            };
         }
         default:
             return state;

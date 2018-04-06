@@ -9,7 +9,7 @@ import { Observable, Subscription } from 'rxjs/Rx';
 
 import * as userActions from 'actions/user';
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getCurrentGroupLevel, getWorkflowVersions, getSelectedVersionsData } from './../../reducers';
+import { State, getCurrentGroupLevel, getVersionsOrderedList, getSelectedVersionsData } from './../../reducers';
 import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';
 import { Router } from '@angular/router';
 
@@ -55,7 +55,7 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.selectedVersionsData$ = this._store.select(getSelectedVersionsData);
-        this.workflowVersions$ = this._store.select(getWorkflowVersions);
+        this.workflowVersions$ = this._store.select(getVersionsOrderedList);
         this.currentLevelSubscription = this._store.select(getCurrentGroupLevel).subscribe((levelGroup: any) => {
             const level = levelGroup.group;
             const levelOptions = ['Home'];

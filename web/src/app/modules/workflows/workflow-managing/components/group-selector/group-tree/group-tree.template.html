@@ -1,7 +1,17 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <ul>
    <li *ngFor="let subtree of tree">
       <div class="folder-content" [style.paddingLeft.px]="index * 20" [ngClass]="{'selected' : selectedFolder === subtree.name}" (click)="selectFolder($event, subtree.name)">
-         <div class="container-group" 
+         <div class="container-group"
          [ngClass]="{'current-group' : (subtree.name === parentGroup || (blockChilds && subtree.name.indexOf(currentGroup) === 0 || !blockChilds && subtree.name === currentGroup))}" >
             <span *ngIf="subtree.subGroups && subtree.subGroups.length" class="open-icon" [ngClass]="subtree.open ? 'icon-arrow2_down' : 'icon-arrow2_right'"
                (click)="toggleTree($event,subtree)"></span>
@@ -9,13 +19,13 @@
             <span class="folder-name">{{subtree.label}}</span>
          </div>
       </div>
-      <group-tree *ngIf="subtree.open" 
-            [blockChilds]="blockChilds" 
-            [selectedFolder]="selectedFolder" 
-            [parentGroup]="parentGroup" 
-            (onSelectFolder)="onSelectFolder.emit($event)" 
-            [index]="index + 1" 
-            [tree]="subtree.subGroups" 
+      <group-tree *ngIf="subtree.open"
+            [blockChilds]="blockChilds"
+            [selectedFolder]="selectedFolder"
+            [parentGroup]="parentGroup"
+            (onSelectFolder)="onSelectFolder.emit($event)"
+            [index]="index + 1"
+            [tree]="subtree.subGroups"
             [currentGroup]="currentGroup"></group-tree>
    </li>
 </ul>

@@ -1,0 +1,18 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<svg:g class="segmentContainer">
+    <defs>
+        <svg:path [attr.id]="'path' + index" class="svgPathVar"></svg:path>
+    </defs>
+    <use [attr.xlink:href]="'#path' + index" class="segment" marker-start="url(#UpArrowPrecise)"
+    marker-end="url(#DownArrowPrecise)" [ngClass]="{'selected' : isSelected}"/>
+   <use [attr.xlink:href]="'#path' + index" class="segment-hover" stroke-width="15" (click)="selectSegment($event)"/>
+</svg:g>

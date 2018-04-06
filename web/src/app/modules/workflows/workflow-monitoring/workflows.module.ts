@@ -9,17 +9,17 @@ import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StTableModule,
     StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-    StModalService, StPaginationModule, StTooltipModule, StFullscreenLayoutModule
+    StPaginationModule, StTooltipModule, StFullscreenLayoutModule
 } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
 import {
-    WorkflowsComponent, WorkflowsService,  WorkflowRouterModule, WorkflowDetailComponent,
+    WorkflowsComponent,  WorkflowRouterModule, WorkflowDetailComponent,
     WorkflowExecutionInfoComponent, WorkflowsHeaderContainer, WorkflowsHeaderComponent,
     WorkflowsTableComponent, WorkflowsTableContainer
 } from '.';
 
-import { reducers } from './reducers';
+import { reducerToken, reducerProvider } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 
@@ -36,7 +36,7 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
     imports: [
         FormsModule,
         SpTooltipModule,
-        StoreModule.forFeature('workflows', reducers),
+        StoreModule.forFeature('workflows', reducerToken),
         EffectsModule.forFeature([WorkflowEffect]),
         StCheckboxModule,
         StHorizontalTabsModule,
@@ -47,13 +47,9 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
         StSearchModule,
         WorkflowRouterModule,
         StPaginationModule,
-        SharedModule,
-        // StModalModule.withComponents([])
+        SharedModule
     ],
-    providers: [
-        WorkflowsService,
-        StModalService
-    ]
+    providers: [reducerProvider]
 })
 
 export class WorkflowsMonitoringModule {

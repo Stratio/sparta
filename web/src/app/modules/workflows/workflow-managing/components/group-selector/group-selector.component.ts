@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import {
     ChangeDetectionStrategy,
     Component,
@@ -14,6 +15,8 @@ import {
 } from '@angular/core';
 
 import { FOLDER_SEPARATOR } from './../../workflow.constants';
+import { GroupTree } from './group.tree.model';
+import { Group } from './../../models/workflows';
 
 @Component({
     selector: 'group-selector',
@@ -23,7 +26,7 @@ import { FOLDER_SEPARATOR } from './../../workflow.constants';
 })
 export class GroupSelectorComponent implements OnInit, OnDestroy {
 
-    @Input() groups: Array<any>;
+    @Input() groups: Array<Group>;
     @Input() selectedFolder: string;
     @Input() blockChilds = true;
     @Input() currentGroup: string;
@@ -31,16 +34,16 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
 
     @Output() onSelectFolder = new EventEmitter<string>();
 
-    public tree: any = [];
+    public tree: GroupTree[] = [];
 
 
     ngOnInit() {
         this.tree = this.getGroupTree(this.groups, this.parentGroup);
     }
 
-    getGroupTree(groups: Array<any>, openFolder: string, currentFolder = '') {
+    getGroupTree(groups: Array<Group>, openFolder: string, currentFolder = ''): GroupTree[] {
         const acc: any = [];
-        return groups.filter((group: any) => {
+        return groups.filter((group: Group) => {
             const split = group.name.split(currentFolder + FOLDER_SEPARATOR);
             if (split.length === 2 && split[0] === '' && split[1].indexOf(FOLDER_SEPARATOR) === -1) {
                 group.label = split.length > 1 ? split[split.length - 1] : group.name;

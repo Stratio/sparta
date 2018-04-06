@@ -32,7 +32,7 @@
     display:block;
     color: #888;
     font-size:$egeo-font-size-small;
-        font-family: Nunito Sans ExtraBold;
+    font-family: Nunito Sans ExtraBold;
 }
 
 .list-field {
@@ -77,4 +77,29 @@
             color: #cbcbcb;
         }
     }
+}
+
+.form-item {
+   width: 100%;
+}
+
+.complex-form {
+   .list-field {
+      display: flex;
+      flex-direction: row;
+   }
+   .form-item {
+      background-color: $neutral-03;
+      padding: 12px 12px;
+      margin: 15px 0;
+   }
+
+   .delete-group {
+      font-family: $egeo-nunito-sans;
+      font-size: $egeo-font-size-xxsmall;
+      color: $neutral-09;
+      float: right;
+      cursor: pointer;
+      text-decoration: underline;
+   }
 }

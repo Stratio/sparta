@@ -4,12 +4,12 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 export interface ValidationModel {
-    valid:boolean;
+    valid: boolean;
     errors: Array<ValidationErrorModel>;
 }
 
 export interface ValidationErrorModel {
-    fieldName: string,
-    fieldValue: any,
-    validationError: string
+    fieldName: string;
+    fieldValue: any;
+    validationError: string;
 }

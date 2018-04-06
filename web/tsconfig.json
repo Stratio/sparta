@@ -9,33 +9,15 @@
       "outDir": "dist",
       "paths": {
          "@app/*": ["app/modules/*"],
-         "reducers": [
-            "./app/reducers"
-         ],
-         "actions/*": [
-            "./app/actions/*"
-         ],
-         "models/*": [
-            "./app/models"
-         ],
-         "services/*": [
-            "./app/services"
-         ],
-         "services": [
-            "./app/services"
-         ],
-         "@utils": [
-            "./app/utils"
-         ],
-         "data-templates/*": [
-            "./app/data-templates/*"
-         ],
-         "assets/*": [
-            "./assets/*"
-         ],
-         "constants/*": [
-            "./app/modules/shared/constants/*"
-         ],
+         "reducers": ["./app/reducers"],
+         "actions/*": ["./app/actions/*"],
+         "@models/*": ["./app/models/*"],
+         "services/*": ["./app/services"],
+         "services": ["./app/services"],
+         "@utils": ["./app/utils"],
+         "data-templates/*": ["./app/data-templates/*"],
+         "assets/*": ["./assets/*"],
+         "constants/*": ["./app/modules/shared/constants/*"],
          "@test/*": ["test/*"],
          "@test": ["test/index.ts"]
       },

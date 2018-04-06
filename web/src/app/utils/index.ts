@@ -5,9 +5,7 @@
  */
 const typeCache: { [label: string]: boolean } = {};
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-];
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function type<T>(label: T | ''): T {
   if (typeCache[<string>label]) {
@@ -135,4 +133,12 @@ export function isWorkflowRunning(policyStatus: string) {
         || status === 'uploaded'
         || status === 'launched'
         || status === 'notstarted');
+}
+
+export function reduceReducers(...reducers) {
+    return (previous, current) =>
+        reducers.reduce(
+            (p, r) => r(p, current),
+            previous
+        );
 }

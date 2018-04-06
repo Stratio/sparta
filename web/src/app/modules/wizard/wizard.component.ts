@@ -3,15 +3,14 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { TranslateService } from '@ngx-translate/core';
-import { Observable, Subscription } from 'rxjs/Rx';
-import { Location } from '@angular/common';
 
-import * as fromRoot from 'reducers';
-import * as wizardActions from 'actions/wizard';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs/Rx';
+
+import * as fromWizard from './reducers';
+import * as wizardActions from './actions/wizard';
 import { WizardService } from './services/wizard.service';
 
 
@@ -28,6 +27,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     public creationMode$: Observable<any>;
     public editionConfigMode$: Observable<any>;
     public showSettings$: Observable<boolean>;
+
     private _paramSubscription: Subscription;
     private _saveSubscription: Subscription;
     private _workflowTypeSubscription: Subscription;
@@ -35,13 +35,9 @@ export class WizardComponent implements OnInit, OnDestroy {
     public isEdit = false;
 
     constructor(
-        private _cd: ChangeDetectorRef,
-        private _store: Store<fromRoot.State>,
-        private _translate: TranslateService,
-        private _router: Router,
+        private _store: Store<fromWizard.State>,
         private _route: ActivatedRoute,
-        private _wizardService: WizardService,
-        private _location: Location) {
+        private _wizardService: WizardService) {
         const id = this._route.snapshot.params.id;
 
         if (id && id.length) {
@@ -59,25 +55,16 @@ export class WizardComponent implements OnInit, OnDestroy {
             this._store.dispatch(new wizardActions.GetMenuTemplatesAction());
         }
 
-        this._workflowTypeSubscription = this._store.select(fromRoot.getWorkflowType).subscribe((workflowType: string) => {
+        this._workflowTypeSubscription = this._store.select(fromWizard.getWorkflowType).subscribe((workflowType: string) => {
             this._wizardService.workflowType = workflowType;
             this.workflowType = workflowType;
         });
     }
 
     ngOnInit(): void {
-        this.creationMode$ = this._store.select(fromRoot.isCreationMode);               // show create node pointer icon
-        this.editionConfigMode$ = this._store.select(fromRoot.getEditionConfigMode);    // show node/settings editor view
-        this.showSettings$ = this._store.select(fromRoot.showSettings);
-        /* this._saveSubscription = this._store.select(fromRoot.isSavedWorkflow).subscribe((isSaved: boolean) => {
-            if (isSaved) {
-                if (window.history.length > 2) {
-                    this._location.back();
-                } else {
-                    this._router.navigate(['workflow-managing']);
-                }
-            }
-        });*/
+        this.creationMode$ = this._store.select(fromWizard.isCreationMode);               // show create node pointer icon
+        this.editionConfigMode$ = this._store.select(fromWizard.getEditionConfigMode);    // show node/settings editor view
+        this.showSettings$ = this._store.select(fromWizard.showSettings);
     }
 
     ngOnDestroy(): void {

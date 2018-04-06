@@ -1,3 +1,13 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
 <st-fullscreen-layout [title]="executionInfo.name">
    <div class="st-fullscreen-layout-buttons">
       <div class="return-link">
@@ -8,36 +18,6 @@
       <section class="execution-info-container" *ngIf="executionInfo">
          <div class="container">
             <div class="row info-data">
-               <!--<div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
-                  <div class="row spark-submit">
-                     <div class="title col-sm-3">
-                        driverClass
-                     </div>
-                     <div class="values col-sm-9">
-                        {{executionInfo.sparkSubmitExecution.driverClass}}
-                     </div>
-                  </div>
-               </div>
-               <div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
-                  <div class="row spark-submit">
-                     <div class="title col-sm-3">
-                        driverFile
-                     </div>
-                     <div class="values col-sm-9">
-                        {{executionInfo.sparkSubmitExecution.driverFile}}
-                     </div>
-                  </div>
-               </div>
-               <div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
-                  <div class="row spark-submit">
-                     <div class="title col-sm-3">
-                        master
-                     </div>
-                     <div class="values col-sm-9">
-                        {{executionInfo.sparkSubmitExecution.master}}
-                     </div>
-                  </div>
-               </div>-->
                <div class="col-sm-12">
                   <st-horizontal-tabs class="info-tables" [options]="options" [qaTag]="'execution-info-tabs'" (changedOption)="changeTableInfo($event)">
                   </st-horizontal-tabs>

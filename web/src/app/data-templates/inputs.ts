@@ -3,6 +3,9 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
+import { StepType, Engine } from "@models/enums";
+
 import * as kafkaTemplate from './inputs/kafka.json';
 import * as crossdataStreamingTemplate from './inputs/crossdataStreaming.json';
 import * as crossdataBatchTemplate from './inputs/crossdataBatch.json';
@@ -50,22 +53,22 @@ inputs.forEach((input: any) => {
     if (!input.supportedEngines) {
         return;
     }
-    if (input.supportedEngines.indexOf('Batch') > -1) {
+    if (input.supportedEngines.indexOf(Engine.Batch) > -1) {
         _batchInputs.push(input);
         _batchInputsObject[input.classPrettyName] = input;
         _batchInputsNames.push({
             name: input.name,
             value: input,
-            stepType: 'Input'
+            stepType: StepType.Input
         });
     }
-    if (input.supportedEngines.indexOf('Streaming') > -1) {
+    if (input.supportedEngines.indexOf(Engine.Streaming) > -1) {
         _streamingInputs.push(input);
         _streamingInputsObject[input.classPrettyName] = input;
         _streamingInputsNames.push({
             name: input.name,
             value: input,
-            stepType: 'Input'
+            stepType: StepType.Input
         });
     }
 });

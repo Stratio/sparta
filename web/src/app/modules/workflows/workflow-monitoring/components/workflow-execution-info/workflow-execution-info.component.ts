@@ -7,11 +7,13 @@ import {
     Component, OnInit, ViewChild, ChangeDetectionStrategy,
     Input, OnDestroy, ChangeDetectorRef
 } from '@angular/core';
+import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import * as workflowActions from './../../actions/workflow-list';
+
+import * as workflowActions from './../../actions/workflows';
 import * as fromRoot from 'reducers';
-import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
+import { ExecutionInfo } from './../../models/execution-info';
 
 @Component({
     selector: 'workflow-execution-info',
@@ -19,10 +21,9 @@ import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
     styleUrls: ['./workflow-execution-info.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
+export class WorkflowExecutionInfoComponent {
 
-    @Input() executionInfo: any;
-
+    @Input() executionInfo: ExecutionInfo;
 
     public sortOrderConfig = false;
     public orderByConfig = 'key';
@@ -64,13 +65,7 @@ export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
         this.selectedOption = $event.id;
     }
 
-    ngOnInit() {
-    }
-
     closeWorkflowExecutinInfo() {
         this.store.dispatch(new workflowActions.CloseWorkflowExecutionInfoAction());
     }
-
-    public ngOnDestroy(): void { }
 }
-

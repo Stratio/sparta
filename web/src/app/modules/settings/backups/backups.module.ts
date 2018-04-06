@@ -3,9 +3,10 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { NgModule } from '@angular/core';
 import { SharedModule } from '@app/shared';
-import { EgeoModule, StModalModule, StSwitchModule, StTableModule } from '@stratio/egeo';
+import { StModalModule, StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { FormsModule } from '@angular/forms';
@@ -18,27 +19,28 @@ import { reducers } from './reducers';
 import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
 
 @NgModule({
-    declarations: [
-        SpartaBackups,
-        ExecuteBackup,
-    ],
-    imports: [
-        EgeoModule.forRoot(),
-        StModalModule.withComponents([ExecuteBackup]),
-        BackupsRoutingModule,
-        EffectsModule.forFeature([BackupsEffect]),
-        StoreModule.forFeature('backups', reducers),
-        FormsModule,
-        StSwitchModule,
-        SharedModule,
-        TableNotificationModule,
-        StTableModule
-    ]
+   declarations: [
+      SpartaBackups,
+      ExecuteBackup,
+   ],
+   imports: [
+      BackupsRoutingModule,
+      StoreModule.forFeature('backups', reducers),
+      EffectsModule.forFeature([BackupsEffect]),
+      FormsModule,
+      StBreadcrumbsModule,
+      StCheckboxModule,
+      StModalModule.withComponents([ExecuteBackup]),
+      StSwitchModule,
+      SharedModule,
+      TableNotificationModule,
+      StTableModule
+   ]
 })
 
 export class BackupsModule {
-    constructor() {
+   constructor() {
 
-    }
+   }
 }
 
