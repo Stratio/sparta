@@ -10,7 +10,6 @@ import { WizardService } from '@app/wizard/services/wizard.service';
 
 import * as fromWizard from './../../reducers';
 
-
 @Component({
     selector: 'wizard-details',
     templateUrl: './wizard-details.template.html',

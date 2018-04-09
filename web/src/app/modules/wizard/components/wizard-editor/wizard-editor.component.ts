@@ -17,15 +17,16 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Rx';
-import * as d3 from 'd3';
-import { ZoomBehavior, DragBehavior } from 'd3';
+import {event as d3Event} from 'd3-selection';
+import {zoom as d3Zoom} from 'd3-zoom';
+import {select as d3Select} from 'd3-selection';
+import {zoomIdentity} from 'd3';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
-import { isMobile } from 'constants/global';
 import { WizardNode, WizardEdge } from '@app/wizard/models/node';
 import { ZoomTransform, CreationData, NodeConnector } from '@app/wizard/models/drag';
 
@@ -48,8 +49,8 @@ export class WizardEditorComponent implements OnInit {
       this._svgPosition = _cloneDeep(value);
       if (this._SVGParent) {
          /** Update editor position */
-         this._SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
-         .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
+         this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
+            .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
       }
    }
    @Input() workflowNodes: Array<WizardNode> = [];
@@ -80,8 +81,7 @@ export class WizardEditorComponent implements OnInit {
    public _svgPosition: ZoomTransform;
 
    private newOrigin = '';
-   private zoom: ZoomBehavior<any, any>;
-   private drag: DragBehavior<any, any, any>;
+   private zoom: d3.ZoomBehavior<any, any>;
 
    constructor(private _elementRef: ElementRef,
       private _editorService: WizardEditorService,
@@ -89,29 +89,16 @@ export class WizardEditorComponent implements OnInit {
       private _cd: ChangeDetectorRef,
       private initializeSchemaService: InitializeSchemaService,
       private _ngZone: NgZone) {
-      this.isMobile = isMobile;
    }
 
    ngOnInit(): void {
       this._initSelectors();
-      function deltaFn() {
-         return -d3.event.deltaY * (d3.event.deltaMode ? 0.0387 : 0.002258);
-      }
-      this.zoom = d3.zoom()
-         .scaleExtent([1 / 8, 3])
-         .wheelDelta(deltaFn);
-      this.drag = d3.drag();
-      this._ngZone.runOutsideAngular(() => {
-         this.setDraggableEditor();
-      });
-      // Set initial position
-      this._SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
-         .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
+      this.setDraggableEditor();
    }
 
    private _initSelectors() {
-      this._documentRef = d3.select(document);
-      const element: d3.Selection<Element, any, any, any> = d3.select(this._elementRef.nativeElement);
+      this._documentRef = d3Select(document);
+      const element: d3.Selection<Element, any, any, any> = d3Select(this._elementRef.nativeElement);
       this._SVGParent = element.select('#composition');
       this._SVGContainer = element.select('#svg-container');
       this._connectorElement = element.select('.connector-line');
@@ -138,24 +125,7 @@ export class WizardEditorComponent implements OnInit {
    }
 
    createEdge(event: any) {
-      if (isMobile) {
-         this.newOrigin = event.name;
-         this.drawingConnectionStatus = {
-            status: true,
-            name: event.name
-         };
-         const w = this._documentRef
-            .on('click', () => {
-               w.on('click', null).on('click', null);
-               this.newOrigin = '';
-               event.event.target.classList.remove('over-output2');
-               this.drawingConnectionStatus = {
-                  status: false
-               };
-            });
-      } else {
-         this.drawConnector(event);
-      }
+      this.drawConnector(event);
    }
 
    drawConnector(event: any) {
@@ -190,8 +160,8 @@ export class WizardEditorComponent implements OnInit {
       }
 
       function drawConnector() {
-         connector.x2 = d3.event.clientX - connector.x1;
-         connector.y2 = d3.event.clientY - connector.y1 - 135;
+         connector.x2 = d3Event.clientX - connector.x1;
+         connector.y2 = d3Event.clientY - connector.y1 - 135;
          this._connectorElement.attr('d', 'M ' + connector.x1 + ' ' + connector.y1 + ' l ' + connector.x2 + ' ' + connector.y2);
       }
    }
@@ -227,43 +197,23 @@ export class WizardEditorComponent implements OnInit {
    }
 
    setDraggableEditor() {
-      this.setDragStart();
-      let pristine = true;
-      let repaints = 0;
-      const _SVGContainer = this._SVGContainer;
-      const repaint = function () {
-         _SVGContainer.attr('transform', this.toString());
-      };
-      let lastUpdateCall: number;
-      this._SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
-         const e: any = d3.event;
-         if (pristine) {
-            if (repaints < 2) {
-               repaints++;
-            } else {
-               if (this.workflowNodes.length) {
-                  pristine = false;
-                  this._store.dispatch(new wizardActions.SetWizardStateDirtyAction());
-               }
-            }
+      this._ngZone.runOutsideAngular(() => {
+         function deltaFn() {
+            return -d3Event.deltaY * (d3Event.deltaMode ? 0.0387 : 0.002258);
          }
-         if (lastUpdateCall) {
-            cancelAnimationFrame(lastUpdateCall);
+         function zoomed(svgPosition: any): void {
+            this._svgPosition = d3Event.transform;
+            this._SVGContainer.attr('transform', d3Event.transform);
          }
-         this._svgPosition = e.transform;
-         lastUpdateCall = requestAnimationFrame(repaint.bind(e.transform));
-      })).on('dblclick.zoom', null);
+         this.zoom = d3Zoom()
+            .scaleExtent([1 / 8, 3])
+            .wheelDelta(deltaFn)
+            .on('zoom', zoomed.bind(this));
+         this._SVGParent.call(this.zoom).on('dblclick.zoom', null);
+         // Set initial position
+         this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
+            .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
+      });
    }
 
-   setDragStart() {
-      this._SVGParent.call(this.drag
-         .on('start', () => {
-            const event = d3.event;
-            const position = {
-               offsetX: event.x,
-               offsetY: event.y
-            };
-            this.clickDetected.call(this, position);
-         }));
-   }
 }

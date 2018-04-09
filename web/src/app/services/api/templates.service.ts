@@ -6,15 +6,13 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { ApiService } from './api.service';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class TemplatesService extends ApiService {
 
-    constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
-        super(_http, _store);
+    constructor(private _http: HttpClient) {
+        super(_http);
     }
 
     getAllTemplates(): Observable<any> {

@@ -5,19 +5,15 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ApiService, ApiRequestOptions } from './api.service';
-import { Http } from '@angular/http';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
+import { ApiService } from './api.service';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class EnvironmentService extends ApiService {
 
-    constructor(private _http: HttpClient,  _store: Store<fromRoot.State>) {
-        super(_http, _store);
+    constructor(private _http: HttpClient) {
+        super(_http);
     }
 
     getEnvironment(): Observable<any> {

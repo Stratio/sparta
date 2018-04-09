@@ -13,8 +13,7 @@ import { Store } from "@ngrx/store";
 
 import { WorkflowsManagingTableContainer } from './../workflows-table.container';
 
-import { TranslateMockModule } from '@test/translate-stub';
-import { MockStore } from "@test/store-mock";
+import { MockStore } from '@test/store-mock';
 
 
 let component: WorkflowsManagingTableContainer;
@@ -24,16 +23,27 @@ let versionEl: DebugElement;
 
 describe('[WorkflowsManagingTableContainer]', () => {
 
-   const mockStoreInstance: MockStore<any> = new MockStore({
-
-   });
+    const mockStoreInstance: MockStore<any> = new MockStore({
+        workflowsManaging: {
+            workflowsManaging: {
+                workflowList: [
+                    {
+                        name: 'workflow1'
+                    },
+                    {
+                        name: 'workflow2'
+                    }
+                ]
+            }
+        }
+    });
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             declarations: [WorkflowsManagingTableContainer],
             schemas: [NO_ERRORS_SCHEMA],
             providers: [
-               { provide: Store, useValue: mockStoreInstance },
+                { provide: Store, useValue: mockStoreInstance },
             ],
         }).compileComponents();  // compile template and css
     }));
@@ -41,15 +51,13 @@ describe('[WorkflowsManagingTableContainer]', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(WorkflowsManagingTableContainer);
         component = fixture.componentInstance;
+        fixture.detectChanges();
 
     });
 
-    describe('should show a workflows and group list table', () => {
+    it('should get OnInit the current versions list', () => {
+        component.workflowVersions$.take(1).subscribe((versions) => {
 
-        beforeEach(() => {
-            fixture.detectChanges();
-            tableEl = fixture.debugElement.query(By.css('.workflow-table'));
         });
-
-      });
+    });
 });

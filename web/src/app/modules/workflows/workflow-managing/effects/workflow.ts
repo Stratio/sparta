@@ -35,12 +35,15 @@ export class WorkflowEffect {
                 ]));
             });
 
+
+
     @Effect()
     getWorkflowGroups$: Observable<Action> = this.actions$
         .ofType(workflowActions.LIST_GROUPS)
-        .switchMap((response: any) => this.workflowService.getGroups()
-            .catch(error => Observable.from([new workflowActions.ListGroupsErrorAction(), new errorActions.ServerErrorAction(error)]))
-        .switchMap(groups => [new workflowActions.ListGroupsCompleteAction(groups), new workflowActions.ListGroupWorkflowsAction()]));
+        .switchMap((data: any) =>
+            this.workflowService.getGroups()
+            .switchMap(groups => [new workflowActions.ListGroupsCompleteAction(groups), new workflowActions.ListGroupWorkflowsAction()])
+            .catch(error => Observable.from([new workflowActions.ListGroupsErrorAction(), new errorActions.ServerErrorAction(error)])));
 
     @Effect()
     deleteWorkflow$: Observable<Action> = this.actions$
@@ -83,19 +86,19 @@ export class WorkflowEffect {
 
     @Effect()
     deleteVersions$: Observable<Action> = this.actions$
-        .ofType(workflowActions.DELETE_VERSION)
-        .map((action: any) => action.payload)
-        .withLatestFrom(this.store.select(state => state.workflowsManaging))
-        .switchMap(([data, workflow]) => this.workflowService.deleteWorkflowList(workflow.workflowsManaging.selectedVersions))
-        .mergeMap(() => [new workflowActions.DeleteVersionCompleteAction(''), new workflowActions.ListGroupsAction()])
-        .catch(error => Observable.from([new workflowActions.DeleteVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
+       .ofType(workflowActions.DELETE_VERSION)
+       .map((action: any) => action.payload)
+       .withLatestFrom(this.store.select(state => state.workflowsManaging))
+       .switchMap(([data, workflow]) => this.workflowService.deleteWorkflowList(workflow.workflowsManaging.selectedVersions))
+       .mergeMap(() => [new workflowActions.DeleteVersionCompleteAction(''), new workflowActions.ListGroupsAction()])
+       .catch(error => Observable.from([new workflowActions.DeleteVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
 
     @Effect()
     generateVersion$: Observable<Action> = this.actions$
-        .ofType(workflowActions.GENERATE_NEW_VERSION)
-        .map((action: any) => action.payload)
-        .withLatestFrom(this.store.select(state => state.workflowsManaging))
-        .switchMap(([data, workflow]: [any, any]) => {
+       .ofType(workflowActions.GENERATE_NEW_VERSION)
+       .map((action: any) => action.payload)
+       .withLatestFrom(this.store.select(state => state.workflowsManaging))
+       .switchMap(([data, workflow]: [any, any]) => {
             const id = workflow.workflowsManaging.selectedVersions[0];
             const version = workflow.workflowsManaging.workflowList.find((w: any) => w.id === id);
             return this.workflowService.generateVersion({
@@ -154,14 +157,14 @@ export class WorkflowEffect {
             delete data.payload.id;
             data.payload.group = workflow.workflowsManaging.currentLevel;
             return this.workflowService.saveWorkflow(data.payload)
-                .catch(error => Observable.from([
-                    new workflowActions.SaveJsonWorkflowActionError(error),
-                    new errorActions.ServerErrorAction(error)
-                ]))
                 .mergeMap((response: any) => [
                     new workflowActions.SaveJsonWorkflowActionComplete(),
                     new workflowActions.ListGroupWorkflowsAction()
-                ]);
+                ])
+                .catch(error => Observable.from([
+                    new workflowActions.SaveJsonWorkflowActionError(error),
+                    new errorActions.ServerErrorAction(error)
+                ]));
         });
 
     @Effect()
@@ -177,8 +180,8 @@ export class WorkflowEffect {
         .mergeMap((data: any) => this.store.select(fromRoot.getCurrentGroupLevel)
         .take(1)
         .mergeMap((groupLevel) => this.workflowService.createGroup(groupLevel.group.name + FOLDER_SEPARATOR + data.payload)
-        .catch(error => Observable.from([new workflowActions.CreateGroupErrorAction(''), new errorActions.ServerErrorAction(error)])))
-        .mergeMap(() => [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.ListGroupsAction()]));
+        .mergeMap(() => [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.ListGroupsAction()]))
+        .catch(error => Observable.from([new workflowActions.CreateGroupErrorAction(''), new errorActions.ServerErrorAction(error)])));
 
     @Effect()
     changeGroupLevel$: Observable<Action> = this.actions$
@@ -197,8 +200,8 @@ export class WorkflowEffect {
         .mergeMap(([data, workflow]) => this.workflowService.updateGroup({
             ...workflow.workflowsManaging.groups.find((group: any) => group.name === data.payload.oldName),
             name: data.payload.name
-        }).catch((error) => Observable.from([new workflowActions.RenameGroupErrorAction(''), new errorActions.ServerErrorAction(error)])))
-        .mergeMap(() => [new workflowActions.RenameGroupCompleteAction(), new workflowActions.ListGroupsAction()]);
+        }).mergeMap(() => [new workflowActions.RenameGroupCompleteAction(), new workflowActions.ListGroupsAction()])
+        .catch((error) => Observable.from([new workflowActions.RenameGroupErrorAction(''), new errorActions.ServerErrorAction(error)])));
 
     @Effect()
     renameWorkflow$: Observable<Action> = this.actions$
@@ -208,8 +211,8 @@ export class WorkflowEffect {
             oldName: data.payload.oldName,
             newName: data.payload.newName,
             groupId: workflow.workflowsManaging.currentLevel.id
-        }).catch(error => Observable.from([new workflowActions.RenameWorkflowErrorAction(''), new errorActions.ServerErrorAction(error)])))
-        .mergeMap(() => [new workflowActions.RenameWorkflowCompleteAction(), new workflowActions.ListGroupsAction()]);
+        }).mergeMap(() => [new workflowActions.RenameWorkflowCompleteAction(), new workflowActions.ListGroupsAction()])
+        .catch(error => Observable.from([new workflowActions.RenameWorkflowErrorAction(''), new errorActions.ServerErrorAction(error)])));
 
 
     @Effect()
@@ -220,9 +223,8 @@ export class WorkflowEffect {
             workflowName: data.payload.workflowName,
             groupSourceId: data.payload.groupSourceId,
             groupTargetId: workflow.workflowsManaging.groups.find((group: any) => group.name === data.payload.groupTarget).id
-        }).catch(error => Observable.from([new workflowActions.MoveWorkflowErrorAction(), new errorActions.ServerErrorAction(error)]))
-        .mergeMap(() => [new workflowActions.MoveWorkflowCompleteAction(), new workflowActions.ListGroupsAction()]));
-
+        }).mergeMap(() => [new workflowActions.MoveWorkflowCompleteAction(), new workflowActions.ListGroupsAction()]))
+        .catch(error => Observable.from([new workflowActions.MoveWorkflowErrorAction(), new errorActions.ServerErrorAction(error)]));
 
     constructor(
         private actions$: Actions,

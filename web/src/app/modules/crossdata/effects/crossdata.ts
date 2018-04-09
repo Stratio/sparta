@@ -85,12 +85,12 @@ export class CrossdataEffect {
         .ofType(crossdataActions.SELECT_TABLE)
         .map((action: any) => action.payload)
         .switchMap((data: any) => {
-            return this.crossdataService.getCrossdataTablesInfo(data.name).map((tableInfo: any) => {
-                return new crossdataActions.GetTableInfoCompleteAction({
+            return this.crossdataService.getCrossdataTablesInfo(data.name).map((tableInfo: any) =>
+                new crossdataActions.GetTableInfoCompleteAction({
                     tableName: data.name,
                     info: tableInfo
-                });
-            }).catch(function (error) {
+                })
+            ).catch(function (error) {
                 return Observable.from([
                     new crossdataActions.GetTableInfoErrorAction(''),
                     new errorActions.ServerErrorAction(error)

@@ -11,7 +11,7 @@ import * as fromRoot from 'reducers';
 import * as fromWorkflowList from './workflows';
 import * as fromOrder from './order';
 import { orderBy } from '@utils';
-import { FOLDER_SEPARATOR } from "@app/workflows/workflow-managing/workflow.constants";
+import { FOLDER_SEPARATOR } from '@app/workflows/workflow-managing/workflow.constants';
 
 export interface WorkflowsState {
     workflowsManaging: fromWorkflowList.State;
@@ -43,7 +43,10 @@ export const getCurrentLevel = createSelector(getWorkflowsEntityState, state => 
 export const getWorkflowList = createSelector(getWorkflowsEntityState, state => state.workflowList);
 export const getWorkflowVersionsList = createSelector(getWorkflowsEntityState, state => state.workflowsVersionsList);
 export const getGroupsList = createSelector(getWorkflowsEntityState, state => state.groups);
-export const getOpenedWorkflow = createSelector(getWorkflowsEntityState, (state) => state.openedWorkflow ? state.openedWorkflow : undefined);
+export const getOpenedWorkflow = createSelector(
+    getWorkflowsEntityState,
+    (state) => state.openedWorkflow ? state.openedWorkflow : undefined);
+
 export const getCurrentGroups = createSelector(
     getGroupsList,
     getCurrentLevel,
@@ -60,6 +63,7 @@ export const getCurrentGroups = createSelector(
             label: split.length > 1 ? split[split.length - 1] : group.name
         });
     }));
+
 export const getWorkflowVersions = createSelector(
     getWorkflowList,
     getOpenedWorkflow,

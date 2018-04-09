@@ -15,7 +15,6 @@ import { Action, Store } from '@ngrx/store';
 import { Effect, Actions, toPayload } from '@ngrx/effects';
 import { Location } from '@angular/common';
 
-
 import * as fromWizard from './../reducers';
 import * as errorActions from 'actions/errors';
 import * as wizardActions from './../actions/wizard';

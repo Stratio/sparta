@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -16,7 +17,6 @@ import * as wizardActions from './../../actions/wizard';
 
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
-import { WizardEdge } from '@app/wizard/models/node';
 
 @Component({
     selector: 'wizard-header',

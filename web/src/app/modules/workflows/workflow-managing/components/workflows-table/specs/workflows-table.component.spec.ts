@@ -126,18 +126,12 @@ describe('[WorkflowsManagingTableComponent]', () => {
             expect(event.stopPropagation).toHaveBeenCalled();
         });
 
-
-        it('should open group when click on its name but this should not be selected', () => {
-            spyOn(component, 'checkGroup');
-            let selectedGroup: any;
-            component.changeFolder.subscribe((group: any) => selectedGroup = group);
-            const nameSelector = fixture.debugElement.query(By.css('.workflow-table .group-name'));
-        });
-
         it('should show workflow versions when click on its name but this should not be selected', () => {
             spyOn(component, 'checkWorkflow');
             let selectedWorkflow: any;
-            component.openWorkflow.subscribe((workflow: any) => selectedWorkflow = workflow);
+            component.openWorkflow.subscribe((workflow: any) => {
+                selectedWorkflow = workflow
+            });
             const nameSelector = fixture.debugElement.query(By.css('.workflow-table .workflow-name'));
             const event = {
                 stopPropagation: function () { }

@@ -1,4 +1,3 @@
-import { InjectionToken } from '@angular/core';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -7,6 +6,7 @@ import { InjectionToken } from '@angular/core';
 
 import { createSelector } from 'reselect';
 import { ActionReducerMap, combineReducers, createFeatureSelector } from '@ngrx/store';
+import { InjectionToken } from '@angular/core';
 
 import { WorkflowUtils } from '../models/utils/utils';
 import { orderBy, reduceReducers } from '@utils';

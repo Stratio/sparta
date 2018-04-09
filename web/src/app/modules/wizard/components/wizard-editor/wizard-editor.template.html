@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<svg id="composition" class="composition">
+<svg id="composition" class="composition" (click)="clickDetected($event)">
    <svg:g id="svg-container">
       <svg:g *ngFor="let relation of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
          wizard-edge
