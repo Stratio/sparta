@@ -215,9 +215,9 @@ class MarathonService(
         calicoProperties ++ extraProperties
     )
     val javaCertificatesVolume = {
-      if (Properties.envOrNone(VaultEnableEnv).isDefined &&
-        Properties.envOrNone(VaultHostsEnv).isDefined &&
-        Properties.envOrNone(VaultTokenEnv).isDefined)
+      if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
+        (Properties.envOrNone(VaultEnableEnv).isDefined && Properties.envOrNone(VaultHostsEnv).isDefined &&
+          Properties.envOrNone(VaultTokenEnv).isDefined))
         Seq.empty[Volume]
       else Seq(
         Volume(ContainerCertificatePath, HostCertificatePath, "RO"),

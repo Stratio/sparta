@@ -31,6 +31,7 @@ object MarathonConstant {
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
   val DefaultIncludeCommonVolumes = true
+  val DefaultIncludeCertVolumes = true
   val DefaultSparkUIPort = 4040
   val DefaultSOMemSize = 512
   val MinSOMemSize = 256
