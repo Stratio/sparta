@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.workflow.input.crossdata.models.OffsetFieldItem
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
@@ -129,7 +129,11 @@ class CrossdataInputStepStreaming(
       }
     }))
 
-    DatasourceUtils.createStream(ssc.get, inputSentences, datasourceProperties, sparkSession)
+    DatasourceUtils.createStream(ssc.get, inputSentences, datasourceProperties, sparkSession).transform{ rdd =>
+      SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, rdd)
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+      rdd
+    }
   }
 
   class StreamingListenerStop extends StreamingListener {

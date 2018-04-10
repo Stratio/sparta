@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.persist
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -27,7 +28,14 @@ class PersistTransformStepStreaming(
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (_, inputStream) =>
-      inputStream.ds.transform(transformFunc)
+    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+      inputStream.ds.transform{rdd =>
+        val newRdd = transformFunc(rdd)
+
+        getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+          .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputSchema, inputsModel, newRdd))
+          .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(name))
+        newRdd
+      }
     }
 }

@@ -11,6 +11,8 @@ import java.util.Calendar
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.{TableNameKey, saveOptionsFromOutputOptions}
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
 import com.stratio.sparta.sdk.workflow.step._
@@ -56,6 +58,8 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
   def flatMap(func: Row => TraversableOnce[Row]): Underlying[Row]
 
   def toEmpty: DistributedMonad[Underlying]
+
+  def registerAsTable(session: XDSession, schema: StructType, name: String): Unit
 
   def setStepName(name: String, forced: Boolean): Unit
 
@@ -115,7 +119,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
         val pendingToSend = predecessors.exists(pName => dependency.rdd.name.contains(pName)) &&
           !dependency.rdd.name.contains(processedKey)
 
-        !isCurrentRdd && pendingToSend && !dependency.rdd.isEmpty()
+        !isCurrentRdd && pendingToSend
       } else false
     }.foreach { dependencyStepRdd =>
       val inputRdd = dependencyStepRdd.rdd.asInstanceOf[RDD[Row]]
@@ -134,33 +138,35 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
   private def redirectToOutput(redirectContext: RedirectContext, saveOptions: Map[String, String]): Unit = {
     import redirectContext._
 
-    val schema = rdd.first().schema
-    val dataFrame = xdSession.createDataFrame(rdd, schema)
-
     rdd.setName(s"${rdd.name}#$processedKey")
 
-    outputsToSend.foreach { output =>
-      val (addDate, omitSaveErrors, dateField) = errorOutputActions.find(_.outputStepName == output.name) match {
-        case Some(toOutput) => (
-          toOutput.addRedirectDate,
-          toOutput.omitSaveErrors,
-          toOutput.redirectDateColName.notBlank.getOrElse(defaultRedirectDateName)
-        )
-        case None => (false, true, defaultRedirectDateName)
-      }
-      val dataFrameToSave = if (addDate) {
-        import org.apache.spark.sql.functions._
-        dataFrame.withColumn(dateField, lit(currentDate))
-      } else dataFrame
+    SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
+      .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach{schema =>
+      val dataFrame = xdSession.createDataFrame(rdd, schema)
 
-      Try(output.save(dataFrameToSave, outputOptions.saveMode, saveOptions)) match {
-        case Success(_) =>
-          log.debug(s"Data saved correctly into table ${saveOptions(TableNameKey)} in the output ${output.name}")
-        case Failure(exception) =>
-          if (omitSaveErrors)
-            log.debug(s"Error saving data into table ${saveOptions(TableNameKey)} in the output ${output.name}." +
-              s" ${exception.getLocalizedMessage}")
-          else throw exception
+      outputsToSend.foreach { output =>
+        val (addDate, omitSaveErrors, dateField) = errorOutputActions.find(_.outputStepName == output.name) match {
+          case Some(toOutput) => (
+            toOutput.addRedirectDate,
+            toOutput.omitSaveErrors,
+            toOutput.redirectDateColName.notBlank.getOrElse(defaultRedirectDateName)
+          )
+          case None => (false, true, defaultRedirectDateName)
+        }
+        val dataFrameToSave = if (addDate) {
+          import org.apache.spark.sql.functions._
+          dataFrame.withColumn(dateField, lit(currentDate))
+        } else dataFrame
+
+        Try(output.save(dataFrameToSave, outputOptions.saveMode, saveOptions)) match {
+          case Success(_) =>
+            log.debug(s"Data saved correctly into table ${saveOptions(TableNameKey)} in the output ${output.name}")
+          case Failure(exception) =>
+            if (omitSaveErrors)
+              log.debug(s"Error saving data into table ${saveOptions(TableNameKey)} in the output ${output.name}." +
+                s" ${exception.getLocalizedMessage}")
+            else throw exception
+        }
       }
     }
   }
@@ -176,13 +182,12 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                                 ): Unit = {
     Try {
-      if (!rdd.isEmpty()) {
-        val schema = rdd.first().schema
-        val dataFrame = xdSession.createDataFrame(rdd, schema)
-        val saveOptions = saveOptionsFromOutputOptions(outputOptions)
+      val schemaExtracted = SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
+        .getOrElse(if (!rdd.isEmpty()) rdd.first().schema else StructType(Nil))
+      val dataFrame = xdSession.createDataFrame(rdd, schemaExtracted)
+      val saveOptions = saveOptionsFromOutputOptions(outputOptions)
 
-        save(dataFrame, outputOptions.saveMode, saveOptions)
-      }
+      save(dataFrame, outputOptions.saveMode, saveOptions)
     } match {
       case Success(_) =>
         log.debug(s"Input data saved correctly into ${outputOptions.tableName}")
@@ -205,8 +210,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
               RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
               predecessors
             )
-          if (sendStepData && outputsToSend.nonEmpty && Option(rdd.name).notBlank.isDefined &&
-            rdd.name != processedKey && !rdd.isEmpty())
+          if (sendStepData && outputsToSend.nonEmpty && Option(rdd.name).notBlank.isDefined && rdd.name != processedKey)
             redirectToOutput(
               RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
               Map(TableNameKey -> outputOptions.errorTableName.getOrElse(outputOptions.tableName))
@@ -262,7 +266,14 @@ object DistributedMonad {
         ds.flatMap(func)
 
       override def toEmpty: DistributedMonad[DStream] =
-        ds.transform(rdd => rdd.sparkContext.emptyRDD[Row])
+        ds.filter(_ => false)
+
+      override def registerAsTable(session: XDSession, schema: StructType, name: String): Unit = {
+        ds.transform { rdd =>
+          session.createDataFrame(rdd, schema).createOrReplaceTempView(name)
+          rdd
+        }
+      }
 
       override def setStepName(name: String, forced: Boolean): Unit =
         ds.foreachRDD { rdd =>
@@ -308,9 +319,15 @@ object DistributedMonad {
         ds.flatMap(func)(RowEncoder(newSchema))
       }
 
-      override def toEmpty: DistributedMonad[Dataset] = {
-        xdSession.emptyDataset(RowEncoder(StructType(Nil)))
+      override def toEmpty: DistributedMonad[Dataset] =
+        ds.filter(_ => false)
+
+      override def registerAsTable(session: XDSession, schema: StructType, name: String): Unit = {
+        require(isCorrectTableName(name),
+          s"The step ($name) has an incorrect name and it's not possible to register it as a temporal table")
+        ds.createOrReplaceTempView(name)
       }
+
 
       override def setStepName(name: String, forced: Boolean): Unit =
         if (Option(ds.rdd.name).notBlank.isDefined && !forced)
@@ -338,11 +355,20 @@ object DistributedMonad {
       */
     implicit class RDDDistributedMonad(val ds: RDD[Row]) extends DistributedMonad[RDD] {
 
-      override def map(func: Row => Row): RDD[Row] = ds.map(func)
+      override def map(func: Row => Row): RDD[Row] =
+        ds.map(func)
 
-      override def flatMap(func: Row => TraversableOnce[Row]): RDD[Row] = ds.flatMap(func)
+      override def flatMap(func: Row => TraversableOnce[Row]): RDD[Row] =
+        ds.flatMap(func)
 
-      override def toEmpty: DistributedMonad[RDD] = ds.sparkContext.emptyRDD[Row]
+      override def toEmpty: DistributedMonad[RDD] =
+        ds.filter(_ => false)
+
+      override def registerAsTable(session: XDSession, schema: StructType, name: String): Unit = {
+        require(isCorrectTableName(name),
+          s"The step ($name) has an incorrect name and it's not possible to register it as a temporal table")
+        session.createDataFrame(ds, schema).createOrReplaceTempView(name)
+      }
 
       override def setStepName(name: String, forced: Boolean): Unit =
         if (Option(ds.name).notBlank.isDefined && !forced)
@@ -378,7 +404,6 @@ object DistributedMonad {
         Map(PrimaryKey -> key)
       }
   }
-
 }
 
 

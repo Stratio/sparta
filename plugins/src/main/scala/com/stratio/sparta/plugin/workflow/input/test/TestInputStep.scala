@@ -54,6 +54,8 @@ abstract class TestInputStep[Underlying[Row]](
     else numEvents.get
   }
 
+  lazy val schema = if (eventType == EventType.STRING) stringSchema else numberSchema
+
   override def validate(options: Map[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
@@ -91,17 +93,18 @@ class TestInputStepStreaming(
     * @return The DStream created with spark rows
     */
   override def init(): DistributedMonad[DStream] = {
-
     val registers = for (_ <- 1L to eventsToGenerate) yield {
       if (eventType == EventType.STRING)
-        new GenericRowWithSchema(Array(event.get), stringSchema).asInstanceOf[Row]
+        new GenericRowWithSchema(Array(event.get), schema).asInstanceOf[Row]
       else {
         require(maxNumber.isDefined, "The field max number cannot be empty")
-        new GenericRowWithSchema(Array(Random.nextInt(maxNumber.get)), numberSchema).asInstanceOf[Row]
+        new GenericRowWithSchema(Array(Random.nextInt(maxNumber.get)), schema).asInstanceOf[Row]
       }
     }
 
     val defaultRDD = ssc.get.sparkContext.parallelize(registers)
+
+    xDSession.createDataFrame(defaultRDD, schema).createOrReplaceTempView(name)
 
     if(stopAfterNumbEvents.isDefined)
       new TestDStream(ssc.get, defaultRDD, numEvents, stopAfterNumbEvents)
@@ -134,4 +137,9 @@ class TestInputStepBatch(
     defaultRDD
   }
 
+  override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
+    val monad = init()
+
+    (monad, Option(schema))
+  }
 }

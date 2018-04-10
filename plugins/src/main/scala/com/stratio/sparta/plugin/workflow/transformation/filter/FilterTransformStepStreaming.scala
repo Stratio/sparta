@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.filter
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -23,12 +24,19 @@ class FilterTransformStepStreaming(
                                     properties: Map[String, JSerializable]
                                   ) extends FilterTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (_, inputStream) =>
-      filterExpression.fold(inputStream) { expression =>
-        inputStream.ds.transform { rdd =>
-          applyFilter(rdd, expression)
-        }
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+    applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
+      val inputStream = inputDistributedMonad.ds
+      inputStream.transform { inputRdd =>
+        val (rdd, schema) = applyFilter(
+          inputRdd,
+          filterExpression.getOrElse(throw new Exception("Invalid filter expression")),
+          stepName
+        )
+        schema.orElse(getSchemaFromRdd(rdd))
+          .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
+        rdd
       }
     }
+  }
 }

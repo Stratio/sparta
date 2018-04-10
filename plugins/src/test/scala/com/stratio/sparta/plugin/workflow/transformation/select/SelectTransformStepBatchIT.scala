@@ -35,15 +35,15 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
     )
     val inputRdd1 = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new SelectTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("selectExp" -> "color")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
 

@@ -27,7 +27,7 @@ class TransformStepTest extends WordSpec with Matchers with MockitoSugar {
     val schema = StructType(Seq(StructField("inputField", StringType)))
     val inputSchemas = Map("input" -> schema)
     val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val properties = Map("addAllInputFields" -> true.asInstanceOf[Serializable])
     val transformationStepManagement = TransformationStepManagement()
 

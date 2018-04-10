@@ -9,14 +9,16 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.Parameterizable
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import org.apache.spark.sql.types.StructField
+import org.apache.spark.sql.types.{StructField, StructType}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
 import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import org.apache.spark.sql.Row
@@ -47,6 +49,16 @@ abstract class TransformStep[Underlying[Row]](
     propertiesWithCustom.getString("whenFieldError", None)
       .notBlank.getOrElse(transformationStepsManagement.whenFieldError.toString))
 
+  lazy val inputsModel: PropertiesSchemasInputsModel =
+    SdkSchemaHelper.getInputSchemasModel(properties.getString("inputSchemas", None).notBlank)
+
+  def transformWithSchema(
+                           inputData: Map[String, DistributedMonad[Underlying]]
+                         ): (DistributedMonad[Underlying], Option[StructType]) = {
+    val monad = transform(inputData)
+
+    (monad, None)
+  }
 
   /* METHODS TO IMPLEMENT */
 
@@ -57,10 +69,22 @@ abstract class TransformStep[Underlying[Row]](
     *                  the collection ([[DistributedMonad]])
     * @return The output [[DistributedMonad]] generated after apply the function
     */
-  def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying]
+  def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] = {
+    inputData.head._2
+  }
 
   /* METHODS IMPLEMENTED */
 
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    validation
+  }
   /**
     * Execute the transform function passed as parameter over the first data of the map.
     *
@@ -73,6 +97,25 @@ abstract class TransformStep[Underlying[Row]](
                                            generateDistributedMonad: (String, DistributedMonad[Underlying]) =>
                                              DistributedMonad[Underlying]
                                          ): DistributedMonad[Underlying] = {
+    assert(inputData.size == 1, s"The step $name must have one input, now have: ${inputData.keys}")
+
+    val (firstStep, firstStream) = inputData.head
+
+    generateDistributedMonad(firstStep, firstStream)
+  }
+
+  /**
+    * Execute the transform function passed as parameter over the first data of the map.
+    *
+    * @param inputData                Input data that must contains only one distributed collection.
+    * @param generateDistributedMonad Function to apply
+    * @return The transformed distributed collection [[DistributedMonad]]
+    */
+  def applyHeadTransformSchema[Underlying[Row]](inputData: Map[String, DistributedMonad[Underlying]])
+                                               (
+                                                 generateDistributedMonad: (String, DistributedMonad[Underlying]) =>
+                                                   (DistributedMonad[Underlying], Option[StructType])
+                                               ): (DistributedMonad[Underlying], Option[StructType]) = {
     assert(inputData.size == 1, s"The step $name must have one input, now have: ${inputData.keys}")
 
     val (firstStep, firstStream) = inputData.head

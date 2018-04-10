@@ -24,7 +24,7 @@ class KafkaInputStepStreamingTest extends WordSpec with Matchers with MockitoSug
 
   val ssc = mock[StreamingContext]
   val xdSession = mock[XDSession]
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
   "KafkaInputStep" should {
     "return a tuples (topic,partition)" in {

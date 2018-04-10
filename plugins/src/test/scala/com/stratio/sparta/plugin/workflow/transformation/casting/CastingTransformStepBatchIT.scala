@@ -40,7 +40,7 @@ class CastingTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val fields =
       """[
         |{
@@ -60,7 +60,7 @@ class CastingTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("fields" -> fields.asInstanceOf[JSerializable])
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>

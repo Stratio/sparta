@@ -39,15 +39,15 @@ class OrderByTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRDD = sc.parallelize(unorderedData)
     val expectedRDD = data1
     val inputData = Map("step1" -> inputRDD)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new OrderByTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("orderExp" -> "color")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
 
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()

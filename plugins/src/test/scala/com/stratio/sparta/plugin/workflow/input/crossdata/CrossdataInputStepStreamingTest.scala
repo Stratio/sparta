@@ -23,7 +23,7 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
 
   val ssc = mock[StreamingContext]
   val xdSession = mock[XDSession]
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
   "CrossdataInputStep" should {
       val offsetFields =

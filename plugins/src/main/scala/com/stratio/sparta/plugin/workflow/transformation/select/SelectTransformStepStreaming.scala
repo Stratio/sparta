@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.select
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -23,13 +24,19 @@ class SelectTransformStepStreaming(
                                  properties: Map[String, JSerializable]
                                ) extends SelectTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (_, inputDistributedMonad) =>
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+    applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
       val inputStream = inputDistributedMonad.ds
-      selectExpression.fold(inputStream) { expression =>
-        inputStream.transform { rdd =>
-          applySelect(rdd, expression)
+        inputStream.transform { inputRdd =>
+          val (rdd, schema) = applySelect(
+            inputRdd,
+            selectExpression.getOrElse(throw new Exception("Invalid select expression")),
+            stepName
+          )
+          schema.orElse(getSchemaFromRdd(rdd))
+            .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
+          rdd
         }
-      }
     }
+  }
 }

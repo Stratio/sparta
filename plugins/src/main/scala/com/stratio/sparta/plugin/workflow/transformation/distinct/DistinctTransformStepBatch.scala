@@ -8,11 +8,13 @@ package com.stratio.sparta.plugin.workflow.transformation.distinct
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 class DistinctTransformStepBatch(name: String,
@@ -27,7 +29,15 @@ class DistinctTransformStepBatch(name: String,
   def transformFunction(inputSchema: String, inputStream: DistributedMonad[RDD]): DistributedMonad[RDD] =
     partitions.fold(inputStream.ds.distinct()) { numPartitions => inputStream.ds.distinct(numPartitions) }
 
-  override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] =
-    applyHeadTransform(inputData)(transformFunction)
+  override def transformWithSchema(
+                                    inputData: Map[String, DistributedMonad[RDD]]
+                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+    val rdd = applyHeadTransform(inputData)(transformFunction)
+    val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+
+    (rdd, schema)
+  }
+
 }
 

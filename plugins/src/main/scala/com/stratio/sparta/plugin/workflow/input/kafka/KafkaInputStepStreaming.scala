@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.input.kafka
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.models.TopicsModel
@@ -42,7 +42,6 @@ class KafkaInputStepStreaming(
   extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
-  lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
   lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
   lazy val serializers = getSerializers
@@ -119,7 +118,13 @@ class KafkaInputStepStreaming(
       offsets
     )
     val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc.get, locationStrategy, consumerStrategy)
-    val outputDStream = inputDStream.map(data => data.value())
+    val outputDStream = inputDStream.transform { rdd =>
+      val newRdd = rdd.map(data => data.value())
+      val schema = SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, newRdd)
+
+      schema.foreach(schema => xDSession.createDataFrame(newRdd, schema).createOrReplaceTempView(name))
+      newRdd
+    }
 
     if (!getAutoCommit.head._2 && getAutoCommitInKafka) {
       inputDStream.foreachRDD { rdd =>
@@ -147,7 +152,7 @@ class KafkaInputStepStreaming(
   private[kafka] def extractTopics: Set[String] = {
     val topicsModel = getTopicsPartitions
 
-    if(topicsModel.topics.forall(topicModel => topicModel.topic.nonEmpty))
+    if (topicsModel.topics.forall(topicModel => topicModel.topic.nonEmpty))
       topicsModel.topics.map(topicPartitionModel => topicPartitionModel.topic).toSet
     else Set.empty[String]
   }

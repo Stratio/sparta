@@ -5,4 +5,4 @@
  */
 package com.stratio.sparta.sdk.properties.models
 
-case class PropertiesTriggerInputsModel(inputSchemas: Seq[PropertiesTriggerInputModel])
+case class PropertiesSchemasInputsModel(inputSchemas: Seq[PropertiesSchemaInputModel])

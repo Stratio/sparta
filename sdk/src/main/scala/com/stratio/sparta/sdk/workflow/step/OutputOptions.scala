@@ -11,6 +11,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 
 case class OutputOptions(
                           saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                          stepName: String,
                           tableName: String,
                           partitionBy: Option[String] = None,
                           primaryKey: Option[String] = None,

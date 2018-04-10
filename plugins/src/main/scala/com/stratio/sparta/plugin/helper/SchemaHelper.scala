@@ -9,15 +9,19 @@ package com.stratio.sparta.plugin.helper
 import akka.event.slf4j.SLF4JLogging
 import com.databricks.spark.avro.SchemaConverters
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
-import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
+import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
 import org.apache.avro.Schema
-import org.apache.spark.sql.Row
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper
 import org.apache.spark.sql.json.RowJsonHelper.extractSchemaFromJson
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.{DataFrame, Row}
 
 import scala.util.{Failure, Success, Try}
 
@@ -106,8 +110,12 @@ object SchemaHelper extends SLF4JLogging {
       }
     }
 
-  def getNewOutputSchema(inputSchema: StructType, preservationPolicy: FieldsPreservationPolicy.Value,
-                         providedSchema: Seq[StructField], inputField: String): StructType = {
+  def getNewOutputSchema(
+                          inputSchema: StructType,
+                          preservationPolicy: FieldsPreservationPolicy.Value,
+                          providedSchema: Seq[StructField],
+                          inputField: String
+                        ): StructType = {
     preservationPolicy match {
       case APPEND =>
         StructType(inputSchema.fields ++ providedSchema)
@@ -123,8 +131,58 @@ object SchemaHelper extends SLF4JLogging {
     }
   }
 
-  def updateRow(source: Row, extracted: Row, inputFieldIdx: Int ,
-                preservationPolicy: FieldsPreservationPolicy.Value): Row =
+  def getNewOutputSchema(
+                          sourceSchema: Option[StructType],
+                          preservationPolicy: FieldsPreservationPolicy.Value,
+                          providedSchema: Seq[StructField],
+                          inputField: String
+                        ): Option[StructType] = {
+    preservationPolicy match {
+      case APPEND =>
+        sourceSchema.map(sc => StructType(sc.fields ++ providedSchema))
+      case REPLACE =>
+        sourceSchema.map { sc =>
+          val inputFieldIdx = sc.indexWhere(_.name == inputField)
+          assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
+          val (leftInputFields, rightInputFields) = sc.fields.splitAt(inputFieldIdx)
+          val outputFields = leftInputFields ++ providedSchema ++ rightInputFields.tail
+
+          StructType(outputFields)
+        }
+      case _ =>
+        Option(StructType(providedSchema))
+    }
+  }
+
+
+  def getNewOutputSchema(
+                          sourceSchema: Option[StructType],
+                          extractedSchema: StructType,
+                          preservationPolicy: FieldsPreservationPolicy.Value,
+                          inputField: String
+                        ): Option[StructType] =
+    preservationPolicy match {
+      case APPEND =>
+        sourceSchema.map(sc => StructType(sc.fields ++ extractedSchema.fields))
+      case REPLACE =>
+        sourceSchema.map { sc =>
+          val inputFieldIdx = sc.indexWhere(_.name == inputField)
+          assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
+          val (leftInputFields, rightInputFields) = sc.fields.splitAt(inputFieldIdx)
+          val outputFields = leftInputFields ++ extractedSchema.fields ++ rightInputFields.tail
+
+          StructType(outputFields)
+        }
+      case _ =>
+        Option(extractedSchema)
+    }
+
+  def updateRow(
+                 source: Row,
+                 extracted: Row,
+                 inputFieldIdx: Int,
+                 preservationPolicy: FieldsPreservationPolicy.Value
+               ): Row =
     preservationPolicy match {
       case APPEND =>
         val values = (source.toSeq ++ extracted.toSeq).toArray
@@ -143,4 +201,82 @@ object SchemaHelper extends SLF4JLogging {
       case _ =>
         extracted
     }
+
+  def getSchemaFromSessionOrModelOrRdd(
+                                        xDSession: XDSession,
+                                        tableName: String,
+                                        inputsModel: PropertiesSchemasInputsModel,
+                                        rdd: RDD[Row]
+                                      ): Option[StructType] =
+    getSchemaFromSessionOrModel(xDSession, tableName, inputsModel).orElse(getSchemaFromRdd(rdd))
+
+  def getSchemaFromSessionOrModel(
+                                   xDSession: XDSession,
+                                   tableName: String,
+                                   inputsModel: PropertiesSchemasInputsModel
+                                 ): Option[StructType] =
+    SdkSchemaHelper.getSchemaFromSession(xDSession, tableName).orElse {
+      inputsModel.inputSchemas.filter(is => is.stepName == tableName) match {
+        case Nil => None
+        case x :: Nil => parserInputSchema(x.schema).toOption
+      }
+    }
+
+  def getSchemaFromSessionOrRdd(
+                                 xDSession: XDSession,
+                                 tableName: String,
+                                 rdd: RDD[Row]
+                               ): Option[StructType] =
+    SdkSchemaHelper.getSchemaFromSession(xDSession, tableName).orElse(getSchemaFromRdd(rdd))
+
+  def getSchemaFromRdd(rdd: RDD[Row]): Option[StructType] = if (!rdd.isEmpty()) Option(rdd.first().schema) else None
+
+  def createOrReplaceTemporalView(
+                                   xDSession: XDSession,
+                                   rdd: RDD[Row],
+                                   tableName: String,
+                                   schema: Option[StructType],
+                                   registerWithEmptySchema: Boolean
+                                 ): Boolean =
+    schema match {
+      case Some(s) =>
+        log.debug(s"Registering temporal table in Spark with name: $tableName")
+        xDSession.createDataFrame(rdd, s).createOrReplaceTempView(tableName)
+        true
+      case None =>
+        if (registerWithEmptySchema) {
+          log.debug(s"Registering empty temporal table with name: $tableName")
+          xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(tableName)
+          true
+        } else false
+    }
+
+  def createOrReplaceTemporalViewDf(
+                                     xDSession: XDSession,
+                                     rdd: RDD[Row],
+                                     tableName: String,
+                                     schema: Option[StructType]
+                                   ): Option[DataFrame] =
+    schema.map { s =>
+      log.debug(s"Registering temporal table in Spark with name: $tableName")
+      val df = xDSession.createDataFrame(rdd, s)
+      df.createOrReplaceTempView(tableName)
+      df
+    }
+
+  /**
+    * Validate inputSchema names with names of input steps, also validate the input schemas
+    *
+    * @param inputSteps
+    */
+  def validateSchemas(step: String, inputsModel: PropertiesSchemasInputsModel, inputSteps: Seq[String]): Unit = {
+    if (inputsModel.inputSchemas.nonEmpty) {
+      //If any of them fails
+      require(!inputsModel.inputSchemas.exists(input => parserInputSchema(input.schema).isFailure),
+        s"$step input schemas contains errors")
+      require(inputSteps.forall { stepName =>
+        inputsModel.inputSchemas.map(_.stepName).contains(stepName)
+      }, s"$step input schemas are not the same as the input step names")
+    }
+  }
 }

@@ -29,7 +29,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     )
     val inputRdd = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val query = s"SELECT * FROM step1 ORDER BY step1.color"
     val inputSchema = """[{"stepName":"step1","schema":"{\"color\":\"1\",\"price\":15.5}"}]"""
     val result = new TriggerTransformStepBatch(
@@ -39,7 +39,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "inputSchemas" -> JsoneyString(inputSchema))
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
 
@@ -65,7 +65,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.parallelize(data2)
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepBatch(
@@ -75,7 +75,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query)
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", "Stratio", "Stratio employee", 12.1), schemaResult),
       new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee", 12.2), schemaResult))
@@ -98,7 +98,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.emptyRDD[Row]
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepBatch(
@@ -108,7 +108,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val batchEvents = result.ds.count()
 
     batchEvents should be(0)
@@ -117,7 +117,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
   "A TriggerTransformStepBatch" should "make trigger over one RDD empty" in {
     val inputRdd1 = sc.emptyRDD[Row]
     val inputData = Map("step1" -> inputRdd1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStepBatch(
@@ -127,7 +127,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val batchEvents = result.ds.count()
 
     batchEvents should be(0)
@@ -142,7 +142,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val inputRdd1 = sc.parallelize(data1)
     val inputRdd2 = sc.emptyRDD[Row]
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val query = s"SELECT step1.color FROM step1"
     val result = new TriggerTransformStepBatch(
       "dummy",
@@ -151,7 +151,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "true")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val batchEvents = result.ds.count()
 
     batchEvents should be(2)

@@ -15,6 +15,8 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 
+import scala.util.Try
+
 
 abstract class InputStep[Underlying[Row]](
                           val name: String,
@@ -37,6 +39,12 @@ abstract class InputStep[Underlying[Row]](
   lazy val storageLevel: StorageLevel = {
     val storageLevel = properties.getString("storageLevel", StorageDefaultValue)
     StorageLevel.fromString(storageLevel)
+  }
+
+  def initWithSchema(): (DistributedMonad[Underlying], Option[StructType]) = {
+    val monad = init()
+
+    (monad, None)
   }
 
   /* METHODS TO IMPLEMENT */

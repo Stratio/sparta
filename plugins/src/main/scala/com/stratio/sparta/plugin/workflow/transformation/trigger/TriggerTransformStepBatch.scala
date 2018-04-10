@@ -8,16 +8,16 @@ package com.stratio.sparta.plugin.workflow.transformation.trigger
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.plugin.helper.SchemaHelper._
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 
 import scala.util.{Failure, Success, Try}
 
@@ -33,47 +33,40 @@ class TriggerTransformStepBatch(
     with SLF4JLogging {
 
   //scalastyle:off
-  override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] = {
-    require(sql.nonEmpty, "The input query can not be empty")
-    require(validateSql, "The input query is invalid")
-    validateSchemas(inputData)
 
+  override def transformWithSchema(
+                                    inputData: Map[String, DistributedMonad[RDD]]
+                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+    requireValidateSql()
+
+    var resultSchema: Option[StructType] = None
     Try {
       var executeSql = true
       inputData.foreach { case (stepName, stepData) =>
-        if(executeSql) {
+        if (executeSql) {
           require(isCorrectTableName(stepName),
-            s"The step ($stepName) has an incorrect name and it's not possible to register it as a temporal table." +
-              s" ${inputData.keys}")
+            s"The step ($stepName) has an incorrect name and it's not possible to register it as a temporal table")
 
-          val schema = inputsModel.inputSchemas.filter(is => is.stepName == stepName) match {
-            case Nil => if (!stepData.ds.isEmpty()) Some(stepData.ds.first().schema) else None
-            case x :: Nil => parserInputSchema(x.schema).toOption
-          }
-
-          schema match {
-            case Some(s) =>
-              log.debug(s"Registering temporal table in Spark with name: $stepName")
-              xDSession.createDataFrame(stepData.ds, s).createOrReplaceTempView(stepName)
-            case None =>
-              if (executeSqlWhenEmpty) {
-                log.debug(s"Registering empty temporal table with name: $stepName")
-                xDSession.createDataFrame(stepData.ds, StructType(Nil)).createOrReplaceTempView(stepName)
-              } else executeSql = false
-          }
+          val schema = getSchemaFromSessionOrModelOrRdd(xDSession, stepName, inputsModel, stepData.ds)
+          executeSql = createOrReplaceTemporalView(xDSession, stepData.ds, stepName, schema, executeSqlWhenEmpty)
         }
       }
-      if(executeSql) {
+      if (executeSql) {
         log.debug(s"Executing query: $sql")
-        xDSession.sql(sql).rdd
-      } else xDSession.sparkContext.union(inputData.map(step => step._2.ds.filter(_ => false)).toSeq)
+        val df = xDSession.sql(sql)
+        resultSchema = Option(df.schema)
+        df.rdd
+      } else {
+        resultSchema = Option(StructType(Nil))
+        xDSession.sparkContext.union(inputData.map(step => step._2.ds.filter(_ => false)).toSeq)
+      }
     } match {
       case Success(sqlResult) =>
-        sqlResult
+        (sqlResult, resultSchema)
       case Failure(e) =>
         if (inputData.nonEmpty) {
           val errorsSteps = inputData.map(step => step._2.ds.map(_ => Row.fromSeq(throw e)))
-          xDSession.sparkContext.union(errorsSteps.toSeq)
+          (xDSession.sparkContext.union(errorsSteps.toSeq), resultSchema)
         } else throw e //broken chain in errors management
     }
   }

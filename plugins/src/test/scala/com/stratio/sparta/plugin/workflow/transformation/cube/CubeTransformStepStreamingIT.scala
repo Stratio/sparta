@@ -35,7 +35,7 @@ class CubeTransformStepStreamingIT extends TemporalSparkContext with Matchers {
     val initDStream = ssc.receiverStream(new TestReceiver(fields, 2, StorageLevel.MEMORY_ONLY))
       .asInstanceOf[DStream[Row]]
     val inputData = Map("step1" -> initDStream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val dimensionsProp =
       s"""[
          | {"name":"dim1"}

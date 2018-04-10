@@ -29,15 +29,15 @@ class FilterTransformStepBatchIT extends TemporalSparkContext with Matchers with
     )
     val rddInput = sc.parallelize(data1)
     val inputData = Map("step1" -> rddInput)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new FilterTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("filterExp" -> "color = 'blue'")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 

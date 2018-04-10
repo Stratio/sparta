@@ -22,7 +22,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class FileSystemInputStepBatchIT extends TemporalSparkContext with Matchers {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName")
+  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
   val resourcePath = getClass().getResource("/origin.txt")
   val lines = Source.fromURL(resourcePath).getLines().toList
   val parentDir = new File(resourcePath.getPath).getParent

@@ -7,11 +7,13 @@ package com.stratio.sparta.plugin.workflow.transformation.orderBy
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 class OrderByTransformStepBatch(
@@ -23,11 +25,13 @@ class OrderByTransformStepBatch(
                                  properties: Map[String, JSerializable]
                                ) extends OrderByTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] =
-
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      orderExpression.fold(inputStream.ds) { expression =>
-        transformFunc(expression)(inputStream.ds)
-      }
+  override def transformWithSchema(
+                                    inputData: Map[String, DistributedMonad[RDD]]
+                                  ): (DistributedMonad[RDD], Option[StructType]) =
+    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val inputRdd = inputDistributedMonad.ds
+      val (rdd, schema) =
+        applyOrderBy(inputRdd, orderExpression.getOrElse(throw new Exception("Invalid order expression")), stepName)
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
     }
 }

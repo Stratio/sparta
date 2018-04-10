@@ -23,8 +23,8 @@
          "propertyType": "list",
          "required": false,
          "width": 8,
-         "tooltip": "Schema definition for input steps",
-         "qa": "fragment-details-casting-fields",
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
          "fields": [
             {
                "propertyId": "stepName",

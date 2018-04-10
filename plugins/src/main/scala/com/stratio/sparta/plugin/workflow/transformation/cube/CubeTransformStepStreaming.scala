@@ -8,13 +8,14 @@ package com.stratio.sparta.plugin.workflow.transformation.cube
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.plugin.workflow.transformation.cube.model._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.{CastingUtils, ClasspathUtils}
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.workflow.step._
@@ -102,10 +103,44 @@ class CubeTransformStepStreaming(
     }
 
     returnDStreamFromTry(s"Error creating output stream as row format in Cube: $name", Option(warnMessage)) {
-      Try(cubeExecuted.flatMap { case (dimensionValues, measures) => toRow(dimensionValues, measures) })
+      Try {
+        cubeExecuted.transform { rdd =>
+          val newRdd = rdd.flatMap { case (dimensionValues, measures) => toRow(dimensionValues, measures) }
+
+          getSchemaFromSessionOrModelOrRdd(xDSession, name, inputsModel, newRdd)
+            .foreach(schema => xDSession.createDataFrame(newRdd, schema).createOrReplaceTempView(name))
+          newRdd
+        }
+      }
     }
   }
 
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    //If contains schemas, validate if it can be parsed
+    if (inputsModel.inputSchemas.nonEmpty) {
+      inputsModel.inputSchemas.foreach { input =>
+        if (parserInputSchema(input.schema).isFailure)
+          validation = ErrorValidations(
+            valid = false,
+            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+      }
+
+      inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+      }
+    }
+
+    validation
+  }
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData)(transformFunction)
@@ -165,14 +200,14 @@ class CubeTransformStepStreaming(
       s" Dimensions: $dimensionValues and Measures: $measures") {
       Try {
         val measuresValues = measures.values.map { case (measureName, measureValue) =>
-          val schema = if(avgOperators.contains(measureName))
+          val schema = if (avgOperators.contains(measureName))
             operatorsSchema(measureName).copy(dataType = DoubleType)
           else operatorsSchema(measureName)
           (
             schema,
             measureValue match {
               case Some(value) =>
-                if(avgOperators.contains(measureName))
+                if (avgOperators.contains(measureName))
                   CastingUtils.castingToSchemaType(schema.dataType, value.asInstanceOf[Map[String, Double]]("mean"))
                 else CastingUtils.castingToSchemaType(schema.dataType, value)
               case None =>

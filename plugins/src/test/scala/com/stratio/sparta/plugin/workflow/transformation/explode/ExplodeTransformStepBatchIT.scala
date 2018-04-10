@@ -44,7 +44,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val dataQueue = sc.parallelize(dataIn)
 
     val inputData = Map("step1" -> dataQueue)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
     val result = new ExplodeTransformStepBatch(
       "dummy",
@@ -55,7 +55,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Map("schema.fromRow" -> true,
         "inputField" -> inputField,
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
 
     val totalEvents = result.ds.count()
 

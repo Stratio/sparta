@@ -5,4 +5,4 @@
  */
 package com.stratio.sparta.sdk.properties.models
 
-case class PropertiesTriggerInputModel(stepName: String, schema: String)
+case class PropertiesSchemaInputModel(stepName: String, schema: String)

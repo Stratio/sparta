@@ -34,7 +34,7 @@ class FilterTransformStepStreamingIT extends TemporalSparkContext with Matchers 
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new FilterTransformStepStreaming(
       "dummy",
       outputOptions,

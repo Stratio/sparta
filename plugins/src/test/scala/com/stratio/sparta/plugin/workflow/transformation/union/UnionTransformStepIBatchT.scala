@@ -24,15 +24,15 @@ class UnionTransformStepIBatchT extends TemporalSparkContext with Matchers with 
     val inputRdd2 = sc.parallelize(data2)
     val inputData = Map("step1" -> inputRdd1, "step2" -> inputRdd2)
     val dataCasting = data1 ++ data2
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new UnionTransformStepBatch(
       "union",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map()
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 

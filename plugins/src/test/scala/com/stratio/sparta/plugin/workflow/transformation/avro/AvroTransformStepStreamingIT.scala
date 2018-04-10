@@ -59,7 +59,7 @@ class AvroTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val transformationsStepManagement = TransformationStepManagement()
     val result = new AvroTransformStepStreaming(
       "dummy",

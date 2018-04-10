@@ -7,17 +7,33 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 class CastingTransformStepBatch(
-                              name: String,
-                              outputOptions: OutputOptions,
-                              transformationStepsManagement: TransformationStepManagement,
-                              ssc: Option[StreamingContext],
-                              xDSession: XDSession,
-                              properties: Map[String, JSerializable]
-                            ) extends CastingTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+                                 name: String,
+                                 outputOptions: OutputOptions,
+                                 transformationStepsManagement: TransformationStepManagement,
+                                 ssc: Option[StreamingContext],
+                                 xDSession: XDSession,
+                                 properties: Map[String, JSerializable]
+                               ) extends CastingTransformStep[RDD](
+  name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+
+  override def transformWithSchema(
+                                    inputData: Map[String, DistributedMonad[RDD]]
+                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+    val rdd = applyHeadTransform(inputData)(transformFunction)
+    val schema = outputFieldsSchema
+      .orElse(getSchemaFromSessionOrModel(xDSession, name, inputsModel))
+      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+
+    (rdd, schema)
+  }
+}

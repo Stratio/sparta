@@ -8,16 +8,17 @@ package com.stratio.sparta.plugin.workflow.transformation.trigger
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
-import org.apache.spark.sql.types.StructType
-import com.stratio.sparta.plugin.helper.SchemaHelper._
 
 import scala.util.{Failure, Success, Try}
 
@@ -34,11 +35,13 @@ class TriggerTransformStepStreaming(
 
   //scalastyle:off
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    require(sql.nonEmpty, "The input query can not be empty")
-    require(validateSql, "The input query is invalid")
+    requireValidateSql()
     require(inputData.size == 2 || inputData.size == 1,
       s"The trigger $name must have one or two input steps, now have: ${inputData.keys}")
-    validateSchemas(inputData)
+    validateSchemas(name, inputsModel, inputData.keys.toSeq)
+
+    require(isCorrectTableName(name),
+      s"The step($name) have wrong name and is not possible to register as temporal table")
 
     if (inputData.size == 1) {
       val (firstStep, firstStream) = inputData.head
@@ -48,30 +51,25 @@ class TriggerTransformStepStreaming(
       firstStream.ds.transform { rdd =>
         Try {
           var executeSql = true
-          val schema = inputsModel.inputSchemas match {
-            case Nil => if (!rdd.isEmpty()) Option(rdd.first().schema) else None
-            case x :: Nil => parserInputSchema(x.schema).toOption
-          }
+          val schema = getSchemaFromSessionOrModelOrRdd(xDSession, firstStep, inputsModel, rdd)
+          executeSql = createOrReplaceTemporalView(xDSession, rdd, firstStep, schema, executeSqlWhenEmpty)
 
-          schema match {
-            case Some(s) =>
-              log.debug(s"Registering temporal table with name: $firstStep")
-              xDSession.createDataFrame(rdd, s).createOrReplaceTempView(firstStep)
-            case None =>
-              if (executeSqlWhenEmpty) {
-                log.debug(s"Registering empty temporal table with name: $firstStep")
-                xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(firstStep)
-              } else executeSql = false
-          }
-
-          if(executeSql) {
+          if (executeSql) {
             log.debug(s"Executing query: $sql")
-            xDSession.sql(sql).rdd
-          } else rdd.filter(_ => false)
+            val df = xDSession.sql(sql)
+            df.createOrReplaceTempView(name)
+            df.rdd
+          } else {
+            val result = rdd.filter(_ => false)
+            xDSession.createDataFrame(result, StructType(Nil)).createOrReplaceTempView(name)
+            result
+          }
         } match {
           case Success(sqlResult) => sqlResult
           case Failure(e) =>
-            rdd.map(_ => Row.fromSeq(throw e))
+            val result = rdd.map(_ => Row.fromSeq(throw e))
+            xDSession.createDataFrame(result, StructType(Nil)).createOrReplaceTempView(name)
+            result
         }
       }
     } else {
@@ -86,55 +84,32 @@ class TriggerTransformStepStreaming(
           Try {
             var executeSql = true
             log.debug(s"Registering temporal tables with names: $firstStep, $secondStep")
-            val schemas = inputsModel.inputSchemas match {
-              case Nil =>
-                val first = {
-                  if (!rdd1.isEmpty())
-                    List((rdd1, rdd1.first().schema, firstStep))
-                  else {
-                    if(!executeSqlWhenEmpty) executeSql = false
-                    List.empty
-                  }
-                }
-                val second = {
-                  if (!rdd2.isEmpty())
-                    List((rdd2, rdd2.first().schema, secondStep))
-                  else {
-                    if(!executeSqlWhenEmpty) executeSql = false
-                    List.empty
-                  }
-                }
+            val firstSchema = getSchemaFromSessionOrModelOrRdd(xDSession, firstStep, inputsModel, rdd1)
+            executeSql = createOrReplaceTemporalView(xDSession, rdd1, firstStep, firstSchema, executeSqlWhenEmpty)
+            executeSql = if (executeSql) {
+              val secondSchema = getSchemaFromSessionOrModelOrRdd(xDSession, secondStep, inputsModel, rdd2)
+              createOrReplaceTemporalView(xDSession, rdd2, secondStep, secondSchema, executeSqlWhenEmpty)
+            } else false
 
-                first ++ second
-              case s1 :: s2 :: Nil =>
-                if (firstStep == s1.stepName) List(
-                  (rdd1, parserInputSchema(s1.schema).get, firstStep),
-                  (rdd2, parserInputSchema(s2.schema).get, secondStep)
-                )
-                else List(
-                  (rdd1, parserInputSchema(s2.schema).get, firstStep),
-                  (rdd2, parserInputSchema(s1.schema).get, secondStep)
-                )
-            }
-
-            if(executeSql) {
-              if (!schemas.exists(_._3 == firstStep))
-                xDSession.createDataFrame(rdd1, StructType(Nil)).createOrReplaceTempView(firstStep)
-
-              if (!schemas.exists(_._3 == secondStep))
-                xDSession.createDataFrame(rdd2, StructType(Nil)).createOrReplaceTempView(secondStep)
-
-              schemas.foreach { case (rdd, schema, step) =>
-                xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(step)
-              }
+            if (executeSql) {
               log.debug(s"Executing query: $sql")
+              val df = xDSession.sql(sql)
+              df.createOrReplaceTempView(name)
               xDSession.sql(sql).rdd
-            } else xDSession.sparkContext.union(rdd1.filter(_ => false), rdd2.filter(_ => false))
+            } else {
+              val rdd = xDSession.sparkContext.union(rdd1.filter(_ => false), rdd2.filter(_ => false))
+              xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(name)
+
+              rdd
+            }
           } match {
             case Success(sqlResult) =>
               sqlResult
             case Failure(e) =>
-              xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
+              val rdd = xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
+              xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(name)
+
+              rdd
           }
       }
 

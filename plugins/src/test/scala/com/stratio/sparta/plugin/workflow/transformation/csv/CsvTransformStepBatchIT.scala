@@ -51,7 +51,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
     val result = new CsvTransformStepBatch(
       "dummy",
@@ -63,7 +63,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
         "inputField" -> inputField,
         "schema.inputMode" -> "FIELDS",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>

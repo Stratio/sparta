@@ -31,12 +31,12 @@ class UnionTransformStepStreamingIT extends TemporalSparkContext with Matchers w
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
     val dataCasting = data1 ++ data2
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new UnionTransformStepStreaming(
       "union",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map()
     ).transform(inputData)

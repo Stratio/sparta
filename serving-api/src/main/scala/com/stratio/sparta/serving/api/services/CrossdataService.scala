@@ -64,30 +64,18 @@ class CrossdataService() extends SLF4JLogging {
 
   def executeQuery(query: String, userId: Option[String]): Try[Array[Map[String, Any]]] =
     Try {
-      if (validateQuery(query.trim))
-        getOrCreateXDSession(userId).sql(query.trim)
-          .collect()
-          .map { row =>
-            row.schema.fields.zipWithIndex.map { case (field, index) =>
-              val oldValue = row.get(index)
-              val newValue = oldValue match {
-                case v: java.math.BigDecimal => BigDecimal(v)
-                case v: GenericRowWithSchema => toJSON(v, Map.empty[String, String])
-                case _ => oldValue
-              }
-              field.name -> newValue
-            }.toMap
-          }
-      else throw new IllegalArgumentException("Invalid query, the supported queries are: CREATE TABLE ... , " +
-        "CREATE TEMPORARY TABLE ..., DROP TABLE ..., TRUNCATE TABLE...,IMPORT TABLES ..., SELECT ..., " +
-        "IMPORT TABLES ..., CREATE EXTERNAL TABLE ..., SHOW ..., ANALYZE ..., DESCRIBE ... and IMPORT ...")
+      getOrCreateXDSession(userId).sql(query.trim)
+        .collect()
+        .map { row =>
+          row.schema.fields.zipWithIndex.map { case (field, index) =>
+            val oldValue = row.get(index)
+            val newValue = oldValue match {
+              case v: java.math.BigDecimal => BigDecimal(v)
+              case v: GenericRowWithSchema => toJSON(v, Map.empty[String, String])
+              case _ => oldValue
+            }
+            field.name -> newValue
+          }.toMap
+        }
     }
-
-  private def validateQuery(query: String): Boolean = {
-    val upperQuery = query.toUpperCase
-
-    upperQuery.startsWith("CREATE") || upperQuery.startsWith("DROP") || upperQuery.startsWith("TRUNCATE") ||
-      upperQuery.startsWith("SELECT") || upperQuery.startsWith("SHOW") || upperQuery.startsWith("DESCRIBE") ||
-      upperQuery.startsWith("IMPORT") || upperQuery.startsWith("ALTER") || upperQuery.startsWith("ANALYZE")
-  }
 }

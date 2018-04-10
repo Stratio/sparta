@@ -12,12 +12,13 @@ import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, StructField}
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
@@ -34,25 +35,16 @@ abstract class CsvTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "HEADER").toUpperCase)
-
   lazy val fieldsModel = properties.getPropertiesFields("schema.fields")
-
   lazy val header = properties.getString("schema.header", None)
-
   lazy val sparkSchema = properties.getString("schema.sparkSchema", None)
-
   lazy val fieldsSeparator = properties.getString("delimiter", ",")
-
   lazy val splitLimit = properties.getInt("splitLimit", -1)
-
   lazy val delimiterType = DelimiterType.withName(properties.getString("delimiterType", "CHARACTER").toUpperCase)
-
   lazy val inputField = Try(properties.getString("inputField"))
     .getOrElse(throw new Exception("The inputField is mandatory"))
-
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
-
   lazy val providedSchema: Seq[StructField] = {
     (schemaInputMode, header, sparkSchema, fieldsModel) match {
       case (HEADER, Some(headerStr), _, _) =>
@@ -86,7 +78,7 @@ abstract class CsvTransformStep[Underlying[Row]](
     inputStream.flatMap(data => parse(data))
 
 
-  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
+  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData)(transformationFunction)
 
   //scalastyle:off
@@ -144,4 +136,31 @@ abstract class CsvTransformStep[Underlying[Row]](
         }
       new GenericRowWithSchema(newValues.toArray, outputSchema)
     }
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    //If contains schemas, validate if it can be parsed
+    if (inputsModel.inputSchemas.nonEmpty) {
+      inputsModel.inputSchemas.foreach { input =>
+        if (parserInputSchema(input.schema).isFailure)
+          validation = ErrorValidations(
+            valid = false,
+            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+      }
+
+      inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+      }
+    }
+
+    validation
+  }
 }

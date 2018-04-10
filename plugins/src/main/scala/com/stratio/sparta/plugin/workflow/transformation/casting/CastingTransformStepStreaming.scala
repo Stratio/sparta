@@ -7,6 +7,8 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd}
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
@@ -20,4 +22,15 @@ class CastingTransformStepStreaming(
                                      ssc: Option[StreamingContext],
                                      xDSession: XDSession,
                                      properties: Map[String, JSerializable]
-                                   ) extends CastingTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+                                   ) extends CastingTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    applyHeadTransform(inputData)(transformFunction).ds.transform { rdd =>
+      outputFieldsSchema
+        .orElse(getSchemaFromSessionOrModel(xDSession, name, inputsModel))
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+
+      rdd
+    }
+}

@@ -16,13 +16,34 @@
            "qa": "fragment-details-select-expression"
         },
         {
-           "propertyId": "delimiter",
-           "propertyName": "_DELIMITER_",
-           "propertyType": "text",
-           "required": true,
-           "default": "{{DEFAULT_DELIMITER}}",
-           "tooltip": "Delimiter character in select expression ",
-           "qa": "fragment-details-select-delimiter"
+           "propertyId": "inputSchemas",
+           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+           "propertyType": "list",
+           "required": false,
+           "width": 8,
+           "tooltip": "Schema definition for steps",
+           "qa": "fragment-details-schema-fields",
+           "fields": [
+              {
+                 "propertyId": "stepName",
+                 "propertyName": "_INPUT_STEP_NAME_",
+                 "propertyType": "text",
+                 "required": true,
+                 "tooltip": "Step name",
+                 "width": 2,
+                 "qa": "fragment-details-field-name"
+              },
+              {
+                 "propertyId": "schema",
+                 "propertyName": "_DESERIALIZER_SCHEMA_",
+                 "propertyType": "text",
+                 "contentType": "JSON",
+                 "width": 8,
+                 "tooltip": "Schema in json/Spark format or from example",
+                 "required": true,
+                 "qa": "fragment-details-field-query"
+              }
+           ]
         }
      ]
   }

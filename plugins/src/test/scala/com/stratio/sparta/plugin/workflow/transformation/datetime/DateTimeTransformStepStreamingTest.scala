@@ -20,7 +20,7 @@ class DateTimeTransformStepStreamingTest extends WordSpecLike
   with Matchers {
 
   "A DateTimeTransform" should {
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val schemaInput = StructType(Seq(StructField("ts", StringType)))
 
     //scalastyle:off

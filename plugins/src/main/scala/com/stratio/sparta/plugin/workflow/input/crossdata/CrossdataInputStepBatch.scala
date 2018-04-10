@@ -15,6 +15,7 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 import scala.language.implicitConversions
@@ -30,6 +31,8 @@ class CrossdataInputStepBatch(
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val query: String = properties.getString("query", "").trim
+
+  var schema: Option[StructType] = None
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -52,7 +55,16 @@ class CrossdataInputStepBatch(
   def init(): DistributedMonad[RDD] = {
     require(query.nonEmpty, "The input query cannot be empty")
     require(validateSql, "The input query is invalid")
-    xDSession.sql(query).rdd
+
+    val df = xDSession.sql(query)
+    schema = Option(df.schema)
+    df.rdd
+  }
+
+  override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
+    val monad = init()
+
+    (monad, schema)
   }
 
   def validateSql: Boolean =

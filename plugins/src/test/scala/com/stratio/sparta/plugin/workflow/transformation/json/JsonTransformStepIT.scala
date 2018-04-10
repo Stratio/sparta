@@ -64,7 +64,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
     val name = "JsonTransformStep"
     new JsonTransformStepStreaming(
       name,
-      OutputOptions(tableName = name),
+      OutputOptions(tableName = name, stepName = name),
       TransformationStepManagement(),
       Option(ssc),
       xDSession,
@@ -75,7 +75,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
   def doTransformStream(ds: DStream[Row], properties: Map[String, JSerializable]): DStream[Row] =
     new JsonTransformStepStreaming(
       "dummy",
-      OutputOptions(tableName = "jsonTransform"),
+      OutputOptions(tableName = "jsonTransform", stepName = "jsonTransform"),
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
@@ -84,11 +84,11 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
   def doTransformBatch(df: RDD[Row], properties: Map[String, JSerializable]): RDD[Row] =
     new JsonTransformStepBatch(
       "dummy",
-      OutputOptions(tableName = "jsonTransform"),
+      OutputOptions(tableName = "jsonTransform", stepName = "jsonTransform"),
       TransformationStepManagement(),
       None,
       sparkSession,
-      properties).transform(Map("step1" -> df)).ds
+      properties).transformWithSchema(Map("step1" -> df))._1.ds
 
   def assertExpectedSchema[Underlying[Row]](input: DistributedMonad[Underlying], properties: Map[String, JSerializable])(
     expected: => StructType
@@ -224,6 +224,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
     val properties = Map(
       "inputField" -> "json2",
       "schema.fromRow" -> "false",
+      "fieldsPreservationPolicy" -> "JUST_EXTRACTED",
       "schema.provided" -> """StructType((StructField(a,StringType,true)))"""
     )
 

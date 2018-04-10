@@ -7,15 +7,14 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep, TransformationStepManagement}
-import org.apache.spark.rdd.RDD
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-
-import scala.util.{Failure, Success, Try}
 
 abstract class IntersectionTransformStep[Underlying[Row]](
                                                            name: String,
@@ -29,18 +28,31 @@ abstract class IntersectionTransformStep[Underlying[Row]](
 
   lazy val partitions = properties.getInt("partitions", None)
 
-  def transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
-    case (rdd1, rdd2) =>
-      partitions.fold(rdd1.intersection(rdd2)) { numPartitions =>
-        Try{
-          rdd1.intersection(rdd2, numPartitions)
-        } match {
-          case Success(result) =>
-            result
-          case Failure(e) =>
-            xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
-        }
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    //If contains schemas, validate if it can be parsed
+    if (inputsModel.inputSchemas.nonEmpty) {
+      inputsModel.inputSchemas.foreach { input =>
+        if (parserInputSchema(input.schema).isFailure)
+          validation = ErrorValidations(
+            valid = false,
+            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
       }
+
+      inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+      }
+    }
+
+    validation
   }
 }
 

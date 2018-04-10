@@ -7,10 +7,11 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSchemaFromRdd, getSchemaFromSessionOrModel}
+import com.stratio.sparta.sdk.DistributedMonad
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step._
 
@@ -22,6 +23,23 @@ class ExplodeTransformStepStreaming(
                                      xDSession: XDSession,
                                      properties: Map[String, JSerializable]
                                    )
-  extends ExplodeTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+  extends ExplodeTransformStep[DStream](
+    name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+    transformFunc(inputData).ds.transform { rdd =>
+      getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+        .orElse {
+          val inputSchema = getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
+
+          providedSchema.flatMap(schema =>
+            getNewOutputSchema(inputSchema, preservationPolicy, schema, inputField))
+        }
+        .orElse(getSchemaFromRdd(rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+      rdd
+    }
+  }
+}
 
 

@@ -10,19 +10,16 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.models.PropertiesTriggerInputsModel
+import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.json4s.jackson.Serialization.read
-import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.{Failure, Success, Try}
 
-//scalastyle:off
 abstract class TriggerTransformStep[Underlying[Row]](
                                                       name: String,
                                                       outputOptions: OutputOptions,
@@ -35,39 +32,11 @@ abstract class TriggerTransformStep[Underlying[Row]](
     with SLF4JLogging {
 
   lazy val sql = properties.getString("sql").trim
-
   lazy val executeSqlWhenEmpty = Try(properties.getBoolean("executeSqlWhenEmpty", default = true)).getOrElse(true)
 
-  lazy val inputsModel: PropertiesTriggerInputsModel = {
-    {
-      implicit val json4sJacksonFormats: Formats =
-        DefaultFormats + new JsoneyStringSerializer()
-      read[PropertiesTriggerInputsModel](
-        s"""{"inputSchemas": ${
-          properties.getString("inputSchemas", None).notBlank.fold("[]") { values =>
-            values.toString
-          }
-        }}"""
-      )
-    }
-  }
-
-  /**
-    * Validate inputSchema names with names of input steps, also validate the input schemas
-    *
-    * @param inputData
-    */
-  def validateSchemas(inputData: Map[String, DistributedMonad[Underlying]]) = {
-    if (inputsModel.inputSchemas.nonEmpty) {
-      require(inputData.size == inputsModel.inputSchemas.size,
-        s"$name  The inputs size must be equal than provided input trigger schemas")
-      //If any of them fails
-      require(!inputsModel.inputSchemas.exists(input => parserInputSchema(input.schema).isFailure),
-        s"$name input schemas contains errors")
-      require(inputData.keys.forall { stepName =>
-        inputsModel.inputSchemas.map(_.stepName).contains(stepName)
-      }, s"$name input schemas are not the same as the input step names")
-    }
+  def requireValidateSql(): Unit = {
+    require(sql.nonEmpty, "The input query can not be empty")
+    require(validateSql, "The input query is invalid")
   }
 
   def validateSql: Boolean =
@@ -81,6 +50,11 @@ abstract class TriggerTransformStep[Underlying[Row]](
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
 
     if (sql.isEmpty)
       validation = ErrorValidations(
@@ -103,7 +77,7 @@ abstract class TriggerTransformStep[Underlying[Row]](
             messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
       }
 
-      inputsModel.inputSchemas.filterNot(is => isCorrectTableName(is.stepName)).foreach { is =>
+      inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
           messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
@@ -112,11 +86,5 @@ abstract class TriggerTransformStep[Underlying[Row]](
 
     validation
   }
-
-  def isCorrectTableName(tableName: String): Boolean =
-    tableName.nonEmpty && tableName != "" &&
-      tableName.toLowerCase != "select" &&
-      tableName.toLowerCase != "project" &&
-      !tableName.contains("-") && !tableName.contains("*") && !tableName.contains("/")
 }
 

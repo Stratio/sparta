@@ -24,7 +24,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
 
   import DistributedMonad.Implicits._
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
   val transformationsStepManagement = TransformationStepManagement()
   def passSameStream(
                       stepName: String,

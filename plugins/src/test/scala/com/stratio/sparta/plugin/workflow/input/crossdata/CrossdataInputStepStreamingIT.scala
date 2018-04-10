@@ -54,7 +54,7 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with Matchers {
       "offsetFields" -> offsetFields.asInstanceOf[JSerializable]
     )
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val crossdataInput = new CrossdataInputStepStreaming(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
     val inputStream = crossdataInput.init

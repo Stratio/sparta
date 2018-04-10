@@ -7,7 +7,9 @@ package com.stratio.sparta.plugin.workflow.transformation.checkpointing
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
@@ -33,6 +35,27 @@ class CheckpointTransformStepStreaming(
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    //If contains schemas, validate if it can be parsed
+    if (inputsModel.inputSchemas.nonEmpty) {
+      inputsModel.inputSchemas.foreach { input =>
+        if (parserInputSchema(input.schema).isFailure)
+          validation = ErrorValidations(
+            valid = false,
+            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+      }
+
+      inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+      }
+    }
+
     if (interval.isEmpty)
       validation = ErrorValidations(
         valid = false,
@@ -50,5 +73,10 @@ class CheckpointTransformStepStreaming(
   }
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData)(transformFunction)
+    applyHeadTransform(inputData)(transformFunction).ds.transform { rdd =>
+      getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+      rdd
+    }
 }

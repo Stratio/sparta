@@ -27,6 +27,7 @@ import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Wo
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
 import scala.concurrent.duration._
@@ -207,7 +208,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             inputs.find(_._1 == predecessor.name).foreach {
-              case (_, InputStepData(step, data)) =>
+              case (_, InputStepData(step, data, _)) =>
                 newOutput.writeTransform(
                   data,
                   step.outputOptions,
@@ -255,9 +256,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       case value if value == InputStep.StepType =>
         if (!graphContext.inputs.contains(node.name)) {
           val input = createInputStep(node)
-          val data = input.init()
-          val inputStepData = InputStepData(input, data)
+          val (data, schema) = input.initWithSchema()
+          val inputStepData = InputStepData(input, data, schema)
 
+          schema.foreach(sc => data.registerAsTable(workflowContext.xDSession, sc, node.name))
           data.setStepName(inputIdentificationName(input), forced = true)
           graphContext.inputs += (input.name -> inputStepData)
         }
@@ -266,15 +268,17 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val tPredecessors = findTransformPredecessors(node)
           val iPredecessors = findInputPredecessors(node)
           val transform = createTransformStep(node)
-          val data = transform.transform(iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
+          val (data, schema) = transform.transformWithSchema(
+            iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
           val iPredecessorsNames = iPredecessors.map { case (_, pInput) => inputIdentificationName(pInput.step) }.toSeq
           val tPredecessorsNames = tPredecessors.map { case (_, pTransform) =>
             transformIdentificationName(pTransform.step)
           }.toSeq
 
+          schema.foreach(sc => data.registerAsTable(workflowContext.xDSession, sc, node.name))
           data.setStepName(transformIdentificationName(transform), forced = false)
           graphContext.transformations += (transform.name -> TransformStepData(
-            transform, data, iPredecessorsNames ++ tPredecessorsNames))
+            transform, data, iPredecessorsNames ++ tPredecessorsNames, schema))
         }
       case _ =>
         log.warn(s"Invalid node step type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
@@ -338,6 +342,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
+        node.name,
         tableName,
         node.writer.partitionBy.notBlank,
         node.writer.primaryKey.notBlank,
@@ -379,6 +384,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
+        node.name,
         tableName,
         node.writer.partitionBy.notBlank,
         node.writer.primaryKey.notBlank,
@@ -429,10 +435,15 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 case class TransformStepData[Underlying[Row]](
                                                step: TransformStep[Underlying],
                                                data: DistributedMonad[Underlying],
-                                               predecessors: Seq[String]
+                                               predecessors: Seq[String],
+                                               schema: Option[StructType]
                                              )
 
-case class InputStepData[Underlying[Row]](step: InputStep[Underlying], data: DistributedMonad[Underlying])
+case class InputStepData[Underlying[Row]](
+                                           step: InputStep[Underlying],
+                                           data: DistributedMonad[Underlying],
+                                           schema: Option[StructType]
+                                         )
 
 case class GraphContext[Underlying[Row]](graph: Graph[NodeGraph, DiEdge],
                                          inputs: scala.collection.mutable.HashMap[String, InputStepData[Underlying]],

@@ -17,12 +17,12 @@ import org.apache.spark.streaming.dstream.DStream
 import DistributedMonad.Implicits._
 
 class WebSocketInputStepStreaming(
-                          name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable]
-                        ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) {
+                                   name: String,
+                                   outputOptions: OutputOptions,
+                                   ssc: Option[StreamingContext],
+                                   xDSession: XDSession,
+                                   properties: Map[String, JSerializable]
+                                 ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) {
 
   lazy val url: String = properties.getString("url", "").trim
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
@@ -46,6 +46,9 @@ class WebSocketInputStepStreaming(
 
   def init(): DistributedMonad[DStream] = {
     require(url.nonEmpty, "Input url cannot be empty")
-    ssc.get.receiverStream(new WebSocketReceiver(url, storageLevel, outputSchema))
+    ssc.get.receiverStream(new WebSocketReceiver(url, storageLevel, outputSchema)).transform { rdd =>
+      xDSession.createDataFrame(rdd, outputSchema).createOrReplaceTempView(name)
+      rdd
+    }
   }
 }

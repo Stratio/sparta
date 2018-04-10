@@ -7,14 +7,14 @@ package com.stratio.sparta.plugin.helper
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.jdbc.SpartaJdbcUtils.log
 import org.apache.spark.security.VaultHelper._
 
 import scala.util.{Properties, Try}
 
-object SecurityHelper {
+object SecurityHelper extends SLF4JLogging {
 
   def dataStoreSecurityConf(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     val tlsEnable = Try(configuration.getBoolean("tlsEnabled")).getOrElse(false)

@@ -33,7 +33,7 @@ class CrossdataInputStepBatchIT extends TemporalSparkContext with Matchers {
     sparkSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName)
 
     val datasourceParams = Map("query" -> s"select * from $tableName")
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val crossdataInput = new CrossdataInputStepBatch(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
     val inputRdd = crossdataInput.init()

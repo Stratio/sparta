@@ -33,15 +33,15 @@ class DistinctTransformStepBatchIT extends TemporalSparkContext with Matchers wi
     )
     val inputRDD = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRDD)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new DistinctTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map()
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 

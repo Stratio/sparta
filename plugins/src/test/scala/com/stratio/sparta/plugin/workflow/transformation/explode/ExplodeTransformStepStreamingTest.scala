@@ -31,7 +31,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
     "explode seq of maps field" in {
       val explodeField = Seq(Map("color" -> red, "price" -> redPrice))
       val input = new GenericRowWithSchema(Array(explodeField), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val result = new ExplodeTransformStepStreaming(
         inputField,
         outputOptions,
@@ -50,7 +50,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
     "explode seq of maps field with two elements" in {
       val explodeFieldMoreFields = Seq(Map("color" -> red, "price" -> redPrice), Map("color" -> blue, "price" -> bluePrice))
       val input = new GenericRowWithSchema(Array(explodeFieldMoreFields), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val result = new ExplodeTransformStepStreaming(
         inputField,
         outputOptions,
@@ -70,7 +70,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
       val inputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
       val explodeField = Seq(new GenericRowWithSchema(Array(red, redPrice), inputSchema))
       val input = new GenericRowWithSchema(Array(explodeField), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val result = new ExplodeTransformStepStreaming(
         inputField,
         outputOptions,
@@ -93,7 +93,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
         new GenericRowWithSchema(Array(blue, bluePrice), inputSchema)
       )
       val input = new GenericRowWithSchema(Array(explodeField), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val result = new ExplodeTransformStepStreaming(
         inputField,
         outputOptions,
@@ -118,7 +118,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
         Map("color" -> blue, "price" -> bluePrice.toString)
       )
       val input = new GenericRowWithSchema(Array(explodeFieldMoreFields), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val fields =
         """[
           |{
@@ -154,7 +154,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
       )
       val sparkSchema = "StructType((StructField(color,StringType,true),StructField(price,DoubleType,true)))"
       val input = new GenericRowWithSchema(Array(explodeFieldMoreFields), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val fields =
         """[
           |{
@@ -194,7 +194,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
         StructField(inputField, StringType)
       ))
       val input = new GenericRowWithSchema(Array("sparta", explodeFieldMoreFields), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val result = new ExplodeTransformStepStreaming(
         inputField,
         outputOptions,
@@ -223,7 +223,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
         StructField(inputField, StringType)
       ))
       val input = new GenericRowWithSchema(Array("sparta", explodeFieldMoreFields), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val fields =
         """[
           |{
@@ -263,7 +263,7 @@ class ExplodeTransformStepStreamingTest extends WordSpecLike with Matchers {
         StructField(inputField, StringType)
       ))
       val input = new GenericRowWithSchema(Array("sparta", explodeFieldMoreFields), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
       val result = new ExplodeTransformStepStreaming(
         inputField,

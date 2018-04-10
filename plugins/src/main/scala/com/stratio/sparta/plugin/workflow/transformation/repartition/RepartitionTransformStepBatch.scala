@@ -8,11 +8,13 @@ package com.stratio.sparta.plugin.workflow.transformation.repartition
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 class RepartitionTransformStepBatch(
@@ -26,10 +28,16 @@ class RepartitionTransformStepBatch(
   extends RepartitionTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      partitions.fold(inputStream.ds) { partition => inputStream.ds.repartition(partition)
-      }
+  override def transformWithSchema(
+                                    inputData: Map[String, DistributedMonad[RDD]]
+                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+    val rdd = applyHeadTransform(inputData) { (_, inputStream) =>
+      partitions.fold(inputStream.ds) { partition => inputStream.ds.repartition(partition) }
     }
+    val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+
+    (rdd, schema)
+  }
 
 }

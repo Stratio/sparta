@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.repartition
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -28,8 +29,13 @@ class RepartitionTransformStepStreaming(
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      partitions.fold(inputStream.ds) { partition =>
-        inputStream.ds.repartition(partition)
+      inputStream.ds.transform { rdd =>
+        val newRdd = partitions.fold(rdd) { partition => rdd.repartition(partition) }
+
+        getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+          .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputSchema, inputsModel, newRdd))
+          .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(name))
+        newRdd
       }
     }
 }

@@ -54,14 +54,17 @@ class FileSystemInputStepStreaming(
     val filters = properties.getString("filterString", None).notBlank
     val flagNewFiles = properties.getBoolean("newFilesOnly")
     val outputField = properties.getString("outputField", DefaultRawDataField)
-
     val outputSchema = StructType(Seq(StructField(outputField, StringType)))
-
     val applyFilters = (path: Path) =>
       defaultFilter(path) && filters.forall(_.split(",").forall(!path.getName.contains(_)))
 
-    ssc.get.fileStream[LongWritable, Text, TextInputFormat](path, applyFilters, flagNewFiles) map {
-      case (_, text) => new GenericRowWithSchema(Array(text.toString), outputSchema).asInstanceOf[Row]
+    ssc.get.fileStream[LongWritable, Text, TextInputFormat](path, applyFilters, flagNewFiles).transform { rdd =>
+      val newRdd = rdd.map { case (_, text) =>
+        new GenericRowWithSchema(Array(text.toString), outputSchema).asInstanceOf[Row]
+      }
+
+      xDSession.createDataFrame(newRdd, outputSchema).createOrReplaceTempView(name)
+      newRdd
     }
 
   }

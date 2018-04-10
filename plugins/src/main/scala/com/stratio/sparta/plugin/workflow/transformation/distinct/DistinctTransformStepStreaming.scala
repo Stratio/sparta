@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.distinct
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -28,7 +29,12 @@ class DistinctTransformStepStreaming(
 
   def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
     inputStream.ds.transform { rdd =>
-      partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
+      val newRdd = partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
+
+      getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputSchema, inputsModel, rdd))
+        .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(name))
+      newRdd
     }
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =

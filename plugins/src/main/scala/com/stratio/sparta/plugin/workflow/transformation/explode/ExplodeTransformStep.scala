@@ -6,23 +6,23 @@
 package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
-import java.util
 
-import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
+import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSparkSchemaFromString, parserInputSchema}
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.utils.CastingUtils._
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
-import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
-import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSparkSchemaFromString}
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step._
-import com.stratio.sparta.sdk.utils.CastingUtils._
+
+import scala.util.{Failure, Success, Try}
 
 abstract class ExplodeTransformStep[Underlying[Row]](
                                                       name: String,
@@ -37,10 +37,8 @@ abstract class ExplodeTransformStep[Underlying[Row]](
 
   lazy val inputField: String = Try(properties.getString("inputField"))
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
-
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
-
   lazy val providedSchema: Option[Seq[StructField]] = {
     if (properties.getBoolean("schema.fromRow", default = true)) None
     else {
@@ -67,7 +65,34 @@ abstract class ExplodeTransformStep[Underlying[Row]](
     }
   }
 
-  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    //If contains schemas, validate if it can be parsed
+    if (inputsModel.inputSchemas.nonEmpty) {
+      inputsModel.inputSchemas.foreach { input =>
+        if (parserInputSchema(input.schema).isFailure)
+          validation = ErrorValidations(
+            valid = false,
+            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+      }
+
+      inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
+        validation = ErrorValidations(
+          valid = false,
+          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+      }
+    }
+
+    validation
+  }
+
+  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData) { (_, inputStream) =>
       inputStream.flatMap(data => parse(data))
     }

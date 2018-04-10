@@ -24,7 +24,6 @@ import org.scalatest.junit.JUnitRunner
 class PersistTransformStepBatchIT  extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A PersistTransformStepBatchIT" should "persist RDD" in {
-    val schema = StructType(Seq(StructField("color", StringType)))
     val schemaResult = StructType(Seq(StructField("color", StringType)))
     val unorderedData = Seq(
       new GenericRowWithSchema(Array("red"), schemaResult).asInstanceOf[Row],
@@ -45,7 +44,7 @@ class PersistTransformStepBatchIT  extends TemporalSparkContext with Matchers wi
         |}]
         |""".stripMargin
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val inputRDD = sc.parallelize(unorderedData)
     val inputData = Map("step1" -> inputRDD)
     val inputField = "csv"
@@ -54,14 +53,14 @@ class PersistTransformStepBatchIT  extends TemporalSparkContext with Matchers wi
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,
         "schema.inputMode" -> "FIELDS",
         "storageLevel" -> "MEMORY_AND_DISK_SER_2",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
 
     assert(result.ds.getStorageLevel == StorageLevel.MEMORY_AND_DISK_SER_2)
   }

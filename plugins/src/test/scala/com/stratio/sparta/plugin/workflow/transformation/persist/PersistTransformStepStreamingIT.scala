@@ -26,15 +26,6 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class PersistTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
   "A PersistTransformStepBatchIT" should "persist RDD" in {
-    val schema = StructType(Seq(StructField("color", StringType)))
-    val schemaResult = StructType(Seq(StructField("color", StringType)))
-    val unorderedData = Seq(
-      new GenericRowWithSchema(Array("red"), schemaResult).asInstanceOf[Row],
-      new GenericRowWithSchema(Array("blue"), schemaResult).asInstanceOf[Row],
-      new GenericRowWithSchema(Array("red"), schemaResult).asInstanceOf[Row]
-
-    )
-
     val fields =
       """[
         |{
@@ -47,7 +38,7 @@ class PersistTransformStepStreamingIT extends TemporalSparkContext with Matchers
         |}]
         |""".stripMargin
 
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val inputField = "csv"
     val inputSchema = StructType(Seq(StructField(inputField, StringType)))
     val dataQueue = new mutable.Queue[RDD[Row]]()
@@ -63,7 +54,7 @@ class PersistTransformStepStreamingIT extends TemporalSparkContext with Matchers
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,

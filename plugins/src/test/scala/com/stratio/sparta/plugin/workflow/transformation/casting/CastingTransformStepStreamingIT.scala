@@ -40,7 +40,7 @@ class CastingTransformStepStreamingIT extends TemporalSparkContext with Matchers
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val fields =
       """[
         |{
@@ -56,7 +56,7 @@ class CastingTransformStepStreamingIT extends TemporalSparkContext with Matchers
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("fields" -> fields.asInstanceOf[JSerializable])
     ).transform(inputData)

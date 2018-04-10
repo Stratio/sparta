@@ -7,6 +7,8 @@ package com.stratio.sparta.plugin.workflow.transformation.avro
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
@@ -20,4 +22,16 @@ class AvroTransformStepStreaming(
                                   ssc: Option[StreamingContext],
                                   xDSession: XDSession,
                                   properties: Map[String, JSerializable]
-                                ) extends AvroTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+                                ) extends AvroTransformStep[DStream](
+  name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+    transformFunc(inputData).ds.transform { rdd =>
+      getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+        .orElse(getOutputSchema(getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)))
+        .orElse(getSchemaFromRdd(rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+      rdd
+    }
+  }
+}

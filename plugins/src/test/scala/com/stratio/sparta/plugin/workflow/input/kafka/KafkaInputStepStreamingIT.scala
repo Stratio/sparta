@@ -53,7 +53,7 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
       log.info("Creating kafka input step")
 
@@ -105,7 +105,7 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
       log.info("Creating kafka input step")
 

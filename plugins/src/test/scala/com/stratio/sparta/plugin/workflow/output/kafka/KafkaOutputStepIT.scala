@@ -79,7 +79,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
@@ -153,7 +153,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
         "auto.offset.reset" -> "earliest"
       )
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")

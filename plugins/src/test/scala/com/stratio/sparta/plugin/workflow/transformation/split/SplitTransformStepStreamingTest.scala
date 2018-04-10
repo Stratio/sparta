@@ -20,7 +20,7 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 @RunWith(classOf[JUnitRunner])
 class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
 
-  val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+  val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
   val inputField = "split"
   val schema = StructType(Seq(
     StructField(inputField, StringType))

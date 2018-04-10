@@ -29,6 +29,8 @@ class FileSystemInputStepBatch(
   with SLF4JLogging {
 
   lazy val path: String = properties.getString("path", "").trim
+  lazy val outputField = properties.getString("outputField", DefaultRawDataField)
+  lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -45,12 +47,15 @@ class FileSystemInputStepBatch(
   def init(): DistributedMonad[RDD] = {
     require(path.nonEmpty, "Input path cannot be empty")
 
-    val outputField = properties.getString("outputField", DefaultRawDataField)
-    val outputSchema = StructType(Seq(StructField(outputField, StringType)))
-
     xDSession.sparkContext.textFile(path).map { text =>
       new GenericRowWithSchema(Array(text), outputSchema).asInstanceOf[Row]
     }
+  }
+
+  override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
+    val monad = init()
+
+    (monad, Option(outputSchema))
   }
 
 }

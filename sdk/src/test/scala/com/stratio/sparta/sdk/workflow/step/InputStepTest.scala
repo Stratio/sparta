@@ -25,7 +25,7 @@ class InputStepTest extends WordSpec with Matchers with MockitoSugar {
   "InputStep" should {
     val name = "input"
     val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val properties = Map.empty[String, Serializable]
 
     "Return default storageLevel" in {

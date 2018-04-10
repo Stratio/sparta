@@ -53,7 +53,7 @@ class CsvTransformStepStreamingIT extends TemporalSparkContext with Matchers wit
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
     val result = new CsvTransformStepStreaming(
       "dummy",

@@ -24,15 +24,15 @@ class IntersectionTransformStepBatchIT extends TemporalSparkContext with Matcher
     val rdd1 = sc.parallelize(data1)
     val rdd2 = sc.parallelize(data2)
     val inputData = Map("step1" -> rdd1, "step2" -> rdd2)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val result = new IntersectionTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map()
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 

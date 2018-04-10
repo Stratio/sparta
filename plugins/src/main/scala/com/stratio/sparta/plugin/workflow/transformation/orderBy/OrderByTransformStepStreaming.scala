@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.orderBy
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -26,10 +27,19 @@ class OrderByTransformStepStreaming(
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      orderExpression.fold(inputStream.ds) { expression =>
-        inputStream.ds.transform(rdd => transformFunc(expression)(rdd))
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+    applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
+      val inputStream = inputDistributedMonad.ds
+      inputStream.transform { inputRdd =>
+        val (rdd, schema) = applyOrderBy(
+          inputRdd,
+          orderExpression.getOrElse(throw new Exception("Invalid order expression")),
+          stepName
+        )
+        schema.orElse(getSchemaFromRdd(rdd))
+          .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
+        rdd
       }
     }
+  }
 }

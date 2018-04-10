@@ -44,7 +44,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
     "parse json string" in {
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -76,7 +76,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
     "parse json with raw" in {
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -109,7 +109,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
     "not parse anything if the field does not match" in {
       val schema = StructType(Seq(StructField("wrong", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -137,7 +137,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
     "not parse when input is wrong" in {
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array("{}"), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -174,7 +174,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
 
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -216,7 +216,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
 
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -258,7 +258,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
 
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{
@@ -300,7 +300,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
 
       val schema = StructType(Seq(StructField("json", StringType)))
       val input = new GenericRowWithSchema(Array(JSON), schema)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
       val queries =
         """[
           |{

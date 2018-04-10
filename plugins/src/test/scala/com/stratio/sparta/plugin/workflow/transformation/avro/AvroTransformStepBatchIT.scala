@@ -55,7 +55,7 @@ class AvroTransformStepBatchIT extends TemporalSparkContext with Matchers with D
     )
     val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val transformationsStepManagement = TransformationStepManagement()
     val result = new AvroTransformStepBatch(
       "dummy",
@@ -68,7 +68,7 @@ class AvroTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "schema.provided" -> record,
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED"
       )
-    ).transform(inputData)
+    ).transformWithSchema(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>

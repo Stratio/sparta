@@ -21,7 +21,7 @@ class TestInputStepStreamingIT extends TemporalSparkContext with Matchers {
     val eventsPerBatch = 100
     val maxNumber = "500"
     val event = "testEvent"
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val properties = Map(
       "eventType" -> "STRING",
       "event" -> event,
@@ -48,7 +48,7 @@ class TestInputStepStreamingIT extends TemporalSparkContext with Matchers {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val eventsPerBatch = 100
     val maxNumber = "500"
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val properties = Map(
       "eventType" -> "RANDOM_NUMBER",
       "maxNumber" -> maxNumber,
