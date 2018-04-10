@@ -1,10 +1,10 @@
-.selected-entity{
+:host{
     position:fixed;
     background:white;
     border:1px solid #999999;
     pointer-events: none;
-    top:50%;
-    left:50%;
+    top:0;
+    left:0;
     z-index:100;
     width:15px;
     height:15px;

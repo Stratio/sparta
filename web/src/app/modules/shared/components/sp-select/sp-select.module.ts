@@ -3,15 +3,16 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
 import { SpSelectComponent } from './sp-select.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
+import { StLabelModule } from '@stratio/egeo';
 
 @NgModule({
-   imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
+   imports: [CommonModule, FormsModule, ReactiveFormsModule, StLabelModule],
    declarations: [SpSelectComponent],
    exports: [SpSelectComponent]
 })

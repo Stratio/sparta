@@ -4,13 +4,10 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { FormFieldComponent } from './components/form-field/form-field.component';
 import { FormFileComponent } from './components/form-file/form-file.component';
 import { MenuService } from './services/menu.service';
 import { FileReaderComponent } from './components/file-reader/file-reader.component';
-import { FormListComponent } from './components/form-list/form-list.component';
 import { UtilsService } from './services/utils.service';
-import { FormGeneratorComponent } from './components/form-generator/form-generator.component';
 import { FloatingMenuComponent } from './components/floating-menu/floating-menu.component';
 import { MenuOptionsComponent } from './components/floating-menu/menu-option/menu-options.component';
 import { MessageNotificationComponent } from './components/message-notification/message-notification.component';
@@ -20,7 +17,6 @@ import { ToolBarComponent } from './components/tool-bar/tool-bar.component';
 import { SpartaSidebarComponent } from './components/sparta-sidebar/sparta-sidebar.component';
 import { DragEventsDirective } from './directives/drag-events/drag-events.directive';
 import { DragEventsService } from './directives/drag-events/drag-events.service';
-import { FormGeneratorGroupComponent } from './components/form-generator/form-generator-group/form-generator-group.component';
 import { OrderByPipe } from './pipes/sort.pipe';
 import { Keyobject } from './pipes/keyobject';
 import { InfoFragmentComponent } from './components/fragment-box/info-fragment/info-fragment.component';
@@ -36,15 +32,11 @@ export const sharedProvider = [
 
 export const shareComponents = [
     FileReaderComponent,
-    FormListComponent,
     SpPopoverComponent,
-    FormFieldComponent,
     FloatingMenuComponent,
     MenuOptionsComponent,
-    FormGeneratorComponent,
     NotificationAlertComponent,
     LoadingSpinnerComponent,
-    FormGeneratorGroupComponent,
     MessageNotificationComponent,
     FragmentBoxComponent,
     InfoFragmentComponent,

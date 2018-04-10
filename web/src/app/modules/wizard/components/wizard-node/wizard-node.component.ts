@@ -82,7 +82,7 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
          }
 
          this.svg.on('mouseup', () => {
-            if (this.drawingConnectionStatus.status) {
+            if (this.data.stepType !== StepType.Input && this.drawingConnectionStatus.status) {
                this.onFinishConnector.emit(this.data);
             }
          });

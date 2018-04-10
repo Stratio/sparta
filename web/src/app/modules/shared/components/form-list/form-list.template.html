@@ -11,14 +11,14 @@
                   <div class="list-field" [ngClass]="{'last' : last}">
                      <ng-container *ngFor="let field of formListData; let j = index;">
                         <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="getItemClass(field)">
-                           <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
+                           <st-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                               label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
                               [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
-                              contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></sp-input>
-                           <sp-textarea [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'textarea'"
+                              contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></st-input>
+                           <st-textarea [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'textarea'"
                               label="{{field.propertyName | translate}}" placeholder="{{field.propertyName | translate}}"
                               [formControl]="item.controls[field.propertyId]" [rows]="field.rows" qaTag="form-list-textarea" [required]="field.required"
-                              contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></sp-textarea>
+                              contextualHelp="{{field.tooltip | translate}}" class="st-form-field" ></st-textarea>
                            <sp-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
                               label="{{field.propertyName | translate}}" tooltip="Select option from list" [errors]="errorsService.errors.inputErrors" placeholder="{{field.propertyName | translate}}"
                               [required]="field.required" [formControl]="item.controls[field.propertyId]" class="st-form-field" ></sp-select>

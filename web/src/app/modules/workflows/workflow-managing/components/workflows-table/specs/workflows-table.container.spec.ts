@@ -4,13 +4,8 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { ComponentFixture, async, TestBed, fakeAsync } from '@angular/core/testing';
-import { StTableModule } from '@stratio/egeo';
+import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
-import { By } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { Store } from "@ngrx/store";
-
 import { WorkflowsManagingTableContainer } from './../workflows-table.container';
 
 import { MockStore } from '@test/store-mock';
@@ -23,7 +18,7 @@ let versionEl: DebugElement;
 
 describe('[WorkflowsManagingTableContainer]', () => {
 
-    const mockStoreInstance: MockStore<any> = new MockStore({
+  /*  const mockStoreInstance: MockStore<any> = new MockStore({
         workflowsManaging: {
             workflowsManaging: {
                 workflowList: [
@@ -59,5 +54,5 @@ describe('[WorkflowsManagingTableContainer]', () => {
         component.workflowVersions$.take(1).subscribe((versions) => {
 
         });
-    });
+    });*/
 });

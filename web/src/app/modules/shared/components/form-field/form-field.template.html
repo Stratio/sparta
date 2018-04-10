@@ -1,6 +1,6 @@
 <div class="form-field">
    <!-- input text -->
-   <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
+   <st-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       fieldType="{{field.propertyType}}"
       class="st-form-field"
@@ -12,7 +12,7 @@
       [errors]="errorsService.errors.inputErrors"
       [qaTag]="field.qa"
       [minlength]="field.minlength"
-      [maxlength]="field.maxlength"></sp-input>
+      [maxlength]="field.maxlength"></st-input>
 
     <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
 
@@ -32,7 +32,7 @@
           [maxlength]="field.maxlength"></sp-textarea-highlight>
 
       <!-- regular textarea -->
-      <sp-textarea *ngIf="!field.contentType"
+      <st-textarea *ngIf="!field.contentType"
           [formControl]="stFormControl"
           class="st-form-field"
           label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
@@ -44,7 +44,7 @@
           [qaTag]="field.qa"
           [rows]="field.rows"
           [minlength]="field.minlength"
-          [maxlength]="field.maxlength"></sp-textarea>
+          [maxlength]="field.maxlength"></st-textarea>
     </div>
 
    <sp-select *ngIf="field.propertyType == 'select' && isVisible"

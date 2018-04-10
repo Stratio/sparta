@@ -137,7 +137,6 @@ export class WizardEditorComponent implements OnInit {
          x2: 0,
          y2: 0
       };
-
       this.drawingConnectionStatus = {
          status: true,
          name: event.name
@@ -147,7 +146,6 @@ export class WizardEditorComponent implements OnInit {
       const w = this._documentRef
          .on('mousemove', drawConnector.bind(this))
          .on('mouseup', mouseup.bind(this));
-
       function mouseup() {
          event.event.target.classList.remove('over-output2');
          this.showConnector = false;
@@ -158,7 +156,6 @@ export class WizardEditorComponent implements OnInit {
          w.on('mousemove', null).on('mouseup', null);
          this._cd.markForCheck();
       }
-
       function drawConnector() {
          connector.x2 = d3Event.clientX - connector.x1;
          connector.y2 = d3Event.clientY - connector.y1 - 135;
