@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { WorkflowGroupModal } from './components/workflow-group-modal/workflow-group-modal.component';

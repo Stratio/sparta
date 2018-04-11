@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { StModalService, Order } from '@stratio/egeo';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
 
 import * as workflowActions from './../../actions/workflows';
 import * as filtersActions from './../../actions/filters';

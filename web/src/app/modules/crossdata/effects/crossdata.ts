@@ -6,7 +6,17 @@
 import { Action } from '@ngrx/store';
 import { Actions, Effect } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
+
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/withLatestFrom';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/observable/forkJoin';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/from';
 import { Observable } from 'rxjs/Observable';
+import { from } from 'rxjs/observable/from';
 
 import * as crossdataActions from './../actions/crossdata';
 import * as errorActions from 'actions/errors';
@@ -24,7 +34,7 @@ export class CrossdataEffect {
                 .map((crossdataList: any) => {
                     return new crossdataActions.GetDatabasesCompleteAction(crossdataList);
                 }).catch(function (error) {
-                    return Observable.from([
+                    return from([
                         new crossdataActions.GetDatabasesErrorAction(),
                         new errorActions.ServerErrorAction(error)
                     ]);
@@ -38,7 +48,7 @@ export class CrossdataEffect {
                 .map((crossdataList: any) => {
                     return new crossdataActions.ListCrossdataTablesCompleteAction(crossdataList);
                 }).catch(function (error) {
-                    return Observable.from([
+                    return from([
                         new crossdataActions.ListCrossdataTablesErrorAction(''),
                         new errorActions.ServerErrorAction(error)
                     ]);
@@ -73,7 +83,7 @@ export class CrossdataEffect {
             }).map((crossdataList: any) => {
                 return new crossdataActions.ListDatabaseTablesCompleteAction(crossdataList);
             }).catch(function (error) {
-                return Observable.from([
+                return from([
                     new crossdataActions.ListCrossdataTablesErrorAction(''),
                     new errorActions.ServerErrorAction(error)
                 ]);
@@ -91,7 +101,7 @@ export class CrossdataEffect {
                     info: tableInfo
                 })
             ).catch(function (error) {
-                return Observable.from([
+                return from([
                     new crossdataActions.GetTableInfoErrorAction(''),
                     new errorActions.ServerErrorAction(error)
                 ]);

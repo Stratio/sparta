@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, Input } from '@angular/core';
+import { AfterContentInit, Directive, ElementRef, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { event as d3Event } from 'd3-selection';
 import { drag as d3Drag } from 'd3-drag';
@@ -32,15 +32,17 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
    }
 
    ngAfterContentInit() {
-      this.element
-         .on('click', this.onClick.bind(this))
-         .call(d3Drag()
-            .on('drag', this.dragmove.bind(this))
-            .on('start', () => {
-               d3Event.sourceEvent.stopPropagation();
-               // set wizard state dirty (enable save button)
-               this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
-            }));
+      this._ngZone.runOutsideAngular(() => {
+         this.element
+            .on('click', this.onClick.bind(this))
+            .call(d3Drag()
+               .on('drag', this.dragmove.bind(this))
+               .on('start', () => {
+                  d3Event.sourceEvent.stopPropagation();
+                  // set wizard state dirty (enable save button)
+                  this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+               }));
+      });
    }
 
    dragmove() {
@@ -53,7 +55,9 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
          cancelAnimationFrame(this.lastUpdateCall);
          this.lastUpdateCall = null;
       }
-      this.positionChange.emit(this.position);
+      this._ngZone.run(() => {
+         this.positionChange.emit(this.position);
+      });
       this.lastUpdateCall = requestAnimationFrame(this.setPosition.bind(this));
    }
 
@@ -64,23 +68,26 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
 
    onClick() {
       d3Event.stopPropagation();
-      this.clicks++;
-      if (this.clicks === 1) {
-         setTimeout(() => {
-            if (this.clicks === 1) {
-               // single click
-               this.onClickEvent.emit();
-            } else {
-               // double click
-               this.onDoubleClickEvent.emit();
-            }
-            this.clicks = 0;
-         }, 200);
-      }
+      this._ngZone.run(() => {
+         this.clicks++;
+         if (this.clicks === 1) {
+            setTimeout(() => {
+               if (this.clicks === 1) {
+                  // single click
+                  this.onClickEvent.emit();
+               } else {
+                  // double click
+                  this.onDoubleClickEvent.emit();
+               }
+               this.clicks = 0;
+            }, 200);
+         }
+      });
+
    }
 
 
-   constructor(private elementRef: ElementRef, private store: Store<fromWizard.State>) {
+   constructor(private elementRef: ElementRef, private store: Store<fromWizard.State>, private _ngZone: NgZone) {
       this.element = d3Select(this.elementRef.nativeElement);
    }
 }

@@ -7,7 +7,7 @@ import { OnDestroy, OnInit, ViewContainerRef, ViewChild, ChangeDetectorRef } fro
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { StTableHeader, StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { icons } from '@app/shared/constants/icons';
 

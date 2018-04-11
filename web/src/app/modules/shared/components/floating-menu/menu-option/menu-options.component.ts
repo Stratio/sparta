@@ -17,7 +17,7 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { FormControl } from '@angular/forms';
 
 @Component({

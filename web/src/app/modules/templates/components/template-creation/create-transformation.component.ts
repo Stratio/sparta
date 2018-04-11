@@ -8,7 +8,7 @@ import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StDropDownMenuItem } from '@stratio/egeo';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
 import * as transformationActions from './../../actions/transformation';
 import * as fromTemplates from './../../reducers';

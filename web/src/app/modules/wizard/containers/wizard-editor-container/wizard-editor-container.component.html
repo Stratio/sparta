@@ -37,7 +37,7 @@
            (onCreateEdge)="createEdge($event)"></wizard-editor>
 
          <sparta-sidebar [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
-            <wizard-details [entityData]="selectedNodeModel$ | async"></wizard-details>
+            <wizard-details [entityData]="selectedNodeModel"></wizard-details>
          </sparta-sidebar>
       </div>
    </section>

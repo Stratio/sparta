@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
 
 import * as fromTemplates from './../../reducers';
 import * as inputActions from './../../actions/input';

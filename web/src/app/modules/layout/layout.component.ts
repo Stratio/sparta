@@ -3,14 +3,18 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { StHeaderMenuOption } from '@stratio/egeo';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+
 import { MenuService } from './../shared/services/menu.service';
 import * as fromRoot from 'reducers';
-import { Subscription, Observable } from 'rxjs/Rx';
 import { Router, NavigationStart } from '@angular/router';
 import * as errorsActions from 'actions/errors';
+
 
 @Component({
     selector: 'layout',

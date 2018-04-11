@@ -5,7 +5,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
 import { ApiService} from './api.service';
 import { HttpClient } from '@angular/common/http';
 

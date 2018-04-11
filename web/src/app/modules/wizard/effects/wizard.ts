@@ -6,10 +6,15 @@
 
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/combineLatest';
-import { ActivatedRoute, Router } from '@angular/router';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/observable/forkJoin';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/from';
 import { Observable } from 'rxjs/Observable';
+
+import { ActivatedRoute, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Effect, Actions, toPayload } from '@ngrx/effects';
@@ -72,6 +77,7 @@ export class WizardEffect {
         .withLatestFrom(this.store.select(state => state))
         .switchMap(([redirectOnSave, state]: [any, any]) => {
             const wizard = state.wizard.wizard;
+            const entities = state.wizard.entities;
             if (!wizard.nodes.length) {
                 return Observable.of(new wizardActions.SaveWorkflowErrorAction({
                     title: 'NO_ENTITY_WORKFLOW_TITLE',
@@ -89,7 +95,7 @@ export class WizardEffect {
             const workflow = Object.assign({
                 id: wizard.workflowId,
                 version: wizard.workflowVersion,
-                executionEngine: wizard.workflowType,
+                executionEngine: entities.workflowType,
                 uiSettings: {
                     position: wizard.svgPosition
                 },

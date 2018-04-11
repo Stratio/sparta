@@ -8,7 +8,11 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, 
 import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs/Rx';
+
+import 'rxjs/add/operator/distinctUntilChanged';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+
 import { Location } from '@angular/common';
 import { StModalService } from '@stratio/egeo';
 

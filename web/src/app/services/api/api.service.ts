@@ -6,11 +6,8 @@
 
 import { Injectable } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
-import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
 import { HttpClient } from '@angular/common/http';
-import * as fromRoot from 'reducers';
-
 
 export interface ApiRequestOptions {
       method: string;

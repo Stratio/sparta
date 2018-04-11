@@ -17,7 +17,10 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
-import { Observable, Subject } from 'rxjs/Rx';
+
+import 'rxjs/add/operator/takeUntil';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
@@ -40,6 +43,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    @Input() workflowType = '';
    @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
    public selectedNodeName = '';
+   public selectedNodeModel: WizardNode;
    public selectedEdge: WizardEdge;
    public isMobile = false;
    public workflowName = '';
@@ -48,7 +52,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public workflowNodes: Array<WizardNode>;
    public svgPosition: ZoomTransform;
    public creationMode$: Observable<any>;
-   public selectedNodeModel$: Observable<WizardNode>;
    public isShowedEntityDetails$: Observable<any>;
 
    private componentDestroyed = new Subject();
@@ -93,25 +96,30 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       this.store.select(fromWizard.getWorkflowHeaderData)
          .takeUntil(this.componentDestroyed)
          .subscribe((data: any) => {
-             this.workflowName = data.name;
-             this.workflowVersion = data.version;
+            this.workflowName = data.name;
+            this.workflowVersion = data.version;
             this._cd.markForCheck();
-      });
+         });
       this.creationMode$ = this.store.select(fromWizard.isCreationMode);
-      this.selectedNodeModel$ = this.store.select(fromWizard.getSelectedEntityData);
+      this.store.select(fromWizard.getSelectedEntityData)
+         .takeUntil(this.componentDestroyed)
+         .subscribe(nodeModel => {
+            this.selectedNodeModel = nodeModel;
+            this._cd.markForCheck();
+         });
       this.isShowedEntityDetails$ = this.store.select(fromWizard.isShowedEntityDetails);
       this.store.select(fromWizard.getSelectedEntities)
          .takeUntil(this.componentDestroyed)
          .subscribe(name => {
-               this.selectedNodeName = name;
-               this._cd.markForCheck();
+            this.selectedNodeName = name;
+            this._cd.markForCheck();
          });
       this.store.select(fromWizard.getWorkflowPosition)
          .takeUntil(this.componentDestroyed)
          .subscribe(position => {
-               this.svgPosition = position;
-               this._cd.markForCheck();
-      });
+            this.svgPosition = position;
+            this._cd.markForCheck();
+         });
       this.store.select(fromWizard.getWorkflowNodes)
          .takeUntil(this.componentDestroyed)
          .subscribe((data: Array<any>) => {
@@ -193,7 +201,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    }
 
    editButtonEntity() {
-      this.editEntity(this.workflowNodes[0]);
+      this.editEntity(this.selectedNodeModel);
    }
 
    editEntity(entity: any) {

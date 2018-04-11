@@ -5,7 +5,7 @@
  */
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { StTableHeader, StDropDownMenuItem } from '@stratio/egeo';
 
 import * as fromCrossdata from './../../reducers';

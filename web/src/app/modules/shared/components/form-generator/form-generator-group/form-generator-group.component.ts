@@ -13,7 +13,7 @@ import {
    ControlValueAccessor, FormGroup,
    NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm
 } from '@angular/forms';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { StHorizontalTab } from '@stratio/egeo';
 import { TranslateService } from '@ngx-translate/core';
 

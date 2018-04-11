@@ -5,12 +5,11 @@
  */
 import {
     Component, ViewChild, ViewContainerRef, OnDestroy, OnInit, ChangeDetectorRef,
-    ChangeDetectionStrategy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { StModalService } from '@stratio/egeo';
-import { Observable, Subscription } from 'rxjs/Rx';
-
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import * as workflowActions from './actions/workflow-list';
 import {
     State,

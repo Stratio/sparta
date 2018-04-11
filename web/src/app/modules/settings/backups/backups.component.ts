@@ -6,7 +6,8 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 import { TranslateService } from '@ngx-translate/core';
 import {
     StTableHeader, StModalButton, StModalResponse, StModalService

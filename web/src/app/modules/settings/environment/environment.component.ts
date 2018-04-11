@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ChangeDetectorRef } from '@angular/core';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
 import * as fromRoot from './reducers';

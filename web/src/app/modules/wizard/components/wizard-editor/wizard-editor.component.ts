@@ -16,7 +16,7 @@ import {
    Output,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
 import {event as d3Event} from 'd3-selection';
 import {zoom as d3Zoom} from 'd3-zoom';
 import {select as d3Select} from 'd3-selection';

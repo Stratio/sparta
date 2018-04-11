@@ -32,7 +32,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Step name",
-               "width": 2,
+               "width": 3,
                "qa": "fragment-details-field-name"
             },
             {
@@ -40,7 +40,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "text",
                "contentType": "JSON",
-               "width": 8,
+               "width": 6,
                "tooltip": "Schema in json/Spark format or from example",
                "required": true,
                "qa": "fragment-details-field-query"

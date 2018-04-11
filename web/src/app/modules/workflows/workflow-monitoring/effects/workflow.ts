@@ -7,7 +7,19 @@
 import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import { Action, Store } from '@ngrx/store';
+
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/withLatestFrom';
+import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/observable/forkJoin';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/from';
+import { from} from 'rxjs/observable/from';
+import { empty } from 'rxjs/observable/empty';
 import { Observable } from 'rxjs/Observable';
+
 import { isEqual } from 'underscore';
 
 import * as errorActions from 'actions/errors';
@@ -34,14 +46,14 @@ export class WorkflowEffect {
                   workflow.lastUpdateOrder = workflow.status.lastUpdateDate ? new Date(workflow.status.lastUpdateDate).getTime() : 0;
                } catch (error) { }
             });
-            return isEqual(workflows, workflowsState.workflowList) ? Observable.empty() :
-               Observable.from([
+            return isEqual(workflows, workflowsState.workflowList) ? empty() :
+               from([
                   new workflowActions.ListWorkflowCompleteAction(workflows),
                   new workflowActions.ValidateSelectedAction()
                ]);
          }))
       .catch(error => error.statusText === 'Unknown Error' ?
-         Observable.from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
+         from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
          Observable.of(new errorActions.ServerErrorAction(error)));
 
    @Effect()
@@ -51,7 +63,7 @@ export class WorkflowEffect {
       .switchMap(workflows => Observable.forkJoin(workflows.map(workflow =>
          this.workflowService.deleteWorkflow(workflow.id)))
          .mergeMap(results => [new workflowActions.DeleteWorkflowCompleteAction(workflows), new workflowActions.ListWorkflowAction()])
-         .catch(error => Observable.from([new workflowActions.DeleteWorkflowErrorAction(), new errorActions.ServerErrorAction(error)])));
+         .catch(error => from([new workflowActions.DeleteWorkflowErrorAction(), new errorActions.ServerErrorAction(error)])));
 
    @Effect()
    downloadWorkflow$: Observable<Action> = this.actions$
@@ -69,14 +81,14 @@ export class WorkflowEffect {
       .ofType(workflowActions.RUN_WORKFLOW)
       .switchMap((data: any) => this.workflowService.runWorkflow(data.payload.id)
          .map((response: any) => new workflowActions.RunWorkflowCompleteAction(data.payload.name))
-         .catch(error => Observable.from([new workflowActions.RunWorkflowErrorAction(), new errorActions.ServerErrorAction(error)])));
+         .catch(error => from([new workflowActions.RunWorkflowErrorAction(), new errorActions.ServerErrorAction(error)])));
 
    @Effect()
    stopWorkflow$: Observable<Action> = this.actions$
       .ofType(workflowActions.STOP_WORKFLOW)
       .switchMap((data: any) => this.workflowService.stopWorkflow(data.payload)
          .map(response => new workflowActions.StopWorkflowCompleteAction(data.payload))
-         .catch(error => Observable.from([
+         .catch(error => from([
             new workflowActions.StopWorkflowErrorAction(),
             new errorActions.ServerErrorAction(error)
          ])));
@@ -90,7 +102,7 @@ export class WorkflowEffect {
             response.name = data.payload.name;
             return new workflowActions.GetExecutionInfoCompleteAction(response);
          })
-         .catch(error => Observable.from([new workflowActions.GetExecutionInfoErrorAction(), new errorActions.ServerErrorAction(error)])));
+         .catch(error => from([new workflowActions.GetExecutionInfoErrorAction(), new errorActions.ServerErrorAction(error)])));
 
    constructor(
       private actions$: Actions,

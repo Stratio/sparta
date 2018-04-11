@@ -15,12 +15,11 @@ import {
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
 import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from './../../reducers';
 import { ErrorMessagesService } from 'app/services';
-import { FOLDER_SEPARATOR } from './../../workflow.constants';
 
 @Component({
     selector: 'workflow-duplicate-modal',

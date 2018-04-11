@@ -9,7 +9,7 @@ import { Store } from '@ngrx/store';
 
 import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from './../../reducers';
-import { Subscription, Observable } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'workflow-json-modal',

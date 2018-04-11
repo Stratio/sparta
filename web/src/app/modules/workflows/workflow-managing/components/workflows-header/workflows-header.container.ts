@@ -5,9 +5,9 @@
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
-import * as userActions from 'actions/user';
 import * as workflowActions from './../../actions/workflow-list';
 import { State, getCurrentGroupLevel, getVersionsOrderedList, getSelectedVersionsData } from './../../reducers';
 import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';

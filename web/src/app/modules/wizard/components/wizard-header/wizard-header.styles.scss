@@ -28,6 +28,10 @@ $cloudy-black: #cdd6df;
 .tool-header {
    padding: 12px 0;
    border-bottom: 1px solid #ddd;
+
+   .button {
+       margin-left: 5px;
+   }
 }
 
 .position-tools {
@@ -36,6 +40,9 @@ $cloudy-black: #cdd6df;
 
 .show-options {
    margin-right: 40px;
+   .button {
+       margin: 0;
+   }
 }
 
 .header-info {

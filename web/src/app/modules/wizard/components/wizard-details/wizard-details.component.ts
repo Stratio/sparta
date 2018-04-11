@@ -5,7 +5,7 @@
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Subscription';
 import { WizardService } from '@app/wizard/services/wizard.service';
 
 import * as fromWizard from './../../reducers';

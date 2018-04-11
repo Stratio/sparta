@@ -3,18 +3,19 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    ElementRef,
     OnDestroy,
     OnInit,
     ViewChild,
     ViewContainerRef
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Observable} from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 import * as fromRoot from './reducers';
 import * as pluginsActions from './actions/plugins';

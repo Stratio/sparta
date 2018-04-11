@@ -14,6 +14,8 @@ import {
     HttpResponse
 } from '@angular/common/http';
 import { Store } from '@ngrx/store';
+
+import 'rxjs/add/operator/do';
 import { Observable } from 'rxjs/Observable';
 
 import * as errorsActions from 'actions/errors';
