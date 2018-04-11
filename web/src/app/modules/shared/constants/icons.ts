@@ -39,5 +39,6 @@ export const icons: any = {
     Checkpoint: '\ue61b',
     Datetime: '\ue64d',
     Custom: '\ue60a',
-    ElasticSearch: '\ue624'
+    ElasticSearch: '\ue624',
+    DropColumns: '\ue123'
 };

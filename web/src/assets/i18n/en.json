@@ -515,6 +515,7 @@
    "_INPUTS_TRIGGER_SCHEMA_": "Provides steps schema",
    "_EXECUTE_WHEN_EMPTY_": "Execute query when is not possible to obtains schema",
    "_INPUT_STEP_NAME_" : "Step name",
+   "_COLUMNS_TO_DROP_" : "Columns to delete",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

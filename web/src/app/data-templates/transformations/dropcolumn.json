@@ -1,0 +1,61 @@
+{
+   "name": "DropColumns",
+   "icon": "DropColumns",
+   "className": "DropColumnTransformStep",
+   "classPrettyName": "DropColumns",
+   "arity": ["UnaryToNary"],
+   "supportedEngines": ["Streaming", "Batch"],
+   "description": "Drop input columns for avoid using them in next steps",
+   "properties": [
+      {
+         "propertyId": "schema.fields",
+         "propertyName": "_COLUMNS_TO_DROP_",
+         "propertyType": "list",
+         "required": true,
+         "tooltip": "Schema definition from list of fields",
+         "qa": "fragment-details-dropcolumn-fields",
+         "fields": [
+            {
+               "propertyId": "name",
+               "propertyName": "_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "qa": "fragment-details-field-name"
+            }
+         ]
+      },
+      {
+         "propertyId": "whenRowError",
+         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "RowError"
+            },
+            {
+               "label": "Discard",
+               "value": "RowDiscard"
+            }
+         ],
+         "qa": "workflow-dropcolumn-whenRowError"
+      },
+      {
+         "propertyId": "whenFieldError",
+         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "FieldError"
+            },
+            {
+               "label": "Null",
+               "value": "Null"
+            }
+         ],
+         "qa": "workflow-dropcolumn-whenFieldError"
+      }
+   ]
+}

@@ -28,6 +28,7 @@ import * as triggerStreamingTemplate from './transformations/triggerStreaming.js
 import * as triggerBatchTemplate from './transformations/triggerBatch.json';
 import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
+import * as dropcolumnTemplate from './transformations/dropcolumn.json';
 
 export const transformations: any = [
     avroTemplate,
@@ -51,7 +52,8 @@ export const transformations: any = [
     triggerStreamingTemplate,
     triggerBatchTemplate,
     unionTemplate,
-    windowTemplate
+    windowTemplate,
+    dropcolumnTemplate
 ];
 
 /*********************** */
