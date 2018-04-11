@@ -6,6 +6,9 @@
 
 import { Injectable } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
+
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { HttpClient } from '@angular/common/http';
 
