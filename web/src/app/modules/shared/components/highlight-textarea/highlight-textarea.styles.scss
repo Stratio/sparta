@@ -1,5 +1,4 @@
 @import '~@stratio/egeo/theme/constants';
-
 :host {
    position: relative;
    display: block;
@@ -52,7 +51,9 @@
 
 .disabled {
    .textarea-scroll {
-      border-color: #dedede;
+      border-color: #cbcbcb;
+      background-color: #fafafa;
+      color: #999;
    }
 }
 

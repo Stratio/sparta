@@ -32,7 +32,7 @@
           [maxlength]="field.maxlength"></sp-textarea-highlight>
 
       <!-- regular textarea -->
-      <st-textarea *ngIf="!field.contentType"
+      <sp-textarea *ngIf="!field.contentType"
           [formControl]="stFormControl"
           class="st-form-field"
           label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
@@ -44,7 +44,7 @@
           [qaTag]="field.qa"
           [rows]="field.rows"
           [minlength]="field.minlength"
-          [maxlength]="field.maxlength"></st-textarea>
+          [maxlength]="field.maxlength"></sp-textarea>
     </div>
 
    <sp-select *ngIf="field.propertyType == 'select' && isVisible"

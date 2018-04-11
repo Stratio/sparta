@@ -8,15 +8,11 @@ import {
    Component,
    EventEmitter,
    Input,
-   Output,
-   ViewChild,
-   ViewContainerRef,
-   OnInit
+   Output
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
+import { StModalService } from '@stratio/egeo';
 
-import { WorkflowsService } from './../../workflows.service';
 import { BreadcrumbMenuService } from 'services';
 import { isWorkflowRunning } from '@utils';
 import { MonitoringWorkflow } from '../../models/workflow';
@@ -86,10 +82,6 @@ export class WorkflowsHeaderComponent {
    public runWorkflow(workflow: any): void {
       const policyStatus = workflow.status.status;
       if (isWorkflowRunning(policyStatus)) {
-         const stopPolicy = {
-            'id': workflow.id,
-            'status': 'Stopping'
-         };
          this.onStopWorkflow.emit(workflow);
       } else {
          this.onRunWorkflow.emit(workflow);

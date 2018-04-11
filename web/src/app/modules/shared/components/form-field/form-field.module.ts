@@ -15,6 +15,7 @@ import { FormFieldComponent } from './form-field.component';
 import { SpSelectModule } from '../sp-select/sp-select.module';
 import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textarea.module';
 import { FormListModule } from '../form-list/form-list.module';
+import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
 
 @NgModule({
    exports: [
@@ -28,6 +29,7 @@ import { FormListModule } from '../form-list/form-list.module';
       HighlightTextareaModule,
       SpSelectModule,
       StTextareaModule,
+      SpTextareaModule,
       StCheckboxModule,
       StSwitchModule,
       StInputModule,

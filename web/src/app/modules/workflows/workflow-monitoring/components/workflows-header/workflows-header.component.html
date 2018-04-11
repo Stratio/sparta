@@ -44,7 +44,7 @@
       <div class="col-sm-6">
          <div class="global-actions">
             <div *ngIf="selectedWorkflows.length" class="selection-tools">
-               <button class="button button-toolbar" id="run-button" (click)="onRunWorkflow.emit(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
+               <button class="button button-toolbar" id="run-button" (click)="runWorkflow(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
                   <i class="icon-stop" *ngIf="isRunning(selectedWorkflows[0].status.status)"></i>
                   <i class="icon-play" *ngIf="!isRunning(selectedWorkflows[0].status.status)"></i>
               </button>

@@ -21,12 +21,12 @@
                   <div class="row" *ngIf="loaded">
 
                      <div class="col-xs-6">
-                        <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                        <st-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
                            qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                           class="input-field st-form-field"></sp-input>
-                        <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                           class="input-field st-form-field"></st-input>
+                        <st-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
                            fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250"
-                           [errors]="errorsService.errors.inputErrors" class="input-field st-form-field"></sp-textarea>
+                           [errors]="errorsService.errors.inputErrors" class="input-field st-form-field"></st-textarea>
                         <div *ngIf="!editMode">
                            <div class="st-form-field workflow-type">
                               <label class="st-label">Template type</label>

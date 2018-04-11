@@ -169,9 +169,11 @@ export class WizardEffect {
         .withLatestFrom(this.store.select(state => state))
         .switchMap(([payload, state]: [any, any]) => {
             const wizard = state.wizard.wizard;
+            const entities = state.wizard.entities;
             const workflow = Object.assign({
                 id: wizard.workflowId,
                 version: wizard.workflowVersion,
+                executionEngine: entities.workflowType,
                 uiSettings: {
                     position: wizard.svgPosition
                 },

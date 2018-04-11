@@ -49,10 +49,10 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
       if (!this.disabledForm) {
          setTimeout(() => {
             if (this.field.visible && this.field.visible.length) {
-                this.checkDisableRules(this.field.visible[0], true);
+                this.checkDisableRules(this.field.visible[0], false);
             }
             if (this.field.visibleOR && this.field.visibleOR.length) {
-               this.checkDisableRules(this.field.visible[0], false);
+               this.checkDisableRules(this.field.visibleOR[0], true);
             }
             setTimeout(() => {
                this.stFormControl.updateValueAndValidity();
@@ -70,11 +70,16 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
    }
 
    checkDisabledFields(visibleFields: Array<any>, isOR: boolean) {
-      let enable = isOR;
+      let enable = !isOR;
+
       visibleFields.forEach((rule: any) => {
-         if (rule.value != this.stFormGroup.controls[rule.propertyId].value) {
-            enable = !isOR;
+         if (!isOR && rule.value !== this.stFormGroup.controls[rule.propertyId].value) {
+            enable = false;
          }
+        if (isOR && rule.value === this.stFormGroup.controls[rule.propertyId].value) {
+            enable = true;
+         }
+
       });
       enable ? this.stFormGroup.controls[this.field.propertyId].enable() : this.stFormGroup.controls[this.field.propertyId].disable();
    }

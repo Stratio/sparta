@@ -15,8 +15,8 @@
             <sp-input #input label="{{'DASHBOARD.WORKFLOW_NAME' | translate}}" [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.NAME_PLACEHOLDER' | translate}}"
                name="name" qaTag="workflow-name" [(ngModel)]="model.name" class="st-form-field"></sp-input>
             <br>
-            <sp-textarea class="description st-form-field" [forceValidations]="forceValidations" label="{{'DASHBOARD.WORKFLOW_DESCRIPTION' | translate}}" placeholder="{{'DASHBOARD.DESCRIPTION_PLACEHOLDER' | translate}}"
-               name="description" qaTag="workflow-description" [rows]="2" [(ngModel)]="model.description"></sp-textarea>
+            <st-textarea class="description st-form-field" [forceValidations]="forceValidations" label="{{'DASHBOARD.WORKFLOW_DESCRIPTION' | translate}}" placeholder="{{'DASHBOARD.DESCRIPTION_PLACEHOLDER' | translate}}"
+               name="description" qaTag="workflow-description" [rows]="2" [(ngModel)]="model.description"></st-textarea>
             <p class="json-info">
                <span class="icon"><i class="icon-pin"></i></span>
                <span>{{'DASHBOARD.JSON_INFO' | translate}}</span>
@@ -25,8 +25,8 @@
          </div>
          <div class="workflow-json st-form-field" [ngClass]="{'error' : workflowValidationError || serverErrors.length}">
             
-            <sp-textarea [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
-               required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </sp-textarea>
+            <st-textarea [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
+               required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </st-textarea>
                <!-- {{serverErrors | async | json}} -->
                <p class="st-input-error-message validation-error" *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>
                <p class="st-input-error-message validation-error" *ngIf="serverErrors.length"> {{serverErrors}}

@@ -1,12 +1,3 @@
-.st-form-field.ng-invalid:not(.ng-pristine) input,
-.st-form-field.ng-invalid:not(.ng-pristine) text-area {
-   border-color: #b5b5b5;
-}
-
-.st-form-field.ng-invalid:not(.ng-pristine) .st-label {
-   color: #999;
-}
-
 .st-form-field {
    .error {
       &.st-label {
@@ -47,22 +38,15 @@
    }
 }
 
-.st-pagination.pagination {
-   justify-content: space-between;
-}
+sp-textarea {
+   width: 100%;
+   textarea {
+       min-height: 70px;
+   }
 
-.st-table-row.selected {
-   font-family: Nunito Sans;
-}
-
-.sth-alerts {
-   z-index: 99999;
 }
 
 //************** end custom sth-alert ****************//
-.st-textarea {
-   height: auto;
-}
 
 .sth-alert-box {
    background-color: #fff!important;
@@ -129,11 +113,7 @@
    &:before {
       min-width: 160px;
    }
-}
-
-sp-textarea {
-   width: 100%;
-}
+}   
 
 // z-index lower than st-alert
 .sth-header {
@@ -180,13 +160,3 @@ sp-textarea {
 workflows-manage-header .sth-breadcrumbs__item {
    text-transform: lowercase;
 }
-
-
-/* .sth-header-container-fix-part{
-    max-width:200px!important;
-}
-
-.sth-header-user-menu-container{
-    max-width:200px!important;
-}
-*/

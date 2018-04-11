@@ -32,17 +32,15 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
    }
 
    ngAfterContentInit() {
-      this._ngZone.runOutsideAngular(() => {
-         this.element
-            .on('click', this.onClick.bind(this))
-            .call(d3Drag()
-               .on('drag', this.dragmove.bind(this))
-               .on('start', () => {
-                  d3Event.sourceEvent.stopPropagation();
-                  // set wizard state dirty (enable save button)
-                  this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
-               }));
-      });
+      this.element
+         .on('click', this.onClick.bind(this))
+         .call(d3Drag()
+            .on('drag', this.dragmove.bind(this))
+            .on('start', () => {
+               d3Event.sourceEvent.stopPropagation();
+               // set wizard state dirty (enable save button)
+               this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+            }));
    }
 
    dragmove() {
