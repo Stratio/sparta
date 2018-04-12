@@ -6,7 +6,8 @@
 
 package com.stratio.sparta.plugin.workflow.transformation.join
 
-import com.stratio.sparta.plugin.workflow.transformation.join.TableSide.TableSide
+import com.stratio.sparta.plugin.enumerations.TableSide
+import com.stratio.sparta.plugin.enumerations.TableSide.TableSide
 
 case class JoinReturnColumn(tableSide: TableSide, column: String, alias: Option[String]) {
 

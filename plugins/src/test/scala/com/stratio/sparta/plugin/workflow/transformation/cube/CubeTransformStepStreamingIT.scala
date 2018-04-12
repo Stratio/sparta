@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.plugin.workflow.transformation.cube
 
-import com.stratio.sparta.plugin.workflow.transformation.cube.model.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.plugin.workflow.transformation.cube.models.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.plugin.{TemporalSparkContext, TestReceiver}

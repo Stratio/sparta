@@ -1,0 +1,80 @@
+{
+   "name": "CleanNulls",
+   "icon": "CleanNulls",
+   "className": "CleanNullsTransformStep",
+   "classPrettyName": "CleanNulls",
+   "arity": ["UnaryToNary"],
+   "supportedEngines": ["Streaming", "Batch"],
+   "description": "Clean/Drop rows that contains null or NaN values in their columns",
+   "properties": [
+      {
+         "propertyId": "cleanMode",
+         "propertyName": "_CLEAN_MODE_",
+         "required": true,
+         "propertyType": "select",
+         "default": "ANY",
+         "values": [
+            {
+               "label": "Any",
+               "value": "ANY"
+            },
+            {
+               "label": "All",
+               "value": "ALL"
+            }
+         ],
+         "tooltip": "If select any, then drop rows containing any null or NaN values. If select all, then drop rows only if every column is null or NaN for that row",
+         "qa": "fragment-details-cleanNulls-cleanMode"
+      },
+      {
+         "propertyId": "columns",
+         "propertyName": "_COLUMNS_",
+         "width": 8,
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "Columns to check null values",
+         "qa": "fragment-details-cleanNulls-columns",
+         "fields": [
+            {
+               "propertyId": "name",
+               "propertyName": "_COLUMN_NAME_",
+               "propertyType": "text",
+               "width": 4,
+               "required": true,
+               "tooltip": "Name of the column",
+               "qa": "fragment-details-cleanNulls-columns-name"
+            }
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 2,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "text",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

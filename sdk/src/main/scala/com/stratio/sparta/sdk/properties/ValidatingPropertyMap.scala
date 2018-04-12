@@ -6,7 +6,7 @@
 package com.stratio.sparta.sdk.properties
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.properties.models.{HostsPortsModel, PropertiesFieldsModel, PropertiesQueriesModel}
+import com.stratio.sparta.sdk.models.PropertyFields
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
@@ -25,12 +25,12 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
-  def getPropertiesFields(key: K): PropertiesFieldsModel = {
+  def getPropertiesFields(key: K): PropertyFields = {
     implicit val json4sJacksonFormats: Formats =
       DefaultFormats +
         new JsoneyStringSerializer()
 
-    read[PropertiesFieldsModel](
+    read[PropertyFields](
       s"""{"fields": ${m.get(key).fold("[]") { values => values.toString }}}"""
     )
   }

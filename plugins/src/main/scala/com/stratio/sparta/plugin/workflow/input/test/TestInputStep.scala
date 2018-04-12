@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.input.test
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.EventType
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._

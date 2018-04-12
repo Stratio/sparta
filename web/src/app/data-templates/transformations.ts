@@ -9,6 +9,7 @@ import { StepType, Engine } from "@models/enums";
 import * as avroTemplate from './transformations/avro.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
+import * as cleanNullsTemplate from './transformations/cleanNulls.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
 import * as customTemplate from './transformations/custom.json';
@@ -36,6 +37,7 @@ export const transformations: any = [
     avroTemplate,
     castingTemplate,
     checkpointTemplate,
+    cleanNullsTemplate,
     csvTemplate,
     cubeTemplate,
     customTemplate,

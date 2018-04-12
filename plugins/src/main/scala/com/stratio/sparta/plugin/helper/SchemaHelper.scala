@@ -12,7 +12,7 @@ import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
+import com.stratio.sparta.sdk.models.PropertySchemasInput
 import org.apache.avro.Schema
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -205,7 +205,7 @@ object SchemaHelper extends SLF4JLogging {
   def getSchemaFromSessionOrModelOrRdd(
                                         xDSession: XDSession,
                                         tableName: String,
-                                        inputsModel: PropertiesSchemasInputsModel,
+                                        inputsModel: PropertySchemasInput,
                                         rdd: RDD[Row]
                                       ): Option[StructType] =
     getSchemaFromSessionOrModel(xDSession, tableName, inputsModel).orElse(getSchemaFromRdd(rdd))
@@ -213,7 +213,7 @@ object SchemaHelper extends SLF4JLogging {
   def getSchemaFromSessionOrModel(
                                    xDSession: XDSession,
                                    tableName: String,
-                                   inputsModel: PropertiesSchemasInputsModel
+                                   inputsModel: PropertySchemasInput
                                  ): Option[StructType] =
     SdkSchemaHelper.getSchemaFromSession(xDSession, tableName).orElse {
       inputsModel.inputSchemas.filter(is => is.stepName == tableName) match {
@@ -269,7 +269,7 @@ object SchemaHelper extends SLF4JLogging {
     *
     * @param inputSteps
     */
-  def validateSchemas(step: String, inputsModel: PropertiesSchemasInputsModel, inputSteps: Seq[String]): Unit = {
+  def validateSchemas(step: String, inputsModel: PropertySchemasInput, inputSteps: Seq[String]): Unit = {
     if (inputsModel.inputSchemas.nonEmpty) {
       //If any of them fails
       require(!inputsModel.inputSchemas.exists(input => parserInputSchema(input.schema).isFailure),

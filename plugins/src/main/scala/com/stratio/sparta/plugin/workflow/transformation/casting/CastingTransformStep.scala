@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.enumerations.OutputFieldsFrom
 import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
 import com.stratio.sparta.sdk.DistributedMonad

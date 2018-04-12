@@ -10,7 +10,7 @@ import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalVie
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper.isCorrectTableName
-import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
+import com.stratio.sparta.sdk.models.PropertySchemasInput
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -24,7 +24,7 @@ object SqlHelper {
                            xDSession: XDSession,
                            inputData: Map[String, DistributedMonad[RDD]],
                            sql: String,
-                           inputsModel: PropertiesSchemasInputsModel,
+                           inputsModel: PropertySchemasInput,
                            executeSqlWhenEmpty: Boolean
                          ): (DistributedMonad[RDD], Option[StructType]) = {
     var resultSchema: Option[StructType] = None

@@ -8,9 +8,9 @@ package com.stratio.sparta.plugin.common.kafka
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.models.PropertyHostPort
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.models.HostsPortsModel
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
 
@@ -24,13 +24,13 @@ trait KafkaBase extends SLF4JLogging {
     val connection = try {
       if (properties.contains(bootstrapServers)) {
         implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
-        val hostsPortsModel = read[HostsPortsModel](
-          s"""{"hostsPorts": ${properties.getString(bootstrapServers, None)
-            .notBlank.fold("[]") { values => values.toString }}}"""
-        )
-        if (hostsPortsModel.hostsPorts.nonEmpty &&
-          hostsPortsModel.hostsPorts.forall(model => model.host.nonEmpty && model.port.nonEmpty))
-          Option(hostsPortsModel.hostsPorts.map(hostHortModel =>
+        val propertyHostsPorts =
+          s"${properties.getString(bootstrapServers, None).notBlank.fold("[]") { values => values.toString }}"
+        val hostsPortsModel = read[Seq[PropertyHostPort]](propertyHostsPorts)
+
+        if (hostsPortsModel.nonEmpty &&
+          hostsPortsModel.forall(model => model.host.nonEmpty && model.port.nonEmpty))
+          Option(hostsPortsModel.map(hostHortModel =>
             s"${hostHortModel.host}:${hostHortModel.port}").mkString(",")
           )
         else {

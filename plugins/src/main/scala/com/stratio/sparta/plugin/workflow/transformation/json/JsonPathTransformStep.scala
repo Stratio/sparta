@@ -9,11 +9,11 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.plugin.models.{PropertyQuery}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -35,22 +35,17 @@ abstract class JsonPathTransformStep[Underlying[Row]](
                                                      )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  lazy val queriesModel: PropertiesQueriesModel = {
-    {
-      implicit val json4sJacksonFormats: Formats =
-        DefaultFormats +
-          new JsoneyStringSerializer()
+  lazy val queriesModel: Seq[PropertyQuery] = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    val queries = s"${properties.getString("queries", None).notBlank.fold("[]") { values => values.toString }}"
 
-      read[PropertiesQueriesModel](
-        s"""{"queries": ${properties.getString("queries", None).notBlank.fold("[]") { values => values.toString }}}"""
-      )
-    }
+    read[Seq[PropertyQuery]](queries)
   }
   lazy val supportNullValues: Boolean = properties.getBoolean("supportNullValues", default = true)
   lazy val inputField: String = properties.getString("inputField")
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
-  lazy val outputFieldsSchema: Seq[StructField] = queriesModel.queries.map { queryField =>
+  lazy val outputFieldsSchema: Seq[StructField] = queriesModel.map { queryField =>
     val outputType = queryField.`type`.notBlank.getOrElse("string")
     StructField(
       name = queryField.field,
@@ -142,11 +137,11 @@ abstract class JsonPathTransformStep[Underlying[Row]](
 
 object JsonPathTransformStep {
 
-  def jsonParse(jsonData: String, queriesModel: PropertiesQueriesModel, isLeafToNull: Boolean): Map[String, Any] = {
+  def jsonParse(jsonData: String, queriesModel: Seq[PropertyQuery], isLeafToNull: Boolean): Map[String, Any] = {
     val jsonPathExtractor = new JsonPathExtractor(jsonData, isLeafToNull)
 
     //Delegate the error management to next step, when the outputFields is transformed
-    queriesModel.queries.flatMap { queryModel =>
+    queriesModel.flatMap { queryModel =>
       Try((queryModel.field, jsonPathExtractor.query(queryModel.query))).toOption
     }.toMap
   }

@@ -3,12 +3,12 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.transformation.join
+package com.stratio.sparta.plugin.workflow.transformation.cube.models
 
-object JoinReturn extends Enumeration {
-
-  type JoinReturn = Value
-  val LEFT, RIGHT, ALL, COLUMNS = Value
-
-}
-
+case class OperatorModel(
+                          name: String,
+                          classType: String,
+                          `type`: Option[String] = None,
+                          inputField: Option[String] = None,
+                          nullable: Option[Boolean] = None
+                        )

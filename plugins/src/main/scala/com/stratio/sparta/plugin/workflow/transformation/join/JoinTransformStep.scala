@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.join
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.{JoinReturn, JoinTypes, TableSide}
 import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper

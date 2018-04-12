@@ -3,6 +3,11 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.sdk.properties.models
+package com.stratio.sparta.plugin.models
 
-case class PropertiesQueriesModel(queries: Seq[PropertiesQueryModel])
+case class PropertyQuery(
+                                field : String,
+                                query: String,
+                                `type`: Option[String] = None,
+                                nullable: Option[Boolean] = None
+                               )

@@ -8,7 +8,7 @@ package com.stratio.sparta.sdk.helpers
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
+import com.stratio.sparta.sdk.models.PropertySchemasInput
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.json4s.{DefaultFormats, Formats}
@@ -34,11 +34,11 @@ object SdkSchemaHelper extends SLF4JLogging{
     }.toOption
   }
 
-  def getInputSchemasModel(inputsModel: Option[String]): PropertiesSchemasInputsModel = {
+  def getInputSchemasModel(inputsModel: Option[String]): PropertySchemasInput = {
     {
       implicit val json4sJacksonFormats: Formats =
         DefaultFormats + new JsoneyStringSerializer()
-      read[PropertiesSchemasInputsModel](
+      read[PropertySchemasInput](
         s"""{"inputSchemas": ${
           inputsModel.fold("[]") { values =>
             values.toString

@@ -12,7 +12,7 @@ import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
+import com.stratio.sparta.sdk.models.PropertySchemasInput
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession

@@ -8,7 +8,7 @@ package com.stratio.sparta.sdk.properties
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.models._
+import com.stratio.sparta.sdk.models._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

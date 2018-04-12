@@ -18,7 +18,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, W
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
 import org.apache.spark.sql.types.{StructField, StructType}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.models.PropertiesSchemasInputsModel
+import com.stratio.sparta.sdk.models.PropertySchemasInput
 import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import org.apache.spark.sql.Row
@@ -49,7 +49,7 @@ abstract class TransformStep[Underlying[Row]](
     propertiesWithCustom.getString("whenFieldError", None)
       .notBlank.getOrElse(transformationStepsManagement.whenFieldError.toString))
 
-  lazy val inputsModel: PropertiesSchemasInputsModel =
+  lazy val inputsModel: PropertySchemasInput =
     SdkSchemaHelper.getInputSchemasModel(properties.getString("inputSchemas", None).notBlank)
 
   def transformWithSchema(

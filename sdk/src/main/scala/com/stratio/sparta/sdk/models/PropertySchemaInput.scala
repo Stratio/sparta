@@ -3,10 +3,6 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.output.http
+package com.stratio.sparta.sdk.models
 
-object PostType extends Enumeration {
-
-  type Status = Value
-  val BODY, PARAMETER = Value
-}
+case class PropertySchemaInput(stepName: String, schema: String)

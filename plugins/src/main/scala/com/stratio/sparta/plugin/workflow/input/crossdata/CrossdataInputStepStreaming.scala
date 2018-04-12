@@ -10,7 +10,7 @@ import java.io.{Serializable => JSerializable}
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
-import com.stratio.sparta.plugin.workflow.input.crossdata.models.OffsetFieldItem
+import com.stratio.sparta.plugin.models.OffsetFieldItem
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer

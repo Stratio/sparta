@@ -471,6 +471,7 @@
    "_SPARK_PROPERTIES_": "Spark properties",
    "_SPARK_CONF_": "User configuration properties",
    "_CASSANDRA_SAVE_PROPERTIES_": "Cassandra save properties",
+   "_CLEAN_MODE_": "Clean mode",
    "_SPARK_PROPERTY_KEY_": "Spark property",
    "_SPARK_PROPERTY_VALUE_": "Value",
    "_NODES_": "Nodes",

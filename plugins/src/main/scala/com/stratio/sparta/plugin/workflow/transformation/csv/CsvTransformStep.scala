@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 import java.util.regex.Pattern
 
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
-import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.enumerations.{DelimiterType, FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
