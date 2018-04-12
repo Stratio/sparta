@@ -1,0 +1,62 @@
+{
+  "name": "DropDuplicates",
+  "icon": "DropDuplicates",
+  "className": "DropDuplicatesTransformStep",
+  "classPrettyName": "DropDuplicates",
+  "arity": ["UnaryToNary"],
+   "supportedEngines": ["Streaming", "Batch"],
+  "description": "Drop duplicate events in the input data",
+  "properties": [
+     {
+        "propertyId": "columns",
+        "propertyName": "_COLUMNS_",
+        "width": 8,
+        "propertyType": "list",
+        "required": false,
+        "tooltip": "Columns that indicates the primary key to search and detect the duplicate rows",
+        "qa": "fragment-details-dropDuplicates-columns",
+        "fields": [
+           {
+              "propertyId": "name",
+              "propertyName": "_COLUMN_NAME_",
+              "propertyType": "text",
+              "width": 4,
+              "required": true,
+              "tooltip": "Name of the column",
+              "hidden": false,
+              "qa": "fragment-details-dropDuplicates-columns-name"
+           }
+        ]
+     },
+     {
+        "propertyId": "inputSchemas",
+        "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+        "propertyType": "list",
+        "required": false,
+        "width": 8,
+        "tooltip": "Schema definition for steps",
+        "qa": "fragment-details-schema-fields",
+        "fields": [
+           {
+              "propertyId": "stepName",
+              "propertyName": "_INPUT_STEP_NAME_",
+              "propertyType": "text",
+              "required": true,
+              "tooltip": "Step name",
+              "width": 2,
+              "qa": "fragment-details-field-name"
+           },
+           {
+              "propertyId": "schema",
+              "propertyName": "_DESERIALIZER_SCHEMA_",
+              "propertyType": "text",
+              "contentType": "JSON",
+              "width": 8,
+              "tooltip": "Schema in json/Spark format or from example",
+              "required": true,
+              "qa": "fragment-details-field-query"
+           }
+        ]
+     }
+  ]
+}

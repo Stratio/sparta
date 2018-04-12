@@ -13,8 +13,9 @@ import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
 import * as customTemplate from './transformations/custom.json';
 import * as datetimeTemplate from './transformations/datetime.json';
-import * as explodeTemplate from './transformations/explode.json';
 import * as distinctTemplate from './transformations/distinct.json';
+import * as dropDuplicatesTemplate from './transformations/dropDuplicates.json';
+import * as explodeTemplate from './transformations/explode.json';
 import * as filterTemplate from './transformations/filter.json';
 import * as intersectionTemplate from './transformations/intersection.json';
 import * as joinTemplate from './transformations/join.json';
@@ -40,6 +41,7 @@ export const transformations: any = [
     customTemplate,
     datetimeTemplate,
     distinctTemplate,
+    dropDuplicatesTemplate,
     explodeTemplate,
     filterTemplate,
     intersectionTemplate,

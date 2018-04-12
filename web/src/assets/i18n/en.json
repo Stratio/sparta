@@ -482,6 +482,8 @@
    "_JSON_SAVE_PROPERTIES_": "Json save properties",
    "_TEXT_SAVE_PROPERTIES_": "Text save properties",
    "_VALUE_SERIALIZER_": "Value Serializer",
+   "_COLUMNS_": "Columns",
+   "_COLUMN_NAME_": "Name",
    "_JOIN_LEFT_TABLE_": "Left table",
    "_JOIN_RIGHT_TABLE_": "Right table",
    "_JOIN_TYPE_": "Join type",
