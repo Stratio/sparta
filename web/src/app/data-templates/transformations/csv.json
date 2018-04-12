@@ -77,6 +77,15 @@
            "qa": "fragment-details-csv-header"
         },
         {
+           "propertyId": "headerRemoval",
+           "propertyName": "_HEADER_REMOVAL_",
+           "propertyType": "boolean",
+           "required": true,
+           "default": false,
+           "tooltip": "If checked, the provided header will be removed from the input file",
+           "qa": "workflow-transformation-json-header-removal"
+        },
+        {
            "propertyId": "schema.fields",
            "propertyName": "_FIELDS_DEFINITION_",
            "propertyType": "list",

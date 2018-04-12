@@ -36,13 +36,15 @@ abstract class CsvTransformStep[Underlying[Row]](
 
   lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "HEADER").toUpperCase)
   lazy val fieldsModel = properties.getPropertiesFields("schema.fields")
-  lazy val header = properties.getString("schema.header", None)
+  lazy val header = properties.getString("schema.header", None).notBlank
+  lazy val headerDefined = header.nonEmpty
   lazy val sparkSchema = properties.getString("schema.sparkSchema", None)
   lazy val fieldsSeparator = properties.getString("delimiter", ",")
   lazy val splitLimit = properties.getInt("splitLimit", -1)
   lazy val delimiterType = DelimiterType.withName(properties.getString("delimiterType", "CHARACTER").toUpperCase)
   lazy val inputField = Try(properties.getString("inputField"))
     .getOrElse(throw new Exception("The inputField is mandatory"))
+  lazy val removeHeader= properties.getBoolean("headerRemoval", default = false)
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
   lazy val providedSchema: Seq[StructField] = {
@@ -83,58 +85,65 @@ abstract class CsvTransformStep[Underlying[Row]](
 
   //scalastyle:off
   def parse(row: Row): Seq[Row] =
-    returnSeqDataFromRow {
+    returnSeqDataFromOptionalRow{
       val inputSchema = row.schema
       val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField)
       val inputValue = Option(row.get(inputSchema.fieldIndex(inputField)))
-      val newValues =
-        inputValue match {
-          case Some(value) =>
-            if (value.toString.nonEmpty) {
-              val valuesSplit = {
-                val valueStr = value match {
-                  case valueCast: Array[Byte] => new Predef.String(valueCast)
-                  case valueCast: String => valueCast
-                  case _ => value.toString
-                }
-                delimiterType match {
-                  case DelimiterType.REGEX =>
-                    valueStr.split(Pattern.compile(fieldsSeparator).toString, splitLimit)
-                  case DelimiterType.CHARACTER =>
-                    valueStr.split(Pattern.quote(fieldsSeparator), splitLimit)
-                  case _ =>
-                    valueStr.split(fieldsSeparator, splitLimit)
-                }
-              }
-
-              if (valuesSplit.length == providedSchema.length) {
-                val valuesParsed = providedSchema.map(_.name).zip(valuesSplit).toMap
-
-                outputSchema.map { outputField =>
-                  Try {
-                    valuesParsed.get(outputField.name) match {
-                      case Some(valueParsed) =>
-                        if (valueParsed == "null") null
-                        else castingToOutputSchema(outputField, valueParsed)
-                      case None =>
-                        row.get(inputSchema.fieldIndex(outputField.name))
-                    }
-                  } match {
-                    case Success(newValue) =>
-                      newValue
-                    case Failure(e) =>
-                      returnWhenFieldError(
-                        new Exception(s"Impossible to parse outputField: $outputField " +
-                          s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
+      val dataRow = isNotHeader(inputValue)
+      if (!dataRow) {
+        log.debug(s"Discarded row ${inputValue.get.toString} as it matches the provided header: ${header.get}")
+        None
+      }
+      else {
+        val newValues =
+          inputValue match {
+            case Some(value) =>
+              if (value.toString.nonEmpty) {
+                val valuesSplit = {
+                  val valueStr = value match {
+                    case valueCast: Array[Byte] => new Predef.String(valueCast)
+                    case valueCast: String => valueCast
+                    case _ => value.toString
+                  }
+                  delimiterType match {
+                    case DelimiterType.REGEX =>
+                      valueStr.split(Pattern.compile(fieldsSeparator).toString, splitLimit)
+                    case DelimiterType.CHARACTER =>
+                      valueStr.split(Pattern.quote(fieldsSeparator), splitLimit)
+                    case _ =>
+                      valueStr.split(fieldsSeparator, splitLimit)
                   }
                 }
-              } else throw new Exception(s"The number of values splitted does not match the number of " +
-                s"fields defined in the schema")
-            } else throw new Exception(s"The input value is empty")
-          case None =>
-            throw new Exception(s"The input value is null")
-        }
-      new GenericRowWithSchema(newValues.toArray, outputSchema)
+
+                if (valuesSplit.length == providedSchema.length) {
+                  val valuesParsed = providedSchema.map(_.name).zip(valuesSplit).toMap
+
+                  outputSchema.map { outputField =>
+                    Try {
+                      valuesParsed.get(outputField.name) match {
+                        case Some(valueParsed) =>
+                          if (valueParsed == "null") null
+                          else castingToOutputSchema(outputField, valueParsed)
+                        case None =>
+                          row.get(inputSchema.fieldIndex(outputField.name))
+                      }
+                    } match {
+                      case Success(newValue) =>
+                        newValue
+                      case Failure(e) =>
+                        returnWhenFieldError(
+                          new Exception(s"Impossible to parse outputField: $outputField " +
+                            s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
+                    }
+                  }
+                } else throw new Exception(s"The number of splitted values does not match the number of " +
+                  s"fields defined in the schema")
+              } else throw new Exception(s"The input value is empty")
+            case None =>
+              throw new Exception(s"The input value is null")
+          }
+        Option(new GenericRowWithSchema(newValues.toArray, outputSchema))
+      }
     }
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
@@ -163,4 +172,10 @@ abstract class CsvTransformStep[Underlying[Row]](
 
     validation
   }
+
+  private def isNotHeader(rowAsString: Option[Any]): Boolean =
+    if (headerDefined && removeHeader && rowAsString.nonEmpty)
+      !rowAsString.get.toString.equals(header.get)
+    else true
+
 }

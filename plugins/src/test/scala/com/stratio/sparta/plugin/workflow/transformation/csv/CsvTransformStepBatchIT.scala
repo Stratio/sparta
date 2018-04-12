@@ -73,4 +73,44 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
 
     assert(arrayValues.length === 2)
   }
+
+  "A CSVTransformStepBatchIT" should "transform csv discarding the header" in {
+    val inputField = "csv"
+    val header = "color,price"
+    val inputSchema = StructType(Seq(StructField(inputField, StringType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array(header), inputSchema),
+      new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
+      new GenericRowWithSchema(Array("red,12.2"), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", "12.1"), outputSchema),
+      new GenericRowWithSchema(Array("red", "12.2"), outputSchema)
+    )
+    val dataInRow = dataIn.map(_.asInstanceOf[Row])
+    val dataSet = sc.parallelize(dataInRow)
+    val inputData = Map("step1" -> dataSet)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+
+    val result = new CsvTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("schema.header" -> header,
+        "headerRemoval" -> true,
+        "inputField" -> inputField,
+        "schema.inputMode" -> "HEADER",
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+    ).transformWithSchema(inputData)._1
+    val arrayValues = result.ds.collect()
+
+    arrayValues.foreach { row =>
+      assert(dataOut.contains(row))
+      assert(outputSchema == row.schema)
+    }
+    assert(arrayValues.length === 2)
+  }
 }

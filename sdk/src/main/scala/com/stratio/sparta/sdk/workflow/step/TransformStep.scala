@@ -143,6 +143,8 @@ abstract class TransformStep[Underlying[Row]](
 
   def returnSeqDataFromRow(newData: => Row): Seq[Row] = manageErrorWithTry(newData)
 
+  def returnSeqDataFromOptionalRow(newData: => Option[Row]): Seq[Row] = manageErrorWithTry(newData)
+
   def returnSeqDataFromRows(newData: => Seq[Row]): Seq[Row] = manageErrorWithTry(newData)
 
 
@@ -159,6 +161,11 @@ abstract class TransformStep[Underlying[Row]](
     newData match {
       case data: Seq[GenericRowWithSchema] => data
       case data: GenericRowWithSchema => Seq(data)
+      case data: Option[GenericRowWithSchema] =>
+        data match {
+          case Some(unwrappedData: GenericRowWithSchema) => Seq(unwrappedData)
+          case None => Seq.empty[GenericRowWithSchema]
+      }
       case _ => whenRowErrorDo match {
         case WhenRowError.RowDiscard => Seq.empty[GenericRowWithSchema]
         case _ => throw new Exception("Invalid new data struct in step")

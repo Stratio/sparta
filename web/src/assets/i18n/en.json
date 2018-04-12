@@ -285,6 +285,7 @@
    "_KAFKA_OUTPUT_FORMAT_": "Output format",
    "_INPUT_SCHEMA_FROM_": "Input schema from",
    "_HEADER_": "Header",
+   "_HEADER_REMOVAL_": "Remove header from rows",
    "_SPARK_SCHEMA_": "Spark schema",
    "_SPLIT_METHOD_": "Splitting method",
    "_BYREGEX_PATTERN_": "Regex pattern",

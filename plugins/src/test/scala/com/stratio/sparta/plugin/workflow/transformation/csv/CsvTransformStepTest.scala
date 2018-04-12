@@ -253,6 +253,27 @@ class CsvTransformStepTest extends WordSpecLike
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
     }
+
+    "discard the header if specified so" in {
+      val header = "color,price"
+      val input = new GenericRowWithSchema(Array(header), schema)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val result = new CsvTransformStepStreaming(
+        inputField,
+        outputOptions,
+        TransformationStepManagement(),
+        null,
+        null,
+        Map("schema.header" -> header,
+          "headerRemoval" -> true,
+          "inputField" -> inputField,
+          "schema.inputMode" -> "HEADER",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+      ).parse(input)
+
+      val expected = Seq.empty[Row]
+      expected should be eq result
+    }
   }
 
 }
