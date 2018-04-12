@@ -12,7 +12,9 @@ import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AkkaConstant.EnvironmentCleanerActorName
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
@@ -25,6 +27,8 @@ import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
+import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
+import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
 import com.typesafe.config.Config
 import org.json4s.jackson.Serialization._
 import play.api.libs.json._
@@ -72,6 +76,9 @@ class MarathonService(
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
   lazy val upAndDownActor: ActorRef = actorSystem.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
     s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
+  lazy val cleanerActor: ActorRef = actorSystem.actorOf(Props(new EnvironmentCleanerActor()),
+    s"$EnvironmentCleanerActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
+
 
   /* PUBLIC METHODS */
 
@@ -100,9 +107,11 @@ class MarathonService(
       case response: DownServiceFails =>
         val information = s"Workflow App ${response.appInfo.id} cannot be killed: ${response.msg}"
         log.error(information)
+        cleanerActor ! TriggerCleaning
         throw new Exception(information)
       case response: DownServiceResponse =>
         log.info(s"Workflow App correctly killed with Marathon API and id: ${response.appInfo.id}")
+        cleanerActor ! TriggerCleaning
     }
   }
 

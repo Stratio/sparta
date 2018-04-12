@@ -12,10 +12,10 @@ import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.stream.ActorMaterializer
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.utils.NginxUtils._
-import com.stratio.tikitakka.common.util.HttpRequestUtils
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
+
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -139,20 +139,12 @@ object NginxUtils {
 }
 
 case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMetaConfig: NginxMetaConfig)
-  extends SLF4JLogging {
-  outer =>
+  extends MarathonAPIUtils(system, materializer)
+    with SLF4JLogging {
 
   import Error._
   import nginxMetaConfig._
 
-  private val oauthUtils = new HttpRequestUtils {
-    override implicit val system: ActorSystem = outer.system
-    override implicit val actorMaterializer: ActorMaterializer = outer.materializer
-  }
-
-  import oauthUtils._
-
-  private val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
 
   val crossdataLocalDeploymentWithUI =
     Try(Properties.envOrNone("CROSSDATA_SERVER_SPARK_UI_ENABLED").get.toBoolean).getOrElse(true)
@@ -335,7 +327,9 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
 
   private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
     val GroupPath = s"v2/groups/sparta/$instanceName/workflows"
-    val UnauthorizedKey = "<title>Unauthorized</title>"
+    val classNginxUtilsLogger = log
+
+    import oauthUtils._
 
       for {
         group <- doRequest[String](marathonApiUri.get, GroupPath, cookies = Seq(getToken))
@@ -343,7 +337,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
           if (!group.contains(UnauthorizedKey)) {
             extractAppsId(group) match {
               case Some(appsId) =>
-                log.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
+                classNginxUtilsLogger.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
                 Future.sequence {
                   appsId.map { appId =>
                     val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
@@ -351,7 +345,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
                       if (response.contains(UnauthorizedKey))
                         responseUnauthorized()
                       else{
-                        log.debug(s"Extracted info for appID $appId: $response")
+                        classNginxUtilsLogger.debug(s"Extracted info for appID $appId: $response")
                         Future(response)}
                     }
                   }
@@ -362,7 +356,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
         }
         appsStrings <- seqApps
       } yield {
-        log.debug(s"Marathon API responses from AppsIds: $appsStrings")
+        classNginxUtilsLogger.debug(s"Marathon API responses from AppsIds: $appsStrings")
         appsStrings.flatMap(extractAppParameters)
       }
   } recoverWith {
@@ -370,18 +364,6 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
       responseUnExpectedError(exception)
   }
 
-  private[utils] def responseUnauthorized(): Future[Nothing] = {
-    expireToken()
-    val problem = Unauthorized
-    log.error(problem.getMessage)
-    Future.failed(problem)
-  }
-
-  private[utils] def responseUnExpectedError(exception: Exception): Future[Nothing] = {
-    val problem = UnExpectedError(exception)
-    log.error(problem.getMessage)
-    Future.failed(problem)
-  }
 
   private[utils] def extractAppIDs(stringJson: String): Seq[String] = {
     log.debug(s"Marathon API responses from groups: $stringJson")

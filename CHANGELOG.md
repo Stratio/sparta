@@ -2,6 +2,7 @@
 
 ## 2.1.0 (upcoming)
 
+* Clean empty DCOS groups triggered by the stopping of a workflow
 * Join transformation
 * Clean nulls and NaN transformation
 * Drop duplicates transformation
