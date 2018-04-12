@@ -36,12 +36,12 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
     * Spark Properties
     */
   val DefaultSparkTimeOut = 3000L
-  val SparkTimeOut = Try(config.getLong("spark.timeout")).getOrElse(DefaultSparkTimeOut)
+  val SparkTimeOut = DefaultSparkTimeOut
   val conf = new SparkConf()
     .setAppName("KafkaIntegrationTest")
     .setIfMissing("spark.master", "local[*]")
   //Total messages to send and receive
-  val totalRegisters = 10000
+  val totalRegisters = 1000
 
   /**
     * Kafka Properties

@@ -90,7 +90,7 @@ class JsonPathTransformStepStreamingIT extends TemporalSparkContext with Matcher
         }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 1)

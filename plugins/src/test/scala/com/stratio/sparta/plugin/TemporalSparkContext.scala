@@ -10,9 +10,9 @@ import akka.util.Timeout
 import org.apache.spark._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.{Milliseconds, StreamingContext}
 import org.scalatest.concurrent.TimeLimitedTests
-import org.scalatest.time.{Minute, Span}
+import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FlatSpec}
 
 import scala.concurrent.duration._
@@ -20,16 +20,18 @@ import scala.concurrent.duration._
 private[plugin] trait TemporalSparkContext extends FlatSpec with BeforeAndAfterAll with BeforeAndAfter
   with SLF4JLogging with TimeLimitedTests {
 
-  implicit val timeout = Timeout(10 seconds)
-  val timeLimit = Span(1, Minute)
+  implicit val timeout = Timeout(6 seconds)
+  val timeLimit = Span(20, Seconds)
+  val batchWindow = 100
+  val timeoutStreaming = 150L
 
   val conf = new SparkConf()
     .setAppName("simulator-test")
     .setIfMissing("spark.master", "local[*]")
 
-  @transient private var _sc: SparkContext = _
-  @transient private var _ssc: StreamingContext = _
-  @transient private var _sparkSession: XDSession = _
+  @transient var _sc: SparkContext = _
+  @transient var _ssc: StreamingContext = _
+  @transient var _sparkSession: XDSession = _
 
   def sc: SparkContext = _sc
   def ssc: StreamingContext = _ssc
@@ -54,7 +56,7 @@ private[plugin] trait TemporalSparkContext extends FlatSpec with BeforeAndAfterA
 
   before {
     _sc = new SparkContext(conf)
-    _ssc = new StreamingContext(sc, Seconds(2))
+    _ssc = new StreamingContext(sc, Milliseconds(batchWindow))
     _sparkSession =  XDSession.builder().config(_sc.getConf).create("dummyUser")
     SparkSession.clearActiveSession()
   }

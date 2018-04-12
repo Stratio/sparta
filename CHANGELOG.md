@@ -2,7 +2,7 @@
 
 ## 2.1.0 (upcoming)
 
-* Pending changelog
+* Join transformation
 
 ## 2.0.0 (April 03, 2018)
 

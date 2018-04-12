@@ -15,6 +15,8 @@ import org.scalatest.BeforeAndAfter
 private[datasource] trait TemporalDataSuite extends DatasourceSuite
   with BeforeAndAfter {
 
+  val timeoutStreaming = 350L
+  val batchWindow = 100
   val conf = new SparkConf()
     .setAppName("datasource-receiver-example")
     .setIfMissing("spark.master", "local[*]")

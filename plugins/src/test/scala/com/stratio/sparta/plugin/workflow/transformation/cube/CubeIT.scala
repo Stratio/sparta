@@ -9,10 +9,13 @@ import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -23,6 +26,8 @@ import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
 class CubeIT extends TemporalSparkContext with Matchers {
+
+  override val batchWindow = 1000
 
   "Cube" should "create stream" in {
 
@@ -53,7 +58,7 @@ class CubeIT extends TemporalSparkContext with Matchers {
     }
 
     ssc.start()
-    ssc.awaitTerminationOrTimeout(2000L)
+    ssc.awaitTerminationOrTimeout(1000L)
     ssc.stop()
   }
 }

@@ -88,7 +88,7 @@ class AvroTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
         }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)

@@ -58,7 +58,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
@@ -91,7 +91,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       log.info(s" TOTAL EVENTS : \t $totalEvents")
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 0)
@@ -147,7 +147,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
@@ -189,7 +189,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       log.info(s" TOTAL EVENTS : \t $totalEvents")
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 0)
@@ -230,7 +230,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       log.info(s" TOTAL EVENTS : \t $totalEvents")
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)

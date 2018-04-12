@@ -8,12 +8,14 @@ package org.apache.spark.streaming.datasource
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.datasource.models.InputSentences
-import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.{Milliseconds, Seconds, StreamingContext}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ReceiverWithoutOffsetIT extends TemporalDataSuite {
+
+  override val timeoutStreaming = 2000L
 
   test("DataSource Receiver should read all the records on each batch without offset conditions") {
     sc = new SparkContext(conf)
@@ -21,7 +23,7 @@ class ReceiverWithoutOffsetIT extends TemporalDataSuite {
     SparkSession.clearActiveSession()
     val rdd = sc.parallelize(registers)
     sparkSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName)
-    ssc = new StreamingContext(sc, Seconds(1))
+    ssc = new StreamingContext(sc, Milliseconds(batchWindow))
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val inputSentences = InputSentences(
       s"select * from $tableName",
@@ -41,7 +43,7 @@ class ReceiverWithoutOffsetIT extends TemporalDataSuite {
         assert(streamingEvents === totalRegisters.toLong)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value >= totalRegisters.toLong * 3)

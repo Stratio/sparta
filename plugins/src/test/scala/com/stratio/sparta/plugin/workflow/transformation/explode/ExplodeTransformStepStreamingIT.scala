@@ -74,7 +74,7 @@ class ExplodeTransformStepStreamingIT extends TemporalSparkContext with Matchers
       }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)

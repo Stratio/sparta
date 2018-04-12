@@ -9,6 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
@@ -39,9 +40,8 @@ class TriggerTransformStepStreaming(
     require(inputData.size == 2 || inputData.size == 1,
       s"The trigger $name must have one or two input steps, now have: ${inputData.keys}")
     validateSchemas(name, inputsModel, inputData.keys.toSeq)
-
     require(isCorrectTableName(name),
-      s"The step($name) have wrong name and is not possible to register as temporal table")
+      s"The step($name) has wrong name and it is not possible to register as temporal table")
 
     if (inputData.size == 1) {
       val (firstStep, firstStream) = inputData.head
@@ -92,7 +92,6 @@ class TriggerTransformStepStreaming(
             } else false
 
             if (executeSql) {
-              log.debug(s"Executing query: $sql")
               val df = xDSession.sql(sql)
               df.createOrReplaceTempView(name)
               xDSession.sql(sql).rdd
@@ -106,7 +105,10 @@ class TriggerTransformStepStreaming(
             case Success(sqlResult) =>
               sqlResult
             case Failure(e) =>
-              val rdd = xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
+              val rdd = xDSession.sparkContext.union(
+                rdd1.map(_ => Row.fromSeq(throw e)),
+                rdd2.map(_ => Row.fromSeq(throw e))
+              )
               xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(name)
 
               rdd

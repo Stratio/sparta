@@ -53,7 +53,7 @@ class IntersectionTransformStepStreamingIT extends TemporalSparkContext with Mat
         streamingRegisters.foreach(row => assert(data1.contains(row)))
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)

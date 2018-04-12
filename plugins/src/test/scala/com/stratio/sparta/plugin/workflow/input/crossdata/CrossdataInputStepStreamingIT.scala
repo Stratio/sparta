@@ -69,7 +69,7 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with Matchers {
         assert(streamingRegisters === registers.reverse)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === (totalRegisters.toLong/4))

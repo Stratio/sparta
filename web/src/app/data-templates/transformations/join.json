@@ -1,0 +1,243 @@
+{
+   "name": "Join",
+   "icon": "Join",
+   "className": "JoinTransformStep",
+   "supportedEngines": ["Batch", "Streaming"],
+   "classPrettyName": "Join",
+   "arity": ["BinaryToNary"],
+   "description": "Join two steps",
+   "properties": [
+      {
+         "propertyId": "leftTable",
+         "propertyName": "_JOIN_LEFT_TABLE_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Select the left table in the join sentence",
+         "qa": "fragment-details-join-leftTable"
+      },
+      {
+         "propertyId": "rightTable",
+         "propertyName": "_JOIN_RIGHT_TABLE_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Select the left table in the join sentence",
+         "qa": "fragment-details-join-leftTable"
+      },
+      {
+         "propertyId": "joinType",
+         "propertyName": "_JOIN_TYPE_",
+         "required": true,
+         "propertyType": "select",
+         "tooltip": "Select the join type to execute",
+         "default": "INNER",
+         "values": [
+            {
+               "label": "Inner",
+               "value": "INNER"
+            },
+            {
+               "label": "Full",
+               "value": "FULL"
+            },
+            {
+               "label": "Cross",
+               "value": "CROSS"
+            },
+            {
+               "label": "Left",
+               "value": "LEFT"
+            },
+            {
+               "label": "Left only",
+               "value": "LEFT_ONLY"
+            },
+            {
+               "label": "Right",
+               "value": "RIGHT"
+            },
+            {
+               "label": "Right only",
+               "value": "RIGHT_ONLY"
+            },
+            {
+               "label": "Left and right only",
+               "value": "LEFT_RIGHT_ONLY"
+            }
+         ],
+         "qa": "workflow-transformation-join-type"
+      },
+      {
+         "propertyId": "joinReturn",
+         "propertyName": "_JOIN_RETURN_",
+         "required": true,
+         "propertyType": "select",
+         "default": "ALL",
+         "values": [
+            {
+               "label": "All",
+               "value": "ALL"
+            },
+            {
+               "label": "Left",
+               "value": "LEFT"
+            },
+            {
+               "label": "Right",
+               "value": "RIGHT"
+            },
+            {
+               "label": "Selected",
+               "value": "COLUMNS"
+            }
+         ],
+         "qa": "workflow-transformation-join-return"
+      },
+      {
+         "propertyId": "joinReturnColumns",
+         "propertyName": "_JOIN_RETURN_COLUMNS_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "List of columns to return after the join execution",
+         "qa": "fragment-details-join-return-columns",
+         "fields": [
+            {
+               "propertyId": "tableSide",
+               "propertyName": "_JOIN_RETURN_SIDE_",
+               "required": true,
+               "width": 3,
+               "propertyType": "select",
+               "default": "LEFT",
+               "values": [
+                  {
+                     "label": "Left",
+                     "value": "LEFT"
+                  },
+                  {
+                     "label": "Right",
+                     "value": "RIGHT"
+                  }
+               ],
+               "qa": "fragment-details-join-return-side"
+            },
+            {
+               "propertyId": "column",
+               "propertyName": "_JOIN_RETURN_COLUMN_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "tooltip": "Column name on input table",
+               "qa": "fragment-details-join-return-column"
+            },
+            {
+               "propertyId": "alias",
+               "propertyName": "_JOIN_RETURN_ALIAS_",
+               "propertyType": "text",
+               "width": 3,
+               "tooltip": "Alias/new name assigned to the input column ",
+               "required": false,
+               "qa": "fragment-details-join-return-column"
+            }
+         ],
+         "visible": [
+            [
+               {
+                  "propertyId": "joinReturn",
+                  "value": "COLUMNS"
+               }
+            ]
+         ]
+      },
+      {
+         "propertyId": "joinConditions",
+         "propertyName": "_JOIN_CONDITIONS_",
+         "propertyType": "list",
+         "required": true,
+         "width": 8,
+         "tooltip": "Left and right fields to relate the steps in a join sentence",
+         "qa": "fragment-details-join-conditions",
+         "fields": [
+            {
+               "propertyId": "leftField",
+               "propertyName": "_JOIN_CONDITION_LEFT_",
+               "propertyType": "text",
+               "required": true,
+               "width": 4,
+               "tooltip": "Left table field to construct the condition 'leftFieldID = rightFieldID'",
+               "qa": "fragment-details-join-conditions-left"
+            },
+            {
+               "propertyId": "rightField",
+               "propertyName": "_JOIN_CONDITION_RIGHT_",
+               "propertyType": "text",
+               "width": 4,
+               "tooltip": "Left table field to construct the condition 'leftFieldID = rightFieldID'",
+               "required": true,
+               "qa": "fragment-details-join-conditions-right"
+            }
+         ],
+         "visibleOR": [
+            [
+               {
+                  "propertyId": "joinType",
+                  "value": "INNER"
+               },
+               {
+                  "propertyId": "joinType",
+                  "value": "FULL"
+               },
+               {
+                  "propertyId": "joinType",
+                  "value": "LEFT"
+               },
+               {
+                  "propertyId": "joinType",
+                  "value": "LEFT_ONLY"
+               },
+               {
+                  "propertyId": "joinType",
+                  "value": "RIGHT"
+               },
+               {
+                  "propertyId": "joinType",
+                  "value": "RIGHT_ONLY"
+               },
+               {
+                  "propertyId": "joinType",
+                  "value": "LEFT_RIGHT_ONLY"
+               }
+            ]
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 2,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "text",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

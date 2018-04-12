@@ -59,7 +59,7 @@ class DistinctTransformStepStreamingIT extends TemporalSparkContext with Matcher
         streamingRegisters.foreach(row => assert(dataDistinct.contains(row)))
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
