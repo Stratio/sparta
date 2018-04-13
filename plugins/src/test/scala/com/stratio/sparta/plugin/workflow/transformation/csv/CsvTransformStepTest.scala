@@ -125,6 +125,27 @@ class CsvTransformStepTest extends WordSpecLike
       expected should be eq result
     }
 
+    "parse a CSV string adding the input fields with header schema and change the input field with null values" in {
+      val input = new GenericRowWithSchema(Array("var", "red,19.95,,var"),
+        StructType(Seq(StructField("foo", StringType), StructField(inputField, StringType))))
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val header = "name,price,age,address"
+      val result = new CsvTransformStepStreaming(
+        inputField,
+        outputOptions,
+        TransformationStepManagement(),
+        null,
+        null,
+        Map("schema.header" -> header,
+          "inputField" -> inputField,
+          "schema.inputMode" -> "HEADER",
+          "fieldsPreservationPolicy" -> "REPLACE")
+      ).parse(input)
+
+      val expected = Seq(Row("var", "red", "19.95", null, "var"))
+      expected should be eq result
+    }
+
     "parse a CSV string adding also the input fields with spark schema" in {
       val input = new GenericRowWithSchema(Array(CSV), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)

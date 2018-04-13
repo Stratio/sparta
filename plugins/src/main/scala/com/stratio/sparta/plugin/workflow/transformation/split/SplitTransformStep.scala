@@ -46,8 +46,7 @@ abstract class SplitTransformStep[Underlying[Row]](
   lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "FIELDS"))
   lazy val sparkSchema = properties.getString("schema.sparkSchema", None)
   lazy val fieldsModel = properties.getPropertiesFields("schema.fields")
-  lazy val inputField = Try(properties.getString("inputField"))
-    .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
+  lazy val inputField = properties.getString("inputField", None)
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
   lazy val providedSchema: Seq[StructField] =
@@ -77,6 +76,11 @@ abstract class SplitTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
 
+    if (inputField.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input field cannot be empty")
+
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
       inputsModel.inputSchemas.foreach { input =>
@@ -105,8 +109,9 @@ abstract class SplitTransformStep[Underlying[Row]](
   def parse(row: Row): Seq[Row] =
     returnSeqDataFromRow {
       val inputSchema = row.schema
-      val inputValue = Option(row.get(inputSchema.fieldIndex(inputField)))
-      val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField)
+      val inputFieldName = inputField.get
+      val inputValue = Option(row.get(inputSchema.fieldIndex(inputFieldName)))
+      val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputFieldName)
       val newData =
         inputValue match {
           case Some(value) =>

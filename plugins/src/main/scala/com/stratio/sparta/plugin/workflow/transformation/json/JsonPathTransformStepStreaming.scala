@@ -30,7 +30,7 @@ class JsonPathTransformStepStreaming(
       getSchemaFromSessionOrModel(xDSession, name, inputsModel)
         .orElse{
           val inputSchema = getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
-          getNewOutputSchema(inputSchema, preservationPolicy, outputFieldsSchema, inputField)
+          getNewOutputSchema(inputSchema, preservationPolicy, outputFieldsSchema, inputField.get)
         }
         .orElse(getSchemaFromRdd(rdd.ds))
         .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))

@@ -42,7 +42,7 @@ abstract class JsonPathTransformStep[Underlying[Row]](
     read[Seq[PropertyQuery]](queries)
   }
   lazy val supportNullValues: Boolean = properties.getBoolean("supportNullValues", default = true)
-  lazy val inputField: String = properties.getString("inputField")
+  lazy val inputField = properties.getString("inputField", None)
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
   lazy val outputFieldsSchema: Seq[StructField] = queriesModel.map { queryField =>
@@ -57,8 +57,6 @@ abstract class JsonPathTransformStep[Underlying[Row]](
     )
   }
 
-  assert(inputField.nonEmpty)
-
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
@@ -66,6 +64,11 @@ abstract class JsonPathTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    if (inputField.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input field cannot be empty")
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -94,8 +97,9 @@ abstract class JsonPathTransformStep[Underlying[Row]](
   //scalastyle:off
   def parse(row: Row): Seq[Row] = returnSeqDataFromRow {
     val inputSchema = row.schema
-    val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, outputFieldsSchema, inputField)
-    val inputFieldIndex = inputSchema.fieldIndex(inputField)
+    val inputFieldName = inputField.get
+    val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, outputFieldsSchema, inputFieldName)
+    val inputFieldIndex = inputSchema.fieldIndex(inputFieldName)
     val inputValue = Option(row.get(inputFieldIndex))
     val newValues = inputValue match {
       case Some(value) =>

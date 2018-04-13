@@ -42,8 +42,7 @@ abstract class CsvTransformStep[Underlying[Row]](
   lazy val fieldsSeparator = properties.getString("delimiter", ",")
   lazy val splitLimit = properties.getInt("splitLimit", -1)
   lazy val delimiterType = DelimiterType.withName(properties.getString("delimiterType", "CHARACTER").toUpperCase)
-  lazy val inputField = Try(properties.getString("inputField"))
-    .getOrElse(throw new Exception("The inputField is mandatory"))
+  lazy val inputField = properties.getString("inputField", None)
   lazy val removeHeader= properties.getBoolean("headerRemoval", default = false)
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
@@ -87,8 +86,9 @@ abstract class CsvTransformStep[Underlying[Row]](
   def parse(row: Row): Seq[Row] =
     returnSeqDataFromOptionalRow{
       val inputSchema = row.schema
-      val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField)
-      val inputValue = Option(row.get(inputSchema.fieldIndex(inputField)))
+      val inputFieldName = inputField.get
+      val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputFieldName)
+      val inputValue = Option(row.get(inputSchema.fieldIndex(inputFieldName)))
       val dataRow = isNotHeader(inputValue)
       if (!dataRow) {
         log.debug(s"Discarded row ${inputValue.get.toString} as it matches the provided header: ${header.get}")
@@ -113,7 +113,7 @@ abstract class CsvTransformStep[Underlying[Row]](
                     case _ =>
                       valueStr.split(fieldsSeparator, splitLimit)
                   }
-                }
+                }.map(x => if(x.isEmpty) null else x)
 
                 if (valuesSplit.length == providedSchema.length) {
                   val valuesParsed = providedSchema.map(_.name).zip(valuesSplit).toMap
@@ -153,6 +153,11 @@ abstract class CsvTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    if (inputField.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input field cannot be empty")
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {

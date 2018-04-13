@@ -30,7 +30,7 @@ class SplitTransformStepStreaming(
       getSchemaFromSessionOrModel(xDSession, name, inputsModel)
         .orElse {
           val inputSchema = getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
-          getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField)
+          getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField.get)
         }
         .orElse(getSchemaFromRdd(rdd.ds))
         .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
