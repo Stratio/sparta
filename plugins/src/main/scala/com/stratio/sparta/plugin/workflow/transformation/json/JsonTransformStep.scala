@@ -32,7 +32,7 @@ abstract class JsonTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  lazy val inputFieldName: String = properties.getString("inputField")
+  lazy val inputField = properties.getString("inputField", None)
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
   lazy val useRowSchema: Boolean = properties.getBoolean("schema.fromRow", true)
@@ -49,6 +49,11 @@ abstract class JsonTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    if (inputField.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input field cannot be empty")
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -74,6 +79,7 @@ abstract class JsonTransformStep[Underlying[Row]](
       inputStream flatMap { row =>
         returnSeqDataFromRow {
           val inputSchema = row.schema
+          val inputFieldName = inputField.get
           val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
           assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
 

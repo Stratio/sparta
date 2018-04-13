@@ -37,7 +37,7 @@ class JsonTransformStepBatch(
           getNewOutputSchema(
             inputSchema,
             preservationPolicy,
-            schema.fields.toSeq, inputFieldName
+            schema.fields.toSeq, inputField.get
           )
         }
       }

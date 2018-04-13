@@ -36,7 +36,7 @@ abstract class AvroTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  lazy val inputFieldName: String = properties.getString("inputField")
+  lazy val inputField = properties.getString("inputField", None)
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
   lazy val schemaProvided: String = properties.getString("schema.provided")
@@ -47,6 +47,7 @@ abstract class AvroTransformStep[Underlying[Row]](
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
       inputStream flatMap { row =>
         returnSeqDataFromRow {
+          val inputFieldName = inputField.get
           val inputSchema = row.schema
           val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
 
@@ -72,6 +73,11 @@ abstract class AvroTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
 
+    if (inputField.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input field cannot be empty")
+
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
       inputsModel.inputSchemas.foreach { input =>
@@ -95,7 +101,7 @@ abstract class AvroTransformStep[Underlying[Row]](
     val avroSchema = AvroTransformStep.getAvroSchema(schemaProvided)
     val expectedSchema = AvroTransformStep.getExpectedSchema(avroSchema)
 
-    SchemaHelper.getNewOutputSchema(inputSchema, expectedSchema, preservationPolicy, inputFieldName)
+    SchemaHelper.getNewOutputSchema(inputSchema, expectedSchema, preservationPolicy, inputField.get)
   }
 
 }
