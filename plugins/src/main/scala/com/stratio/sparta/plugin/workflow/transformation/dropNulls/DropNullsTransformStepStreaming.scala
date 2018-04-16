@@ -33,20 +33,4 @@ class DropNullsTransformStepStreaming(
 
       rdd
     }
-
-  /* Not used function al DataFrame level
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
-      val inputStream = inputDistributedMonad.ds
-      inputStream.transform { inputRdd =>
-        val (rdd, schema) = applyCleanNulls(inputRdd, columns, cleanMode, stepName)
-
-        schema.orElse(getSchemaFromRdd(rdd))
-          .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
-        rdd
-      }
-    }
-  */
-
 }

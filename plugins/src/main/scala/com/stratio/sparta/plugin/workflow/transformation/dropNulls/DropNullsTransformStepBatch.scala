@@ -35,17 +35,4 @@ class DropNullsTransformStepBatch(
 
     (rdd, schema)
   }
-
-  /* Not used function al DataFrame level
-
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
-    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) = applyCleanNulls(inputRdd, columns, cleanMode, stepName)
-
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
-    }
-  */
 }

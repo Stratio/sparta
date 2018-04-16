@@ -97,30 +97,4 @@ abstract class DropNullsTransformStep[Underlying[Row]](
         }
       }
     }
-
-  /* Not used function at DataFrame level
-
-  def applyCleanNulls(
-                       rdd: RDD[Row],
-                       columns: Seq[String],
-                       cleanMode: CleanMode,
-                       inputStep: String
-                     ): (RDD[Row], Option[StructType]) = {
-    Try {
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
-        case Some(df) =>
-          val newDataFrame = if (columns.isEmpty) df.na.drop(cleanMode.toString)
-          else df.na.drop(cleanMode.toString, columns)
-
-          (newDataFrame.rdd, Option(newDataFrame.schema))
-        case None =>
-          (rdd.filter(_ => false), None)
-      }
-    } match {
-      case Success(sqlResult) => sqlResult
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
-    }
-  }
-  */
 }
