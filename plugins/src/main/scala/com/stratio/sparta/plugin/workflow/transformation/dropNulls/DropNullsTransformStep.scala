@@ -3,27 +3,31 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-
-package com.stratio.sparta.plugin.workflow.transformation.column
+package com.stratio.sparta.plugin.workflow.transformation.dropNulls
 
 import java.io.{Serializable => JSerializable}
-import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.CleanMode
+import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
+import com.stratio.sparta.plugin.models.PropertyColumn
+import com.stratio.sparta.plugin.enumerations.CleanMode.CleanMode
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{Column, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
+import org.json4s.{DefaultFormats, Formats}
+import org.json4s.jackson.Serialization.read
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
+import scala.util.{Failure, Success, Try}
 
-//scalastyle:off
-abstract class DropColumnTransformStep[Underlying[Row]](
+abstract class DropNullsTransformStep[Underlying[Row]](
                                                          name: String,
                                                          outputOptions: OutputOptions,
                                                          transformationStepsManagement: TransformationStepManagement,
@@ -32,9 +36,17 @@ abstract class DropColumnTransformStep[Underlying[Row]](
                                                          properties: Map[String, JSerializable]
                                                        )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
-      with SLF4JLogging {
+    with SLF4JLogging {
 
-  lazy val fields = Try(properties.getPropertiesFields("schema.fields")).toOption
+  lazy val columns: Seq[String] = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    val cols = s"${properties.getString("columns", None).notBlank.fold("[]") { values => values.toString }}"
+
+    read[Seq[PropertyColumn]](cols).map(_.name)
+  }
+  lazy val cleanMode: CleanMode = Try {
+    CleanMode.withName(properties.getString("cleanMode", "any").toLowerCase())
+  }.getOrElse(CleanMode.any)
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -44,10 +56,10 @@ abstract class DropColumnTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
 
-    if (Try(fields.nonEmpty).isFailure) {
+    if (Try(columns.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input fields are not valid")
+        messages = validation.messages :+ s"$name: the input columns are not valid")
     }
 
     //If contains schemas, validate if it can be parsed
@@ -66,31 +78,23 @@ abstract class DropColumnTransformStep[Underlying[Row]](
       }
     }
 
-    if (fields.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory at least one column to drop"
-      )
-
     validation
   }
 
-
-  def applyDrop(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType]) = {
-    Try {
-      val schemaFields = fields.get.fields.map(_.name)
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
-        case Some(df) =>
-          val newDataFrame  = df.drop(schemaFields:_*)
-          (newDataFrame.rdd, Option(newDataFrame.schema))
-        case None =>
-          (rdd.filter(_ => false), None)
+  def transformFunction(
+                         inputSchema: String,
+                         inputStream: DistributedMonad[Underlying]
+                       ): DistributedMonad[Underlying] =
+    inputStream.flatMap { row =>
+      returnSeqDataFromOptionalRow {
+        if (columns.isEmpty) {
+          if (cleanMode == CleanMode.any && row.anyNull) None
+          else if (cleanMode == CleanMode.all && row.toSeq.forall(Option(_).isEmpty)) None else Option(row)
+        } else {
+          val indexes = columns.map(col => row.fieldIndex(col))
+          if (cleanMode == CleanMode.any && indexes.exists(index => row.isNullAt(index))) None
+          else if (cleanMode == CleanMode.all && indexes.forall(index => row.isNullAt(index))) None else Option(row)
+        }
       }
-    } match {
-      case Success(sqlResult) => sqlResult
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
     }
-  }
-
 }
