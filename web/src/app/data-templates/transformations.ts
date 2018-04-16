@@ -9,13 +9,14 @@ import { StepType, Engine } from "@models/enums";
 import * as avroTemplate from './transformations/avro.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
-import * as cleanNullsTemplate from './transformations/cleanNulls.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
 import * as customTemplate from './transformations/custom.json';
 import * as datetimeTemplate from './transformations/datetime.json';
 import * as distinctTemplate from './transformations/distinct.json';
+import * as dropColumnsTemplate from './transformations/dropColumns.json';
 import * as dropDuplicatesTemplate from './transformations/dropDuplicates.json';
+import * as dropNullsTemplate from './transformations/dropNulls.json';
 import * as explodeTemplate from './transformations/explode.json';
 import * as filterTemplate from './transformations/filter.json';
 import * as initNullsTemplate from './transformations/initNulls.json';
@@ -25,6 +26,7 @@ import * as jsonPathTemplate from './transformations/jsonpath.json';
 import * as jsonTemplate from './transformations/json.json';
 import * as orderByTemplate from './transformations/orderBy.json';
 import * as persistTemplate from './transformations/persist.json';
+import * as renameColumnTemplate from './transformations/renamecolumn.json';
 import * as repartitionTemplate from './transformations/repartition.json';
 import * as selectTemplate from './transformations/select.json';
 import * as splitTemplate from './transformations/split.json';
@@ -32,20 +34,19 @@ import * as triggerStreamingTemplate from './transformations/triggerStreaming.js
 import * as triggerBatchTemplate from './transformations/triggerBatch.json';
 import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
-import * as dropcolumnTemplate from './transformations/dropcolumn.json';
-import * as renameColumnTemplate from './transformations/renamecolumn.json';
 
 export const transformations: any = [
     avroTemplate,
     castingTemplate,
     checkpointTemplate,
-    cleanNullsTemplate,
     csvTemplate,
     cubeTemplate,
     customTemplate,
     datetimeTemplate,
     distinctTemplate,
+    dropColumnsTemplate,
     dropDuplicatesTemplate,
+    dropNullsTemplate,
     explodeTemplate,
     filterTemplate,
     initNullsTemplate,
@@ -55,15 +56,14 @@ export const transformations: any = [
     jsonTemplate,
     orderByTemplate,
     persistTemplate,
+    renameColumnTemplate,
     repartitionTemplate,
     selectTemplate,
     splitTemplate,
     triggerStreamingTemplate,
     triggerBatchTemplate,
     unionTemplate,
-    windowTemplate,
-    dropcolumnTemplate,
-    renameColumnTemplate
+    windowTemplate
 ];
 
 /*********************** */

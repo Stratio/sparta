@@ -11,7 +11,6 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
-import com.stratio.sparta.plugin.common.kafka.models.TopicsModel
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
@@ -21,7 +20,6 @@ import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
@@ -30,6 +28,7 @@ import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 import DistributedMonad.Implicits._
+import com.stratio.sparta.plugin.models.TopicModel
 import org.apache.kafka.clients.consumer.ConsumerConfig._
 
 class KafkaInputStepStreaming(
@@ -152,16 +151,16 @@ class KafkaInputStepStreaming(
   private[kafka] def extractTopics: Set[String] = {
     val topicsModel = getTopicsPartitions
 
-    if (topicsModel.topics.forall(topicModel => topicModel.topic.nonEmpty))
-      topicsModel.topics.map(topicPartitionModel => topicPartitionModel.topic).toSet
+    if (topicsModel.forall(topicModel => topicModel.topic.nonEmpty))
+      topicsModel.map(topicPartitionModel => topicPartitionModel.topic).toSet
     else Set.empty[String]
   }
 
-  private[kafka] def getTopicsPartitions: TopicsModel = {
+  private[kafka] def getTopicsPartitions: Seq[TopicModel] = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
-    val topicsKey =
-      s"""{"topics": ${properties.getString("topics", None).notBlank.fold("[]") { values => values.toString }}}"""
-    read[TopicsModel](topicsKey)
+    val topicsKey = s"${properties.getString("topics", None).notBlank.fold("[]") { values => values.toString }}"
+
+    read[Seq[TopicModel]](topicsKey)
   }
 
   /** OFFSETS **/

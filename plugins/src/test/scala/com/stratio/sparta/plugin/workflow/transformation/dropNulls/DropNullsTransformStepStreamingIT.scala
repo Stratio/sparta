@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.transformation.cleanNulls
+package com.stratio.sparta.plugin.workflow.transformation.dropNulls
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
@@ -20,7 +20,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class CleanNullsTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class DropNullsTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A CleanNullsTransformStepStreaming" should "filter events that contains nulls in the column values" in {
 
@@ -35,7 +35,7 @@ class CleanNullsTransformStepStreamingIT extends TemporalSparkContext with Match
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val result = new CleanNullsTransformStepStreaming(
+    val result = new DropNullsTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
@@ -74,7 +74,7 @@ class CleanNullsTransformStepStreamingIT extends TemporalSparkContext with Match
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val result = new CleanNullsTransformStepStreaming(
+    val result = new DropNullsTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
@@ -113,7 +113,7 @@ class CleanNullsTransformStepStreamingIT extends TemporalSparkContext with Match
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val result = new CleanNullsTransformStepStreaming(
+    val result = new DropNullsTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
@@ -157,7 +157,7 @@ class CleanNullsTransformStepStreamingIT extends TemporalSparkContext with Match
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val result = new CleanNullsTransformStepStreaming(
+    val result = new DropNullsTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
@@ -205,7 +205,7 @@ class CleanNullsTransformStepStreamingIT extends TemporalSparkContext with Match
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val result = new CleanNullsTransformStepStreaming(
+    val result = new DropNullsTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
