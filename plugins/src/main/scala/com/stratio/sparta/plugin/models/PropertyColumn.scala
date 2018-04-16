@@ -7,4 +7,4 @@
 
 package com.stratio.sparta.plugin.models
 
-case class PropertyColumn(name: String)
+case class PropertyColumn(name: String, alias: Option[String] = None)

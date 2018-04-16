@@ -534,6 +534,8 @@
    "_EXECUTE_WHEN_EMPTY_": "Execute query when is not possible to obtains schema",
    "_INPUT_STEP_NAME_" : "Step name",
    "_COLUMNS_TO_DROP_" : "Columns to delete",
+   "_COLUMNS_TO_RENAME_" : "Columns to Rename",
+   "_NEW_COLUMN_NAME_": "New Column name",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

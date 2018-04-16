@@ -8,6 +8,8 @@
 * Drop duplicates transformation
 * Clean empty DCOS groups triggered by the stopping of a workflow
 * CSVTransformation: added flag for discarding header
+* DropColumn Transformation
+* RenameColumn Transformation
 
 ## 2.0.0 (April 03, 2018)
 

@@ -1,23 +1,31 @@
 {
-   "name": "DropColumns",
-   "icon": "DropColumns",
-   "className": "DropColumnTransformStep",
-   "classPrettyName": "DropColumns",
+   "name": "RenameColumns",
+   "icon": "RenameColumns",
+   "className": "RenameColumnTransformStep",
+   "classPrettyName": "RenameColumns",
    "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
-   "description": "Drop input columns for avoid using them in next steps",
+   "description": "Rename input columns",
    "properties": [
       {
-         "propertyId": "schema.fields",
-         "propertyName": "_COLUMNS_TO_DROP_",
+         "propertyId": "columns",
+         "propertyName": "_COLUMNS_TO_RENAME_",
          "propertyType": "list",
          "required": true,
          "tooltip": "Schema definition from list of fields",
-         "qa": "fragment-details-dropcolumn-fields",
+         "qa": "fragment-details-renamecolumn-fields",
          "fields": [
             {
                "propertyId": "name",
                "propertyName": "_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "alias",
+               "propertyName": "_NEW_COLUMN_NAME_",
                "propertyType": "text",
                "required": true,
                "width": 3,

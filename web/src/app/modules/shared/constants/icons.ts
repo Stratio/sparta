@@ -40,5 +40,6 @@ export const icons: any = {
     Datetime: '\ue64d',
     Custom: '\ue60a',
     ElasticSearch: '\ue624',
-    DropColumns: '\ue123'
+    DropColumns: '\ue123',
+    RenameColumns: '\ue91D'
 };
