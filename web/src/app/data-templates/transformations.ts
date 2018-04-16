@@ -18,6 +18,7 @@ import * as distinctTemplate from './transformations/distinct.json';
 import * as dropDuplicatesTemplate from './transformations/dropDuplicates.json';
 import * as explodeTemplate from './transformations/explode.json';
 import * as filterTemplate from './transformations/filter.json';
+import * as initNullsTemplate from './transformations/initNulls.json';
 import * as intersectionTemplate from './transformations/intersection.json';
 import * as joinTemplate from './transformations/join.json';
 import * as jsonPathTemplate from './transformations/jsonpath.json';
@@ -46,6 +47,7 @@ export const transformations: any = [
     dropDuplicatesTemplate,
     explodeTemplate,
     filterTemplate,
+    initNullsTemplate,
     intersectionTemplate,
     joinTemplate,
     jsonPathTemplate,

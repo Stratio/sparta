@@ -2,11 +2,12 @@
 
 ## 2.1.0 (upcoming)
 
-* CSVTransformation: added flag for discarding header
-* Clean empty DCOS groups triggered by the stopping of a workflow
 * Join transformation
 * Clean nulls and NaN transformation
+* Init nulls with default values transformation
 * Drop duplicates transformation
+* Clean empty DCOS groups triggered by the stopping of a workflow
+* CSVTransformation: added flag for discarding header
 
 ## 2.0.0 (April 03, 2018)
 

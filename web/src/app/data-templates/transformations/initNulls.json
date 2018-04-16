@@ -1,0 +1,134 @@
+{
+   "name": "InitNulls",
+   "icon": "InitNulls",
+   "className": "InitNullsTransformStep",
+   "classPrettyName": "InitNulls",
+   "arity": ["UnaryToNary"],
+   "supportedEngines": ["Streaming", "Batch"],
+   "description": "Initialize nulls to default values",
+   "properties": [
+      {
+         "propertyId": "defaultValueToColumn",
+         "propertyName": "_DEFAULT_COLUMN_VALUES_",
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "Default values assigned to columns",
+         "qa": "fragment-details-initNulls-defaultValueToColumn",
+         "fields": [
+            {
+               "propertyId": "columnName",
+               "propertyName": "_COLUMN_NAME_",
+               "propertyType": "text",
+               "width": 3,
+               "required": true,
+               "tooltip": "Name of the column",
+               "qa": "fragment-details-cleanNulls-columns-name"
+            },
+            {
+               "propertyId": "value",
+               "propertyName": "_COLUMN_VALUE_",
+               "propertyType": "text",
+               "width": 3,
+               "required": true,
+               "tooltip": "Value of the column",
+               "qa": "fragment-details-cleanNulls-columns-name"
+            }
+         ]
+      },
+      {
+         "propertyId": "defaultValueToType",
+         "propertyName": "_DEFAULT_TYPE_VALUES_",
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "Default values assigned to types",
+         "qa": "fragment-details-initNulls-defaultValueToType",
+         "fields": [
+            {
+               "propertyId": "value",
+               "propertyName": "_COLUMN_VALUE_",
+               "propertyType": "text",
+               "width": 3,
+               "required": true,
+               "tooltip": "Value of the column",
+               "qa": "fragment-details-cleanNulls-columns-name"
+            },
+            {
+               "propertyId": "type",
+               "propertyName": "_TYPE_",
+               "propertyType": "select",
+               "width": 3,
+               "required": true,
+               "default": "string",
+               "values": [
+                  {
+                     "label": "String",
+                     "value": "string"
+                  },
+                  {
+                     "label": "Long",
+                     "value": "long"
+                  },
+                  {
+                     "label": "Float",
+                     "value": "float"
+                  },
+                  {
+                     "label": "Double",
+                     "value": "double"
+                  },
+                  {
+                     "label": "Integer",
+                     "value": "integer"
+                  },
+                  {
+                     "label": "Boolean",
+                     "value": "boolean"
+                  },
+                  {
+                     "label": "Binary",
+                     "value": "binary"
+                  },
+                  {
+                     "label": "Date",
+                     "value": "date"
+                  },
+                  {
+                     "label": "Timestamp",
+                     "value": "timestamp"
+                  }
+               ],
+               "qa": "fragment-details-field-type"
+            }
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 2,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "text",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}
