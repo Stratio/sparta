@@ -81,6 +81,12 @@ abstract class SplitTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the input field cannot be empty")
 
+    if (Try(fieldsModel.fields.nonEmpty).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input fields are not valid")
+    }
+
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
       inputsModel.inputSchemas.foreach { input =>

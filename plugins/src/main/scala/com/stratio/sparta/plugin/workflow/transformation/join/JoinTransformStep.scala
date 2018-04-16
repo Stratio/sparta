@@ -120,6 +120,18 @@ abstract class JoinTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
 
+    if (Try(joinConditions.nonEmpty).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input join conditions are not valid")
+    }
+
+    if (Try(joinReturnColumns.nonEmpty).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input join return columns are not valid")
+    }
+
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
       inputsModel.inputSchemas.foreach { input =>

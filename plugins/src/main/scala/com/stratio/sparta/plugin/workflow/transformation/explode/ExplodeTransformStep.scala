@@ -39,10 +39,10 @@ abstract class ExplodeTransformStep[Underlying[Row]](
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
+  lazy val fieldsModel = properties.getPropertiesFields("schema.fields")
   lazy val providedSchema: Option[Seq[StructField]] = {
     if (properties.getBoolean("schema.fromRow", default = true)) None
     else {
-      val fieldsModel = properties.getPropertiesFields("schema.fields")
       val sparkSchema = properties.getString("schema.sparkSchema", None)
       val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "FIELDS").toUpperCase)
       (schemaInputMode, sparkSchema, fieldsModel) match {
@@ -72,6 +72,12 @@ abstract class ExplodeTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    if (fieldsModel.fields.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: item fields cannot be empty"
+      )
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {

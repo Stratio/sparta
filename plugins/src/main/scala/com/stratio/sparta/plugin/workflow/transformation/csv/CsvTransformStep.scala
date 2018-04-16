@@ -70,8 +70,6 @@ abstract class CsvTransformStep[Underlying[Row]](
     }
   }
 
-  assert(inputField.nonEmpty)
-
   def transformationFunction(
                               inputSchema: String,
                               inputStream: DistributedMonad[Underlying]
@@ -158,6 +156,12 @@ abstract class CsvTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the input field cannot be empty")
+
+    if (Try(fieldsModel.fields.nonEmpty).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input fields are not valid")
+    }
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
