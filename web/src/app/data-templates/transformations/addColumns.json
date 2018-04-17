@@ -1,0 +1,157 @@
+{
+   "name": "AddColumns",
+   "icon": "AddColumns",
+   "className": "AddColumnTransformStep",
+   "classPrettyName": "AddColumns",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "description": "Add new columns",
+   "properties": [
+      {
+         "propertyId": "columns",
+         "propertyName": "_COLUMNS_TO_ADD_",
+         "propertyType": "list",
+         "required": true,
+         "tooltip": "Schema definition from list of fields",
+         "qa": "fragment-details-addcolumn-fields",
+         "fields": [
+            {
+               "propertyId": "field",
+               "propertyName": "_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "type",
+               "propertyName": "_TYPE_",
+               "propertyType": "select",
+               "custom": true,
+               "required": true,
+               "values": [
+                  {
+                     "label": "String",
+                     "value": "string"
+                  },
+                  {
+                     "label": "Long",
+                     "value": "long"
+                  },
+                  {
+                     "label": "Float",
+                     "value": "float"
+                  },
+                  {
+                     "label": "Double",
+                     "value": "double"
+                  },
+                  {
+                     "label": "Integer",
+                     "value": "integer"
+                  },
+                  {
+                     "label": "Boolean",
+                     "value": "boolean"
+                  },
+                  {
+                     "label": "Binary",
+                     "value": "binary"
+                  },
+                  {
+                     "label": "Date",
+                     "value": "date"
+                  },
+                  {
+                     "label": "Timestamp",
+                     "value": "timestamp"
+                  },
+                  {
+                     "label": "Array(Double)",
+                     "value": "arraydouble"
+                  },
+                  {
+                     "label": "Array(String)",
+                     "value": "arraystring"
+                  },
+                  {
+                     "label": "Array(Long)",
+                     "value": "arraylong"
+                  },
+                  {
+                     "label": "Array(Integer)",
+                     "value": "arrayinteger"
+                  },
+                  {
+                     "label": "Array(Map(String, String))",
+                     "value": "arraymapstringstring"
+                  },
+                  {
+                     "label": "Map(String, Long)",
+                     "value": "mapstringlong"
+                  },
+                  {
+                     "label": "Map(String, Double)",
+                     "value": "mapstringdouble"
+                  },
+                  {
+                     "label": "Map(String, Integer)",
+                     "value": "mapstringint"
+                  },
+                  {
+                     "label": "Map(String, String)",
+                     "value": "mapstringstring"
+                  }
+               ],
+               "default": "string",
+               "width": 3,
+               "qa": "fragment-details-field-type"
+            },
+            {
+               "propertyId": "query",
+               "propertyName": "_VALUE_",
+               "propertyType": "text",
+               "width": 3,
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      },
+
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 2,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "text",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

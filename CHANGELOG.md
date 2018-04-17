@@ -10,6 +10,7 @@
 * CSVTransformation: added flag for discarding header
 * DropColumn Transformation
 * RenameColumn Transformation
+* Add column with default values
 
 ## 2.0.0 (April 03, 2018)
 

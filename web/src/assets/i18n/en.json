@@ -536,6 +536,7 @@
    "_COLUMNS_TO_DROP_" : "Columns to delete",
    "_COLUMNS_TO_RENAME_" : "Columns to Rename",
    "_NEW_COLUMN_NAME_": "New Column name",
+   "_COLUMNS_TO_ADD_" : "Columns to add",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

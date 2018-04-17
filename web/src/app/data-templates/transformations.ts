@@ -6,6 +6,7 @@
 
 import { StepType, Engine } from "@models/enums";
 
+import * as addColumnTemplate from './transformations/addColumns.json';
 import * as avroTemplate from './transformations/avro.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
@@ -36,6 +37,7 @@ import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
 
 export const transformations: any = [
+    addColumnTemplate,
     avroTemplate,
     castingTemplate,
     checkpointTemplate,
