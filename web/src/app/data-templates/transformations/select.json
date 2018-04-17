@@ -8,12 +8,76 @@
      "description": "Select fields from the events in the input DStream",
      "properties": [
         {
+           "propertyId": "selectType",
+           "propertyName": "_SELECT_TYPE_",
+           "required": true,
+           "propertyType": "select",
+           "default": "EXPRESSION",
+           "values": [
+              {
+                 "label": "By SQL expression",
+                 "value": "EXPRESSION"
+              },
+              {
+                 "label": "By columns",
+                 "value": "COLUMNS"
+              }
+           ],
+           "qa": "workflow-transformation-select-type"
+        },
+        {
            "propertyId": "selectExp",
            "propertyName": "_SELECT_EXPRESSION_",
            "propertyType": "textarea",
+           "contentType": "SQL",
            "required": false,
+           "visible": [
+              [
+                 {
+                    "propertyId": "selectType",
+                    "value": "EXPRESSION"
+                 }
+              ]
+           ],
            "tooltip": "Select the fields based in one expression, support UDFs, fixed fields and aliases",
            "qa": "fragment-details-select-expression"
+        },
+        {
+           "propertyId": "selectColumns",
+           "propertyName": "_SELECT_COLUMNS_",
+           "propertyType": "list",
+           "required": false,
+           "width": 8,
+           "tooltip": "List of columns to return after the join execution",
+           "qa": "fragment-details-select-columns",
+           "fields": [
+              {
+                 "propertyId": "name",
+                 "propertyName": "_JOIN_RETURN_COLUMN_",
+                 "propertyType": "text",
+                 "required": true,
+                 "width": 3,
+                 "tooltip": "Column name on input table",
+                 "qa": "fragment-details-select-return-column"
+              },
+              {
+                 "propertyId": "alias",
+                 "propertyName": "_JOIN_RETURN_ALIAS_",
+                 "propertyType": "text",
+                 "width": 3,
+                 "tooltip": "Alias/new name assigned to the input column ",
+                 "required": false,
+                 "qa": "fragment-details-select-return-column"
+              }
+           ],
+           "visible": [
+              [
+                 {
+                    "propertyId": "selectType",
+                    "value": "COLUMNS"
+                 }
+              ]
+           ]
         },
         {
            "propertyId": "inputSchemas",

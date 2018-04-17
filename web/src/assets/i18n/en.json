@@ -502,6 +502,8 @@
    "_JOIN_RETURN_ALIAS_": "Alias",
    "_ACKS_": "Acks",
    "_KAFKA_FORMAT_": "Format",
+   "_SELECT_TYPE_": "Input mode",
+   "_SELECT_COLUMNS_": "Columns",
    "_BATCH_NUM_MESSAGES_": "Batch num messages",
    "_SECURITY_PROTOCOL_": "Security Protocol",
    "_POST_TYPE_": "Post type",

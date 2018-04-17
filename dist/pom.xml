@@ -303,7 +303,7 @@ This software – including all its source code – contains proprietary informa
                                     </assembly>
                                 </configuration>
                             </execution>
-                            <execution>
+                            <!--<execution>
                                 <id>rpm</id>
                                 <phase>package</phase>
                                 <goals>
@@ -340,7 +340,7 @@ This software – including all its source code – contains proprietary informa
                                         </copyFile>
                                     </assembly>
                                 </configuration>
-                            </execution>
+                            </execution>-->
                         </executions>
                     </plugin>
                 </plugins>

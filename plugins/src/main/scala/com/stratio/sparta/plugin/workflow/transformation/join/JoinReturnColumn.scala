@@ -8,9 +8,11 @@ package com.stratio.sparta.plugin.workflow.transformation.join
 
 import com.stratio.sparta.plugin.enumerations.TableSide
 import com.stratio.sparta.plugin.enumerations.TableSide.TableSide
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 case class JoinReturnColumn(tableSide: TableSide, column: String, alias: Option[String]) {
 
   def toSql(leftTable: String, rightTable: String): String =
-    s"${if (tableSide == TableSide.LEFT) leftTable else rightTable}.$column ${alias.map(a => s"AS $a").getOrElse("")}"
+    s"${if (tableSide == TableSide.LEFT) leftTable else rightTable}.$column" +
+      s" ${alias.notBlank.map(a => s"AS $a").getOrElse("")}"
 }

@@ -1,4 +1,4 @@
-@Library('libpipelines@master') _
+@Library('libpipelines@maven-parallel') _
 
 hose {
     EMAIL = 'sparta'

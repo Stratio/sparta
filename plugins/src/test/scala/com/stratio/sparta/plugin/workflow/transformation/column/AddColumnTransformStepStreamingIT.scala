@@ -83,7 +83,7 @@ class AddColumnTransformStepStreamingIT extends TemporalSparkContext with Matche
         }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)

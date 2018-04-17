@@ -8,9 +8,13 @@ package com.stratio.sparta.plugin.workflow.transformation.select
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.SelectType
+import com.stratio.sparta.plugin.enumerations.SelectType.SelectType
 import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.plugin.models.PropertyColumn
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
@@ -18,6 +22,8 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
+import org.json4s.{DefaultFormats, Formats}
+import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Success, Try}
 
@@ -33,6 +39,15 @@ abstract class SelectTransformStep[Underlying[Row]](
     with SLF4JLogging {
 
   lazy val selectExpression: Option[String] = properties.getString("selectExp", None).notBlank
+  lazy val columns: Seq[String] = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    val cols = s"${properties.getString("columns", None).notBlank.fold("[]") { values => values.toString }}"
+
+    read[Seq[PropertyColumn]](cols).map(_.toSql)
+  }
+  lazy val selectType: SelectType = Try {
+    SelectType.withName(properties.getString("selectType", "EXPRESSION").toUpperCase())
+  }.getOrElse(SelectType.EXPRESSION)
 
   def requireValidateSql(): Unit = {
     val sql = s"select ${selectExpression.getOrElse("dummyCol")} from dummyTable"
@@ -42,7 +57,11 @@ abstract class SelectTransformStep[Underlying[Row]](
 
   def validateSql: Boolean =
     Try {
-      val sql = s"select ${selectExpression.getOrElse("dummyCol")} from dummyTable"
+      val expression = selectType match {
+        case SelectType.COLUMNS => columns.mkString(",")
+        case SelectType.EXPRESSION => selectExpression.getOrElse("*")
+      }
+      val sql = s"select $expression from dummyTable"
       xDSession.sessionState.sqlParser.parsePlan(sql)
     } match {
       case Success(_) =>
@@ -52,6 +71,7 @@ abstract class SelectTransformStep[Underlying[Row]](
         false
     }
 
+  //scalastyle:off
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
@@ -76,26 +96,44 @@ abstract class SelectTransformStep[Underlying[Row]](
       }
     }
 
-    if (selectExpression.isEmpty)
+    if (selectType == SelectType.COLUMNS && columns.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: it's mandatory to specify almost one column"
+      )
+
+    if (selectType == SelectType.EXPRESSION && selectExpression.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: it's mandatory one select expression, such as colA, abs(colC)"
       )
 
-    if (selectExpression.nonEmpty && !validateSql)
+    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the select expression is invalid"
       )
 
+    if (selectType == SelectType.COLUMNS && columns.nonEmpty && !validateSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the select columns are invalid"
+      )
+
     validation
   }
 
-  def applySelect(rdd: RDD[Row], expression: String, inputStep: String): (RDD[Row], Option[StructType]) = {
+  //scalastyle:on
+
+  def applySelect(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType]) = {
     Try {
       val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
       createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
         case Some(_) =>
+          val expression = selectType match {
+            case SelectType.COLUMNS => columns.mkString(",")
+            case SelectType.EXPRESSION => selectExpression.getOrElse("*")
+          }
           val newDataFrame = xDSession.sql(s"select $expression from $inputStep")
           (newDataFrame.rdd, Option(newDataFrame.schema))
         case None =>

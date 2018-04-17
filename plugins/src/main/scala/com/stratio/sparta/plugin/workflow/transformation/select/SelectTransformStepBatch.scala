@@ -30,8 +30,7 @@ class SelectTransformStepBatch(
                                   ): (DistributedMonad[RDD], Option[StructType]) =
     applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
       val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) =
-        applySelect(inputRdd, selectExpression.getOrElse(throw new Exception("Invalid select expression")), stepName)
+      val (rdd, schema) = applySelect(inputRdd, stepName)
       (rdd, schema.orElse(getSchemaFromRdd(rdd)))
     }
 }

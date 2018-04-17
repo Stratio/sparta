@@ -28,11 +28,7 @@ class SelectTransformStepStreaming(
     applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
       val inputStream = inputDistributedMonad.ds
         inputStream.transform { inputRdd =>
-          val (rdd, schema) = applySelect(
-            inputRdd,
-            selectExpression.getOrElse(throw new Exception("Invalid select expression")),
-            stepName
-          )
+          val (rdd, schema) = applySelect(inputRdd, stepName)
           schema.orElse(getSchemaFromRdd(rdd))
             .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
           rdd

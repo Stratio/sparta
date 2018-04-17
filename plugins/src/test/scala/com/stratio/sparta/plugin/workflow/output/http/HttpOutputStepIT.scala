@@ -90,7 +90,7 @@ class HttpOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
     xdSession.createDataFrame(dataRDD, fields)
   }
 
-  val restMock1 = new HttpOutputStep("key", sparkSession, properties)
+  /*val restMock1 = new HttpOutputStep("key", sparkSession, properties)
   "Given a DataFrame it" should "be parsed and send through a Raw data POST request" in {
     dfGen().collect().foreach(row => {
       assertResult(OkHTTPResponse)(restMock1.sendData(row.mkString(restMock1.delimiter)).code)
@@ -121,5 +121,5 @@ class HttpOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
     dfGen().toJSON.collect().foreach(row => {
       assertResult(OkHTTPResponse)(restMock4.sendData(row).code)
     })
-  }
+  }*/
 }
