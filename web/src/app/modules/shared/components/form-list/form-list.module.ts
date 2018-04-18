@@ -13,6 +13,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { SpSelectModule } from '../sp-select/sp-select.module';
 import { FormListComponent } from './form-list.component';
+import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
 
 
 @NgModule({
@@ -28,6 +29,7 @@ import { FormListComponent } from './form-list.component';
       SpSelectModule,
       StCheckboxModule,
       StSwitchModule,
+      HighlightTextareaModule,
       TranslateModule
    ],
    declarations: [

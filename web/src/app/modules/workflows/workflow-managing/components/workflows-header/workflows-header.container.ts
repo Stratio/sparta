@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs/Subscription';
@@ -28,7 +29,7 @@ import { Router } from '@angular/router';
             (generateVersion)="generateVersion()"
             (downloadWorkflows)="downloadWorkflows()" 
             (showWorkflowInfo)="showWorkflowInfo.emit()"
-            (onDeleteWorkflows)="deleteWorkflows($event)"
+            (onDeleteWorkflows)="deleteWorkflows()"
             (onDeleteVersions)="deleteVersions()"
             (changeFolder)="changeFolder($event)"></workflows-manage-header>
     `,
@@ -67,7 +68,7 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
                 levels = levelOptions.concat(level.name.split(FOLDER_SEPARATOR).slice(2));
             }
             this.levelOptions = levelGroup.workflow && levelGroup.workflow.length ? [...levels, levelGroup.workflow] : levels;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
     }
 
@@ -85,8 +86,8 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
         this._store.dispatch(new workflowActions.ChangeGroupLevelAction(group));
     }
 
-    deleteWorkflows(workflows: Array<any>): void {
-        this._store.dispatch(new workflowActions.DeleteWorkflowAction(workflows));
+    deleteWorkflows(): void {
+        this._store.dispatch(new workflowActions.DeleteWorkflowAction());
     }
 
     deleteVersions(): void {

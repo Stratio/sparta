@@ -40,6 +40,7 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
    @Input() public forceValidations = false;
    @Input() public qaTag: string;
    @Input() public stModel: any = {};
+   @Input() public valueDictionary: any = {};
 
    @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
    @ViewChild('groupForm') public groupForm: NgForm;

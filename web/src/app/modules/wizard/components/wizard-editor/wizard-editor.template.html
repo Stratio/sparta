@@ -14,12 +14,10 @@
          wizard-edge
          [initialEntityName]="relation.origin.name"
          [finalEntityName]="relation.destination.name"
-         [selectedSegment]="selectedEdge"
+         [selectedEdge]="selectedEdge"
          [index]="i"
          [initPosition]="relation.origin.uiConfiguration.position"
-         [endPosition]="relation.destination.uiConfiguration.position"
-         (onRemoveSegment)="removeSegment($event)"/>
-
+         [endPosition]="relation.destination.uiConfiguration.position"/>
       <svg:g wizard-node svg-draggable *ngFor="let nodeData of workflowNodes;"
          [data]="nodeData"
          [attr.id]="nodeData.name + '-node'"
@@ -30,20 +28,8 @@
          (onFinishConnector)="finishConnector($event)"
          [(position)]="nodeData.uiConfiguration.position"
          (onDoubleClickEvent)="this.editEntity.emit(nodeData)"
-         (onClickEvent)="selectNode.emit(nodeData)"
-         [ngClass]="{'current-created': nodeData.created}" />
+         (onClickEvent)="selectNode.emit(nodeData)"/>
    </svg:g>
-
-   <svg:filter id="drop-shadow">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
-      <feOffset dx="0" dy="0" result="offsetblur" />
-      <feFlood flood-color="rgba(193, 193, 193, 0.6)" />
-      <feComposite in2="offsetblur" operator="in" />
-      <feMerge>
-         <feMergeNode/>
-         <feMergeNode in="SourceGraphic" />
-      </feMerge>
-   </svg:filter>
 
    <svg:defs>
       <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">

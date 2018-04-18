@@ -9,6 +9,7 @@ import {
 import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
@@ -39,6 +40,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
     public settingsFormModel: any = {}; // advanced settings
+    public valueDictionary: any = {};
 
     private errorManagementOutputs: Array<string> = [];
     private settingsSubscription: Subscription;
@@ -57,14 +59,14 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
 
     getFormTemplate() {
         this.settingsSubscription = this.store.select(fromWizard.getWorkflowSettings).subscribe((currentSettings: any) => {
-            const settings = JSON.parse(JSON.stringify(currentSettings));
+            const settings = _cloneDeep(currentSettings);
             this.tags = settings.basic.tags;
 
             this.basicFormModel = settings.basic;
             this.settingsFormModel = settings.advancedSettings;
         });
 
-        const settings = JSON.parse(JSON.stringify(<any>settingsTemplate));
+        const settings = _cloneDeep(<any>settingsTemplate);
 
         // hides workflow name edition when its in edit mode
         this.basicSettings = this.edition ? settings.basicSettings.map((field: any) => {
@@ -72,7 +74,8 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
                 hidden: true
             }) : field;
         }) : settings.basicSettings;
-        settings.advancedSettings[3].properties[2].properties[0].fields[0].values = this.errorManagementOutputs.map((outputName: string) => {
+        this.valueDictionary['outputErrors'] =
+            this.errorManagementOutputs.map((outputName: string) => {
             return {
                 label: outputName,
                 value: outputName

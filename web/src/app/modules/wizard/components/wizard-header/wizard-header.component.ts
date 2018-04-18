@@ -91,16 +91,17 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         this._areUndoRedoEnabledSubscription = this.store.select(fromWizard.areUndoRedoEnabled).subscribe((actions: any) => {
             this.undoEnabled = actions.undo;
             this.redoEnabled = actions.redo;
+            this._cd.markForCheck();
         });
 
         this._validationSubscription = this.store.select(fromWizard.getValidationErrors).subscribe((validations: any) => {
             this.validations = validations;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this._isPristineSubscription = this.store.select(fromWizard.isPristine).distinctUntilChanged().subscribe((isPristine: boolean) => {
             this.isPristine = isPristine;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
         this._workflowTypeSubscription = this.store.select(fromWizard.getWorkflowType).subscribe((type) => this.workflowType = type);
         this.menuOptions$ = this.store.select(fromWizard.getMenuOptions);

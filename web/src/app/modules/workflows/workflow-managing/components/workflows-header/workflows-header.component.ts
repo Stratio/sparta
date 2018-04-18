@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import {
     ChangeDetectionStrategy,
     Component,
@@ -43,21 +44,46 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     @Input() levelOptions: Array<string>;
     @Input() versionsListMode = false;
 
-    @Output() downloadWorkflows = new EventEmitter<void>();
-    @Output() showWorkflowInfo = new EventEmitter<void>();
-    @Output() onDeleteWorkflows = new EventEmitter<any>();
-    @Output() onDeleteVersions = new EventEmitter<void>();
-    @Output() changeFolder = new EventEmitter<number>();
-    @Output() generateVersion = new EventEmitter<void>();
-    @Output() onEditVersion = new EventEmitter<string>();
+    @Output() downloadWorkflows = new EventEmitter();
+    @Output() showWorkflowInfo = new EventEmitter();
+    @Output() onDeleteWorkflows = new EventEmitter();
+    @Output() onDeleteVersions = new EventEmitter();
+    @Output() changeFolder = new EventEmitter();
+    @Output() generateVersion = new EventEmitter();
+    @Output() onEditVersion = new EventEmitter();
 
     public selectedVersionsInner: Array<string> = [];
     public selectedWorkflowsInner: Array<string> = [];
     public selectedGroupsListInner: Array<string> = [];
-
-    public menuOptions: any = [];
+    public menuOptions = [
+        {
+            name: 'Group',
+            value: 'group'
+        }, {
+            name: 'Workflow',
+            subMenus: [
+                {
+                    name: 'New workflow from scratch',
+                    value: 'scratch',
+                    subMenus: [
+                        {
+                            name: 'Streaming',
+                            value: 'streaming'
+                        },
+                        {
+                            name: 'Batch',
+                            value: 'batch'
+                        }
+                    ]
+                },
+                {
+                    name: 'New workflow from json file',
+                    value: 'file'
+                }
+            ]
+        }
+    ];
     public isRunning = isWorkflowRunning;
-
     public deleteWorkflowModalTitle: string;
     public deleteModalTitle: string;
     public deleteWorkflowModalMessage: string;
@@ -103,34 +129,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
         private route: Router,
         public workflowsService: WorkflowsManagingService) {
 
-        this.menuOptions = [
-            {
-                name: 'Group',
-                value: 'group'
-            }, {
-                name: 'Workflow',
-                subMenus: [
-                    {
-                        name: 'New workflow from scratch',
-                        value: 'scratch',
-                        subMenus: [
-                            {
-                                name: 'Streaming',
-                                value: 'streaming'
-                            },
-                            {
-                                name: 'Batch',
-                                value: 'batch'
-                            }
-                        ]
-                    },
-                    {
-                        name: 'New workflow from json file',
-                        value: 'file'
-                    }
-                ]
-            }
-        ];
         const deleteWorkflowModalTitle = 'DASHBOARD.DELETE_WORKFLOW_TITLE';
         const deleteWorkflowModalMessage = 'DASHBOARD.DELETE_WORKFLOW_MESSAGE';
         const messageDeleteTitle = 'DASHBOARD.MESSAGE_DELETE_TITLE';
@@ -187,7 +185,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     }
 
     public deleteWorkflows(): void {
-        this.deleteWorkflowConfirmModal(this.selectedWorkflows);
+        this.deleteWorkflowConfirmModal();
     }
 
     public selectLevel(event: number): void {
@@ -211,7 +209,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
         }, MoveGroupModal);
     }
 
-    public deleteWorkflowConfirmModal(workflows: Array<any>): void {
+    public deleteWorkflowConfirmModal(): void {
         const buttons: StModalButton[] = [
             { label: 'Cancel', classes: 'button-secondary-gray', responseValue: StModalResponse.NO },
             { label: 'Delete', classes: 'button-critical', responseValue: StModalResponse.YES, closeOnClick: true }
@@ -229,7 +227,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
                 if (this.selectedVersions.length) {
                     this.onDeleteVersions.emit();
                 } else {
-                    this.onDeleteWorkflows.emit(workflows);
+                    this.onDeleteWorkflows.emit();
                 }
             }
         });

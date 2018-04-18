@@ -21,3 +21,8 @@ export interface NodeConnector {
     y1: number;
     y2: number;
 }
+
+export interface DrawingConnectorStatus {
+    status: boolean;
+    name: string;
+}

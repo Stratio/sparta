@@ -118,7 +118,7 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             edges: state.edges.filter((edge: any) =>
-                  edge.origin !== action.payload.origin || edge.destination !== action.payload.destination),
+               edge.origin !== action.payload.origin || edge.destination !== action.payload.destination),
             undoStates: getUndoState(state),
             pristineWorkflow: false,
             selectedEdge: null,
@@ -131,7 +131,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedEntity: '',
             nodes: state.nodes.filter((node: any) => state.selectedEntity !== node.name),
             pristineWorkflow: false,
-            edges: state.edges.filter((edge: any) =>  state.selectedEntity !== edge.origin && state.selectedEntity !== edge.destination),
+            edges: state.edges.filter((edge: any) => state.selectedEntity !== edge.origin && state.selectedEntity !== edge.destination),
             undoStates: getUndoState(state),
             redoStates: []
          };
@@ -353,7 +353,7 @@ function getUndoState(state: any) {
       nodes: _cloneDeep(state.nodes),
       edges: _cloneDeep(state.edges)
    };
-   return [ newUndoState, ...state.undoStates.filter((value: any, index: number) => index < 4) ];
+   return [newUndoState, ...state.undoStates.filter((value: any, index: number) => index < 4)];
 }
 
 function getRedoState(state: any) {
@@ -361,21 +361,23 @@ function getRedoState(state: any) {
       nodes: _cloneDeep(state.nodes),
       edges: _cloneDeep(state.edges)
    };
-   return [ newRedoState, ...state.redoStates.filter((value: any, index: number) =>  index < 4) ];
+   return [newRedoState, ...state.redoStates.filter((value: any, index: number) => index < 4)];
 }
 
-export const getSelectedEntityData = (state: State) => state.nodes.find((node: any) => node.name === state.selectedEntity);
+export const getSelectedEntityData = (state: State) => state.selectedEntity.length ?
+   state.nodes.find((node: any) => node.name === state.selectedEntity) : undefined;
+
 export const getWorkflowHeaderData = (state: State) => ({
    name: state.settings.basic.name,
    version: state.workflowVersion
 });
+
 export const areUndoRedoEnabled = (state: State) => ({
-      undo: state.undoStates.length ? true : false,
-      redo: state.redoStates.length ? true : false
+   undo: state.undoStates.length ? true : false,
+   redo: state.redoStates.length ? true : false
 });
-export const getEditionConfigMode = (state: State) => {
-   return {
-      isEdition: state.editionConfig,
-      editionType: state.editionConfigType
-   };
-};
+
+export const getEditionConfigMode = (state: State) => ({
+   isEdition: state.editionConfig,
+   editionType: state.editionConfigType
+});

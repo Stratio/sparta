@@ -26,13 +26,14 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class FormGeneratorComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
-    @Input() public formData: any; // data template
-    @Input() public stFormGroup: FormGroup;
+    @Input() formData: any; // data template
+    @Input() stFormGroup: FormGroup;
     @Input() forceValidations = false;
-    @Input() public subFormNumber = 0;
+    @Input() subFormNumber = 0;
     @Input() arity: any;
     @Input() disabledForm = false;
-    @Input() public stModel: any = {};
+    @Input() stModel: any = {};
+    @Input() valueDictionary: any = {};
 
     @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
 

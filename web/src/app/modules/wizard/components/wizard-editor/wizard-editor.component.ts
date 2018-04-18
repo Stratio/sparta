@@ -28,7 +28,7 @@ import * as wizardActions from './../../actions/wizard';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { WizardNode, WizardEdge } from '@app/wizard/models/node';
-import { ZoomTransform, CreationData, NodeConnector } from '@app/wizard/models/drag';
+import { ZoomTransform, CreationData, NodeConnector, DrawingConnectorStatus } from '@app/wizard/models/drag';
 
 @Component({
    selector: 'wizard-editor',
@@ -57,6 +57,7 @@ export class WizardEditorComponent implements OnInit {
    @Input() creationMode: CreationData;
    @Input() selectedNodeName = '';
    @Input() selectedEdge: WizardEdge;
+
    @Output() editEntity = new EventEmitter<WizardNode>();
    @Output() selectNode = new EventEmitter<WizardNode>();
    @Output() createNode = new EventEmitter<any>();
@@ -72,7 +73,7 @@ export class WizardEditorComponent implements OnInit {
    private _documentRef: d3.Selection<d3.BaseType, any, any, any>;
    private _connectorElement: d3.Selection<d3.BaseType, any, any, any>;
 
-   public drawingConnectionStatus: any = {
+   public drawingConnectionStatus: DrawingConnectorStatus = {
       status: false,
       name: ''
    };
@@ -147,7 +148,7 @@ export class WizardEditorComponent implements OnInit {
          .on('mousemove', drawConnector.bind(this))
          .on('mouseup', mouseup.bind(this));
       function mouseup() {
-         event.event.target.classList.remove('over-output2');
+         event.event.target.parentNode.classList.remove('over2');
          this.showConnector = false;
          this.newOrigin = '';
          this.drawingConnectionStatus = {
@@ -195,22 +196,32 @@ export class WizardEditorComponent implements OnInit {
 
    setDraggableEditor() {
       this._ngZone.runOutsideAngular(() => {
+      /** wheel delta  */
          function deltaFn() {
             return -d3Event.deltaY * (d3Event.deltaMode ? 0.0387 : 0.002258);
          }
+         /** Update element scale and position*/
          function zoomed(svgPosition: any): void {
             this._svgPosition = d3Event.transform;
             this._SVGContainer.attr('transform', d3Event.transform);
          }
+         /** zoom behaviour */
          this.zoom = d3Zoom()
             .scaleExtent([1 / 8, 3])
             .wheelDelta(deltaFn)
+            .on('start', () => {
+               const sourceEvent = d3Event.sourceEvent;
+               if (sourceEvent) {
+                     sourceEvent.stopPropagation();
+               }
+            })
             .on('zoom', zoomed.bind(this));
-         this._SVGParent.call(this.zoom).on('dblclick.zoom', null);
+         // Apply Zoom behaviour on parent
+         this._SVGParent.call(this.zoom)
+            .on('dblclick.zoom', null); // disable default double click effect
          // Set initial position
          this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
             .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
       });
    }
-
 }

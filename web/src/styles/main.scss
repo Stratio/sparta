@@ -28,18 +28,6 @@ body {
     margin-right: 6px!important;
 }
 
-.entity-icon {
-    font-family: ico_stratio;
-    font-size: 25px;
-    user-select: none;
-    cursor: move;
-}
-
-.entity-icon2 {
-    font-family: ico_stratio;
-    user-select: none;
-    cursor: move;
-}
 /* codemirror overrides */
 
 .disabled .CodeMirror pre,
@@ -78,19 +66,6 @@ body {
 
 .sp-loading-advice{
     display:block!important;
-}
-
-.mobile {
-    .type-input .input-entry {
-        transform: scale(1)!important;
-     }
-     .type-transformation .transformation-entry {
-        transform: scale(1)!important;
-     }
-
-     .active.type-output .output-entry, .active.type-transformation .transformation-entry{
-        transform: scale(1.3)!important;
-     }
 }
 
 .workflow-table .st-table__header th:nth-child(5) label, .workflow-table tr td:nth-child(5) label {

@@ -1,44 +1,38 @@
-:host {
-   display: block;
-}
+@import '~@stratio/egeo/theme/constants';
 
-path {
-    fill: inherit;
-}
+.sparta-edge-container {
 
-.segment {
-   fill: none;
-   stroke: #999;
-   &.selected {
-      stroke: #128bde!important;
-      stroke-width: 1px;
-      stroke-dasharray: 1, 1.3;
-      marker-start: url(#UpArrowPreciseSelected);
+   .edge {
+      fill: none;
+      stroke: $neutral-08;
+      &.selected {
+         stroke: $action-primary-default;
+         stroke-width: 1px;
+         stroke-dasharray: 1, 1.3;
+         marker-start: url(#UpArrowPreciseSelected);
+      }
    }
-}
 
-use.segment-hover {
-   fill: none;
-   stroke: transparent;
-   cursor: pointer;
-   stroke-width: 15px;
-}
+   use.edge-hover {
+      fill: none;
+      stroke: transparent;
+      cursor: pointer;
+      stroke-width: 15px;
+   }
 
-.delete-icon {
-   font-family: ico_stratio;
-   font-size: 25px;
-   cursor: pointer;
-   opacity: 0;
-   stroke-width: 30px;
-}
-
-.segmentContainer {
+   .delete-icon {
+      font-family: $egeo-stratio-icons;
+      font-size: 25px;
+      cursor: pointer;
+      opacity: 0;
+      stroke-width: 30px;
+   }
    &:hover {
       .delete-icon {
          opacity: 1;
       }
-      .segment {
-         stroke: #428bca;
+      .edge {
+         stroke: $action-primary-default;
          stroke-width: 1px;
          stroke-dasharray: 1, 1.3;
          marker-start: url(#UpArrowPreciseSelected);

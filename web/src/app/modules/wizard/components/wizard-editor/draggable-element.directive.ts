@@ -32,15 +32,17 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
    }
 
    ngAfterContentInit() {
-      this.element
-         .on('click', this.onClick.bind(this))
-         .call(d3Drag()
-            .on('drag', this.dragmove.bind(this))
-            .on('start', () => {
-               d3Event.sourceEvent.stopPropagation();
-               // set wizard state dirty (enable save button)
-               this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
-            }));
+      this._ngZone.runOutsideAngular(() => {
+         this.element
+            .on('click', this.onClick.bind(this))
+            .call(d3Drag()
+               .on('drag', this.dragmove.bind(this))
+               .on('start', () => {
+                  d3Event.sourceEvent.stopPropagation();
+                  // set wizard state dirty (enable save button)
+                  this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+               }));
+      });
    }
 
    dragmove() {
@@ -69,12 +71,9 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
       this._ngZone.run(() => {
          this.clicks++;
          if (this.clicks === 1) {
+            this.onClickEvent.emit();
             setTimeout(() => {
-               if (this.clicks === 1) {
-                  // single click
-                  this.onClickEvent.emit();
-               } else {
-                  // double click
+               if (this.clicks !== 1) {
                   this.onDoubleClickEvent.emit();
                }
                this.clicks = 0;

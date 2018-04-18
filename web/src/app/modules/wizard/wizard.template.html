@@ -8,17 +8,17 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<section class="workflow-wizard" [hidden]="(editionConfigMode$ | async).isEdition || (showSettings$ | async)">
+<section class="workflow-wizard" [hidden]="editionConfigMode.isEdition || showSettings">
     <div class="wizard-content">
         <wizard-editor-container [workflowType]="workflowType"></wizard-editor-container>
     </div>
-    <selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
+    <selected-entity *ngIf="creationMode.active"></selected-entity>
 </section>
 
-<wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition"
+<wizard-config-editor *ngIf="editionConfigMode.isEdition"
    [workflowType]="workflowType"
-   [config]="editionConfigMode$ | async"></wizard-config-editor>
+   [config]="editionConfigMode"></wizard-config-editor>
 
 <wizard-settings [workflowType]="workflowType"
    [edition]="isEdit" [workflowType]="workflowType"
-   *ngIf="workflowType.length && (showSettings$ | async)"></wizard-settings>
+   *ngIf="workflowType.length && showSettings"></wizard-settings>

@@ -17,7 +17,6 @@
    </div>
    <div general-tools>
       <div class="selection-actions">
-
          <!-- Edit workflows / groups -->
          <button class="button button-toolbar" 
             id="edit-workflow-group-button" 
@@ -70,12 +69,12 @@
          </floating-menu>
          <floating-menu [menuOptions]="menuOptions" *ngIf="!versionsListMode" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">
             <div menu-action>
-               <button class="button button-toolbar">
+               <button class="button button-toolbar" id="create-entity-button">
                 <i class="icon-plus"></i>
             </button>
             </div>
          </floating-menu>
-         <button class="button button-toolbar" (click)="showWorkflowInfo.emit()" [ngClass]="{'selected-button': showDetails}">
+         <button class="button button-toolbar" id="info-button" (click)="showWorkflowInfo.emit()" [ngClass]="{'selected-button': showDetails}">
             <i class="icon-info1"></i>
          </button>
       </div>

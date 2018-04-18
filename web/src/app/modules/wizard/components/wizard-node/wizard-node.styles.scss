@@ -1,132 +1,86 @@
 @import '~@stratio/egeo/theme/constants';
-.entity {
-   cursor: move;
-   &.active {
-      /* -webkit-filter: drop-shadow(193, 193, 193, 0.5);
-      filter: url(#drop-shadow);*/
-   }
-}
-
-.entity-name {
-   fill: #0f1b27;
-   font-family: "Nunito Sans";
-   font-size: 14px;
-   font-weight: 300;
-   cursor: move;
-   letter-spacing: -0.6px;
-   user-select: none;
-   word-break: break-word;
-   line-height: 17px;
-}
-
-.Input {
-   stroke: #fcb66c;
-   &.active {
-      fill: #fbf3ec;
-   }
-}
-
-.Output {
-   stroke: #78c7dd;
-   &.active {
-      fill: #f5fbfd;
-   }
-}
-
-.Transformation {
-   stroke: #c59ddb;
-   &.active {
-      fill: #f9f5fb;
-   }
-}
-
-.relation {
-   transform: scale(0);
-   stroke-width: 1;
-   stroke: #999;
-   fill: #e7f3fb;
-   transition: 0.15s transform;
-   transform-origin: 4px 4px;
-}
-
-:host:hover {
-   .type-input .input-entry {
-      transform: scale(1);
-   }
-   .type-transformation .transformation-entry {
-      transform: scale(1);
-   }
-}
-
-%selected-relation {
-   fill: white;
-   display: block;
-   stroke: #acc952;
-   stroke-width: 1;
-   -ms-transform: scale(1.2);
-   cursor: pointer;
-   transform: scale(1.2)!important;
-}
-
-.relation.transformation-entry:hover,
-.relation.input-entry:hover {
-   @extend %selected-relation;
-}
-
-.active {
-   &.type-output .output-entry,
-   &.type-transformation .transformation-entry {
-      transform: scale(1);
-      fill: white;
-   }
-   .relation.over-output {
-      @extend %selected-relation;
-   }
-}
-
-.template-label {
-   font-family: Nunito Sans Bold;
-   margin-right: 6px;
-   font-size: 12px;
-   .Input+.text-container & {
-      color: #e67905;
-   }
-   .Transformation+.text-container & {
-      color: #9349bc;
-   }
-   .Output+.text-container & {
-      color: #2d96b4;
-   }
-}
-
-.created-new {
+.sparta-node-box {
    .entity {
-      stroke: #ddd;
+      cursor: move;
    }
    .entity-name {
-      color: #aaa;
+      fill: $action-secondary-07;
+      font-family: $egeo-nunito-sans;
+      font-size: 14px;
+      font-weight: 300;
+      cursor: move;
+      letter-spacing: -0.6px;
+      user-select: none;
+      word-break: break-word;
+      line-height: 17px;
    }
    .entity-icon {
-      fill: #aaa;
+      font-family: $egeo-stratio-icons;
+      font-size: 25px;
+      user-select: none;
+      cursor: move;
    }
-   .entity-icon2 {
-      display: none;
+   .error-icon {
+      font-family: $egeo-stratio-icons;
+      user-select: none;
+      cursor: move;
    }
-}
-
-:host .relation.relation.over-output2 {
-   @extend %selected-relation;
-}
-
-:host.current-created {
-   animation: BoxAnimation2 0.3s;
-}
-
-@keyframes BoxAnimation2 {
-   0% {
-      opacity: 0;
+   .input-step {
+      stroke: #fcb66c;
+      &.active {
+         fill: #fbf3ec;
+      }
    }
-   100% {
-      opacity: 1;
+   .output-step {
+      stroke: #78c7dd;
+      &.active {
+         fill: #f5fbfd;
+      }
+   }
+   .transformation-step {
+      stroke: #c59ddb;
+      &.active {
+         fill: #f9f5fb;
+      }
+   }
+   &.created-new {
+      .entity {
+         stroke: #ddd;
+      }
+      .entity-name {
+         color: #aaa;
+      }
+      .entity-icon {
+         fill: #aaa;
+      }
+      .entity-icon2 {
+         display: none;
+      }
+   }
+   .relation {
+      transform: scale(0);
+      stroke-width: 1;
+      stroke: $neutral-08;
+      fill: $action-primary-light;
+      transition: 0.15s transform;
+      transform-origin: 4px 4px;
+      cursor: pointer;
+   }
+   &:hover .origin .relation,
+   &.creation-mode .destination .relation {
+      transform: scale(1);
+   }
+   &.creation-mode:hover .destination .relation, .origin .relation:hover {
+      transform: scale(1.2)!important;
+      fill: white;
+   }
+   .relation-container {
+      &.over,
+      &.over2 {
+         .relation {
+            transform: scale(1.2)!important;
+            fill: white;
+         }
+      }
    }
 }

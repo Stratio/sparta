@@ -157,8 +157,6 @@ export class RemoveWorkflowSelectionAction implements Action {
 
 export class DeleteWorkflowAction implements Action {
   readonly type = DELETE_WORKFLOW;
-
-  constructor(public payload: any) { }
 }
 
 export class DeleteWorkflowCompleteAction implements Action {

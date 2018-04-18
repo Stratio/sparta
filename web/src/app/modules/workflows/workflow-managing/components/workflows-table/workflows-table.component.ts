@@ -11,8 +11,10 @@ import {
     Output,
     ChangeDetectorRef
 } from '@angular/core';
-import { StTableHeader } from '@stratio/egeo';
+import { StTableHeader, Order } from '@stratio/egeo';
 import { Router } from '@angular/router';
+
+import { Group } from '../../models/workflows';
 
 @Component({
     selector: 'workflows-manage-table',
@@ -30,7 +32,7 @@ export class WorkflowsManagingTableComponent {
     @Input() selectedVersions: Array<string> = [];
     @Input() workflowVersions: Array<any> = [];
 
-    @Output() onChangeOrder = new EventEmitter<any>();
+    @Output() onChangeOrder = new EventEmitter<Order>();
     @Output() onChangeOrderVersions = new EventEmitter<any>();
     @Output() selectWorkflow = new EventEmitter<string>();
     @Output() selectGroup = new EventEmitter<string>();
@@ -43,18 +45,12 @@ export class WorkflowsManagingTableComponent {
 
     public openWorkflows: Array<string> = [];
 
-    changeOrder($event: any): void {
-        this.onChangeOrder.emit({
-            orderBy: $event.orderBy,
-            sortOrder: $event.type
-        });
+    changeOrder(event: Order): void {
+        this.onChangeOrder.emit(event);
     }
 
-    changeOrderVersions($event: any): void {
-        this.onChangeOrderVersions.emit({
-            orderBy: $event.orderBy,
-            sortOrder: $event.type
-        });
+    changeOrderVersions(event: Order): void {
+        this.onChangeOrderVersions.emit(event);
     }
 
     checkVersion(id: string) {
@@ -65,17 +61,17 @@ export class WorkflowsManagingTableComponent {
         this.selectWorkflow.emit(workflow.name);
     }
 
-    checkGroup(group: any) {
+    checkGroup(group: Group) {
         this.selectGroup.emit(group.name);
     }
 
-    openWorkflowClick(event: any, workflow: any) {
+    openWorkflowClick(event: Event, workflow: any) {
         event.stopPropagation();
         this.openWorkflow.emit(workflow);
     }
 
-    openGroup(event: any, group: any) {
-        event.stopPropagation();
+    openGroup(event: Event, group: Group) {
+       event.stopPropagation();
        this.changeFolder.emit(group);
     }
 
@@ -83,7 +79,7 @@ export class WorkflowsManagingTableComponent {
         window.open(url, '_blank');
     }
 
-    editVersion(event: any, versionId: string) {
+    editVersion(event: Event, versionId: string) {
         event.stopPropagation();
         this.route.navigate(['wizard/edit', versionId]);
     }

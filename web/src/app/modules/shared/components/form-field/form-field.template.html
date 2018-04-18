@@ -46,9 +46,8 @@
           [minlength]="field.minlength"
           [maxlength]="field.maxlength"></sp-textarea>
     </div>
-
    <sp-select *ngIf="field.propertyType == 'select' && isVisible"
-      [options]="field.values"
+      [options]="field.externalValueKey ? valueDictionary[field.externalValueKey]: field.values"
       class="st-form-field"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       [forceValidations]="forceValidations"
@@ -81,6 +80,7 @@
    <form-list *ngIf="field.propertyType == 'list'"
       [formListData]="field.fields"
       [qaTag]="field.qa"
+      [valueDictionary]="valueDictionary"
       [required]="field.required"
       [complexForm]="field.complexForm"
       tooltip="{{field.tooltip}}"

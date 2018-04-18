@@ -1,3 +1,4 @@
+import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textarea.module';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -11,6 +12,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
 import { EgeoModule } from '@stratio/egeo';
+
 import { SpSelectModule } from '../sp-select/sp-select.module';
 import { ErrorMessagesService } from '../../../../services';
 import { FormGroup, FormArray, Validators } from '@angular/forms';
@@ -65,7 +67,15 @@ const inputSchema = [
 describe('FormListComponent', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule, ReactiveFormsModule, TranslateModule.forRoot(), SpInputModule, SpTextareaModule, SpSelectModule, EgeoModule],
+            imports: [
+                FormsModule,
+                ReactiveFormsModule,
+                TranslateModule.forRoot(),
+                HighlightTextareaModule,
+                SpTextareaModule,
+                SpSelectModule,
+                EgeoModule
+            ],
             declarations: [FormListComponent],
             providers: [ErrorMessagesService]
         }).compileComponents();  // compile template and css
