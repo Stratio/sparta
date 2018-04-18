@@ -17,7 +17,7 @@
     "SECURITY_MESOS_ENABLE": "true",
     "SPARTA_MARATHON_INTERVAL_SECONDS": "60",
     "HADOOP_CONF_FROM_DFS": "true",
-    "SPARTA_MARATHON_GRACEPERIODS_SECONDS": "180",
+    "SPARTA_MARATHON_GRACEPERIODS_SECONDS": "600",
     "CROSSDATA_CORE_CATALOG_CLASS": "org.apache.spark.sql.crossdata.catalyst.catalog.persistent.zookeeper.ZookeeperCatalog",
     "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONTIMEOUT": "15000",
     "SPARTA_ZOOKEEPER_CONNECTION_STRING": "zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181",
