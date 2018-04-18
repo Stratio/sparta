@@ -48,7 +48,7 @@ class FileSystemInputStepBatchIT extends TemporalSparkContext with Matchers {
       "path" -> s"file://$parentDir/existing.txt"
     )
     val input = new FileSystemInputStepBatch("name", outputOptions, Option(ssc), sparkSession, properties)
-    val rdd = input.init
+    val rdd = input.initWithSchema()._1
     val count = rdd.ds.count()
 
     count shouldBe lines.size

@@ -1,0 +1,101 @@
+  {
+     "name": "Jdbc",
+     "icon": "Jdbc",
+     "className": "JdbcInputStep",
+     "classPrettyName": "Jdbc",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "description": "Allows you to load data from jdbc databases",
+     "properties": [
+        {
+           "propertyId": "url",
+           "propertyName": "_JDBC_URL_",
+           "propertyType": "text",
+           "default": "{{{JDBC_URL}}}",
+           "required": true,
+           "tooltip": "Url to connect to one relational Database with jdbc",
+           "qa": "fragment-details-jdbc-url"
+        },
+        {
+           "propertyId": "dbtable",
+           "propertyName": "_TABLE_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Table to connect",
+           "qa": "fragment-details-jdbc-table"
+        },
+        {
+           "propertyId": "driver",
+           "propertyName": "_JDBC_DRIVER_",
+           "propertyType": "text",
+           "default": "{{{JDBC_DRIVER}}}",
+           "required": false,
+           "tooltip": "Driver class, this property has priority to URL",
+           "qa": "fragment-details-jdbc-driver"
+        },
+        {
+           "propertyId": "isolationLevel",
+           "propertyName": "_ISOLATION_LEVEL_",
+           "propertyType": "select",
+           "values": [
+              {
+                 "label": "None",
+                 "value": "NONE"
+              },
+              {
+                 "label": "Read Uncommitted",
+                 "value": "READ_UNCOMMITTED"
+              },
+              {
+                 "label": "Read Committed",
+                 "value": "READ_COMMITTED"
+              },
+              {
+                 "label": "Repeatable Read",
+                 "value": "REPEATABLE_READ"
+              },
+              {
+                 "label": "Serializable",
+                 "value": "SERIALIZABLE"
+              }
+           ],
+           "default": "READ_UNCOMMITTED",
+           "required": true,
+           "tooltip": "Sets the isolation level when save data in the database",
+           "qa": "fragment-postgres-isolation-level"
+        },
+        {
+           "propertyId": "tlsEnabled",
+           "propertyName": "_TLS_ENABLE_",
+           "propertyType": "boolean",
+           "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+           "default": false,
+           "qa": "fragment-details-jdbc-tls"
+        },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }

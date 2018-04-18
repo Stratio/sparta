@@ -121,13 +121,13 @@ class TestInputStepBatch(
                            xDSession: XDSession,
                            properties: Map[String, JSerializable]
                          ) extends TestInputStep[RDD](name, outputOptions, ssc, xDSession, properties) {
-  /**
-    * Create and initialize stream using the Spark Streaming Context.
-    *
-    * @return The DStream created with spark rows
-    */
-  override def init(): DistributedMonad[RDD] = {
 
+  //Dummy function on batch inputs that generates DataSets with schema
+  def init(): DistributedMonad[RDD] = {
+    throw new Exception("Not used on inputs that generates DataSets with schema")
+  }
+
+  override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     val registers = for (_ <- 1L to numEvents.get) yield {
       if (eventType == EventType.STRING)
         new GenericRowWithSchema(Array(event.get), stringSchema).asInstanceOf[Row]
@@ -135,12 +135,6 @@ class TestInputStepBatch(
     }
     val defaultRDD = xDSession.sparkContext.parallelize(registers)
 
-    defaultRDD
-  }
-
-  override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    val monad = init()
-
-    (monad, Option(schema))
+    (defaultRDD, Option(schema))
   }
 }

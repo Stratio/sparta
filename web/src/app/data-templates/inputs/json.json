@@ -1,0 +1,44 @@
+  {
+     "name": "Json",
+     "icon": "Json",
+     "className": "JsonInputStep",
+     "classPrettyName": "Json",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "description": "Allows you to load data from json files",
+     "properties": [
+        {
+           "propertyId": "path",
+           "propertyName": "_PATH_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Json path in the filesystem(HDFS, S3, Azure, etc)",
+           "qa": "fragment-details-json-path"
+        },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }

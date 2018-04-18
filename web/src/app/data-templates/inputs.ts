@@ -6,6 +6,11 @@
 
 import { StepType, Engine } from "@models/enums";
 
+import * as avroTemplate from './inputs/avro.json';
+import * as csvTemplate from './inputs/csv.json';
+import * as jsonTemplate from './inputs/json.json';
+import * as jdbcTemplate from './inputs/jdbc.json';
+import * as parquetTemplate from './inputs/parquet.json';
 import * as kafkaTemplate from './inputs/kafka.json';
 import * as crossdataStreamingTemplate from './inputs/crossdataStreaming.json';
 import * as crossdataBatchTemplate from './inputs/crossdataBatch.json';
@@ -23,9 +28,13 @@ import * as websocketTemplate from './inputs/websocket.json';
 
 
 export const inputs = [
+    avroTemplate,
     crossdataStreamingTemplate,
     crossdataBatchTemplate,
+    csvTemplate,
     customTemplate,
+    jdbcTemplate,
+    jsonTemplate,
     kafkaTemplate,
     filesystemBatchTemplate,
     filesystemStreamingTemplate,
@@ -34,6 +43,7 @@ export const inputs = [
     //rabbitmqSingleTemplate,
     //socketTemplate,
     //twitterJsonTemplate,
+    parquetTemplate,
     testBatchTemplate,
     testStreamingTemplate,
     websocketTemplate

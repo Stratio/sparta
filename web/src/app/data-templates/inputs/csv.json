@@ -1,0 +1,62 @@
+  {
+     "name": "Csv",
+     "icon": "Csv",
+     "className": "CsvInputStep",
+     "classPrettyName": "Csv",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "description": "Allows you to load data from csv files",
+     "properties": [
+        {
+           "propertyId": "path",
+           "propertyName": "_PATH_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Csv path in the filesystem(HDFS, S3, Azure, etc)",
+           "qa": "fragment-details-csv-path"
+        },
+        {
+           "propertyId": "header",
+           "propertyName": "_HEADER_",
+           "propertyType": "boolean",
+           "required": true,
+           "default": false,
+           "tooltip": "If checked, the first row contains the header and the future schema has this columns names",
+           "qa": "workflow-transformation-csv-header"
+        },
+        {
+           "propertyId": "delimiter",
+           "propertyName": "_DELIMITER_",
+           "propertyType": "text",
+           "tooltip": "Delimiter character for input rows",
+           "default": "{{DEFAULT_DELIMITER}}",
+           "required": false,
+           "qa": "fragment-details-csv-delimiter"
+        },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }

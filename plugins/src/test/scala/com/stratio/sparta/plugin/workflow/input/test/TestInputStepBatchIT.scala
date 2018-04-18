@@ -27,7 +27,7 @@ class TestInputStepBatchIT extends TemporalSparkContext with Matchers {
       "numEvents" -> eventsPerBatch.asInstanceOf[java.io.Serializable]
     )
     val testInput = new TestInputStepBatch("test", outputOptions, None, sparkSession, properties)
-    val input = testInput.init
+    val input = testInput.initWithSchema()._1
     val generatedRow = new GenericRowWithSchema(Array(event), testInput.outputSchema)
 
     input.ds.foreachPartition { partition =>
@@ -49,7 +49,7 @@ class TestInputStepBatchIT extends TemporalSparkContext with Matchers {
       "numEvents" -> eventsPerBatch.asInstanceOf[java.io.Serializable]
     )
     val testInput = new TestInputStepBatch("test", outputOptions, None, sparkSession, properties)
-    val input = testInput.init
+    val input = testInput.initWithSchema()._1
 
     input.ds.foreachPartition { partition =>
       totalEvents += partition.size

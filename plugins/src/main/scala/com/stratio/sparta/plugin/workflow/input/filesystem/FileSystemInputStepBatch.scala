@@ -44,18 +44,19 @@ class FileSystemInputStepBatch(
     validation
   }
 
+  //Dummy function on batch inputs that generates DataSets with schema
   def init(): DistributedMonad[RDD] = {
-    require(path.nonEmpty, "Input path cannot be empty")
-
-    xDSession.sparkContext.textFile(path).map { text =>
-      new GenericRowWithSchema(Array(text), outputSchema).asInstanceOf[Row]
-    }
+    throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    val monad = init()
+    require(path.nonEmpty, "Input path cannot be empty")
 
-    (monad, Option(outputSchema))
+    val rdd = xDSession.sparkContext.textFile(path).map { text =>
+      new GenericRowWithSchema(Array(text), outputSchema).asInstanceOf[Row]
+    }
+
+    (rdd, Option(outputSchema))
   }
 
 }

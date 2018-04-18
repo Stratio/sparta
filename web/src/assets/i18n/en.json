@@ -391,6 +391,7 @@
    "_OUTPUT_FORMAT_FROM_": "Output format",
    "_OUTPUT_USER_FORMAT_": "User-defined output format",
    "_PATH_": "Path",
+   "_TABLE_": "Table",
    "_PRIMARY_KEY_": "Primary key",
    "_PARTITION_BY_": "Partition By",
    "_TRIGGER_PARTITION_BY_HELP_": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",

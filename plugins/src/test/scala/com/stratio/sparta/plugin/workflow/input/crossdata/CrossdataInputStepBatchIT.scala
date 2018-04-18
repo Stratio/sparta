@@ -36,7 +36,7 @@ class CrossdataInputStepBatchIT extends TemporalSparkContext with Matchers {
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val crossdataInput = new CrossdataInputStepBatch(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
-    val inputRdd = crossdataInput.init()
+    val inputRdd = crossdataInput.initWithSchema()._1
     val batchEvents = inputRdd.ds.count()
     val batchRegisters = inputRdd.ds.collect()
 

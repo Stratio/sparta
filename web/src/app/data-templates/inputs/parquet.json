@@ -1,0 +1,44 @@
+  {
+     "name": "Parquet",
+     "icon": "Parquet",
+     "className": "ParquetInputStep",
+     "classPrettyName": "Parquet",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "description": "Allows you to load data from parquet files",
+     "properties": [
+        {
+           "propertyId": "path",
+           "propertyName": "_PATH_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Parquet path in the filesystem(HDFS, S3, Azure, etc)",
+           "qa": "fragment-details-parquet-path"
+        },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }

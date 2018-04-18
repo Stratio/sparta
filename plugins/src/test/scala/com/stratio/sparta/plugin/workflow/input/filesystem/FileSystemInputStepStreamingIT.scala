@@ -64,7 +64,7 @@ class FileSystemInputStepStreamingIT extends TemporalSparkContext with Matchers 
 
     val createdFile = Future(createTestFile("output.txt"))
 
-    val atMost = 3 seconds
+    val atMost = 1 seconds
 
     ssc.awaitTerminationOrTimeout(atMost.toMillis)
     Await.result(createdFile, atMost).delete()
@@ -97,7 +97,7 @@ class FileSystemInputStepStreamingIT extends TemporalSparkContext with Matchers 
       name => Future(createTestFile(name))
     }
 
-    val atMost = 3 seconds
+    val atMost = 1 seconds
 
     ssc.awaitTerminationOrTimeout(atMost.toMillis)
 

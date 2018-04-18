@@ -1,4 +1,4 @@
-@Library('libpipelines@maven-parallel') _
+@Library('libpipelines@master') _
 
 hose {
     EMAIL = 'sparta'
@@ -10,7 +10,7 @@ hose {
     PKGMODULES = ['dist']
     PKGMODULESNAMES = ['stratio-sparta']
     DEBARCH = 'all'
-    RPMARCH = 'noarch'
+    MAVEN_THREADSPERCORE = 4
     EXPOSED_PORTS = [9090]
     KMS_UTILS = '0.4.0'
     BASEIMG = 'qa.stratio.com/stratio/stratio-spark:2.2.0.5'

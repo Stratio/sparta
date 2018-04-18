@@ -2,15 +2,31 @@
 
 ## 2.1.0 (upcoming)
 
-* Join transformation
-* Clean nulls and NaN transformation
-* Init nulls with default values transformation
-* Drop duplicates transformation
-* Clean empty DCOS groups triggered by the stopping of a workflow
-* CSVTransformation: added flag for discarding header
-* DropColumn Transformation
-* RenameColumn Transformation
-* Add column with default values
+* New transformations:
+    - Join
+    - Drop nulls and NaN
+    - Drop duplicates
+    - Drop columns
+    - Rename columns
+    - Init nulls with default values
+    - Add column with default values
+
+* New batch inputs:
+    - Avro
+    - Csv
+    - JDBC
+    - Json
+    - Parquet
+     
+* Plugins improvements:
+    - Csv transformation:
+        - Added flag for discarding header
+        - Null control with empty data
+    - Select transformation:
+        - Select columns with alias configuration mode 
+
+* Clean empty DC/OS groups triggered by the stopping of a workflow
+* Optimized DAG with less actions in Spark
 
 ## 2.0.0 (April 03, 2018)
 

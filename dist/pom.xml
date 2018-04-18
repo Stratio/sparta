@@ -303,44 +303,6 @@ This software – including all its source code – contains proprietary informa
                                     </assembly>
                                 </configuration>
                             </execution>
-                            <!--<execution>
-                                <id>rpm</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>package-rpm</goal>
-                                </goals>
-                                <configuration>
-                                    <architecture>noarch</architecture>
-                                    <assembly>
-                                        <copyFile>
-                                            <path>src/main/unix/files_and_dirs/etc/default/sparta-functions</path>
-                                            <toFile>/etc/default/sparta-functions</toFile>
-                                            <attributes>
-                                                <user>root</user>
-                                                <group>root</group>
-                                                <mode>644</mode>
-                                            </attributes>
-                                        </copyFile>
-                                        <copyFile>
-                                            <path>src/main/unix/files_and_dirs/etc/default/sparta-variables</path>
-                                            <toFile>/etc/default/sparta-variables</toFile>
-                                            <attributes>
-                                                <user>root</user>
-                                                <group>root</group>
-                                                <mode>644</mode>
-                                            </attributes>
-                                        </copyFile>
-                                        <copyFile>
-                                            <path>src/main/unix/files_and_dirs/etc/init.d/sparta-rpm.sh</path>
-                                            <toFile>/etc/init.d/sparta</toFile>
-                                            <attributes>
-                                                <user>root</user>
-                                                <group>root</group>
-                                            </attributes>
-                                        </copyFile>
-                                    </assembly>
-                                </configuration>
-                            </execution>-->
                         </executions>
                     </plugin>
                 </plugins>

@@ -131,6 +131,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("ES_CLUSTER", "elasticsearch"),
     EnvironmentVariable("ES_INDEX_MAPPING", "sparta"),
     EnvironmentVariable("JDBC_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
+    EnvironmentVariable("JDBC_DRIVER", "org.postgresql.Driver"),
     EnvironmentVariable("POSTGRES_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
     EnvironmentVariable("MONGODB_HOST", "localhost"),
     EnvironmentVariable("MONGODB_PORT", "27017"),
