@@ -39,9 +39,9 @@ Feature: [SPARTA-1161] Installation sparta with mustache
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}  | awk '{print $5}' | grep ${DCOS_SERVICE_NAME} ' in the ssh connection and save the value in environment variable 'spartaTaskId'
     #Check sparta is runing in DCOS
     When  I run 'echo !{spartaTaskId}' in the ssh connection
-    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
-    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep healthCheckResults' contains 'healthCheckResults'
-    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep  '"alive": true'' contains '"alive": true'
+    Then in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
+    And in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep healthCheckResults' contains 'healthCheckResults'
+    And in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep  '"alive": true'' contains '"alive": true'
 
   #Add Sparta Policy
   Scenario: [SPARTA-1161][03] Add sparta policy for authorization in sparta with full security
@@ -58,7 +58,7 @@ Feature: [SPARTA-1161] Installation sparta with mustache
 
   Scenario: [SPARTA-1161][05] Remove Instalation with full security in DCOS
     When  I run 'dcos marathon app remove /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | wc -l' contains '0'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | wc -l' contains '0'
 
   @runOnEnv(DELETE_SPARTA_POLICY)
   Scenario: [SPARTA-1161][05]Delete Sparta Policy

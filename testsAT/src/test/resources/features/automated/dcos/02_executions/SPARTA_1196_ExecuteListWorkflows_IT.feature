@@ -21,14 +21,14 @@ Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
 
   Scenario:[SPARTA-1196][02]Test workflow in Dcos '<WORKFLOW>'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w <WORKFLOW>' contains '<WORKFLOW>'
+    Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w <WORKFLOW>' contains '<WORKFLOW>'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/<WORKFLOW>  | awk '{print $5}' | grep <WORKFLOW> ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     #Check workflow is runing in DCOS
     And I wait '1' seconds
     And  I run 'echo !{workflowTaskId}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
-    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/<WORKFLOW>  | grep ${DCOS_SERVICE_NAME} | awk '{print $2}'' contains 'True'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
+    And in less than '600' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/<WORKFLOW>  | grep ${DCOS_SERVICE_NAME} | awk '{print $2}'' contains 'True'
 
     #MVN Example
     #mvn verify -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.SPARTA_1196_ExecuteListWorkflows_IT -DCLUSTER_ID='newcore' -DWORKFLOW_LIST=testinput-kafka,kafka-elastic  -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-newcore.demo.stratio.com -DDCOS_SERVICE_NAME=sparta-server

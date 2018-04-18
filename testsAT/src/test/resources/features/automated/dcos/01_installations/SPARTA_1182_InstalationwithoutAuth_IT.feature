@@ -29,11 +29,11 @@ Feature: [SPARTA-1182] Installation sparta with security + dynamic Authenticatio
     #Start image from JSON
     Given I run 'dcos marathon app add /dcos/SpartaSecurityInstalation.json' in the ssh connection
     #Check Sparta is Running
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-server_sparta | grep R' contains 'R'
+    Then in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-server_sparta | grep R' contains 'R'
     #Find task-id if from DCOS-CLI
-    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/sparta-server  | grep sparta-server | awk '{print $2}'' contains 'True'
+    And in less than '600' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/sparta-server  | grep sparta-server | awk '{print $2}'' contains 'True'
     And I run 'dcos marathon task list /sparta/sparta-server/sparta-server | awk '{print $5}' | grep sparta-server' in the ssh connection and save the value in environment variable 'spartaTaskId'
   @ignore  @manual
   Scenario: [SPARTA-1182][02] Remove workflow Sparta
     When  I run 'dcos marathon app remove /sparta/sparta-server/sparta-server' in the ssh connection
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-server | grep R | wc -l' contains '0'
+    Then in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-server | grep R | wc -l' contains '0'

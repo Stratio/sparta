@@ -45,12 +45,12 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
   Scenario: [SPARTA-1162] [04] Restart Sparta Application after gosec
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     When I run 'echo $(dcos marathon app restart  /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME})' in the ssh connection
-    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME}' contains '${DCOS_SERVICE_NAME}'
+    And in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME}' contains '${DCOS_SERVICE_NAME}'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}  | awk '{print $5}' | grep ${DCOS_SERVICE_NAME} ' in the ssh connection and save the value in environment variable 'spartaTaskId'
     #Check sparta is runing in DCOS
     And  I run 'echo !{spartaTaskId}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
 
 # Example of execution with mvn :
 # mvn verify -DCLUSTER_ID=nightly -DID_POLICY_KAFKA=sparta-kafka -DID_POLICY_SP=sparta_1 -DID_POLICY_ZK=sparta-zk1 -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.SPARTA_1162_Gosec_AddzookeperPolicy_IT -DlogLevel=DEBUG

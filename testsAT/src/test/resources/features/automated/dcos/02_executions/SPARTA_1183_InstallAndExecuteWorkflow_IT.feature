@@ -17,4 +17,4 @@ Feature: [SPARTA-1183] Install and Execute Workflow
     #verify the generation of  workflow in dcos
   Scenario: [SPARTA-1183][02] Worklflow test in Dcos
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'
+    Then in less than '600' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'

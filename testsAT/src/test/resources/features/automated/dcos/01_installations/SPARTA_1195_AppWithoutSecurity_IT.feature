@@ -15,15 +15,15 @@ Feature: [SPARTA-1195] Running sparta without security
     #Start image from JSON
     And I run 'dcos marathon app add /dcos/SpartaBasic.json' in the ssh connection
     #Check Sparta is Running
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep spartabasic | grep R' contains 'R'
+    Then in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep spartabasic | grep R' contains 'R'
     #Find task-id if from DCOS-CLI
-    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/spartabasic | grep spartabasic | awk '{print $2}'' contains 'True'
+    And in less than '600' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/spartabasic | grep spartabasic | awk '{print $2}'' contains 'True'
     And I run 'dcos marathon task list /sparta/spartabasic | awk '{print $5}' | grep spartabasic' in the ssh connection and save the value in environment variable 'spartaTaskId'
     #keep IP
     And I run 'dcos marathon task list /sparta/spartabasic | awk '{print $4}' | grep spartabasic' in the ssh connection and save the value in environment variable 'spartaIP'
     # dcos marathon app kill
     When  I run 'dcos marathon app remove /sparta/spartabasic' in the ssh connection
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep spartabasic | grep R | wc -l' contains '0'
+    Then in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep spartabasic | grep R | wc -l' contains '0'
 
 
 # Example of execution with mvn :

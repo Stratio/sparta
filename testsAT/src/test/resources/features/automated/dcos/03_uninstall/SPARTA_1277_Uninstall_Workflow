@@ -12,4 +12,4 @@ Feature: [SPARTA-1277] Uninstall Sparta with mustache
 
   Scenario: [SPARTA-1277][02] Remove workflow
     When  I run 'dcos marathon app remove /sparta/${DCOS_SERVICE_NAME}/workflows/${WORKFLOW}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | wc -l' contains '0'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | wc -l' contains '0'

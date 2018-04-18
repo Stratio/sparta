@@ -6,14 +6,14 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And I wait '3' seconds
 
-    When in less than '300' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
+    When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
     Then I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME}%2Fplan-v2-json&_='
     And I save element '$.str' in environment variable 'exhibitor_answer'
     And I save ''!{exhibitor_answer}'' in variable 'parsed_answer'
     And I run 'echo !{parsed_answer} | jq '.phases[0]' | jq '."0001".steps[0]'| jq '."0"'.agent_hostname | sed 's/^.\|.$//g'' in the ssh connection with exit status '0' and save the value in environment variable 'pgIP'
     And I run 'echo !{pgIP}' in the ssh connection
     Then I wait '10' seconds
-    When in less than '300' seconds, checking each '20' seconds, I send a 'GET' request to '/service/${POSTGRES_NAME:-postgrestls}/v1/service/status' so that the response contains 'status'
+    When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/service/${POSTGRES_NAME:-postgrestls}/v1/service/status' so that the response contains 'status'
     Then the service response status must be '200'
     And I save element in position '0' in '$.status[?(@.role == "master")].assignedHost' in environment variable 'pgIPCalico'
 
@@ -63,15 +63,15 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   #********************************
 
   Scenario:[SPARTA-1279][06] Test kafka-postgres workflow in Dcos
-    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-postgres' contains 'kafka-postgres'
+    Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-postgres' contains 'kafka-postgres'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/kafka-postgres/kafka-postgres-v0  | awk '{print $5}' | grep kafka-postgres ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     And I wait '2' seconds
     #Check workflow is runing in DCOS
     When  I run 'echo !{workflowTaskId}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
-    And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep healthCheckResults' contains 'healthCheckResults'
-    And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep  '"alive": true'' contains '"alive": true'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
+    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep healthCheckResults' contains 'healthCheckResults'
+    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep  '"alive": true'' contains '"alive": true'
     #Its necesary to wait to execute another workflow
     And I wait '30' seconds
 
@@ -95,15 +95,15 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   # VERIFY testInput-Kafka WORKFLOW*
   #*********************************
   Scenario:[SPARTA-1279][09] Test testinput-kafka workflow in Dcos
-    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w testinput-kafka' contains 'testinput-kafka'
+    Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w testinput-kafka' contains 'testinput-kafka'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/testinput-kafka/testinput-kafka-v0  | awk '{print $5}' | grep testinput-kafka ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     And I wait '2' seconds
     #Check workflow is runing in DCOS
     When  I run 'echo !{workflowTaskId}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
-    And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep healthCheckResults' contains 'healthCheckResults'
-    And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep  '"alive": true'' contains '"alive": true'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
+    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep healthCheckResults' contains 'healthCheckResults'
+    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep  '"alive": true'' contains '"alive": true'
     #Its necesary to wait to test results in Postgres
     And I wait '60' seconds
 
@@ -112,7 +112,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   #**************************
   Scenario:[SPARTA-1279][10] TestResult in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tabletest"' contains '${TABLETEST_NUMBER:-400}'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tabletest"' contains '${TABLETEST_NUMBER:-400}'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tabletest"' in the ssh connection and save the value in environment variable 'postgresresult'
 
 
