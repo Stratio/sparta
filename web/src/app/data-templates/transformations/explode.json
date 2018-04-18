@@ -12,8 +12,8 @@
         "propertyName": "_INPUT_FIELD_",
         "propertyType": "text",
         "required": true,
-        "tooltip": "Filed that contains the csv string",
-        "qa": "fragment-details-csv-fieldsString"
+        "tooltip": "Field that contains the values to be exploded",
+        "qa": "fragment-details-fieldsString"
      },
      {
         "propertyId": "fieldsPreservationPolicy",
@@ -38,182 +38,12 @@
         "qa": "workflow-transformation-explode-fieldsPreservationPolicy"
      },
      {
-        "propertyId": "schema.fromRow",
-        "propertyName": "_SCHEMA_FROM_ROW_",
-        "propertyType": "boolean",
+        "propertyId": "explodedField",
+        "propertyName": "_EXPLODED_FIELD_",
+        "propertyType": "text",
         "required": true,
-        "default": true,
-        "tooltip": "If checked, each row schema will be inferred from its contents",
-        "qa": "workflow-transformation-explode-schema-fromRow"
-     },
-     {
-        "propertyId": "schema.inputMode",
-        "propertyName": "_INPUT_SCHEMA_FROM_",
-        "propertyType": "select",
-        "required": true,
-        "values": [
-           {
-              "label": "Fields",
-              "value": "FIELDS"
-           },
-           {
-              "label": "Spark format",
-              "value": "SPARKFORMAT"
-           }
-        ],
-        "visible": [
-           [
-              {
-                 "propertyId": "schema.fromRow",
-                 "value": false
-              }
-           ]
-        ],
-        "default": "FIELDS",
-        "qa": "fragment-details-input-schema-type"
-     },
-     {
-        "propertyId": "schema.fields",
-        "propertyName": "_FIELDS_DEFINITION_",
-        "propertyType": "list",
-        "visible": [
-           [
-              {
-                 "propertyId": "schema.fromRow",
-                 "value": false
-              },
-              {
-                 "propertyId": "schema.inputMode",
-                 "value": "FIELDS"
-              }
-           ]
-        ],
-        "required": true,
-        "tooltip": "Schema definition from list of fields",
-        "qa": "fragment-details-explode-fields",
-        "fields": [
-           {
-              "propertyId": "name",
-              "propertyName": "_NAME_",
-              "propertyType": "text",
-              "required": true,
-              "width": 3,
-              "qa": "fragment-details-field-name"
-           },
-           {
-              "propertyId": "type",
-              "propertyName": "_TYPE_",
-              "propertyType": "select",
-              "custom": true,
-              "required": true,
-              "values": [
-                 {
-                    "label": "String",
-                    "value": "string"
-                 },
-                 {
-                    "label": "Long",
-                    "value": "long"
-                 },
-                 {
-                    "label": "Float",
-                    "value": "float"
-                 },
-                 {
-                    "label": "Double",
-                    "value": "double"
-                 },
-                 {
-                    "label": "Integer",
-                    "value": "integer"
-                 },
-                 {
-                    "label": "Boolean",
-                    "value": "boolean"
-                 },
-                 {
-                    "label": "Binary",
-                    "value": "binary"
-                 },
-                 {
-                    "label": "Date",
-                    "value": "date"
-                 },
-                 {
-                    "label": "Timestamp",
-                    "value": "timestamp"
-                 },
-                 {
-                    "label": "Array(Double)",
-                    "value": "arraydouble"
-                 },
-                 {
-                    "label": "Array(String)",
-                    "value": "arraystring"
-                 },
-                 {
-                    "label": "Array(Long)",
-                    "value": "arraylong"
-                 },
-                 {
-                    "label": "Array(Integer)",
-                    "value": "arrayinteger"
-                 },
-                 {
-                    "label": "Array(Map(String, String))",
-                    "value": "arraymapstringstring"
-                 },
-                 {
-                    "label": "Map(String, Long)",
-                    "value": "mapstringlong"
-                 },
-                 {
-                    "label": "Map(String, Double)",
-                    "value": "mapstringdouble"
-                 },
-                 {
-                    "label": "Map(String, Integer)",
-                    "value": "mapstringint"
-                 },
-                 {
-                    "label": "Map(String, String)",
-                    "value": "mapstringstring"
-                 }
-              ],
-              "default": "string",
-              "width": 3,
-              "qa": "fragment-details-field-type"
-           },
-           {
-              "propertyId": "nullable",
-              "propertyName": "_NULLABLE_",
-              "propertyType": "boolean",
-              "default": true,
-              "required": true,
-              "qa": "fragment-details-field-nullable"
-           }
-        ]
-     },
-     {
-        "propertyId": "schema.sparkSchema",
-        "propertyName": "_SPARK_SCHEMA_",
-        "propertyType": "textarea",
-        "contentType": "JSON",
-        "visible": [
-           [
-              {
-                 "propertyId": "schema.fromRow",
-                 "value": false
-              },
-              {
-                 "propertyId": "schema.inputMode",
-                 "value": "SPARKFORMAT"
-              }
-           ]
-        ],
-        "required": true,
-        "tooltip": "Spark schema for the fields in the explode",
-        "qa": "fragment-details-explode-spark-schema"
+        "tooltip": "Field name that will contain the exploded values",
+        "qa": "fragment-details-exploded-fields"
      },
      {
         "propertyId": "inputSchemas",

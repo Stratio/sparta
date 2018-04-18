@@ -8,18 +8,17 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
-import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
-import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSparkSchemaFromString, parserInputSchema}
+import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.CastingUtils._
 import com.stratio.sparta.sdk.workflow.step._
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.functions.{col, explode}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
@@ -39,31 +38,8 @@ abstract class ExplodeTransformStep[Underlying[Row]](
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
-  lazy val fieldsModel = properties.getPropertiesFields("schema.fields")
-  lazy val providedSchema: Option[Seq[StructField]] = {
-    if (properties.getBoolean("schema.fromRow", default = true)) None
-    else {
-      val sparkSchema = properties.getString("schema.sparkSchema", None)
-      val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "FIELDS").toUpperCase)
-      (schemaInputMode, sparkSchema, fieldsModel) match {
-        case (SPARKFORMAT, Some(schema), _) =>
-          getSparkSchemaFromString(schema).map(_.fields.toSeq).toOption
-        case (FIELDS, _, inputFields) if inputFields.fields.nonEmpty =>
-          Option(inputFields.fields.map { fieldModel =>
-            val outputType = fieldModel.`type`.notBlank.getOrElse("string")
-            StructField(
-              name = fieldModel.name,
-              dataType = SparkTypes.get(outputType) match {
-                case Some(sparkType) => sparkType
-                case None => schemaFromString(outputType)
-              },
-              nullable = fieldModel.nullable.getOrElse(true)
-            )
-          })
-        case _ => throw new Exception("Incorrect schema arguments")
-      }
-    }
-  }
+  lazy val explodedField: String = Try(properties.getString("explodedField"))
+    .getOrElse(throw new IllegalArgumentException("The exploded new field name is mandatory"))
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -72,12 +48,6 @@ abstract class ExplodeTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
-
-    if (fieldsModel.fields.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ s"$name: item fields cannot be empty"
-      )
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -95,53 +65,56 @@ abstract class ExplodeTransformStep[Underlying[Row]](
       }
     }
 
+    if(explodedField.isEmpty) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the exploded field cannot be empty")
+    }
+
+    if(explodedField.nonEmpty && preservationPolicy.equals(FieldsPreservationPolicy.APPEND) &&
+      explodedField.equals(inputField)) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the exploded field $explodedField cannot be" +
+          s"the same as the input field")
+    }
+
     validation
   }
 
-  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData) { (_, inputStream) =>
-      inputStream.flatMap(data => parse(data))
-    }
 
-  //scalastyle:off
-  def parse(row: Row): Seq[Row] =
-    returnSeqDataFromRows {
-      val inputSchema = row.schema
-      Option(row.get(inputSchema.fieldIndex(inputField))) match {
-        case Some(value) =>
-          val (rowFieldValues, rowFieldSchema) = value match {
-            case valueCast: GenericRowWithSchema =>
-              (Seq(valueCast), valueCast.schema)
-            case _ =>
-              Try {
-                val valueInstance = checkArrayStructType(value).asInstanceOf[Seq[GenericRowWithSchema]]
-                if (valueInstance.nonEmpty) (valueInstance, valueInstance.head.schema)
-                else (valueInstance, StructType(Nil))
-              } match {
-                case Success(x) => x
-                case Failure(e) => throw new Exception(s"The input value has incorrect type Seq(Map()) or Seq(Row). Value:${value.toString}", e)
-              }
-          }
 
-          val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy,
-            providedSchema.getOrElse(rowFieldSchema.fields.toSeq), inputField)
+  def applyExplode(rdd: RDD[Row], column: String, inputStep: String): (RDD[Row], Option[StructType]) = {
+    Try {
 
-          rowFieldValues.map { valuesMap =>
-            val newValues = outputSchema.map { outputField =>
-              Try {
-                Try(valuesMap.get(valuesMap.fieldIndex(outputField.name))) match {
-                  case Success(parsedValue) if parsedValue != null => castingToOutputSchema(outputField, parsedValue)
-                  case _ => row.get(inputSchema.fieldIndex(outputField.name))
-                }
-              } match {
-                case Success(correctValue) => correctValue
-                case Failure(e) => returnWhenFieldError(new Exception(s"Impossible to parse outputField: $outputField in the schema", e))
+      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel,rdd)
+      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
+        case Some(df) => {
+          Try{
+            val newDataFrame = preservationPolicy match {
+              case FieldsPreservationPolicy.APPEND =>
+                df.withColumn(explodedField, explode(col(inputField)))
+              case FieldsPreservationPolicy.JUST_EXTRACTED =>
+                df.select(explode(col(inputField)).as(explodedField))
+              case FieldsPreservationPolicy.REPLACE => {
+                val renamedDf = df.withColumnRenamed(inputField, explodedField)
+                renamedDf.withColumn(explodedField, explode(col(explodedField)))
               }
             }
-            new GenericRowWithSchema(newValues.toArray, outputSchema)
+            newDataFrame
+          } match {
+              case Success(df) => {
+                (df.rdd, Option(df.schema))
+              }
+              case Failure(e) => throw new Exception(s"The input value must be an array or a map." +
+                s"Value:${rdd.first.get(schema.get.fieldIndex(inputField)).toString}", e)
+            }
           }
-        case None =>
-          throw new Exception(s"The input value is null")
+        case None => (rdd.filter(_ => false), None)
       }
+    } match {
+      case Success(result) => result
+      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
     }
+  }
 }

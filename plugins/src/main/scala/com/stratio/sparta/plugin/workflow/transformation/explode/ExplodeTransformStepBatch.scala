@@ -7,14 +7,14 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSchemaFromRdd, getSchemaFromSessionOrModel}
+import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import org.apache.spark.sql.types.StructType
+import org.apache.spark.streaming.StreamingContext
 
 class ExplodeTransformStepBatch(name: String,
                                 outputOptions: OutputOptions,
@@ -28,14 +28,15 @@ class ExplodeTransformStepBatch(name: String,
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
                                   ): (DistributedMonad[RDD], Option[StructType]) = {
-    val rdd = transformFunc(inputData)
-    val finalSchema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
-      .orElse {
-        val inputSchema = getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
-        providedSchema.flatMap(schema => getNewOutputSchema(inputSchema, preservationPolicy, schema, inputField))
-      }
-      .orElse(getSchemaFromRdd(rdd.ds))
 
-    (rdd, finalSchema)
+    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val inputRdd = inputDistributedMonad.ds
+      val (rdd, schema) = applyExplode(inputRdd, inputField, stepName)
+
+
+      schema.orElse(getSchemaFromRdd(rdd))
+
+      (rdd, schema)
+    }
   }
 }

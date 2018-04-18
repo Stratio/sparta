@@ -310,6 +310,7 @@
    "_EVENT_": "Event",
    "_EVENT_TYPE_": "Event type",
    "_MAX_NUMBER_": "Max number",
+   "_EXPLODED_FIELD_": "Exploded field",
    "_MAX_NUMBER_EVENTS_": "Stop generating after (num. of events)",
    "_NUMBER_EVENTS_": "Number of events per windows",
    "_NUMBER_EVENTS_BATCH_": "Number of events",

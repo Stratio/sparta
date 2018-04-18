@@ -5,42 +5,41 @@
  */
 package com.stratio.sparta.plugin.workflow.transformation.explode
 
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{StringType, DoubleType, StructField, StructType}
-import org.junit.runner.RunWith
-import org.scalatest.Matchers
-import org.scalatest.junit.JUnitRunner
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.types._
+import org.junit.runner.RunWith
+import org.scalatest.Matchers
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A ExplodeTransformStepIT" should "transform explode events from the input Batch" in {
-    val inputField = "explode"
+  val inputField = "explode"
+  val explodedField = "explodedFieldName"
+
+  "A ExplodeTransformStepIT" should "transform explode events from the input Batch and return" +
+    "only the extracted data" in {
     val red = "red"
     val blue = "blue"
     val redPrice = 19.95d
     val bluePrice = 10d
-    val explodeFieldMoreFields = Seq(
-      Map("color" -> red, "price" -> redPrice),
-      Map("color" -> blue, "price" -> bluePrice)
-    )
+
+    val rowSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val inputSchema = StructType(Seq(
       StructField("foo", StringType),
-      StructField(inputField, StringType)
+      StructField(inputField, ArrayType(rowSchema))
     ))
-    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val redRow = new GenericRowWithSchema(Array(red, redPrice), rowSchema)
+    val blueRow = new GenericRowWithSchema(Array(blue, bluePrice), rowSchema)
+
     val dataIn = Seq(
-      new GenericRowWithSchema(Array("var", explodeFieldMoreFields), inputSchema).asInstanceOf[Row]
-    )
-    val dataOut = Seq(
-      new GenericRowWithSchema(Array("red", redPrice), outputSchema).asInstanceOf[Row],
-      new GenericRowWithSchema(Array("blue", bluePrice), outputSchema).asInstanceOf[Row]
-    )
+      new GenericRowWithSchema(Array("var", Array(redRow, blueRow)), inputSchema).asInstanceOf[Row])
+
     val dataQueue = sc.parallelize(dataIn)
 
     val inputData = Map("step1" -> dataQueue)
@@ -54,11 +53,94 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       sparkSession,
       Map("schema.fromRow" -> true,
         "inputField" -> inputField,
+        "explodedField" -> explodedField,
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
     ).transformWithSchema(inputData)._1
 
     val totalEvents = result.ds.count()
-
     assert(totalEvents === 2)
+  }
+
+  val pera = "pera"
+  val manzana = "manzana"
+  val fresa = "fresa"
+  val fruits = Seq(pera, manzana, fresa)
+  val inputSchemaFruits = StructType(Seq(
+    StructField("foo", StringType),
+    StructField(inputField, ArrayType(StringType))
+  ))
+
+  "A ExplodeTransformStepIT" should "transform explode events from the input Batch and append them to the old data" in {
+
+    val outputSchema = StructType(Seq(
+      StructField("foo", StringType),
+      StructField(inputField, ArrayType(StringType)),
+      StructField(explodedField, StringType)
+    ))
+
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("var", fruits), inputSchemaFruits).asInstanceOf[Row])
+
+    val dataQueue = sc.parallelize(dataIn)
+
+    val inputData = Map("step1" -> dataQueue)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+
+    val result = new ExplodeTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("schema.fromRow" -> true,
+        "inputField" -> inputField,
+        "explodedField" -> explodedField,
+        "fieldsPreservationPolicy" -> "APPEND")
+    ).transformWithSchema(inputData)._1
+
+    val registers = result.ds.collect()
+    if (registers.nonEmpty) {
+      assert(registers.head.schema == outputSchema)
+    }
+
+    val totalEvents = result.ds.count()
+    assert(totalEvents === 3)
+  }
+
+  "A ExplodeTransformStepIT" should "transform explode events from the input Batch and replace the inputField column" +
+    "with the new data" in {
+
+    val outputSchema = StructType(Seq(
+      StructField("foo", StringType),
+      StructField(explodedField, StringType)
+    ))
+
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("var", fruits), inputSchemaFruits).asInstanceOf[Row])
+
+    val dataQueue = sc.parallelize(dataIn)
+
+    val inputData = Map("step1" -> dataQueue)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+
+    val result = new ExplodeTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("schema.fromRow" -> true,
+        "inputField" -> inputField,
+        "explodedField" -> explodedField,
+        "fieldsPreservationPolicy" -> "REPLACE")
+    ).transformWithSchema(inputData)._1
+
+    val registers = result.ds.collect()
+    if (registers.nonEmpty) {
+      assert(registers.head.schema == outputSchema)
+    }
+
+    val totalEvents = result.ds.count()
+    assert(totalEvents === 3)
   }
 }
