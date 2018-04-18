@@ -20,7 +20,7 @@
     "SECURITY_MESOS_ENABLE": "true",
     "SPARTA_MARATHON_INTERVAL_SECONDS": "60",
     "HADOOP_CONF_FROM_DFS": "true",
-    "SPARTA_MARATHON_GRACEPERIODS_SECONDS": "240",
+    "SPARTA_MARATHON_GRACEPERIODS_SECONDS": "600",
     "CROSSDATA_CORE_CATALOG_CLASS": "org.apache.spark.sql.crossdata.catalyst.catalog.persistent.zookeeper.ZookeeperCatalog",
     "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONTIMEOUT": "15000",
     "SPARTA_ZOOKEEPER_CONNECTION_STRING": "zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181",
