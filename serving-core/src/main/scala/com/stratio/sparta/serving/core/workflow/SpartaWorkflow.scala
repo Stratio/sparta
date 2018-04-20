@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
@@ -101,7 +102,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     if (execute) clearError()
 
-    val withStandAloneExtraConf = !execute || workflow.settings.global.executionMode == AppConstant.ConfigLocal
+    val withStandAloneExtraConf = !execute || workflow.settings.global.executionMode == local
     val initSqlSentences = {
       if (execute)
         workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)

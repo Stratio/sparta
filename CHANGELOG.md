@@ -24,9 +24,15 @@
         - Null control with empty data
     - Select transformation:
         - Select columns with alias configuration mode 
+    - Explode transformation:
+        - Change the implementation to Spark functions
 
-* Clean empty DC/OS groups triggered by the stopping of a workflow
-* Optimized DAG with less actions in Spark
+* Bug fixing:
+    - Prevent the max size in marathon applications
+    
+* Other features:
+    - Clean empty DC/OS groups triggered by the stopping of a workflow
+    - Optimized DAG with less actions in Spark
 
 ## 2.0.0 (April 03, 2018)
 

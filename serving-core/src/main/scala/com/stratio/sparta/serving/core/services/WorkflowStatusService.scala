@@ -16,6 +16,7 @@ import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -161,7 +162,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
     findAll() match {
       case Success(statuses) =>
         statuses.exists(wStatus =>
-          wStatus.status == Started && wStatus.lastExecutionMode == Option(AppConstant.ConfigLocal))
+          wStatus.status == Started && wStatus.lastExecutionMode == Option(local))
       case Failure(e) =>
         log.error("An error was encountered while finding all the workflow statuses", e)
         false

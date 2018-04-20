@@ -9,7 +9,7 @@ import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
@@ -130,7 +130,8 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getWorkflowExecutionModel: WorkflowExecution =
     WorkflowExecution(
       id = "exec1",
-      sparkSubmitExecution = SparkSubmitExecution(
+      genericDataExecution = Option(GenericDataExecution(getWorkflowModel(), WorkflowExecutionMode.local, "1")),
+      sparkSubmitExecution = Option(SparkSubmitExecution(
         driverClass = "driver",
         driverFile = "file",
         pluginFiles = Seq(),
@@ -138,9 +139,8 @@ trait HttpServiceBaseTest extends WordSpec
         submitArguments = Map(),
         sparkConfigurations = Map(),
         driverArguments = Map(),
-        sparkHome = "sparkHome",
-        userId = None
-      )
+        sparkHome = "sparkHome"
+      ))
     )
 
   protected def getSpartaFiles: Seq[SpartaFile] =

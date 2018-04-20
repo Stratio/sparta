@@ -9,7 +9,7 @@ import java.io.File
 import java.util.Calendar
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.commons.io.FileUtils
@@ -40,7 +40,7 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def deleteCheckpointPath(workflow: Workflow): Unit =
     Try {
-      if (workflow.settings.global.executionMode == AppConstant.ConfigLocal)
+      if (workflow.settings.global.executionMode == local)
         deleteFromLocal(workflow)
       else deleteFromHDFS(workflow)
     } match {
@@ -51,7 +51,7 @@ trait CheckpointUtils extends SLF4JLogging {
     }
 
   def createLocalCheckpointPath(workflow: Workflow): Unit = {
-    if (workflow.settings.global.executionMode == AppConstant.ConfigLocal)
+    if (workflow.settings.global.executionMode == local)
       Try {
         createFromLocal(workflow)
       } match {

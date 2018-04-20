@@ -11,6 +11,7 @@ import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.{Matchers, WordSpec}
@@ -28,7 +29,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings("local", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
+    GlobalSettings(local, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(

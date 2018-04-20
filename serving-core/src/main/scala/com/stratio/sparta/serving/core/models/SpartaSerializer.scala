@@ -15,8 +15,7 @@ import com.stratio.sparta.sdk.workflow.enumerators._
 import com.stratio.sparta.serving.core.actor.EnvironmentListenerActor.GetEnvironment
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
+import com.stratio.sparta.serving.core.models.enumerators._
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
 import org.json4s.ext.{DateTimeSerializer, EnumNameSerializer}
 import org.json4s.{DefaultFormats, Formats}
@@ -52,6 +51,7 @@ trait SpartaSerializer {
       new EnumNameSerializer(WhenRowError) +
       new EnumNameSerializer(WhenFieldError) +
       new EnumNameSerializer(WorkflowExecutionEngine) +
+      new EnumNameSerializer(WorkflowExecutionMode) +
       new EnumNameSerializer(PhaseEnum)
   }
 

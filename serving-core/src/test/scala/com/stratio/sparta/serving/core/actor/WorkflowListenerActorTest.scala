@@ -11,7 +11,7 @@ import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.{Notification, WorkflowChange}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}
 import com.stratio.sparta.serving.core.models.workflow._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
@@ -31,7 +31,7 @@ class WorkflowListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec",
   )
   val validPipeGraph = PipelineGraph(nodes, edges)
   val settingsModel = Settings(
-    GlobalSettings(executionMode = "local"),
+    GlobalSettings(executionMode = WorkflowExecutionMode.local),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(

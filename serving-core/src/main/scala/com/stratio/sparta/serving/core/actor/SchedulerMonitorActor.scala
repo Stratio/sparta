@@ -15,14 +15,16 @@ import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.WorkflowStatusService
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
+import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.read
 
 import scala.concurrent._
@@ -33,6 +35,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
 
   val curatorFramework: CuratorFramework = CuratorFactoryHolder.getInstance()
   val statusService = new WorkflowStatusService(curatorFramework)
+  val executionService = new ExecutionService(curatorFramework)
   val stopStates = Seq(Stopped, Failed, Stopping)
   val finishedStates = Seq(Created, Finished, Failed)
 
@@ -117,14 +120,14 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
       (workflowStatus.lastExecutionMode, executions.get(workflowStatus.id))
       match {
         case (Some(lastExecutionMode), Some(execution))
-          if lastExecutionMode == ConfigMarathon && execution.marathonExecution.isDefined =>
+          if lastExecutionMode == marathon && execution.marathonExecution.isDefined =>
           marathonStop(workflowStatus, execution)
         case (Some(lastExecutionMode), Some(execution))
-          if lastExecutionMode == ConfigMesos &&
+          if lastExecutionMode == dispatcher &&
             execution.sparkDispatcherExecution.isDefined &&
             execution.sparkExecution.isDefined =>
           dispatcherStop(workflowStatus, execution)
-        case (Some(lastExecutionMode), _) if lastExecutionMode == ConfigLocal =>
+        case (Some(lastExecutionMode), _) if lastExecutionMode == local =>
           localStop(workflowStatus)
         case _ =>
           log.debug("Stop message received and any action will be executed")
@@ -183,14 +186,18 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val error = "An error was encountered while stopping contexts"
           log.error(error, e)
           if (workflowStatus.status != Failed) {
+            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
               statusInfo = Some(error),
-              lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
+              lastError = Option(wError)
             ))
+            executionService.setLastError(workflowStatus.id, wError)
           }
       }
+      Try(executionService.setEndDate(workflowStatus.id, new DateTime()))
+        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowStatus.id}"))
     }
     if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
       scheduledActions.filter(_._1 == workflowStatus.id).foreach { task =>
@@ -231,14 +238,18 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val error = "An error was encountered while sending a stop message to Marathon API"
           log.error(error, e)
           if (workflowStatus.status != Failed) {
+            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
               statusInfo = Some(error),
-              lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
+              lastError = Option(wError)
             ))
+            executionService.setLastError(workflowStatus.id, wError)
           }
       }
+      Try(executionService.setEndDate(execution.id, new DateTime()))
+        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${execution.id}"))
     }
   }
 
@@ -273,22 +284,28 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           log.debug(s"Failed response: $submissionResponse")
           val information = s"Error while stopping task"
           log.info(information)
+          val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error))
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
             statusInfo = Some(information),
-            lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error))
+            lastError = wError
           ))
+          wError.foreach(error => executionService.setLastError(workflowStatus.id, error))
         case Failure(e) =>
           val error = "Impossible to parse submission killing response"
           log.error(error, e)
+          val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
             statusInfo = Some(error),
-            lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
+            lastError = Option(wError)
           ))
+          executionService.setLastError(workflowStatus.id, wError)
       }
+      Try(executionService.setEndDate(execution.id, new DateTime()))
+        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${execution.id}"))
     }
   }
 

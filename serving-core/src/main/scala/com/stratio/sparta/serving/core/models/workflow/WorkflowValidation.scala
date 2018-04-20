@@ -7,13 +7,14 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.workflow.step.OutputStep
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
+import com.stratio.sparta.serving.core.models.enumerators.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.services.GroupService
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.curator.framework.CuratorFramework
@@ -46,15 +47,15 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
   val regexName = "^[a-z0-9-]*"
 
   def validateExecutionMode(implicit workflow: Workflow): WorkflowValidation = {
-    if ((workflow.settings.global.executionMode == AppConstant.ConfigMarathon ||
-      workflow.settings.global.executionMode == AppConstant.ConfigMesos) &&
+    if ((workflow.settings.global.executionMode == marathon ||
+      workflow.settings.global.executionMode == dispatcher) &&
       !workflow.settings.sparkSettings.master.toString.startsWith("mesos://"))
       copy(
         valid = false,
         messages = messages :+ s"The selected execution mode is Marathon or Mesos," +
           s" therefore Spark Master should start with mesos://"
       )
-    else if (workflow.settings.global.executionMode == AppConstant.ConfigLocal &&
+    else if (workflow.settings.global.executionMode == local &&
       !workflow.settings.sparkSettings.master.toString.startsWith("local"))
       copy(
         valid = false,
@@ -65,16 +66,16 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
   }
 
   def validateDeployMode(implicit workflow: Workflow): WorkflowValidation = {
-    if (workflow.settings.global.executionMode == AppConstant.ConfigMarathon &&
-      workflow.settings.sparkSettings.submitArguments.deployMode.notBlank.isDefined &&
-      workflow.settings.sparkSettings.submitArguments.deployMode.get != "client")
+    if (workflow.settings.global.executionMode == marathon &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.get != DeployMode.client)
       copy(
         valid = false,
         messages = messages :+ s"The selected execution mode is Marathon and the deploy mode is not client"
       )
-    else if (workflow.settings.global.executionMode == AppConstant.ConfigMesos &&
-      workflow.settings.sparkSettings.submitArguments.deployMode.notBlank.isDefined &&
-      workflow.settings.sparkSettings.submitArguments.deployMode.get != "cluster")
+    else if (workflow.settings.global.executionMode == dispatcher &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.get != DeployMode.cluster)
       copy(
         valid = false,
         messages = messages :+ s"The selected execution mode is Mesos and the deploy mode is not cluster"
@@ -83,8 +84,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
   }
 
   def validateSparkCores(implicit workflow: Workflow): WorkflowValidation = {
-    if ((workflow.settings.global.executionMode == AppConstant.ConfigMarathon ||
-      workflow.settings.global.executionMode == AppConstant.ConfigMesos) &&
+    if ((workflow.settings.global.executionMode == marathon ||
+      workflow.settings.global.executionMode == dispatcher) &&
       workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isDefined &&
       workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
       workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble <
@@ -150,11 +151,11 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
   }
 
   def validatePlugins(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
-    val pluginsValidations = if (workflow.executionEngine == WorkflowExecutionEngine.Streaming && curator.isDefined) {
+    val pluginsValidations = if (workflow.executionEngine == Streaming && curator.isDefined) {
       val spartaWorkflow = SpartaWorkflow[DStream](workflow, curator.get)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
-    } else if (workflow.executionEngine == WorkflowExecutionEngine.Batch && curator.isDefined) {
+    } else if (workflow.executionEngine == Batch && curator.isDefined) {
       val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curator.get)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()

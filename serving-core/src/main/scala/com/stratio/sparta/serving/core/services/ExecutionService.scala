@@ -9,13 +9,14 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowError, WorkflowExecution}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
 
@@ -89,4 +90,44 @@ class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSeriali
           curatorFramework.delete().forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$element"))
       }
     }
+
+  def setLaunchDate(executionId: String, launchDate: DateTime): Try[WorkflowExecution] = {
+    findById(executionId) match {
+      case Success(execution) =>
+        update(execution.copy(
+          genericDataExecution = execution.genericDataExecution.map(_.copy(launchDate = Option(launchDate)))
+        ))
+      case Failure(_) => throw new ServerException(s"Unable to update launch date with id: $executionId.")
+    }
+  }
+
+  def setStartDate(executionId: String, startDate: DateTime): Try[WorkflowExecution] = {
+    findById(executionId) match {
+      case Success(execution) =>
+        update(execution.copy(
+          genericDataExecution = execution.genericDataExecution.map(_.copy(startDate = Option(startDate)))
+        ))
+      case Failure(_) => throw new ServerException(s"Unable to update start date with id: $executionId.")
+    }
+  }
+
+  def setEndDate(executionId: String, endDate: DateTime): Try[WorkflowExecution] = {
+    findById(executionId) match {
+      case Success(execution) =>
+        update(execution.copy(
+          genericDataExecution = execution.genericDataExecution.map(_.copy(endDate = Option(endDate)))
+        ))
+      case Failure(_) => throw new ServerException(s"Unable to update end date with id: $executionId.")
+    }
+  }
+
+  def setLastError(executionId: String, error: WorkflowError): Try[WorkflowExecution] = {
+    findById(executionId) match {
+      case Success(execution) =>
+        update(execution.copy(
+          genericDataExecution = execution.genericDataExecution.map(_.copy(lastError = Option(error)))
+        ))
+      case Failure(_) => throw new ServerException(s"Unable to update error with id: $executionId.")
+    }
+  }
 }

@@ -6,7 +6,10 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.step.{ErrorsManagement, GenericManagement, TransactionsManagement, TransformationStepManagement}
+import com.stratio.sparta.sdk.workflow.step.ErrorsManagement
+import com.stratio.sparta.serving.core.models.enumerators.DeployMode.DeployMode
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
+import com.stratio.sparta.serving.core.models.enumerators.{DeployMode, WorkflowExecutionMode}
 
 case class Settings(
                      global: GlobalSettings = GlobalSettings(),
@@ -16,7 +19,7 @@ case class Settings(
                    )
 
 case class GlobalSettings(
-                           executionMode: String = "marathon",
+                           executionMode: WorkflowExecutionMode = WorkflowExecutionMode.marathon,
                            userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
                            initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
                            addAllUploadedPlugins: Boolean = true,
@@ -55,7 +58,7 @@ case class SparkSettings(
 
 case class SubmitArguments(
                             userArguments: Seq[UserSubmitArgument] = Seq.empty[UserSubmitArgument],
-                            deployMode: Option[String] = Option("client"),
+                            deployMode: Option[DeployMode] = Option(DeployMode.client),
                             driverJavaOptions: Option[JsoneyString] = Option(JsoneyString(
                               "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"))
                           )

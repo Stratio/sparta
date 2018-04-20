@@ -9,8 +9,8 @@ import java.util
 
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.models.workflow.{SparkSubmitExecution, WorkflowExecution}
-import com.stratio.sparta.serving.core.services.ExecutionService
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}
+import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
@@ -38,12 +38,27 @@ class ExecutionServiceTest extends WordSpecLike
   val deleteBuilder = mock[DeleteBuilder]
   val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
 
+  val settings = Settings()
+
+  val nodes = Seq(
+    NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+    NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+  )
+  val edges = Seq(
+    EdgeGraph("a", "b")
+  )
+  val pipeGraph = PipelineGraph(nodes, edges)
+  val workflowService = new WorkflowService(curatorFramework)
+  val workflowID = "wf1"
+  val newWorkflowID = "wf2"
+  val testWorkflow = Workflow(Option(workflowID), "wf-test", "", settings, pipeGraph)
 
   val executionService = new ExecutionService(curatorFramework)
   val executionID = "exec1"
   val exec = WorkflowExecution(
     id = "exec1",
-    sparkSubmitExecution = SparkSubmitExecution(
+    genericDataExecution = Option(GenericDataExecution(testWorkflow, WorkflowExecutionMode.local, "1")),
+    sparkSubmitExecution = Option(SparkSubmitExecution(
       driverClass = "driver",
       driverFile = "file",
       pluginFiles = Seq(),
@@ -51,14 +66,64 @@ class ExecutionServiceTest extends WordSpecLike
       submitArguments = Map(),
       sparkConfigurations = Map(),
       driverArguments = Map(),
-      sparkHome = "sparkHome",
-      userId = None
-    )
+      sparkHome = "sparkHome"
+    ))
   )
+
+
   val executionRaw =
     """
       |{
       |"id": "exec1",
+      |"genericDataExecution": {
+      | "workflow": {
+      |  "id": "wf1",
+      |  "name": "wf-test",
+      |  "description": "",
+      |  "settings": {},
+      |  "version": 0,
+      |  "group": {
+      |   "name" : "/home",
+      |   "id" : "940800b2-6d81-44a8-84d9-26913a2faea4" },
+      |  "pipelineGraph": {
+      |    "nodes": [
+      |     {
+      |        "name": "a",
+      |        "stepType": "Input",
+      |        "className": "",
+      |        "classPrettyName": "",
+      |        "arity": ["NullaryToNary"],
+      |        "executionEngine": "Streaming",
+      |        "writer": {
+      |          "autoCalculatedFields": [],
+      |          "saveMode": "Append"
+      |        },
+      |        "configuration": {}
+      |      },
+      |      {
+      |        "name": "b",
+      |        "stepType": "Output",
+      |        "className": "",
+      |        "classPrettyName": "",
+      |        "executionEngine": "Streaming",
+      |        "arity": ["NaryToNullary"],
+      |        "writer": {
+      |          "saveMode": "Append"
+      |        },
+      |        "configuration": {}
+      |      }
+      |    ],
+      |    "edges": [
+      |        {
+      |          "origin": "a",
+      |          "destination": "b"
+      |        }
+      |      ]
+      |  }
+      | },
+      | "executionMode": "local",
+      | "executionId": "1"
+      |},
       |"sparkSubmitExecution": {
       |"driverClass": "driver",
       |"driverFile": "file",

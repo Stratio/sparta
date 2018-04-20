@@ -11,9 +11,9 @@ import akka.testkit.{EventFilter, ImplicitSender, TestActorRef, TestKit}
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, StatusListenerActor}
+import com.stratio.sparta.serving.core.actor.{StatusListenerActor, WorkflowListenerActor}
 import com.stratio.sparta.serving.core.helpers.GraphHelper
-import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
@@ -56,7 +56,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
 
     val validPipeGraph = PipelineGraph(nodes, edges)
     val settingsModel = Settings(
-      GlobalSettings(executionMode = "local"),
+      GlobalSettings(executionMode = WorkflowExecutionMode.local),
       StreamingSettings(
         JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(

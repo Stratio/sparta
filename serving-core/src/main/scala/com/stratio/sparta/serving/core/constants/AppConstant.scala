@@ -29,8 +29,6 @@ object AppConstant extends ZookeeperUtils {
   val ConfigSpark = "spark"
   val ConfigCrossdata = "crossdata"
   val DefaultOauth2CookieName = "user"
-  val ConfigLocal = "local"
-  val ConfigMesos = "mesos"
   val ConfigMarathon = "marathon"
   val DefaultRememberPartitioner = true
   val DriverPackageLocation = "driverPackageLocation"

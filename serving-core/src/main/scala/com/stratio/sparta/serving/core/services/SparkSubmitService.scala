@@ -77,7 +77,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       "detailConfig" -> keyConfigEncoded("config", detailConfig),
       "hdfsConfig" -> keyOptionConfigEncoded("hdfs", hdfsConfig),
       "plugins" -> pluginsEncoded(pluginsFiles),
-      "workflowId" -> workflowEncoded(workflow),
+      "workflowId" -> workflow.id.get,
       "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig)
     )
   }
@@ -177,7 +177,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def getSparkSubmitArgs: Map[String, String] = {
     Map(
-      SubmitDeployMode -> workflow.settings.sparkSettings.submitArguments.deployMode,
+      SubmitDeployMode -> workflow.settings.sparkSettings.submitArguments.deployMode.map(_.toString),
       SubmitDriverJavaOptions -> workflow.settings.sparkSettings.submitArguments.driverJavaOptions.notBlank
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ userSubmitArgsFromWorkflow
   }

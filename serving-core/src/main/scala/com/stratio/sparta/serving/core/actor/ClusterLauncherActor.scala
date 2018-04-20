@@ -5,18 +5,22 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.launcher.SpartaLauncher
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 
@@ -56,7 +60,12 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(localPluginJars)
       val executionSubmit = WorkflowExecution(
         id = workflow.id.get,
-        sparkSubmitExecution = SparkSubmitExecution(
+        genericDataExecution = Option(GenericDataExecution(
+          workflow = workflow,
+          executionMode = dispatcher,
+          executionId = UUID.randomUUID.toString
+        )),
+        sparkSubmitExecution = Option(SparkSubmitExecution(
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
           pluginFiles = pluginJars,
@@ -64,9 +73,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,
-          sparkHome = sparkHome,
-          userId
-        ),
+          sparkHome = sparkHome
+        )),
         sparkDispatcherExecution = None,
         marathonExecution = None
       )
@@ -75,21 +83,25 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       case Failure(exception) =>
         val information = s"An error was encountered while initializing the submit options"
         log.error(information, exception)
+        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+          lastError = Option(error)
         ))
+        executionService.setLastError(workflow.id.get, error)
       case Success(Failure(exception)) =>
         val information = s"An error was encountered while creating an execution submit in the persistence"
         log.error(information, exception)
+        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+          lastError = Option(error)
         ))
+        executionService.setLastError(workflow.id.get, error)
       case Success(Success(submitRequestCreated)) =>
         val information = "Submit options initialized correctly"
         log.info(information)
@@ -99,6 +111,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           statusInfo = Option(information),
           lastExecutionMode = Option(workflow.settings.global.executionMode)
         ))
+        executionService.setLaunchDate(workflow.id.get, new DateTime())
 
         launch(workflow, submitRequestCreated)
     }
@@ -106,32 +119,33 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
 
   def launch(workflow: Workflow, submitRequest: WorkflowExecution): Unit = {
     Try {
+      val submitExecution = submitRequest.sparkSubmitExecution.get
       log.info(s"Launching Sparta workflow with options ... \n\t" +
         s"Workflow name: ${workflow.name}\n\t" +
         s"Main Class: $SpartaDriverClass\n\t" +
-        s"Driver file: ${submitRequest.sparkSubmitExecution.driverFile}\n\t" +
-        s"Master: ${submitRequest.sparkSubmitExecution.master}\n\t" +
-        s"Spark submit arguments: ${submitRequest.sparkSubmitExecution.submitArguments.mkString(",")}\n\t" +
-        s"Spark configurations: ${submitRequest.sparkSubmitExecution.sparkConfigurations.mkString(",")}\n\t" +
-        s"Driver arguments: ${submitRequest.sparkSubmitExecution.driverArguments}")
+        s"Driver file: ${submitExecution.driverFile}\n\t" +
+        s"Master: ${submitExecution.master}\n\t" +
+        s"Spark submit arguments: ${submitExecution.submitArguments.mkString(",")}\n\t" +
+        s"Spark configurations: ${submitExecution.sparkConfigurations.mkString(",")}\n\t" +
+        s"Driver arguments: ${submitExecution.driverArguments}")
 
       val spartaLauncher = new SpartaLauncher()
-        .setAppResource(submitRequest.sparkSubmitExecution.driverFile)
-        .setMainClass(submitRequest.sparkSubmitExecution.driverClass)
-        .setMaster(submitRequest.sparkSubmitExecution.master)
+        .setAppResource(submitExecution.driverFile)
+        .setMainClass(submitExecution.driverClass)
+        .setMaster(submitExecution.master)
 
       //Set Spark Home
-      spartaLauncher.setSparkHome(submitRequest.sparkSubmitExecution.sparkHome)
+      spartaLauncher.setSparkHome(submitExecution.sparkHome)
       //Spark arguments
-      submitRequest.sparkSubmitExecution.submitArguments.filter(_._2.nonEmpty)
+      submitExecution.submitArguments.filter(_._2.nonEmpty)
         .foreach { case (k: String, v: String) => spartaLauncher.addSparkArg(k, v) }
-      submitRequest.sparkSubmitExecution.submitArguments.filter(_._2.isEmpty)
+      submitExecution.submitArguments.filter(_._2.isEmpty)
         .foreach { case (k: String, v: String) => spartaLauncher.addSparkArg(k) }
       // Spark properties
-      submitRequest.sparkSubmitExecution.sparkConfigurations.filter(_._2.nonEmpty)
+      submitExecution.sparkConfigurations.filter(_._2.nonEmpty)
         .foreach { case (key: String, value: String) => spartaLauncher.setConf(key.trim, value.trim) }
       // Driver (Sparta) params
-      submitRequest.sparkSubmitExecution.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
+      submitExecution.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
         .foreach { case (_, argValue) => spartaLauncher.addAppArgs(argValue) }
       //Redirect options
       spartaLauncher.redirectError()
@@ -141,12 +155,14 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       case Failure(exception) =>
         val information = s"An error was encountered while launching the workflow"
         log.error(information, exception)
+        val error = WorkflowError(information, PhaseEnum.Execution, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(error)
         ))
+        executionService.setLastError(workflow.id.get, error)
       case Success(sparkHandler) =>
         val information = "Workflow launched correctly"
         log.info(information)
@@ -155,7 +171,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           status = Launched,
           statusInfo = Option(information)
         ))
-        if (workflow.settings.global.executionMode.contains(ConfigMarathon))
+        executionService.setStartDate(workflow.id.get, new DateTime())
+        if (workflow.settings.global.executionMode == marathon)
           listenerService.addSparkClientListener(workflow.id.get, sparkHandler)
     }
   }

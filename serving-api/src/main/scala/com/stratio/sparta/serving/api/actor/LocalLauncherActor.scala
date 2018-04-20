@@ -6,20 +6,21 @@
 package com.stratio.sparta.serving.api.actor
 
 import java.io.File
+import java.util.UUID
 
 import akka.actor.{Actor, ActorRef, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
-import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{HdfsFilesService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.services.{ExecutionService, HdfsFilesService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 
@@ -28,6 +29,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
 
   lazy private val contextService: ContextsService = ContextsService(curatorFramework, statusListenerActor)
   lazy private val statusService = new WorkflowStatusService(curatorFramework)
+  lazy private val executionService = new ExecutionService(curatorFramework)
   lazy private val hdfsFilesService = HdfsFilesService()
 
   override def receive: PartialFunction[Any, Unit] = {
@@ -38,12 +40,13 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
   //scalastyle:off
   private def doInitSpartaContext(workflow: Workflow): Unit = {
     Try {
+      val sparkUri = LinkHelper.getClusterLocalLink
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
         status = NotStarted,
-        sparkURI = LinkHelper.getClusterLocalLink,
+        sparkURI = sparkUri,
         lastUpdateDateWorkflow = workflow.lastUpdateDate,
-        lastExecutionMode = Option(AppConstant.ConfigLocal)
+        lastExecutionMode = Option(local)
       ))
       val jars = userPluginsFiles(workflow)
       jars.foreach(file => JarsHelper.addJarToClasspath(file))
@@ -53,6 +56,18 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
         id = workflow.id.get,
         status = Starting,
         statusInfo = Some(startedInformation)
+      ))
+      val launchDate = new DateTime()
+      executionService.create(WorkflowExecution(
+        id = workflow.id.get,
+        genericDataExecution = Option(GenericDataExecution(
+          workflow = workflow,
+          executionMode = local,
+          executionId = UUID.randomUUID.toString,
+          startDate = Option(launchDate),
+          launchDate = Option(launchDate)
+        )),
+        localExecution = Option(LocalExecution(sparkURI = sparkUri))
       ))
       if (workflow.executionEngine == Streaming)
         executeLocalStreamingContext(workflow, jars)
@@ -77,12 +92,14 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
       case Failure(exception) =>
         val information = s"Error initiating the workflow"
         log.error(information, exception)
+        val error = WorkflowError(information, PhaseEnum.Execution, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(error)
         ))
+        executionService.setLastError(workflow.id.get, error)
         self ! PoisonPill
     }
   }

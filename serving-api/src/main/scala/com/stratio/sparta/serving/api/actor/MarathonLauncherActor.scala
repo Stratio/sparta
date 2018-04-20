@@ -5,17 +5,21 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorRef, PoisonPill}
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.marathon.MarathonService
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 
@@ -53,7 +57,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(localPluginJars)
       val executionSubmit = WorkflowExecution(
         id = workflow.id.get,
-        sparkSubmitExecution = SparkSubmitExecution(
+        sparkSubmitExecution = Option(SparkSubmitExecution(
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
           pluginFiles = pluginJars,
@@ -61,11 +65,16 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,
-          sparkHome = sparkHome,
-          userId
-        ),
+          sparkHome = sparkHome
+        )),
         sparkDispatcherExecution = None,
-        marathonExecution = Option(MarathonExecution(marathonId = WorkflowHelper.getMarathonId(workflow)))
+        marathonExecution = Option(MarathonExecution(marathonId = WorkflowHelper.getMarathonId(workflow))),
+        genericDataExecution = Option(GenericDataExecution(
+          workflow = workflow,
+          executionMode = marathon,
+          executionId = UUID.randomUUID.toString,
+          userId = userId
+        ))
       )
 
       executionService.create(executionSubmit).getOrElse(
@@ -75,13 +84,15 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"
         log.error(information, exception)
+        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
           lastExecutionMode = Option(workflow.settings.global.executionMode),
-          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+          lastError = Option(error)
         ))
+        executionService.setLastError(workflow.id.get, error)
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized correctly"
@@ -101,13 +112,17 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
               sparkURI = NginxUtils.buildSparkUI(
                 s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
             ))
-          case Failure(e) =>
+            executionService.setLaunchDate(workflow.id.get, new DateTime())
+          case Failure(exception) =>
             val information = s"An error was encountered while launching the Workflow App in the Marathon API"
+            val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
               status = Failed,
               statusInfo = Option(information),
-              lastError = Option(WorkflowError(information, PhaseEnum.Launch, e.toString))))
+              lastError = Option(error)
+            ))
+            executionService.setLastError(workflow.id.get, error)
         }
     }
   }

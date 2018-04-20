@@ -28,7 +28,7 @@ class MarathonAppActor(
   private val executionService = new ExecutionService(curatorFramework)
 
   def receive: PartialFunction[Any, Unit] = {
-    case StartApp(workflowId) => doStartApp(workflowId)
+    case StartApp(execution) => doStartApp(execution)
     case StopApp => preStopActions()
     case _ => log.info("Unrecognized message in Workflow App Actor")
   }
@@ -40,7 +40,8 @@ class MarathonAppActor(
   }
 
   //scalastyle:off
-  def doStartApp(workflow: Workflow): Unit = {
+  def doStartApp(execution: WorkflowExecution): Unit = {
+    val workflow = execution.genericDataExecution.get.workflow
     Try {
       log.debug(s"Obtaining status with workflow id: ${workflow.id.get}")
       statusService.findById(workflow.id.get) match {
@@ -51,14 +52,11 @@ class MarathonAppActor(
             log.debug(s"Closing checker with id: ${workflow.id.get} and name: ${workflow.name}")
             closeChecker(workflow.id.get, workflow.name)
             log.debug(s"Obtaining execution with workflow id: ${workflow.id.get}")
-            executionService.findById(workflow.id.get) match {
-              case Success(executionSubmit) =>
-                log.debug(s"Starting execution: ${executionSubmit.toString}")
-                val clusterLauncherActor =
-                  context.actorOf(Props(new ClusterLauncherActor(curatorFramework, listenerActor)), ClusterLauncherActorName)
-                clusterLauncherActor ! StartWithRequest(workflow, executionSubmit)
-              case Failure(exception) => throw exception
-            }
+
+            log.debug(s"Starting execution: ${execution.toString}")
+            val clusterLauncherActor =
+              context.actorOf(Props(new ClusterLauncherActor(curatorFramework, listenerActor)), ClusterLauncherActorName)
+            clusterLauncherActor ! StartWithRequest(workflow, execution)
           } else {
             val information = "Workflow App launched by Marathon with incorrect state, the job was not executed"
             log.info(information)
@@ -78,12 +76,14 @@ class MarathonAppActor(
         val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
         preStopActions()
+        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+          lastError = Option(error)
         ))
+        executionService.setLastError(workflow.id.get, error)
     }
   }
 
@@ -110,7 +110,7 @@ class MarathonAppActor(
 
 object MarathonAppActor {
 
-  case class StartApp(workflow: Workflow)
+  case class StartApp(execution: WorkflowExecution)
 
   case object StopApp
 

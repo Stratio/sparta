@@ -21,6 +21,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
+  private val executionService = new ExecutionService(curatorFramework)
 
   //scalastyle:off
   def addSparkClientListener(workflowId: String, handler: SparkAppHandle): Unit = {
@@ -54,15 +55,17 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                     status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                     statusInfo = Some(information)
                   ))
-                case Failure(e) =>
+                case Failure(exception) =>
                   val error = s"Problems encountered while killing workflow with Spark Handler"
                   log.warn(error)
+                  val wError = WorkflowError(error, PhaseEnum.Stop, exception.toString)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
                     status = Failed,
                     statusInfo = Some(error),
-                    lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
+                    lastError = Option(wError)
                   ))
+                  executionService.setLastError(workflowId, wError)
               }
           }
         } finally {

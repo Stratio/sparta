@@ -16,6 +16,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow.{SparkDispatcherExecution, SparkExecution, Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{ExecutionService, SparkSubmitService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
@@ -120,7 +121,7 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
       status <- statusService.findById(workflow.id.get)
       execution <- executionService.findById(workflow.id.get)
       execMode <- status.lastExecutionMode
-    } if (execMode.contains(ConfigMesos))
+    } if (execMode == dispatcher)
       executionService.update {
         execution.copy(
           sparkExecution = Option(SparkExecution(

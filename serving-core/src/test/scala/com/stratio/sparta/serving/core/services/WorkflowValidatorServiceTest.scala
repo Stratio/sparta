@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.services
 
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -26,7 +27,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings("local", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
+    GlobalSettings(local, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
@@ -34,7 +35,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
       sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))
   )
   val wrongSettingsModel = Settings(
-    GlobalSettings("local", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2"))),
+    GlobalSettings(local, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2"))),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(

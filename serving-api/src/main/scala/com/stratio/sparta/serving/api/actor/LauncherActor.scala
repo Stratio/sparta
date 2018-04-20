@@ -6,19 +6,18 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.util.{Failure, Success, Try}
-
 import akka.actor.{Props, _}
 import org.apache.curator.framework.CuratorFramework
-
 import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Failed
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class LauncherActor(curatorFramework: CuratorFramework,
@@ -29,6 +28,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
 
   private val ResourceStatus = "status"
   private val statusService = new WorkflowStatusService(curatorFramework)
+  private val executionService = new ExecutionService(curatorFramework)
   private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
 
   private val marathonLauncherActor = context.actorOf(Props(
@@ -46,13 +46,13 @@ class LauncherActor(curatorFramework: CuratorFramework,
       Try {
         val workflow = workflowService.findById(id)
         val workflowLauncherActor = workflow.settings.global.executionMode match {
-          case AppConstant.ConfigMarathon =>
+          case WorkflowExecutionMode.marathon =>
             log.info(s"Launching workflow: ${workflow.name} in marathon mode")
             marathonLauncherActor
-          case AppConstant.ConfigMesos =>
+          case WorkflowExecutionMode.dispatcher =>
             log.info(s"Launching workflow: ${workflow.name} in cluster mode")
             clusterLauncherActor
-          case AppConstant.ConfigLocal if !statusService.isAnyLocalWorkflowStarted =>
+          case WorkflowExecutionMode.local if !statusService.isAnyLocalWorkflowStarted =>
             val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
             val childLauncherActor = context.children.find(children => children.path.name == actorName)
             log.info(s"Launching workflow: ${workflow.name} in local mode")
@@ -71,12 +71,14 @@ class LauncherActor(curatorFramework: CuratorFramework,
         case Failure(exception) =>
           val information = s"Error launching workflow with the selected execution mode"
           log.error(information)
+          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
             id = id,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+            lastError = Option(error)
           ))
+          executionService.setLastError(id, error)
       }
     }
   }

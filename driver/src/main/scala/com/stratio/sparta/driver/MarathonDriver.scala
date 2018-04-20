@@ -17,10 +17,9 @@ import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.WorkflowStatusService
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
-import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Success, Try}
 
@@ -36,14 +35,16 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
       assert(args.length == NumberOfArguments,
         s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
       log.debug(s"Arguments: ${args.mkString(", ")}")
-      val workflow = read[Workflow](new String(BaseEncoding.base64().decode(args(WorkflowIdIndex))))
-      log.debug(s"Obtained workflow: ${workflow.toString}")
+      val workflowId = args(WorkflowIdIndex)
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigurationIndex)))
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
       initSpartaConfig(zookeeperConf, detailConf)
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val system = ActorSystem("MarathonApp")
       val statusService = new WorkflowStatusService(curatorInstance)
+      val executionService = new ExecutionService(curatorInstance)
+      val execution = executionService.findById(workflowId)
+        .getOrElse(throw new Exception(s"Impossible to find execution for workflowId: $workflowId"))
 
       Try {
         val statusListenerActor = system.actorOf(Props(new StatusListenerActor))
@@ -53,17 +54,19 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
         val marathonAppActor = system.actorOf(Props(
           new MarathonAppActor(curatorInstance, statusListenerActor)), MarathonAppActorName)
 
-        marathonAppActor ! StartApp(workflow)
+        marathonAppActor ! StartApp(execution)
       } match {
         case Success(_) =>
         case Failure(exception) =>
           val information = s"Error initiating workflow app environment in Marathon driver"
+          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
-            id = workflow.id.get,
+            id = workflowId,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+            lastError = Option(error)
           ))
+          executionService.setLastError(workflowId, error)
           throw DriverException(information, exception)
       }
     } match {

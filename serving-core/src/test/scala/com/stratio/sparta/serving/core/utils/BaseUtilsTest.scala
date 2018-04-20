@@ -9,6 +9,8 @@ import akka.actor.ActorSystem
 import akka.testkit._
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
@@ -26,7 +28,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
 
   protected def getWorkflowModel(id: Option[String] = Some("id"),
                                  name: String = "testWorkflow",
-                                 executionMode : String = "local"): Workflow = {
+                                 executionMode : WorkflowExecutionMode = WorkflowExecutionMode.local): Workflow = {
 
     val settingsModel = Settings(
       GlobalSettings(executionMode),

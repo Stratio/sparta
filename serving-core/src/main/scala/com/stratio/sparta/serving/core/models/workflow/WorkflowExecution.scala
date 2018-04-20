@@ -5,13 +5,29 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
+import org.joda.time.DateTime
+
 case class WorkflowExecution(
                               id: String,
-                              sparkSubmitExecution: SparkSubmitExecution,
+                              sparkSubmitExecution: Option[SparkSubmitExecution] = None,
                               sparkExecution: Option[SparkExecution] = None,
                               sparkDispatcherExecution: Option[SparkDispatcherExecution] = None,
-                              marathonExecution: Option[MarathonExecution] = None
+                              marathonExecution: Option[MarathonExecution] = None,
+                              genericDataExecution: Option[GenericDataExecution] = None,
+                              localExecution: Option[LocalExecution] = None
                             )
+
+case class GenericDataExecution(
+                                 workflow: Workflow,
+                                 executionMode: WorkflowExecutionMode,
+                                 executionId: String,
+                                 launchDate: Option[DateTime] = None,
+                                 startDate: Option[DateTime] = None,
+                                 endDate: Option[DateTime] = None,
+                                 userId: Option[String] = None,
+                                 lastError: Option[WorkflowError] = None
+                               )
 
 case class SparkSubmitExecution(
                                  driverClass: String,
@@ -21,12 +37,17 @@ case class SparkSubmitExecution(
                                  submitArguments: Map[String, String],
                                  sparkConfigurations: Map[String, String],
                                  driverArguments: Map[String, String],
-                                 sparkHome: String,
-                                 userId: Option[String]
+                                 sparkHome: String
                                )
 
 case class SparkDispatcherExecution(killUrl: String)
 
-case class MarathonExecution(marathonId: String)
+case class MarathonExecution(
+                              marathonId: String,
+                              sparkURI: Option[String] = None,
+                              historyServerURI: Option[String] = None
+                            )
 
 case class SparkExecution(applicationId: String)
+
+case class LocalExecution(sparkURI: Option[String] = None)

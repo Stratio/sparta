@@ -18,7 +18,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.WorkflowStatusService
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
 import org.json4s.jackson.Serialization.read
 
@@ -45,8 +45,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
       })
       log.debug(s"Arguments: ${args.mkString(", ")}")
 
-      val workflow = read[Workflow](new String(BaseEncoding.base64().decode(args(WorkflowIdIndex))))
-      log.debug(s"Obtained workflow: ${workflow.toString}")
+      val workflowId = args(WorkflowIdIndex)
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigIndex)))
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigIndex)))
       val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
@@ -58,6 +57,11 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
       val system = ActorSystem("SparkDriver")
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
+      val executionService = new ExecutionService(curatorInstance)
+      val execution = executionService.findById(workflowId)
+        .getOrElse(throw new Exception(s"Impossible to find execution for workflowId: $workflowId"))
+      val workflow = execution.genericDataExecution.get.workflow
+
       Try {
         val statusListenerActor = system.actorOf(Props(new StatusListenerActor))
         system.actorOf(Props(new ExecutionPublisherActor(curatorInstance)))
@@ -68,7 +72,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
         val startingInfo = s"Launching workflow in Spark driver..."
         log.info(startingInfo)
         statusService.update(WorkflowStatus(
-          id = workflow.id.get,
+          id = workflowId,
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
@@ -95,12 +99,14 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           throw exception
         case Failure(exception) =>
           val information = s"Error initiating workflow in Spark driver"
+          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+            lastError = Option(error)
           ))
+          executionService.setLastError(workflowId, error)
           throw DriverException(information, exception)
       }
     } match {

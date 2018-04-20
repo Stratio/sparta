@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.models.workflow
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.GraphHelper
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.{DeployMode, NodeArityEnum, WorkflowExecutionMode}
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api.{ExistsBuilder, GetDataBuilder}
@@ -32,7 +32,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings(executionMode = "local"),
+    GlobalSettings(executionMode = WorkflowExecutionMode.local),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
@@ -396,7 +396,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate an incorrect execution mode" in {
       val pipeline = PipelineGraph(nodes , edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(executionMode = "marathon"),
+        GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
@@ -412,12 +412,12 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate an incorrect deploy mode" in {
       val pipeline = PipelineGraph(nodes , edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(executionMode = "marathon"),
+        GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
           JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
-          sparkMesosSecurity = false, None, SubmitArguments(deployMode = Option("cluster")),
+          sparkMesosSecurity = false, None, SubmitArguments(deployMode = Option(DeployMode.cluster)),
           SparkConf(SparkResourcesConf())
         )
       )
@@ -429,7 +429,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate an incorrect spark cores" in {
       val pipeline = PipelineGraph(nodes , edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(executionMode = "marathon"),
+        GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
@@ -450,7 +450,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       )
       val pipeline = PipelineGraph(cubeNodes , edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(executionMode = "marathon"),
+        GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"), false)),
         SparkSettings(
@@ -516,7 +516,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate Mesos constraints without a colon" in {
       val pipeline = PipelineGraph(nodes,edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings("marathon", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2")))
+        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2")))
         )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
@@ -528,7 +528,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate Mesos constraints with more than a colon" in {
       val pipeline = PipelineGraph(nodes,edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings("marathon", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2:")))
+        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2:")))
       )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
@@ -540,7 +540,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate Mesos constraints with a colon at the beginning or end of the string" in {
       val pipeline = PipelineGraph(nodes,edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings("marathon", Seq.empty, Seq.empty, true ,Some(JsoneyString(":constraint1")))
+        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, true ,Some(JsoneyString(":constraint1")))
       )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)

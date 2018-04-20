@@ -38,7 +38,7 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Properties, Try}
 
-class MarathonService(
+case class MarathonService(
                        context: ActorContext,
                        workflow: Option[Workflow],
                        execution: Option[WorkflowExecution]
@@ -202,11 +202,12 @@ class MarathonService(
 
   //scalastyle:off
   private def addRequirements(app: CreateApp, workflowModel: Workflow, execution: WorkflowExecution): CreateApp = {
-    val newCpus = execution.sparkSubmitExecution.sparkConfigurations.get("spark.driver.cores")
+    val submitExecution = execution.sparkSubmitExecution.get
+    val newCpus = submitExecution.sparkConfigurations.get("spark.driver.cores")
       .map(_.toDouble).getOrElse(app.cpus)
-    val newMem = execution.sparkSubmitExecution.sparkConfigurations.get("spark.driver.memory")
+    val newMem = submitExecution.sparkConfigurations.get("spark.driver.memory")
       .map(transformMemoryToInt).getOrElse(app.mem)
-    val envFromSubmit = execution.sparkSubmitExecution.sparkConfigurations.flatMap { case (key, value) =>
+    val envFromSubmit = submitExecution.sparkConfigurations.flatMap { case (key, value) =>
       if (key.startsWith("spark.mesos.driverEnv.")) {
         Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
       } else None
@@ -348,7 +349,9 @@ class MarathonService(
         key.startsWith("CROSSDATA_SECURITY")
     }.mapValues(value => JsString(value))
 
-  private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] =
+  private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] = {
+    val submitExecution = execution.sparkSubmitExecution.get
+
     Map(
       AppMainEnv -> Option(AppMainClass),
       AppTypeEnv -> Option(MarathonApp),
@@ -356,10 +359,10 @@ class MarathonService(
       LdLibraryEnv -> ldNativeLibrary,
       AppJarEnv -> marathonJar,
       VaultTokenEnv -> getVaultToken,
-      ZookeeperConfigEnv -> execution.sparkSubmitExecution.driverArguments.get("zookeeperConfig"),
-      DetailConfigEnv -> execution.sparkSubmitExecution.driverArguments.get("detailConfig"),
-      PluginFiles -> Option(execution.sparkSubmitExecution.pluginFiles.mkString(",")),
-      WorkflowIdEnv -> execution.sparkSubmitExecution.driverArguments.get("workflowId"),
+      ZookeeperConfigEnv -> submitExecution.driverArguments.get("zookeeperConfig"),
+      DetailConfigEnv -> submitExecution.driverArguments.get("detailConfig"),
+      PluginFiles -> Option(submitExecution.pluginFiles.mkString(",")),
+      WorkflowIdEnv -> submitExecution.driverArguments.get("workflowId"),
       DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
@@ -370,8 +373,10 @@ class MarathonService(
       SpartaSecretFolderEnv -> Properties.envOrNone(SpartaSecretFolderEnv),
       DcosServiceName -> Properties.envOrNone(DcosServiceName),
       GosecAuthEnableEnv -> Properties.envOrNone(GosecAuthEnableEnv),
-      UserNameEnv -> execution.sparkSubmitExecution.userId,
-      MarathonAppConstraints -> execution.sparkSubmitExecution.sparkConfigurations.get(SubmitMesosConstraintConf),
+      UserNameEnv -> execution.genericDataExecution.flatMap(_.userId),
+      MarathonAppConstraints -> submitExecution.sparkConfigurations.get(SubmitMesosConstraintConf),
       SpartaZookeeperPathEnv -> Option(BaseZkPath)
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> JsString(value))) }.flatten.toMap
+  }
+
 }
