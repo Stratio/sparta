@@ -1,7 +1,7 @@
 {
    "name": "DropColumns",
    "icon": "DropColumns",
-   "className": "DropColumnTransformStep",
+   "className": "DropColumnsTransformStep",
    "classPrettyName": "DropColumns",
    "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
@@ -13,7 +13,7 @@
          "propertyType": "list",
          "required": true,
          "tooltip": "Schema definition from list of fields",
-         "qa": "fragment-details-dropcolumn-fields",
+         "qa": "fragment-details-dropcolumns-fields",
          "fields": [
             {
                "propertyId": "name",
