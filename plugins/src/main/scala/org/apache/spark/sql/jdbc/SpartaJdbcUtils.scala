@@ -66,26 +66,30 @@ object SpartaJdbcUtils extends SLF4JLogging {
   }
 
   def createTable(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): Boolean = {
-    synchronized {
-      val tableName = connectionProperties.table
-      val conn = getConnection(connectionProperties, outputName)
-      conn.setAutoCommit(true)
-      val schemaStr = JdbcUtils.schemaString(dataFrame, connectionProperties.url, connectionProperties.createTableColumnTypes)
-      val sql = s"CREATE TABLE $tableName ($schemaStr)"
-      val statement = conn.createStatement
+    if (dataFrame.schema.fields.nonEmpty) {
+      synchronized {
+        val tableName = connectionProperties.table
+        val conn = getConnection(connectionProperties, outputName)
+        conn.setAutoCommit(true)
+        val schemaStr = JdbcUtils.schemaString(dataFrame, connectionProperties.url, connectionProperties.createTableColumnTypes)
+        val sql = s"CREATE TABLE $tableName ($schemaStr)"
+        val statement = conn.createStatement
 
-      Try(statement.executeUpdate(sql)) match {
-        case Success(_) =>
-          log.debug(s"Created correctly table $tableName and output $outputName")
-          statement.close()
-          tablesCreated.put(tableName, dataFrame.schema)
-          true
-        case Failure(e) =>
-          statement.close()
-          log.error(s"Error creating table $tableName and output $outputName ${e.getLocalizedMessage}", e)
-          throw e
+        Try(statement.executeUpdate(sql)) match {
+          case Success(_) =>
+            log.debug(s"Created correctly table $tableName and output $outputName")
+            statement.close()
+            tablesCreated.put(tableName, dataFrame.schema)
+            true
+          case Failure(e) =>
+            statement.close()
+            log.error(s"Error creating table $tableName and output $outputName ${e.getLocalizedMessage}", e)
+            throw e
+        }
       }
-    }
+    } else
+      log.debug(s"Empty schema fields on ${connectionProperties.table} and output $outputName")
+      false
   }
 
   def getConnection(properties: JDBCOptions, outputName: String): Connection = {
