@@ -8,12 +8,10 @@ package com.stratio.sparta.dg.agent.lineage
 import scala.util.{Failure, Success, Try}
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
-
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorRef, ActorSystem, AllForOneStrategy, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
-
 import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
 import com.stratio.sparta.dg.agent.commons.LineageUtils
@@ -21,6 +19,8 @@ import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.StatusListenerActor._
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.NodeGraph
+
+import scalax.collection.edge.LDiEdge
 
 class LineageService(statusListenerActor: ActorRef,
                      workflowListenerActor: ActorRef) extends Actor with SLF4JLogging {
@@ -65,7 +65,7 @@ class LineageService(statusListenerActor: ActorRef,
 
   def extractWorkflowChanges(): Unit =
     workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow =>
-      val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
+      val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
       Try(
         LineageUtils.workflowMetadataLineage(workflow) :::
           LineageUtils.inputMetadataLineage(workflow, graph) :::

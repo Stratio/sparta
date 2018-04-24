@@ -19,13 +19,13 @@ import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 
 class AddColumnTransformStepBatch(
-                                    name: String,
-                                    outputOptions: OutputOptions,
-                                    transformationStepsManagement: TransformationStepManagement,
-                                    ssc: Option[StreamingContext],
-                                    xDSession: XDSession,
-                                    properties: Map[String, JSerializable]
-                                  ) extends AddColumnTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+                                   name: String,
+                                   outputOptions: OutputOptions,
+                                   transformationStepsManagement: TransformationStepManagement,
+                                   ssc: Option[StreamingContext],
+                                   xDSession: XDSession,
+                                   properties: Map[String, JSerializable]
+                                 ) extends AddColumnTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]

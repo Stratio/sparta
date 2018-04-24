@@ -55,9 +55,17 @@ abstract class TransformStep[Underlying[Row]](
   def transformWithSchema(
                            inputData: Map[String, DistributedMonad[Underlying]]
                          ): (DistributedMonad[Underlying], Option[StructType]) = {
-    val monad = transform(inputData)
+    val data = transform(inputData)
 
-    (monad, None)
+    (data, None)
+  }
+
+  def transformWithDiscards(
+                             inputData: Map[String, DistributedMonad[Underlying]]
+                           ): (DistributedMonad[Underlying], Option[StructType], Option[DistributedMonad[Underlying]], Option[StructType]) = {
+    val (data, schema) = transformWithSchema(inputData)
+
+    (data, schema, None, None)
   }
 
   /* METHODS TO IMPLEMENT */
@@ -85,6 +93,7 @@ abstract class TransformStep[Underlying[Row]](
 
     validation
   }
+
   /**
     * Execute the transform function passed as parameter over the first data of the map.
     *
@@ -165,7 +174,7 @@ abstract class TransformStep[Underlying[Row]](
         data match {
           case Some(unwrappedData: GenericRowWithSchema) => Seq(unwrappedData)
           case None => Seq.empty[GenericRowWithSchema]
-      }
+        }
       case _ => whenRowErrorDo match {
         case WhenRowError.RowDiscard => Seq.empty[GenericRowWithSchema]
         case _ => throw new Exception("Invalid new data struct in step")
