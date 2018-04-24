@@ -132,6 +132,7 @@ hose {
             | -DPOSTGRES_NODE=pg-0001
             | -DPOSTGRES_NAME=postgrestls
             | -DURL_GOSEC=/opt/stratio/gosec-sso/conf
+            | -DPOSTGRES_INSTANCE=pg-0001.postgrestls.mesos:5432/postgres
             """
             
     INSTALL = { config ->
