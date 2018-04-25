@@ -59,61 +59,63 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "Postgres url must be provided")
     validateSaveMode(saveMode)
-    val tableName = getTableNameFromOptions(options)
-    val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(urlWithSSL,
-      tableName,
-      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
-    )
+    if(dataFrame.schema.fields.nonEmpty) {
+      val tableName = getTableNameFromOptions(options)
+      val sparkSaveMode = getSparkSaveMode(saveMode)
+      val connectionProperties = new JDBCOptions(urlWithSSL,
+        tableName,
+        propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+      )
 
-    Try {
-      if (sparkSaveMode == SaveMode.Overwrite)
-        SpartaJdbcUtils.dropTable(connectionProperties, name)
+      Try {
+        if (sparkSaveMode == SaveMode.Overwrite)
+          SpartaJdbcUtils.dropTable(connectionProperties, name)
 
-      synchronized {
-        SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
-      }
-    } match {
-      case Success(tableExists) =>
-        try {
-          if (tableExists) {
-            if (saveMode == SaveModeEnum.Upsert) {
-              val updateFields = getPrimaryKeyOptions(options) match {
-                case Some(pk) => pk.trim.split(",").toSeq
-                case None => Seq.empty[String]
-              }
-
-              require(updateFields.nonEmpty, "The primary key fields must be provided")
-              require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                "The all the primary key fields should be present in the dataFrame schema")
-
-              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
-            } else {
-              if (postgresSaveMode == PostgresSaveMode.COPYIN) {
-                dataFrame.foreachPartition { rows =>
-                  val conn = getConnection(connectionProperties, name)
-                  val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-
-                  cm.copyIn(
-                    s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
-                    rowsToInputStream(rows)
-                  )
-                }
-              } else {
-                SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
-              }
-            }
-          } else log.warn(s"Table not created in Postgres: $tableName")
-        } catch {
-          case e: Exception =>
-            closeConnection(name)
-            log.error(s"Error saving data into Postgres table $tableName with Error: ${e.getLocalizedMessage}")
-            throw e
+        synchronized {
+          SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
         }
-      case Failure(e) =>
-        closeConnection(name)
-        log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
-        throw e
+      } match {
+        case Success(tableExists) =>
+          try {
+            if (tableExists) {
+              if (saveMode == SaveModeEnum.Upsert) {
+                val updateFields = getPrimaryKeyOptions(options) match {
+                  case Some(pk) => pk.trim.split(",").toSeq
+                  case None => Seq.empty[String]
+                }
+
+                require(updateFields.nonEmpty, "The primary key fields must be provided")
+                require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                    "All the primary key fields should be present in the dataFrame schema")
+                SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
+
+              } else {
+                if (postgresSaveMode == PostgresSaveMode.COPYIN) {
+                  dataFrame.foreachPartition { rows =>
+                    val conn = getConnection(connectionProperties, name)
+                    val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+
+                    cm.copyIn(
+                      s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
+                      rowsToInputStream(rows)
+                    )
+                  }
+                } else {
+                  SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
+                }
+              }
+            } else log.warn(s"Table not created in Postgres: $tableName")
+          } catch {
+            case e: Exception =>
+              closeConnection(name)
+              log.error(s"Error saving data into Postgres table $tableName with Error: ${e.getLocalizedMessage}")
+              throw e
+          }
+        case Failure(e) =>
+          closeConnection(name)
+          log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
+          throw e
+      }
     }
   }
 
