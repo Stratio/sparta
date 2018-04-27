@@ -27,7 +27,7 @@ class UnionTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     val rdds = inputData.map { case (_, rdd) =>
       rdd.ds
     }.toSeq
@@ -40,6 +40,6 @@ class UnionTransformStepBatch(
     val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
       .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd))
 
-    (rdd, schema)
+    (rdd, schema, None)
   }
 }

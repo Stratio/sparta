@@ -88,6 +88,44 @@
           "default": false,
           "qa": "fragment-details-errorSink"
        },
+       {
+          "propertyId": "jdbcSaveMode",
+          "propertyName": "_JDBC_SAVE_MODE_",
+          "propertyType": "select",
+          "values": [
+             {
+                "label": "Batch Statement",
+                "value": "STATEMENT"
+             },
+             {
+                "label": "Single Statement",
+                "value": "SINGLE_STATEMENT"
+             }
+          ],
+          "default": "STATEMENT",
+          "required": true,
+          "tooltip": "Sets whether the output should be written as batch statememt, or row by row statement implementation",
+          "qa": "fragment-jdbc-save-mode"
+       },
+       {
+          "propertyId": "failFast",
+          "propertyName": "_FAIL_FAST_",
+          "propertyType": "boolean",
+          "visibleOR": [
+             {
+                "propertyId": "jdbcSaveMode",
+                "value": "STATEMENT"
+             },
+             {
+                "propertyId": "jdbcSaveMode",
+                "value": "SINGLE_STATEMENT"
+             }
+          ],
+          "default": false,
+          "required": true,
+          "tooltip": "When is enabled, if transaction fail, a exception is thrown",
+          "qa": "fragment-details-jdbc-failfast"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",

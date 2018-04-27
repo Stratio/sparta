@@ -49,7 +49,7 @@ class OrderByTransformStepStreamingIT extends TemporalSparkContext with Matchers
  Option(ssc),
       sparkSession,
       Map("orderExp" -> "color")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {

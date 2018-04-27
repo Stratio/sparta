@@ -4,6 +4,7 @@
    "classPrettyName": "Test",
    "arity": ["NullaryToNary"],
    "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
    "executionEngine": "Batch",
    "description": "Simulates a data generating events based on a fixed string or random numbers",
    "properties": [

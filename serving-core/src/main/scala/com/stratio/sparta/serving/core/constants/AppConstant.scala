@@ -7,8 +7,9 @@ package com.stratio.sparta.serving.core.constants
 
 import akka.actor.ActorSystem
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.env.EnvironmentVariable
-import com.stratio.sparta.serving.core.models.workflow.Group
+import com.stratio.sparta.serving.core.models.workflow.{Group, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.ZookeeperUtils
 
 import scala.util.Properties
@@ -54,6 +55,10 @@ object AppConstant extends ZookeeperUtils {
   val DefaultSerializationTimeout = 5000
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
+
+  //Workflow
+  val defaultWorkflowRelationSettings = WorkflowRelationSettings(DataType.ValidData)
+  val discardExtension = "_Discard"
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"

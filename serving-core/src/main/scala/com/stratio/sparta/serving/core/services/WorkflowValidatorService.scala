@@ -10,7 +10,7 @@ import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, Wor
 import org.apache.curator.framework.CuratorFramework
 
 import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
+import scalax.collection.edge.LDiEdge
 
 class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None) {
 
@@ -19,7 +19,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
   def validate(workflow: Workflow): WorkflowValidation = {
 
     implicit val workflowToValidate: Workflow = workflow
-    implicit val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
+    implicit val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
 
     val validationResult = new WorkflowValidation()
       .validateGroupName
@@ -40,7 +40,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
   def validateJsoneySettings(workflow: Workflow): WorkflowValidation = {
 
     implicit val workflowToValidate: Workflow = workflow
-    implicit val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
+    implicit val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
 
     val validationResult = new WorkflowValidation()
       .validateExecutionMode

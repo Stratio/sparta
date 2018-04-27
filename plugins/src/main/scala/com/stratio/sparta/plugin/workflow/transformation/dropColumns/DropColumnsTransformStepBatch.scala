@@ -29,11 +29,12 @@ class DropColumnsTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) =
-        applyDrop(inputRdd, stepName)
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
+      val (rdd, schema, inputSchema) = applyDrop(inputDistributedMonad.ds, stepName)
+
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
+  }
+
 }

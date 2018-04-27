@@ -25,27 +25,54 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schema1).asInstanceOf[Row],
-      new GenericRowWithSchema(Array("red", 12.2), schema1).asInstanceOf[Row]
+      new GenericRowWithSchema(Array("red", 12.2), schema1).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 1.2), schema1).asInstanceOf[Row]
     )
     val inputRdd = sc.parallelize(data1)
     val inputData = Map("step1" -> inputRdd)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val query = s"SELECT * FROM step1 ORDER BY step1.color"
+    val query = s"SELECT * FROM step1 WHERE price > 12 ORDER BY step1.color"
     val inputSchema = """[{"stepName":"step1","schema":"{\"color\":\"1\",\"price\":15.5}"}]"""
+    val discardConditions =
+      """[
+        |{
+        |   "previousField":"color",
+        |   "transformedField":"color"
+        |},
+        |{
+        |   "previousField":"price",
+        |   "transformedField":"price"
+        |}
+        |]
+        | """.stripMargin
     val result = new TriggerTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("sql" -> query, "inputSchemas" -> JsoneyString(inputSchema))
-    ).transformWithSchema(inputData)._1
-    val batchEvents = result.ds.count()
-    val batchRegisters = result.ds.collect()
+      Map("sql" -> query, "inputSchemas" -> JsoneyString(inputSchema), "discardConditions" -> discardConditions)
+    ).transformWithDiscards(inputData)
 
-    batchRegisters.toSeq should be(data1)
+    //Test filtered events
+    val triggerData = result._1
+    val streamingEvents = triggerData.ds.count()
+    val streamingRegisters = triggerData.ds.collect()
 
-    batchEvents should be(2)
+    if (streamingRegisters.nonEmpty)
+      streamingRegisters.foreach(row => assert(data1.contains(row)))
+
+    assert(streamingEvents === 2)
+
+    //Test discarded events
+    val discardedData = result._3.get
+    val discardedEvents = discardedData.ds.count()
+    val discardedRegisters = discardedData.ds.collect()
+
+    if (discardedRegisters.nonEmpty)
+      discardedRegisters.foreach(row => assert(data1.contains(row)))
+
+    assert(discardedEvents === 1)
   }
 
   "A TriggerTransformStepBatch" should "make trigger over two RDD" in {
@@ -75,7 +102,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query)
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", "Stratio", "Stratio employee", 12.1), schemaResult),
       new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee", 12.2), schemaResult))
@@ -108,7 +135,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val batchEvents = result.ds.count()
 
     batchEvents should be(0)
@@ -127,7 +154,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val batchEvents = result.ds.count()
 
     batchEvents should be(0)
@@ -151,7 +178,7 @@ class TriggerTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "true")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val batchEvents = result.ds.count()
 
     batchEvents should be(2)

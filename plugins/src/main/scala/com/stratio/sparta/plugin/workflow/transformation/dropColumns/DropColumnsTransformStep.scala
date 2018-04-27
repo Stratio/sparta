@@ -7,19 +7,20 @@
 package com.stratio.sparta.plugin.workflow.transformation.dropColumns
 
 import java.io.{Serializable => JSerializable}
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Column, Row}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.{DiscardCondition, PropertyFields}
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 
 //scalastyle:off
@@ -34,7 +35,7 @@ abstract class DropColumnsTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
       with SLF4JLogging {
 
-  lazy val fields = Try(properties.getPropertiesFields("schema.fields")).toOption
+  lazy val fields: Option[PropertyFields] = Try(properties.getPropertiesFields("schema.fields")).toOption
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -76,20 +77,20 @@ abstract class DropColumnsTransformStep[Underlying[Row]](
   }
 
 
-  def applyDrop(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType]) = {
+  def applyDrop(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
       val schemaFields = fields.get.fields.map(_.name)
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
+      val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
+      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, inputSchema) match {
         case Some(df) =>
           val newDataFrame  = df.drop(schemaFields:_*)
-          (newDataFrame.rdd, Option(newDataFrame.schema))
+          (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
-          (rdd.filter(_ => false), None)
+          (rdd.filter(_ => false), None, inputSchema)
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
+      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
     }
   }
 

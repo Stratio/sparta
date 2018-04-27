@@ -3,6 +3,7 @@
      "icon": "OrderBy",
      "className": "OrderByTransformStep",
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData"],
      "classPrettyName": "OrderBy",
      "description": "Order fields from the events in the input DStream",
      "properties": [

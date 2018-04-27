@@ -12,6 +12,7 @@ import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -26,19 +27,16 @@ class ExplodeTransformStepStreaming(
   extends ExplodeTransformStep[DStream](
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
-      val inputStream = inputDistributedMonad.ds
-
-      inputStream.transform { inputRdd =>
-        val (rdd,schema) = applyExplode(inputRdd, inputField, stepName)
+      inputDistributedMonad.ds.transform { inputRdd =>
+        val (rdd,schema, _) = applyExplode(inputRdd, inputField, stepName)
         schema.orElse(getSchemaFromRdd(rdd))
           .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
         rdd
       }
-
     }
-  }
+
 }
 
 

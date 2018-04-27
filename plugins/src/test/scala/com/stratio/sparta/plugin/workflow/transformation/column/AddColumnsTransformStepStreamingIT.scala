@@ -7,7 +7,9 @@
 package com.stratio.sparta.plugin.workflow.transformation.column
 
 import java.io.{Serializable => JSerializable}
+import scala.collection.mutable
 
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
@@ -22,7 +24,7 @@ import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepMa
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])
-class AddColumnTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class AddColumnsTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A DefaultColumnValuesTransformStepBatchIT" should "add new columns with default values" in {
 
@@ -42,6 +44,7 @@ class AddColumnTransformStepBatchIT extends TemporalSparkContext with Matchers w
 
     val inputSchema = StructType(Seq(StructField("text", StringType)))
     val outputSchema = StructType(Seq(StructField("text", StringType), StructField("color", StringType,false), StructField("price", IntegerType,false)))
+    val dataQueue = new mutable.Queue[RDD[Row]]()
     val dataIn =
       Seq(
         new GenericRowWithSchema(Array("A"), inputSchema),
@@ -52,27 +55,38 @@ class AddColumnTransformStepBatchIT extends TemporalSparkContext with Matchers w
       new GenericRowWithSchema(Array("A", "blue", 10), outputSchema),
       new GenericRowWithSchema(Array("B", "blue", 10), outputSchema)
     )
-    val dataSet = sc.parallelize(dataInRow)
-    val inputData = Map("step1" -> dataSet)
+    dataQueue += sc.parallelize(dataIn)
+    val stream = ssc.queueStream(dataQueue)
+    val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
-    val result = new AddColumnTransformStepBatch(
+    val result = new AddColumnsTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
       Map("columns" -> fields.asInstanceOf[JSerializable])
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
-    val arrayValues = result.ds.collect()
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataOut.contains(row))
+          assert(outputSchema == row.schema)
+        }
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
+    ssc.stop()
 
-    arrayValues.foreach { row =>
-      assert(dataOut.contains(row))
-      assert(outputSchema == row.schema)
-    }
-
-    assert(arrayValues.length === 2)
+    assert(totalEvents.value === 2)
   }
 }
 

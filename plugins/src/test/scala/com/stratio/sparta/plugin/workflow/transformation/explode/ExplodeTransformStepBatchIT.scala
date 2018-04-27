@@ -55,7 +55,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
         "inputField" -> inputField,
         "explodedField" -> explodedField,
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     val totalEvents = result.ds.count()
     assert(totalEvents === 2)
@@ -96,7 +96,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
         "inputField" -> inputField,
         "explodedField" -> explodedField,
         "fieldsPreservationPolicy" -> "APPEND")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     val registers = result.ds.collect()
     if (registers.nonEmpty) {
@@ -133,7 +133,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
         "inputField" -> inputField,
         "explodedField" -> explodedField,
         "fieldsPreservationPolicy" -> "REPLACE")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     val registers = result.ds.collect()
     if (registers.nonEmpty) {

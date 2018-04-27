@@ -9,6 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.plugin.models.PropertyColumn
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
@@ -76,20 +77,24 @@ abstract class DropDuplicatesTransformStep[Underlying[Row]](
     validation
   }
 
-  def applyDropDuplicates(rdd: RDD[Row], columns: Seq[String], inputStep: String): (RDD[Row], Option[StructType]) = {
+  def applyDropDuplicates(
+                           rdd: RDD[Row],
+                           columns: Seq[String],
+                           inputStep: String
+                         ): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
+      val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
+      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, inputSchema) match {
         case Some(df) =>
           val newDataFrame = if(columns.isEmpty) df.dropDuplicates() else df.dropDuplicates(columns)
 
-          (newDataFrame.rdd, Option(newDataFrame.schema))
+          (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
-          (rdd.filter(_ => false), None)
+          (rdd.filter(_ => false), None, inputSchema)
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
+      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
     }
   }
 }

@@ -58,7 +58,7 @@ class DropColumnsTransformStepStreamingIT extends TemporalSparkContext with Matc
       Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable])
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {

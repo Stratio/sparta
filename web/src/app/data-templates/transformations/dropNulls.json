@@ -5,6 +5,7 @@
    "classPrettyName": "DropNulls",
    "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
    "description": "Clean/Drop rows that contains null or NaN values in their columns",
    "properties": [
       {

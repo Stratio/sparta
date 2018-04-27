@@ -60,7 +60,7 @@ class PersistTransformStepBatchIT  extends TemporalSparkContext with Matchers wi
         "schema.inputMode" -> "FIELDS",
         "storageLevel" -> "MEMORY_AND_DISK_SER_2",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     assert(result.ds.getStorageLevel == StorageLevel.MEMORY_AND_DISK_SER_2)
   }

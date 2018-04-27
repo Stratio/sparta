@@ -5,6 +5,7 @@
   "classPrettyName": "DropDuplicates",
   "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
   "description": "Drop duplicate events in the input data",
   "properties": [
      {
@@ -25,6 +26,35 @@
               "tooltip": "Name of the column",
               "hidden": false,
               "qa": "fragment-details-dropDuplicates-columns-name"
+           }
+        ]
+     },
+     {
+        "propertyId": "discardConditions",
+        "propertyName": "_DISCARD_CONDITIONS_",
+        "propertyType": "list",
+        "required": false,
+        "width": 8,
+        "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+        "qa": "fragment-details-discard-conditions",
+        "fields": [
+           {
+              "propertyId": "previousField",
+              "propertyName": "_PREVIOUS_FIELD_",
+              "propertyType": "text",
+              "required": true,
+              "width": 3,
+              "tooltip": "Field to compare in the previous data",
+              "qa": "fragment-details-previousField"
+           },
+           {
+              "propertyId": "transformedField",
+              "propertyName": "_TRANSFORMED_FIELD_",
+              "propertyType": "text",
+              "tooltip": "Field to compare in the generated data",
+              "required": true,
+              "width": 3,
+              "qa": "fragment-details-transformedField"
            }
         ]
      },

@@ -56,8 +56,7 @@ class RenameColumnTransformStepBatchIT extends TemporalSparkContext with Matcher
       Option(ssc),
       sparkSession,
       Map("columns" -> fields.asInstanceOf[JSerializable])
-    ).transformWithSchema(inputData)._1
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    ).transformWithDiscards(inputData)._1
 
     val arrayValues = result.ds.collect()
 

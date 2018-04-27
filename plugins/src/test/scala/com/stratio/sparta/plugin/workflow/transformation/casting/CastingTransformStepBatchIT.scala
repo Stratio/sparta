@@ -60,7 +60,7 @@ class CastingTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("fields" -> fields.asInstanceOf[JSerializable])
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>

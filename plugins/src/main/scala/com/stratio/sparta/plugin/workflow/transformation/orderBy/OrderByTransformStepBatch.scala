@@ -27,11 +27,14 @@ class OrderByTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) =
-        applyOrderBy(inputRdd, orderExpression.getOrElse(throw new Exception("Invalid order expression")), stepName)
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
+      val (rdd, schema, inputSchema) = applyOrderBy(
+        inputDistributedMonad.ds,
+        orderExpression.getOrElse(throw new Exception("Invalid order expression")),
+        stepName
+      )
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
+  }
 }

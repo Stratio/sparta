@@ -5,6 +5,7 @@
      "classPrettyName": "Avro",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Allows you to load data from avro files",
      "properties": [
         {

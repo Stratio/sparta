@@ -17,8 +17,8 @@ import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, Wor
 import org.joda.time.DateTime
 
 import scala.util.{Properties, Try}
-import scalax.collection.GraphEdge.DiEdge
 import scalax.collection._
+import scalax.collection.edge.LDiEdge
 
 /**
   * Utilitary object for dg-workflows methods
@@ -43,7 +43,7 @@ object LineageUtils {
     path
   }
 
-  def inputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaInputMetadata] = {
+  def inputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): List[SpartaInputMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(InputStep.StepType)).map(
       n => SpartaInputMetadata(
         name = n.name,
@@ -56,7 +56,7 @@ object LineageUtils {
     ).toList
   }
 
-  def outputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaOutputMetadata] = {
+  def outputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): List[SpartaOutputMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(OutputStep.StepType)).map(
       n => SpartaOutputMetadata(
         name = n.name,
@@ -69,7 +69,7 @@ object LineageUtils {
     ).toList
   }
 
-  def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge])
+  def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, LDiEdge])
   : List[SpartaTransformationMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
       n => SpartaTransformationMetadata(

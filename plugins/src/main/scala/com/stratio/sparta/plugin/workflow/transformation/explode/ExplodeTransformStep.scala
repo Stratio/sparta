@@ -10,8 +10,10 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.rdd.RDD
@@ -84,37 +86,36 @@ abstract class ExplodeTransformStep[Underlying[Row]](
 
 
 
-  def applyExplode(rdd: RDD[Row], column: String, inputStep: String): (RDD[Row], Option[StructType]) = {
+  def applyExplode(
+                    rdd: RDD[Row],
+                    column: String,
+                    inputStep: String
+                  ): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
-
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel,rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
-        case Some(df) => {
+      val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel,rdd)
+      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, inputSchema) match {
+        case Some(df) =>
           Try{
             val newDataFrame = preservationPolicy match {
               case FieldsPreservationPolicy.APPEND =>
                 df.withColumn(explodedField, explode(col(inputField)))
               case FieldsPreservationPolicy.JUST_EXTRACTED =>
                 df.select(explode(col(inputField)).as(explodedField))
-              case FieldsPreservationPolicy.REPLACE => {
+              case FieldsPreservationPolicy.REPLACE =>
                 val renamedDf = df.withColumnRenamed(inputField, explodedField)
                 renamedDf.withColumn(explodedField, explode(col(explodedField)))
-              }
             }
             newDataFrame
           } match {
-              case Success(df) => {
-                (df.rdd, Option(df.schema))
-              }
-              case Failure(e) => throw new Exception(s"The input value must be an array or a map." +
-                s"Value:${rdd.first.get(schema.get.fieldIndex(inputField)).toString}", e)
+              case Success(dfResult) =>
+                (dfResult.rdd, Option(dfResult.schema), inputSchema)
+              case Failure(e) => throw new Exception(s"The input value must be an array or a map", e)
             }
-          }
-        case None => (rdd.filter(_ => false), None)
+        case None => (rdd.filter(_ => false), None, inputSchema)
       }
     } match {
       case Success(result) => result
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
+      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
     }
   }
 }

@@ -73,7 +73,7 @@ class ExplodeTransformStepStreamingIT extends TemporalSparkContext
           "inputField" -> inputField,
           "explodedField" -> explodedField,
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).transform(inputData)
+      ).transformWithDiscards(inputData)._1
       val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
       result.ds.foreachRDD(rdd => {
@@ -121,7 +121,7 @@ class ExplodeTransformStepStreamingIT extends TemporalSparkContext
         "inputField" -> inputField,
         "explodedField" -> explodedField,
         "fieldsPreservationPolicy" -> "APPEND")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
 
@@ -168,7 +168,7 @@ class ExplodeTransformStepStreamingIT extends TemporalSparkContext
           "inputField" -> inputField,
           "explodedField" -> explodedField,
           "fieldsPreservationPolicy" -> "REPLACE")
-      ).transform(inputData)
+      ).transformWithDiscards(inputData)._1
       val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
 

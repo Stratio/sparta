@@ -14,6 +14,7 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 
@@ -67,8 +68,10 @@ class WindowTransformStepStreaming(
     validation
   }
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (_, inputDistributedMonad) =>
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[DStream]]
+                                    ): (DistributedMonad[DStream], Option[StructType], Option[DistributedMonad[DStream]], Option[StructType]) = {
+    val transformedData = applyHeadTransform(inputData) { (_, inputDistributedMonad) =>
       val inputStream = inputDistributedMonad.ds
       (overLast, computeEvery) match {
         case (Some(over), None) =>
@@ -84,4 +87,7 @@ class WindowTransformStepStreaming(
         .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
       rdd
     }
+
+    applyHeadDiscardedData(inputData, None, transformedData, None)
+  }
 }

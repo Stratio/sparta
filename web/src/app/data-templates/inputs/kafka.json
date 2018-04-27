@@ -5,6 +5,7 @@
     "icon": "Kafka",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Streaming"],
+     "supportedDataRelations": ["ValidData"],
     "description": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
     "properties": [
       {

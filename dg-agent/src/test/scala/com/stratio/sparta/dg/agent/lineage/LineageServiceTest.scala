@@ -23,6 +23,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
+import scalax.collection.edge.LDiEdge
 
 @RunWith(classOf[JUnitRunner])
 class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigFactory.parseString(
@@ -71,7 +72,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
       description = "whatever",
       pipelineGraph = validPipeGraph
     )
-    val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(testWorkflow01)
+    val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(testWorkflow01)
 
     val indexTypeEvent = 3
   }

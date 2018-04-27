@@ -88,7 +88,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
       TransformationStepManagement(),
       None,
       sparkSession,
-      properties).transformWithSchema(Map("step1" -> df))._1.ds
+      properties).transformWithDiscards(Map("step1" -> df))._1.ds
 
   def assertExpectedSchema[Underlying[Row]](input: DistributedMonad[Underlying], properties: Map[String, JSerializable])(
     expected: => StructType

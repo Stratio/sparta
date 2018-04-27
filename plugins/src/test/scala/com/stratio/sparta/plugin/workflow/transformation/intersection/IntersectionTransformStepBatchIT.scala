@@ -10,6 +10,8 @@ import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
@@ -18,28 +20,60 @@ import org.scalatest.junit.JUnitRunner
 class IntersectionTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A IntersectionTransformStepBatch" should "intersect RDD" in {
-
-    val data1 = Seq(Row.fromSeq(Seq("blue", 12.1)), Row.fromSeq(Seq("red", 12.2)))
-    val data2 = Seq(Row.fromSeq(Seq("blue", 12.1)), Row.fromSeq(Seq("red", 12.2)))
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("black", 12.3), schema).asInstanceOf[Row]
+    )
+    val data2 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
     val rdd1 = sc.parallelize(data1)
     val rdd2 = sc.parallelize(data2)
     val inputData = Map("step1" -> rdd1, "step2" -> rdd2)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val discardConditions =
+      """[
+        |{
+        |   "previousField":"color",
+        |   "transformedField":"color"
+        |},
+        |{
+        |   "previousField":"price",
+        |   "transformedField":"price"
+        |}
+        |]
+        | """.stripMargin
     val result = new IntersectionTransformStepBatch(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map()
-    ).transformWithSchema(inputData)._1
-    val streamingEvents = result.ds.count()
-    val streamingRegisters = result.ds.collect()
+      Map("discardConditions" -> discardConditions)
+    ).transformWithDiscards(inputData)
 
-    if (streamingRegisters.nonEmpty)
+    //Test distinct events
+    val intersectionData = result._1
+    val streamingEvents = intersectionData.ds.count()
+    val streamingRegisters = intersectionData.ds.collect()
+
+    if (!intersectionData.ds.isEmpty())
       streamingRegisters.foreach(row => assert(data1.contains(row)))
 
     assert(streamingEvents === 2)
+
+    //Test discarded events
+    val discardedData = result._3.get
+    val discardedEvents = discardedData.ds.count()
+    val discardedRegisters = discardedData.ds.collect()
+
+    if (discardedRegisters.nonEmpty)
+      discardedRegisters.foreach(row => assert(data1.contains(row)))
+
+    assert(discardedEvents === 1)
 
   }
 }

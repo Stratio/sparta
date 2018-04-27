@@ -52,6 +52,7 @@ trait SpartaSerializer {
       new EnumNameSerializer(WhenFieldError) +
       new EnumNameSerializer(WorkflowExecutionEngine) +
       new EnumNameSerializer(WorkflowExecutionMode) +
+      new EnumNameSerializer(DataType) +
       new EnumNameSerializer(PhaseEnum)
   }
 

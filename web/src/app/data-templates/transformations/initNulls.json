@@ -5,6 +5,7 @@
    "classPrettyName": "InitNulls",
    "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
    "description": "Initialize nulls to default values",
    "properties": [
       {

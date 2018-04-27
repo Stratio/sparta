@@ -5,6 +5,7 @@
      "classPrettyName": "Checkpoint",
      "arity": ["UnaryToNary"],
      "supportedEngines": ["Streaming"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Creates a checkpoint for an incoming input DStream",
      "properties": [
         {

@@ -7,8 +7,8 @@
 package com.stratio.sparta.plugin.workflow.transformation.column
 
 import java.io.{Serializable => JSerializable}
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -17,11 +17,12 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
-
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.plugin.models.PropertyColumn
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
@@ -76,32 +77,31 @@ abstract class RenameColumnTransformStep[Underlying[Row]](
         messages = validation.messages :+ s"$name: it's mandatory at least one column to rename"
       )
 
-    columnsToRename.filter(c => c.name.trim.isEmpty || c.alias.get.trim.isEmpty).map(c => {
+    columnsToRename.filter(c => c.name.trim.isEmpty || c.alias.get.trim.isEmpty).foreach(c =>
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: column name $c has an invalid format"
       )
-    }
     )
 
     validation
   }
 
-  def applyRename(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType]) = {
+  def applyRename(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
+      val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
+      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, inputSchema) match {
         case Some(df) =>
           val newDataFrame = columnsToRename.foldLeft(df) {
             (df, toRename) => df.withColumnRenamed(toRename.name, toRename.alias.get)
           }
-          (newDataFrame.rdd, Option(newDataFrame.schema))
+          (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
-          (rdd.filter(_ => false), None)
+          (rdd.filter(_ => false), None, inputSchema)
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
+      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
     }
   }
 }

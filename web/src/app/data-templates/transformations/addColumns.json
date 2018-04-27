@@ -1,7 +1,7 @@
 {
    "name": "AddColumns",
    "icon": "AddColumns",
-   "className": "AddColumnTransformStep",
+   "className": "AddColumnsTransformStep",
    "classPrettyName": "AddColumns",
    "arity": [
       "UnaryToNary"
@@ -10,6 +10,7 @@
       "Streaming",
       "Batch"
    ],
+   "supportedDataRelations": ["ValidData"],
    "description": "Add new columns",
    "properties": [
       {

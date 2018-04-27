@@ -16,7 +16,7 @@ import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
 import com.stratio.sparta.serving.core.error.ZooKeeperError
 import com.stratio.sparta.serving.core.exception.DriverException
@@ -25,6 +25,9 @@ import com.stratio.sparta.serving.core.helpers.GraphHelper._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
+import com.stratio.sparta.serving.core.models.enumerators.DataType
+import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.crossdata.XDSession
@@ -34,14 +37,13 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
 import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
+import scalax.collection.edge.LDiEdge
 
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, curatorFramework: CuratorFramework)
   extends CheckpointUtils with ZooKeeperError with DistributedMonadImplicits {
 
-  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
-    .getOrElse(AppConstant.DefaultApiTimeout) - 1
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout")).getOrElse(DefaultApiTimeout) - 1
 
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
@@ -112,10 +114,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val xDSession = getOrCreateXDSession(withStandAloneExtraConf, initSqlSentences, userId)
 
     implicit val workflowContext = implicitly[ContextBuilder[Underlying]].buildContext(classpathUtils, xDSession) {
-      /* Prepare Workflow Context variables with the Spark Contexts used in steps
+      /*
+      Prepare Workflow Context variables with the Spark Contexts used in steps.
 
-        NOTE that his block will only run when the context builder for the concrete Underlying entity requires it,
-        thus, DStreams won't cause the execution of this block. */
+      NOTE that his block will only run when the context builder for the concrete Underlying entity requires it,
+      thus, DStreams won't cause the execution of this block.
+      */
       val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
         .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
       val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
@@ -135,8 +139,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       }
     }
 
-    //scalastyle:on
-
     steps = workflow.pipelineGraph.nodes.map { node =>
       node.stepType.toLowerCase match {
         case value if value == InputStep.StepType =>
@@ -153,8 +155,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     if (execute) executeWorkflow
   }
 
-  //scalastyle:off
-
   /**
     * Execute the workflow and use the context with the Spark contexts, this function create the graph associated with
     * the workflow, in this graph the nodes are the steps and the edges are the relations.
@@ -170,7 +170,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     log.debug("Executing workflow")
 
     val nodesModel = workflow.pipelineGraph.nodes
-    val graph: Graph[NodeGraph, DiEdge] = createGraph(workflow)
+    val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
     val nodeOrdering = graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
       case (x, _) if x == InputStep.StepType => 1
       case (x, y) if x != InputStep.StepType && y == InputStep.StepType => -1
@@ -198,9 +198,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType).foreach { outputNode =>
       val newOutput = createOutputStep(outputNode)
-      graph.get(outputNode).diPredecessors.foreach { predecessor =>
+      val outNodeGraph = graph.get(outputNode)
+      outNodeGraph.diPredecessors.foreach { predecessor =>
         predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering)
-          .toList.reverse.foreach(node => createStep(node))
+          .toList.reverse.foreach { node =>
+          createStep(node)
+        }
 
         if (predecessor.stepType.toLowerCase == InputStep.StepType) {
           val phaseEnum = PhaseEnum.Write
@@ -226,10 +229,20 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val okMessage = s"Transform step ${predecessor.name} written successfully"
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
-            transformations.find(_._1 == predecessor.name).foreach { case (_, transform) =>
+            val relationSettings = Try {
+              predecessor.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
+            }.getOrElse(defaultWorkflowRelationSettings)
+
+            /*
+            When one transformation is saved, we need to check if the data is the discarded. This situation is produced when:
+                     discard
+               step ---------> output (where the name contains _Discard and is used by the save and the errors management in order to find the schema)
+            */
+            val stepName = nodeName(predecessor.name, relationSettings.dataType)
+            transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
               newOutput.writeTransform(
                 transform.data,
-                transform.step.outputOptions,
+                transform.step.outputOptions.copy(stepName = stepName),
                 workflow.settings.errorsManagement,
                 errorOutputs,
                 transform.predecessors
@@ -240,8 +253,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       }
     }
   }
-
-  //scalastyle:on
 
   /**
     * Create the step associated to the node passed as parameter.
@@ -269,28 +280,46 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val tPredecessors = findTransformPredecessors(node)
           val iPredecessors = findInputPredecessors(node)
           val transform = createTransformStep(node)
-          val (data, schema) = transform.transformWithSchema(
+          val (validData, validSchema, discardedData, discardedSchema) = transform.transformWithDiscards(
             iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
           val iPredecessorsNames = iPredecessors.map { case (_, pInput) => inputIdentificationName(pInput.step) }.toSeq
-          val tPredecessorsNames = tPredecessors.map { case (_, pTransform) =>
-            transformIdentificationName(pTransform.step)
+          val tPredecessorsNames = tPredecessors.map { case (name, pTransform) =>
+            transformIdentificationName(pTransform.step, relationDataTypeFromName(name))
           }.toSeq
+          val discardedDataName = nodeName(node.name, DataType.DiscardedData)
 
-          schema.foreach(sc => data.registerAsTable(workflowContext.xDSession, sc, node.name))
-          data.setStepName(transformIdentificationName(transform), forced = false)
-          graphContext.transformations += (transform.name -> TransformStepData(
-            transform, data, iPredecessorsNames ++ tPredecessorsNames, schema))
+          validSchema.foreach(sc => validData.registerAsTable(workflowContext.xDSession, sc, node.name))
+          discardedSchema.foreach(sc => discardedData.foreach(data => data.registerAsTable(workflowContext.xDSession, sc, discardedDataName)))
+
+          validData.setStepName(transformIdentificationName(transform, DataType.ValidData), forced = false)
+          discardedData.foreach(data => data.setStepName(transformIdentificationName(transform, DataType.DiscardedData), forced = false))
+
+          graphContext.transformations += (node.name -> TransformStepData(
+            transform, validData, iPredecessorsNames ++ tPredecessorsNames, validSchema))
+          discardedData.foreach(data => graphContext.transformations += (discardedDataName -> TransformStepData(
+            transform, data, iPredecessorsNames ++ tPredecessorsNames, discardedSchema)))
         }
       case _ =>
         log.warn(s"Invalid node step type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
           s"\tWrong type: ${node.stepType}")
     }
 
+  private[core] def relationDataTypeFromName(nodeName: String): DataType =
+    if (nodeName.contains(discardExtension)) DataType.DiscardedData
+    else DataType.ValidData
+
+  private[core] def nodeName(name: String, relationDataType: DataType): String =
+    if (relationDataType == DataType.ValidData) name
+    else s"$name$discardExtension"
+
   private[core] def inputIdentificationName(step: InputStep[Underlying]): String =
     s"${InputStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
 
-  private[core] def transformIdentificationName(step: TransformStep[Underlying]): String =
-    s"${TransformStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
+  private[core] def transformIdentificationName(step: TransformStep[Underlying], relationDataType: DataType): String = {
+    val name = nodeName(step.outputOptions.errorTableName.getOrElse(step.name), relationDataType)
+    s"${TransformStep.StepType}-$name"
+  }
+
 
   /**
     * Find the input steps that are predecessors to the node passed as parameter.
@@ -301,11 +330,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     */
   private[core] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, InputStepData[Underlying]] =
-    context.inputs.filter(input =>
+    context.inputs.filter { input =>
       context.graph.get(node).diPredecessors
         .filter(_.stepType.toLowerCase == InputStep.StepType)
         .map(_.name)
-        .contains(input._1))
+        .contains(input._1)
+    }
 
   /**
     * Find the transform steps that are predecessors to the node passed as parameter.
@@ -316,12 +346,18 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     */
   private[core] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, TransformStepData[Underlying]] =
-    context.transformations.filter(transform =>
-      context.graph.get(node).diPredecessors
+    context.transformations.filter { transform =>
+      val outNodeGraph = context.graph.get(node)
+      outNodeGraph.diPredecessors
         .filter(_.stepType.toLowerCase == TransformStep.StepType)
-        .map(_.name)
-        .contains(transform._1)
-    )
+        .map { step =>
+          val relationSettings = Try {
+            step.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
+          }.getOrElse(defaultWorkflowRelationSettings)
+
+          nodeName(step.name, relationSettings.dataType)
+        }.contains(transform._1)
+    }
 
   /**
     * Create the Transform step and trace the error if appears.
@@ -339,7 +375,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
+      val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
@@ -381,7 +417,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
+      val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
@@ -420,7 +456,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val okMessage = s"Output step ${node.name} created successfully"
 
     traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
+      val classType = node.configuration.getOrElse(CustomTypeKey, node.className).toString
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
@@ -446,6 +482,6 @@ case class InputStepData[Underlying[Row]](
                                            schema: Option[StructType]
                                          )
 
-case class GraphContext[Underlying[Row]](graph: Graph[NodeGraph, DiEdge],
+case class GraphContext[Underlying[Row]](graph: Graph[NodeGraph, LDiEdge],
                                          inputs: scala.collection.mutable.HashMap[String, InputStepData[Underlying]],
                                          transformations: scala.collection.mutable.HashMap[String, TransformStepData[Underlying]])

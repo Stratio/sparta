@@ -47,7 +47,7 @@ class OrderByTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       Option(ssc),
       sparkSession,
       Map("orderExp" -> "color")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()

@@ -31,16 +31,20 @@ class TriggerTransformStepBatch(
     with SLF4JLogging {
 
   //scalastyle:off
-
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[RDD]]
+                                    ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
     requireValidateSql()
     validateSchemas(name, inputsModel, inputData.keys.toSeq)
     require(isCorrectTableName(name),
       s"The step($name) has wrong name and it is not possible to register as temporal table")
 
-    SqlHelper.executeSqlFromSteps(xDSession, inputData, sql, inputsModel, executeSqlWhenEmpty)
+    val result = SqlHelper.executeSqlFromSteps(xDSession, inputData, sql, inputsModel, executeSqlWhenEmpty)
+
+    if(inputData.size == 1){
+      applyHeadDiscardedData(inputData, None, result._1, result._2)
+    } else (result._1, result._2, None, None)
   }
+
 }
 

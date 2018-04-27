@@ -5,6 +5,7 @@
     "classPrettyName": "Cube",
     "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming"],
+   "supportedDataRelations": ["ValidData"],
     "description": "Create cubes in order to make real time aggregations based in the OLAP concept",
     "properties": [
        {

@@ -8,6 +8,8 @@ package com.stratio.sparta.serving.core.models.workflow
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
 import com.stratio.sparta.serving.core.models.dto.Dto
+import com.stratio.sparta.serving.core.models.enumerators.DataType
+import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 
 case class NodeGraph(
@@ -22,7 +24,8 @@ case class NodeGraph(
                       configuration: Map[String, JsoneyString] = Map(),
                       nodeTemplate: Option[NodeTemplateInfo] = None,
                       supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
-                      executionEngine: Option[ExecutionEngine] = Option(Streaming)
+                      executionEngine: Option[ExecutionEngine] = Option(Streaming),
+                      supportedDataRelations: Option[Seq[DataType]] = Option(Seq(DataType.ValidData))
                     )
 
 /**

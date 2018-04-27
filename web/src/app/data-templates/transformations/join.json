@@ -3,6 +3,7 @@
    "icon": "Join",
    "className": "JoinTransformStep",
    "supportedEngines": ["Batch", "Streaming"],
+   "supportedDataRelations": ["ValidData"],
    "classPrettyName": "Join",
    "arity": ["BinaryToNary"],
    "description": "Join two steps",

@@ -59,7 +59,7 @@ class RenameColumnTransformStepStreamingIT extends TemporalSparkContext with Mat
       Option(ssc),
       sparkSession,
       Map("columns" -> fields.asInstanceOf[JSerializable])
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {

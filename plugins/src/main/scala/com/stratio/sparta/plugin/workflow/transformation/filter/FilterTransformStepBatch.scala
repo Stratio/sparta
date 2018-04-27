@@ -25,13 +25,23 @@ class FilterTransformStepBatch(
                                 properties: Map[String, JSerializable]
                               ) extends FilterTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
-    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) =
-        applyFilter(inputRdd, filterExpression.getOrElse(throw new Exception("Invalid filter expression")), stepName)
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[RDD]]
+                                    ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
+    val (data, schema, _) = applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val (rdd, schema, inputSchema) = applyFilter(
+        inputDistributedMonad.ds,
+        filterExpression.getOrElse(throw new Exception("Invalid filter expression")),
+        stepName
+      )
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
+    val (discardedData, discardedSchema, _) = applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val discardsExpression = s" NOT (${filterExpression.getOrElse(throw new Exception("Invalid filter expression"))})"
+      val (rdd, schema, inputSchema) = applyFilter(inputDistributedMonad.ds, discardsExpression, stepName)
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
+    }
+
+    (data, schema, Option(discardedData), discardedSchema)
+  }
 }

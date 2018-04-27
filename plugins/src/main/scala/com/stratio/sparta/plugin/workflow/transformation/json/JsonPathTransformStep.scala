@@ -9,9 +9,10 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.plugin.helper.SchemaHelper._
-import com.stratio.sparta.plugin.models.{PropertyQuery}
+import com.stratio.sparta.plugin.models.PropertyQuery
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._

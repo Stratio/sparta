@@ -3,17 +3,12 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.models.enumerators.DataType
-import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+package com.stratio.sparta.plugin.enumerations
 
-case class EdgeGraph(
-                      origin: String,
-                      destination: String,
-                      dataType: Option[DataType] = Option(DataType.ValidData)
-                    ) {
+object TransactionTypes  extends Enumeration {
 
-  override def toString: String = s"$origin ---> $destination"
+  type TxType = Value
+  val COPYIN,ONE_TRANSACTION, STATEMENT, SINGLE_STATEMENT = Value
+
 }
-

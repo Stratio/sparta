@@ -5,6 +5,7 @@
    "classPrettyName": "Crossdata",
    "arity": ["NullaryToNary"],
    "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
    "description": "Allows you to load data from external Datasources using Crossdata",
    "properties": [
       {

@@ -12,6 +12,7 @@ import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -26,12 +27,10 @@ class OrderByTransformStepStreaming(
   extends OrderByTransformStep[DStream](
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>
-      val inputStream = inputDistributedMonad.ds
-      inputStream.transform { inputRdd =>
-        val (rdd, schema) = applyOrderBy(
+      inputDistributedMonad.ds.transform { inputRdd =>
+        val (rdd, schema, _) = applyOrderBy(
           inputRdd,
           orderExpression.getOrElse(throw new Exception("Invalid order expression")),
           stepName
@@ -41,5 +40,5 @@ class OrderByTransformStepStreaming(
         rdd
       }
     }
-  }
+
 }

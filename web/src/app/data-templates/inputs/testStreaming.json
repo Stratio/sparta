@@ -4,6 +4,7 @@
      "classPrettyName": "Test",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Streaming"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Simulates a data stream generating events based on a fixed string or random numbers",
      "properties": [
         {

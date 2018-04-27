@@ -5,6 +5,7 @@
      "classPrettyName": "Csv",
      "arity": ["UnaryToNary"],
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData", "DiscardedData"],
      "description": "Parses an input field with csv format and returns all the obtained new fields or selected ones",
      "properties": [
         {

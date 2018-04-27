@@ -5,6 +5,7 @@
      "classPrettyName": "Casting",
      "arity": ["UnaryToNary"],
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData", "DiscardedData"],
      "description": "Casts input fields to other types, support advanced Spark types conversions",
      "properties": [
         {

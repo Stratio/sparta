@@ -6,26 +6,27 @@
 package com.stratio.sparta.serving.core.helpers
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.models.workflow.{EdgeGraph, NodeGraph, Workflow}
+import com.stratio.sparta.serving.core.models.enumerators.DataType
+import com.stratio.sparta.serving.core.models.workflow.{EdgeGraph, NodeGraph, Workflow, WorkflowRelationSettings}
 
 import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
-import scalax.collection.GraphPredef._
+import scalax.collection.edge.LDiEdge
 
 object GraphHelper extends SLF4JLogging {
 
-  def createGraph(workflow: Workflow): Graph[NodeGraph, DiEdge] =
+  def createGraph(workflow: Workflow): Graph[NodeGraph, LDiEdge] =
     Graph.from(workflow.pipelineGraph.nodes, creteEdges(workflow.pipelineGraph.nodes, workflow.pipelineGraph.edges))
 
-  def creteEdges(nodes: Seq[NodeGraph], edges: Seq[EdgeGraph]): Seq[DiEdge[NodeGraph]] =
+  def creteEdges(nodes: Seq[NodeGraph], edges: Seq[EdgeGraph]): Seq[LDiEdge[NodeGraph]] =
     edges.flatMap { edge =>
       (nodes.find(_.name == edge.origin), nodes.find(_.name == edge.destination)) match {
         case (Some(nodeOrigin), Some(nodeDestination)) =>
-          Option(nodeOrigin ~> nodeDestination)
+          Option(LDiEdge(nodeOrigin,nodeDestination)(WorkflowRelationSettings(
+            edge.dataType.getOrElse(DataType.ValidData)
+          )))
         case _ =>
           log.warn(s"Impossible to create relation in graph, $edge. Origin or destination are not present in nodes.")
           None
       }
     }
-
 }

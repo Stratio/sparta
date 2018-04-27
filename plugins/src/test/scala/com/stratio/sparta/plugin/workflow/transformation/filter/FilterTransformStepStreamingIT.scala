@@ -39,13 +39,16 @@ class FilterTransformStepStreamingIT extends TemporalSparkContext with Matchers 
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("filterExp" -> "color = 'blue'")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)
+    val filteredData = result._1
+    val discardedData = result._3.get
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val totalDiscardEvents = ssc.sparkContext.accumulator(0L, "Number of discarded events received")
 
-    result.ds.foreachRDD(rdd => {
+    filteredData.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
@@ -54,11 +57,20 @@ class FilterTransformStepStreamingIT extends TemporalSparkContext with Matchers 
       if (!rdd.isEmpty())
         streamingRegisters.foreach(row => assert(data1.contains(row)))
     })
+
+    discardedData.ds.foreachRDD(rdd => {
+      totalDiscardEvents += rdd.count()
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach(row => assert(data1.contains(row)))
+    })
+
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 1)
+    assert(totalDiscardEvents.value === 2)
 
   }
 }

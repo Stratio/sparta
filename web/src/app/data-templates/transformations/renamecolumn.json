@@ -5,6 +5,7 @@
    "classPrettyName": "RenameColumns",
    "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData"],
    "description": "Rename input columns",
    "properties": [
       {

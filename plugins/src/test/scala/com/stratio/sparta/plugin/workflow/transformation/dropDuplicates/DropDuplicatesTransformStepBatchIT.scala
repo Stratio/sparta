@@ -36,7 +36,7 @@ class DropDuplicatesTransformStepBatchIT extends TemporalSparkContext with Match
       Option(ssc),
       sparkSession,
       Map()
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -63,7 +63,7 @@ class DropDuplicatesTransformStepBatchIT extends TemporalSparkContext with Match
       Option(ssc),
       sparkSession,
       Map()
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -83,6 +83,18 @@ class DropDuplicatesTransformStepBatchIT extends TemporalSparkContext with Match
     val rddInput = sc.parallelize(data1)
     val inputData = Map("step1" -> rddInput)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val discardConditions =
+      """[
+        |{
+        |   "previousField":"color",
+        |   "transformedField":"color"
+        |},
+        |{
+        |   "previousField":"price",
+        |   "transformedField":"price"
+        |}
+        |]
+        | """.stripMargin
     val columns =
       s"""[
          |{
@@ -95,14 +107,27 @@ class DropDuplicatesTransformStepBatchIT extends TemporalSparkContext with Match
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columns" -> columns)
-    ).transformWithSchema(inputData)._1
-    val streamingEvents = result.ds.count()
-    val streamingRegisters = result.ds.collect()
+      Map("columns" -> columns, "discardConditions" -> discardConditions)
+    ).transformWithDiscards(inputData)
 
-    if (streamingRegisters.nonEmpty)
+    //Test distinct events
+    val duplicatesData = result._1
+    val streamingEvents = duplicatesData.ds.count()
+    val streamingRegisters = duplicatesData.ds.collect()
+
+    if (!duplicatesData.ds.isEmpty())
       streamingRegisters.foreach(row => assert(data1.contains(row)))
 
     assert(streamingEvents === 2)
+
+    //Test discarded events
+    val discardedData = result._3.get
+    val discardedEvents = discardedData.ds.count()
+    val discardedRegisters = discardedData.ds.collect()
+
+    if (discardedRegisters.nonEmpty)
+      discardedRegisters.foreach(row => assert(data1.contains(row)))
+
+    assert(discardedEvents === 1)
   }
 }

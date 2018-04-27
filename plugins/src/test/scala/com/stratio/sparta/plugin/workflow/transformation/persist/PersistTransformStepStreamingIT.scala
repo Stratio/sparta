@@ -61,7 +61,7 @@ class PersistTransformStepStreamingIT extends TemporalSparkContext with Matchers
         "schema.inputMode" -> "FIELDS",
         "storageLevel" -> "MEMORY_AND_DISK_SER",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
 
     result.ds.foreachRDD(rdd => {
       assert(rdd.getStorageLevel == StorageLevel.MEMORY_AND_DISK_SER)

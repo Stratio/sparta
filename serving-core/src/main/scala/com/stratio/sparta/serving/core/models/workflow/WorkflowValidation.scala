@@ -9,6 +9,9 @@ import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
@@ -23,8 +26,8 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
 import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.Visitor
+import scalax.collection.edge.LDiEdge
 
 case class WorkflowValidation(valid: Boolean, messages: Seq[String])
   extends DistributedMonadImplicits with ContextBuilderImplicits {
@@ -216,7 +219,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     )
   }
 
-  def validateGraphIsAcyclic(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+  def validateGraphIsAcyclic(implicit workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): WorkflowValidation = {
     val cycle = graph.findCycle
 
     if (cycle.isEmpty || workflow.pipelineGraph.edges.isEmpty) this
@@ -230,7 +233,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     )
   }
 
-  def validateExistenceCorrectPath(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+  def validateExistenceCorrectPath(implicit workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): WorkflowValidation = {
 
     def node(outer: NodeGraph): graph.NodeT = (graph get outer).asInstanceOf[graph.NodeT]
 
@@ -254,7 +257,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     )
   }
 
-  def validateDuplicateNames(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+  def validateDuplicateNames(implicit workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): WorkflowValidation = {
     val nodes: Seq[NodeGraph] = workflow.pipelineGraph.nodes
     nodes.groupBy(_.name).find(listName => listName._2.size > 1) match {
       case Some(duplicate) =>
@@ -267,7 +270,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
   }
 
 
-  def validateArityOfNodes(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+  def validateArityOfNodes(implicit workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): WorkflowValidation = {
     workflow.pipelineGraph.nodes.foldLeft(this) { case (lastValidation, node) =>
       val nodeInGraph = graph.get(node)
       val inDegree = nodeInGraph.inDegree
