@@ -56,55 +56,57 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "JDBC url must be provided")
     validateSaveMode(saveMode)
-    val tableName = getTableNameFromOptions(options)
-    val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(urlWithSSL,
-      tableName,
-      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
-    )
+    if (dataFrame.schema.fields.nonEmpty) {
+      val tableName = getTableNameFromOptions(options)
+      val sparkSaveMode = getSparkSaveMode(saveMode)
+      val connectionProperties = new JDBCOptions(urlWithSSL,
+        tableName,
+        propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+      )
 
-    Try {
-      if (sparkSaveMode == SaveMode.Overwrite)
-        SpartaJdbcUtils.dropTable(connectionProperties, name)
+      Try {
+        if (sparkSaveMode == SaveMode.Overwrite)
+          SpartaJdbcUtils.dropTable(connectionProperties, name)
 
-      synchronized {
-        SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
-      }
-    } match {
-      case Success(tableExists) =>
-        try {
-          if (tableExists) {
-            val txSaveMode = TxSaveMode(jdbcSaveMode, failFast)
-            if (saveMode == SaveModeEnum.Upsert) {
-              val updateFields = getPrimaryKeyOptions(options) match {
-                case Some(pk) => pk.trim.split(",").toSeq
-                case None => Seq.empty[String]
+        synchronized {
+          SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
+        }
+      } match {
+        case Success(tableExists) =>
+          try {
+            if (tableExists) {
+              val txSaveMode = TxSaveMode(jdbcSaveMode, failFast)
+              if (saveMode == SaveModeEnum.Upsert) {
+                val updateFields = getPrimaryKeyOptions(options) match {
+                  case Some(pk) => pk.trim.split(",").toSeq
+                  case None => Seq.empty[String]
+                }
+
+                require(updateFields.nonEmpty, "The primary key fields must be provided")
+                require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                  "The all the primary key fields should be present in the dataFrame schema")
+
+                SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
               }
 
-              require(updateFields.nonEmpty, "The primary key fields must be provided")
-              require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                "The all the primary key fields should be present in the dataFrame schema")
+              if (saveMode == SaveModeEnum.Ignore) return
 
-              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
-            }
+              if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
 
-            if (saveMode == SaveModeEnum.Ignore) return
-
-            if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
-
-            if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
-              SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name, txSaveMode, None)
-          } else log.warn(s"Table not created: $tableName")
-        } catch {
-          case e: Exception =>
-            closeConnection(name)
-            log.error(s"Error saving data into table $tableName with Error: ${e.getLocalizedMessage}")
-            throw e
-        }
-      case Failure(e) =>
-        closeConnection(name)
-        log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
-        throw e
+              if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
+                SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name, txSaveMode, None)
+            } else log.warn(s"Table not created: $tableName")
+          } catch {
+            case e: Exception =>
+              closeConnection(name)
+              log.error(s"Error saving data into table $tableName with Error: ${e.getLocalizedMessage}")
+              throw e
+          }
+        case Failure(e) =>
+          closeConnection(name)
+          log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
+          throw e
+      }
     }
   }
 

@@ -206,7 +206,8 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
         val dataFrame = xdSession.createDataFrame(rdd, schemaExtracted)
         val saveOptions = saveOptionsFromOutputOptions(outputOptions)
 
-        save(dataFrame, outputOptions.saveMode, saveOptions)
+        if(dataFrame.schema.fields.nonEmpty)
+          save(dataFrame, outputOptions.saveMode, saveOptions)
       }
     } match {
       case Success(_) =>

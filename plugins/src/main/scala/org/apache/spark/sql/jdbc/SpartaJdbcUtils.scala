@@ -27,7 +27,6 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
   /** Private mutable variables to optimize Streaming process **/
 
-  private val tablesCreated = new java.util.concurrent.ConcurrentHashMap[String, StructType]()
   private val connections = new java.util.concurrent.ConcurrentHashMap[String, Connection]()
 
   //scalastyle:off
@@ -41,17 +40,14 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
   def tableExists(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): Boolean = {
     synchronized {
-      if (!tablesCreated.containsKey(connectionProperties.table)) {
         val conn = getConnection(connectionProperties, outputName)
         val exists = JdbcUtils.tableExists(conn, connectionProperties)
 
-        if (exists) {
-          tablesCreated.put(connectionProperties.table, dataFrame.schema)
-          true
-        } else createTable(connectionProperties, dataFrame, outputName)
-      } else true
+        if (exists) true
+        else createTable(connectionProperties, dataFrame, outputName)
+      }
     }
-  }
+
 
   def dropTable(connectionProperties: JDBCOptions, outputName: String, tableName: Option[String] = None): Unit = {
     synchronized {
@@ -63,7 +59,6 @@ object SpartaJdbcUtils extends SLF4JLogging {
         case Success(_) =>
           log.debug(s"Dropped correctly table $tableToDrop ")
           statement.close()
-          tablesCreated.remove(tableToDrop)
         case Failure(e) =>
           statement.close()
           log.error(s"Error dropping table $tableToDrop ${e.getLocalizedMessage} and output $outputName", e)
@@ -86,7 +81,6 @@ object SpartaJdbcUtils extends SLF4JLogging {
           case Success(_) =>
             log.debug(s"Created correctly table $tableName and output $outputName")
             statement.close()
-            tablesCreated.put(tableName, dataFrame.schema)
             true
           case Failure(e) =>
             statement.close()

@@ -64,113 +64,115 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "Postgres url must be provided")
     validateSaveMode(saveMode)
-    val tableName = getTableNameFromOptions(options)
-    val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(urlWithSSL,
-      tableName,
-      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
-    )
+    if (dataFrame.schema.fields.nonEmpty) {
+      val tableName = getTableNameFromOptions(options)
+      val sparkSaveMode = getSparkSaveMode(saveMode)
+      val connectionProperties = new JDBCOptions(urlWithSSL,
+        tableName,
+        propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+      )
 
-    Try {
-      if (sparkSaveMode == SaveMode.Overwrite)
-        SpartaJdbcUtils.dropTable(connectionProperties, name, None)
+      Try {
+        if (sparkSaveMode == SaveMode.Overwrite)
+          SpartaJdbcUtils.dropTable(connectionProperties, name)
 
-      synchronized {
-        SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
-      }
-    } match {
-      case Success(tableExists) =>
-        try {
-          if (tableExists) {
-            val txSaveMode = TxSaveMode(postgresSaveMode, failFast)
-            if (saveMode == SaveModeEnum.Upsert && postgresSaveMode != TransactionTypes.ONE_TRANSACTION) {
-              val updateFields = getPrimaryKeyOptions(options) match {
-                case Some(pk) => pk.trim.split(",").toSeq
-                case None => Seq.empty[String]
-              }
-              require(updateFields.nonEmpty, "The primary key fields must be provided")
-              require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                "The all the primary key fields should be present in the dataFrame schema")
-              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
-            } else if (postgresSaveMode == TransactionTypes.COPYIN) {
-              dataFrame.foreachPartition { rows =>
-                val conn = getConnection(connectionProperties, name)
-                val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+        synchronized {
+          SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
+        }
+      } match {
+        case Success(tableExists) =>
+          try {
+            if (tableExists) {
+              val txSaveMode = TxSaveMode(postgresSaveMode, failFast)
+              if (saveMode == SaveModeEnum.Upsert && postgresSaveMode != TransactionTypes.ONE_TRANSACTION) {
+                val updateFields = getPrimaryKeyOptions(options) match {
+                  case Some(pk) => pk.trim.split(",").toSeq
+                  case None => Seq.empty[String]
+                }
+                require(updateFields.nonEmpty, "The primary key fields must be provided")
+                require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                  "The all the primary key fields should be present in the dataFrame schema")
+                SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
+              } else if (postgresSaveMode == TransactionTypes.COPYIN) {
+                dataFrame.foreachPartition { rows =>
+                  val conn = getConnection(connectionProperties, name)
+                  val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
-                cm.copyIn(
-                  s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
-                  rowsToInputStream(rows)
-                )
-              }
-            } else {
-              val txOne = if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
-                val tempTable = SpartaJdbcUtils.createTemporalTable(connectionProperties)
-                Some(TxOneValues(tempTable._1, tempTable._2, tempTable._3))
-              } else None
-              Try {
-                SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name, txSaveMode, txOne.map(_.temporalTableName))
-              } match {
-                //If all partitions were ok, and is oneTx type, drop temp table
-                case Success(_) =>
-                  if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
-                    try {
-                      val sqlUpsert =
-                        if (saveMode == SaveModeEnum.Upsert)
-                          s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT (${
-                            options.getOrElse("primaryKey", "id")
-                          }) " +
-                            s" DO UPDATE SET ${dataFrame.schema.fields.map(f => s"${f.name} =  EXCLUDED.${f.name}").mkString(",")}"
-                        else
-                          s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT DO NOTHING"
-                      txOne.map(_.connection).get.prepareStatement(sqlUpsert).execute()
-                      txOne.map(_.connection).get.commit()
-                    } catch {
-                      case e: Exception =>
-                        if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION)
-                            txOne.map(_.connection).get.rollback(txOne.map(_.savePoint).get)
-                        throw e
-                    } finally {
+                  cm.copyIn(
+                    s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
+                    rowsToInputStream(rows)
+                  )
+                }
+              } else {
+                val txOne = if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
+                  val tempTable = SpartaJdbcUtils.createTemporalTable(connectionProperties)
+                  Some(TxOneValues(tempTable._1, tempTable._2, tempTable._3))
+                } else None
+                Try {
+                  SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name, txSaveMode, txOne.map(_.temporalTableName))
+                } match {
+                  //If all partitions were ok, and is oneTx type, drop temp table
+                  case Success(_) =>
+                    if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
                       try {
-                        if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION && dropTemporalTableSuccess)
+                        val sqlUpsert =
+                          if (saveMode == SaveModeEnum.Upsert)
+                            s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT (${
+                              options.getOrElse("primaryKey", "id")
+                            }) " +
+                              s" DO UPDATE SET ${dataFrame.schema.fields.map(f => s"${f.name} =  EXCLUDED.${f.name}").mkString(",")}"
+                          else
+                            s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT DO NOTHING"
+                        txOne.map(_.connection).get.prepareStatement(sqlUpsert).execute()
+                        txOne.map(_.connection).get.commit()
+                      } catch {
+                        case e: Exception =>
+                          if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION)
+                            txOne.map(_.connection).get.rollback(txOne.map(_.savePoint).get)
+                          throw e
+                      } finally {
+                        try {
+                          if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION && dropTemporalTableSuccess)
+                            SpartaJdbcUtils.dropTable(connectionProperties, name, Some(txOne.map(_.temporalTableName).get))
+                        } catch {
+                          case e: Exception =>
+                            throw e
+                        } finally {
+                          closeConnection(s"${connectionProperties.table}_temporal")
+                          closeConnection(name)
+                        }
+                      }
+                    }
+                  case Failure(e) =>
+                    if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
+                      try {
+                        txOne.map(_.connection).get.rollback(txOne.map(_.savePoint).get)
+                        if (dropTemporalTableFailure)
                           SpartaJdbcUtils.dropTable(connectionProperties, name, Some(txOne.map(_.temporalTableName).get))
                       } catch {
                         case e: Exception =>
                           throw e
                       } finally {
                         closeConnection(s"${connectionProperties.table}_temporal")
-                        closeConnection(name)
                       }
-                    }
-                  }
-                case Failure(e) =>
-                  if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
-                    try {
-                      txOne.map(_.connection).get.rollback(txOne.map(_.savePoint).get)
-                      if(dropTemporalTableFailure)
-                          SpartaJdbcUtils.dropTable(connectionProperties, name, Some(txOne.map(_.temporalTableName).get))
-                    } catch {
-                      case e: Exception =>
-                        throw e
-                    } finally {
-                      closeConnection(s"${connectionProperties.table}_temporal")
-                    }
-                  } else closeConnection(name)
-                  throw e
+                    } else closeConnection(name)
+                    throw e
+                }
               }
-            }
-          } else log.debug(s"Table not created in Postgres: $tableName")
-        } catch {
-          case e: Exception =>
+            } else log.debug(s"Table not created in Postgres: $tableName")
+          } catch {
+            case e: Exception =>
+              closeConnection(name)
+              log.error(s"Error saving data into Postgres table $tableName with Error: ${e.getLocalizedMessage}")
+              throw e
+          } finally {
             closeConnection(name)
-            log.error(s"Error saving data into Postgres table $tableName with Error: ${e.getLocalizedMessage}")
-            throw e
-        } finally {
+          }
+        case Failure(e) =>
           closeConnection(name)
-        }
-      case Failure(e) =>
-        closeConnection(name)
-        log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
-        throw e
+          log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
+          throw e
+      }
     }
   }
 
