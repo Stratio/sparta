@@ -12,6 +12,7 @@ import com.stratio.sparta.plugin.enumerations.{JoinReturn, JoinTypes, TableSide}
 import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
@@ -61,7 +62,7 @@ abstract class JoinTransformStep[Underlying[Row]](
   lazy val returnColumns: String = joinReturnColumns.map(_.toSql(leftTable.get, rightTable.get)).mkString(",")
   lazy val conditions: String = joinType match {
     case JoinTypes.CROSS => ""
-    case _ => s" ON ${joinConditions.map(_.toSql(leftTable.get, rightTable.get)).mkString(",")}"
+    case _ => s" ON ${joinConditions.map(_.toSql(leftTable.get, rightTable.get)).mkString(" AND ")}"
   }
   lazy val whereConditions : String = joinType match {
     case JoinTypes.LEFT_RIGHT_ONLY =>

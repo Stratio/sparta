@@ -30,7 +30,7 @@ class JoinTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     requireValidateSql()
     require(inputData.size == 2,
       s"The join $name must have two input steps, now have: ${inputData.keys}")
@@ -38,6 +38,8 @@ class JoinTransformStepBatch(
     require(isCorrectTableName(name),
       s"The step($name) has wrong name and it is not possible to register as temporal table")
 
-    SqlHelper.executeSqlFromSteps(xDSession, inputData, sql, inputsModel, executeSqlWhenEmpty = false)
+    val result = SqlHelper.executeSqlFromSteps(xDSession, inputData, sql, inputsModel, executeSqlWhenEmpty = false)
+
+    (result._1, result._2, None)
   }
 }

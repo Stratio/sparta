@@ -69,7 +69,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "INNER",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", 12.1, "blue", "Stratio", "Stratio employee"), schemaResult),
       new GenericRowWithSchema(Array("red", 12.2, "red", "Paradigma", "Paradigma employee"), schemaResult))
@@ -100,7 +100,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "INNER",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schemaResult),
       new GenericRowWithSchema(Array("red", 12.2), schemaResult))
@@ -131,7 +131,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "INNER",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", "Stratio", "Stratio employee"), schemaResult),
       new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee"), schemaResult))
@@ -174,7 +174,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinReturnColumns" -> columns,
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue"), schemaResult),
       new GenericRowWithSchema(Array("red"), schemaResult))
@@ -211,7 +211,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "LEFT",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", 12.1, "blue", "Stratio", "Stratio employee"), schemaResult),
       new GenericRowWithSchema(Array("yellow", 12.3, null, null, null), schemaResult),
@@ -248,7 +248,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "RIGHT",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", 12.1, "blue", "Stratio", "Stratio employee"), schemaResult),
       new GenericRowWithSchema(Array("red", 12.2, "red", "Paradigma", "Paradigma employee"), schemaResult))
@@ -283,7 +283,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "RIGHT_ONLY",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(new GenericRowWithSchema(Array("yellow", "Stratio", "Stratio employee"), schema2))
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
@@ -316,7 +316,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "LEFT_ONLY",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(new GenericRowWithSchema(Array("yellow", 12.3), schema1).asInstanceOf[Row])
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
@@ -354,7 +354,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "LEFT_RIGHT_ONLY",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("yellow", 12.3, null, null, null), schemaResult),
       new GenericRowWithSchema(Array(null, null, "brown", "Stratio", "Stratio employee"), schemaResult))
@@ -394,7 +394,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "FULL",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", 12.1, "blue", "Stratio", "Stratio employee"), schemaResult),
       new GenericRowWithSchema(Array("red", 12.2, "red", "Paradigma", "Paradigma employee"), schemaResult),
@@ -426,7 +426,7 @@ class JoinTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "joinType" -> "CROSS",
         "joinConditions" -> conditions
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val queryData = Seq(
       new GenericRowWithSchema(Array("blue", 12.1, "blue", "Stratio", "Stratio employee"), schemaResult),
       new GenericRowWithSchema(Array("blue", 12.1, "red", "Paradigma", "Paradigma employee"), schemaResult),

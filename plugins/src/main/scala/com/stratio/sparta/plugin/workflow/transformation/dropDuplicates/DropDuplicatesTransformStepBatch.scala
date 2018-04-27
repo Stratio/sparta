@@ -25,13 +25,15 @@ class DropDuplicatesTransformStepBatch(
                                 properties: Map[String, JSerializable]
                               ) extends DropDuplicatesTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
-    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) = applyDropDuplicates(inputRdd, columns, stepName)
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[RDD]]
+                                    ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
+    val (data, schema, inputSchema) = applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val (rdd, schema, inputSchema) = applyDropDuplicates(inputDistributedMonad.ds, columns, stepName)
 
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
+
+    applyHeadDiscardedData(inputData, inputSchema, data, schema)
+  }
 }

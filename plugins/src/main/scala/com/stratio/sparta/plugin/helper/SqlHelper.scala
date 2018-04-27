@@ -53,10 +53,13 @@ object SqlHelper {
         (sqlResult, resultSchema)
       case Failure(e) =>
         if (inputData.nonEmpty) {
-          val errorsSteps = inputData.map(step => step._2.ds.map(_ => Row.fromSeq(throw e)))
+          val errorsSteps = inputData.map(step => failWithException(step._2.ds, e))
           (xDSession.sparkContext.union(errorsSteps.toSeq), resultSchema)
         } else throw e //broken chain in errors management
     }
   }
+
+  def failWithException(rdd : RDD[Row], exception: Throwable): RDD[Row] =
+    rdd.map(_ => Row.fromSeq(throw exception))
 
 }

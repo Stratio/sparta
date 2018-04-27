@@ -27,10 +27,12 @@ class SelectTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) = applySelect(inputRdd, stepName)
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
+      val (rdd, schema, inputSchema) = applySelect(inputDistributedMonad.ds, stepName)
+
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
+  }
+
 }

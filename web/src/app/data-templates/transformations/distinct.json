@@ -5,6 +5,7 @@
      "classPrettyName": "Distinct",
      "arity": ["UnaryToNary"],
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Selects distinct events in the input DStream",
      "properties": [
         {

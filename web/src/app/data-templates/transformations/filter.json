@@ -5,6 +5,7 @@
   "classPrettyName": "Filter",
   "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
   "description": "Filter the events in the input DStream",
   "properties": [
      {

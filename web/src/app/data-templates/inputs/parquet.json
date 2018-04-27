@@ -5,6 +5,7 @@
      "classPrettyName": "Parquet",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Allows you to load data from parquet files",
      "properties": [
         {

@@ -3,6 +3,7 @@
      "icon": "Persist",
      "className": "PersistTransformStep",
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData"],
      "classPrettyName": "Persist",
      "arity": ["UnaryToNary"],
      "description": "Persist the input DStream",

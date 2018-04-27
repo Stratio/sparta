@@ -29,25 +29,40 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schema1),
-      new GenericRowWithSchema(Array("red", 12.2), schema1)
+      new GenericRowWithSchema(Array("red", 12.2), schema1),
+      new GenericRowWithSchema(Array("red", 1.2), schema1).asInstanceOf[Row]
     )
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val query = s"SELECT * FROM step1 ORDER BY step1.color"
+    val query = s"SELECT * FROM step1 WHERE price > 12 ORDER BY step1.color"
     val inputSchema = """[{"stepName":"step1","schema":"{\"color\":\"1\",\"price\":15.5}"}]"""
+    val discardConditions =
+      """[
+        |{
+        |   "previousField":"color",
+        |   "transformedField":"color"
+        |},
+        |{
+        |   "previousField":"price",
+        |   "transformedField":"price"
+        |}
+        |]
+        | """.stripMargin
     val result = new TriggerTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("sql" -> query,"inputSchemas" -> JsoneyString(inputSchema))
-    ).transform(inputData)
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+      Map("sql" -> query,"inputSchemas" -> JsoneyString(inputSchema), "discardConditions" -> discardConditions)
+    ).transformWithDiscards(inputData)
 
-    result.ds.foreachRDD(rdd => {
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val totalDiscardedEvents = ssc.sparkContext.accumulator(0L, "Number of discarded events received")
+
+    result._1.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
@@ -57,11 +72,22 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
         streamingRegisters.foreach(row => assert(data1.contains(row)))
       }
     })
+
+    result._3.get.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      totalDiscardedEvents += streamingEvents
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty()) {
+        streamingRegisters.foreach(row => assert(data1.contains(row)))
+      }
+    })
+
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(totalDiscardedEvents.value === 1)
 
   }
 
@@ -81,7 +107,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -130,7 +156,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
  Option(ssc),
       sparkSession,
       Map("sql" -> query)
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -179,7 +205,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "false")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -220,7 +246,7 @@ class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers
       Option(ssc),
       sparkSession,
       Map("sql" -> query, "executeSqlWhenEmpty" -> "true")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {

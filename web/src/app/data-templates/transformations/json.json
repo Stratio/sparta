@@ -5,6 +5,7 @@
      "classPrettyName": "Json",
      "arity": ["UnaryToNary"],
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData", "DiscardedData"],
      "description": "Parsing input field in text format to row",
      "properties": [{
            "propertyId": "inputField",

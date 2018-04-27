@@ -36,7 +36,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map()
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -63,7 +63,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map()
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -90,7 +90,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map("cleanMode" -> "all")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -122,7 +122,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map("cleanMode" -> "any", "columns" -> columns)
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -158,7 +158,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map("cleanMode" -> "all", "columns" -> columns)
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 

@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromRdd, getSchemaFromSessionOrModel}
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -30,33 +31,36 @@ class IntersectionTransformStepBatch(
   extends IntersectionTransformStep[RDD](
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  def transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
-    case (rdd1, rdd2) =>
-      partitions.fold(rdd1.intersection(rdd2)) { numPartitions =>
-        Try{
-          rdd1.intersection(rdd2, numPartitions)
-        } match {
-          case Success(result) =>
-            result
-          case Failure(e) =>
-            xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
-        }
-      }
-  }
-
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[RDD]]
+                                    ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
     require(inputData.size == 2,
       s"The intersection step $name must have two input steps, now have: ${inputData.keys}")
 
     val (firstStep, firstStream) = inputData.head
     val (secondStep, secondStream) = inputData.drop(1).head
-
-    val rdd = transformFunc(firstStream.ds, secondStream.ds)
+    val rdd = partitions.fold(firstStream.ds.intersection(secondStream.ds)) { numPartitions =>
+      Try {
+        firstStream.ds.intersection(secondStream.ds, numPartitions)
+      } match {
+        case Success(result) =>
+          result
+        case Failure(e) =>
+          xDSession.sparkContext.union(
+            SqlHelper.failWithException(firstStream.ds, e),
+            SqlHelper.failWithException(secondStream.ds, e)
+          )
+      }
+    }
     val firstSchema = getSchemaFromSessionOrModel(xDSession, firstStep, inputsModel)
     val secondSchema = getSchemaFromSessionOrModel(xDSession, secondStep, inputsModel)
+    val resultSchema = firstSchema.orElse(secondSchema).orElse(getSchemaFromRdd(rdd))
+    val firstDiscarded = applyDiscardedData(firstStep, firstStream, resultSchema, rdd, resultSchema)._3
+    val secondDiscarded = applyDiscardedData(secondStep, secondStream, resultSchema, rdd, resultSchema)._3
+    val discardedData = if (firstDiscarded.isDefined && secondDiscarded.isDefined) {
+      Option(xDSession.sparkContext.union(firstDiscarded.get.ds, secondDiscarded.get.ds))
+    } else firstDiscarded.map(_.ds).orElse(secondDiscarded.map(_.ds))
 
-    (rdd, firstSchema.orElse(secondSchema).orElse(getSchemaFromRdd(rdd)))
+    (rdd, resultSchema, discardedData, resultSchema)
   }
 }

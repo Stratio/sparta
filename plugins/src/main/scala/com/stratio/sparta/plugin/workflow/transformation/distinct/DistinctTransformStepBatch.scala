@@ -26,17 +26,17 @@ class DistinctTransformStepBatch(name: String,
   extends DistinctTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  def transformFunction(inputSchema: String, inputStream: DistributedMonad[RDD]): DistributedMonad[RDD] =
-    partitions.fold(inputStream.ds.distinct()) { numPartitions => inputStream.ds.distinct(numPartitions) }
-
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
-    val rdd = applyHeadTransform(inputData)(transformFunction)
-    val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
-      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
+    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val inputRdd = inputDistributedMonad.ds
+      val rdd = partitions.fold(inputRdd.distinct()) { numPartitions => inputRdd.distinct(numPartitions) }
+      val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, stepName, inputsModel, rdd.ds))
 
-    (rdd, schema)
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), schema)
+    }
   }
 
 }

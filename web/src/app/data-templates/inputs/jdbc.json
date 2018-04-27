@@ -5,6 +5,7 @@
      "classPrettyName": "Jdbc",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Allows you to load data from jdbc databases",
      "properties": [
         {

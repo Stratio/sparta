@@ -12,32 +12,34 @@ import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 class DistinctTransformStepStreaming(
-                                   name: String,
-                                   outputOptions: OutputOptions,
-                                   transformationStepsManagement: TransformationStepManagement,
-                                   ssc: Option[StreamingContext],
-                                   xDSession: XDSession,
-                                   properties: Map[String, JSerializable]
-                                 )
+                                      name: String,
+                                      outputOptions: OutputOptions,
+                                      transformationStepsManagement: TransformationStepManagement,
+                                      ssc: Option[StreamingContext],
+                                      xDSession: XDSession,
+                                      properties: Map[String, JSerializable]
+                                    )
   extends DistinctTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
-    inputStream.ds.transform { rdd =>
-      val newRdd = partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    applyHeadTransform(inputData) { (stepName, inputStream) =>
+      inputStream.ds.transform { rdd =>
+        val newRdd = partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
 
-      getSchemaFromSessionOrModel(xDSession, name, inputsModel)
-        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputSchema, inputsModel, rdd))
-        .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(name))
-      newRdd
+        getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+          .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, stepName, inputsModel, rdd))
+          .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(name))
+        newRdd
+      }
     }
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData)(transformFunction)
 }
 

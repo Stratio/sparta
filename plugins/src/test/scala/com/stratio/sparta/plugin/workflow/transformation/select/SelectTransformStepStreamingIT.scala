@@ -47,7 +47,7 @@ class SelectTransformStepStreamingIT extends TemporalSparkContext with Matchers 
       Option(ssc),
       sparkSession,
       Map("selectExp" -> "color")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -100,7 +100,7 @@ class SelectTransformStepStreamingIT extends TemporalSparkContext with Matchers 
         "columns" -> columns,
         "selectType" -> "COLUMNS"
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {

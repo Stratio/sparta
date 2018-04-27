@@ -7,8 +7,8 @@
 package com.stratio.sparta.plugin.workflow.transformation.column
 
 import java.io.{Serializable => JSerializable}
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -17,17 +17,18 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
-
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.plugin.models.PropertyQuery
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 
 //scalastyle:off
-abstract class AddColumnTransformStep[Underlying[Row]](
+abstract class AddColumnsTransformStep[Underlying[Row]](
                                                                   name: String,
                                                                   outputOptions: OutputOptions,
                                                                   transformationStepsManagement: TransformationStepManagement,
@@ -107,25 +108,24 @@ abstract class AddColumnTransformStep[Underlying[Row]](
     validation
   }
 
-  def applyValues(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType]) = {
+  def applyValues(rdd: RDD[Row], inputStep: String): (RDD[Row], Option[StructType], Option[StructType]) = {
     Try {
-      val schema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
-      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, schema) match {
-        case Some(df) => {
+      val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputStep, inputsModel, rdd)
+      createOrReplaceTemporalViewDf(xDSession, rdd, inputStep, inputSchema) match {
+        case Some(df) =>
           val newDataFrame = columns.foldLeft(df) {
             (df, defValue) => {
               import org.apache.spark.sql.functions._
-              df.withColumn(defValue.field, lit(newColumnsSchemaTypes.get(defValue.field).getOrElse("")))
+              df.withColumn(defValue.field, lit(newColumnsSchemaTypes.getOrElse(defValue.field,"")))
             }
           }
-          (newDataFrame.rdd, Option(newDataFrame.schema))
-        }
+          (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
-          (rdd.filter(_ => false), None)
+          (rdd.filter(_ => false), None, inputSchema)
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (rdd.map(_ => Row.fromSeq(throw e)), None)
+      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
     }
   }
 }

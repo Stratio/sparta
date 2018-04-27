@@ -8,12 +8,14 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromRdd, getSchemaFromSessionOrModel}
+import com.stratio.sparta.plugin.helper.SqlHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -47,18 +49,30 @@ class IntersectionTransformStepStreaming(
           case Success(result) =>
             result
           case Failure(e) =>
-            xDSession.sparkContext.union(rdd1.map(_ => Row.fromSeq(throw e)), rdd2.map(_ => Row.fromSeq(throw e)))
+            xDSession.sparkContext.union(
+              SqlHelper.failWithException(rdd1, e),
+              SqlHelper.failWithException(rdd2, e)
+            )
         }
       }
   }
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[DStream]]
+                                    ): (DistributedMonad[DStream], Option[StructType], Option[DistributedMonad[DStream]], Option[StructType]) = {
     require(inputData.size == 2,
       s"The intersection step $name must have two input steps, now have: ${inputData.keys}")
 
     val (firstStep, firstStream) = inputData.head
     val (secondStep, secondStream) = inputData.drop(1).head
+    val transformedData = firstStream.ds.transformWith(secondStream.ds, transformFunc(firstStep, secondStep))
+    val firstDiscarded = applyDiscardedData(firstStep, firstStream, None, transformedData, None)._3
+    val secondDiscarded = applyDiscardedData(secondStep, secondStream, None, transformedData, None)._3
+    val discardedData = if (firstDiscarded.isDefined && secondDiscarded.isDefined) {
+      ssc.map(streamingContext => streamingContext.union(Seq(firstDiscarded.get.ds, secondDiscarded.get.ds)))
+    } else firstDiscarded.map(_.ds).orElse(secondDiscarded.map(_.ds))
 
-    firstStream.ds.transformWith(secondStream.ds, transformFunc(firstStep, secondStep))
+    (transformedData, None, discardedData, None)
   }
+
 }

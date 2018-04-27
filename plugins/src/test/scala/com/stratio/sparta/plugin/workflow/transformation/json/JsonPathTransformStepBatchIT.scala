@@ -73,7 +73,7 @@ class JsonPathTransformStepBatchIT extends TemporalSparkContext with Matchers wi
       Map("queries" -> queries.asInstanceOf[JSerializable],
         "inputField" -> inputField,
         "fieldsPreservationPolicy" -> "REPLACE")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     val arrayValues = result.ds.collect()
 

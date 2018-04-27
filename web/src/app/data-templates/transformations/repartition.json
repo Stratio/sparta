@@ -3,6 +3,7 @@
      "icon": "Repartition",
      "className": "RepartitionTransformStep",
      "supportedEngines": ["Streaming", "Batch"],
+     "supportedDataRelations": ["ValidData"],
      "classPrettyName": "Repartition",
      "description": "Repartition the input DStream",
      "properties": [

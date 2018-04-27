@@ -8,9 +8,10 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -25,29 +26,59 @@ class IntersectionTransformStepStreamingIT extends TemporalSparkContext with Mat
 
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val dataQueue2 = new mutable.Queue[RDD[Row]]()
-    val data1 = Seq(Row.fromSeq(Seq("blue", 12.1)),Row.fromSeq(Seq("red", 12.2)))
-    val data2 = Seq(Row.fromSeq(Seq("blue", 12.1)),Row.fromSeq(Seq("red", 12.2)))
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("black", 12.3), schema).asInstanceOf[Row]
+    )
+    val data2 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
     dataQueue1 += sc.parallelize(data1)
     dataQueue2 += sc.parallelize(data2)
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val discardConditions =
+      """[
+        |{
+        |   "previousField":"color",
+        |   "transformedField":"color"
+        |},
+        |{
+        |   "previousField":"price",
+        |   "transformedField":"price"
+        |}
+        |]
+        | """.stripMargin
     val result = new IntersectionTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map()
-    ).transform(inputData)
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+      Map("discardConditions" -> discardConditions)
+    ).transformWithDiscards(inputData)
 
-    result.ds.foreachRDD(rdd => {
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val totalDiscardedEvents = ssc.sparkContext.accumulator(0L, "Number of discarded events received")
+
+    result._1.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach(row => assert(data1.contains(row)))
+    })
+
+    result._3.get.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      totalDiscardedEvents += streamingEvents
       val streamingRegisters = rdd.collect()
       if (!rdd.isEmpty())
         streamingRegisters.foreach(row => assert(data1.contains(row)))
@@ -57,6 +88,7 @@ class IntersectionTransformStepStreamingIT extends TemporalSparkContext with Mat
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(totalDiscardedEvents.value === 1)
 
   }
 }

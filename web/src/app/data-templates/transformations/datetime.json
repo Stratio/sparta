@@ -5,6 +5,7 @@
    "classPrettyName": "Datetime",
    "supportedEngines": ["Streaming", "Batch"],
    "arity": ["UnaryToNary"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
    "description": "Parses or creates a list of input field according to a given time format and returns all the obtained new fields or the selected ones",
    "properties": [
       {

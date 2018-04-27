@@ -35,7 +35,10 @@ class TriggerTransformStepStreaming(
     with SLF4JLogging {
 
   //scalastyle:off
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[DStream]]
+                                    ): (DistributedMonad[DStream], Option[StructType], Option[DistributedMonad[DStream]], Option[StructType]) = {
     requireValidateSql()
     require(inputData.size == 2 || inputData.size == 1,
       s"The trigger $name must have one or two input steps, now have: ${inputData.keys}")
@@ -48,7 +51,7 @@ class TriggerTransformStepStreaming(
       require(isCorrectTableName(firstStep),
         s"The step($firstStep) have wrong name and is not possible to register as temporal table. ${inputData.keys}")
 
-      firstStream.ds.transform { rdd =>
+      val transformedData = firstStream.ds.transform { rdd =>
         Try {
           var executeSql = true
           val schema = getSchemaFromSessionOrModelOrRdd(xDSession, firstStep, inputsModel, rdd)
@@ -72,6 +75,8 @@ class TriggerTransformStepStreaming(
             result
         }
       }
+
+      applyHeadDiscardedData(inputData, None, transformedData, None)
     } else {
       val (firstStep, firstStream) = inputData.head
       val (secondStep, secondStream) = inputData.drop(1).head
@@ -106,8 +111,8 @@ class TriggerTransformStepStreaming(
               sqlResult
             case Failure(e) =>
               val rdd = xDSession.sparkContext.union(
-                rdd1.map(_ => Row.fromSeq(throw e)),
-                rdd2.map(_ => Row.fromSeq(throw e))
+                SqlHelper.failWithException(rdd1, e),
+                SqlHelper.failWithException(rdd2, e)
               )
               xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(name)
 
@@ -115,8 +120,11 @@ class TriggerTransformStepStreaming(
           }
       }
 
-      firstStream.ds.transformWith(secondStream.ds, transformFunc)
+      val transformedData = firstStream.ds.transformWith(secondStream.ds, transformFunc)
+
+      (transformedData, None, None, None)
     }
   }
+
 }
 

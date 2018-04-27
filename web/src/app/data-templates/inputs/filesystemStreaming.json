@@ -5,6 +5,7 @@
     "icon": "FileSystem",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Streaming"],
+     "supportedDataRelations": ["ValidData"],
     "description": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
     "properties": [
       {

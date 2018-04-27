@@ -55,7 +55,7 @@ class DropColumnsTransformStepBatchIT extends TemporalSparkContext with Matchers
       Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable])
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
 
     val arrayValues = result.ds.collect()
 

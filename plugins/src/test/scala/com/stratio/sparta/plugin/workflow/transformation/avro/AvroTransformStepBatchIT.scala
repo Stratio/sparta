@@ -68,7 +68,7 @@ class AvroTransformStepBatchIT extends TemporalSparkContext with Matchers with D
         "schema.provided" -> record,
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED"
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>

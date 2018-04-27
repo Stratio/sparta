@@ -29,12 +29,12 @@ class AvroTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     val rdd = transformFunc(inputData)
     val finalSchema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
       .orElse(getOutputSchema(getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)))
       .orElse(getSchemaFromRdd(rdd.ds))
 
-    (rdd, finalSchema)
+    (rdd, finalSchema, None)
   }
 }

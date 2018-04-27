@@ -36,7 +36,7 @@ class InitNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map()
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
@@ -83,7 +83,7 @@ class InitNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
         "defaultValueToColumn" -> columnsValues,
         "defaultValueToType" -> columnsTypes
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 

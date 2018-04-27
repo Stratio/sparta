@@ -236,7 +236,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
             /*
             When one transformation is saved, we need to check if the data is the discarded. This situation is produced when:
                      discard
-               step ---------> output (where the name contains _Discard and is used by the errors management in order to find the predecessors)
+               step ---------> output (where the name contains _Discard and is used by the save and the errors management in order to find the schema)
             */
             val stepName = nodeName(predecessor.name, relationSettings.dataType)
             transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>

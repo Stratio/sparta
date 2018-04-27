@@ -4,6 +4,7 @@
      "className": "WindowTransformStep",
      "classPrettyName": "Window",
      "supportedEngines": ["Streaming"],
+     "supportedDataRelations": ["ValidData"],
      "arity": ["UnaryToNary"],
      "description": "Execute the window operation supported in Spark Streaming in order to generate DStreams with more than one batch window",
      "properties": [
@@ -22,6 +23,35 @@
            "required": false,
            "tooltip": "Execute the window operation with sliding window, must be multiplier of the batch window",
            "qa": "fragment-details-window-computeEvery"
+        },
+        {
+           "propertyId": "discardConditions",
+           "propertyName": "_DISCARD_CONDITIONS_",
+           "propertyType": "list",
+           "required": false,
+           "width": 8,
+           "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+           "qa": "fragment-details-discard-conditions",
+           "fields": [
+              {
+                 "propertyId": "previousField",
+                 "propertyName": "_PREVIOUS_FIELD_",
+                 "propertyType": "text",
+                 "required": true,
+                 "width": 3,
+                 "tooltip": "Field to compare in the previous data",
+                 "qa": "fragment-details-previousField"
+              },
+              {
+                 "propertyId": "transformedField",
+                 "propertyName": "_TRANSFORMED_FIELD_",
+                 "propertyType": "text",
+                 "tooltip": "Field to compare in the generated data",
+                 "required": true,
+                 "width": 3,
+                 "qa": "fragment-details-transformedField"
+              }
+           ]
         },
         {
            "propertyId": "inputSchemas",

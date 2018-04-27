@@ -9,6 +9,8 @@ package com.stratio.sparta.sdk.helpers
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.models.PropertySchemasInput
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.json4s.{DefaultFormats, Formats}
@@ -33,6 +35,8 @@ object SdkSchemaHelper extends SLF4JLogging{
       xDSession.sessionState.catalog.getTempViewOrPermanentTableMetadata(identifier).schema
     }.toOption
   }
+
+  def getSchemaFromRdd(rdd: RDD[Row]): Option[StructType] = if (!rdd.isEmpty()) Option(rdd.first().schema) else None
 
   def getInputSchemasModel(inputsModel: Option[String]): PropertySchemasInput = {
     {

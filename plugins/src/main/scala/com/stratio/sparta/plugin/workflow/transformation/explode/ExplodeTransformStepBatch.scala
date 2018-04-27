@@ -25,18 +25,15 @@ class ExplodeTransformStepBatch(name: String,
   extends ExplodeTransformStep[RDD](
     name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
+
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
-
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) = applyExplode(inputRdd, inputField, stepName)
+      val (rdd, schema, inputSchema) = applyExplode(inputDistributedMonad.ds, inputField, stepName)
 
-
-      schema.orElse(getSchemaFromRdd(rdd))
-
-      (rdd, schema)
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
   }
+
 }

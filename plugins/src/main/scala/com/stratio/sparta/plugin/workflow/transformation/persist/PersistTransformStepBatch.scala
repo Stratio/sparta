@@ -29,13 +29,13 @@ class PersistTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     val rdd = applyHeadTransform(inputData) { (_, inputStream) =>
       transformFunc(inputStream.ds)
     }
     val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
-        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
+      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
 
-    (rdd, schema)
+    (rdd, schema, schema)
   }
 }

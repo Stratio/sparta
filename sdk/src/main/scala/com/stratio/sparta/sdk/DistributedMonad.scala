@@ -13,6 +13,7 @@ import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.{TableNameKey, saveOptionsFromOutputOptions}
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
 import com.stratio.sparta.sdk.workflow.step._
@@ -21,8 +22,10 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Row}
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
+import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -43,6 +46,9 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
   val processedKey = "REDIRECTED"
   val defaultRedirectDateName = "redirectDate"
 
+  @transient protected var xdSession: XDSession = _
+  @transient protected var ssc: StreamingContext = _
+
   case class RedirectContext(
                               rdd: RDD[Row],
                               outputOptions: OutputOptions,
@@ -62,6 +68,21 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
   def registerAsTable(session: XDSession, schema: StructType, name: String): Unit
 
   def setStepName(name: String, forced: Boolean): Unit
+
+  def discards(
+                targetData: DistributedMonad[Underlying],
+                targetTable: String,
+                targetSchema: Option[StructType],
+                sourceTable: String,
+                sourceSchema: Option[StructType],
+                conditions: Seq[DiscardCondition]
+              ): DistributedMonad[Underlying]
+
+  def setXdSession(xDSession: XDSession): Unit =
+    xdSession = xDSession
+
+  def setStreamingContext(streamingContext: StreamingContext): Unit =
+    ssc = streamingContext
 
   /**
     * Write operation, note this is a public interface for users to call,
@@ -97,8 +118,6 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
                                predecessors: Seq[String],
                                save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                              ): Unit
-
-  @transient protected var xdSession: XDSession = _
 
   private def redirectDependencies(redirectContext: RedirectContext, predecessors: Seq[String]): Unit = {
     import redirectContext._
@@ -141,7 +160,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
     rdd.setName(s"${rdd.name}#$processedKey")
 
     SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
-      .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach{schema =>
+      .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach { schema =>
       val dataFrame = xdSession.createDataFrame(rdd, schema)
 
       outputsToSend.foreach { output =>
@@ -182,12 +201,13 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                                 ): Unit = {
     Try {
-      val schemaExtracted = SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
-        .getOrElse(if (!rdd.isEmpty()) rdd.first().schema else StructType(Nil))
-      val dataFrame = xdSession.createDataFrame(rdd, schemaExtracted)
-      val saveOptions = saveOptionsFromOutputOptions(outputOptions)
+      SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
+        .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach { schemaExtracted =>
+        val dataFrame = xdSession.createDataFrame(rdd, schemaExtracted)
+        val saveOptions = saveOptionsFromOutputOptions(outputOptions)
 
-      save(dataFrame, outputOptions.saveMode, saveOptions)
+        save(dataFrame, outputOptions.saveMode, saveOptions)
+      }
     } match {
       case Success(_) =>
         log.debug(s"Input data saved correctly into ${outputOptions.tableName}")
@@ -282,6 +302,29 @@ object DistributedMonad {
           else rdd.setName(name)
         }
 
+      override def discards(
+                             targetData: DistributedMonad[DStream],
+                             targetTable: String,
+                             targetSchema: Option[StructType],
+                             sourceTable: String,
+                             sourceSchema: Option[StructType],
+                             conditions: Seq[DiscardCondition]
+                           ): DistributedMonad[DStream] = {
+        if (conditions.nonEmpty) {
+          val transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
+            case (rdd1, rdd2) =>
+              val discardConditions = conditions.map(_.toSql(sourceTable, targetTable)).mkString(" AND ")
+              sourceSchema.orElse(getSchemaFromRdd(rdd1))
+                .foreach(schema => xdSession.createDataFrame(rdd1, schema).createOrReplaceTempView(sourceTable))
+              targetSchema.orElse(getSchemaFromRdd(rdd2))
+                .foreach(schema => xdSession.createDataFrame(rdd2, schema).createOrReplaceTempView(targetTable))
+              xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions").rdd
+          }
+
+          ds.transformWith(targetData.ds, transformFunc)
+        } else ssc.queueStream(new mutable.Queue[RDD[Row]])
+      }
+
       override def writeTemplate(
                                   outputOptions: OutputOptions,
                                   errorsManagement: ErrorsManagement,
@@ -334,6 +377,22 @@ object DistributedMonad {
           ds.rdd.setName(s"${ds.rdd.name}#$name")
         else ds.rdd.setName(name)
 
+      override def discards(
+                             targetData: DistributedMonad[Dataset],
+                             targetTable: String,
+                             targetSchema: Option[StructType],
+                             sourceTable: String,
+                             sourceSchema: Option[StructType],
+                             conditions: Seq[DiscardCondition]
+                           ): DistributedMonad[Dataset] = {
+        if (conditions.nonEmpty) {
+          val discardConditions = conditions.map(_.toSql(sourceTable, targetTable)).mkString(" AND ")
+          ds.createOrReplaceTempView(sourceTable)
+          targetData.ds.createOrReplaceTempView(targetTable)
+          xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions")
+        } else xdSession.emptyDataFrame
+      }
+
       override def writeTemplate(
                                   outputOptions: OutputOptions,
                                   errorsManagement: ErrorsManagement,
@@ -375,6 +434,24 @@ object DistributedMonad {
           ds.setName(s"${ds.name}#$name")
         else ds.setName(name)
 
+      override def discards(
+                             targetData: DistributedMonad[RDD],
+                             targetTable: String,
+                             targetSchema: Option[StructType],
+                             sourceTable: String,
+                             sourceSchema: Option[StructType],
+                             conditions: Seq[DiscardCondition]
+                           ): DistributedMonad[RDD] = {
+        if (conditions.nonEmpty) {
+          val discardConditions = conditions.map(_.toSql(sourceTable, targetTable)).mkString(" AND ")
+          sourceSchema.orElse(getSchemaFromRdd(ds))
+            .foreach(schema => xdSession.createDataFrame(ds, schema).createOrReplaceTempView(sourceTable))
+          targetSchema.orElse(getSchemaFromRdd(targetData.ds))
+            .foreach(schema => xdSession.createDataFrame(targetData.ds, schema).createOrReplaceTempView(targetTable))
+          xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions").rdd
+        } else xdSession.sparkContext.emptyRDD[Row]
+      }
+
       override def writeTemplate(
                                   outputOptions: OutputOptions,
                                   errorsManagement: ErrorsManagement,
@@ -389,6 +466,11 @@ object DistributedMonad {
       implicit underlying2distributedMonad: Underlying[Row] => DistributedMonad[Underlying]
     ): Map[K, DistributedMonad[Underlying]] = m.mapValues(v => v: DistributedMonad[Underlying])
 
+    implicit def fromOptionRDDToOptionMonad(optionalRdd: Option[RDD[Row]]): Option[RDDDistributedMonad] =
+      optionalRdd.map { rdd => RDDDistributedMonad(rdd) }
+
+    implicit def fromOptionDStreamToOptionMonad(optionalDStream: Option[DStream[Row]]): Option[DStreamAsDistributedMonad] =
+      optionalDStream.map { stream => DStreamAsDistributedMonad(stream) }
   }
 
   //scalastyle:on

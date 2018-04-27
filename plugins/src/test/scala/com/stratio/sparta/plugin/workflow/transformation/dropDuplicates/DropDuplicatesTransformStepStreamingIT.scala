@@ -41,7 +41,7 @@ class DropDuplicatesTransformStepStreamingIT extends TemporalSparkContext with M
       Option(ssc),
       sparkSession,
       Map()
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -79,7 +79,7 @@ class DropDuplicatesTransformStepStreamingIT extends TemporalSparkContext with M
       Option(ssc),
       sparkSession,
       Map()
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -110,6 +110,18 @@ class DropDuplicatesTransformStepStreamingIT extends TemporalSparkContext with M
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val discardConditions =
+      """[
+        |{
+        |   "previousField":"color",
+        |   "transformedField":"color"
+        |},
+        |{
+        |   "previousField":"price",
+        |   "transformedField":"price"
+        |}
+        |]
+        | """.stripMargin
     val columns =
       s"""[
          |{
@@ -122,11 +134,13 @@ class DropDuplicatesTransformStepStreamingIT extends TemporalSparkContext with M
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columns" -> columns)
-    ).transform(inputData)
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+      Map("columns" -> columns, "discardConditions" -> discardConditions)
+    ).transformWithDiscards(inputData)
 
-    result.ds.foreachRDD(rdd => {
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val discardedEvents = ssc.sparkContext.accumulator(0L, "Number of discarded events received")
+
+    result._1.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
@@ -135,10 +149,20 @@ class DropDuplicatesTransformStepStreamingIT extends TemporalSparkContext with M
       if (!rdd.isEmpty())
         streamingRegisters.foreach(row => assert(data1.contains(row)))
     })
+
+    result._3.get.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      discardedEvents += streamingEvents
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach(row => assert(data1.contains(row)))
+    })
+
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(discardedEvents.value === 1)
   }
 }

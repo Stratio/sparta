@@ -28,11 +28,11 @@ class InitNullsTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     val rdd = applyHeadTransform(inputData)(transformFunction)
     val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
       .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
 
-    (rdd, schema)
+    (rdd, schema, None)
   }
 }

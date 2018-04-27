@@ -18,22 +18,23 @@ import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 
-class AddColumnTransformStepBatch(
-                                   name: String,
-                                   outputOptions: OutputOptions,
-                                   transformationStepsManagement: TransformationStepManagement,
-                                   ssc: Option[StreamingContext],
-                                   xDSession: XDSession,
-                                   properties: Map[String, JSerializable]
-                                 ) extends AddColumnTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+class AddColumnsTransformStepBatch(
+                                    name: String,
+                                    outputOptions: OutputOptions,
+                                    transformationStepsManagement: TransformationStepManagement,
+                                    ssc: Option[StreamingContext],
+                                    xDSession: XDSession,
+                                    properties: Map[String, JSerializable]
+                                  ) extends AddColumnsTransformStep[RDD](
+  name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) =
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
-      val inputRdd = inputDistributedMonad.ds
-      val (rdd, schema) =
-        applyValues(inputRdd, stepName)
-      (rdd, schema.orElse(getSchemaFromRdd(rdd)))
+      val (rdd, schema, inputSchema) = applyValues(inputDistributedMonad.ds, stepName)
+
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
+  }
 }

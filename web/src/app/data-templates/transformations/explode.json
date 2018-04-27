@@ -5,6 +5,7 @@
   "classPrettyName": "Explode",
   "arity": ["UnaryToNary"],
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData"],
   "description": "Explode an input field and returns one row for each element in the input field",
   "properties": [
      {

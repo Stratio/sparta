@@ -5,6 +5,7 @@
      "classPrettyName": "Json",
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
      "description": "Allows you to load data from json files",
      "properties": [
         {

@@ -37,14 +37,27 @@ class FilterTransformStepBatchIT extends TemporalSparkContext with Matchers with
       Option(ssc),
       sparkSession,
       Map("filterExp" -> "color = 'blue'")
-    ).transformWithSchema(inputData)._1
-    val streamingEvents = result.ds.count()
-    val streamingRegisters = result.ds.collect()
+    ).transformWithDiscards(inputData)
+
+    //Test filtered events
+    val filteredData = result._1
+    val streamingEvents = filteredData.ds.count()
+    val streamingRegisters = filteredData.ds.collect()
 
     if (streamingRegisters.nonEmpty)
       streamingRegisters.foreach(row => assert(data1.contains(row)))
 
     assert(streamingEvents === 1)
+
+    //Test discarded events
+    val discardedData = result._3.get
+    val discardedEvents = discardedData.ds.count()
+    val discardedRegisters = discardedData.ds.collect()
+
+    if (discardedRegisters.nonEmpty)
+      discardedRegisters.foreach(row => assert(data1.contains(row)))
+
+    assert(discardedEvents === 2)
 
   }
 }

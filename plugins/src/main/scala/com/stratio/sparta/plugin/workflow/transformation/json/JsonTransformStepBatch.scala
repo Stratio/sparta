@@ -28,7 +28,7 @@ class JsonTransformStepBatch(
 
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType]) = {
+                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
     val rdd = transformFunc(inputData)
     val finalSchema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
       .orElse {
@@ -43,6 +43,6 @@ class JsonTransformStepBatch(
       }
       .orElse(getSchemaFromRdd(rdd.ds))
 
-    (rdd, finalSchema)
+    (rdd, finalSchema, None)
   }
 }

@@ -10,10 +10,12 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 
@@ -65,18 +67,17 @@ class CheckpointTransformStepStreaming(
     validation
   }
 
-  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
-    interval match {
-      case Some(time) => inputStream.ds.checkpoint(time)
-      case None => inputStream
-    }
-  }
-
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData)(transformFunction).ds.transform { rdd =>
+    applyHeadTransform(inputData) { (_, inputStream) =>
+      interval match {
+        case Some(time) => inputStream.ds.checkpoint(time)
+        case None => inputStream
+      }
+    }.ds.transform { rdd =>
       getSchemaFromSessionOrModel(xDSession, name, inputsModel)
         .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
         .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
       rdd
     }
+
 }

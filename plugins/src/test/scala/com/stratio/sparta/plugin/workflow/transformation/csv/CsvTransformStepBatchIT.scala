@@ -63,7 +63,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
         "inputField" -> inputField,
         "schema.inputMode" -> "FIELDS",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>
@@ -104,7 +104,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
         "inputField" -> inputField,
         "schema.inputMode" -> "HEADER",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val arrayValues = result.ds.collect()
 
     arrayValues.foreach { row =>

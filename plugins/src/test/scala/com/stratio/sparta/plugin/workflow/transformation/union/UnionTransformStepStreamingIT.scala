@@ -39,7 +39,7 @@ class UnionTransformStepStreamingIT extends TemporalSparkContext with Matchers w
       Option(ssc),
       sparkSession,
       Map()
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {

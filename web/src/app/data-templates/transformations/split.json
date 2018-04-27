@@ -3,6 +3,7 @@
    "icon": "Split",
    "className": "SplitTransformStep",
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
    "classPrettyName": "Split",
    "arity": ["UnaryToNary"],
    "description": "Split values according to a selected method",

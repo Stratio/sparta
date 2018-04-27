@@ -42,7 +42,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
       Option(ssc),
       sparkSession,
       Map("selectExp" -> "color")
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
 
@@ -84,7 +84,7 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
         "columns" -> columns,
         "selectType" -> "COLUMNS"
       )
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val batchEvents = result.ds.count()
     val batchRegisters = result.ds.collect()
 

@@ -4,6 +4,7 @@
   "className": "JsonPathTransformStep",
   "classPrettyName": "JsonPath",
    "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData", "DiscardedData"],
   "arity": [
     "UnaryToNary"
   ],

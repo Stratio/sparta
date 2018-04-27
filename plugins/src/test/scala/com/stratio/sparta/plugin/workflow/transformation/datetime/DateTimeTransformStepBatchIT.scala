@@ -82,7 +82,7 @@ class DateTimeTransformStepBatchIT extends TemporalSparkContext with Matchers {
       Some(ssc),
       sparkSession,
       Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable])
-    ).transformWithSchema(inputData)._1
+    ).transformWithDiscards(inputData)._1
     val streamingEvents = result.ds.count()
     val streamingRegisters = result.ds.collect()
 
