@@ -22,7 +22,7 @@
     "docker_forcePullImage": false,
     "docker_privileged": false,
     "Tasks": {
-      "gracePeriodSeconds": 600,
+      "gracePeriodSeconds": 2000,
       "intervalSeconds": 60,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
@@ -39,7 +39,7 @@
   "Marathon-LB": {
     "enabled": true,
     "haproxy_group": "external",
-    "haproxy_host": "sparta.megadev.labs.stratio.com",
+    "haproxy_host": "sparta.nightly.labs.stratio.com",
     "nginx_proxy": true,
     "https": true,
     "server_side_verification": false,
