@@ -3,30 +3,33 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.plugin.workflow.output.jdbc
 
 import java.io.{Serializable => JSerializable}
+import scala.util.{Failure, Success, Try}
 
+import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
+import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
+import org.apache.spark.sql.jdbc.{SpartaJdbcUtils, TxSaveMode}
+
+import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
-import org.apache.spark.sql._
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
-import org.apache.spark.sql.jdbc.SpartaJdbcUtils
-import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
-
-import scala.util.{Failure, Success, Try}
 
 class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
   lazy val url = properties.getString("url")
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
-
+  lazy val jdbcSaveMode = TransactionTypes.withName(properties.getString("jdbcSaveMode", "STATEMENT"))
+  lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
   val urlWithSSL = if (tlsEnable) url + securityUri else url
@@ -34,9 +37,9 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
-    if(url.isEmpty)
+    if (url.isEmpty)
       validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name: the url must be provided")
-    if(tlsEnable && securityUri.isEmpty)
+    if (tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: when TLS is enabled the sparkConf must contain the security options"
@@ -71,6 +74,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
       case Success(tableExists) =>
         try {
           if (tableExists) {
+            val txSaveMode = TxSaveMode(jdbcSaveMode, failFast)
             if (saveMode == SaveModeEnum.Upsert) {
               val updateFields = getPrimaryKeyOptions(options) match {
                 case Some(pk) => pk.trim.split(",").toSeq
@@ -81,7 +85,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
               require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
                 "The all the primary key fields should be present in the dataFrame schema")
 
-              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
+              SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
             }
 
             if (saveMode == SaveModeEnum.Ignore) return
@@ -89,7 +93,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
             if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
 
             if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
-              SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
+              SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name, txSaveMode, None)
           } else log.warn(s"Table not created: $tableName")
         } catch {
           case e: Exception =>

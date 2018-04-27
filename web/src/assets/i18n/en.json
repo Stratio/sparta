@@ -469,6 +469,9 @@
    "_POSTGRES_DELIMITER_": "Delimiter character",
    "_POSTGRES_NEW_LINE_SUBSTITUTION_": "Character to new line substitution",
    "_POSTGRES_SAVE_MODE_": "Postgres save mode",
+   "_DROP_TEMP_TABLE_SUCCESS_" : "Drop temporary table on success",
+   "_DROP_TEMP_TABLE_FAILURE_" : "Drop temporary table on failure",
+   "_JDBC_SAVE_MODE_": "Jdbc save mode",
    "_POSTGRES_ENCODING_": "Encoding",
    "_JDBC_URL_": "url",
    "_JDBC_SAVE_PROPERTIES_": "JDBC save properties",
@@ -544,6 +547,7 @@
    "_COLUMNS_TO_RENAME_" : "Columns to Rename",
    "_NEW_COLUMN_NAME_": "New Column name",
    "_COLUMNS_TO_ADD_" : "Columns to add",
+   "_FAIL_FAST_" : "Fail Fast",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

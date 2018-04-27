@@ -24,7 +24,7 @@ hose {
               ]
             ],
             ['POSTGRESQL':[
-              'image': 'postgresql:9.3',
+              'image': 'postgres:9.6',
               'sleep': 60,
               'healthcheck': 5432]
             ],

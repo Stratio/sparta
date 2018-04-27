@@ -3,10 +3,13 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package org.apache.spark.sql.jdbc
 
-import java.sql.{Connection, PreparedStatement, SQLException}
+import java.sql.{Connection, PreparedStatement, SQLException, Savepoint}
 import java.util.Locale
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils._
@@ -14,8 +17,11 @@ import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.plugin.enumerations.TransactionTypes
+import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
+
+case class TxSaveMode(txType: TxType, failFast: Boolean)
+case class TxOneValues(connection: Connection, savePoint: Savepoint, temporalTableName: String)
 
 object SpartaJdbcUtils extends SLF4JLogging {
 
@@ -47,19 +53,20 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def dropTable(connectionProperties: JDBCOptions, outputName: String): Unit = {
+  def dropTable(connectionProperties: JDBCOptions, outputName: String, tableName: Option[String] = None): Unit = {
     synchronized {
       val conn = getConnection(connectionProperties, outputName)
       conn.setAutoCommit(true)
       val statement = conn.createStatement
-      Try(statement.executeUpdate(s"DROP TABLE ${connectionProperties.table}")) match {
+      val tableToDrop = tableName.getOrElse(connectionProperties.table)
+      Try(statement.executeUpdate(s"DROP TABLE $tableToDrop")) match {
         case Success(_) =>
-          log.debug(s"Dropped correctly table ${connectionProperties.table} ")
+          log.debug(s"Dropped correctly table $tableToDrop ")
           statement.close()
-          tablesCreated.remove(connectionProperties.table)
+          tablesCreated.remove(tableToDrop)
         case Failure(e) =>
           statement.close()
-          log.error(s"Error dropping table ${connectionProperties.table} ${e.getLocalizedMessage} and output $outputName", e)
+          log.error(s"Error dropping table $tableToDrop ${e.getLocalizedMessage} and output $outputName", e)
           throw e
       }
     }
@@ -87,9 +94,38 @@ object SpartaJdbcUtils extends SLF4JLogging {
             throw e
         }
       }
-    } else
+    } else {
       log.debug(s"Empty schema fields on ${connectionProperties.table} and output $outputName")
       false
+    }
+  }
+
+  /**
+    * Temporal table creation
+    *
+    * @return Tuple of connection and savepoint for rollback
+    */
+  def createTemporalTable(connectionProperties: JDBCOptions): (Connection, Savepoint, String) = {
+    synchronized {
+      val conn = getConnection(connectionProperties, s"${connectionProperties.table}_temporal")
+      conn.setAutoCommit(false)
+      lazy val savePointTempTable: Savepoint = conn.setSavepoint(s"${connectionProperties.table}_temporal_savepoint")
+      val temporalTableName = s"${connectionProperties.table}_tmp_${System.currentTimeMillis()}"
+      val sql = s"CREATE table $temporalTableName AS SELECT * FROM ${connectionProperties.table} WHERE 1 = 0"
+      val stmt = conn.prepareStatement(sql)
+      Try(stmt.execute()) match {
+        case Success(_) =>
+          log.debug(s"Created correctly temporal table $temporalTableName")
+          stmt.close()
+          conn.commit()
+          (conn, savePointTempTable, temporalTableName)
+        case Failure(e) =>
+          stmt.close()
+          conn.rollback()
+          log.error(s"Error creating temporal table $temporalTableName", e)
+          throw e
+      }
+    }
   }
 
   def getConnection(properties: JDBCOptions, outputName: String): Connection = {
@@ -129,7 +165,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def saveTable(df: DataFrame, properties: JDBCOptions, outputName: String) {
+  def saveTable(df: DataFrame, properties: JDBCOptions, outputName: String, txSaveMode: TxSaveMode,
+                tempName: Option[String]) {
     val schema = df.schema
     val dialect = JdbcDialects.get(properties.url)
     val batchSize = properties.batchSize
@@ -145,10 +182,13 @@ object SpartaJdbcUtils extends SLF4JLogging {
     repartitionedDF.foreachPartition { iterator =>
       if (iterator.hasNext) {
         Try {
-          savePartition(properties, iterator, schema, dialect, batchSize, isolationLevel, outputName, isCaseSensitive)
+          savePartition(properties, iterator, schema, dialect, batchSize, isolationLevel, outputName, isCaseSensitive, txSaveMode, tempName)
         } match {
-          case Success(_) =>
-            log.debug(s"Save partition correctly on table ${properties.table} and output $outputName")
+          case Success(txFail) =>
+            if (txFail)
+              throw new Exception(s"Error saving partition on table ${properties.table} and output $outputName")
+            else
+              log.debug(s"Save partition correctly on table ${properties.table} and output $outputName")
           case Failure(e) =>
             log.error(s"Save partition with errors on table ${properties.table} and output $outputName." +
               s"Error: ${e.getLocalizedMessage}")
@@ -162,7 +202,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
                    df: DataFrame,
                    properties: JDBCOptions,
                    searchFields: Seq[String],
-                   outputName: String
+                   outputName: String,
+                   txSaveMode: TxSaveMode
                  ): Unit = {
     val schema = df.schema
     val dialect = JdbcDialects.get(properties.url)
@@ -171,14 +212,14 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
     val searchTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
       if (searchFields.contains(field.name))
-        Option(index ->(searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
+        Option(index -> (searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
       else None
     }.toMap
     val updateTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
       if (!searchFields.contains(field.name))
         Option(index -> getJdbcType(field.dataType, dialect).jdbcNullType)
       else None
-    }.toMap.zipWithIndex.map { case ((index, nullType), updateIndex) => index ->(updateIndex, nullType) }
+    }.toMap.zipWithIndex.map { case ((index, nullType), updateIndex) => index -> (updateIndex, nullType) }
     val insert = insertWithExistsSql(properties.table, schema, searchFields)
     val update = updateSql(properties.table, schema, searchFields)
     val repartitionedDF = properties.numPartitions match {
@@ -192,10 +233,13 @@ object SpartaJdbcUtils extends SLF4JLogging {
     repartitionedDF.foreachPartition { iterator =>
       if (iterator.hasNext) {
         Try {
-          upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes, outputName)
+          upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes, outputName, txSaveMode)
         } match {
-          case Success(_) =>
-            log.debug(s"Upsert partition correctly on table ${properties.table} and output $outputName")
+          case Success(txFail) =>
+            if (txFail)
+              throw new Exception(s"Error in upsert partition on table ${properties.table} and output $outputName")
+            else
+              log.debug(s"Upsert partition correctly on table ${properties.table} and output $outputName")
           case Failure(e) =>
             log.error(s"Upsert partition with errors on table ${properties.table} and output $outputName." +
               s" Error: ${e.getLocalizedMessage}")
@@ -312,8 +356,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
                              batchSize: Int,
                              isolationLevel: Int,
                              outputName: String,
-                             isCaseSensitive: Boolean
-                           ): Iterator[Byte] = {
+                             isCaseSensitive: Boolean,
+                             txSaveMode: TxSaveMode,
+                             tempName: Option[String]
+                           ): Boolean = {
     val conn = getConnection(properties, outputName)
     val schemaFromDatabase = Try(properties.asProperties.getProperty("schemaFromDatabase")).toOption
     val tableSchema = schemaFromDatabase.flatMap { value =>
@@ -321,8 +367,9 @@ object SpartaJdbcUtils extends SLF4JLogging {
         JdbcUtils.getSchemaOption(conn, properties)
       else None
     }
-    val insertStmt = getInsertStatement(properties.table, rddSchema, tableSchema, isCaseSensitive, dialect)
+
     var committed = false
+    var txFail = false
 
     var finalIsolationLevel = Connection.TRANSACTION_NONE
     if (isolationLevel != Connection.TRANSACTION_NONE) {
@@ -347,48 +394,111 @@ object SpartaJdbcUtils extends SLF4JLogging {
         case NonFatal(e) => log.warn(s"Exception while detecting transaction support. ${e.getLocalizedMessage}")
       }
     }
-    val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
 
     try {
+
+      val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
       if (supportsTransactions) {
         if (conn.getAutoCommit)
           conn.setAutoCommit(false)
         if (conn.getTransactionIsolation != finalIsolationLevel)
           conn.setTransactionIsolation(finalIsolationLevel)
       }
-      val stmt = conn.prepareStatement(insertStmt)
+
+      def insertStmt()(tableName: String) = getInsertStatement(tableName, rddSchema, tableSchema, isCaseSensitive, dialect)
+
+      lazy val insert: String => String = insertStmt()
+
       val setters = rddSchema.fields.map(f => makeSetter(conn, dialect, f.dataType))
       val nullTypes = rddSchema.fields.map(f => getJdbcType(f.dataType, dialect).jdbcNullType)
-      try {
-        var rowCount = 0
-        while (iterator.hasNext) {
-          val row = iterator.next()
-          val numFields = rddSchema.fields.length
-          var i = 0
-          while (i < numFields) {
-            if (row.isNullAt(i)) {
-              stmt.setNull(i + 1, nullTypes(i))
-            } else {
-              setters(i).apply(stmt, row, i)
-            }
-            i = i + 1
+
+      def applySettersStmt(row: Row)(implicit stmt: PreparedStatement) = {
+        val numFields = rddSchema.fields.length
+        var i = 0
+        while (i < numFields) {
+          if (row.isNullAt(i)) {
+            stmt.setNull(i + 1, nullTypes(i))
+          } else {
+            setters(i).apply(stmt, row, i)
           }
-          stmt.addBatch()
-          rowCount += 1
-          if (rowCount % batchSize == 0) {
-            stmt.executeBatch()
-            rowCount = 0
-          }
+          i = i + 1
         }
-        if (rowCount > 0) {
-          stmt.executeBatch()
-        }
-      } finally {
-        stmt.close()
       }
-      if (supportsTransactions) conn.commit()
-      committed = true
-      Iterator.empty
+
+      txSaveMode.txType match {
+
+        case TransactionTypes.SINGLE_STATEMENT =>
+          implicit lazy val stmt = conn.prepareStatement(insert(properties.table))
+          while (iterator.hasNext) {
+            try {
+              applySettersStmt(iterator.next())
+              stmt.execute()
+              if (supportsTransactions) conn.commit()
+            } catch {
+              case e: SQLException =>
+                if (supportsTransactions && !conn.getAutoCommit)
+                  log.warn(s"Transaction ${TransactionTypes.SINGLE_STATEMENT} on table ${properties.table} not succeeded, rollback it")
+                conn.rollback()
+                if (txSaveMode.failFast)
+                  throw e
+                else
+                  log.error(s"Transaction ${TransactionTypes.SINGLE_STATEMENT} on table ${properties.table} not succeeded", e)
+                txFail = true
+            }
+          }
+        case TransactionTypes.STATEMENT =>
+          try {
+            implicit lazy val stmt = conn.prepareStatement(insert(properties.table))
+            var rowCount = 0
+            while (iterator.hasNext) {
+              applySettersStmt(iterator.next())
+              stmt.addBatch()
+              rowCount += 1
+              if (rowCount % batchSize == 0) {
+                stmt.executeBatch()
+                rowCount = 0
+              }
+            }
+            if (rowCount > 0)
+              stmt.executeBatch()
+            if (supportsTransactions) conn.commit()
+            committed = true
+          } catch {
+            case e: SQLException =>
+              if (supportsTransactions && !conn.getAutoCommit) {
+                log.warn(s"Transaction ${TransactionTypes.STATEMENT} on table ${properties.table} not succeeded, rollback it")
+                conn.rollback()
+              }
+              if (txSaveMode.failFast)
+                throw e
+              else
+                log.error(s"Transaction ${TransactionTypes.STATEMENT} on table ${properties.table} not succeeded", e)
+              txFail = true
+          }
+        case TransactionTypes.ONE_TRANSACTION =>
+          try {
+            implicit lazy val stmt = conn.prepareStatement(insert(tempName.getOrElse(s"${outputName}_tmp")))
+            var rowCount = 0
+            while (iterator.hasNext) {
+              applySettersStmt(iterator.next())
+              stmt.addBatch()
+              rowCount += 1
+              if (rowCount % batchSize == 0) {
+                stmt.executeBatch()
+                rowCount = 0
+              }
+            }
+            if (rowCount > 0)
+              stmt.executeBatch()
+
+            conn.commit()
+          } catch {
+            case e: Exception =>
+              log.error(s"Transaction ${TransactionTypes.ONE_TRANSACTION} on table ${properties.table} not succeeded, escalate. ${e.getLocalizedMessage}", e)
+              throw e
+          }
+      }
+      txFail
     } catch {
       case e: SQLException =>
         val cause = e.getNextException
@@ -409,13 +519,6 @@ object SpartaJdbcUtils extends SLF4JLogging {
           }
         }
         throw e
-    } finally {
-      if (!committed) {
-        if (supportsTransactions && !conn.getAutoCommit) {
-          log.warn(s"Transaction not succeeded, rollback it")
-          conn.rollback()
-        }
-      }
     }
   }
 
@@ -429,8 +532,9 @@ object SpartaJdbcUtils extends SLF4JLogging {
                                dialect: JdbcDialect,
                                searchTypes: Map[Int, (Int, Int)],
                                updateTypes: Map[Int, (Int, Int)],
-                               outputName: String
-                             ): Unit = {
+                               outputName: String,
+                               txSaveMode: TxSaveMode
+                             ): Boolean = {
     val conn = getConnection(properties, outputName)
     val isolationLevel = properties.isolationLevel
     val batchSize = properties.batchSize
@@ -458,6 +562,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
       }
     }
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
+    var txFail = false
 
     try {
       if (supportsTransactions) {
@@ -509,10 +614,37 @@ object SpartaJdbcUtils extends SLF4JLogging {
           insertStmt.foreach(_.executeBatch())
           updateStmt.foreach(_.executeBatch())
         }
-      } finally {
+      } catch {
+        case e: SQLException =>
+          if (txSaveMode.failFast)
+            throw e
+          else
+            log.error(s"Transaction upsert on table ${properties.table} not succeeded", e)
+          txFail = true
+      }
+      finally {
         insertStmt.foreach(_.close())
         updateStmt.foreach(_.close())
       }
+      txFail
+    } catch {
+      case e: SQLException =>
+        val cause = e.getNextException
+        if (cause != null && e.getCause != cause) {
+          // If there is no cause already, set 'next exception' as cause. If cause is null,
+          // it *may* be because no cause was set yet
+          if (e.getCause == null) {
+            try {
+              e.initCause(cause)
+            } catch {
+              // Or it may be null because the cause *was* explicitly initialized, to *null*,
+              // in which case this fails. There is no other way to detect it.
+              // addSuppressed in this case as well.
+              case _: IllegalStateException => e.addSuppressed(cause)
+            }
+          } else e.addSuppressed(cause)
+        }
+        throw e
     } finally {
       try {
         if (supportsTransactions) conn.commit()

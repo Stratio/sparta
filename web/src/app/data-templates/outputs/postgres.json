@@ -56,30 +56,22 @@
         "qa": "fragment-postgres-isolation-level"
       },
       {
-        "propertyId": "tlsEnabled",
-        "propertyName": "_TLS_ENABLE_",
-        "propertyType": "boolean",
-        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
-        "default": false,
-        "qa": "fragment-details-postgres-tls"
-      },
-       {
-          "propertyId": "schemaFromDatabase",
-          "propertyName": "_SCHEMA_FROM_DATABASE_",
-          "propertyType": "boolean",
-          "tooltip": "Extract schema from output database",
-          "default": false,
-          "qa": "fragment-details-postgres-schema-database"
-       },
-      {
         "propertyId": "postgresSaveMode",
         "propertyName": "_POSTGRES_SAVE_MODE_",
         "propertyType": "select",
         "values": [
           {
-            "label": "Statement",
+            "label": "Batch Statement",
             "value": "STATEMENT"
           },
+           {
+              "label": "Single Statement",
+              "value": "SINGLE_STATEMENT"
+           },
+           {
+              "label": "One Transaction",
+              "value": "ONE_TRANSACTION"
+           },
           {
             "label": "Copy In",
             "value": "COPYIN"
@@ -87,26 +79,43 @@
         ],
         "default": "STATEMENT",
         "required": true,
-        "tooltip": "Sets whether the output should be written with copy in implementation or statement implementation",
+        "tooltip": "Sets whether the output should be written with copy in, batch statement, row by row, or all in a single transaction implementation",
         "qa": "fragment-postgres-save-mode"
       },
-      {
-        "propertyId": "delimiter",
-        "propertyName": "_POSTGRES_DELIMITER_",
-        "propertyType": "text",
-        "visible": [
-          [
-            {
-              "propertyId": "postgresSaveMode",
-              "value": "COPYIN"
-            }
-          ]
-        ],
-        "default": "\t",
-        "required": false,
-        "tooltip": "Delimiter character used when transform to CSV, it's necessary that the events not contains the character",
-        "qa": "fragment-details-postgres-delimiter"
-      },
+       {
+          "propertyId": "batchsize",
+          "propertyName": "_JDBC_BATCH_SIZE_",
+          "propertyType": "text",
+          "visible": [
+             [
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "STATEMENT"
+                }
+             ]
+          ],
+          "default": "1000",
+          "required": false,
+          "tooltip": "Number of upsert statements that are sent to Database on each partition",
+          "qa": "fragment-details-jdbc-batch-size"
+       },
+       {
+          "propertyId": "delimiter",
+          "propertyName": "_POSTGRES_DELIMITER_",
+          "propertyType": "text",
+          "visible": [
+             [
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "COPYIN"
+                }
+             ]
+          ],
+          "default": "\t",
+          "required": false,
+          "tooltip": "Delimiter character used when transform to CSV, it's necessary that the events not contains the character",
+          "qa": "fragment-details-postgres-delimiter"
+       },
       {
         "propertyId": "newLineSubstitution",
         "propertyName": "_POSTGRES_NEW_LINE_SUBSTITUTION_",
@@ -158,23 +167,78 @@
         "tooltip": "Charset encoding to use during saving",
         "qa": "fragment-details-postgres-encoding"
       },
-      {
-        "propertyId": "batchsize",
-        "propertyName": "_JDBC_BATCH_SIZE_",
-        "propertyType": "text",
-        "visible": [
-          [
-            {
-              "propertyId": "postgresSaveMode",
-              "value": "STATEMENT"
-            }
-          ]
-        ],
-        "default": "1000",
-        "required": false,
-        "tooltip": "Number of upsert statements that are sent to Database on each partition",
-        "qa": "fragment-details-jdbc-batch-size"
-      },
+       {
+          "propertyId": "failFast",
+          "propertyName": "_FAIL_FAST_",
+          "propertyType": "boolean",
+          "visibleOR": [
+             [
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "STATEMENT"
+                },
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "SINGLE_STATEMENT"
+                }
+             ]
+          ],
+          "default": true,
+          "required": true,
+          "tooltip": "Is enabled, on first error the workflow fails, if it is not enabled, errors are ignored",
+          "qa": "fragment-details-postgres-failfast"
+       },
+       {
+          "propertyId": "dropTemporalTableSuccess",
+          "propertyName": "_DROP_TEMP_TABLE_SUCCESS_",
+          "propertyType": "boolean",
+          "visible": [
+             [
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "ONE_TRANSACTION"
+                }
+             ]
+          ],
+          "default": true,
+          "float": true,
+          "required": true,
+          "tooltip": "Is checked, temporal table used for one transaction type backup intermediate records, is deleted. Ends with _tmp_{Timestamp}",
+          "qa": "fragment-details-postgres-droptemptable-success"
+       },
+       {
+          "propertyId": "dropTemporalTableFailure",
+          "propertyName": "_DROP_TEMP_TABLE_FAILURE_",
+          "propertyType": "boolean",
+          "visible": [
+             [
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "ONE_TRANSACTION"
+                }
+             ]
+          ],
+          "default": false,
+          "required": true,
+          "tooltip": "Is checked, temporal table used for one transaction type backup intermediate records, is deleted on failures. Ends with _tmp_{Timestamp}",
+          "qa": "fragment-details-postgres-droptemptable-failure"
+       },
+       {
+          "propertyId": "tlsEnabled",
+          "propertyName": "_TLS_ENABLE_",
+          "propertyType": "boolean",
+          "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+          "default": false,
+          "qa": "fragment-details-postgres-tls"
+       },
+       {
+          "propertyId": "schemaFromDatabase",
+          "propertyName": "_SCHEMA_FROM_DATABASE_",
+          "propertyType": "boolean",
+          "tooltip": "Extract schema from output database",
+          "default": false,
+          "qa": "fragment-details-postgres-schema-database"
+       },
        {
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
