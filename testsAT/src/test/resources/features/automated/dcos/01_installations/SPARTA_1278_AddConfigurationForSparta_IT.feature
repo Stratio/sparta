@@ -9,7 +9,7 @@ Feature: [SPARTA-1278] Add Initial Configuration for Sparta
   Scenario:[SPARTA-1278][02]Modify registerService.xml for sparta Auth in all master agents
     Given I open a ssh connection to '<MASTER_IP>' with user 'root' and password 'stratio'
     #add sparta-node in RegisterService.xml
-    When I run 'sed -i '/<\/util:list>/i <bean class="org.jasig.cas.support.oauth.services.OAuthRegisteredService" p:id="${IDNODE}" p:name="${DCOS_SERVICE_NAME}" p:description="A service for sparta-server running in DCOS" p:serviceId="https://sparta.${CLUSTER_ID}.labs.stratio.com/${DCOS_SERVICE_NAME}/login" p:bypassApprovalPrompt="true" p:clientId="${DCOS_SERVICE_NAME}-oauth-id" p:clientSecret="${CLIENTSECRET}"/>' ${URL_GOSEC}/cas/spring-configuration/register-services.xml' in the ssh connection
+    When I run 'sed -i '/<\/util:list>/i <bean class="org.jasig.cas.support.oauth.services.OAuthRegisteredService" p:id="${IDNODE}" p:name="${DCOS_SERVICE_NAME}" p:description="A service for sparta-server running in DCOS" p:serviceId="https://sparta.${CLUSTER_ID}.labs.stratio.com/${DCOS_SERVICE_NAME}/login" p:bypassApprovalPrompt="true" p:clientId="${DCOS_SERVICE_NAME}-oauth-id" p:clientSecret="${CLIENTSECRET}"/>' ${URL_GOSEC:-opt/stratio/gosec-sso/conf}/cas/spring-configuration/register-services.xml' in the ssh connection
     # Restart Gosec
     When I run 'systemctl restart  gosec-sso.service' in the ssh connection
     And I wait '15' seconds
