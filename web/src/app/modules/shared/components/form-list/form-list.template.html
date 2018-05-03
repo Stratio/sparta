@@ -10,7 +10,7 @@
                <div class="form-item" [formGroup]="item">
                   <div class="list-field" [ngClass]="{'last' : last}">
                      <ng-container *ngFor="let field of formListData; let j = index;">
-                        <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="getItemClass(field)">
+                        <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="field.classed">
     
                            <st-input [name]="field.propertyId" 
                                 [errors]="errorsService.errors.inputErrors" 

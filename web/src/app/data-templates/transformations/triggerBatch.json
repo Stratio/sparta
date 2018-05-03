@@ -4,11 +4,11 @@
    "className": "TriggerTransformStep",
    "supportedEngines": ["Batch"],
    "supportedDataRelations": ["ValidData", "DiscardedData"],
+   "crossdataCatalog": true,
    "classPrettyName": "Trigger",
    "arity": ["BinaryToNary", "UnaryToNary", "NaryToNary"],
    "description": "Execute one trigger with one SQL query",
-   "properties": [
-      {
+   "properties": [{
          "propertyId": "sql",
          "propertyName": "_SQL_",
          "propertyType": "textarea",
@@ -26,8 +26,7 @@
          "width": 8,
          "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
          "qa": "fragment-details-discard-conditions",
-         "fields": [
-            {
+         "fields": [{
                "propertyId": "previousField",
                "propertyName": "_PREVIOUS_FIELD_",
                "propertyType": "text",
@@ -55,8 +54,7 @@
          "width": 8,
          "tooltip": "Schema definition for steps",
          "qa": "fragment-details-schema-fields",
-         "fields": [
-            {
+         "fields": [{
                "propertyId": "stepName",
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",

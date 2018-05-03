@@ -70,6 +70,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
    ngOnInit() {
      this.initForm();
      this.formListData.forEach(field => {
+         field.classed = this._getItemClass(field);
          this.item[field.propertyId] = this.addItemValidation(field);
          this.getDisabledConditions(field);
       });
@@ -164,7 +165,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
       return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.isDisabled;
    }
 
-   getItemClass(field: any): string {
+   private _getItemClass(field: any): string {
       if (field.width) {
          return 'list-item col-sm-' + field.width;
       }

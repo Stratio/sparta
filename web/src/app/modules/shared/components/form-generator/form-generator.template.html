@@ -12,7 +12,7 @@
                   [forceValidations]="submitted" 
                   [formData]="prop.field.properties"></form-generator>
          </div>
-         <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="getClass(prop.field.width)">
+         <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="prop.field.classed">
             <form-field [disabledForm]="disabledForm"
                   [valueDictionary]="valueDictionary"
                   [field]="prop.field" 
