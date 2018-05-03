@@ -50,6 +50,15 @@
                   [(ngModel)]="templateData.configuration"></form-generator>
             </div>
          </form>
+         <div *ngIf="showCrossdataCatalog">
+            <button class="show-catalog button button-toolbar" [ngClass]="{'selected-button' : isShowedCrossdataCatalog}" id="show-catalog-button"
+               (click)="toggleCrossdataCatalog()">
+               <i class="icon-stratio_standard"></i>
+            </button>
+            <sparta-sidebar class="catalog" [isVisible]="isShowedCrossdataCatalog" (onCloseSidebar)="toggleCrossdataCatalog()">
+               <crossdata-catalog></crossdata-catalog>
+            </sparta-sidebar>
+         </div>
       </div>
    </div>
 </st-fullscreen-layout>

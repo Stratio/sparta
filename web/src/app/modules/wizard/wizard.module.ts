@@ -26,6 +26,7 @@ import { ValidateSchemaService } from './services/validate-schema.service';
 import { WizardEffect } from './effects/wizard';
 import { reducers } from './reducers/';
 import { WizardEditorContainer } from './containers/wizard-editor-container/wizard-editor-container.component';
+import { CrossdataModule } from "@app/crossdata/crossdata.module";
 
 @NgModule({
     declarations: [
@@ -54,7 +55,8 @@ import { WizardEditorContainer } from './containers/wizard-editor-container/wiza
         FormsModule,
         SharedModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        CrossdataModule
     ],
     providers: [WizardEditorService, WizardService, ValidateSchemaService, StModalService]
 })

@@ -26,7 +26,7 @@ export const LIST_DATABASE_TABLES_ERROR = '[Crossdata] List database tables erro
 export const SELECT_DATABASE = '[Crossdata] Select database';
 export const SELECT_TABLE = '[Crossdata] Select table';
 export const UNSELECT_TABLE = '[Crossdata] Unselect table';
-
+export const OPEN_CROSSDATA_TABLE = '[Crossdata] Open crossdata table';
 
 export class ListCrossdataTablesAction implements Action {
     readonly type = LIST_CROSSDATA_TABLES;
@@ -144,6 +144,12 @@ export class UnselectTableAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class OpenCrossdataTableAction implements Action {
+    readonly type = OPEN_CROSSDATA_TABLE;
+    constructor(public payload: any) { }
+}
+
+
 export type Actions =
     ListCrossdataTablesAction |
     ListCrossdataTablesCompleteAction |
@@ -165,4 +171,5 @@ export type Actions =
     UnselectTableAction |
     SelectTableAction |
     ChangeTablesOrderAction |
-    FilterTablesAction;
+    FilterTablesAction |
+    OpenCrossdataTableAction;

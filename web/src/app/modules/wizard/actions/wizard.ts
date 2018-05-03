@@ -53,6 +53,7 @@ export const SET_WIZARD_DIRTY = '[Wizard] Set wizard state dirty';
 export const SET_WORKFLOW_TYPE = '[Wizard] Set workflow type';
 export const SHOW_SETTINGS = '[Wizard] Show settings';
 export const HIDE_SETTINGS = '[Wizard] Hide settings';
+export const TOGGLE_CROSSDATA_CATALOG = '[Wizard] Toggle crossdata catalog';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -268,6 +269,10 @@ export class HideSettingsAction implements Action {
     readonly type = HIDE_SETTINGS;
 }
 
+export class ToggleCrossdataCatalogAction implements Action {
+    readonly type = TOGGLE_CROSSDATA_CATALOG;
+}
+
 
 export type Actions =
     ResetWizardAction |
@@ -312,4 +317,5 @@ export type Actions =
     SetWizardStateDirtyAction |
     SetWorkflowTypeAction |
     HideSettingsAction |
-    ShowSettingsAction;
+    ShowSettingsAction |
+    ToggleCrossdataCatalogAction;

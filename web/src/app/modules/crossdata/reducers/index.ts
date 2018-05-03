@@ -30,12 +30,13 @@ export const getCrossdataEntityState = createSelector(
 
 
 // crossdata
-export const getTablesList: any = createSelector(getCrossdataEntityState, fromCrossdata.getTableList);
-export const getDatabases: any = createSelector(getCrossdataEntityState, fromCrossdata.getDatabases);
-export const getSelectedDatabase: any =  createSelector(getCrossdataEntityState, fromCrossdata.getSelectedDatabase);
-export const getQueryResult: any = createSelector(getCrossdataEntityState, fromCrossdata.getQueryResult);
-export const getQueryError: any = createSelector(getCrossdataEntityState, fromCrossdata.getQueryError);
-export const getSelectedTables: any = createSelector(getCrossdataEntityState, fromCrossdata.getSelectedTables);
-export const isLoadingDatabases: any =  createSelector(getCrossdataEntityState, fromCrossdata.isLoadingDatabases);
+export const getTablesList = createSelector(getCrossdataEntityState, fromCrossdata.getTableList);
+export const getDatabases = createSelector(getCrossdataEntityState, fromCrossdata.getDatabases);
+export const getSelectedDatabase =  createSelector(getCrossdataEntityState, fromCrossdata.getSelectedDatabase);
+export const getQueryResult = createSelector(getCrossdataEntityState, fromCrossdata.getQueryResult);
+export const getQueryError = createSelector(getCrossdataEntityState, fromCrossdata.getQueryError);
+export const getSelectedTables = createSelector(getCrossdataEntityState, fromCrossdata.getSelectedTables);
+export const isLoadingDatabases =  createSelector(getCrossdataEntityState, fromCrossdata.isLoadingDatabases);
 export const isLoadingTables: any = createSelector(getCrossdataEntityState, fromCrossdata.isLoadingTables);
 export const isLoadingQuery: any = createSelector(getCrossdataEntityState, fromCrossdata.isLoadingQuery);
+export const getOpenedTables = createSelector(getCrossdataEntityState, (state) => state.openedTables);

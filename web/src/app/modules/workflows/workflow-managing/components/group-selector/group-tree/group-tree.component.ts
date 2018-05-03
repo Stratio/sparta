@@ -8,8 +8,6 @@ import {
     Component,
     EventEmitter,
     Input,
-    OnDestroy,
-    OnInit,
     Output,
 } from '@angular/core';
 import { GroupTree } from '../group.tree.model';
@@ -20,7 +18,7 @@ import { GroupTree } from '../group.tree.model';
     styleUrls: ['./group-tree.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GroupTreeComponent implements OnInit, OnDestroy {
+export class GroupTreeComponent {
 
     @Input() selectedFolder: string;
     @Input() blockChilds = true;
@@ -31,17 +29,9 @@ export class GroupTreeComponent implements OnInit, OnDestroy {
 
     @Output() onSelectFolder = new EventEmitter<string>();
 
-    ngOnInit() {
-        const groups: any = {};
-    }
-
     toggleTree(event: any, subtree: GroupTree) {
         event.stopPropagation();
         subtree.open = !subtree.open;
-    }
-
-    ngOnDestroy(): void {
-
     }
 
     selectFolder(event: any, name: string) {
@@ -52,6 +42,10 @@ export class GroupTreeComponent implements OnInit, OnDestroy {
         } else {
             this.onSelectFolder.emit(name);
         }
+    }
+
+    trackByFn(index, item) {
+        return item.id;
     }
 
 }

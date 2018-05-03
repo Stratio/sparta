@@ -4,6 +4,7 @@
    "className": "CrossdataInputStep",
    "classPrettyName": "Crossdata",
    "arity": ["NullaryToNary"],
+   "crossdataCatalog": true,
    "supportedEngines": ["Batch"],
    "supportedDataRelations": ["ValidData"],
    "description": "Allows you to load data from external Datasources using Crossdata",

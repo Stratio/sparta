@@ -18,16 +18,6 @@
    width: 340px;
 }
 
-.content {
-   padding-bottom: 50px;
-   padding-top: 70px;
-}
-
-.basic-settings {
-   margin-top: 30px;
-   display: block;
-}
-
 .template-data {
    .title {
       color: $action-secondary-06;
@@ -53,5 +43,22 @@
 }
 
 .node-edition {
-    margin-bottom: 50px;
+   margin-bottom: 50px;
+   position: relative;
+}
+
+.show-catalog {
+   position: absolute;
+   top: 0;
+   right: 0;
+   z-index: 1001;
+}
+
+.catalog {
+   position: absolute;
+   display: block;
+   position: absolute;
+   z-index: 100;
+   right: 0;
+   top: 60px;
 }

@@ -3,11 +3,14 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { StoreModule } from '@ngrx/store';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { StSearchModule, StSwitchModule, StTableModule, StCheckboxModule,
-    StPaginationModule, StBreadcrumbsModule, StProgressBarModule } from '@stratio/egeo';
+import {
+   StSearchModule, StSwitchModule, StTableModule, StCheckboxModule,
+   StPaginationModule, StBreadcrumbsModule, StProgressBarModule
+} from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 
 import { CrossdataTables } from './components/crossdata-tables/crossdata-tables.component';
@@ -18,12 +21,17 @@ import { CrossdataRouter } from './crossdata.router';
 import { CrossdataEffect } from './effects/crossdata';
 import { reducers } from './reducers/';
 import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
+import { CrossdataCatalogComponent } from './components/crossdata-catalog/crossdata-catalog.component';
 
 @NgModule({
+   exports: [
+      CrossdataCatalogComponent
+   ],
    declarations: [
       CrossdataTables,
       CrossdataQueries,
-      CrossdataComponent
+      CrossdataComponent,
+      CrossdataCatalogComponent
    ],
    imports: [
       FormsModule,

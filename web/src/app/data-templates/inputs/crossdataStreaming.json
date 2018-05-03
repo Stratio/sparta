@@ -3,6 +3,7 @@
     "icon": "Crossdata",
     "className": "CrossdataInputStep",
     "classPrettyName": "Crossdata",
+    "crossdataCatalog": true,
     "arity": ["NullaryToNary"],
     "supportedEngines": ["Streaming"],
      "supportedDataRelations": ["ValidData"],
@@ -13,7 +14,7 @@
         "propertyName": "_QUERY_",
         "propertyType": "textarea",
         "contentType": "SQL",
-        "width": 9,
+        "width": 8,
         "required": true,
         "tooltip": "Query to read data from. Example: select * from tableName",
         "qa": "fragment-details-crossdata-query"

@@ -54,7 +54,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public creationMode$: Observable<any>;
    public isShowedEntityDetails$: Observable<any>;
 
-   private componentDestroyed = new Subject();
+   private _componentDestroyed = new Subject();
 
    @ViewChild('editorArea') editorArea: ElementRef;
    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
@@ -94,7 +94,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
    initData() {
       this.store.select(fromWizard.getWorkflowHeaderData)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe((data: any) => {
             this.workflowName = data.name;
             this.workflowVersion = data.version;
@@ -102,40 +102,40 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          });
       this.creationMode$ = this.store.select(fromWizard.isCreationMode);
       this.store.select(fromWizard.getSelectedEntityData)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe(nodeModel => {
             this.selectedNodeModel = nodeModel;
             this._cd.markForCheck();
          });
       this.isShowedEntityDetails$ = this.store.select(fromWizard.isShowedEntityDetails);
       this.store.select(fromWizard.getSelectedEntities)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe(name => {
             this.selectedNodeName = name;
             this._cd.markForCheck();
          });
       this.store.select(fromWizard.getWorkflowPosition)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe(position => {
             this.svgPosition = position;
             this._cd.markForCheck();
          });
       this.store.select(fromWizard.getWorkflowNodes)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe((data: Array<any>) => {
             this.workflowNodes = data;
             this.store.dispatch(new wizardActions.ValidateWorkflowAction());
             this._cd.markForCheck();
          });
       this.store.select(fromWizard.getWorkflowEdges)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe((data: Array<WizardEdgeNodes>) => {
             this.workflowEdges = data;
             this._cd.markForCheck();
             this.store.dispatch(new wizardActions.ValidateWorkflowAction());
          });
       this.store.select(fromWizard.getSelectedRelation)
-         .takeUntil(this.componentDestroyed)
+         .takeUntil(this._componentDestroyed)
          .subscribe((edge: WizardEdge) => {
             this.selectedEdge = edge;
             this._cd.markForCheck();
@@ -225,7 +225,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    }
 
    ngOnDestroy(): void {
-      this.componentDestroyed.next();
-      this.componentDestroyed.unsubscribe();
+      this._componentDestroyed.next();
+      this._componentDestroyed.unsubscribe();
    }
 }

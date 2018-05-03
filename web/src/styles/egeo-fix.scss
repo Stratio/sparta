@@ -107,6 +107,11 @@ sp-textarea {
 }
 
 //************** end custom sth-alert ****************//
+
+wizard .st-fullscreen-layout {
+    overflow: initial!important;
+}
+
 .st-tooltip {
    min-height: 20px;
    line-height: 18px;

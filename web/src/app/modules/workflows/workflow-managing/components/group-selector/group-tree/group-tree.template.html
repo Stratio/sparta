@@ -9,7 +9,7 @@
 -->
 
 <ul>
-   <li *ngFor="let subtree of tree">
+   <li *ngFor="let subtree of tree;trackBy: trackByFn">
       <div class="folder-content" [style.paddingLeft.px]="index * 20" [ngClass]="{'selected' : selectedFolder === subtree.name}" (click)="selectFolder($event, subtree.name)">
          <div class="container-group"
          [ngClass]="{'current-group' : (subtree.name === parentGroup || (blockChilds && subtree.name.indexOf(currentGroup) === 0 || !blockChilds && subtree.name === currentGroup))}" >

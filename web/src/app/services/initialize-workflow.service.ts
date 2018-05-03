@@ -8,37 +8,33 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class InitializeWorkflowService {
 
-    getInitializedWorkflow(workflow: any) {
-        if (!workflow.uiSettings) {
-            workflow.uiSettings = {};
-            workflow.uiSettings.position = {
-                x: 0,
-                y: 0,
-                k: 1
+   getInitializedWorkflow(workflow: any) {
+      if (!workflow.uiSettings || !workflow.uiSettings.x) {
+         workflow.uiSettings = {};
+         workflow.uiSettings.position = {
+            x: 0,
+            y: 0,
+            k: 1
+         };
+      }
+      const nodes = workflow.pipelineGraph.nodes;
+      let x = 40; // default node positions
+      let y = 100;
+      let h = true;
+      if (nodes && nodes.length && !nodes[0].uiConfiguration) {
+         nodes.map((node: any) => {
+            node.uiConfiguration = {};
+            node.uiConfiguration.position = {
+               x: x,
+               y: y
             };
-        }
-        const nodes = workflow.pipelineGraph.nodes;
-        let x = 40; // default node positions
-        let y = 100;
-        let h = true;
-        if (nodes && nodes.length && !nodes[0].uiConfiguration) {
-            nodes.map((node: any) => {
-                node.uiConfiguration = {};
-                node.uiConfiguration.position = {
-                    x: x,
-                    y: y
-                };
 
-                h ? x += 200 : y += 120;
-                h = !h;
-            });
-        }
-        return workflow;
-    }
-
-    constructor() {
-
-    }
+            h ? x += 200 : y += 120;
+            h = !h;
+         });
+      }
+      return workflow;
+   }
 }
 
 

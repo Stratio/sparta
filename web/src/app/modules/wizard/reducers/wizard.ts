@@ -35,6 +35,7 @@ export interface State {
    selectedEdge: WizardEdge;
    svgPosition: any;
    settings: any;
+   isShowedCrossdataCatalog: boolean;
 };
 
 const initialState: State = {
@@ -64,7 +65,8 @@ const initialState: State = {
    selectedEdge: null,
    selectedEntity: '',
    showEntityDetails: false,
-   showSettings: false
+   showSettings: false,
+   isShowedCrossdataCatalog: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -341,6 +343,12 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             showSettings: false
+         };
+      }
+      case wizardActions.TOGGLE_CROSSDATA_CATALOG: {
+         return {
+            ...state,
+            isShowedCrossdataCatalog: !state.isShowedCrossdataCatalog
          };
       }
       default:

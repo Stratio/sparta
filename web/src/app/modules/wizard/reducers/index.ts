@@ -93,4 +93,4 @@ export const isPristine = createSelector(getWizardState, state => state.pristine
 export const isLoading = createSelector(getWizardState, state => state.loading);
 export const getWorkflowHeaderData = createSelector(getWizardState, fromWizard.getWorkflowHeaderData);
 export const getValidatedEntityName = createSelector(getWizardState, state => state.entityNameValidation);
-
+export const isShowedCrossdataCatalog = createSelector(getWizardState, state => state.isShowedCrossdataCatalog);
