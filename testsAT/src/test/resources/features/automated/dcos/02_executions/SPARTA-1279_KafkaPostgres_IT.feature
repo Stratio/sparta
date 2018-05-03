@@ -109,7 +109,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   # TEST RESULT IN POSTGRES *
   #**************************
 
-  @ignore @tillfixed(SPARTA-1705)
+  @ignore @tillfixed(SPARTA-1866)
   Scenario:[SPARTA-1279][10] TestResult in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     Then in less than '600' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tabletest"' contains '${TABLETEST_NUMBER:-400}'
