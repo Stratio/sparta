@@ -10,6 +10,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.TransformStepHelper.sparkBatchDiscardFunction
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
@@ -26,13 +27,17 @@ class InitNullsTransformStepBatch(
                                  ) extends InitNullsTransformStep[RDD](
   name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
-    val rdd = applyHeadTransform(inputData)(transformFunction)
-    val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[RDD]]
+                                    ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
+    val (rddDiscarded, rdd) = applyHeadTransformWithDiscards(inputData) { (_, inputStream) =>
+      val (discardedData, validData) = sparkBatchDiscardFunction(inputStream.ds, whenRowErrorDo)(generateNewRow)
+
+      (discardedData, validData)
+    }
+    val finalSchema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
       .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
 
-    (rdd, schema, None)
+    (rdd, finalSchema, Option(rddDiscarded), finalSchema)
   }
 }

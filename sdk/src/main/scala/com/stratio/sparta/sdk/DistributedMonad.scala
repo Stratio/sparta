@@ -319,7 +319,10 @@ object DistributedMonad {
                 .foreach(schema => xdSession.createDataFrame(rdd1, schema).createOrReplaceTempView(sourceTable))
               targetSchema.orElse(getSchemaFromRdd(rdd2))
                 .foreach(schema => xdSession.createDataFrame(rdd2, schema).createOrReplaceTempView(targetTable))
-              xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions").rdd
+
+              val discards = xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions")
+              discards.createOrReplaceTempView(SdkSchemaHelper.discardTableName(targetTable))
+              discards.rdd
           }
 
           ds.transformWith(targetData.ds, transformFunc)
@@ -390,7 +393,10 @@ object DistributedMonad {
           val discardConditions = conditions.map(_.toSql(sourceTable, targetTable)).mkString(" AND ")
           ds.createOrReplaceTempView(sourceTable)
           targetData.ds.createOrReplaceTempView(targetTable)
-          xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions")
+
+          val discards = xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions")
+          discards.createOrReplaceTempView(SdkSchemaHelper.discardTableName(targetTable))
+          discards
         } else xdSession.emptyDataFrame
       }
 
@@ -449,7 +455,10 @@ object DistributedMonad {
             .foreach(schema => xdSession.createDataFrame(ds, schema).createOrReplaceTempView(sourceTable))
           targetSchema.orElse(getSchemaFromRdd(targetData.ds))
             .foreach(schema => xdSession.createDataFrame(targetData.ds, schema).createOrReplaceTempView(targetTable))
-          xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions").rdd
+
+          val discards = xdSession.sql(s"SELECT * FROM $sourceTable LEFT ANTI JOIN $targetTable ON $discardConditions")
+          discards.createOrReplaceTempView(SdkSchemaHelper.discardTableName(targetTable))
+          discards.rdd
         } else xdSession.sparkContext.emptyRDD[Row]
       }
 

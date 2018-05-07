@@ -27,7 +27,7 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class AvroTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A AvroTransformStepStreamIT" should "transform csv events the input DStream" in {
+  "A AvroTransformStepStreamIT" should "transform avro events the input DStream" in {
 
     val record = s"""{"type":"record","name":"myrecord","fields":[
       | { "name":"color", "type":["string","null"] },
@@ -72,7 +72,7 @@ class AvroTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
         "schema.provided" -> record,
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED"
       )
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -92,5 +92,88 @@ class AvroTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     ssc.stop()
 
     assert(totalEvents.value === 2)
+  }
+
+  "A AvroTransformStepStreamIT" should "discard avro events the input DStream" in {
+
+    val record = s"""{"type":"record","name":"myrecord","fields":[
+                    | { "name":"color", "type":["string","null"] },
+                    | { "name":"price", "type":["double","null"] }
+                    | ]}""".stripMargin
+    val parser = new Schema.Parser()
+    val schema = parser.parse(record)
+    val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](schema)
+    val avroRecordBlue = new GenericData.Record(schema)
+    avroRecordBlue.put("color", "blue")
+    avroRecordBlue.put("price", 12.1)
+    val bytesBlue = recordInjection.apply(avroRecordBlue)
+    val avroRecordRed = new GenericData.Record(schema)
+    avroRecordRed.put("color", "red")
+    avroRecordRed.put("price", 12.2)
+    val bytesRed = recordInjection.apply(avroRecordRed)
+    val inputField = "avro"
+    val inputSchema = StructType(Seq(StructField(inputField, StringType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val dataQueue = new mutable.Queue[RDD[Row]]()
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array(new String(bytesBlue, StandardCharsets.UTF_8)), inputSchema),
+      new GenericRowWithSchema(Array(new String(bytesRed, StandardCharsets.UTF_8)), inputSchema),
+      new GenericRowWithSchema(Array("wrong data"), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
+      new GenericRowWithSchema(Array("red", 12.2), outputSchema)
+    )
+    dataQueue += sc.parallelize(dataIn)
+    val stream = ssc.queueStream(dataQueue)
+    val inputData = Map("step1" -> stream)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val transformationsStepManagement = TransformationStepManagement()
+    val result = new AvroTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      transformationsStepManagement,
+      Some(ssc),
+      sparkSession,
+      Map(
+        "inputField" -> inputField,
+        "schema.provided" -> record,
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED",
+        "whenRowError" -> "RowDiscard"
+      )
+    ).transformWithDiscards(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val totalDiscardsEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result._1.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataOut.contains(row))
+          assert(outputSchema == row.schema)
+        }
+    })
+
+    result._3.get.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      totalDiscardsEvents += streamingEvents
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataIn.contains(row))
+          assert(inputSchema == row.schema)
+        }
+    })
+
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
+    ssc.stop()
+
+    assert(totalEvents.value === 2)
+    assert(totalDiscardsEvents.value === 1)
   }
 }

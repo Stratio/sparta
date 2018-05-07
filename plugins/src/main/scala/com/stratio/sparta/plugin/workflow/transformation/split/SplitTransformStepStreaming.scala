@@ -7,13 +7,16 @@ package com.stratio.sparta.plugin.workflow.transformation.split
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSchemaFromRdd, getSchemaFromSessionOrModel}
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSchemaFromRdd, getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.helpers.TransformStepHelper.sparkStreamingDiscardFunction
+import org.apache.spark.sql.types.StructType
 
 class SplitTransformStepStreaming(
                                    name: String,
@@ -25,16 +28,37 @@ class SplitTransformStepStreaming(
                                  ) extends SplitTransformStep[DStream](
   name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    transformFunc(inputData).ds.transform { rdd =>
-      getSchemaFromSessionOrModel(xDSession, name, inputsModel)
-        .orElse {
-          val inputSchema = getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
-          getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField.get)
-        }
-        .orElse(getSchemaFromRdd(rdd.ds))
-        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[DStream]]
+                                    ): (DistributedMonad[DStream], Option[StructType], Option[DistributedMonad[DStream]], Option[StructType]) = {
+    val (streamDiscarded, stream) = applyHeadTransformWithDiscards(inputData) { (_, inputStream) =>
+      val (discardedData, validData) = sparkStreamingDiscardFunction(inputStream.ds, whenRowErrorDo)(generateNewRow)
+
+      (discardedData, validData)
+    }
+    val finalStreamDiscarded = streamDiscarded.ds.transform { rdd =>
+      val tableName = SdkSchemaHelper.discardTableName(name)
+      getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, tableName, inputsModel, rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName))
       rdd
     }
+    val finalStream = stream.ds.transform { rdd =>
+      val tableName = name
+      getSchemaFromSessionOrModel(xDSession, tableName, inputsModel)
+        .orElse {
+          getNewOutputSchema(
+            getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel),
+            preservationPolicy,
+            providedSchema,
+            inputField.get
+          )
+        }
+        .orElse(getSchemaFromRdd(rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName))
+      rdd
+    }
+
+    (finalStream, None, Option(finalStreamDiscarded), None)
   }
 }

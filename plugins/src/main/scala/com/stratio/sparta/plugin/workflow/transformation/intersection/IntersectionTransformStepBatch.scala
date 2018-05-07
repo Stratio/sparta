@@ -8,9 +8,10 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromRdd, getSchemaFromSessionOrModel}
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -47,14 +48,20 @@ class IntersectionTransformStepBatch(
           result
         case Failure(e) =>
           xDSession.sparkContext.union(
-            SqlHelper.failWithException(firstStream.ds, e),
-            SqlHelper.failWithException(secondStream.ds, e)
+            SparkStepHelper.failRDDWithException(firstStream.ds, e),
+            SparkStepHelper.failRDDWithException(secondStream.ds, e)
           )
       }
     }
     val firstSchema = getSchemaFromSessionOrModel(xDSession, firstStep, inputsModel)
     val secondSchema = getSchemaFromSessionOrModel(xDSession, secondStep, inputsModel)
-    val resultSchema = firstSchema.orElse(secondSchema).orElse(getSchemaFromRdd(rdd))
+    val stepSchema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
+    val discardSchema = getSchemaFromSessionOrModel(xDSession, SdkSchemaHelper.discardTableName(name), inputsModel)
+    val resultSchema = firstSchema
+      .orElse(secondSchema)
+      .orElse(stepSchema)
+      .orElse(discardSchema)
+      .orElse(getSchemaFromRdd(rdd))
     val firstDiscarded = applyDiscardedData(firstStep, firstStream, resultSchema, rdd, resultSchema)._3
     val secondDiscarded = applyDiscardedData(secondStep, secondStream, resultSchema, rdd, resultSchema)._3
     val discardedData = if (firstDiscarded.isDefined && secondDiscarded.isDefined) {

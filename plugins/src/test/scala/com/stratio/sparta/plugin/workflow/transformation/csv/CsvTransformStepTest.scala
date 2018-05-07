@@ -49,9 +49,9 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "FIELDS",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
 
-      val expected = Seq(Row("red", 19.95))
+      val expected = Option(Row("red", 19.95))
       expected should be eq result
     }
 
@@ -78,9 +78,9 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "FIELDS",
           "fieldsPreservationPolicy" -> "APPEND")
-      ).parse(input)
+      ).generateNewRow(input)
 
-      val expected = Seq(Row(CSV,"red", 19.95))
+      val expected = Option(Row(CSV,"red", 19.95))
       expected should be eq result
     }
 
@@ -98,9 +98,9 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "HEADER",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
 
-      val expected = Seq(Row(CSV,"red", "19.95"))
+      val expected = Option(Row(CSV,"red", "19.95"))
       expected should be eq result
     }
 
@@ -119,9 +119,9 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "HEADER",
           "fieldsPreservationPolicy" -> "REPLACE")
-      ).parse(input)
+      ).generateNewRow(input)
 
-      val expected = Seq(Row("var", "red", "19.95"))
+      val expected = Option(Row("var", "red", "19.95"))
       expected should be eq result
     }
 
@@ -140,9 +140,9 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "HEADER",
           "fieldsPreservationPolicy" -> "REPLACE")
-      ).parse(input)
+      ).generateNewRow(input)
 
-      val expected = Seq(Row("var", "red", "19.95", null, "var"))
+      val expected = Option(Row("var", "red", "19.95", null, "var"))
       expected should be eq result
     }
 
@@ -160,9 +160,9 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "SPARKFORMAT",
           "fieldsPreservationPolicy" -> "APPEND")
-      ).parse(input)
+      ).generateNewRow(input)
 
-      val expected = Seq(Row(CSV,"red", 19.95))
+      val expected = Option(Row(CSV,"red", 19.95))
       expected should be eq result
     }
 
@@ -190,7 +190,7 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "FIELDS",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
     }
 
     "not parse anything if the number of fields do not match with the values parsed" in {
@@ -219,7 +219,7 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "FIELDS",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
     }
 
     "not parse anything if the input is wrong" in {
@@ -245,7 +245,7 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "FIELDS",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
     }
 
     "not parse anything if the values parsed are greated than the fields stated" in {
@@ -272,7 +272,7 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "FIELDS",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
     }
 
     "discard the header if specified so" in {
@@ -290,7 +290,7 @@ class CsvTransformStepTest extends WordSpecLike
           "inputField" -> inputField,
           "schema.inputMode" -> "HEADER",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
+      ).generateNewRow(input)
 
       val expected = Seq.empty[Row]
       expected should be eq result

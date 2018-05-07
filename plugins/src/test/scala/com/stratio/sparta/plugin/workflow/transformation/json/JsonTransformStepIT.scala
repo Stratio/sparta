@@ -79,7 +79,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      properties).transform(Map("step1" -> ds)).ds
+      properties).transformWithDiscards(Map("step1" -> ds))._1.ds
 
   def doTransformBatch(df: RDD[Row], properties: Map[String, JSerializable]): RDD[Row] =
     new JsonTransformStepBatch(
@@ -90,9 +90,10 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
       sparkSession,
       properties).transformWithDiscards(Map("step1" -> df))._1.ds
 
-  def assertExpectedSchema[Underlying[Row]](input: DistributedMonad[Underlying], properties: Map[String, JSerializable])(
-    expected: => StructType
-  )(implicit ttagEv: TypeTag[Underlying[Row]]): Unit = {
+  def assertExpectedSchema[Underlying[Row]](
+                                             input: DistributedMonad[Underlying],
+                                             properties: Map[String, JSerializable]
+                                           )(expected: => StructType)(implicit ttagEv: TypeTag[Underlying[Row]]): Unit = {
     val check: RDD[Row] => Unit = _.collect() foreach { r => assert(r.schema == expected) }
     if (typeOf[Underlying[Row]] == typeOf[DStream[Row]])
       doTransformStream(input.asInstanceOf[DStreamAsDistributedMonad].ds, properties) foreachRDD check

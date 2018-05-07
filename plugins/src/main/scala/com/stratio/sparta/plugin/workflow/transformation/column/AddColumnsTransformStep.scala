@@ -18,7 +18,7 @@ import org.apache.spark.streaming.StreamingContext
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.plugin.models.PropertyQuery
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
@@ -125,7 +125,7 @@ abstract class AddColumnsTransformStep[Underlying[Row]](
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
+      case Failure(e) => (SparkStepHelper.failRDDWithException(rdd, e), None, None)
     }
   }
 }

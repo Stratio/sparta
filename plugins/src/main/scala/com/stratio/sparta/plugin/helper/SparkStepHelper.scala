@@ -18,7 +18,7 @@ import org.apache.spark.sql.types.StructType
 
 import scala.util.{Failure, Success, Try}
 
-object SqlHelper {
+object SparkStepHelper {
 
   def executeSqlFromSteps(
                            xDSession: XDSession,
@@ -53,13 +53,13 @@ object SqlHelper {
         (sqlResult, resultSchema)
       case Failure(e) =>
         if (inputData.nonEmpty) {
-          val errorsSteps = inputData.map(step => failWithException(step._2.ds, e))
+          val errorsSteps = inputData.map(step => failRDDWithException(step._2.ds, e))
           (xDSession.sparkContext.union(errorsSteps.toSeq), resultSchema)
         } else throw e //broken chain in errors management
     }
   }
 
-  def failWithException(rdd : RDD[Row], exception: Throwable): RDD[Row] =
+  def failRDDWithException(rdd: RDD[Row], exception: Throwable): RDD[Row] =
     rdd.map(_ => Row.fromSeq(throw exception))
 
 }

@@ -69,8 +69,8 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS"
           )
-        ).parse(input)
-        val expected = Seq(Row("3", "33", "2", "1", "0"))
+        ).generateNewRow(input)
+        val expected = Row("3", "33", "2", "1", "0")
         assertResult(expected)(result)
 
         val resultNoRemoved = new SplitTransformStepStreaming(
@@ -85,8 +85,8 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS",
             "fieldsPreservationPolicy" -> "APPEND")
-        ).parse(input)
-        val expectedNoRemoved = Seq(Row(subFamily, "3", "33", "2", "1", "0"))
+        ).generateNewRow(input)
+        val expectedNoRemoved = Row(subFamily, "3", "33", "2", "1", "0")
         assertResult(expectedNoRemoved)(resultNoRemoved)
 
         val fieldsExcluded =
@@ -115,9 +115,9 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "schema.fields" -> fieldsExcluded.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS",
             "excludeIndexes" -> JsoneyString.apply("true"))
-        ).parse(inputExcluded)
+        ).generateNewRow(inputExcluded)
 
-        val expectedExcludedNoRemoved = Seq(Row("2017", "12", "12"))
+        val expectedExcludedNoRemoved = Row("2017", "12", "12")
         assertResult(expectedExcludedNoRemoved)(resultExcludedIndexes)
       }
     }
@@ -140,7 +140,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(input)
+        ).generateNewRow(input)
 
         an[IllegalStateException] should be thrownBy new SplitTransformStepStreaming(
           inputField,
@@ -153,7 +153,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(input)
+        ).generateNewRow(input)
 
         an[IllegalStateException] should be thrownBy new SplitTransformStepStreaming(
           inputField,
@@ -166,7 +166,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(input)
+        ).generateNewRow(input)
 
         an[IllegalStateException] should be thrownBy new SplitTransformStepStreaming(
           inputField,
@@ -179,7 +179,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(input)
+        ).generateNewRow(input)
       }
     }
 
@@ -215,7 +215,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
               "inputField" -> inputField,
               "schema.fields" -> outputsFieldsDifferent.asInstanceOf[JSerializable],
               "schema.inputMode" -> "FIELDS")
-          ).parse(input)
+          ).generateNewRow(input)
         }
         exceptionThrown.getMessage should include("is greater or lower than the output fields")
       }
@@ -256,8 +256,8 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(ipString)
-        val expected = Seq(Row("172", "0", "0", "1"))
+        ).generateNewRow(ipString)
+        val expected = Row("172", "0", "0", "1")
         assertResult(expected)(result)
 
         val ipStringEmpty = new GenericRowWithSchema(Array("172..."), schema)
@@ -272,9 +272,9 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> fields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(ipStringEmpty)
+        ).generateNewRow(ipStringEmpty)
 
-        val expectedEmpty = Seq(Row("172", "", "", ""))
+        val expectedEmpty = Row("172", "", "", "")
         assertResult(expectedEmpty)(resultEmpty)
       }
     }
@@ -297,7 +297,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
               "inputField" -> inputField,
               "schema.fields" -> fields.asInstanceOf[JSerializable],
               "schema.inputMode" -> "FIELDS")
-          ).parse(ipString)
+          ).generateNewRow(ipString)
         }
         exceptionThrown.getMessage should include("provided regex")
       }
@@ -332,7 +332,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
               "inputField" -> inputField,
               "schema.fields" -> outputsFieldsDifferent.asInstanceOf[JSerializable],
               "schema.inputMode" -> "FIELDS")
-          ).parse(ipStringDollar)
+          ).generateNewRow(ipStringDollar)
         }
         exceptionThrown.getMessage should include("is greater or lower than the output fields")
       }
@@ -356,7 +356,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
         |}]
         |""".stripMargin
 
-    val expected = Seq(Row("172", "0", "0", "1"))
+    val expected = Row("172", "0", "0", "1")
 
     "a valid char is provided" should {
       "correctly split into values" in {
@@ -373,7 +373,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> outputsFields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(ipString)
+        ).generateNewRow(ipString)
 
         assertResult(expected)(result)
 
@@ -390,7 +390,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
             "inputField" -> inputField,
             "schema.fields" -> outputsFields.asInstanceOf[JSerializable],
             "schema.inputMode" -> "FIELDS")
-        ).parse(ipStringDollar)
+        ).generateNewRow(ipStringDollar)
         assertResult(expected)(resultDollar)
 
       }
@@ -424,7 +424,7 @@ class SplitTransformStepStreamingTest extends WordSpecLike with Matchers {
               "inputField" -> inputField,
               "schema.fields" -> outputsFieldsDifferent.asInstanceOf[JSerializable],
               "schema.inputMode" -> "FIELDS")
-          ).parse(ipStringDollar)
+          ).generateNewRow(ipStringDollar)
         }
         exceptionThrown.getMessage should include("is greater or lower than the output fields")
       }

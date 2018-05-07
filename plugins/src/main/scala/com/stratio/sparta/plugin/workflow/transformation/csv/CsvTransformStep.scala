@@ -71,79 +71,68 @@ abstract class CsvTransformStep[Underlying[Row]](
     }
   }
 
-  def transformationFunction(
-                              inputSchema: String,
-                              inputStream: DistributedMonad[Underlying]
-                            ): DistributedMonad[Underlying] =
-    inputStream.flatMap(data => parse(data))
-
-
-  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData)(transformationFunction)
-
   //scalastyle:off
-  def parse(row: Row): Seq[Row] =
-    returnSeqDataFromOptionalRow{
-      val inputSchema = row.schema
-      val inputFieldName = inputField.get
-      val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputFieldName)
-      val inputValue = Option(row.get(inputSchema.fieldIndex(inputFieldName)))
-      val dataRow = isNotHeader(inputValue)
-      if (!dataRow) {
-        log.debug(s"Discarded row ${inputValue.get.toString} as it matches the provided header: ${header.get}")
-        None
-      }
-      else {
-        val newValues =
-          inputValue match {
-            case Some(value) =>
-              if (value.toString.nonEmpty) {
-                val valuesSplit = {
-                  val valueStr = value match {
-                    case valueCast: Array[Byte] => new Predef.String(valueCast)
-                    case valueCast: String => valueCast
-                    case _ => value.toString
-                  }
-                  delimiterType match {
-                    case DelimiterType.REGEX =>
-                      valueStr.split(Pattern.compile(fieldsSeparator).toString, splitLimit)
-                    case DelimiterType.CHARACTER =>
-                      valueStr.split(Pattern.quote(fieldsSeparator), splitLimit)
-                    case _ =>
-                      valueStr.split(fieldsSeparator, splitLimit)
-                  }
-                }.map(x => if(x.isEmpty) null else x)
-
-                if (valuesSplit.length == providedSchema.length) {
-                  val valuesParsed = providedSchema.map(_.name).zip(valuesSplit).toMap
-
-                  outputSchema.map { outputField =>
-                    Try {
-                      valuesParsed.get(outputField.name) match {
-                        case Some(valueParsed) =>
-                          if (valueParsed == "null") null
-                          else castingToOutputSchema(outputField, valueParsed)
-                        case None =>
-                          row.get(inputSchema.fieldIndex(outputField.name))
-                      }
-                    } match {
-                      case Success(newValue) =>
-                        newValue
-                      case Failure(e) =>
-                        returnWhenFieldError(
-                          new Exception(s"Impossible to parse outputField: $outputField " +
-                            s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
-                    }
-                  }
-                } else throw new Exception(s"The number of splitted values does not match the number of " +
-                  s"fields defined in the schema")
-              } else throw new Exception(s"The input value is empty")
-            case None =>
-              throw new Exception(s"The input value is null")
-          }
-        Option(new GenericRowWithSchema(newValues.toArray, outputSchema))
-      }
+  def generateNewRow(row: Row): Option[Row] = {
+    val inputSchema = row.schema
+    val inputFieldName = inputField.get
+    val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputFieldName)
+    val inputValue = Option(row.get(inputSchema.fieldIndex(inputFieldName)))
+    val dataRow = isNotHeader(inputValue)
+    if (!dataRow) {
+      log.debug(s"Discarded row ${inputValue.get.toString} as it matches the provided header: ${header.get}")
+      None
     }
+    else {
+      val newValues =
+        inputValue match {
+          case Some(value) =>
+            if (value.toString.nonEmpty) {
+              val valuesSplit = {
+                val valueStr = value match {
+                  case valueCast: Array[Byte] => new Predef.String(valueCast)
+                  case valueCast: String => valueCast
+                  case _ => value.toString
+                }
+                delimiterType match {
+                  case DelimiterType.REGEX =>
+                    valueStr.split(Pattern.compile(fieldsSeparator).toString, splitLimit)
+                  case DelimiterType.CHARACTER =>
+                    valueStr.split(Pattern.quote(fieldsSeparator), splitLimit)
+                  case _ =>
+                    valueStr.split(fieldsSeparator, splitLimit)
+                }
+              }.map(x => if(x.isEmpty) null else x)
+
+              if (valuesSplit.length == providedSchema.length) {
+                val valuesParsed = providedSchema.map(_.name).zip(valuesSplit).toMap
+
+                outputSchema.map { outputField =>
+                  Try {
+                    valuesParsed.get(outputField.name) match {
+                      case Some(valueParsed) =>
+                        if (valueParsed == "null") null
+                        else castingToOutputSchema(outputField, valueParsed)
+                      case None =>
+                        row.get(inputSchema.fieldIndex(outputField.name))
+                    }
+                  } match {
+                    case Success(newValue) =>
+                      newValue
+                    case Failure(e) =>
+                      returnWhenFieldError(
+                        new Exception(s"Impossible to parse outputField: $outputField " +
+                          s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
+                  }
+                }
+              } else throw new Exception(s"The number of splitted values does not match the number of " +
+                s"fields defined in the schema")
+            } else throw new Exception(s"The input value is empty")
+          case None =>
+            throw new Exception(s"The input value is null")
+        }
+      Option(new GenericRowWithSchema(newValues.toArray, outputSchema))
+    }
+  }
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

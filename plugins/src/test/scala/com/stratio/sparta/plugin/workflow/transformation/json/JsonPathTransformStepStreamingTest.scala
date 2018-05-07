@@ -67,8 +67,8 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).parse(input)
-      val expected = Seq(Row("red", 19.95))
+      ).generateNewRow(input)
+      val expected = Row("red", 19.95)
 
       assertResult(expected)(result)
     }
@@ -100,8 +100,8 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
         Map("queries" -> queries.asInstanceOf[JSerializable],
           "fieldsPreservationPolicy" -> "APPEND",
           "inputField" -> "json")
-      ).parse(input)
-      val expected = Seq(Row(JSON, "red", 19.95))
+      ).generateNewRow(input)
+      val expected = Row(JSON, "red", 19.95)
 
       assertResult(expected)(result)
     }
@@ -131,7 +131,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
-      ).parse(input)
+      ).generateNewRow(input)
     }
 
     "not parse when input is wrong" in {
@@ -159,7 +159,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
-      ).parse(input)
+      ).generateNewRow(input)
     }
 
     "parse when input is null" in {
@@ -199,8 +199,8 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
           "whenFieldError" -> WhenFieldError.Null,
           "fieldsPreservationPolicy" -> "APPEND",
           "inputField" -> "json")
-      ).parse(input)
-      val expected = Seq(Row(JSON, "red", null))
+      ).generateNewRow(input)
+      val expected = Row(JSON, "red", null)
 
       assertResult(expected)(result)
     }
@@ -241,8 +241,8 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
           "fieldsPreservationPolicy" -> "APPEND",
           "whenFieldError" -> WhenFieldError.Null,
           "inputField" -> "json")
-      ).parse(input)
-      val expected = Seq(Row(JSON, "red", null))
+      ).generateNewRow(input)
+      val expected = Row(JSON, "red", null)
 
       assertResult(expected)(result)
     }
@@ -286,7 +286,7 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       )
 
-      an[Exception] should be thrownBy transform.parse(input)
+      an[Exception] should be thrownBy transform.generateNewRow(input)
     }
 
     "parse when input is not found and return null" in {
@@ -327,8 +327,8 @@ class JsonPathTransformStepStreamingTest extends WordSpecLike with Matchers {
           "supportNullValues" -> false,
           "fieldsPreservationPolicy" -> "APPEND")
       )
-      val result = transform.parse(input)
-      val expected = Seq(Row(JSON, "red", null))
+      val result = transform.generateNewRow(input)
+      val expected = Row(JSON, "red", null)
 
       assertResult(expected)(result)
 

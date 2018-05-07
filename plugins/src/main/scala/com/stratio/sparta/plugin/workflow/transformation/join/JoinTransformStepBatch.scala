@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.join
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.validateSchemas
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper.isCorrectTableName
@@ -38,7 +38,7 @@ class JoinTransformStepBatch(
     require(isCorrectTableName(name),
       s"The step($name) has wrong name and it is not possible to register as temporal table")
 
-    val result = SqlHelper.executeSqlFromSteps(xDSession, inputData, sql, inputsModel, executeSqlWhenEmpty = false)
+    val result = SparkStepHelper.executeSqlFromSteps(xDSession, inputData, sql, inputsModel, executeSqlWhenEmpty = false)
 
     (result._1, result._2, None)
   }

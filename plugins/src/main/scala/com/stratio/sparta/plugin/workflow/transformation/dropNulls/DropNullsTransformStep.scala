@@ -82,20 +82,14 @@ abstract class DropNullsTransformStep[Underlying[Row]](
     validation
   }
 
-  def transformFunction(
-                         inputSchema: String,
-                         inputStream: DistributedMonad[Underlying]
-                       ): DistributedMonad[Underlying] =
-    inputStream.flatMap { row =>
-      returnSeqDataFromOptionalRow {
-        if (columns.isEmpty) {
-          if (cleanMode == CleanMode.any && row.anyNull) None
-          else if (cleanMode == CleanMode.all && row.toSeq.forall(Option(_).isEmpty)) None else Option(row)
-        } else {
-          val indexes = columns.map(col => row.fieldIndex(col))
-          if (cleanMode == CleanMode.any && indexes.exists(index => row.isNullAt(index))) None
-          else if (cleanMode == CleanMode.all && indexes.forall(index => row.isNullAt(index))) None else Option(row)
-        }
-      }
+  def generateNewRow(row: Row): Option[Row] = {
+    if (columns.isEmpty) {
+      if (cleanMode == CleanMode.any && row.anyNull) None
+      else if (cleanMode == CleanMode.all && row.toSeq.forall(Option(_).isEmpty)) None else Option(row)
+    } else {
+      val indexes = columns.map(col => row.fieldIndex(col))
+      if (cleanMode == CleanMode.any && indexes.exists(index => row.isNullAt(index))) None
+      else if (cleanMode == CleanMode.all && indexes.forall(index => row.isNullAt(index))) None else Option(row)
     }
+  }
 }

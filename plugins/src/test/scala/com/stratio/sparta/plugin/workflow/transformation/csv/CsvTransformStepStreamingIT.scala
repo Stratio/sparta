@@ -59,13 +59,13 @@ class CsvTransformStepStreamingIT extends TemporalSparkContext with Matchers wit
       "dummy",
       outputOptions,
       TransformationStepManagement(),
- Option(ssc),
+      Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,
         "schema.inputMode" -> "FIELDS",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -84,61 +84,138 @@ class CsvTransformStepStreamingIT extends TemporalSparkContext with Matchers wit
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
-      assert(totalEvents.value === 2)
-    }
+    assert(totalEvents.value === 2)
+  }
 
-    "A CSVTransformStepStreamIT" should "transform csv discarding the header" in {
-      val inputField = "csv"
-      val header = "color,price"
-      val inputSchema = StructType(Seq(StructField(inputField, StringType)))
-      val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
-      val dataQueue = new mutable.Queue[RDD[Row]]()
-      val dataIn = Seq(
-        new GenericRowWithSchema(Array(header), inputSchema),
-        new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
-        new GenericRowWithSchema(Array("red,12.2"), inputSchema)
-      )
-      val dataOut = Seq(
-        new GenericRowWithSchema(Array("blue", "12.1"), outputSchema),
-        new GenericRowWithSchema(Array("red", "12.2"), outputSchema)
-      )
-      dataQueue += sc.parallelize(dataIn)
-      val stream = ssc.queueStream(dataQueue)
-      val inputData = Map("step1" -> stream)
-      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+  "A CSVTransformStepStreamIT" should "transform csv discarding the header" in {
+    val inputField = "csv"
+    val header = "color,price"
+    val inputSchema = StructType(Seq(StructField(inputField, StringType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val dataQueue = new mutable.Queue[RDD[Row]]()
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array(header), inputSchema),
+      new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
+      new GenericRowWithSchema(Array("red,12.2"), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", "12.1"), outputSchema),
+      new GenericRowWithSchema(Array("red", "12.2"), outputSchema)
+    )
+    dataQueue += sc.parallelize(dataIn)
+    val stream = ssc.queueStream(dataQueue)
+    val inputData = Map("step1" -> stream)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
-      val result = new CsvTransformStepStreaming(
-        "dummy",
-        outputOptions,
-        TransformationStepManagement(),
-        Option(ssc),
-        sparkSession,
-        Map("schema.header" -> header,
-          "headerRemoval" -> true,
-          "inputField" -> inputField,
-          "schema.inputMode" -> "HEADER",
-          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
-      ).transform(inputData)
-      val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val result = new CsvTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("schema.header" -> header,
+        "headerRemoval" -> true,
+        "inputField" -> inputField,
+        "schema.inputMode" -> "HEADER",
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+    ).transformWithDiscards(inputData)._1
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-      result.ds.foreachRDD(rdd => {
-        val streamingEvents = rdd.count()
-        log.info(s" EVENTS COUNT : \t $streamingEvents")
-        totalEvents += streamingEvents
-        log.info(s" TOTAL EVENTS : \t $totalEvents")
-        val streamingRegisters = rdd.collect()
-        if (!rdd.isEmpty())
-          streamingRegisters.foreach { row =>
-            assert(dataOut.contains(row))
-            assert(outputSchema == row.schema)
-          }
-      })
-      ssc.start()
-      ssc.awaitTerminationOrTimeout(timeoutStreaming)
-      ssc.stop()
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataOut.contains(row))
+          assert(outputSchema == row.schema)
+        }
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
+    ssc.stop()
 
-      assert(totalEvents.value === 2)
-    }
+    assert(totalEvents.value === 2)
+  }
 
+  "A CSVTransformStepStreamIT" should "discard rows in the input DStream" in {
+
+    val fields =
+      """[
+        |{
+        |   "name":"color",
+        |   "type":"string"
+        |},
+        |{
+        |   "name":"price",
+        |   "type":"double"
+        |}]
+        |""".stripMargin
+    val inputField = "csv"
+    val inputSchema = StructType(Seq(StructField(inputField, StringType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val dataQueue = new mutable.Queue[RDD[Row]]()
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
+      new GenericRowWithSchema(Array("red,12.2"), inputSchema),
+      new GenericRowWithSchema(Array("wrong data"), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
+      new GenericRowWithSchema(Array("red", 12.2), outputSchema)
+    )
+    dataQueue += sc.parallelize(dataIn)
+    val stream = ssc.queueStream(dataQueue)
+    val inputData = Map("step1" -> stream)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+
+    val result = new CsvTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("schema.fields" -> fields.asInstanceOf[JSerializable],
+        "inputField" -> inputField,
+        "schema.inputMode" -> "FIELDS",
+        "whenRowError" -> "RowDiscard",
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+    ).transformWithDiscards(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val totalDiscardsEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result._1.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataOut.contains(row))
+          assert(outputSchema == row.schema)
+        }
+    })
+
+    result._3.get.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      totalDiscardsEvents += streamingEvents
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataIn.contains(row))
+          assert(inputSchema == row.schema)
+        }
+    })
+
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
+    ssc.stop()
+
+    assert(totalEvents.value === 2)
+    assert(totalDiscardsEvents.value === 1)
+  }
 
 }

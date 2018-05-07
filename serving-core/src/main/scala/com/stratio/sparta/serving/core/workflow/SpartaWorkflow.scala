@@ -11,6 +11,7 @@ import java.io.Serializable
 import akka.event.Logging
 import akka.util.Timeout
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step._
@@ -23,10 +24,9 @@ import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
 import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
@@ -242,7 +242,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
             transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
               newOutput.writeTransform(
                 transform.data,
-                transform.step.outputOptions.copy(stepName = stepName),
+                transform.step.outputOptions.copy(
+                  stepName = stepName,
+                  tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType)
+                ),
                 workflow.settings.errorsManagement,
                 errorOutputs,
                 transform.predecessors
@@ -286,7 +289,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val tPredecessorsNames = tPredecessors.map { case (name, pTransform) =>
             transformIdentificationName(pTransform.step, relationDataTypeFromName(name))
           }.toSeq
-          val discardedDataName = nodeName(node.name, DataType.DiscardedData)
+          val discardedDataName = SdkSchemaHelper.discardTableName(node.name)
 
           validSchema.foreach(sc => validData.registerAsTable(workflowContext.xDSession, sc, node.name))
           discardedSchema.foreach(sc => discardedData.foreach(data => data.registerAsTable(workflowContext.xDSession, sc, discardedDataName)))
@@ -305,12 +308,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     }
 
   private[core] def relationDataTypeFromName(nodeName: String): DataType =
-    if (nodeName.contains(discardExtension)) DataType.DiscardedData
+    if (nodeName.contains(SdkSchemaHelper.discardExtension)) DataType.DiscardedData
     else DataType.ValidData
 
   private[core] def nodeName(name: String, relationDataType: DataType): String =
     if (relationDataType == DataType.ValidData) name
-    else s"$name$discardExtension"
+    else SdkSchemaHelper.discardTableName(name)
 
   private[core] def inputIdentificationName(step: InputStep[Underlying]): String =
     s"${InputStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"

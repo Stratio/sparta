@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SchemaHelper._
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
@@ -111,8 +111,8 @@ class TriggerTransformStepStreaming(
               sqlResult
             case Failure(e) =>
               val rdd = xDSession.sparkContext.union(
-                SqlHelper.failWithException(rdd1, e),
-                SqlHelper.failWithException(rdd2, e)
+                SparkStepHelper.failRDDWithException(rdd1, e),
+                SparkStepHelper.failRDDWithException(rdd2, e)
               )
               xDSession.createDataFrame(rdd, StructType(Nil)).createOrReplaceTempView(name)
 

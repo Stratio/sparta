@@ -71,42 +71,6 @@
                   {
                      "label": "Timestamp",
                      "value": "timestamp"
-                  },
-                  {
-                     "label": "Array(Double)",
-                     "value": "arraydouble"
-                  },
-                  {
-                     "label": "Array(String)",
-                     "value": "arraystring"
-                  },
-                  {
-                     "label": "Array(Long)",
-                     "value": "arraylong"
-                  },
-                  {
-                     "label": "Array(Integer)",
-                     "value": "arrayinteger"
-                  },
-                  {
-                     "label": "Array(Map(String, String))",
-                     "value": "arraymapstringstring"
-                  },
-                  {
-                     "label": "Map(String, Long)",
-                     "value": "mapstringlong"
-                  },
-                  {
-                     "label": "Map(String, Double)",
-                     "value": "mapstringdouble"
-                  },
-                  {
-                     "label": "Map(String, Integer)",
-                     "value": "mapstringint"
-                  },
-                  {
-                     "label": "Map(String, String)",
-                     "value": "mapstringstring"
                   }
                ],
                "default": "string",

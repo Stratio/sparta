@@ -58,7 +58,6 @@ object AppConstant extends ZookeeperUtils {
 
   //Workflow
   val defaultWorkflowRelationSettings = WorkflowRelationSettings(DataType.ValidData)
-  val discardExtension = "_Discard"
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"

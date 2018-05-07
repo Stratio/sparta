@@ -103,31 +103,26 @@ abstract class InitNullsTransformStep[Underlying[Row]](
     validation
   }
 
-  def transformFunction(
-                         inputSchema: String,
-                         inputStream: DistributedMonad[Underlying]
-                       ): DistributedMonad[Underlying] =
-    inputStream.flatMap { row =>
-      returnSeqDataFromRow {
-        val inputSchema = row.schema
-        val newValues = row.schema.map { outputField =>
-          Try {
-            val rowValue = row.get(inputSchema.fieldIndex(outputField.name))
-            if (Option(rowValue).isEmpty) {
-              defaultValueToColumn.get(outputField.name)
-                .map(value => castingToOutputSchema(outputField, value))
-                .orElse(defaultValueToType.get(outputField.dataType))
-                .getOrElse(new Exception(s"Error generating default value:$rowValue with type ${outputField.dataType}"))
-            } else rowValue
-          } match {
-            case Success(dataRow) =>
-              dataRow
-            case Failure(e: Exception) =>
-              returnWhenFieldError(new Exception(
-                s"Impossible to initialize null value in field: $outputField in the schema $inputSchema", e))
-          }
-        }
-        new GenericRowWithSchema(newValues.toArray, inputSchema)
+  def generateNewRow(row: Row): Row = {
+    val inputSchema = row.schema
+    val newValues = row.schema.map { outputField =>
+      Try {
+        val rowValue = row.get(inputSchema.fieldIndex(outputField.name))
+        if (Option(rowValue).isEmpty) {
+          defaultValueToColumn.get(outputField.name)
+            .map(value => castingToOutputSchema(outputField, value))
+            .orElse(defaultValueToType.get(outputField.dataType))
+            .getOrElse(new Exception(s"Error generating default value:$rowValue with type ${outputField.dataType}"))
+        } else rowValue
+      } match {
+        case Success(dataRow) =>
+          dataRow
+        case Failure(e: Exception) =>
+          returnWhenFieldError(new Exception(
+            s"Impossible to initialize null value in field: $outputField in the schema $inputSchema", e))
       }
     }
+    new GenericRowWithSchema(newValues.toArray, inputSchema)
+  }
+
 }

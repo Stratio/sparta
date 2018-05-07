@@ -44,27 +44,22 @@ abstract class AvroTransformStep[Underlying[Row]](
   lazy val avroSchema = AvroTransformStep.getAvroSchema(schemaProvided)
   lazy val expectedSchema = AvroTransformStep.getExpectedSchema(avroSchema)
 
-  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      inputStream flatMap { row =>
-        returnSeqDataFromRow {
-          val inputFieldName = inputField.get
-          val inputSchema = row.schema
-          val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
+  def generateNewRow(inputRow: Row): Row = {
+    val inputFieldName = inputField.get
+    val inputSchema = inputRow.schema
+    val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
 
-          assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
+    assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
 
-          val converter = RowAvroHelper.getAvroConverter(avroSchema, expectedSchema)
-          val value = row(inputFieldIdx).asInstanceOf[String].getBytes()
-          val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](avroSchema)
-          val record = recordInjection.invert(value).get
-          val safeDataRow = converter(record).asInstanceOf[GenericRow]
-          val newRow = new GenericRowWithSchema(safeDataRow.toSeq.toArray, expectedSchema)
+    val converter = RowAvroHelper.getAvroConverter(avroSchema, expectedSchema)
+    val value = inputRow(inputFieldIdx).asInstanceOf[String].getBytes()
+    val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](avroSchema)
+    val record = recordInjection.invert(value).get
+    val safeDataRow = converter(record).asInstanceOf[GenericRow]
+    val newRow = new GenericRowWithSchema(safeDataRow.toSeq.toArray, expectedSchema)
 
-          updateRow(row, newRow, inputFieldIdx, preservationPolicy)
-        }
-      }
-    }
+    updateRow(inputRow, newRow, inputFieldIdx, preservationPolicy)
+  }
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

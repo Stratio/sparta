@@ -7,11 +7,14 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd}
+import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.sdk.helpers.TransformStepHelper.sparkStreamingDiscardFunction
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -24,13 +27,29 @@ class CastingTransformStepStreaming(
                                      properties: Map[String, JSerializable]
                                    ) extends CastingTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData)(transformFunction).ds.transform { rdd =>
-      outputFieldsSchema
-        .orElse(getSchemaFromSessionOrModel(xDSession, name, inputsModel))
-        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
-        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[DStream]]
+                                    ): (DistributedMonad[DStream], Option[StructType], Option[DistributedMonad[DStream]], Option[StructType]) = {
+    val (streamDiscarded, stream) = applyHeadTransformWithDiscards(inputData) { (_, inputStream) =>
+      val (discardedData, validData) = sparkStreamingDiscardFunction(inputStream.ds, whenRowErrorDo)(generateNewRow)
 
+      (discardedData, validData)
+    }
+    val finalStreamDiscarded = streamDiscarded.ds.transform { rdd =>
+      val tableName = SdkSchemaHelper.discardTableName(name)
+      getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, tableName, inputsModel, rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName))
       rdd
     }
+    val finalStream = stream.ds.transform { rdd =>
+      val tableName = name
+      outputFieldsSchema
+        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, tableName, inputsModel, rdd.ds))
+        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName))
+      rdd
+    }
+
+    (finalStream, None, Option(finalStreamDiscarded), None)
+  }
 }

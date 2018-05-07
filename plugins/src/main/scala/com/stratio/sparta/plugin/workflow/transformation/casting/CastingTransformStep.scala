@@ -59,51 +59,38 @@ abstract class CastingTransformStep[Underlying[Row]](
     }
   }
 
-  def transformFunction(inputSchema: String,
-                        inputStream: DistributedMonad[Underlying]): DistributedMonad[Underlying] =
-    castingFields(inputStream)
-
-  /**
-    * Compare input schema and output schema and apply the casting function if it's necessary.
-    *
-    * @param streamData The stream data to casting
-    * @return The casted stream data
-    */
-  def castingFields(streamData: DistributedMonad[Underlying]): DistributedMonad[Underlying] =
-    streamData.flatMap { row =>
-      returnSeqDataFromRow {
-        val inputSchema = row.schema
-        (compareToOutputSchema(row.schema), outputFieldsSchema) match {
-          case (false, Some(outputSchema)) =>
-            val newValues = outputSchema.map { outputField =>
+  def generateNewRow(inputRow: Row): Row = {
+    val inputSchema = inputRow.schema
+    (compareToOutputSchema(inputRow.schema), outputFieldsSchema) match {
+      case (false, Some(outputSchema)) =>
+        val newValues = outputSchema.map { outputField =>
+          Try {
+            inputSchema.find(_.name == outputField.name)
+              .getOrElse(throw new Exception(
+                s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
+              .dataType
+          } match {
+            case Success(inputSchemaType) =>
               Try {
-                inputSchema.find(_.name == outputField.name)
-                  .getOrElse(throw new Exception(
-                    s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
-                  .dataType
+                val rowValue = inputRow.get(inputSchema.fieldIndex(outputField.name))
+                if (inputSchemaType == outputField.dataType)
+                  rowValue
+                else castingToOutputSchema(outputField, rowValue)
               } match {
-                case Success(inputSchemaType) =>
-                  Try {
-                    val rowValue = row.get(inputSchema.fieldIndex(outputField.name))
-                    if (inputSchemaType == outputField.dataType)
-                      rowValue
-                    else castingToOutputSchema(outputField, rowValue)
-                  } match {
-                    case Success(dataRow) =>
-                      dataRow
-                    case Failure(e) =>
-                      returnWhenFieldError(new Exception(
-                        s"Impossible to cast outputField: $outputField in the schema $inputSchema", e))
-                  }
-                case Failure(e: Exception) =>
-                  returnWhenFieldError(e)
+                case Success(dataRow) =>
+                  dataRow
+                case Failure(e) =>
+                  returnWhenFieldError(new Exception(
+                    s"Impossible to cast outputField: $outputField in the schema $inputSchema", e))
               }
-            }
-            new GenericRowWithSchema(newValues.toArray, outputSchema)
-          case _ => row
+            case Failure(e: Exception) =>
+              returnWhenFieldError(e)
+          }
         }
-      }
+        new GenericRowWithSchema(newValues.toArray, outputSchema)
+      case _ => inputRow
     }
+  }
 
   /**
     * Compare schema fields: InputSchema with outputSchema.

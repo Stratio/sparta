@@ -59,7 +59,7 @@ class CastingTransformStepStreamingIT extends TemporalSparkContext with Matchers
       Option(ssc),
       sparkSession,
       Map("fields" -> fields.asInstanceOf[JSerializable])
-    ).transform(inputData)
+    ).transformWithDiscards(inputData)._1
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
     result.ds.foreachRDD(rdd => {
@@ -76,5 +76,80 @@ class CastingTransformStepStreamingIT extends TemporalSparkContext with Matchers
     ssc.stop()
 
     assert(totalEvents.value === 2)
+  }
+
+  "A CastingTransformStepStream" should "discard rows in the input DStream" in {
+
+    val inputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), inputSchema),
+      new GenericRowWithSchema(Array("red", 12.2), inputSchema),
+      new GenericRowWithSchema(Array("wrong data"), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", "12.1"), outputSchema),
+      new GenericRowWithSchema(Array("red", "12.2"), outputSchema)
+    )
+    dataQueue1 += sc.parallelize(dataIn)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val inputData = Map("step1" -> stream1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val fields =
+      """[
+        |{
+        |   "name":"color",
+        |   "type":"string"
+        |},
+        |{
+        |   "name":"price",
+        |   "type":"string"
+        |}]
+        | """.stripMargin
+    val result = new CastingTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "fields" -> fields.asInstanceOf[JSerializable],
+        "whenRowError" -> "RowDiscard"
+      )
+    ).transformWithDiscards(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val totalDiscardsEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result._1.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataOut.contains(row))
+          assert(outputSchema == row.schema)
+        }
+    })
+
+    result._3.get.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      totalDiscardsEvents += streamingEvents
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
+          assert(dataIn.contains(row))
+          assert(inputSchema == row.schema)
+        }
+    })
+
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
+    ssc.stop()
+
+    assert(totalEvents.value === 2)
+    assert(totalDiscardsEvents.value === 1)
   }
 }

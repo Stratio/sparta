@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.avro
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.sdk.helpers.TransformStepHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -26,15 +27,20 @@ class AvroTransformStepBatch(
                             ) extends AvroTransformStep[RDD](
   name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
+  override def transformWithDiscards(
+                             inputData: Map[String, DistributedMonad[RDD]]
+                           ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
+    val (rddDiscarded, rdd) = applyHeadTransformWithDiscards(inputData) { (_, inputStream) =>
+      val (discardedData, validData) = sparkBatchDiscardFunction(inputStream.ds, whenRowErrorDo)(generateNewRow)
 
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
-    val rdd = transformFunc(inputData)
+      (discardedData, validData)
+    }
     val finalSchema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
       .orElse(getOutputSchema(getSchemaFromSessionOrModel(xDSession, inputData.head._1, inputsModel)))
       .orElse(getSchemaFromRdd(rdd.ds))
+    val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, inputData.head._2.ds)
 
-    (rdd, finalSchema, None)
+    (rdd, finalSchema, Option(rddDiscarded), inputSchema)
   }
+
 }

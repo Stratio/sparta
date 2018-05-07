@@ -92,4 +92,41 @@ class InitNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
 
     assert(streamingEvents === 3)
   }
+
+  "A InitNullsTransformStepBatch" should "discard rows" in {
+    val inputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), inputSchema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 1.1), inputSchema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), inputSchema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("wrong data"), inputSchema)
+    )
+    val rddInput = sc.parallelize(dataIn)
+    val inputData = Map("step1" -> rddInput)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val result = new InitNullsTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("whenRowError" -> "RowDiscard")
+    ).transformWithDiscards(inputData)
+
+    val validData = result._1.ds.collect()
+    val discardedData = result._3.get.ds.collect()
+
+    validData.foreach { row =>
+      assert(dataIn.contains(row))
+      assert(inputSchema == row.schema)
+    }
+
+    discardedData.foreach { row =>
+      assert(dataIn.contains(row))
+      assert(inputSchema == row.schema)
+    }
+
+    assert(validData.length === 3)
+    assert(discardedData.length === 1)
+  }
 }

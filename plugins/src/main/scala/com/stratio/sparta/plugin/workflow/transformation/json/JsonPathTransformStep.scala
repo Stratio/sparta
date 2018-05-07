@@ -96,13 +96,8 @@ abstract class JsonPathTransformStep[Underlying[Row]](
     validation
   }
 
-  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData) { (_, inputStream) =>
-      inputStream.flatMap(data => parse(data))
-    }
-
   //scalastyle:off
-  def parse(row: Row): Seq[Row] = returnSeqDataFromRow {
+  def generateNewRow(row: Row): Row = {
     val inputSchema = row.schema
     val inputFieldName = inputField.get
     val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, outputFieldsSchema, inputFieldName)
@@ -143,7 +138,6 @@ abstract class JsonPathTransformStep[Underlying[Row]](
     new GenericRowWithSchema(newValues.toArray, outputSchema)
   }
 
-  //scalastyle:on
 }
 
 object JsonPathTransformStep {

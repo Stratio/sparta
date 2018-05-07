@@ -23,6 +23,8 @@ object SdkSchemaHelper extends SLF4JLogging{
 
   val reservedWords = Seq("select", "refresh", "group", "by", "having", "from", "table", "project", "table", "view",
     "exists", "if", "not", "temporary", "replace")
+  val discardExtension = "_Discard"
+
 
   def isCorrectTableName(tableName: String): Boolean =
     tableName.nonEmpty && tableName != "" &&
@@ -32,8 +34,10 @@ object SdkSchemaHelper extends SLF4JLogging{
   def getSchemaFromSession(xDSession: XDSession, tableName: String): Option[StructType] = {
     Try {
       val identifier = xDSession.sessionState.sqlParser.parseTableIdentifier(tableName)
-      xDSession.sessionState.catalog.getTempViewOrPermanentTableMetadata(identifier).schema
-    }.toOption
+      val schema = xDSession.sessionState.catalog.getTempViewOrPermanentTableMetadata(identifier).schema
+
+      if(schema.fields.nonEmpty) Option(schema) else None
+    }.toOption.flatten
   }
 
   def getSchemaFromRdd(rdd: RDD[Row]): Option[StructType] = if (!rdd.isEmpty()) Option(rdd.first().schema) else None
@@ -51,4 +55,6 @@ object SdkSchemaHelper extends SLF4JLogging{
       )
     }
   }
+
+  def discardTableName(name: String) : String = s"$name$discardExtension"
 }

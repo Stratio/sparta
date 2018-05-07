@@ -7,10 +7,11 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromRdd, getSchemaFromSessionOrModel}
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromRdd, getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd}
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -37,12 +38,14 @@ class IntersectionTransformStepStreaming(
       partitions.fold(rdd1.intersection(rdd2)) { numPartitions =>
         Try{
           val newRdd = rdd1.intersection(rdd2, numPartitions)
+          val tableName = SdkSchemaHelper.discardTableName(name)
 
           getSchemaFromSessionOrModel(xDSession, name, inputsModel)
             .orElse(getSchemaFromSessionOrModel(xDSession, firstStep, inputsModel))
             .orElse(getSchemaFromSessionOrModel(xDSession, secondStep, inputsModel))
+            .orElse(getSchemaFromSessionOrModel(xDSession, tableName, inputsModel))
             .orElse(getSchemaFromRdd(newRdd))
-            .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(name))
+            .foreach(sc => xDSession.createDataFrame(newRdd, sc).createOrReplaceTempView(tableName))
 
           newRdd
         } match {
@@ -50,8 +53,8 @@ class IntersectionTransformStepStreaming(
             result
           case Failure(e) =>
             xDSession.sparkContext.union(
-              SqlHelper.failWithException(rdd1, e),
-              SqlHelper.failWithException(rdd2, e)
+              SparkStepHelper.failRDDWithException(rdd1, e),
+              SparkStepHelper.failRDDWithException(rdd2, e)
             )
         }
       }

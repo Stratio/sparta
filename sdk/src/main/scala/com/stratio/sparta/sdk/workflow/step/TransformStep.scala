@@ -11,19 +11,19 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.utils.CastingUtils
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import org.apache.spark.sql.types.{StructField, StructType}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.models.{DiscardCondition, PropertySchemasInput}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
+import com.stratio.sparta.sdk.utils.CastingUtils
+import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.streaming.StreamingContext
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
 
@@ -39,6 +39,7 @@ abstract class TransformStep[Underlying[Row]](
                                                properties: Map[String, JSerializable]
                                              ) extends Parameterizable(properties) with GraphStep
   with DistributedMonadImplicits with SLF4JLogging {
+
 
   override lazy val customKey = "transformationOptions"
   override lazy val customPropertyKey = "transformationOptionsKey"
@@ -65,7 +66,18 @@ abstract class TransformStep[Underlying[Row]](
     read[Seq[DiscardCondition]](conditions)
   }
 
-  /* METHODS TO IMPLEMENT */
+  /* METHODS IMPLEMENTED */
+
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    validation
+  }
 
   /**
     * Transformation function that all the transformation plugins must implements.
@@ -77,8 +89,6 @@ abstract class TransformStep[Underlying[Row]](
   def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] = {
     inputData.head._2
   }
-
-  /* METHODS IMPLEMENTED */
 
   /**
     *
@@ -119,6 +129,24 @@ abstract class TransformStep[Underlying[Row]](
                                          (
                                            generateDistributedMonad: (String, DistributedMonad[Underlying]) => DistributedMonad[Underlying]
                                          ): DistributedMonad[Underlying] = {
+    assert(inputData.size == 1, s"The step $name must have one input, now have: ${inputData.keys}")
+
+    val (firstStep, firstStream) = inputData.head
+
+    generateDistributedMonad(firstStep, firstStream)
+  }
+
+  /**
+    * Execute the transform function passed as parameter over the first data of the map.
+    *
+    * @param inputData                Input data that must contains only one distributed collection.
+    * @param generateDistributedMonad Function to apply
+    * @return The transformed distributed collection [[DistributedMonad]]
+    */
+  def applyHeadTransformWithDiscards[Underlying[Row]](inputData: Map[String, DistributedMonad[Underlying]])
+                                         (
+                                           generateDistributedMonad: (String, DistributedMonad[Underlying]) => (DistributedMonad[Underlying], DistributedMonad[Underlying])
+                                         ): (DistributedMonad[Underlying], DistributedMonad[Underlying]) = {
     assert(inputData.size == 1, s"The step $name must have one input, now have: ${inputData.keys}")
 
     val (firstStep, firstStream) = inputData.head
@@ -190,17 +218,6 @@ abstract class TransformStep[Underlying[Row]](
     (transformedData, transformedSchema, discardedData, inputSchema)
   }
 
-  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
-    var validation = ErrorValidations(valid = true, messages = Seq.empty)
-
-    if (!SdkSchemaHelper.isCorrectTableName(name))
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
-
-    validation
-  }
-
   def returnWhenFieldError(exception: Exception): Null =
     whenFieldErrorDo match {
       case WhenFieldError.Null => null
@@ -215,39 +232,6 @@ abstract class TransformStep[Underlying[Row]](
       case Failure(e) => returnWhenFieldError(new Exception(
         s"Error casting to output type the value: ${inputValue.toString}", e))
     }
-
-  def returnSeqDataFromRow(newData: => Row): Seq[Row] = manageErrorWithTry(newData)
-
-  def returnSeqDataFromOptionalRow(newData: => Option[Row]): Seq[Row] = manageErrorWithTry(newData)
-
-  def returnSeqDataFromRows(newData: => Seq[Row]): Seq[Row] = manageErrorWithTry(newData)
-
-  /* PRIVATE METHODS */
-
-  private def manageErrorWithTry[T](newData: => T): Seq[Row] =
-    Try(newData) match {
-      case Success(data) => manageSuccess(data)
-      case Failure(e) => whenRowErrorDo match {
-        case WhenRowError.RowDiscard => Seq.empty[GenericRowWithSchema]
-        case _ => throw e
-      }
-    }
-
-  private def manageSuccess[T](newData: T): Seq[Row] =
-    newData match {
-      case data: Seq[GenericRowWithSchema] => data
-      case data: GenericRowWithSchema => Seq(data)
-      case data: Option[GenericRowWithSchema] =>
-        data match {
-          case Some(unwrappedData: GenericRowWithSchema) => Seq(unwrappedData)
-          case None => Seq.empty[GenericRowWithSchema]
-        }
-      case _ => whenRowErrorDo match {
-        case WhenRowError.RowDiscard => Seq.empty[GenericRowWithSchema]
-        case _ => throw new Exception("Invalid new data struct in step")
-      }
-    }
-
 }
 
 object TransformStep {

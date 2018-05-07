@@ -19,7 +19,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A CleanNullsTransformStepBatch" should "filter events that contains nulls in the column values" in {
+  "A DropNullsTransformStepBatch" should "filter events that contains nulls in the column values" in {
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
@@ -46,7 +46,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
     assert(streamingEvents === 2)
   }
 
-  "A CleanNullsTransformStepBatch" should "no filter events when nulls are not present in values" in {
+  "A DropNullsTransformStepBatch" should "no filter events when nulls are not present in values" in {
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
@@ -73,7 +73,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
     assert(streamingEvents === 3)
   }
 
-  "A CleanNullsTransformStepBatch" should "filter events that contains nulls in all columns values" in {
+  "A DropNullsTransformStepBatch" should "filter events that contains nulls in all columns values" in {
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", null), schema).asInstanceOf[Row],
@@ -100,7 +100,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
     assert(streamingEvents === 2)
   }
 
-  "A CleanNullsTransformStepBatch" should "filter events that contains nulls in one column" in {
+  "A DropNullsTransformStepBatch" should "filter events that contains nulls in one column" in {
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val data1 = Seq(
       new GenericRowWithSchema(Array(null, 1.1), schema).asInstanceOf[Row],
@@ -132,7 +132,7 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
     assert(streamingEvents === 1)
   }
 
-  "A CleanNullsTransformStepBatch" should "filter events that contains nulls in two columns" in {
+  "A DropNullsTransformStepBatch" should "filter events that contains nulls in two columns" in {
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val data1 = Seq(
       new GenericRowWithSchema(Array(null, 1.1), schema).asInstanceOf[Row],
@@ -166,5 +166,41 @@ class DropNullsTransformStepBatchIT extends TemporalSparkContext with Matchers w
       streamingRegisters.foreach(row => assert(data1.contains(row)))
 
     assert(streamingEvents === 2)
+  }
+
+  "A DropNullsTransformStepBatch" should "discard rows" in {
+    val inputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), inputSchema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", null), inputSchema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), inputSchema).asInstanceOf[Row]
+    )
+    val rddInput = sc.parallelize(dataIn)
+    val inputData = Map("step1" -> rddInput)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val result = new DropNullsTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("whenRowError" -> "RowDiscard")
+    ).transformWithDiscards(inputData)
+
+    val validData = result._1.ds.collect()
+    val discardedData = result._3.get.ds.collect()
+
+    validData.foreach { row =>
+      assert(dataIn.contains(row))
+      assert(inputSchema == row.schema)
+    }
+
+    discardedData.foreach { row =>
+      assert(dataIn.contains(row))
+      assert(inputSchema == row.schema)
+    }
+
+    assert(validData.length === 2)
+    assert(discardedData.length === 1)
   }
 }

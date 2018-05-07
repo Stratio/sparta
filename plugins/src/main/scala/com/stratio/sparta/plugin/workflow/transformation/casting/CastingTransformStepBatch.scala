@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper._
+import com.stratio.sparta.sdk.helpers.TransformStepHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
@@ -26,14 +27,21 @@ class CastingTransformStepBatch(
                                ) extends CastingTransformStep[RDD](
   name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transformWithSchema(
-                                    inputData: Map[String, DistributedMonad[RDD]]
-                                  ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
-    val rdd = applyHeadTransform(inputData)(transformFunction)
-    val schema = outputFieldsSchema
-      .orElse(getSchemaFromSessionOrModel(xDSession, name, inputsModel))
-      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
 
-    (rdd, schema, None)
+  override def transformWithDiscards(
+                                      inputData: Map[String, DistributedMonad[RDD]]
+                                    ): (DistributedMonad[RDD], Option[StructType], Option[DistributedMonad[RDD]], Option[StructType]) = {
+    val (rddDiscarded, rdd) = applyHeadTransformWithDiscards(inputData) { (_, inputStream) =>
+      val (discardedData, validData) = sparkBatchDiscardFunction(inputStream.ds, whenRowErrorDo)(generateNewRow)
+
+      (discardedData, validData)
+    }
+    val finalSchema = outputFieldsSchema
+      .orElse(getSchemaFromSessionOrModel(xDSession, name, inputsModel))
+      .orElse(getSchemaFromRdd(rdd.ds))
+    val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, inputData.head._2.ds)
+
+    (rdd, finalSchema, Option(rddDiscarded), inputSchema)
   }
+
 }

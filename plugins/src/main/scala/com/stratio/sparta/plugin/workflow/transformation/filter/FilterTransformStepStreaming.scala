@@ -10,6 +10,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
@@ -45,8 +46,8 @@ class FilterTransformStepStreaming(
         val discardsExpression =
           s" NOT (${filterExpression.getOrElse(throw new Exception("Invalid filter expression"))})"
         val (rdd, schema, _) = applyFilter(inputRdd, discardsExpression, stepName)
-        schema.orElse(getSchemaFromRdd(rdd))
-          .foreach(sc => xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(name))
+        schema.orElse(getSchemaFromRdd(rdd)).foreach(sc =>
+            xDSession.createDataFrame(rdd, sc).createOrReplaceTempView(SdkSchemaHelper.discardTableName(name)))
         rdd
       }
     }

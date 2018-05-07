@@ -17,7 +17,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.models.{DiscardCondition, PropertyFields}
@@ -90,7 +90,7 @@ abstract class DropColumnsTransformStep[Underlying[Row]](
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
+      case Failure(e) => (SparkStepHelper.failRDDWithException(rdd, e), None, None)
     }
   }
 

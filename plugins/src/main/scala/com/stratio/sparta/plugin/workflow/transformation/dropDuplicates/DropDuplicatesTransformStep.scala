@@ -9,7 +9,7 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
-import com.stratio.sparta.plugin.helper.SqlHelper
+import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.plugin.models.PropertyColumn
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
@@ -94,7 +94,7 @@ abstract class DropDuplicatesTransformStep[Underlying[Row]](
       }
     } match {
       case Success(sqlResult) => sqlResult
-      case Failure(e) => (SqlHelper.failWithException(rdd, e), None, None)
+      case Failure(e) => (SparkStepHelper.failRDDWithException(rdd, e), None, None)
     }
   }
 }

@@ -75,22 +75,17 @@ abstract class JsonTransformStep[Underlying[Row]](
     validation
   }
 
-  def transformFunc(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData) { (_, inputStream) =>
-      inputStream flatMap { row =>
-        returnSeqDataFromRow {
-          val inputSchema = row.schema
-          val inputFieldName = inputField.get
-          val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
-          assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
+  def generateNewRow(row: Row): Row = {
+    val inputSchema = row.schema
+    val inputFieldName = inputField.get
+    val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
+    assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
 
-          val value = row(inputFieldIdx).asInstanceOf[String]
+    val value = row(inputFieldIdx).asInstanceOf[String]
 
-          val embeddedRowSchema = jsonSchema getOrElse extractSchemaFromJson(value, Map.empty)
-          val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
+    val embeddedRowSchema = jsonSchema getOrElse extractSchemaFromJson(value, Map.empty)
+    val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
 
-          updateRow(row, embeddedRow, inputFieldIdx, preservationPolicy)
-        }
-      }
-    }
+    updateRow(row, embeddedRow, inputFieldIdx, preservationPolicy)
+  }
 }
