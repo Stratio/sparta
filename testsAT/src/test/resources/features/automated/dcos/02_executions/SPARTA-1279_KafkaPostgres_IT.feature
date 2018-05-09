@@ -9,7 +9,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   # ADD SPARTA POLICY *
   #********************
   Scenario:[SPARTA-1279][01] Add sparta policy to write in kafka
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy_fr.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
       |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}        | n/a |

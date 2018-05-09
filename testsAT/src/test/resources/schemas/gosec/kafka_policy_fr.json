@@ -1,0 +1,62 @@
+{
+  "id": "sparta-kf-fr",
+  "name": "sparta-kf-fr",
+  "users": [
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "eos-kafka-framework",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "eos-kafka-framework"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Group",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Describe",
+                "Read"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Cluster",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Create",
+                "Describe"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Topic",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Alter",
+                "Delete",
+                "Describe",
+                "Read",
+                "Write"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

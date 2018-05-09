@@ -1,20 +1,24 @@
 {
   "workflows": [
     {
-      "id": "c76053f2-8153-45cf-a073-29288cf8d5be",
-      "name": "kafka-postgres",
-      "description": "Automatic Workflow kafka-postgres",
+      "id": "0189fa09-0a35-4198-b7b9-973a407678ec",
+      "name": "testinput-kafka",
+      "description": "Automatic Workflow testinput kafka 400ev",
       "settings": {
         "global": {
           "executionMode": "marathon",
           "userPluginsJars": [],
           "initSqlSentences": [],
-          "addAllUploadedPlugins": true
+          "addAllUploadedPlugins": true,
+          "mesosConstraint": "",
+          "mesosConstraintOperator": "CLUSTER"
         },
         "streamingSettings": {
-          "window": "2s",
+          "window": "10s",
           "remember": "",
+          "backpressure": false,
           "blockInterval": "100ms",
+          "stopGracefully": false,
           "checkpointSettings": {
             "checkpointPath": "sparta/checkpoint",
             "enableCheckpointing": true,
@@ -30,7 +34,7 @@
           "submitArguments": {
             "userArguments": [],
             "deployMode": "client",
-            "driverJavaOptions": "-XX:+UseConcMarkSweepGC"
+            "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
           },
           "sparkConf": {
             "sparkResourcesConf": {
@@ -42,12 +46,278 @@
               "mesosExtraCores": "",
               "localityWait": "100",
               "taskMaxFailures": "8",
-              "sparkMemoryFraction": "0.6"
+              "sparkMemoryFraction": "0.6",
+              "sparkParallelism": ""
             },
             "userSparkConf": [],
             "coarse": true,
             "sparkUser": "",
             "sparkLocalDir": "/opt/spark/dist",
+            "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0.5",
+            "sparkKryoSerialization": false,
+            "sparkSqlCaseSensitive": false,
+            "logStagesProgress": false,
+            "hdfsTokenCache": true,
+            "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+          }
+        },
+        "errorsManagement": {
+          "genericErrorManagement": {
+            "whenError": "Error"
+          },
+          "transformationStepsManagement": {
+            "whenError": "Error",
+            "whenRowError": "RowError",
+            "whenFieldError": "FieldError"
+          },
+          "transactionsManagement": {
+            "sendToOutputs": [],
+            "sendStepData": false,
+            "sendPredecessorsData": false,
+            "sendInputData": true
+          }
+        }
+      },
+      "pipelineGraph": {
+        "nodes": [
+          {
+            "name": "Test",
+            "stepType": "Input",
+            "className": "TestInputStepStreaming",
+            "classPrettyName": "Test",
+            "arity": [
+              "NullaryToNary"
+            ],
+            "writer": {
+              "saveMode": "Append",
+              "tableName": "",
+              "partitionBy": ""
+            },
+            "description": "Json with ID",
+            "uiConfiguration": {
+              "position": {
+                "x": 476,
+                "y": 234
+              }
+            },
+            "configuration": {
+              "maxNumbEvents": "400",
+              "eventType": "STRING",
+              "outputField": "raw",
+              "event": "{\"id\":\"550\"}",
+              "numEvents": "400"
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
+          },
+          {
+            "name": "JsonPath",
+            "stepType": "Transformation",
+            "className": "JsonPathTransformStepStreaming",
+            "classPrettyName": "JsonPath",
+            "arity": [
+              "UnaryToNary"
+            ],
+            "writer": {
+              "saveMode": "Append",
+              "tableName": "",
+              "partitionBy": ""
+            },
+            "uiConfiguration": {
+              "position": {
+                "x": 729,
+                "y": 234
+              }
+            },
+            "configuration": {
+              "queries": [
+                {
+                  "field": "id",
+                  "query": "$.id",
+                  "type": "string"
+                }
+              ],
+              "whenError": "Error",
+              "supportNullValues": true,
+              "fieldsPreservationPolicy": "REPLACE",
+              "inputField": "raw"
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
+          },
+          {
+            "name": "Kafka",
+            "stepType": "Output",
+            "className": "KafkaOutputStep",
+            "classPrettyName": "Kafka",
+            "arity": [
+              "NaryToNullary"
+            ],
+            "writer": {
+              "saveMode": "Append"
+            },
+            "description": "Kafka Output",
+            "uiConfiguration": {
+              "position": {
+                "x": 1239,
+                "y": 234
+              }
+            },
+            "configuration": {
+              "value.serializer.outputFormat": "JSON",
+              "tlsEnabled": true,
+              "security.protocol": "PLAINTEXT",
+              "bootstrap.servers": [
+                {
+                  "host": "broker-0001.kafka-sec.mesos",
+                  "port": "9092"
+                }
+              ],
+              "acks": "0",
+              "ssl.client.auth": "required",
+              "saveOptions": "[]",
+              "keySeparator": ",",
+              "batch.size": "200"
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
+          },
+          {
+            "name": "idtable",
+            "stepType": "Transformation",
+            "className": "TriggerTransformStepStreaming",
+            "classPrettyName": "Trigger",
+            "arity": [
+              "BinaryToNary",
+              "UnaryToNary"
+            ],
+            "writer": {
+              "saveMode": "Append",
+              "tableName": "idtopic",
+              "partitionBy": ""
+            },
+            "uiConfiguration": {
+              "position": {
+                "x": 954,
+                "y": 234
+              }
+            },
+            "configuration": {
+              "sql": "select id from JsonPath"
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "origin": "Test",
+            "destination": "JsonPath",
+            "dataType": "ValidData"
+          },
+          {
+            "origin": "JsonPath",
+            "destination": "idtable",
+            "dataType": "ValidData"
+          },
+          {
+            "origin": "idtable",
+            "destination": "Kafka",
+            "dataType": "ValidData"
+          }
+        ]
+      },
+      "executionEngine": "Streaming",
+      "uiSettings": {
+        "position": {
+          "x": -216,
+          "y": -1,
+          "k": 1
+        }
+      },
+      "creationDate": "2018-05-07T11:34:18Z",
+      "lastUpdateDate": "2018-04-02T17:12:45Z",
+      "version": 0,
+      "group": {
+        "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+        "name": "/home"
+      },
+      "status": {
+        "id": "0189fa09-0a35-4198-b7b9-973a407678ec",
+        "status": "Created",
+        "creationDate": "2018-05-07T11:34:18Z"
+      }
+    },
+    {
+      "id": "71dc4598-c66c-4384-aeec-471cc0b29b65",
+      "name": "kafka-postgres",
+      "description": "Automatic Workflow kafka-postgres",
+      "settings": {
+        "global": {
+          "executionMode": "marathon",
+          "userPluginsJars": [],
+          "initSqlSentences": [],
+          "addAllUploadedPlugins": true,
+          "mesosConstraint": "",
+          "mesosConstraintOperator": "CLUSTER"
+        },
+        "streamingSettings": {
+          "window": "10s",
+          "remember": "",
+          "backpressure": false,
+          "blockInterval": "100ms",
+          "stopGracefully": false,
+          "checkpointSettings": {
+            "checkpointPath": "sparta/checkpoint",
+            "enableCheckpointing": true,
+            "autoDeleteCheckpoint": true,
+            "addTimeToCheckpointPath": false
+          }
+        },
+        "sparkSettings": {
+          "master": "mesos://leader.mesos:5050",
+          "sparkKerberos": true,
+          "sparkDataStoreTls": true,
+          "sparkMesosSecurity": true,
+          "submitArguments": {
+            "userArguments": [],
+            "deployMode": "client",
+            "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
+          },
+          "sparkConf": {
+            "sparkResourcesConf": {
+              "coresMax": "1",
+              "executorMemory": "2G",
+              "executorCores": "1",
+              "driverCores": "1",
+              "driverMemory": "2G",
+              "mesosExtraCores": "",
+              "localityWait": "100",
+              "taskMaxFailures": "8",
+              "sparkMemoryFraction": "0.6",
+              "sparkParallelism": ""
+            },
+            "userSparkConf": [],
+            "coarse": true,
+            "sparkUser": "",
+            "sparkLocalDir": "/opt/spark/dist",
+            "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0.5",
+            "sparkKryoSerialization": false,
+            "sparkSqlCaseSensitive": false,
+            "logStagesProgress": false,
+            "hdfsTokenCache": false,
             "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
           }
         },
@@ -81,7 +351,8 @@
             "writer": {
               "saveMode": "Append",
               "tableName": "",
-              "partitionBy": ""
+              "partitionBy": "",
+              "errorTableName": ""
             },
             "uiConfiguration": {
               "position": {
@@ -90,6 +361,7 @@
               }
             },
             "configuration": {
+              "spark.streaming.kafka.consumer.poll.ms": "10000",
               "locationStrategy": "preferconsistent",
               "inputOptions": "[]",
               "topics": [
@@ -100,23 +372,29 @@
               "auto.offset.reset": "latest",
               "partition.assignment.strategy": "range",
               "value.deserializer.inputFormat": "JSON",
-              "tlsEnabled": false,
+              "tlsEnabled": true,
+              "spark.streaming.kafka.consumer.cache.enabled": false,
               "group.id": "sparta_2",
               "bootstrap.servers": [
                 {
-                  "port": "9092",
-                  "host": "broker-0001.kafka-sec.mesos"
+                  "host": "broker-0001.kafka-sec.mesos",
+                  "port": "9092"
                 }
               ],
               "enable.auto.commit": false,
               "value.deserializer.json.schema.fromRow": true,
               "storeOffsetInKafka": true
-            }
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
           },
           {
             "name": "tabletest",
             "stepType": "Transformation",
-            "className": "TriggerTransformStepStream",
+            "className": "TriggerTransformStepStreaming",
             "classPrettyName": "Trigger",
             "arity": [
               "BinaryToNary",
@@ -135,7 +413,12 @@
             },
             "configuration": {
               "sql": "select id from Kafka"
-            }
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
           },
           {
             "name": "Postgres",
@@ -157,7 +440,7 @@
             },
             "configuration": {
               "errorSink": false,
-              "url": "jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server",
+              "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
               "postgresSaveMode": "STATEMENT",
               "batchsize": "1000",
               "isolationLevel": "READ_UNCOMMITTED",
@@ -165,7 +448,12 @@
               "driver": "",
               "schemaFromDatabase": false,
               "saveOptions": "[]"
-            }
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
           },
           {
             "name": "Print",
@@ -189,7 +477,12 @@
               "logLevel": "warn",
               "printMetadata": true,
               "printData": true
-            }
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
           },
           {
             "name": "Cube",
@@ -228,29 +521,39 @@
                   "classType": "Count"
                 }
               ]
-            }
+            },
+            "supportedEngines": [],
+            "executionEngine": "Streaming",
+            "supportedDataRelations": [
+              "ValidData"
+            ]
           }
         ],
         "edges": [
           {
             "origin": "tabletest",
-            "destination": "Postgres"
+            "destination": "Postgres",
+            "dataType": "ValidData"
           },
           {
             "origin": "Kafka",
-            "destination": "Print"
+            "destination": "Print",
+            "dataType": "ValidData"
           },
           {
             "origin": "Kafka",
-            "destination": "tabletest"
+            "destination": "tabletest",
+            "dataType": "ValidData"
           },
           {
             "origin": "Kafka",
-            "destination": "Cube"
+            "destination": "Cube",
+            "dataType": "ValidData"
           },
           {
             "origin": "Cube",
-            "destination": "Postgres"
+            "destination": "Postgres",
+            "dataType": "ValidData"
           }
         ]
       },
@@ -262,244 +565,17 @@
           "k": 1
         }
       },
-      "creationDate": "2018-02-13T15:16:31Z",
-      "lastUpdateDate": "2018-02-08T15:37:37Z",
+      "creationDate": "2018-05-07T11:34:06Z",
+      "lastUpdateDate": "2018-04-02T17:38:58Z",
       "version": 0,
       "group": {
         "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
         "name": "/home"
       },
       "status": {
-        "id": "c76053f2-8153-45cf-a073-29288cf8d5be",
-        "status": "NotStarted",
-        "creationDate": "2018-02-13T15:16:31Z"
-      }
-    },
-    {
-      "id": "3895acc8-8396-4303-a745-7adcb8718870",
-      "name": "testinput-kafka",
-      "description": "Automatic Workflow testinput kafka 400ev",
-      "settings": {
-        "global": {
-          "executionMode": "marathon",
-          "userPluginsJars": [],
-          "initSqlSentences": [],
-          "addAllUploadedPlugins": true
-        },
-        "streamingSettings": {
-          "window": "2s",
-          "remember": "",
-          "blockInterval": "100ms",
-          "checkpointSettings": {
-            "checkpointPath": "sparta/checkpoint",
-            "enableCheckpointing": true,
-            "autoDeleteCheckpoint": true,
-            "addTimeToCheckpointPath": false
-          }
-        },
-        "sparkSettings": {
-          "master": "mesos://leader.mesos:5050",
-          "sparkKerberos": true,
-          "sparkDataStoreTls": true,
-          "sparkMesosSecurity": true,
-          "submitArguments": {
-            "userArguments": [],
-            "deployMode": "client",
-            "driverJavaOptions": "-XX:+UseConcMarkSweepGC"
-          },
-          "sparkConf": {
-            "sparkResourcesConf": {
-              "coresMax": "1",
-              "executorMemory": "2G",
-              "executorCores": "1",
-              "driverCores": "1",
-              "driverMemory": "2G",
-              "mesosExtraCores": "",
-              "localityWait": "100",
-              "taskMaxFailures": "8",
-              "sparkMemoryFraction": "0.6"
-            },
-            "userSparkConf": [],
-            "coarse": true,
-            "sparkUser": "",
-            "sparkLocalDir": "/opt/spark/dist",
-            "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
-          }
-        },
-        "errorsManagement": {
-          "genericErrorManagement": {
-            "whenError": "Error"
-          },
-          "transformationStepsManagement": {
-            "whenError": "Error",
-            "whenRowError": "RowError",
-            "whenFieldError": "FieldError"
-          },
-          "transactionsManagement": {
-            "sendToOutputs": [],
-            "sendStepData": false,
-            "sendPredecessorsData": false,
-            "sendInputData": true
-          }
-        }
-      },
-      "pipelineGraph": {
-        "nodes": [
-          {
-            "name": "Test",
-            "stepType": "Input",
-            "className": "TestInputStepStream",
-            "classPrettyName": "Test",
-            "arity": [
-              "NullaryToNary"
-            ],
-            "writer": {
-              "saveMode": "Append",
-              "tableName": "",
-              "partitionBy": ""
-            },
-            "description": "Json with ID",
-            "uiConfiguration": {
-              "position": {
-                "x": 476,
-                "y": 234
-              }
-            },
-            "configuration": {
-              "maxNumbEvents": "400",
-              "eventType": "STRING",
-              "outputField": "raw",
-              "event": "{\"id\":\"550\"}",
-              "numEvents": "400"
-            }
-          },
-          {
-            "name": "JsonPath",
-            "stepType": "Transformation",
-            "className": "JsonPathTransformStepStream",
-            "classPrettyName": "JsonPath",
-            "arity": [
-              "UnaryToNary"
-            ],
-            "writer": {
-              "saveMode": "Append",
-              "tableName": "",
-              "partitionBy": ""
-            },
-            "uiConfiguration": {
-              "position": {
-                "x": 729,
-                "y": 234
-              }
-            },
-            "configuration": {
-              "queries": [
-                {
-                  "field": "id",
-                  "query": "$.id",
-                  "type": "string"
-                }
-              ],
-              "whenError": "Error",
-              "supportNullValues": true,
-              "fieldsPreservationPolicy": "REPLACE",
-              "inputField": "raw"
-            }
-          },
-          {
-            "name": "Kafka",
-            "stepType": "Output",
-            "className": "KafkaOutputStep",
-            "classPrettyName": "Kafka",
-            "arity": [
-              "NaryToNullary"
-            ],
-            "writer": {
-              "saveMode": "Append"
-            },
-            "description": "Kafka Output",
-            "uiConfiguration": {
-              "position": {
-                "x": 1239,
-                "y": 234
-              }
-            },
-            "configuration": {
-              "value.serializer.outputFormat": "JSON",
-              "tlsEnabled": true,
-              "security.protocol": "PLAINTEXT",
-              "bootstrap.servers": [
-                {
-                  "host": "broker-0001.kafka-sec.mesos",
-                  "port": "9092"
-                }
-              ],
-              "acks": "0",
-              "ssl.client.auth": "required",
-              "saveOptions": "[]",
-              "keySeparator": ",",
-              "batch.size": "200"
-            }
-          },
-          {
-            "name": "idtable",
-            "stepType": "Transformation",
-            "className": "TriggerTransformStepStream",
-            "classPrettyName": "Trigger",
-            "arity": [
-              "BinaryToNary",
-              "UnaryToNary"
-            ],
-            "writer": {
-              "saveMode": "Append",
-              "tableName": "idtopic",
-              "partitionBy": ""
-            },
-            "uiConfiguration": {
-              "position": {
-                "x": 954,
-                "y": 234
-              }
-            },
-            "configuration": {
-              "sql": "select id from JsonPath"
-            }
-          }
-        ],
-        "edges": [
-          {
-            "origin": "Test",
-            "destination": "JsonPath"
-          },
-          {
-            "origin": "JsonPath",
-            "destination": "idtable"
-          },
-          {
-            "origin": "idtable",
-            "destination": "Kafka"
-          }
-        ]
-      },
-      "executionEngine": "Streaming",
-      "uiSettings": {
-        "position": {
-          "x": -216,
-          "y": -1,
-          "k": 1
-        }
-      },
-      "creationDate": "2018-02-13T15:17:25Z",
-      "lastUpdateDate": "2018-01-11T08:20:12Z",
-      "version": 0,
-      "group": {
-        "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
-        "name": "/home"
-      },
-      "status": {
-        "id": "3895acc8-8396-4303-a745-7adcb8718870",
-        "status": "NotStarted",
-        "creationDate": "2018-02-13T15:17:25Z"
+        "id": "71dc4598-c66c-4384-aeec-471cc0b29b65",
+        "status": "Created",
+        "creationDate": "2018-05-07T11:34:06Z"
       }
     }
   ],
@@ -511,43 +587,51 @@
     }
   ],
   "envVariables": [
-    "DEFAULT_OUTPUT_FIELD",
-    "DEFAULT_DELIMITER",
+    "CASSANDRA_CLUSTER",
+    "CASSANDRA_HOST",
+    "CASSANDRA_KEYSPACE",
+    "CASSANDRA_PORT",
     "CROSSDATA_ZOOKEEPER_CONNECTION",
     "CROSSDATA_ZOOKEEPER_PATH",
+    "DEFAULT_DELIMITER",
+    "DEFAULT_OUTPUT_FIELD",
+    "DRIVER_JAVA_OPTIONS",
+    "ES_CLUSTER",
+    "ES_HOST",
+    "ES_INDEX_MAPPING",
+    "ES_PORT",
+    "EXECUTOR_EXTRA_JAVA_OPTIONS",
+    "JDBC_DRIVER",
+    "JDBC_URL",
     "KAFKA_BROKER_HOST",
     "KAFKA_BROKER_PORT",
     "KAFKA_GROUP_ID",
-    "WEBSOCKET_URL",
-    "CASSANDRA_HOST",
-    "CASSANDRA_PORT",
-    "CASSANDRA_KEYSPACE",
-    "CASSANDRA_CLUSTER",
-    "ES_HOST",
-    "ES_PORT",
-    "ES_CLUSTER",
-    "ES_INDEX_MAPPING",
-    "JDBC_URL",
-    "POSTGRES_URL",
+    "KAFKA_MAX_POLL_TIMEOUT",
+    "KAFKA_MAX_RATE_PER_PARTITION",
+    "MONGODB_DB",
     "MONGODB_HOST",
     "MONGODB_PORT",
-    "MONGODB_DB",
+    "POSTGRES_URL",
     "REDIS_HOST",
     "REDIS_PORT",
-    "SPARTA_CHECKPOINT_PATH",
-    "SPARK_STREAMING_WINDOW",
-    "SPARK_MASTER",
-    "DRIVER_JAVA_OPTIONS",
-    "EXECUTOR_EXTRA_JAVA_OPTIONS",
-    "SPARK_LOCAL_PATH",
+    "SPARK_BLOCK_INTERVAL",
     "SPARK_CORES_MAX",
-    "SPARK_EXECUTOR_MEMORY",
-    "SPARK_EXECUTOR_CORES",
     "SPARK_DRIVER_CORES",
+    "SPARK_DRIVER_JAVA_OPTIONS",
     "SPARK_DRIVER_MEMORY",
+    "SPARK_EXECUTOR_BASE_IMAGE",
+    "SPARK_EXECUTOR_CORES",
+    "SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS",
+    "SPARK_EXECUTOR_MEMORY",
     "SPARK_LOCALITY_WAIT",
-    "SPARK_TASK_MAX_FAILURES",
+    "SPARK_LOCAL_PATH",
+    "SPARK_MASTER",
     "SPARK_MEMORY_FRACTION",
-    "SPARK_BLOCK_INTERVAL"
+    "SPARK_STREAMING_BLOCK_INTERVAL",
+    "SPARK_STREAMING_CHECKPOINT_PATH",
+    "SPARK_STREAMING_WINDOW",
+    "SPARK_TASK_MAX_FAILURES",
+    "SPARTA_CHECKPOINT_PATH",
+    "WEBSOCKET_URL"
   ]
 }

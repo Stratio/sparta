@@ -26,6 +26,13 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${ID_KAFKA_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
     Then the service response status must be '201'
+  @runOnEnv(ID_KAFKA_FR_POLICY)
+  Scenario: [SPARTA-1162][03]Add sparta policy to write in kafka
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy_fr.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
+      |   $.name                  |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+    Then the service response status must be '201'
   @runOnEnv(ID_ELASTIC_POLICY)
   Scenario: [SPARTA-1162][03]Add Elastic policy to write in Elastic
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/elastic_policy.json' as 'json' with:

@@ -1,5 +1,5 @@
 {
-  "id": "85b5bcf4-301f-4d24-9d13-81c033275875",
+  "id": "0189fa09-0a35-4198-b7b9-973a407678ec",
   "name": "testinput-kafka",
   "description": "Automatic Workflow testinput kafka 400ev",
   "settings": {
@@ -106,7 +106,10 @@
           "numEvents": "400"
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "JsonPath",
@@ -141,7 +144,10 @@
           "inputField": "raw"
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "Kafka",
@@ -149,6 +155,7 @@
         "className": "KafkaOutputStep",
         "classPrettyName": "Kafka",
         "arity": [
+          "NullaryToNullary",
           "NaryToNullary"
         ],
         "writer": {
@@ -163,11 +170,12 @@
         },
         "configuration": {
           "value.serializer.outputFormat": "JSON",
+          "errorSink": false,
           "tlsEnabled": true,
           "security.protocol": "PLAINTEXT",
           "bootstrap.servers": [
             {
-              "host": "broker-0001.kafka-sec.mesos",
+              "host": "kafka-0-broker.eos-kafka-framework.mesos",
               "port": "9092"
             }
           ],
@@ -178,7 +186,10 @@
           "batch.size": "200"
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "idtable",
@@ -204,45 +215,50 @@
           "sql": "select id from JsonPath"
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       }
     ],
     "edges": [
       {
         "origin": "Test",
-        "destination": "JsonPath"
+        "destination": "JsonPath",
+        "dataType": "ValidData"
       },
       {
         "origin": "JsonPath",
-        "destination": "idtable"
+        "destination": "idtable",
+        "dataType": "ValidData"
       },
       {
         "origin": "idtable",
-        "destination": "Kafka"
+        "destination": "Kafka",
+        "dataType": "ValidData"
       }
     ]
   },
   "executionEngine": "Streaming",
   "uiSettings": {
     "position": {
-      "x": -216,
-      "y": -1,
+      "x": 0,
+      "y": 0,
       "k": 1
     }
   },
-  "lastUpdateDate": "2018-04-02T17:12:45Z",
+  "lastUpdateDate": "2018-05-07T12:00:51Z",
   "version": 0,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
     "name": "/home"
   },
   "status": {
-    "id": "85b5bcf4-301f-4d24-9d13-81c033275875",
+    "id": "0189fa09-0a35-4198-b7b9-973a407678ec",
     "status": "Started",
     "statusInfo": "Workflow started correctly",
     "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-04-02T17:35:31Z",
-    "sparkURI": "https://sparta.nightly.labs.stratio.com/workflows-sparta-server/home/testinput-kafka/testinput-kafka-v0/",
-    "lastUpdateDateWorkflow": "2018-04-02T17:12:45Z"
+    "lastUpdateDate": "2018-05-07T12:39:03Z",
+    "lastUpdateDateWorkflow": "2018-05-07T12:00:51Z"
   }
 }

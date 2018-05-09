@@ -1,5 +1,5 @@
 {
-  "id": "56d54069-6844-4131-927b-4321a77fa9ed",
+  "id": "71dc4598-c66c-4384-aeec-471cc0b29b65",
   "name": "kafka-postgres",
   "description": "Automatic Workflow kafka-postgres",
   "settings": {
@@ -110,12 +110,13 @@
           "auto.offset.reset": "latest",
           "partition.assignment.strategy": "range",
           "value.deserializer.inputFormat": "JSON",
+          "spark.streaming.kafka.maxRatePerPartition": "",
           "tlsEnabled": true,
           "spark.streaming.kafka.consumer.cache.enabled": false,
           "group.id": "sparta_2",
           "bootstrap.servers": [
             {
-              "host": "broker-0001.kafka-sec.mesos",
+              "host": "kafka-0-broker.eos-kafka-framework.mesos",
               "port": "9092"
             }
           ],
@@ -124,7 +125,10 @@
           "storeOffsetInKafka": true
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "tabletest",
@@ -150,7 +154,10 @@
           "sql": "select id from Kafka"
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "Postgres",
@@ -182,7 +189,10 @@
           "saveOptions": "[]"
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "Print",
@@ -208,7 +218,10 @@
           "printData": true
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       },
       {
         "name": "Cube",
@@ -249,53 +262,60 @@
           ]
         },
         "supportedEngines": [],
-        "executionEngine": "Streaming"
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ]
       }
     ],
     "edges": [
       {
         "origin": "tabletest",
-        "destination": "Postgres"
+        "destination": "Postgres",
+        "dataType": "ValidData"
       },
       {
         "origin": "Kafka",
-        "destination": "Print"
+        "destination": "Print",
+        "dataType": "ValidData"
       },
       {
         "origin": "Kafka",
-        "destination": "tabletest"
+        "destination": "tabletest",
+        "dataType": "ValidData"
       },
       {
         "origin": "Kafka",
-        "destination": "Cube"
+        "destination": "Cube",
+        "dataType": "ValidData"
       },
       {
         "origin": "Cube",
-        "destination": "Postgres"
+        "destination": "Postgres",
+        "dataType": "ValidData"
       }
     ]
   },
   "executionEngine": "Streaming",
   "uiSettings": {
     "position": {
-      "x": -22,
-      "y": 44,
+      "x": 0,
+      "y": 0,
       "k": 1
     }
   },
-  "lastUpdateDate": "2018-04-02T17:38:58Z",
+  "lastUpdateDate": "2018-05-07T12:01:00Z",
   "version": 0,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
     "name": "/home"
   },
   "status": {
-    "id": "56d54069-6844-4131-927b-4321a77fa9ed",
+    "id": "71dc4598-c66c-4384-aeec-471cc0b29b65",
     "status": "Started",
     "statusInfo": "Workflow started correctly",
     "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-04-02T17:39:18Z",
-    "sparkURI": "https://sparta.nightly.labs.stratio.com/workflows-sparta-server/home/kafka-postgres/kafka-postgres-v0/",
-    "lastUpdateDateWorkflow": "2018-04-02T17:38:58Z"
+    "lastUpdateDate": "2018-05-07T12:39:00Z",
+    "lastUpdateDateWorkflow": "2018-05-07T12:01:00Z"
   }
 }

@@ -6,21 +6,25 @@
 package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
+import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
 import cucumber.api.CucumberOptions;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
 
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1890_CarrefourBatchworkflow_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1896_AuditJob_IT.feature"
 
 })
 
-public class SPARTA_1890_CarrefourBatchworkflow_IT extends BaseTest  {
-    public SPARTA_1890_CarrefourBatchworkflow_IT() {this.browser = browser;
+public class SPARTA_1896_AuditJob_IT extends BaseTest  {
+    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+    public SPARTA_1896_AuditJob_IT(String browser) {
+        this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_execution_postgres"})
+    @Test(enabled = true, groups = {"dcos_auditJob"}, dependsOnGroups = {"dcos_installations_executions"})
     public void ExecuteWorkflow() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

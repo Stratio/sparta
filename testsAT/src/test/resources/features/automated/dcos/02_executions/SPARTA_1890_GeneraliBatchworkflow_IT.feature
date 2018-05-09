@@ -92,7 +92,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     Then I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop role \"${DCOS_SERVICE_NAME}\" "' in the ssh connection
 
   Scenario: [SPARTA-1277][09] Remove workflow
-    Given I send a 'DELETE' request to '/service/${DCOS_SERVICE_NAME}/workflows/checkpoint/!{previousWorkflowID}'
+    Given I send a 'DELETE' request to '/service/${DCOS_SERVICE_NAME}/workflows/!{previousWorkflowID}'
     Then the service response status must be '200'
 
 #MVN Example
