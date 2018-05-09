@@ -147,6 +147,7 @@ export class WizardEffect {
             if (relationExist || (payload.origin === payload.destination)) {
                 return new wizardActions.CreateNodeRelationErrorAction('');
             } else {
+                payload.dataType = 'ValidData';
                 return new wizardActions.CreateNodeRelationCompleteAction(payload);
             }
         });
@@ -190,7 +191,7 @@ export class WizardEffect {
             return this.workflowService.validateWorkflow(workflow).map((response: any) =>
                 new wizardActions.ValidateWorkflowCompleteAction(response))
                 .catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
-        }).catch (error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
+        }).catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
 
     redirectOnSave() {
         window.history.length > 2 ? this._location.back() : this.route.navigate(['workflow-managing']);

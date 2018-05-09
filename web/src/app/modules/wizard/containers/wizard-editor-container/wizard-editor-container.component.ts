@@ -53,6 +53,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public svgPosition: ZoomTransform;
    public creationMode$: Observable<any>;
    public isShowedEntityDetails$: Observable<any>;
+   public edgeOptions: any;
 
    private _componentDestroyed = new Subject();
 
@@ -84,7 +85,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    constructor(private _modalService: StModalService,
       private editorService: WizardEditorService,
       private _cd: ChangeDetectorRef,
-      private store: Store<fromWizard.State>) {
+      private store: Store<fromWizard.State>,
+      private _el: ElementRef) {
       this.isMobile = isMobile;
    }
 
@@ -138,6 +140,24 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          .takeUntil(this._componentDestroyed)
          .subscribe((edge: WizardEdge) => {
             this.selectedEdge = edge;
+            this._cd.markForCheck();
+         });
+
+      this.store.select(fromWizard.getEdgeOptions)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((edgeOptions: any) => {
+            if (this.edgeOptions && !edgeOptions.active && !this.edgeOptions.active) {
+               return;
+            }
+            this.edgeOptions = edgeOptions;
+            /** sync hide element, sometimes current event cascade is ocuppied
+             * by the drag events and the if operator can't be executed until the dragend*/
+
+            const dropdownElement = this._el.nativeElement.querySelector('#edge-dropdown');
+            if (dropdownElement) {
+               dropdownElement.hidden = !this.edgeOptions.active;
+            }
+
             this._cd.markForCheck();
          });
    }

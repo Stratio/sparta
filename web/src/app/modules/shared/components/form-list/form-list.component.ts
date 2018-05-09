@@ -193,10 +193,13 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
                item[field.propertyId][0] = { value: value[field.propertyId], disabled: this.isDisabled };
             });
             const form: FormGroup = this.formBuilder.group(item);
+            /** fix initial validation in egeo inputs: the input initial value is not validated until it changes*/
+            setTimeout(() => form.setValue(value));
             this.items.push(form);
             const i = this.items.length - 1;
             this.addObservableVisibleRules(i);
          });
+
          this._cd.markForCheck();
       } else {
          this.items.controls = [];

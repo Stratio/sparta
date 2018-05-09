@@ -36,6 +36,7 @@ export interface State {
    svgPosition: any;
    settings: any;
    isShowedCrossdataCatalog: boolean;
+   edgeOptions: any;
 };
 
 const initialState: State = {
@@ -66,7 +67,12 @@ const initialState: State = {
    selectedEntity: '',
    showEntityDetails: false,
    showSettings: false,
-   isShowedCrossdataCatalog: false
+   isShowedCrossdataCatalog: false,
+   edgeOptions: {
+      clientX: 0,
+      clientY: 0,
+      active: false
+   }
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -124,7 +130,10 @@ export function reducer(state: State = initialState, action: any): State {
             undoStates: getUndoState(state),
             pristineWorkflow: false,
             selectedEdge: null,
-            redoStates: []
+            redoStates: [],
+            edgeOptions: {
+               active: false
+            }
          };
       }
       case wizardActions.DELETE_ENTITY: {
@@ -183,12 +192,14 @@ export function reducer(state: State = initialState, action: any): State {
                if (edge.origin === action.payload.oldName) {
                   return {
                      origin: action.payload.data.name,
-                     destination: edge.destination
+                     destination: edge.destination,
+                     dataType: edge.dataType
                   };
                } else if (edge.destination === action.payload.oldName) {
                   return {
                      origin: edge.origin,
-                     destination: action.payload.data.name
+                     destination: action.payload.data.name,
+                     dataType: edge.dataType
                   };
                } else {
                   return edge;
@@ -304,7 +315,7 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             loading: false
-         }
+         };
       }
       case wizardActions.REDO_CHANGES: {
          if (state.redoStates.length) {
@@ -330,7 +341,10 @@ export function reducer(state: State = initialState, action: any): State {
       case wizardActions.SET_WIZARD_DIRTY: {
          return {
             ...state,
-            pristineWorkflow: false
+            pristineWorkflow: false,
+            edgeOptions: {
+               active: false
+            }
          };
       }
       case wizardActions.SHOW_SETTINGS: {
@@ -349,6 +363,40 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             isShowedCrossdataCatalog: !state.isShowedCrossdataCatalog
+         }
+      }
+      case wizardActions.SHOW_EDGE_OPTIONS: {
+         return {
+            ...state,
+            edgeOptions: {
+               active: true,
+               clientX: action.payload.clientX,
+               clientY: action.payload.clientY,
+               supportedDataRelations: action.payload.supportedDataRelations,
+               relation: action.payload.relation,
+               edgeType: action.payload.edgeType
+            }
+         };
+      }
+      case wizardActions.SELECT_EDGE_TYPE: {
+         return {
+            ...state,
+            edges: state.edges.map((edge: WizardEdge) => {
+               const relation = action.payload.relation;
+               return relation.initialEntityName === edge.origin && relation.finalEntityName === edge.destination ? {
+                  ...edge,
+                  dataType: action.payload.value
+               } : edge;
+            }),
+            selectedEdge: null
+         };
+      }
+      case wizardActions.HIDE_EDGE_OPTIONS: {
+         return {
+            ...state,
+            edgeOptions: {
+               active: false
+            }
          };
       }
       default:

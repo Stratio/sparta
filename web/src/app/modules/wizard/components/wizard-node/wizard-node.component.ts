@@ -169,7 +169,7 @@ export class WizardNodeComponent implements OnInit {
             break;
          case StepType.Transformation:
             entriesCoors.map((coors: string) => {
-               this._generateInput(this._generateOutput(this._generateConnection(container))).attr('transform', 'translate(' + coors + ')')
+               this._generateInput(this._generateOutput(this._generateConnection(container))).attr('transform', 'translate(' + coors + ')');
             });
             break;
          default:

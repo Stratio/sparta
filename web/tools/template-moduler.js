@@ -34,7 +34,6 @@ const generateIndex = (folder) => {
     let code = '';
     const files = fs.readdirSync(templatesPath + folder)
     code += buildExportBlock(files);
-    console.log(code)
 }
 
 folders.map((folder) => generateIndex(folder));

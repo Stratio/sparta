@@ -4,9 +4,9 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import * as writer from './writer.json';
+import * as writerContent from './writer.json';
 import * as settings from './settings.json';
 
 
-export const writerTemplate = writer;
+export const writerTemplate: Array<any> = (writerContent as any).writer;
 export const settingsTemplate = settings;

@@ -43,7 +43,8 @@ export class WorkflowRenameModal implements OnInit, OnDestroy {
 
     private openModal: Subscription;
 
-    constructor(private _store: Store<fromRoot.State>, public errorsService: ErrorMessagesService) {
+    constructor(private _store: Store<fromRoot.State>,
+        public errorsService: ErrorMessagesService) {
         _store.dispatch(new workflowActions.InitCreateGroupAction());
     }
 

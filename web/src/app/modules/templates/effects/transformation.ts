@@ -27,30 +27,25 @@ export class TransformationEffect {
 
     @Effect()
     getTransformationList$: Observable<Action> = this.actions$
-        .ofType(transformationActions.LIST_TRANSFORMATION).switchMap((response: any) => {
-            return this.templatesService.getTemplateList('transformation')
-                .map((transformationList: any) => {
-                    return new transformationActions.ListTransformationCompleteAction(transformationList);
-                }).catch(function (error: any) {
-                    return error.statusText === 'Unknown Error' ? Observable.of(new transformationActions.ListTransformationFailAction(''))
-                     : Observable.of(new errorActions.ServerErrorAction(error));
-                });
-        });
+        .ofType(transformationActions.LIST_TRANSFORMATION)
+        .switchMap((response: any) => this.templatesService.getTemplateList('transformation')
+        .map((transformationList: any) => new transformationActions.ListTransformationCompleteAction(transformationList))
+        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+            Observable.of(new transformationActions.ListTransformationFailAction('')),
+            Observable.of(new errorActions.ServerErrorAction(error))
+        )));
 
     @Effect()
     getTransformationTemplate$: Observable<Action> = this.actions$
         .ofType(transformationActions.GET_EDITED_TRANSFORMATION)
         .map((action: any) => action.payload)
-        .switchMap((param: any) => {
-            return this.templatesService.getTemplateById('transformation', param)
-                .map((transformation: any) => {
-                    return new transformationActions.GetEditedTransformationCompleteAction(transformation)
-                }).catch(function (error: any) {
-                    console.log(error)
-                    return error.statusText === 'Unknown Error' ? Observable.of(new transformationActions.GetEditedTransformationErrorAction(''))
-                        : Observable.of(new errorActions.ServerErrorAction(error));
-                });
-        });
+        .switchMap((param: any) => this.templatesService.getTemplateById('transformation', param)
+        .map((transformation: any) => new transformationActions.GetEditedTransformationCompleteAction(transformation))
+        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+            Observable.of(new transformationActions.GetEditedTransformationErrorAction('')),
+            Observable.of(new errorActions.ServerErrorAction(error))
+        )));
+
     @Effect()
     deleteTransformation$: Observable<Action> = this.actions$
         .ofType(transformationActions.DELETE_TRANSFORMATION)

@@ -12,64 +12,70 @@ import * as fromEntities from './entities';
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 
 export interface WizardState {
-   wizard: fromWizard.State;
-   entities: fromEntities.State;
+  wizard: fromWizard.State;
+  entities: fromEntities.State;
 }
 
 export interface State extends fromRoot.State {
-   wizard: WizardState;
+  wizard: WizardState;
 }
 
 export const reducers = {
-   wizard: fromWizard.reducer,
-   entities: fromEntities.reducer
+  wizard: fromWizard.reducer,
+  entities: fromEntities.reducer
 };
 
 export const getWizardFeatureState = createFeatureSelector<WizardState>('wizard');
 
 export const getWizardState = createSelector(
-   getWizardFeatureState,
-   state => state.wizard
+  getWizardFeatureState,
+  state => state.wizard
 );
 
 export const getEntitiesState = createSelector(
-   getWizardFeatureState,
-   state => state.entities
+  getWizardFeatureState,
+  state => state.entities
 );
 
 export const getEdges = createSelector(
-   getWizardState,
-   (state) => state.edges
+  getWizardState,
+  (state) => state.edges
 );
 
 export const getWorkflowNodes = createSelector(
-   getWizardState,
-   (state) => state.nodes
+  getWizardState,
+  (state) => state.nodes
+);
+
+export const getEdgeOptions = createSelector(
+  getWizardState,
+  (state) => state.edgeOptions
 );
 
 export const getWorkflowEdges = createSelector(
-   getEdges,
-   getWorkflowNodes,
-   (edges: WizardEdge[], wNodes: WizardNode[]) => {
-      const nodesMap = wNodes.reduce(function (map, obj) {
-         map[obj.name] = obj;
-         return map;
-      }, {});
-      return edges.map((edge: WizardEdge) => ({
-         origin: nodesMap[edge.origin],
-         destination: nodesMap[edge.destination]
-      }));
-   }
+  getEdges,
+  getWorkflowNodes,
+  (edges: WizardEdge[], wNodes: WizardNode[]) => {
+    const nodesMap = wNodes.reduce(function (map, obj) {
+      map[obj.name] = obj;
+      return map;
+    }, {});
+    return edges.map((edge: WizardEdge) => ({
+      origin: nodesMap[edge.origin],
+      destination: nodesMap[edge.destination],
+      dataType: edge.dataType
+    }));
+  }
 );
 
 export const getErrorsManagementOutputs = createSelector(
-   getWorkflowNodes,
-   (wNodes) => wNodes.reduce((filtered: Array<string>, workflowNode) => {
-      if (workflowNode.stepType === 'Output' && workflowNode.configuration.errorSink) {
-         filtered.push(workflowNode.name);
-      }
-      return filtered;
-   }, [])
+  getWorkflowNodes,
+  (wNodes) => wNodes.reduce((filtered: Array<string>, workflowNode) => {
+    if (workflowNode.stepType === 'Output' && workflowNode.configuration.errorSink) {
+      filtered.push(workflowNode.name);
+    }
+    return filtered;
+  }, [])
 );
 
 // wizard

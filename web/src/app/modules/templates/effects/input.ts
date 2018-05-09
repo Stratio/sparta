@@ -16,6 +16,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/if';
 import { Observable } from 'rxjs/Observable';
 
 import * as inputActions from './../actions/input';
@@ -27,30 +28,24 @@ export class InputEffect {
 
     @Effect()
     getInputList$: Observable<Action> = this.actions$
-        .ofType(inputActions.LIST_INPUT).switchMap((response: any) => {
-            return this.templatesService.getTemplateList('input')
-                .map((inputList: any) => {
-                    return new inputActions.ListInputCompleteAction(inputList);
-                }).catch(function (error: any) {
-                    return error.statusText === 'Unknown Error' ? Observable.of(new inputActions.ListInputFailAction(''))
-                        : Observable.of(new errorActions.ServerErrorAction(error));
-                });
-        });
+        .ofType(inputActions.LIST_INPUT)
+        .switchMap((response: any) => this.templatesService.getTemplateList('input')
+        .map((inputList: any) => new inputActions.ListInputCompleteAction(inputList))
+        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+            Observable.of(new inputActions.ListInputFailAction('')),
+            Observable.of(new errorActions.ServerErrorAction(error))
+        )));
 
     @Effect()
     getInputTemplate$: Observable<Action> = this.actions$
         .ofType(inputActions.GET_EDITED_INPUT)
-        .map((action: any) => action.payload)
-        .switchMap((param: any) => {
-            return this.templatesService.getTemplateById('input', param)
-                .map((input: any) => {
-                    return new inputActions.GetEditedInputCompleteAction(input)
-                }).catch(function (error: any) {
-                    console.log(error)
-                    return error.statusText === 'Unknown Error' ? Observable.of(new inputActions.GetEditedInputErrorAction(''))
-                        : Observable.of(new errorActions.ServerErrorAction(error));
-                });
-        });
+        .switchMap((param: any) => this.templatesService.getTemplateById('input', param)
+        .map((input: any) => new inputActions.GetEditedInputCompleteAction(input))
+        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+            Observable.of(new inputActions.GetEditedInputErrorAction('')),
+            Observable.of(new errorActions.ServerErrorAction(error))
+        )));
+
     @Effect()
     deleteInput$: Observable<Action> = this.actions$
         .ofType(inputActions.DELETE_INPUT)

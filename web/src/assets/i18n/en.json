@@ -643,7 +643,12 @@
       "VALIDATION_ERROR_1": "There is a validation error:",
       "VALIDATION_ERROR_N": "Validation errors:",
       "NO_VALIDATION_ERROR": "No validation errors.",
-      "NODE_NAME_VALIDATION": "There is another node with the same name"
+      "NODE_NAME_VALIDATION": "There is another node with the same name",
+      "RELATIONS": {
+        "DEFAULT": "Default relation",
+        "VALIDDATA": "Valid data",
+        "DISCARDEDDATA": "Discarded data"
+      }
    },
    "ERRORS": {
       "401": "You do not have permissions to perform this action",

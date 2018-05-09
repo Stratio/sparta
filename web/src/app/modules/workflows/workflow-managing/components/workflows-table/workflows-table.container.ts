@@ -90,5 +90,4 @@ export class WorkflowsManagingTableContainer implements OnInit {
 
    constructor(private _store: Store<State>) { }
 
-
 }

@@ -16,6 +16,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/throw';
 import { Observable } from 'rxjs/Observable';
 
 import * as workflowActions from './../actions/workflow-list';
@@ -208,7 +209,7 @@ export class WorkflowEffect {
         .withLatestFrom(this.store.select(state => state.workflowsManaging))
         .mergeMap(([data, workflow]) => this.workflowService.updateGroup({
             ...workflow.workflowsManaging.groups.find((group: any) => group.name === data.payload.oldName),
-            name: data.payload.name
+            name: data.payload.newName
         }).mergeMap(() => [new workflowActions.RenameGroupCompleteAction(), new workflowActions.ListGroupsAction()])
         .catch((error) => Observable.from([new workflowActions.RenameGroupErrorAction(''), new errorActions.ServerErrorAction(error)])));
 

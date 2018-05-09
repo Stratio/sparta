@@ -51,10 +51,10 @@ export class WorkflowEffect {
                   new workflowActions.ListWorkflowCompleteAction(workflows),
                   new workflowActions.ValidateSelectedAction()
                ]);
-         }))
+         })
       .catch(error => error.statusText === 'Unknown Error' ?
          from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
-         Observable.of(new errorActions.ServerErrorAction(error)));
+         Observable.of(new errorActions.ServerErrorAction(error))));
 
    @Effect()
    deleteWorkflow$: Observable<Action> = this.actions$

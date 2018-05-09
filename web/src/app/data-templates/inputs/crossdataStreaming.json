@@ -6,7 +6,7 @@
     "crossdataCatalog": true,
     "arity": ["NullaryToNary"],
     "supportedEngines": ["Streaming"],
-     "supportedDataRelations": ["ValidData"],
+    "supportedDataRelations": ["ValidData"],
     "description": "Allows you to load data from external Datasources using Crossdata and monitoring tables migrating data in streaming processes with finite or infinite duration",
     "properties": [
       {

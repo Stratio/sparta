@@ -56,11 +56,6 @@ export class CrossdataTables implements OnInit, OnDestroy {
                 };
             });
         });
-
-        /*this.store.select(fromRoot.isLoadingDatabases).subscribe((active: boolean) => {
-            console.log(active);
-        });*/
-
         this.loadingTables$ = this.store.select(fromCrossdata.isLoadingTables);
 
         this.selectedTablesSubscription = this.store.select(fromCrossdata.getSelectedTables).subscribe((tables: Array<string>) => {

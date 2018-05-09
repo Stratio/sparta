@@ -11,7 +11,7 @@ import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs/Subject';
-
+import { cloneDeep as _cloneDeep } from 'lodash';
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 
@@ -93,6 +93,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
    cancelEdition() {
       this._store.dispatch(new wizardActions.HideEditorConfigAction());
+      this._store.dispatch(new wizardActions.SaveEntityErrorAction(false));
    }
 
    changeFormOption($event: any) {
@@ -102,6 +103,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    toggleCrossdataCatalog() {
       this._store.dispatch(new wizardActions.ToggleCrossdataCatalogAction());
    }
+
 
    editTemplate(templateId) {
       let routeType = '';
@@ -129,7 +131,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       if (this.config.editionType.data.createdNew) {
          this.submitted = false;
       }
-      this.entityFormModel = Object.assign({}, this.config.editionType.data);
+
+      this.entityFormModel = _cloneDeep(this.config.editionType.data);
       this.currentName = this.entityFormModel['name'];
       let template: any;
       switch (this.config.editionType.stepType) {
@@ -146,6 +149,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             break;
       }
       this.showCrossdataCatalog = template.crossdataCatalog ? true : false;
+
       this.basicSettings = template.properties;
       if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
          this.isTemplate = true;
@@ -170,6 +174,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       if (this.isTemplate) {
          this.entityFormModel.configuration = this.templateData.configuration;
       }
+
+      this.entityFormModel.relationType = this.config.editionType.data.relationType;
       this.entityFormModel.createdNew = false;
       this._store.dispatch(new wizardActions.SaveEntityAction({
          oldName: this.config.editionType.data.name,

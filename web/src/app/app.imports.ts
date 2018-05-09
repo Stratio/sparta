@@ -7,7 +7,7 @@ import { AppRouter } from 'app';
 import { EgeoModule } from '@stratio/egeo';
 import { SharedModule } from '@app/shared';
 import { TranslateModule } from '@ngx-translate/core';
-import { StoreModule} from '@ngrx/store';
+import { StoreModule } from '@ngrx/store';
 import { TRANSLATE_CONFIG } from '@app/core';
 import { reducers } from './reducers';
 
@@ -16,23 +16,21 @@ import { EffectsModule } from '@ngrx/effects';
 
 import { GlobalEffect } from './effects/global';
 import { HttpClientModule } from '@angular/common/http';
-import { HttpModule } from '@angular/http';
 
 export function instrumentOptions(): any {
    return {
-     // monitor: useLogMonitor({ visible: false, position: 'right' })
+      // monitor: useLogMonitor({ visible: false, position: 'right' })
    };
 }
 export const APP_IMPORTS: Array<any> = [
-        AppRouter,
-        BrowserModule,
-        EgeoModule.forRoot(),
-        HttpClientModule,
-        HttpModule,
-        SharedModule,
-        TranslateModule.forRoot(TRANSLATE_CONFIG),
-        StoreModule.forRoot(reducers),
-        EffectsModule.forRoot([
-                GlobalEffect
-        ])
+   AppRouter,
+   BrowserModule,
+   EgeoModule.forRoot(),
+   HttpClientModule,
+   SharedModule,
+   TranslateModule.forRoot(TRANSLATE_CONFIG),
+   StoreModule.forRoot(reducers),
+   EffectsModule.forRoot([
+      GlobalEffect
+   ])
 ];

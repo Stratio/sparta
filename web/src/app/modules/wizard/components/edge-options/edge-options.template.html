@@ -1,0 +1,10 @@
+<st-dropdown-menu
+    [style.top.px]="edgeOptions.clientY"
+    [style.left.px]="edgeOptions.clientX"
+    style="position:fixed; z-index:999;"
+    [items]="menu"
+    [selectedItem]="selectedItem"
+    [active]="true"
+    [ngClass]="{'complete-edge-menu' : menu && menu.length > 1}"
+    [attr.id]="'edge-dropdown'"
+    (change)="onChange($event)"></st-dropdown-menu>

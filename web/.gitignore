@@ -6,6 +6,7 @@
 # dist
 dist/
 target
+coverage/
 
 # Node
 node/

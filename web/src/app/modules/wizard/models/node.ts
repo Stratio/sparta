@@ -5,37 +5,38 @@
  */
 
 export interface WizardNode {
-   stepType: 'Input' | 'Transformation' | 'Output';
-   name: string;
-   created: boolean;
-   classPrettyName: string;
-   hasErrors: boolean;
-   nodeTemplate: any;
-   configuration: any;
-   uiConfiguration: {
-       position: WizardNodePosition
-   };
+    stepType: 'Input' | 'Transformation' | 'Output';
+    name: string;
+    created: boolean;
+    classPrettyName: string;
+    hasErrors: boolean;
+    nodeTemplate: any;
+    configuration: any;
+    uiConfiguration: {
+        position: WizardNodePosition
+    };
 };
 
 
 export interface WizardNodePosition {
-   x: number;
-   y: number;
+    x: number;
+    y: number;
 }
 
 export interface WizardEdge {
-   origin: string;
-   destination: string;
+    origin: string;
+    destination: string;
+    dataType?: string;
 }
 
 export interface WizardEdgeNodes {
-   origin: WizardNode;
-   destination: WizardNode;
+    origin: WizardNode;
+    destination: WizardNode;
 }
 
 interface EdgePosition {
-   name: string;
-   uiConfiguration: {
-       position: WizardNodePosition
-   };
+    name: string;
+    uiConfiguration: {
+        position: WizardNodePosition
+    };
 }

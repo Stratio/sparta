@@ -1,10 +1,18 @@
 @import '~@stratio/egeo/theme/constants';
 
+body.dragging .sparta-edge-container {
+  pointer-events: none;
+}
+
 .sparta-edge-container {
 
    .edge {
       fill: none;
       stroke: $neutral-08;
+
+      &.special {
+        stroke-dasharray: 4, 3;
+      }
       &.selected {
          stroke: $action-primary-default;
          stroke-width: 1px;

@@ -74,8 +74,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
                 hidden: true
             }) : field;
         }) : settings.basicSettings;
-        this.valueDictionary['outputErrors'] =
-            this.errorManagementOutputs.map((outputName: string) => {
+        this.valueDictionary['outputErrors'] = this.errorManagementOutputs.map((outputName: string) => {
             return {
                 label: outputName,
                 value: outputName

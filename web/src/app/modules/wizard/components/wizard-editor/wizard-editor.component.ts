@@ -15,12 +15,13 @@ import {
    OnInit,
    Output,
 } from '@angular/core';
+
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import {event as d3Event} from 'd3-selection';
-import {zoom as d3Zoom} from 'd3-zoom';
-import {select as d3Select} from 'd3-selection';
-import {zoomIdentity} from 'd3';
+import { event as d3Event } from 'd3-selection';
+import { zoom as d3Zoom } from 'd3-zoom';
+import { select as d3Select } from 'd3-selection';
+import { zoomIdentity } from 'd3';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
@@ -196,7 +197,7 @@ export class WizardEditorComponent implements OnInit {
 
    setDraggableEditor() {
       this._ngZone.runOutsideAngular(() => {
-      /** wheel delta  */
+         /** wheel delta  */
          function deltaFn() {
             return -d3Event.deltaY * (d3Event.deltaMode ? 0.0387 : 0.002258);
          }
@@ -205,19 +206,23 @@ export class WizardEditorComponent implements OnInit {
             this._svgPosition = d3Event.transform;
             this._SVGContainer.attr('transform', d3Event.transform);
          }
+         let repaints = 0;
          /** zoom behaviour */
          this.zoom = d3Zoom()
             .scaleExtent([1 / 8, 3])
             .wheelDelta(deltaFn)
             .on('start', () => {
                const sourceEvent = d3Event.sourceEvent;
+               repaints++;
+               repaints > 2 && this._store.dispatch(new wizardActions.SetWizardStateDirtyAction());
                if (sourceEvent) {
-                     sourceEvent.stopPropagation();
+                  sourceEvent.stopPropagation();
                }
             })
             .on('zoom', zoomed.bind(this));
          // Apply Zoom behaviour on parent
          this._SVGParent.call(this.zoom)
+            .on('contextmenu', () => d3Event.preventDefault()) // disable right click
             .on('dblclick.zoom', null); // disable default double click effect
          // Set initial position
          this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)

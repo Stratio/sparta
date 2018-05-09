@@ -54,6 +54,9 @@ export const SET_WORKFLOW_TYPE = '[Wizard] Set workflow type';
 export const SHOW_SETTINGS = '[Wizard] Show settings';
 export const HIDE_SETTINGS = '[Wizard] Hide settings';
 export const TOGGLE_CROSSDATA_CATALOG = '[Wizard] Toggle crossdata catalog';
+export const SHOW_EDGE_OPTIONS = '[Wizard] Show edge options';
+export const HIDE_EDGE_OPTIONS = '[Wizard] Hide edge options';
+export const SELECT_EDGE_TYPE = '[Wizard] Select edge type';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -273,6 +276,19 @@ export class ToggleCrossdataCatalogAction implements Action {
     readonly type = TOGGLE_CROSSDATA_CATALOG;
 }
 
+export class ShowEdgeOptionsAction implements Action {
+    readonly type = SHOW_EDGE_OPTIONS;
+    constructor(public payload: any) { }
+}
+
+export class HideEdgeOptionsAction implements Action {
+    readonly type = HIDE_EDGE_OPTIONS;
+}
+
+export class SelectEdgeTypeAction implements Action {
+    readonly type = SELECT_EDGE_TYPE;
+    constructor(public payload: any) { }
+}
 
 export type Actions =
     ResetWizardAction |
@@ -318,4 +334,7 @@ export type Actions =
     SetWorkflowTypeAction |
     HideSettingsAction |
     ShowSettingsAction |
-    ToggleCrossdataCatalogAction;
+    ToggleCrossdataCatalogAction |
+    ShowEdgeOptionsAction |
+    HideEdgeOptionsAction |
+    SelectEdgeTypeAction;

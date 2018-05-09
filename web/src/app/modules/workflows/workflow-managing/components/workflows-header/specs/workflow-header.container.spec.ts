@@ -1,4 +1,3 @@
-import { getSelectedVersions } from '../../../reducers';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *

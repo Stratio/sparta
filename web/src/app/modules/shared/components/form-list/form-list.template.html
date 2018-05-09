@@ -11,7 +11,6 @@
                   <div class="list-field" [ngClass]="{'last' : last}">
                      <ng-container *ngFor="let field of formListData; let j = index;">
                         <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="field.classed">
-    
                            <st-input [name]="field.propertyId" 
                                 [errors]="errorsService.errors.inputErrors" 
                                 [forceValidations]="forceValidations" 

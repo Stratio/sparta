@@ -5,9 +5,10 @@
  */
 
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { StBreadcrumbsModule, StModalService } from '@stratio/egeo';
+import { StBreadcrumbsModule, StModalService, StModalResponse } from '@stratio/egeo';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { of } from 'rxjs/observable/of';
 
 import { TranslateMockModule } from '@test/translate-stub';
 import { Router } from '@angular/router';
@@ -19,12 +20,8 @@ import { SharedModule } from '@app/shared';
 let component: WorkflowsManagingHeaderComponent;
 let fixture: ComponentFixture<WorkflowsManagingHeaderComponent>;
 
-const routerStub = {
-   navigate: jasmine.createSpy('navigate')
-};
-
-const modalServiceMock = jasmine.createSpyObj('StModalService', ['show', 'showBasicModal']);
-
+let routeMock: Router;
+let modalServiceMock: StModalService;
 
 const workflowsManagingStub = jasmine.createSpyObj('WorkflowsManagingService',
    ['createWorkflowGroup', 'showCreateJsonModal', 'stopWorkflow', 'runWorkflow']);
@@ -32,6 +29,9 @@ const workflowsManagingStub = jasmine.createSpyObj('WorkflowsManagingService',
 
 describe('[WorkflowsManagingHeaderComponent]', () => {
    beforeEach(async(() => {
+      routeMock = jasmine.createSpyObj('Route', ['navigate']);
+      modalServiceMock = jasmine.createSpyObj('StModalService', ['show']);
+      (<jasmine.Spy> modalServiceMock.show).and.returnValue(of(StModalResponse.YES));
       TestBed.configureTestingModule({
          imports: [
             StBreadcrumbsModule,
@@ -39,7 +39,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
             SharedModule
          ],
          providers: [
-            { provide: Router, useValue: routerStub },
+            { provide: Router, useValue: routeMock },
             { provide: StModalService, useValue: modalServiceMock },
             { provide: WorkflowsManagingService, useValue: workflowsManagingStub }
          ],
@@ -99,7 +99,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can edit group name', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#edit-workflow-group-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.renameFolderTitle);
          expect(callParams.inputs).toEqual({
             entityType: 'Group',
@@ -110,7 +110,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can move a group', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#move-group-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.moveGroupTitle);
          expect(callParams.inputs).toEqual({
             workflow: null,
@@ -122,7 +122,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can remove a group', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#delete-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.deleteModalTitle);
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
       });
@@ -137,7 +137,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can edit workflow name', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#edit-workflow-group-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.renameWorkflowTitle);
          expect(callParams.inputs).toEqual({
             entityType: 'Workflow',
@@ -148,7 +148,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can move a workflow', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#move-group-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.moveGroupTitle);
          expect(callParams.inputs).toEqual({
             workflow: component.selectedWorkflowsInner[0],
@@ -159,7 +159,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can remove a workflow', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#delete-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.deleteModalTitle);
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
       });
@@ -231,7 +231,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can remove a version', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#delete-button')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.deleteModalTitle);
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
       });
@@ -246,7 +246,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can create a workflow from a version', () => {
          fixture.detectChanges();
          fixture.debugElement.query(By.css('#workflow-option')).triggerEventHandler('click', {});
-         const callParams = modalServiceMock.show.calls.mostRecent().args[0];
+         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.duplicateWorkflowTitle);
       });
    });
@@ -267,12 +267,12 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
 
       it('should can create an emty batch workflow', () => {
          fixture.debugElement.query(By.css('#batch-option')).triggerEventHandler('click', {});
-         expect(routerStub.navigate).toHaveBeenCalledWith(['wizard/batch']);
+         expect(routeMock.navigate).toHaveBeenCalledWith(['wizard/batch']);
       });
 
       it('should can create an empty streaming workflow', () => {
          fixture.debugElement.query(By.css('#streaming-option')).triggerEventHandler('click', {});
-         expect(routerStub.navigate).toHaveBeenCalledWith(['wizard/streaming']);
+         expect(routeMock.navigate).toHaveBeenCalledWith(['wizard/streaming']);
       });
    });
 

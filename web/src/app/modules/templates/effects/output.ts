@@ -26,31 +26,24 @@ export class OutputEffect {
 
     @Effect()
     getOutputList$: Observable<Action> = this.actions$
-        .ofType(outputActions.LIST_OUTPUT).switchMap((response: any) => {
-
-            return this.templatesService.getTemplateList('output')
-                .map((outputList: any) => {
-                    return new outputActions.ListOutputCompleteAction(outputList);
-                }).catch(function (error: any) {
-                   return error.statusText === 'Unknown Error' ? Observable.of(new outputActions.ListOutputFailAction('')) :
-                    Observable.of(new errorActions.ServerErrorAction(error));
-                });
-        });
+        .ofType(outputActions.LIST_OUTPUT)
+        .switchMap((response: any) => this.templatesService.getTemplateList('output')
+        .map((outputList: any) => new outputActions.ListOutputCompleteAction(outputList))
+        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+            Observable.of(new outputActions.ListOutputFailAction('')),
+            Observable.of(new errorActions.ServerErrorAction(error))
+        )));
 
     @Effect()
     getOutputTemplate$: Observable<Action> = this.actions$
         .ofType(outputActions.GET_EDITED_OUTPUT)
-        .map((action: any) => action.payload)
-        .switchMap((param: any) => {
-            return this.templatesService.getTemplateById('output', param)
-                .map((output: any) => {
-                    return new outputActions.GetEditedOutputCompleteAction(output)
-                }).catch(function (error: any) {
-                    console.log(error)
-                    return error.statusText === 'Unknown Error' ? Observable.of(new outputActions.GetEditedOutputErrorAction(''))
-                        : Observable.of(new errorActions.ServerErrorAction(error));
-                });
-        });
+        .switchMap((param: any) => this.templatesService.getTemplateById('output', param)
+        .map((output: any) => new outputActions.GetEditedOutputCompleteAction(output))
+        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+            Observable.of(new outputActions.GetEditedOutputErrorAction('')),
+            Observable.of(new errorActions.ServerErrorAction(error))
+        )));
+
     @Effect()
     deleteOutput$: Observable<Action> = this.actions$
         .ofType(outputActions.DELETE_OUTPUT)

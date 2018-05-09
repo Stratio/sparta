@@ -7,7 +7,8 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
-    StHorizontalTabsModule, StModalService } from '@stratio/egeo';
+    StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService
+} from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 
@@ -26,7 +27,8 @@ import { ValidateSchemaService } from './services/validate-schema.service';
 import { WizardEffect } from './effects/wizard';
 import { reducers } from './reducers/';
 import { WizardEditorContainer } from './containers/wizard-editor-container/wizard-editor-container.component';
-import { CrossdataModule } from "@app/crossdata/crossdata.module";
+import { CrossdataModule } from '@app/crossdata/crossdata.module';
+import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-options.component';
 
 @NgModule({
     declarations: [
@@ -41,12 +43,14 @@ import { CrossdataModule } from "@app/crossdata/crossdata.module";
         WizardEdgeComponent,
         WizardConfigEditorComponent,
         SelectedEntityComponent,
+        EdgeOptionsComponent,
         WizardModalComponent
     ],
     imports: [
         StProgressBarModule,
         StTagInputModule,
         StFullscreenLayoutModule,
+        StDropdownMenuModule,
         StHorizontalTabsModule,
         StModalModule.withComponents([WizardModalComponent]),
         StoreModule.forFeature('wizard', reducers),
@@ -58,7 +62,7 @@ import { CrossdataModule } from "@app/crossdata/crossdata.module";
         ReactiveFormsModule,
         CrossdataModule
     ],
-    providers: [WizardEditorService, WizardService, ValidateSchemaService, StModalService]
+    providers: [WizardEditorService, WizardService, ValidateSchemaService, StModalService, EgeoResolveService]
 })
 
 export class WizardModule { }

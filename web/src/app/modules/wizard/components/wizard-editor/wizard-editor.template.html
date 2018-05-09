@@ -16,7 +16,9 @@
          [finalEntityName]="relation.destination.name"
          [selectedEdge]="selectedEdge"
          [index]="i"
+         [dataType]="relation.dataType"
          [initPosition]="relation.origin.uiConfiguration.position"
+         [supportedDataRelations]="relation.origin.supportedDataRelations"
          [endPosition]="relation.destination.uiConfiguration.position"/>
       <svg:g wizard-node svg-draggable *ngFor="let nodeData of workflowNodes;"
          [data]="nodeData"
