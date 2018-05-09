@@ -72,7 +72,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
         }
       } match {
-        case Success(tableExists) =>
+        case Success((tableExists,_)) =>
           try {
             if (tableExists) {
               val txSaveMode = TxSaveMode(jdbcSaveMode, failFast)

@@ -13,7 +13,7 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
-import org.apache.spark.sql.jdbc.{SpartaJdbcUtils, TxOneValues, TxSaveMode}
+import org.apache.spark.sql.jdbc._
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
@@ -60,6 +60,73 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
 
+
+  //scalastyle:off
+  private[postgres] def constraintSql(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], outputName: String, isNewTable: Boolean)
+                                     (placeHolders:String) = {
+    val schema = df.schema
+    val columns = schema.fields.map(_.name).mkString(",")
+
+    val valuesPlaceholders = schema.fields.map(field => s"${field.name} = EXCLUDED.${field.name}").mkString(",")
+
+    if (searchFields.length > 1) {
+      //If is a new table and writer primarykey fields are more than 1, Unique constraint is created to avoid failures when upsert will we executed
+      val constraintName = if (isNewTable) {
+        val constraintFields = searchFields.mkString(",")
+        SpartaJdbcUtils.createConstraint(properties, outputName, constraintFields, ConstraintType.Unique)
+      } else {
+        searchFields.mkString(",")
+      }
+
+      s"INSERT INTO ${properties.table}($columns) $placeHolders ON CONFLICT ON CONSTRAINT $constraintName " +
+        s"DO UPDATE SET $valuesPlaceholders"
+    } else {
+      //If is a new table, and writer primarykey fields is exactly 1. PrimaryKey constraint is created to avoid failures when upsert will we executed
+      if (isNewTable) {
+        val constraintFields = searchFields.mkString(",")
+        SpartaJdbcUtils.createConstraint(properties, outputName, constraintFields, ConstraintType.PrimaryKey)
+      }
+      s"INSERT INTO ${properties.table}($columns) $placeHolders ON CONFLICT (${searchFields.mkString(",")}) " +
+        s"DO UPDATE SET $valuesPlaceholders"
+    }
+  }
+  //scalastyle:on
+
+  //scalastyle:off
+  private def upsert(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], outputName: String, txSaveMode: TxSaveMode, isNewTable: Boolean): Unit  = {
+    //only pk
+    val schema = df.schema
+    val dialect = JdbcDialects.get(properties.url)
+    val nullTypes = schema.fields.map { field =>
+      SpartaJdbcUtils.getJdbcType(field.dataType, dialect).jdbcNullType
+    }
+    val placeHolders = s"VALUES(${schema.fields.map(_ => "?").mkString(",")})"
+    val upsertSql = constraintSql(df, properties, searchFields, outputName, isNewTable)(placeHolders)
+
+    val repartitionedDF = properties.numPartitions match {
+      case Some(n) if n <= 0 => throw new IllegalArgumentException(
+        s"Invalid value `$n` for parameter `${JDBCOptions.JDBC_NUM_PARTITIONS}` in table writing " +
+          "via JDBC. The minimum value is 1.")
+      case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
+      case _ => df
+    }
+    repartitionedDF.foreachPartition { iterator =>
+      if (iterator.hasNext) {
+        Try {
+          SpartaJdbcUtils.nativeUpsertPartition(properties, upsertSql, iterator, schema, nullTypes, dialect, schema.fields.length, outputName, txSaveMode)
+        } match {
+          case Success(_) =>
+            log.debug(s"Upsert partition correctly on table ${properties.table} and output $outputName")
+          case Failure(e) =>
+            log.error(s"Upsert partition with errors on table ${properties.table} and output $outputName." +
+              s" Error: ${e.getLocalizedMessage}")
+            throw e
+        }
+      } else log.debug(s"Upsert partition with empty rows")
+    }
+  }
+  //scalastyle:on
+
   //scalastyle:off
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "Postgres url must be provided")
@@ -80,19 +147,19 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
           SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
         }
       } match {
-        case Success(tableExists) =>
+        case Success((tableExists, isNewTable)) =>
           try {
             if (tableExists) {
+              lazy val updatePrimaryKeyFields = getPrimaryKeyOptions(options) match {
+                case Some(pk) => pk.trim.split(",").toSeq
+                case None => Seq.empty[String]
+              }
               val txSaveMode = TxSaveMode(postgresSaveMode, failFast)
               if (saveMode == SaveModeEnum.Upsert && postgresSaveMode != TransactionTypes.ONE_TRANSACTION) {
-                val updateFields = getPrimaryKeyOptions(options) match {
-                  case Some(pk) => pk.trim.split(",").toSeq
-                  case None => Seq.empty[String]
-                }
-                require(updateFields.nonEmpty, "The primary key fields must be provided")
-                require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                require(updatePrimaryKeyFields.nonEmpty, "The primary key fields must be provided")
+                require(updatePrimaryKeyFields.forall(dataFrame.schema.fieldNames.contains(_)),
                   "The all the primary key fields should be present in the dataFrame schema")
-                SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
+                upsert(dataFrame, connectionProperties, updatePrimaryKeyFields, name, txSaveMode, isNewTable)
               } else if (postgresSaveMode == TransactionTypes.COPYIN) {
                 dataFrame.foreachPartition { rows =>
                   val conn = getConnection(connectionProperties, name)
@@ -116,11 +183,10 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                     if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
                       try {
                         val sqlUpsert =
-                          if (saveMode == SaveModeEnum.Upsert)
-                            s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT (${
-                              options.getOrElse("primaryKey", "id")
-                            }) " +
-                              s" DO UPDATE SET ${dataFrame.schema.fields.map(f => s"${f.name} =  EXCLUDED.${f.name}").mkString(",")}"
+                          if (saveMode == SaveModeEnum.Upsert){
+                            val placeHolders = s" SELECT * FROM ${txOne.map(_.temporalTableName).get} "
+                            constraintSql(dataFrame, connectionProperties, updatePrimaryKeyFields, name, isNewTable)(placeHolders)
+                          }
                           else
                             s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT DO NOTHING"
                         txOne.map(_.connection).get.prepareStatement(sqlUpsert).execute()
