@@ -36,9 +36,7 @@ class CastingTransformStepBatch(
 
       (discardedData, validData)
     }
-    val finalSchema = outputFieldsSchema
-      .orElse(getSchemaFromSessionOrModel(xDSession, name, inputsModel))
-      .orElse(getSchemaFromRdd(rdd.ds))
+    val finalSchema = Option(outputFieldsSchema)
     val inputSchema = getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, inputData.head._2.ds)
 
     (rdd, finalSchema, Option(rddDiscarded), inputSchema)

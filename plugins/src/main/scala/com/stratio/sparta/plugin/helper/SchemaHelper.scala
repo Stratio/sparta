@@ -33,21 +33,21 @@ object SchemaHelper extends SLF4JLogging {
                           schemaProvided: Option[String],
                           jsonOptions: Map[String, String] = Map.empty[String, String]
                         ): Option[StructType] =
-    schemaProvided flatMap { schemaStr =>
+    schemaProvided.flatMap { schemaStr =>
       if (useRowSchema) None
       else {
-        {
+        Try {
           schemaInputMode match {
-            case EXAMPLE => Try(extractSchemaFromJson(schemaStr, jsonOptions))
+            case EXAMPLE => extractSchemaFromJson(schemaStr, jsonOptions)
             case SPARKFORMAT => getSparkSchemaFromString(schemaStr)
             case _ => throw new Exception("Invalid input mode in json schema extractor")
           }
-        } recoverWith {
+        }.recoverWith {
           case e =>
             log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event." +
               s" ${e.getLocalizedMessage}")
             Failure(e)
-        } toOption
+        }.toOption
       }
     }
 
@@ -65,8 +65,7 @@ object SchemaHelper extends SLF4JLogging {
     schemaProvided flatMap { schemaStr =>
       if (useRowSchema) None
       else Try(getAvroSchemaFromString(schemaStr)).recoverWith { case e =>
-        log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event" +
-          s" ${e.getLocalizedMessage}")
+        log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event")
         Failure(e)
       }.toOption
     }
@@ -74,7 +73,13 @@ object SchemaHelper extends SLF4JLogging {
   def getAvroSchemaFromString(schemaStr: String): Schema = {
     val parser = new Schema.Parser()
 
-    parser.parse(schemaStr)
+    Try(parser.parse(schemaStr)) match {
+      case Success(schema) =>
+        schema
+      case Failure(e) =>
+        log.warn(s"Error creating Avro schema from string: $schemaStr. ${e.getLocalizedMessage}")
+        throw e
+    }
   }
 
   def getSparkSchemaFromAvroSchema(avroSchema: Schema): StructType =
@@ -84,28 +89,39 @@ object SchemaHelper extends SLF4JLogging {
         s"Avro schema cannot be converted to a Spark SQL StructType: ${avroSchema.toString(true)}")
     }
 
-  def getSparkSchemaFromString(schemaStr: String): Try[StructType] =
-    Try { // Try to deserialize the schema assuming it is in JSON format
+  def getSparkSchemaFromString(schemaStr: String): StructType = {
+    Try {
       DataType.fromJson(schemaStr)
-    } orElse Try { // If it wasn't a JSON, try assuming it is an string serialization of `StructType`
-      LegacyTypeStringParser.parse(schemaStr)
-    } flatMap { schema =>
-      Try(schema.asInstanceOf[StructType])
+    } match {
+      case Success(jsonSchema) =>
+        jsonSchema.asInstanceOf[StructType]
+      case Failure(jsonException) =>
+        Try(LegacyTypeStringParser.parse(schemaStr)) match {
+          case Success(stringSchema) =>
+            stringSchema.asInstanceOf[StructType]
+          case Failure(stringException) =>
+            throw new Exception(
+              s"StringEx: ${stringException.getLocalizedMessage}.\nJsonEx: ${jsonException.getLocalizedMessage}")
+        }
     }
+  }
+
 
   def parserInputSchema(schema: String): Try[StructType] =
     Try {
-      getSparkSchemaFromString(schema) match {
+      Try(getSparkSchemaFromString(schema)) match {
         case Success(structType) =>
           structType
         case Failure(f) =>
-          log.warn(s"Error parsing input schema $schema with SparkSchemaFromString. ${f.getLocalizedMessage}")
+          log.warn(s"Error parsing input schema $schema in SparkSchemaFromString. ${f.getLocalizedMessage}")
           Try(RowJsonHelper.extractSchemaFromJson(schema, Map())) match {
             case Success(structType) =>
               structType
             case Failure(e) =>
-              log.warn(s"Error parsing input schema $schema with SchemaFromJson. ${e.getLocalizedMessage}")
-              throw new Exception(s"Error parsing input schema")
+              log.warn(s"Error parsing input schema $schema in SchemaFromJson. ${e.getLocalizedMessage}")
+              throw new Exception(
+                s"Error parsing input schema.\nSparkSchemaFromString: ${f.getLocalizedMessage}." +
+                  s"\nSchemaFromJson: ${e.getLocalizedMessage}")
           }
       }
     }

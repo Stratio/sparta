@@ -65,7 +65,7 @@ abstract class TestInputStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the event field cannot be empty"
       )
-    else if (eventType.equals(EventType.RANDOM_NUMBER) && maxNumber.isDefined)
+    else if (eventType.equals(EventType.RANDOM_NUMBER) && maxNumber.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the max number field cannot be empty"

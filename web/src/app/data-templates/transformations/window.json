@@ -58,6 +58,7 @@
            "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
            "propertyType": "list",
            "required": false,
+           "complexForm": true,
            "width": 8,
            "tooltip": "Schema definition for steps",
            "qa": "fragment-details-schema-fields",
@@ -74,7 +75,7 @@
               {
                  "propertyId": "schema",
                  "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "text",
+                 "propertyType": "textarea",
                  "contentType": "JSON",
                  "width": 8,
                  "tooltip": "Schema in json/Spark format or from example",

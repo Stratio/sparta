@@ -196,65 +196,67 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
-    nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType).foreach { outputNode =>
-      val newOutput = createOutputStep(outputNode)
-      val outNodeGraph = graph.get(outputNode)
-      outNodeGraph.diPredecessors.foreach { predecessor =>
-        predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering)
-          .toList.reverse.foreach { node =>
-          createStep(node)
-        }
+    nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType)
+      .sortBy(node => node.name)
+      .foreach { outputNode =>
+        val newOutput = createOutputStep(outputNode)
+        val outNodeGraph = graph.get(outputNode)
+        outNodeGraph.diPredecessors.foreach { predecessor =>
+          predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering)
+            .toList.reverse.foreach { node =>
+            createStep(node)
+          }
 
-        if (predecessor.stepType.toLowerCase == InputStep.StepType) {
-          val phaseEnum = PhaseEnum.Write
-          val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
-          val okMessage = s"Input step ${predecessor.name} written successfully"
+          if (predecessor.stepType.toLowerCase == InputStep.StepType) {
+            val phaseEnum = PhaseEnum.Write
+            val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
+            val okMessage = s"Input step ${predecessor.name} written successfully"
 
-          traceFunction(phaseEnum, okMessage, errorMessage) {
-            inputs.find(_._1 == predecessor.name).foreach {
-              case (_, InputStepData(step, data, _)) =>
-                newOutput.writeTransform(
-                  data,
-                  step.outputOptions,
-                  workflow.settings.errorsManagement,
-                  errorOutputs,
-                  Seq.empty[String]
-                )
+            traceFunction(phaseEnum, okMessage, errorMessage) {
+              inputs.find(_._1 == predecessor.name).foreach {
+                case (_, InputStepData(step, data, _)) =>
+                  newOutput.writeTransform(
+                    data,
+                    step.outputOptions,
+                    workflow.settings.errorsManagement,
+                    errorOutputs,
+                    Seq.empty[String]
+                  )
+              }
             }
           }
-        }
-        if (predecessor.stepType.toLowerCase == TransformStep.StepType) {
-          val phaseEnum = PhaseEnum.Write
-          val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}"
-          val okMessage = s"Transform step ${predecessor.name} written successfully"
+          if (predecessor.stepType.toLowerCase == TransformStep.StepType) {
+            val phaseEnum = PhaseEnum.Write
+            val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}"
+            val okMessage = s"Transform step ${predecessor.name} written successfully"
 
-          traceFunction(phaseEnum, okMessage, errorMessage) {
-            val relationSettings = Try {
-              predecessor.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
-            }.getOrElse(defaultWorkflowRelationSettings)
+            traceFunction(phaseEnum, okMessage, errorMessage) {
+              val relationSettings = Try {
+                predecessor.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
+              }.getOrElse(defaultWorkflowRelationSettings)
 
-            /*
-            When one transformation is saved, we need to check if the data is the discarded. This situation is produced when:
-                     discard
-               step ---------> output (where the name contains _Discard and is used by the save and the errors management in order to find the schema)
-            */
-            val stepName = nodeName(predecessor.name, relationSettings.dataType)
-            transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
-              newOutput.writeTransform(
-                transform.data,
-                transform.step.outputOptions.copy(
-                  stepName = stepName,
-                  tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType)
-                ),
-                workflow.settings.errorsManagement,
-                errorOutputs,
-                transform.predecessors
-              )
+              /*
+              When one transformation is saved, we need to check if the data is the discarded. This situation is produced when:
+                       discard
+                 step ---------> output (where the name contains _Discard and is used by the save and the errors management in order to find the schema)
+              */
+              val stepName = nodeName(predecessor.name, relationSettings.dataType)
+              transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
+                newOutput.writeTransform(
+                  transform.data,
+                  transform.step.outputOptions.copy(
+                    stepName = stepName,
+                    tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType)
+                  ),
+                  workflow.settings.errorsManagement,
+                  errorOutputs,
+                  transform.predecessors
+                )
+              }
             }
           }
         }
       }
-    }
   }
 
   /**

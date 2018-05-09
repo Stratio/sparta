@@ -25,7 +25,7 @@ case class NodeGraph(
                       nodeTemplate: Option[NodeTemplateInfo] = None,
                       supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
                       executionEngine: Option[ExecutionEngine] = Option(Streaming),
-                      supportedDataRelations: Option[Seq[DataType]] = Option(Seq(DataType.ValidData))
+                      supportedDataRelations: Option[Seq[DataType]] = None
                     )
 
 /**

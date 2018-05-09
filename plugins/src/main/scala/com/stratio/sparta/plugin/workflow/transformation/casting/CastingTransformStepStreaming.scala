@@ -44,9 +44,7 @@ class CastingTransformStepStreaming(
     }
     val finalStream = stream.ds.transform { rdd =>
       val tableName = name
-      outputFieldsSchema
-        .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, tableName, inputsModel, rdd.ds))
-        .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName))
+      xDSession.createDataFrame(rdd, outputFieldsSchema).createOrReplaceTempView(tableName)
       rdd
     }
 

@@ -10,6 +10,7 @@ import java.util.regex.Pattern
 
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import com.stratio.sparta.plugin.enumerations.{DelimiterType, FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
@@ -53,19 +54,21 @@ abstract class CsvTransformStep[Underlying[Row]](
         headerStr.split(Pattern.quote(fieldsSeparator))
           .map(fieldName => StructField(fieldName, StringType, nullable = true)).toSeq
       case (SPARKFORMAT, None, Some(schema), _) =>
-        getSparkSchemaFromString(schema).map(_.fields.toSeq).getOrElse(Seq.empty)
-      case (FIELDS, _, _, inputFields) if inputFields.fields.nonEmpty =>
-        inputFields.fields.map { fieldModel =>
-          val outputType = fieldModel.`type`.notBlank.getOrElse("string")
-          StructField(
-            name = fieldModel.name,
-            dataType = SparkTypes.get(outputType) match {
-              case Some(sparkType) => sparkType
-              case None => schemaFromString(outputType)
-            },
-            nullable = fieldModel.nullable.getOrElse(true)
-          )
-        }
+        SchemaHelper.parserInputSchema(schema).get.fields.toSeq
+      case (FIELDS, _, _, inputFields) =>
+        if(inputFields.fields.nonEmpty) {
+          inputFields.fields.map { fieldModel =>
+            val outputType = fieldModel.`type`.notBlank.getOrElse("string")
+            StructField(
+              name = fieldModel.name,
+              dataType = SparkTypes.get(outputType) match {
+                case Some(sparkType) => sparkType
+                case None => schemaFromString(outputType)
+              },
+              nullable = fieldModel.nullable.getOrElse(true)
+            )
+          }
+        } else throw new Exception("The input fields cannot be empty")
       case _ => throw new Exception("Incorrect schema arguments")
 
     }
@@ -151,6 +154,12 @@ abstract class CsvTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the input fields are not valid")
+    }
+
+    if (Try(providedSchema).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output Spark schema cannot be generated. See more info in logs")
     }
 
     //If contains schemas, validate if it can be parsed

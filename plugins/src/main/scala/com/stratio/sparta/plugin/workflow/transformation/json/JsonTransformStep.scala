@@ -22,6 +22,8 @@ import org.apache.spark.sql.json.RowJsonHelper.{extractSchemaFromJson, toRow}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
+import scala.util.Try
+
 abstract class JsonTransformStep[Underlying[Row]](
                                                    name: String,
                                                    outputOptions: OutputOptions,
@@ -55,6 +57,12 @@ abstract class JsonTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the input field cannot be empty")
+
+    if (jsonSchema.isEmpty) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output schema cannot be generated")
+    }
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {

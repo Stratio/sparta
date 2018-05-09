@@ -11,6 +11,7 @@ import java.util.regex.PatternSyntaxException
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy.{apply => _}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.plugin.workflow.transformation.split.SplitTransformStep.SplitMethodEnum.SplitMethod
 import com.stratio.sparta.plugin.workflow.transformation.split.SplitTransformStep.{SplitMethodEnum, _}
@@ -53,19 +54,21 @@ abstract class SplitTransformStep[Underlying[Row]](
   lazy val providedSchema: Seq[StructField] =
     (schemaInputMode, sparkSchema, fieldsModel) match {
       case (SPARKFORMAT, Some(schema), _) =>
-        schemaFromString(schema).asInstanceOf[StructType].fields.toSeq
-      case (FIELDS, _, inputFields) if inputFields.fields.nonEmpty =>
-        inputFields.fields.map { fieldModel =>
-          val outputType = fieldModel.`type`.notBlank.getOrElse("string")
-          StructField(
-            name = fieldModel.name,
-            dataType = SparkTypes.get(outputType) match {
-              case Some(sparkType) => sparkType
-              case None => schemaFromString(outputType)
-            },
-            nullable = fieldModel.nullable.getOrElse(true)
-          )
-        }
+        SchemaHelper.parserInputSchema(schema).get.fields.toSeq
+      case (FIELDS, _, inputFields) =>
+        if(inputFields.fields.nonEmpty) {
+          inputFields.fields.map { fieldModel =>
+            val outputType = fieldModel.`type`.notBlank.getOrElse("string")
+            StructField(
+              name = fieldModel.name,
+              dataType = SparkTypes.get(outputType) match {
+                case Some(sparkType) => sparkType
+                case None => schemaFromString(outputType)
+              },
+              nullable = fieldModel.nullable.getOrElse(true)
+            )
+          }
+        } else throw new Exception("The input fields cannot be empty")
       case _ => throw new Exception("Incorrect schema arguments")
     }
 
@@ -86,6 +89,12 @@ abstract class SplitTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the input fields are not valid")
+    }
+
+    if (Try(providedSchema).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output Spark schema cannot be generated. See more info in logs")
     }
 
     //If contains schemas, validate if it can be parsed

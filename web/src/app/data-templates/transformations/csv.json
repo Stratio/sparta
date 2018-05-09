@@ -65,6 +65,7 @@
            "propertyName": "_HEADER_",
            "propertyType": "textarea",
            "contentType": "JSON",
+           "width": 8,
            "visible": [
               [
                  {
@@ -209,6 +210,7 @@
            "propertyName": "_SPARK_SCHEMA_",
            "propertyType": "textarea",
            "contentType": "JSON",
+           "width": 8,
            "visible": [
               [
                  {
@@ -262,6 +264,7 @@
            "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
            "propertyType": "list",
            "required": false,
+           "complexForm": true,
            "width": 8,
            "tooltip": "Schema definition for steps",
            "qa": "fragment-details-schema-fields",
@@ -272,13 +275,14 @@
                  "propertyType": "text",
                  "required": true,
                  "tooltip": "Step name",
-                 "width": 2,
+                 "width": 3,
+                 "float": false,
                  "qa": "fragment-details-field-name"
               },
               {
                  "propertyId": "schema",
                  "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "text",
+                 "propertyType": "textarea",
                  "contentType": "JSON",
                  "width": 8,
                  "tooltip": "Schema in json/Spark format or from example",

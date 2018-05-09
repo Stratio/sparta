@@ -77,6 +77,12 @@ abstract class JsonPathTransformStep[Underlying[Row]](
         messages = validation.messages :+ s"$name: the input queries are not valid")
     }
 
+    if (Try(outputFieldsSchema).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output schema cannot be generated")
+    }
+
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
       inputsModel.inputSchemas.foreach { input =>

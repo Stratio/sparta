@@ -71,6 +71,49 @@ class CastingTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     assert(arrayValues.length === 2)
   }
 
+  "A CastingTransformStepBatch" should "casting the input RDD with spark format schema" in {
+
+    val rowSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), rowSchema),
+      new GenericRowWithSchema(Array("red", 12.2), rowSchema)
+    )
+    val dataInRow = dataIn.map(_.asInstanceOf[Row])
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", "12.1"), outputSchema),
+      new GenericRowWithSchema(Array("red", "12.2"), outputSchema)
+    )
+    val dataSet = sc.parallelize(dataInRow)
+    val inputData = Map("step1" -> dataSet)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val fields =
+      """StructType((
+      | StructField(color, StringType, true),
+      | StructField(price, StringType, true)
+      |))""".stripMargin
+    val transformationsStepManagement = TransformationStepManagement()
+    val result = new CastingTransformStepBatch(
+      "dummy",
+      outputOptions,
+      transformationsStepManagement,
+      Option(ssc),
+      sparkSession,
+      Map(
+        "outputFieldsFrom" -> "STRING",
+        "fieldsString" -> fields
+      )
+    ).transformWithDiscards(inputData)._1
+    val arrayValues = result.ds.collect()
+
+    arrayValues.foreach { row =>
+      assert(dataOut.contains(row))
+      assert(outputSchema == row.schema)
+    }
+
+    assert(arrayValues.length === 2)
+  }
+
   "A CastingTransformStepBatch" should "discard rows in the input RDD" in {
 
     val inputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))

@@ -12,7 +12,6 @@ import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.DiscardCondition
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
@@ -36,11 +35,11 @@ abstract class CastingTransformStep[Underlying[Row]](
   lazy val outputFieldsFrom = OutputFieldsFrom.withName(properties.getString("outputFieldsFrom", "FIELDS").toUpperCase)
   lazy val fieldsString = properties.getString("fieldsString", None).notBlank
   lazy val fieldsModel = properties.getPropertiesFields("fields")
-  lazy val outputFieldsSchema: Option[StructType] = {
+  lazy val outputFieldsSchema: StructType = {
     outputFieldsFrom match {
       case OutputFieldsFrom.FIELDS =>
         if (fieldsModel.fields.nonEmpty) {
-          Option(StructType(fieldsModel.fields.map { outputField =>
+          StructType(fieldsModel.fields.map { outputField =>
             val outputType = outputField.`type`.notBlank.getOrElse("string")
             StructField(
               name = outputField.name,
@@ -50,47 +49,43 @@ abstract class CastingTransformStep[Underlying[Row]](
               },
               nullable = outputField.nullable.getOrElse(true)
             )
-          }))
-        } else None
+          })
+        } else throw new Exception("The input fields cannot be empty")
       case OutputFieldsFrom.STRING =>
-        SchemaHelper.getSparkSchemaFromString(fieldsString.get).toOption
+        SchemaHelper.parserInputSchema(fieldsString.get).get
       case _ =>
-        throw new IllegalArgumentException("It's mandatory to specify the fields format")
+        throw new Exception("It's mandatory to specify the fields format")
     }
   }
 
+  //scalastyle:off
   def generateNewRow(inputRow: Row): Row = {
-    val inputSchema = inputRow.schema
-    (compareToOutputSchema(inputRow.schema), outputFieldsSchema) match {
-      case (false, Some(outputSchema)) =>
-        val newValues = outputSchema.map { outputField =>
-          Try {
-            inputSchema.find(_.name == outputField.name)
-              .getOrElse(throw new Exception(
-                s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
-              .dataType
-          } match {
-            case Success(inputSchemaType) =>
-              Try {
-                val rowValue = inputRow.get(inputSchema.fieldIndex(outputField.name))
-                if (inputSchemaType == outputField.dataType)
-                  rowValue
-                else castingToOutputSchema(outputField, rowValue)
-              } match {
-                case Success(dataRow) =>
-                  dataRow
-                case Failure(e) =>
-                  returnWhenFieldError(new Exception(
-                    s"Impossible to cast outputField: $outputField in the schema $inputSchema", e))
-              }
-            case Failure(e: Exception) =>
-              returnWhenFieldError(e)
-          }
+    if (!compareToOutputSchema(inputRow.schema)) {
+      val inputSchema = inputRow.schema
+      val newValues = outputFieldsSchema.map { outputField =>
+        Try {
+          inputSchema.find(_.name == outputField.name)
+            .getOrElse(throw new Exception(s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
+            .dataType
+        } match {
+          case Success(inputSchemaType) =>
+            Try {
+              val rowValue = inputRow.get(inputSchema.fieldIndex(outputField.name))
+              if (inputSchemaType == outputField.dataType)
+                rowValue
+              else castingToOutputSchema(outputField, rowValue)
+            } match {
+              case Success(dataRow) => dataRow
+              case Failure(e) => returnWhenFieldError(new Exception(s"Impossible to cast outputField: $outputField in the schema $inputSchema", e))
+            }
+          case Failure(e: Exception) =>
+            returnWhenFieldError(e)
         }
-        new GenericRowWithSchema(newValues.toArray, outputSchema)
-      case _ => inputRow
-    }
+      }
+      new GenericRowWithSchema(newValues.toArray, outputFieldsSchema)
+    } else inputRow
   }
+
 
   /**
     * Compare schema fields: InputSchema with outputSchema.
@@ -98,8 +93,7 @@ abstract class CastingTransformStep[Underlying[Row]](
     * @param inputSchema The input schema to compare
     * @return If the schemas are equals
     */
-  def compareToOutputSchema(inputSchema: StructType): Boolean =
-    outputFieldsSchema.isEmpty || (outputFieldsSchema.isDefined && inputSchema == outputFieldsSchema.get)
+  def compareToOutputSchema(inputSchema: StructType): Boolean = inputSchema == outputFieldsSchema
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -109,10 +103,22 @@ abstract class CastingTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
 
-    if (Try(fieldsModel.fields.nonEmpty).isFailure) {
+    if (outputFieldsFrom == OutputFieldsFrom.FIELDS && Try(fieldsModel.fields.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input fields are not valid")
+        messages = validation.messages :+ s"$name: the output fields are not valid")
+    }
+
+    if (outputFieldsFrom == OutputFieldsFrom.STRING && fieldsString.isEmpty) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output schema in string format cannot be empty")
+    }
+
+    if (Try(outputFieldsSchema).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output fields definition is not valid. See more info in logs")
     }
 
     //If contains schemas, validate if it can be parsed

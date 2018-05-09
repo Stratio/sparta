@@ -26,6 +26,8 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
+import scala.util.Try
+
 abstract class AvroTransformStep[Underlying[Row]](
                                                    name: String,
                                                    outputOptions: OutputOptions,
@@ -41,8 +43,8 @@ abstract class AvroTransformStep[Underlying[Row]](
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
   lazy val schemaProvided: String = properties.getString("schema.provided")
-  lazy val avroSchema = AvroTransformStep.getAvroSchema(schemaProvided)
-  lazy val expectedSchema = AvroTransformStep.getExpectedSchema(avroSchema)
+  lazy val avroSchema = AvroTransformStep.getAvroSchema(name, schemaProvided)
+  lazy val expectedSchema = AvroTransformStep.getExpectedSchema(name, avroSchema)
 
   def generateNewRow(inputRow: Row): Row = {
     val inputFieldName = inputField.get
@@ -52,7 +54,11 @@ abstract class AvroTransformStep[Underlying[Row]](
     assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
 
     val converter = RowAvroHelper.getAvroConverter(avroSchema, expectedSchema)
-    val value = inputRow(inputFieldIdx).asInstanceOf[String].getBytes()
+    val inputDataField = inputRow(inputFieldIdx)
+    val value = inputDataField match {
+      case data: Array[Byte] => data
+      case _ => inputDataField.toString.getBytes
+    }
     val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](avroSchema)
     val record = recordInjection.invert(value).get
     val safeDataRow = converter(record).asInstanceOf[GenericRow]
@@ -68,6 +74,18 @@ abstract class AvroTransformStep[Underlying[Row]](
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the step name $name is not valid")
+
+    if (Try(avroSchema).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the input Avro schema is not valid. See more info in logs")
+    }
+
+    if (Try(expectedSchema).isFailure) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ s"$name: the output Spark schema cannot be generated. See more info in logs")
+    }
 
     if (inputField.isEmpty)
       validation = ErrorValidations(
@@ -94,8 +112,8 @@ abstract class AvroTransformStep[Underlying[Row]](
   }
 
   def getOutputSchema(inputSchema: Option[StructType]): Option[StructType] = {
-    val avroSchema = AvroTransformStep.getAvroSchema(schemaProvided)
-    val expectedSchema = AvroTransformStep.getExpectedSchema(avroSchema)
+    val avroSchema = AvroTransformStep.getAvroSchema(name, schemaProvided)
+    val expectedSchema = AvroTransformStep.getExpectedSchema(name, avroSchema)
 
     SchemaHelper.getNewOutputSchema(inputSchema, expectedSchema, preservationPolicy, inputField.get)
   }
@@ -104,21 +122,27 @@ abstract class AvroTransformStep[Underlying[Row]](
 
 object AvroTransformStep {
 
-  private var schema: Option[Schema] = None
-  private var expectedSchema: Option[StructType] = None
+  private val schema = new java.util.concurrent.ConcurrentHashMap[String, Schema]()
+  private val expectedSchema = new java.util.concurrent.ConcurrentHashMap[String, StructType]()
 
-  def getAvroSchema(schemaProvided: String): Schema =
-    schema.getOrElse {
+  def getAvroSchema(key: String, schemaProvided: String): Schema = {
+    if(schema.containsKey(key)) {
+      schema.get(key)
+    } else {
       val newSchema = SchemaHelper.getAvroSchemaFromString(schemaProvided)
-      schema = Option(newSchema)
+      schema.put(key, newSchema)
       newSchema
     }
+  }
 
-  def getExpectedSchema(avroSchema: Schema): StructType =
-    expectedSchema.getOrElse {
+  def getExpectedSchema(key: String, avroSchema: Schema): StructType = {
+    if(expectedSchema.containsKey(key)) {
+      expectedSchema.get(key)
+    } else {
       val newSchema = SchemaHelper.getSparkSchemaFromAvroSchema(avroSchema)
-      expectedSchema = Option(newSchema)
+      expectedSchema.put(key, newSchema)
       newSchema
     }
+  }
 
 }

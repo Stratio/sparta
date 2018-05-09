@@ -22,12 +22,6 @@ import scala.collection.JavaConverters._
 //scalastyle:off
 object CastingUtils {
 
-  /**
-    * TODO Refactor all functions names, change to privates and build tests
-    * check pattern matching without 'value if value.isInstanceOf[X]' and 'value : X'
-    * check if we can change [_, _] to [Any, Any]
-    */
-
   def castingToSchemaType(dataTypeToCast: DataType, origValue: Any): Any = {
     dataTypeToCast match {
       case IntegerType => checkIntType(origValue)
