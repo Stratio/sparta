@@ -73,6 +73,7 @@ abstract class OutputStep[Underlying[Row]](
       case SaveModeEnum.Overwrite => SaveMode.Overwrite
       case SaveModeEnum.Ignore => SaveMode.Ignore
       case SaveModeEnum.Upsert => SaveMode.Append
+      case SaveModeEnum.Delete => SaveMode.Append
       case _ =>
         log.warn(s"Save Mode $saveModeEnum not supported, using default save mode ${SaveModeEnum.Append}")
         SaveMode.Append

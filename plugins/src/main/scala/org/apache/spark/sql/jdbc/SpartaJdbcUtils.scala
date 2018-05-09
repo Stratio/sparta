@@ -980,4 +980,237 @@ object SpartaJdbcUtils extends SLF4JLogging {
       case _ => throw new IllegalArgumentException(
         s"can not translate non-null value for field $fieldIndex")
     }
+
+  private def deleteSql(table: String, rddSchema: StructType, searchFields: Seq[String]): String = {
+    val wherePlaceholders = searchFields.map(field => s"$field = ?").mkString(" AND ")
+    if (wherePlaceholders.nonEmpty)
+      s"DELETE FROM $table WHERE $wherePlaceholders"
+    else
+      ""
+  }
+
+  def deleteTable(
+                   df: DataFrame,
+                   properties: JDBCOptions,
+                   searchFields: Seq[String],
+                   outputName: String,
+                   txSaveMode: TxSaveMode
+                 ): Unit = {
+    val schema = df.schema
+    val dialect = JdbcDialects.get(properties.url)
+    val nullTypes = schema.fields.map { field =>
+      getJdbcType(field.dataType, dialect).jdbcNullType
+    }
+    val searchTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
+      if (searchFields.contains(field.name))
+        Option(index -> (searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
+      else None
+    }.toMap
+    val delete = deleteSql(properties.table, schema, searchFields)
+    val repartitionedDF = properties.numPartitions match {
+      case Some(n) if n <= 0 => throw new IllegalArgumentException(
+        s"Invalid value `$n` for parameter `${JDBCOptions.JDBC_NUM_PARTITIONS}` in table writing " +
+          "via JDBC. The minimum value is 1.")
+      case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
+      case _ => df
+    }
+
+    repartitionedDF.foreachPartition { iterator =>
+      if (iterator.hasNext) {
+        Try {
+          deletePartition(properties, delete, iterator, schema, nullTypes, dialect, searchTypes, outputName, txSaveMode)
+        } match {
+          case Success(txFail) =>
+            if (txFail)
+              throw new Exception(s"Error in delete partition on table ${properties.table} and output $outputName")
+            else
+              log.debug(s"Delete partition correctly on table ${properties.table} and output $outputName")
+          case Failure(e) =>
+            log.error(s"Delete partition with errors on table ${properties.table} and output $outputName." +
+              s" Error: ${e.getLocalizedMessage}")
+            throw e
+        }
+      } else log.debug(s"Delete partition with empty rows")
+    }
+  }
+
+  def deletePartition(
+                       properties: JDBCOptions,
+                       deleteSql: String,
+                       iterator: Iterator[Row],
+                       rddSchema: StructType,
+                       nullTypes: Array[Int],
+                       dialect: JdbcDialect,
+                       searchTypes: Map[Int, (Int, Int)],
+                       outputName: String,
+                       txSaveMode: TxSaveMode
+                     ): Boolean = {
+    val batchSize = properties.batchSize
+    val conn = getConnection(properties, outputName)
+    val isolationLevel = properties.isolationLevel
+    var finalIsolationLevel = Connection.TRANSACTION_NONE
+    if (isolationLevel != Connection.TRANSACTION_NONE) {
+      try {
+        val metadata = conn.getMetaData
+        if (metadata.supportsTransactions()) {
+          // Update to at least use the default isolation, if any transaction level
+          // has been chosen and transactions are supported
+          val defaultIsolation = metadata.getDefaultTransactionIsolation
+          finalIsolationLevel = defaultIsolation
+          if (metadata.supportsTransactionIsolationLevel(isolationLevel)) {
+            // Finally update to actually requested level if possible
+            finalIsolationLevel = isolationLevel
+          } else {
+            log.warn(s"Requested isolation level $isolationLevel is not supported; " +
+              s"falling back to default isolation level $defaultIsolation")
+          }
+        } else {
+          log.warn(s"Requested isolation level $isolationLevel, but transactions are unsupported")
+        }
+      } catch {
+        case NonFatal(e) => log.warn(s"Exception while detecting transaction support. ${e.getLocalizedMessage}")
+      }
+    }
+
+    val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
+    var txFail = false
+    try {
+      if (supportsTransactions) {
+        if (conn.getAutoCommit)
+          conn.setAutoCommit(false)
+        if (conn.getTransactionIsolation != finalIsolationLevel)
+          conn.setTransactionIsolation(finalIsolationLevel)
+      }
+      val deleteStmt = if (deleteSql.nonEmpty) Option(conn.prepareStatement(deleteSql)) else None
+      txSaveMode.txType match {
+
+        case TransactionTypes.SINGLE_STATEMENT =>
+          while (iterator.hasNext) {
+            try {
+              var i = 0
+              val row = iterator.next()
+              searchTypes.foreach(t => {
+                if (row.isNullAt(t._1)) {
+                  deleteStmt.foreach(st => st.setNull(i + 1, nullTypes(t._1)))
+                } else
+                  addDeleteStatement(rddSchema, i, t._1, row, conn, deleteStmt, dialect)
+                i = i + 1
+              })
+              deleteStmt.foreach(_.execute())
+              if (supportsTransactions) conn.commit()
+            } catch {
+              case e: SQLException =>
+                if (supportsTransactions && !conn.getAutoCommit)
+                  log.warn(s"Delete ${TransactionTypes.SINGLE_STATEMENT} on table ${properties.table} not succeeded, rollback it")
+                conn.rollback()
+                if (txSaveMode.failFast)
+                  throw e
+                else
+                  log.error(s"Delete ${TransactionTypes.SINGLE_STATEMENT} on table ${properties.table} not succeeded", e)
+                txFail = true
+            }
+          }
+        case TransactionTypes.STATEMENT =>
+          try {
+            var updatesCount = 0
+            while (iterator.hasNext) {
+              var i = 0
+              val row = iterator.next()
+              searchTypes.foreach(t => {
+                if (row.isNullAt(t._1)) {
+                  deleteStmt.foreach(st => st.setNull(i + 1, nullTypes(t._1)))
+                } else
+                  addDeleteStatement(rddSchema, i, t._1, row, conn, deleteStmt, dialect)
+                i = i + 1
+              })
+              if (deleteStmt.isDefined) {
+                deleteStmt.foreach(_.addBatch())
+                updatesCount += 1
+              }
+              if (updatesCount >= batchSize) {
+                deleteStmt.foreach(_.executeBatch())
+                updatesCount = 0
+              }
+            }
+            if (updatesCount > 0)
+              deleteStmt.foreach(_.executeBatch())
+            if (supportsTransactions) conn.commit()
+          } catch {
+            case e: SQLException =>
+              if (supportsTransactions && !conn.getAutoCommit) {
+                log.warn(s"Delete ${TransactionTypes.STATEMENT} on table ${properties.table} not succeeded, rollback it")
+                conn.rollback()
+              }
+              if (txSaveMode.failFast)
+                throw e
+              else
+                log.error(s"Delete ${TransactionTypes.STATEMENT} on table ${properties.table} not succeeded", e)
+              txFail = true
+          }
+      } //match
+      txFail
+    } catch {
+      case e: SQLException =>
+        val cause = e.getNextException
+        if (cause != null && e.getCause != cause) {
+          // If there is no cause already, set 'next exception' as cause. If cause is null,
+          // it *may* be because no cause was set yet
+          if (e.getCause == null) {
+            try {
+              e.initCause(cause)
+            } catch {
+              // Or it may be null because the cause *was* explicitly initialized, to *null*,
+              // in which case this fails. There is no other way to detect it.
+              // addSuppressed in this case as well.
+              case _: IllegalStateException => e.addSuppressed(cause)
+            }
+          } else {
+            e.addSuppressed(cause)
+          }
+        }
+        throw e
+    }
+  }
+
+  private def addDeleteStatement(schema: StructType,
+                                 fieldIndex: Int,
+                                 rowIndex: Int,
+                                 row: Row,
+                                 connection: Connection,
+                                 deleteStmt: Option[PreparedStatement],
+                                 dialect: JdbcDialect): Unit = {
+    schema.fields(rowIndex).dataType match {
+      case IntegerType =>
+        deleteStmt.foreach(st => st.setInt(fieldIndex + 1, row.getInt(rowIndex)))
+      case LongType =>
+        deleteStmt.foreach(st => st.setLong(fieldIndex + 1, row.getLong(rowIndex)))
+      case DoubleType =>
+        deleteStmt.foreach(st => st.setDouble(fieldIndex + 1, row.getDouble(rowIndex)))
+      case FloatType =>
+        deleteStmt.foreach(st => st.setFloat(fieldIndex + 1, row.getFloat(rowIndex)))
+      case ShortType =>
+        deleteStmt.foreach(st => st.setShort(fieldIndex + 1, row.getShort(rowIndex)))
+      case ByteType =>
+        deleteStmt.foreach(st => st.setByte(fieldIndex + 1, row.getByte(rowIndex)))
+      case BooleanType =>
+        deleteStmt.foreach(st => st.setBoolean(fieldIndex + 1, row.getBoolean(rowIndex)))
+      case StringType =>
+        deleteStmt.foreach(st => st.setString(fieldIndex + 1, row.getString(rowIndex)))
+      case BinaryType =>
+        deleteStmt.foreach(st => st.setBytes(fieldIndex + 1, row.getAs[Array[Byte]](rowIndex)))
+      case TimestampType =>
+        deleteStmt.foreach(st => st.setTimestamp(fieldIndex + 1, row.getAs[java.sql.Timestamp](rowIndex)))
+      case DateType =>
+        deleteStmt.foreach(st => st.setDate(fieldIndex + 1, row.getAs[java.sql.Date](rowIndex)))
+      case t: DecimalType =>
+        deleteStmt.foreach(st => st.setBigDecimal(fieldIndex + 1, row.getDecimal(rowIndex)))
+      case ArrayType(et, _) =>
+        val array = connection.createArrayOf(
+          getJdbcType(et, dialect).databaseTypeDefinition.toLowerCase,
+          row.getSeq[AnyRef](rowIndex).toArray)
+        deleteStmt.foreach(st => st.setArray(fieldIndex + 1, array))
+      case _ => throw new IllegalArgumentException(
+        s"can not translate non-null value for field $fieldIndex")
+    }
+  }
 }

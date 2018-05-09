@@ -1,71 +1,81 @@
- {
-    "writer": [{
-          "propertyId": "tableName",
-          "propertyName": "_TABLE_NAME_",
-          "propertyType": "text",
-          "required": false,
-          "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name. If is not assigned then the output name is the step name",
-          "qa": "table-name-writer-tableName"
-       },
-       {
-          "propertyId": "errorTableName",
-          "propertyName": "_ERROR_TABLE_NAME_",
-          "propertyType": "text",
-          "required": false,
-          "tooltip": "If is assigned the errors data is saved in one table, topic or similar with this name. If is not assigned then the output name is the step name",
-          "qa": "table-name-writer-errorTableName"
-       },
-       {
-          "propertyId": "saveMode",
-          "propertyName": "_SAVEMODE_",
-          "propertyType": "select",
-          "required": true,
-          "default": "Append",
-          "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-          "qa": "save-mode-writer",
-          "values": [{
-                "label": "Append",
-                "value": "Append"
+ [
+    {
+       "propertyId": "tableName",
+       "propertyName": "_TABLE_NAME_",
+       "propertyType": "text",
+       "required": false,
+       "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name. If is not assigned then the output name is the step name",
+       "qa": "table-name-writer-tableName"
+    },
+    {
+       "propertyId": "errorTableName",
+       "propertyName": "_ERROR_TABLE_NAME_",
+       "propertyType": "text",
+       "required": false,
+       "tooltip": "If is assigned the errors data is saved in one table, topic or similar with this name. If is not assigned then the output name is the step name",
+       "qa": "table-name-writer-errorTableName"
+    },
+    {
+       "propertyId": "saveMode",
+       "propertyName": "_SAVEMODE_",
+       "propertyType": "select",
+       "required": true,
+       "default": "Append",
+       "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
+       "qa": "save-mode-writer",
+       "values": [
+          {
+             "label": "Append",
+             "value": "Append"
+          },
+          {
+             "label": "Error if exists",
+             "value": "Error if exists"
+          },
+          {
+             "label": "Ignore",
+             "value": "Ignore"
+          },
+          {
+             "label": "Overwrite",
+             "value": "Overwrite"
+          },
+          {
+             "label": "Upsert",
+             "value": "Upsert"
+          },
+          {
+             "label": "Delete",
+             "value": "Delete"
+          }
+       ]
+    },
+    {
+       "propertyId": "primaryKey",
+       "propertyName": "_PRIMARY_KEY_",
+       "propertyType": "text",
+       "required": true,
+       "visibleOR": [
+          [
+             {
+               "propertyId": "saveMode",
+               "value": "Upsert"
              },
              {
-                "label": "Error if exists",
-                "value": "Error if exists"
-             },
-             {
-                "label": "Ignore",
-                "value": "Ignore"
-             },
-             {
-                "label": "Overwrite",
-                "value": "Overwrite"
-             },
-             {
-                "label": "Upsert",
-                "value": "Upsert"
+                "propertyId": "saveMode",
+                "value": "Delete"
              }
           ]
-       },
-       {
-          "propertyId": "primaryKey",
-          "propertyName": "_PRIMARY_KEY_",
-          "propertyType": "text",
-          "required": true,
-          "visible": [
-             [{
-                "propertyId": "saveMode",
-                "value": "Upsert"
-             }]
-          ],
-          "tooltip": "Set the fields that indicates the where clause in upsert save mode",
-          "qa": "primaryKey-by-writer"
-       },
-       {
-          "propertyId": "partitionBy",
-          "propertyName": "_PARTITION_BY_",
-          "propertyType": "text",
-          "required": false,
-          "tooltip": "Partition the output by one or more fields, separated by '.'. This property is supported by outputs that write on file systems",
-          "qa": "partition-by-writer"
-       }
-    ]
- }
+       ],
+       "tooltip": "Set the fields that indicates the where clause in upsert save mode",
+       "qa": "primaryKey-by-writer"
+    },
+    {
+       "propertyId": "partitionBy",
+       "propertyName": "_PARTITION_BY_",
+       "propertyType": "text",
+       "required": false,
+       "tooltip": "Partition the output by one or more fields, separated by '.'. This property is supported by outputs that write on file systems",
+       "qa": "partition-by-writer"
+    }
+ ]

@@ -14,6 +14,7 @@ object SaveModeEnum extends Enumeration {
   val Ignore = Value("Ignore")
   val Overwrite = Value("Overwrite")
   val Upsert = Value("Upsert")
+  val Delete = Value("Delete")
 
-  val allSaveModes = Seq(Append, ErrorIfExists, Ignore, Overwrite, Upsert)
+  val allSaveModes = Seq(Append, ErrorIfExists, Ignore, Overwrite, Upsert, Delete)
 }

@@ -17,9 +17,8 @@ import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
-import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.time.{Seconds, Span}
+import org.scalatest.{BeforeAndAfterAll, ShouldMatchers}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
@@ -29,7 +28,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   private lazy val config = ConfigFactory.load()
-  override val timeLimit = Span(60, Seconds)
+
   val host = Try(config.getString("postgresql.host")) match {
     case Success(configHost) =>
       val hostUrl = s"jdbc:postgresql://$configHost:5432/postgres?user=postgres"
@@ -181,6 +180,59 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     xdSession.sql(tableCreate(tableName))
     val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
     rows.foreach(row => assert(upsert.contains(row)))
+  }
+
+  "Delete that no affects records" should "maintain record with id = 4 " in new JdbcCommons {
+    val tableName = s"test_delete_${System.currentTimeMillis()}"
+    val connectionProperties = new JDBCOptions(host,
+      tableName,
+      properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+    )
+    SpartaJdbcUtils.createTable(connectionProperties, okData, "deleteTable")
+    val connection = SpartaJdbcUtils.getConnection(connectionProperties, "deleteTable")
+    val dataInsert = Seq(
+      new GenericRowWithSchema(Array(4, "testNoDeleteRecord"), schema)
+    )
+    dataInsert.foreach(row => {
+      val sql = s"INSERT INTO $tableName(id,text) VALUES (${row.getInt(0)},'${row.getString(1)}')"
+      connection.prepareStatement(sql).execute()
+    })
+    val postgresOutputStep = new PostgresOutputStep("postgresDelete", xdSession, properties ++ Map("postgresSaveMode" -> "SINGLE_STATEMENT", "failFast" ->
+      "true"))
+    postgresOutputStep.save(okData, SaveModeEnum.Delete, Map("tableName" -> tableName, "primaryKey" -> "id", "auto-commit" -> "false", "isolationLevel" ->
+      "READ-COMMITED"))
+    xdSession.sql(tableCreate(tableName))
+    val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
+    rows.length shouldBe 1
+    rows.foreach(row => assert(dataInsert.contains(row)))
+    SpartaJdbcUtils.dropTable(connectionProperties, "deleteTable", Some(tableName))
+  }
+
+  "Delete despite duplicated id = 2" should "remove records when predicate is true on 'text' column" in new JdbcCommons {
+    val tableName = s"test_delete_${System.currentTimeMillis()}"
+    val connectionProperties = new JDBCOptions(host,
+      tableName,
+      properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+    )
+    SpartaJdbcUtils.createTable(connectionProperties, okData, "deleteTable")
+    val connection = SpartaJdbcUtils.getConnection(connectionProperties, "deleteTable")
+    val dataInsert = Seq(
+      new GenericRowWithSchema(Array(1, "test1"), schema),
+      new GenericRowWithSchema(Array(2, "test2"), schema),
+      new GenericRowWithSchema(Array(2, "testPkDuplicate"), schema)
+    )
+    dataInsert.foreach(row => {
+      val sql = s"INSERT INTO $tableName(id,text) VALUES (${row.getInt(0)},'${row.getString(1)}')"
+      connection.prepareStatement(sql).execute()
+    })
+    val postgresOutputStep = new PostgresOutputStep("postgresDelete", xdSession, properties ++ Map("postgresSaveMode" -> "STATEMENT", "failFast" -> "true"))
+    postgresOutputStep.save(okData, SaveModeEnum.Delete, Map("tableName" -> tableName, "primaryKey" -> "text", "auto-commit" -> "false", "isolationLevel" ->
+      "READ-COMMITED"))
+    xdSession.sql(tableCreate(tableName))
+    val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
+    rows.length shouldBe 1
+    rows.foreach(row => assert(dataInsert.contains(row)))
+    SpartaJdbcUtils.dropTable(connectionProperties, "deleteTable", Some(tableName))
   }
 }
 

@@ -58,7 +58,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   }
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
-    Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
+    Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert, SaveModeEnum.Delete)
 
 
   //scalastyle:off
@@ -130,6 +130,8 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   //scalastyle:off
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "Postgres url must be provided")
+    require(!((postgresSaveMode == TransactionTypes.COPYIN || postgresSaveMode == TransactionTypes.ONE_TRANSACTION) && saveMode == SaveModeEnum.Delete),
+      s"Writer SaveMode Delete could not be used with Postgres save mode $postgresSaveMode")
     validateSaveMode(saveMode)
     if (dataFrame.schema.fields.nonEmpty) {
       val tableName = getTableNameFromOptions(options)
@@ -155,7 +157,13 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 case None => Seq.empty[String]
               }
               val txSaveMode = TxSaveMode(postgresSaveMode, failFast)
-              if (saveMode == SaveModeEnum.Upsert && postgresSaveMode != TransactionTypes.ONE_TRANSACTION) {
+              if(saveMode == SaveModeEnum.Delete){
+                require(updatePrimaryKeyFields.nonEmpty, "The primary key fields must be provided")
+                require(updatePrimaryKeyFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                  "The all the primary key fields should be present in the dataFrame schema")
+                SpartaJdbcUtils.deleteTable(dataFrame, connectionProperties, updatePrimaryKeyFields, name, txSaveMode)
+              }
+              else if (saveMode == SaveModeEnum.Upsert && postgresSaveMode != TransactionTypes.ONE_TRANSACTION) {
                 require(updatePrimaryKeyFields.nonEmpty, "The primary key fields must be provided")
                 require(updatePrimaryKeyFields.forall(dataFrame.schema.fieldNames.contains(_)),
                   "The all the primary key fields should be present in the dataFrame schema")

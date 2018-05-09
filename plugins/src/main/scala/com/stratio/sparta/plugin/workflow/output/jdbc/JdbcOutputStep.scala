@@ -50,12 +50,14 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite,
-      SaveModeEnum.Upsert)
+      SaveModeEnum.Upsert, SaveModeEnum.Delete)
 
   //scalastyle:off
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(url.nonEmpty, "JDBC url must be provided")
     validateSaveMode(saveMode)
+    require(!(jdbcSaveMode == TransactionTypes.ONE_TRANSACTION && saveMode == SaveModeEnum.Delete),
+      s"Writer SaveMode Delete could not be used with Jdbc save mode $jdbcSaveMode")
     if (dataFrame.schema.fields.nonEmpty) {
       val tableName = getTableNameFromOptions(options)
       val sparkSaveMode = getSparkSaveMode(saveMode)
@@ -76,7 +78,16 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           try {
             if (tableExists) {
               val txSaveMode = TxSaveMode(jdbcSaveMode, failFast)
-              if (saveMode == SaveModeEnum.Upsert) {
+              if (saveMode == SaveModeEnum.Delete) {
+                val updateFields = getPrimaryKeyOptions(options) match {
+                  case Some(pk) => pk.trim.split(",").toSeq
+                  case None => Seq.empty[String]
+                }
+                require(updateFields.nonEmpty, "The primary key fields must be provided")
+                require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
+                  "The all the primary key fields should be present in the dataFrame schema")
+                SpartaJdbcUtils.deleteTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
+              } else if (saveMode == SaveModeEnum.Upsert) {
                 val updateFields = getPrimaryKeyOptions(options) match {
                   case Some(pk) => pk.trim.split(",").toSeq
                   case None => Seq.empty[String]
