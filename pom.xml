@@ -93,7 +93,7 @@ This software – including all its source code – contains proprietary informa
         <commons-configuration.version>1.6</commons-configuration.version>
         <stratio.spark.version>2.2.0.5</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
-        <sparta.dyplon.version>0.14.1</sparta.dyplon.version>
+        <sparta.dyplon.version>0.15.0-SNAPSHOT</sparta.dyplon.version>
         <crossdata.dyplon.version>0.14.1</crossdata.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
