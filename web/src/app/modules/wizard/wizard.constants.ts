@@ -16,3 +16,5 @@ export const KEYS = {
     ESC_KEYCODE: 27,
     SUPR_KEYCODE: 46
 };
+
+export const workflowNamePattern = '^[a-z0-9-]*$';

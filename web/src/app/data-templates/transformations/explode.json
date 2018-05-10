@@ -1,114 +1,122 @@
 {
-  "name": "Explode",
-  "icon": "Explode",
-  "className": "ExplodeTransformStep",
-  "classPrettyName": "Explode",
-  "arity": ["UnaryToNary"],
-   "supportedEngines": ["Streaming", "Batch"],
-   "supportedDataRelations": ["ValidData"],
-  "description": "Explode an input field and returns one row for each element in the input field",
-  "properties": [
-     {
-        "propertyId": "inputField",
-        "propertyName": "_INPUT_FIELD_",
-        "propertyType": "text",
-        "required": true,
-        "tooltip": "Field that contains the values to be exploded",
-        "qa": "fragment-details-fieldsString"
-     },
-     {
-        "propertyId": "fieldsPreservationPolicy",
-        "propertyName": "_FIELDS_PRESERVATION_",
-        "required": true,
-        "propertyType": "select",
-        "default": "REPLACE",
-        "values": [
-           {
-              "label": "Replacing input field",
-              "value": "REPLACE"
-           },
-           {
-              "label": "Appending extracted",
-              "value": "APPEND"
-           },
-           {
-              "label": "Keeping just extracted",
-              "value": "JUST_EXTRACTED"
-           }
-        ],
-        "qa": "workflow-transformation-explode-fieldsPreservationPolicy"
-     },
-     {
-        "propertyId": "explodedField",
-        "propertyName": "_EXPLODED_FIELD_",
-        "propertyType": "text",
-        "required": true,
-        "tooltip": "Field name that will contain the exploded values",
-        "qa": "fragment-details-exploded-fields"
-     },
-     {
-        "propertyId": "inputSchemas",
-        "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-        "propertyType": "list",
-        "required": false,
-        "complexForm": true,
-        "width": 8,
-        "tooltip": "Schema definition for steps",
-        "qa": "fragment-details-schema-fields",
-        "fields": [
-           {
-              "propertyId": "stepName",
-              "propertyName": "_INPUT_STEP_NAME_",
-              "propertyType": "text",
-              "required": true,
-              "tooltip": "Step name",
-              "width": 3,
-              "float": false,
-              "qa": "fragment-details-field-name"
-           },
-           {
-              "propertyId": "schema",
-              "propertyName": "_DESERIALIZER_SCHEMA_",
-              "propertyType": "textarea",
-              "contentType": "JSON",
-              "width": 8,
-              "tooltip": "Schema in json/Spark format or from example",
-              "required": true,
-              "qa": "fragment-details-field-query"
-           }
-        ]
-     },
-     {
-        "propertyId": "whenRowError",
-        "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
-        "propertyType": "select",
-        "values": [
-           {
-              "label": "Error",
-              "value": "RowError"
-           },
-           {
-              "label": "Discard",
-              "value": "RowDiscard"
-           }
-        ],
-        "qa": "workflow-transformation-whenRowError"
-     },
-     {
-        "propertyId": "whenFieldError",
-        "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
-        "propertyType": "select",
-        "values": [
-           {
-              "label": "Error",
-              "value": "FieldError"
-           },
-           {
-              "label": "Null",
-              "value": "Null"
-           }
-        ],
-        "qa": "workflow-transformation-whenFieldError"
-     }
-  ]
+   "name": "Explode",
+   "icon": "Explode",
+   "category": "SQL",
+   "className": "ExplodeTransformStep",
+   "classPrettyName": "Explode",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "description": "Explode an input field and returns one row for each element in the input field",
+   "properties": [
+      {
+         "propertyId": "inputField",
+         "propertyName": "_INPUT_FIELD_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Field that contains the values to be exploded",
+         "qa": "fragment-details-fieldsString"
+      },
+      {
+         "propertyId": "fieldsPreservationPolicy",
+         "propertyName": "_FIELDS_PRESERVATION_",
+         "required": true,
+         "propertyType": "select",
+         "default": "REPLACE",
+         "values": [
+            {
+               "label": "Replacing input field",
+               "value": "REPLACE"
+            },
+            {
+               "label": "Appending extracted",
+               "value": "APPEND"
+            },
+            {
+               "label": "Keeping just extracted",
+               "value": "JUST_EXTRACTED"
+            }
+         ],
+         "qa": "workflow-transformation-explode-fieldsPreservationPolicy"
+      },
+      {
+         "propertyId": "explodedField",
+         "propertyName": "_EXPLODED_FIELD_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Field name that will contain the exploded values",
+         "qa": "fragment-details-exploded-fields"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      },
+      {
+         "propertyId": "whenRowError",
+         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "RowError"
+            },
+            {
+               "label": "Discard",
+               "value": "RowDiscard"
+            }
+         ],
+         "qa": "workflow-transformation-whenRowError"
+      },
+      {
+         "propertyId": "whenFieldError",
+         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "FieldError"
+            },
+            {
+               "label": "Null",
+               "value": "Null"
+            }
+         ],
+         "qa": "workflow-transformation-whenFieldError"
+      }
+   ]
 }

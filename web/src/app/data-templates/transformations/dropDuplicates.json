@@ -1,94 +1,103 @@
 {
   "name": "DropDuplicates",
   "icon": "DropDuplicates",
+  "category": "SQL",
   "className": "DropDuplicatesTransformStep",
   "classPrettyName": "DropDuplicates",
-  "arity": ["UnaryToNary"],
-   "supportedEngines": ["Streaming", "Batch"],
-   "supportedDataRelations": ["ValidData", "DiscardedData"],
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData",
+    "DiscardedData"
+  ],
   "description": "Drop duplicate events in the input data",
   "properties": [
-     {
-        "propertyId": "columns",
-        "propertyName": "_COLUMNS_",
-        "width": 8,
-        "propertyType": "list",
-        "required": false,
-        "tooltip": "Columns that indicates the primary key to search and detect the duplicate rows",
-        "qa": "fragment-details-dropDuplicates-columns",
-        "fields": [
-           {
-              "propertyId": "name",
-              "propertyName": "_COLUMN_NAME_",
-              "propertyType": "text",
-              "width": 4,
-              "required": true,
-              "tooltip": "Name of the column",
-              "hidden": false,
-              "qa": "fragment-details-dropDuplicates-columns-name"
-           }
-        ]
-     },
-     {
-        "propertyId": "discardConditions",
-        "propertyName": "_DISCARD_CONDITIONS_",
-        "propertyType": "list",
-        "required": false,
-        "width": 8,
-        "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
-        "qa": "fragment-details-discard-conditions",
-        "fields": [
-           {
-              "propertyId": "previousField",
-              "propertyName": "_PREVIOUS_FIELD_",
-              "propertyType": "text",
-              "required": true,
-              "width": 3,
-              "tooltip": "Field to compare in the previous data",
-              "qa": "fragment-details-previousField"
-           },
-           {
-              "propertyId": "transformedField",
-              "propertyName": "_TRANSFORMED_FIELD_",
-              "propertyType": "text",
-              "tooltip": "Field to compare in the generated data",
-              "required": true,
-              "width": 3,
-              "qa": "fragment-details-transformedField"
-           }
-        ]
-     },
-     {
-        "propertyId": "inputSchemas",
-        "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-        "propertyType": "list",
-        "required": false,
-        "complexForm": true,
-        "width": 8,
-        "tooltip": "Schema definition for steps",
-        "qa": "fragment-details-schema-fields",
-        "fields": [
-           {
-              "propertyId": "stepName",
-              "propertyName": "_INPUT_STEP_NAME_",
-              "propertyType": "text",
-              "required": true,
-              "tooltip": "Step name",
-              "width": 3,
-              "float": false,
-              "qa": "fragment-details-field-name"
-           },
-           {
-              "propertyId": "schema",
-              "propertyName": "_DESERIALIZER_SCHEMA_",
-              "propertyType": "textarea",
-              "contentType": "JSON",
-              "width": 8,
-              "tooltip": "Schema in json/Spark format or from example",
-              "required": true,
-              "qa": "fragment-details-field-query"
-           }
-        ]
-     }
+    {
+      "propertyId": "columns",
+      "propertyName": "_COLUMNS_",
+      "width": 8,
+      "propertyType": "list",
+      "required": false,
+      "tooltip": "Columns that indicates the primary key to search and detect the duplicate rows",
+      "qa": "fragment-details-dropDuplicates-columns",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_COLUMN_NAME_",
+          "propertyType": "text",
+          "width": 4,
+          "required": true,
+          "tooltip": "Name of the column",
+          "hidden": false,
+          "qa": "fragment-details-dropDuplicates-columns-name"
+        }
+      ]
+    },
+    {
+      "propertyId": "discardConditions",
+      "propertyName": "_DISCARD_CONDITIONS_",
+      "propertyType": "list",
+      "required": false,
+      "width": 8,
+      "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+      "qa": "fragment-details-discard-conditions",
+      "fields": [
+        {
+          "propertyId": "previousField",
+          "propertyName": "_PREVIOUS_FIELD_",
+          "propertyType": "text",
+          "required": true,
+          "width": 3,
+          "tooltip": "Field to compare in the previous data",
+          "qa": "fragment-details-previousField"
+        },
+        {
+          "propertyId": "transformedField",
+          "propertyName": "_TRANSFORMED_FIELD_",
+          "propertyType": "text",
+          "tooltip": "Field to compare in the generated data",
+          "required": true,
+          "width": 3,
+          "qa": "fragment-details-transformedField"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "width": 8,
+      "tooltip": "Schema definition for steps",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "required": true,
+          "tooltip": "Step name",
+          "width": 3,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 8,
+          "tooltip": "Schema in json/Spark format or from example",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
   ]
 }

@@ -1,93 +1,102 @@
-  {
-     "name": "Persist",
-     "icon": "Persist",
-     "className": "PersistTransformStep",
-     "supportedEngines": ["Streaming", "Batch"],
-     "supportedDataRelations": ["ValidData"],
-     "classPrettyName": "Persist",
-     "arity": ["UnaryToNary"],
-     "description": "Persist the input DStream",
-     "properties": [
-        {
-           "propertyId": "storageLevel",
-           "propertyName": "_STORAGELEVEL_",
-           "propertyType": "select",
-           "required": false,
-           "tooltip": "Storage Level assigned to Spark DStreams",
-           "qa": "persist-storage-level",
-           "values": [{
-              "label": "DISK_ONLY",
-              "value": "DISK_ONLY"
-           },
-              {
-                 "label": "DISK_ONLY_2",
-                 "value": "DISK_ONLY_2"
-              },
-              {
-                 "label": "MEMORY_ONLY",
-                 "value": "MEMORY_ONLY"
-              },
-              {
-                 "label": "MEMORY_ONLY_2",
-                 "value": "MEMORY_ONLY_2"
-              },
-              {
-                 "label": "MEMORY_ONLY_SER",
-                 "value": "MEMORY_ONLY_SER"
-              },
-              {
-                 "label": "MEMORY_ONLY_SER_2",
-                 "value": "MEMORY_ONLY_SER_2"
-              },
-              {
-                 "label": "MEMORY_AND_DISK",
-                 "value": "MEMORY_AND_DISK"
-              },
-              {
-                 "label": "MEMORY_AND_DISK_2",
-                 "value": "MEMORY_AND_DISK_2"
-              },
-              {
-                 "label": "MEMORY_AND_DISK_SER",
-                 "value": "MEMORY_AND_DISK_SER"
-              },
-              {
-                 "label": "MEMORY_AND_DISK_SER_2",
-                 "value": "MEMORY_AND_DISK_SER_2"
-              }
-           ]
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "required": false,
-           "complexForm": true,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 3,
-                 "float": false,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        }
-     ]
-  }
+{
+   "name": "Persist",
+   "icon": "Persist",
+   "category": "Spark Native",
+   "className": "PersistTransformStep",
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "classPrettyName": "Persist",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "description": "Persist the input DStream",
+   "properties": [
+      {
+         "propertyId": "storageLevel",
+         "propertyName": "_STORAGELEVEL_",
+         "propertyType": "select",
+         "required": false,
+         "tooltip": "Storage Level assigned to Spark DStreams",
+         "qa": "persist-storage-level",
+         "values": [
+            {
+               "label": "DISK_ONLY",
+               "value": "DISK_ONLY"
+            },
+            {
+               "label": "DISK_ONLY_2",
+               "value": "DISK_ONLY_2"
+            },
+            {
+               "label": "MEMORY_ONLY",
+               "value": "MEMORY_ONLY"
+            },
+            {
+               "label": "MEMORY_ONLY_2",
+               "value": "MEMORY_ONLY_2"
+            },
+            {
+               "label": "MEMORY_ONLY_SER",
+               "value": "MEMORY_ONLY_SER"
+            },
+            {
+               "label": "MEMORY_ONLY_SER_2",
+               "value": "MEMORY_ONLY_SER_2"
+            },
+            {
+               "label": "MEMORY_AND_DISK",
+               "value": "MEMORY_AND_DISK"
+            },
+            {
+               "label": "MEMORY_AND_DISK_2",
+               "value": "MEMORY_AND_DISK_2"
+            },
+            {
+               "label": "MEMORY_AND_DISK_SER",
+               "value": "MEMORY_AND_DISK_SER"
+            },
+            {
+               "label": "MEMORY_AND_DISK_SER_2",
+               "value": "MEMORY_AND_DISK_SER_2"
+            }
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

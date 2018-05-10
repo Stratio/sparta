@@ -1,88 +1,95 @@
-  {
-     "name": "Window",
-     "icon": "Window",
-     "className": "WindowTransformStep",
-     "classPrettyName": "Window",
-     "supportedEngines": ["Streaming"],
-     "supportedDataRelations": ["ValidData"],
-     "arity": ["UnaryToNary"],
-     "description": "Execute the window operation supported in Spark Streaming in order to generate DStreams with more than one batch window",
-     "properties": [
-        {
-           "propertyId": "overLast",
-           "propertyName": "_OVER_LAST_",
-           "propertyType": "text",
-           "required": false,
-           "tooltip": "Execute the window operation over last time, must be multiplier of the batch window",
-           "qa": "fragment-details-window-overLast"
-        },
-        {
-           "propertyId": "computeEvery",
-           "propertyName": "_COMPUTE_EVERY_",
-           "propertyType": "text",
-           "required": false,
-           "tooltip": "Execute the window operation with sliding window, must be multiplier of the batch window",
-           "qa": "fragment-details-window-computeEvery"
-        },
-        {
-           "propertyId": "discardConditions",
-           "propertyName": "_DISCARD_CONDITIONS_",
-           "propertyType": "list",
-           "required": false,
-           "width": 8,
-           "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
-           "qa": "fragment-details-discard-conditions",
-           "fields": [
-              {
-                 "propertyId": "previousField",
-                 "propertyName": "_PREVIOUS_FIELD_",
-                 "propertyType": "text",
-                 "required": true,
-                 "width": 3,
-                 "tooltip": "Field to compare in the previous data",
-                 "qa": "fragment-details-previousField"
-              },
-              {
-                 "propertyId": "transformedField",
-                 "propertyName": "_TRANSFORMED_FIELD_",
-                 "propertyType": "text",
-                 "tooltip": "Field to compare in the generated data",
-                 "required": true,
-                 "width": 3,
-                 "qa": "fragment-details-transformedField"
-              }
-           ]
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "required": false,
-           "complexForm": true,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 2,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        }
-     ]
-  }
+{
+   "name": "Window",
+   "icon": "Window",
+   "category": "Spark Native",
+   "className": "WindowTransformStep",
+   "classPrettyName": "Window",
+   "supportedEngines": [
+      "Streaming"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "arity": [
+      "UnaryToNary"
+   ],
+   "description": "Execute the window operation supported in Spark Streaming in order to generate DStreams with more than one batch window",
+   "properties": [
+      {
+         "propertyId": "overLast",
+         "propertyName": "_OVER_LAST_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Execute the window operation over last time, must be multiplier of the batch window",
+         "qa": "fragment-details-window-overLast"
+      },
+      {
+         "propertyId": "computeEvery",
+         "propertyName": "_COMPUTE_EVERY_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Execute the window operation with sliding window, must be multiplier of the batch window",
+         "qa": "fragment-details-window-computeEvery"
+      },
+      {
+         "propertyId": "discardConditions",
+         "propertyName": "_DISCARD_CONDITIONS_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+         "qa": "fragment-details-discard-conditions",
+         "fields": [
+            {
+               "propertyId": "previousField",
+               "propertyName": "_PREVIOUS_FIELD_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "tooltip": "Field to compare in the previous data",
+               "qa": "fragment-details-previousField"
+            },
+            {
+               "propertyId": "transformedField",
+               "propertyName": "_TRANSFORMED_FIELD_",
+               "propertyType": "text",
+               "tooltip": "Field to compare in the generated data",
+               "required": true,
+               "width": 3,
+               "qa": "fragment-details-transformedField"
+            }
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 2,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

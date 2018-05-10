@@ -8,21 +8,21 @@ import * as workflowActions from '../actions/workflows';
 
 // cross-cutting concerns because here `state` is the whole state tree
 export const crossReducers = (state, action) => {
-    switch (action.type) {
-        case workflowActions.VALIDATE_SELECTED: {
-            const selectedWorkflows = state.workflows.selectedWorkflowsIds.length ?
-                state.workflows.workflowList.filter((workflow: any) => state.workflows.selectedWorkflowsIds.indexOf(workflow.id) > -1
-                    && (state.filters.currentFilterStatus === '' || workflow.filterStatus === state.filters.currentFilterStatus)) : [];
-            return {
-                ...state,
-                workflows: {
-                    ...state.workflows,
-                    selectedWorkflows: selectedWorkflows,
-                    selectedWorkflowsIds: selectedWorkflows.map(workflow => workflow.id)
-                }
-            };
-        };
-        default:
-            return state;
-    }
+   switch (action.type) {
+      case workflowActions.VALIDATE_SELECTED: {
+         const selectedWorkflows = state.workflows.selectedWorkflowsIds.length ?
+            state.workflows.workflowList.filter((workflow: any) => state.workflows.selectedWorkflowsIds.indexOf(workflow.id) > -1
+               && (state.filters.currentFilterStatus === '' || workflow.filterStatus === state.filters.currentFilterStatus)) : [];
+         return {
+            ...state,
+            workflows: {
+               ...state.workflows,
+               selectedWorkflows: selectedWorkflows,
+               selectedWorkflowsIds: selectedWorkflows.map(workflow => workflow.id)
+            }
+         };
+      };
+      default:
+         return state;
+   }
 };

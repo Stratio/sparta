@@ -26,80 +26,81 @@ import * as errorActions from 'actions/errors';
 @Injectable()
 export class InputEffect {
 
-    @Effect()
-    getInputList$: Observable<Action> = this.actions$
-        .ofType(inputActions.LIST_INPUT)
-        .switchMap((response: any) => this.templatesService.getTemplateList('input')
-        .map((inputList: any) => new inputActions.ListInputCompleteAction(inputList))
-        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+   @Effect()
+   getInputList$: Observable<Action> = this.actions$
+      .ofType(inputActions.LIST_INPUT)
+      .switchMap((response: any) => this.templatesService.getTemplateList('input')
+         .map((inputList: any) => new inputActions.ListInputCompleteAction(inputList))
+         .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
             Observable.of(new inputActions.ListInputFailAction('')),
             Observable.of(new errorActions.ServerErrorAction(error))
-        )));
+         )));
 
-    @Effect()
-    getInputTemplate$: Observable<Action> = this.actions$
-        .ofType(inputActions.GET_EDITED_INPUT)
-        .switchMap((param: any) => this.templatesService.getTemplateById('input', param)
-        .map((input: any) => new inputActions.GetEditedInputCompleteAction(input))
-        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
+   @Effect()
+   getInputTemplate$: Observable<Action> = this.actions$
+      .ofType(inputActions.GET_EDITED_INPUT)
+      .map((action: any) => action.payload)
+      .switchMap((param: any) => this.templatesService.getTemplateById('input', param)
+         .map((input: any) => new inputActions.GetEditedInputCompleteAction(input))
+         .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
             Observable.of(new inputActions.GetEditedInputErrorAction('')),
             Observable.of(new errorActions.ServerErrorAction(error))
-        )));
+         )));
 
-    @Effect()
-    deleteInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.DELETE_INPUT)
-        .map((action: any) => action.payload.selected)
-        .switchMap((inputs: any) => {
-            const joinObservables: Observable<any>[] = [];
-            inputs.map((input: any) => {
-                joinObservables.push(this.templatesService.deleteTemplate('input', input.id));
-            });
-            return Observable.forkJoin(joinObservables).mergeMap(results => {
-                return [new inputActions.DeleteInputCompleteAction(inputs), new inputActions.ListInputAction()];
-            }).catch(function (error) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   deleteInput$: Observable<Action> = this.actions$
+      .ofType(inputActions.DELETE_INPUT)
+      .map((action: any) => action.payload.selected)
+      .switchMap((inputs: any) => {
+         const joinObservables: Observable<any>[] = [];
+         inputs.map((input: any) => {
+            joinObservables.push(this.templatesService.deleteTemplate('input', input.id));
+         });
+         return Observable.forkJoin(joinObservables).mergeMap(results => {
+            return [new inputActions.DeleteInputCompleteAction(inputs), new inputActions.ListInputAction()];
+         }).catch(function (error) {
+            return Observable.of(new errorActions.ServerErrorAction(error));
+         });
+      });
 
-    @Effect()
-    duplicateInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.DUPLICATE_INPUT)
-        .switchMap((data: any) => {
-            let input = Object.assign(data.payload);
-            delete input.id;
-            return this.templatesService.createTemplate(input).mergeMap((data: any) => {
-                return [new inputActions.DuplicateInputCompleteAction(), new inputActions.ListInputAction];
-            }).catch(function (error: any) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   duplicateInput$: Observable<Action> = this.actions$
+      .ofType(inputActions.DUPLICATE_INPUT)
+      .switchMap((data: any) => {
+         let input = Object.assign(data.payload);
+         delete input.id;
+         return this.templatesService.createTemplate(input).mergeMap((data: any) => {
+            return [new inputActions.DuplicateInputCompleteAction(), new inputActions.ListInputAction];
+         }).catch(function (error: any) {
+            return Observable.of(new errorActions.ServerErrorAction(error));
+         });
+      });
 
-    @Effect()
-    createInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.CREATE_INPUT)
-        .switchMap((data: any) => {
-            return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
-                return [new inputActions.CreateInputCompleteAction(), new inputActions.ListInputAction];
-            }).catch(function (error: any) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   createInput$: Observable<Action> = this.actions$
+      .ofType(inputActions.CREATE_INPUT)
+      .switchMap((data: any) => {
+         return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
+            return [new inputActions.CreateInputCompleteAction(), new inputActions.ListInputAction];
+         }).catch(function (error: any) {
+            return Observable.of(new errorActions.ServerErrorAction(error));
+         });
+      });
 
-    @Effect()
-    updateInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.UPDATE_INPUT)
-        .switchMap((data: any) => {
-            return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
-                return [new inputActions.UpdateInputCompleteAction(), new inputActions.ListInputAction];
-            }).catch(function (error: any) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   updateInput$: Observable<Action> = this.actions$
+      .ofType(inputActions.UPDATE_INPUT)
+      .switchMap((data: any) => {
+         return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
+            return [new inputActions.UpdateInputCompleteAction(), new inputActions.ListInputAction];
+         }).catch(function (error: any) {
+            return Observable.of(new errorActions.ServerErrorAction(error));
+         });
+      });
 
-    constructor(
-        private actions$: Actions,
-        private templatesService: TemplatesService
-    ) { }
+   constructor(
+      private actions$: Actions,
+      private templatesService: TemplatesService
+   ) { }
 
 }

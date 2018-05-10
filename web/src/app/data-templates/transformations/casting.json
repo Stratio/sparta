@@ -1,231 +1,240 @@
-  {
-     "name": "Casting",
-     "icon": "Casting",
-     "className": "CastingTransformStep",
-     "classPrettyName": "Casting",
-     "arity": ["UnaryToNary"],
-     "supportedEngines": ["Streaming", "Batch"],
-     "supportedDataRelations": ["ValidData", "DiscardedData"],
-     "description": "Casts input fields to other types, support advanced Spark types conversions",
-     "properties": [
-        {
-           "propertyId": "outputFieldsFrom",
-           "propertyName": "_OUTPUT_FIELDS_FROM_",
-           "required": true,
-           "propertyType": "select",
-           "default": "FIELDS",
-           "values": [
-              {
-                 "label": "String",
-                 "value": "STRING"
-              },
-              {
-                 "label": "Fields",
-                 "value": "FIELDS"
-              }
-           ],
-           "tooltip": "Type of output fields definition, string in json or spark format or a fields model.",
-           "qa": "fragment-details-casting-outputFieldsFrom"
-        },
-        {
-           "propertyId": "fieldsString",
-           "propertyName": "_FIELDS_DEFINITION_STRING_",
-           "propertyType": "textarea",
-           "contentType": "JSON",
-           "width": 8,
-           "visible": [
-              [
-                 {
-                    "propertyId": "outputFieldsFrom",
-                    "value": "STRING"
-                 }
-              ]
-           ],
-           "required": true,
-           "tooltip": "Schema definition in json format or spark format",
-           "qa": "fragment-details-casting-fieldsString"
-        },
-        {
-           "propertyId": "fields",
-           "propertyName": "_FIELDS_DEFINITION_",
-           "propertyType": "list",
-           "required": true,
-           "tooltip": "Schema definition from list of fields",
-           "qa": "fragment-details-casting-fields",
-           "visible": [
-              [
-                 {
-                    "propertyId": "outputFieldsFrom",
-                    "value": "FIELDS"
-                 }
-              ]
-           ],
-           "fields": [
-              {
-                 "propertyId": "name",
-                 "propertyName": "_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "width": 3,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "type",
-                 "propertyName": "_TYPE_",
-                 "propertyType": "select",
-                 "custom": true,
-                 "width": 3,
-                 "required": true,
-                 "values": [
-                    {
-                       "label": "String",
-                       "value": "string"
-                    },
-                    {
-                       "label": "Long",
-                       "value": "long"
-                    },
-                    {
-                       "label": "Float",
-                       "value": "float"
-                    },
-                    {
-                       "label": "Double",
-                       "value": "double"
-                    },
-                    {
-                       "label": "Integer",
-                       "value": "integer"
-                    },
-                    {
-                       "label": "Boolean",
-                       "value": "boolean"
-                    },
-                    {
-                       "label": "Binary",
-                       "value": "binary"
-                    },
-                    {
-                       "label": "Date",
-                       "value": "date"
-                    },
-                    {
-                       "label": "Timestamp",
-                       "value": "timestamp"
-                    },
-                    {
-                       "label": "Array(Double)",
-                       "value": "arraydouble"
-                    },
-                    {
-                       "label": "Array(String)",
-                       "value": "arraystring"
-                    },
-                    {
-                       "label": "Array(Long)",
-                       "value": "arraylong"
-                    },
-                    {
-                       "label": "Array(Integer)",
-                       "value": "arrayinteger"
-                    },
-                    {
-                       "label": "Array(Map(String, String))",
-                       "value": "arraymapstringstring"
-                    },
-                    {
-                       "label": "Map(String, Long)",
-                       "value": "mapstringlong"
-                    },
-                    {
-                       "label": "Map(String, Double)",
-                       "value": "mapstringdouble"
-                    },
-                    {
-                       "label": "Map(String, Integer)",
-                       "value": "mapstringint"
-                    },
-                    {
-                       "label": "Map(String, String)",
-                       "value": "mapstringstring"
-                    }
-                 ],
-                 "default": "string",
-                 "qa": "fragment-details-field-type"
-              },
-              {
-                 "propertyId": "nullable",
-                 "propertyName": "_NULLABLE_",
-                 "propertyType": "boolean",
-                 "default": true,
-                 "required": true,
-                 "qa": "fragment-details-field-nullable"
-              }
-           ]
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "complexForm": true,
-           "required": false,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 3,
-                 "float": false,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        },
-        {
-           "propertyId": "whenRowError",
-           "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
-           "propertyType": "select",
-           "values": [
-              {
-                 "label": "Error",
-                 "value": "RowError"
-              },
-              {
-                 "label": "Discard",
-                 "value": "RowDiscard"
-              }
-           ],
-           "qa": "workflow-transformation-whenRowError"
-        },
-        {
-           "propertyId": "whenFieldError",
-           "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
-           "propertyType": "select",
-           "values": [
-              {
-                 "label": "Error",
-                 "value": "FieldError"
-              },
-              {
-                 "label": "Null",
-                 "value": "Null"
-              }
-           ],
-           "qa": "workflow-transformation-whenFieldError"
-        }
-     ]
-  }
+{
+   "name": "Casting",
+   "icon": "Casting",
+   "category": "Row",
+   "className": "CastingTransformStep",
+   "classPrettyName": "Casting",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData",
+      "DiscardedData"
+   ],
+   "description": "Casts input fields to other types, support advanced Spark types conversions",
+   "properties": [
+      {
+         "propertyId": "outputFieldsFrom",
+         "propertyName": "_OUTPUT_FIELDS_FROM_",
+         "required": true,
+         "propertyType": "select",
+         "default": "FIELDS",
+         "values": [
+            {
+               "label": "String",
+               "value": "STRING"
+            },
+            {
+               "label": "Fields",
+               "value": "FIELDS"
+            }
+         ],
+         "tooltip": "Type of output fields definition, string in json or spark format or a fields model.",
+         "qa": "fragment-details-casting-outputFieldsFrom"
+      },
+      {
+         "propertyId": "fieldsString",
+         "propertyName": "_FIELDS_DEFINITION_STRING_",
+         "propertyType": "textarea",
+         "contentType": "JSON",
+         "width": 8,
+         "visible": [
+            [
+               {
+                  "propertyId": "outputFieldsFrom",
+                  "value": "STRING"
+               }
+            ]
+         ],
+         "required": true,
+         "tooltip": "Schema definition in json format or spark format",
+         "qa": "fragment-details-casting-fieldsString"
+      },
+      {
+         "propertyId": "fields",
+         "propertyName": "_FIELDS_DEFINITION_",
+         "propertyType": "list",
+         "required": true,
+         "tooltip": "Schema definition from list of fields",
+         "qa": "fragment-details-casting-fields",
+         "visible": [
+            [
+               {
+                  "propertyId": "outputFieldsFrom",
+                  "value": "FIELDS"
+               }
+            ]
+         ],
+         "fields": [
+            {
+               "propertyId": "name",
+               "propertyName": "_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "type",
+               "propertyName": "_TYPE_",
+               "propertyType": "select",
+               "custom": true,
+               "width": 3,
+               "required": true,
+               "values": [
+                  {
+                     "label": "String",
+                     "value": "string"
+                  },
+                  {
+                     "label": "Long",
+                     "value": "long"
+                  },
+                  {
+                     "label": "Float",
+                     "value": "float"
+                  },
+                  {
+                     "label": "Double",
+                     "value": "double"
+                  },
+                  {
+                     "label": "Integer",
+                     "value": "integer"
+                  },
+                  {
+                     "label": "Boolean",
+                     "value": "boolean"
+                  },
+                  {
+                     "label": "Binary",
+                     "value": "binary"
+                  },
+                  {
+                     "label": "Date",
+                     "value": "date"
+                  },
+                  {
+                     "label": "Timestamp",
+                     "value": "timestamp"
+                  },
+                  {
+                     "label": "Array(Double)",
+                     "value": "arraydouble"
+                  },
+                  {
+                     "label": "Array(String)",
+                     "value": "arraystring"
+                  },
+                  {
+                     "label": "Array(Long)",
+                     "value": "arraylong"
+                  },
+                  {
+                     "label": "Array(Integer)",
+                     "value": "arrayinteger"
+                  },
+                  {
+                     "label": "Array(Map(String, String))",
+                     "value": "arraymapstringstring"
+                  },
+                  {
+                     "label": "Map(String, Long)",
+                     "value": "mapstringlong"
+                  },
+                  {
+                     "label": "Map(String, Double)",
+                     "value": "mapstringdouble"
+                  },
+                  {
+                     "label": "Map(String, Integer)",
+                     "value": "mapstringint"
+                  },
+                  {
+                     "label": "Map(String, String)",
+                     "value": "mapstringstring"
+                  }
+               ],
+               "default": "string",
+               "qa": "fragment-details-field-type"
+            },
+            {
+               "propertyId": "nullable",
+               "propertyName": "_NULLABLE_",
+               "propertyType": "boolean",
+               "default": true,
+               "required": true,
+               "qa": "fragment-details-field-nullable"
+            }
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "complexForm": true,
+         "required": false,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      },
+      {
+         "propertyId": "whenRowError",
+         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "RowError"
+            },
+            {
+               "label": "Discard",
+               "value": "RowDiscard"
+            }
+         ],
+         "qa": "workflow-transformation-whenRowError"
+      },
+      {
+         "propertyId": "whenFieldError",
+         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "FieldError"
+            },
+            {
+               "label": "Null",
+               "value": "Null"
+            }
+         ],
+         "qa": "workflow-transformation-whenFieldError"
+      }
+   ]
+}

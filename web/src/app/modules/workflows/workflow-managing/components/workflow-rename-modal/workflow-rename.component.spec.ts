@@ -117,6 +117,39 @@ describe('[WorkflowsRenameModalComponent]', () => {
    });
 
    describe('if the renamed entity type is a workflow', () => {
+      beforeEach(() => {
+         component.entityType = 'Workflow';
+         component.entityName = 'workflow1';
+         fixture.detectChanges();
+      });
+
+      it('should  initialize getting the name of the current folder and root of the parent folder', () => {
+         expect(component.name).toBe('workflow1');
+      });
+
+
+      it('should can save the new name when the form is valid', () => {
+         spyOn(mockStoreInstance, 'dispatch');
+         component.name = 'folder2';
+         component.updateEntity();
+         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(
+            new workflowActions.RenameWorkflowAction({
+               oldName: component.entityName,
+               newName: component.name
+            }));
+      });
+
+      it('should not can save when the workflow name is invalid', fakeAsync((done) => {
+         fixture.whenStable().then(() => {
+            component.name = '';
+            fixture.detectChanges();
+            tick();
+            fixture.detectChanges();
+            expect(component.renameForm.valid).toBeFalsy();
+            discardPeriodicTasks();
+            done();
+         });
+      }));
 
    });
 });

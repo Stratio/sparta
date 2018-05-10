@@ -12,7 +12,7 @@ if (args && args.length > 0) {
 module.exports = function (config) {
    config.set({
       basePath: '',
-      frameworks: ['jasmine', '@angular-devkit/build-angular'],
+      frameworks: ['jasmine', '@angular/cli'],
       plugins: [
          require('karma-jasmine'),
          require('karma-phantomjs-launcher'),
@@ -20,7 +20,7 @@ module.exports = function (config) {
          require('karma-junit-reporter'),
          require('karma-jasmine-html-reporter'),
          require('karma-coverage-istanbul-reporter'),
-         require('@angular-devkit/build-angular/plugins/karma')
+         require('@angular/cli/plugins/karma')
       ],
       client: {
          clearContext: false // leave Jasmine Spec Runner output visible in browser

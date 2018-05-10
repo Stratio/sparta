@@ -1,51 +1,57 @@
-  {
-     "name": "OrderBy",
-     "icon": "OrderBy",
-     "className": "OrderByTransformStep",
-     "supportedEngines": ["Streaming", "Batch"],
-     "supportedDataRelations": ["ValidData"],
-     "classPrettyName": "OrderBy",
-     "description": "Order fields from the events in the input DStream",
-     "properties": [
-        {
-           "propertyId": "orderExp",
-           "propertyName": "_ORDER_EXPRESSION_",
-           "propertyType": "text",
-           "required": false,
-           "tooltip": "Order the fields based in one expression",
-           "qa": "fragment-details-order-expression"
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "required": false,
-           "complexForm": true,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 3,
-                 "float": false,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        }
-     ]
-  }
+{
+   "name": "OrderBy",
+   "icon": "OrderBy",
+   "category": "SQL",
+   "className": "OrderByTransformStep",
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "classPrettyName": "OrderBy",
+   "description": "Order fields from the events in the input DStream",
+   "properties": [
+      {
+         "propertyId": "orderExp",
+         "propertyName": "_ORDER_EXPRESSION_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Order the fields based in one expression",
+         "qa": "fragment-details-order-expression"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

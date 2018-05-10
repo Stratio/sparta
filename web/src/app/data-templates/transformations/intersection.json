@@ -1,81 +1,90 @@
-  {
-     "name": "Intersection",
-     "icon": "Intersection",
-     "className": "IntersectionTransformStep",
-     "classPrettyName": "Intersection",
-     "arity": ["BinaryToNary"],
-     "supportedEngines": ["Streaming", "Batch"],
-     "supportedDataRelations": ["ValidData", "DiscardedData"],
-     "description": "Select the intersection of events from the two input DStream",
-     "properties": [
-        {
-           "propertyId": "partitions",
-           "propertyName": "_PARTITIONS_",
-           "propertyType": "text",
-           "required": false,
-           "tooltip": "Change the number of partitions associated to the Spark RDDs",
-           "qa": "fragment-details-distinct-partitions"
-        },
-        {
-           "propertyId": "discardConditions",
-           "propertyName": "_DISCARD_CONDITIONS_",
-           "propertyType": "list",
-           "required": false,
-           "width": 8,
-           "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
-           "qa": "fragment-details-discard-conditions",
-           "fields": [
-              {
-                 "propertyId": "previousField",
-                 "propertyName": "_PREVIOUS_FIELD_",
-                 "propertyType": "text",
-                 "required": true,
-                 "width": 3,
-                 "tooltip": "Field to compare in the previous data",
-                 "qa": "fragment-details-previousField"
-              },
-              {
-                 "propertyId": "transformedField",
-                 "propertyName": "_TRANSFORMED_FIELD_",
-                 "propertyType": "text",
-                 "tooltip": "Field to compare in the generated data",
-                 "required": true,
-                 "width": 3,
-                 "qa": "fragment-details-transformedField"
-              }
-           ]
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "required": false,
-           "complexForm": true,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 3,
-                 "float": false,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        }
-     ]
-  }
+{
+   "name": "Intersection",
+   "icon": "Intersection",
+   "category": "SQL",
+   "className": "IntersectionTransformStep",
+   "classPrettyName": "Intersection",
+   "arity": [
+      "BinaryToNary"
+   ],
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData",
+      "DiscardedData"
+   ],
+   "description": "Select the intersection of events from the two input DStream",
+   "properties": [
+      {
+         "propertyId": "partitions",
+         "propertyName": "_PARTITIONS_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Change the number of partitions associated to the Spark RDDs",
+         "qa": "fragment-details-distinct-partitions"
+      },
+      {
+         "propertyId": "discardConditions",
+         "propertyName": "_DISCARD_CONDITIONS_",
+         "propertyType": "list",
+         "required": false,
+         "width": 8,
+         "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+         "qa": "fragment-details-discard-conditions",
+         "fields": [
+            {
+               "propertyId": "previousField",
+               "propertyName": "_PREVIOUS_FIELD_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "tooltip": "Field to compare in the previous data",
+               "qa": "fragment-details-previousField"
+            },
+            {
+               "propertyId": "transformedField",
+               "propertyName": "_TRANSFORMED_FIELD_",
+               "propertyType": "text",
+               "tooltip": "Field to compare in the generated data",
+               "required": true,
+               "width": 3,
+               "qa": "fragment-details-transformedField"
+            }
+         ]
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

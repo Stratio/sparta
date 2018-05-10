@@ -1,11 +1,19 @@
 {
    "name": "Join",
    "icon": "Join",
+   "category": "SQL",
    "className": "JoinTransformStep",
-   "supportedEngines": ["Batch", "Streaming"],
-   "supportedDataRelations": ["ValidData"],
+   "supportedEngines": [
+      "Batch",
+      "Streaming"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
    "classPrettyName": "Join",
-   "arity": ["BinaryToNary"],
+   "arity": [
+      "BinaryToNary"
+   ],
    "description": "Join two steps",
    "properties": [
       {

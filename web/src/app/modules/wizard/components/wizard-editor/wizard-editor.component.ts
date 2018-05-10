@@ -17,7 +17,6 @@ import {
 } from '@angular/core';
 
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
 import { event as d3Event } from 'd3-selection';
 import { zoom as d3Zoom } from 'd3-zoom';
 import { select as d3Select } from 'd3-selection';
@@ -27,7 +26,6 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { WizardEditorService } from './wizard-editor.sevice';
-import { InitializeSchemaService } from 'services';
 import { WizardNode, WizardEdge } from '@app/wizard/models/node';
 import { ZoomTransform, CreationData, NodeConnector, DrawingConnectorStatus } from '@app/wizard/models/drag';
 
@@ -61,8 +59,8 @@ export class WizardEditorComponent implements OnInit {
 
    @Output() editEntity = new EventEmitter<WizardNode>();
    @Output() selectNode = new EventEmitter<WizardNode>();
-   @Output() createNode = new EventEmitter<any>();
-   @Output() onCreateEdge = new EventEmitter<any>();
+   @Output() createNode = new EventEmitter<WizardNode>();
+   @Output() onCreateEdge = new EventEmitter<WizardEdge>();
 
    public entitiesData: WizardNode;
    public isMobile = false;
@@ -78,10 +76,8 @@ export class WizardEditorComponent implements OnInit {
       status: false,
       name: ''
    };
-   public isShowedEntityDetails$: Observable<boolean>;
-   public isPristine = true;
-   public _svgPosition: ZoomTransform;
 
+   public _svgPosition: ZoomTransform;
    private newOrigin = '';
    private zoom: d3.ZoomBehavior<any, any>;
 
@@ -89,13 +85,14 @@ export class WizardEditorComponent implements OnInit {
       private _editorService: WizardEditorService,
       private _store: Store<fromWizard.State>,
       private _cd: ChangeDetectorRef,
-      private initializeSchemaService: InitializeSchemaService,
-      private _ngZone: NgZone) {
-   }
+      private _ngZone: NgZone) { }
 
    ngOnInit(): void {
       this._initSelectors();
       this.setDraggableEditor();
+      // Set initial position
+      this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
+         .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
    }
 
    private _initSelectors() {
@@ -149,7 +146,7 @@ export class WizardEditorComponent implements OnInit {
          .on('mousemove', drawConnector.bind(this))
          .on('mouseup', mouseup.bind(this));
       function mouseup() {
-         event.event.target.parentNode.classList.remove('over2');
+         $event.target.parentNode.classList.remove('over2');
          this.showConnector = false;
          this.newOrigin = '';
          this.drawingConnectionStatus = {
@@ -197,20 +194,11 @@ export class WizardEditorComponent implements OnInit {
 
    setDraggableEditor() {
       this._ngZone.runOutsideAngular(() => {
-         /** wheel delta  */
-         function deltaFn() {
-            return -d3Event.deltaY * (d3Event.deltaMode ? 0.0387 : 0.002258);
-         }
-         /** Update element scale and position*/
-         function zoomed(svgPosition: any): void {
-            this._svgPosition = d3Event.transform;
-            this._SVGContainer.attr('transform', d3Event.transform);
-         }
          let repaints = 0;
          /** zoom behaviour */
          this.zoom = d3Zoom()
             .scaleExtent([1 / 8, 3])
-            .wheelDelta(deltaFn)
+            .wheelDelta(this._deltaFn)
             .on('start', () => {
                const sourceEvent = d3Event.sourceEvent;
                repaints++;
@@ -219,14 +207,22 @@ export class WizardEditorComponent implements OnInit {
                   sourceEvent.stopPropagation();
                }
             })
-            .on('zoom', zoomed.bind(this));
+            .on('zoom', this._zoomed.bind(this));
          // Apply Zoom behaviour on parent
          this._SVGParent.call(this.zoom)
             .on('contextmenu', () => d3Event.preventDefault()) // disable right click
             .on('dblclick.zoom', null); // disable default double click effect
-         // Set initial position
-         this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._svgPosition.x, this._svgPosition.y)
-            .scale(this._svgPosition.k === 0 ? 1 : this._svgPosition.k));
       });
+   }
+
+   /** wheel delta  */
+   private _deltaFn() {
+      return -d3Event.deltaY * (d3Event.deltaMode ? 0.0387 : 0.002258);
+   }
+
+   /** Update element scale and position */
+   private _zoomed(svgPosition: any): void {
+      this._svgPosition = d3Event.transform;
+      this._SVGContainer.attr('transform', d3Event.transform);
    }
 }

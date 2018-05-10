@@ -1,11 +1,19 @@
 {
    "name": "DropColumns",
    "icon": "DropColumns",
+   "category": "Column",
    "className": "DropColumnsTransformStep",
    "classPrettyName": "DropColumns",
-   "arity": ["UnaryToNary"],
-   "supportedEngines": ["Streaming", "Batch"],
-   "supportedDataRelations": ["ValidData"],
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
    "description": "Drop input columns for avoid using them in next steps",
    "properties": [
       {

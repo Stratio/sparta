@@ -1,11 +1,20 @@
 {
    "name": "Split",
    "icon": "Split",
+   "category": "Row",
    "className": "SplitTransformStep",
-   "supportedEngines": ["Streaming", "Batch"],
-   "supportedDataRelations": ["ValidData", "DiscardedData"],
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData",
+      "DiscardedData"
+   ],
    "classPrettyName": "Split",
-   "arity": ["UnaryToNary"],
+   "arity": [
+      "UnaryToNary"
+   ],
    "description": "Split values according to a selected method",
    "properties": [
       {
@@ -44,21 +53,22 @@
          "propertyType": "select",
          "width": 3,
          "qa": "workflow-transformation-split-splitMethod",
-         "values": [{
-            "label": "By index",
-            "value": "BYINDEX"
+         "values": [
+            {
+               "label": "By index",
+               "value": "BYINDEX"
             },
             {
-            "label": "By regex",
-            "value": "BYREGEX"
+               "label": "By regex",
+               "value": "BYREGEX"
             },
             {
-            "label": "By char",
-            "value": "BYCHAR"
+               "label": "By char",
+               "value": "BYCHAR"
             }
-            ],
-            "default": "BYINDEX",
-            "required": true
+         ],
+         "default": "BYINDEX",
+         "required": true
       },
       {
          "propertyId": "byRegexPattern",
@@ -68,57 +78,65 @@
          "required": false,
          "tooltip": "Insert the regular expression that should be used to split the field (e.g. [.])",
          "visible": [
-            [{
-            "propertyId": "splitMethod",
-            "value": "BYREGEX"
-            }]
+            [
+               {
+                  "propertyId": "splitMethod",
+                  "value": "BYREGEX"
+               }
+            ]
          ],
          "qa": "workflow-transformation-split-byRegexPattern"
       },
       {
-      "propertyId": "byCharPattern",
-      "propertyName": "_BYCHAR_PATTERN_",
-      "propertyType": "text",
-      "width": 3,
-      "required": false,
-      "tooltip": "Insert the character that should be used to split the field (e.g. \\t, |, $)",
-      "visible": [
-         [{
-         "propertyId": "splitMethod",
-         "value": "BYCHAR"
-         }]
-      ],
-      "qa": "workflow-transformation-split-byCharPattern"
+         "propertyId": "byCharPattern",
+         "propertyName": "_BYCHAR_PATTERN_",
+         "propertyType": "text",
+         "width": 3,
+         "required": false,
+         "tooltip": "Insert the character that should be used to split the field (e.g. \\t, |, $)",
+         "visible": [
+            [
+               {
+                  "propertyId": "splitMethod",
+                  "value": "BYCHAR"
+               }
+            ]
+         ],
+         "qa": "workflow-transformation-split-byCharPattern"
       },
       {
-      "propertyId": "byIndexPattern",
-      "propertyName": "_BYINDEX_PATTERN_",
-      "propertyType": "text",
-      "width": 3,
-      "required": false,
-      "tooltip": "Insert the comma-separated indices that should be used to split the field (e.g. 1,3,7)[NOTE: indexes start at 0]",
-      "visible": [
-         [{
-         "propertyId": "splitMethod",
-         "value": "BYINDEX"
-         }]
-      ],
-      "qa": "workflow-transformation-split-byIndexPattern"
+         "propertyId": "byIndexPattern",
+         "propertyName": "_BYINDEX_PATTERN_",
+         "propertyType": "text",
+         "width": 3,
+         "required": false,
+         "tooltip": "Insert the comma-separated indices that should be used to split the field (e.g. 1,3,7)[NOTE: indexes start at 0]",
+         "visible": [
+            [
+               {
+                  "propertyId": "splitMethod",
+                  "value": "BYINDEX"
+               }
+            ]
+         ],
+         "qa": "workflow-transformation-split-byIndexPattern"
       },
       {
-      "propertyId": "excludeIndexes",
-      "propertyName": "_EXCLUDE_INDEXES_",
-      "propertyType": "boolean",
-      "width": 3,
-      "default": false,
-      "tooltip": "If checked, the chars found at the positions specified for the splitting will be discarded",
-      "visible": [
-         [{
-         "propertyId": "splitMethod",
-         "value": "BYINDEX"
-      }]
-      ],
-      "qa": "policy-transformation-split-excludeIndexes"
+         "propertyId": "excludeIndexes",
+         "propertyName": "_EXCLUDE_INDEXES_",
+         "propertyType": "boolean",
+         "width": 3,
+         "default": false,
+         "tooltip": "If checked, the chars found at the positions specified for the splitting will be discarded",
+         "visible": [
+            [
+               {
+                  "propertyId": "splitMethod",
+                  "value": "BYINDEX"
+               }
+            ]
+         ],
+         "qa": "policy-transformation-split-excludeIndexes"
       },
       {
          "propertyId": "schema.inputMode",

@@ -1,52 +1,59 @@
-  {
-     "name": "Checkpoint",
-     "icon": "Checkpoint",
-     "className": "CheckpointTransformStep",
-     "classPrettyName": "Checkpoint",
-     "arity": ["UnaryToNary"],
-     "supportedEngines": ["Streaming"],
-     "supportedDataRelations": ["ValidData"],
-     "description": "Creates a checkpoint for an incoming input DStream",
-     "properties": [
-        {
-           "propertyId": "interval",
-           "propertyName": "_INTERVAL_",
-           "propertyType": "text",
-           "required": false,
-           "tooltip": "Creates a checkpoint with the specified interval. Dimension can be specified as: 1ms, 1s, 1m, 1h, etc.",
-           "qa": "fragment-details-checkpoint-interval"
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "required": false,
-           "complexForm": true,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 3,
-                 "float": false,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        }
-     ]
-  }
+{
+   "name": "Checkpoint",
+   "icon": "Checkpoint",
+   "category": "Spark Native",
+   "className": "CheckpointTransformStep",
+   "classPrettyName": "Checkpoint",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Streaming"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "description": "Creates a checkpoint for an incoming input DStream",
+   "properties": [
+      {
+         "propertyId": "interval",
+         "propertyName": "_INTERVAL_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Creates a checkpoint with the specified interval. Dimension can be specified as: 1ms, 1s, 1m, 1h, etc.",
+         "qa": "fragment-details-checkpoint-interval"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

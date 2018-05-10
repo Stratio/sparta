@@ -8,5 +8,5 @@ import * as writerContent from './writer.json';
 import * as settings from './settings.json';
 
 
-export const writerTemplate: Array<any> = (writerContent as any).writer;
+export const writerTemplate: Array<any> = <any>writerContent;
 export const settingsTemplate = settings;

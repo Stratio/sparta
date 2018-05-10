@@ -42,11 +42,11 @@ const initialState: State = {
       name: 'Transformation',
       value: 'action',
       icon: 'icon-shuffle',
-      subMenus: [...[{
+      subMenus: [{
          name: 'Templates',
          value: '',
          subMenus: []
-      }]]
+      }]
    },
    {
       name: 'Output',
@@ -100,8 +100,38 @@ export function reducer(state: State = initialState, action: any): State {
                         streamingOutputsNames : batchOutputsNames);
                      return option;
                   case StepType.Transformation:
-                     option.subMenus = option.subMenus.concat(action.payload === Engine.Streaming ?
-                        streamingTransformationsNames : batchTransformationsNames);
+                     const transformations: any[] = action.payload === Engine.Streaming ?
+                        streamingTransformationsNames : batchTransformationsNames;
+                     const categories = {};
+                     const nocategory = [];
+                     transformations.forEach(transformation => {
+                        if (transformation.value.category && transformation.value.category.length) {
+                           if (categories[transformation.value.category]) {
+                              categories[transformation.value.category].subMenus.push(transformation);
+                           } else {
+                              categories[transformation.value.category] = {
+                                 name: transformation.value.category,
+                                 value: '',
+                                 subMenus: [
+                                    transformation
+                                 ]
+                              };
+                           }
+                        } else {
+                           nocategory.push(transformation);
+                        }
+                     });
+                     option.subMenus = option.subMenus.concat(
+                        (Object.keys(categories).map(key => categories[key]) as Array<any>).sort((a, b) => {
+                           if (a.level < b.level) {
+                              return -1;
+                           }
+                           if (a.level > b.level) {
+                              return 1;
+                           }
+                           return 0;
+                        }))
+                        .concat(nocategory);
                      return option;
                   default:
                      return option;

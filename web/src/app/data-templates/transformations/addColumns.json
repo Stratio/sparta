@@ -1,6 +1,7 @@
 {
    "name": "AddColumns",
    "icon": "AddColumns",
+   "category": "Column",
    "className": "AddColumnsTransformStep",
    "classPrettyName": "AddColumns",
    "arity": [
@@ -10,7 +11,9 @@
       "Streaming",
       "Batch"
    ],
-   "supportedDataRelations": ["ValidData"],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
    "description": "Add new columns",
    "properties": [
       {
@@ -87,7 +90,6 @@
             }
          ]
       },
-
       {
          "propertyId": "inputSchemas",
          "propertyName": "_INPUTS_TRIGGER_SCHEMA_",

@@ -16,7 +16,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
-import { from} from 'rxjs/observable/from';
+import { from } from 'rxjs/observable/from';
 import { empty } from 'rxjs/observable/empty';
 import { Observable } from 'rxjs/Observable';
 
@@ -52,9 +52,9 @@ export class WorkflowEffect {
                   new workflowActions.ValidateSelectedAction()
                ]);
          })
-      .catch(error => error.statusText === 'Unknown Error' ?
-         from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
-         Observable.of(new errorActions.ServerErrorAction(error))));
+            .catch(error => error.statusText === 'Unknown Error' ?
+               from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
+               Observable.of(new errorActions.ServerErrorAction(error))));
 
    @Effect()
    deleteWorkflow$: Observable<Action> = this.actions$
@@ -98,11 +98,10 @@ export class WorkflowEffect {
    getExecutionInfo$: Observable<Action> = this.actions$
       .ofType(workflowActions.GET_WORKFLOW_EXECUTION_INFO)
       .switchMap((data: any) => this.workflowService.getWorkflowExecutionInfo(data.payload.id)
-         .map((response: any) => {
-            response.name = data.payload.name;
-            return new workflowActions.GetExecutionInfoCompleteAction(response);
-         })
-         .catch(error => from([new workflowActions.GetExecutionInfoErrorAction(), new errorActions.ServerErrorAction(error)])));
+         .map((response: any) => new workflowActions.GetExecutionInfoCompleteAction({
+            ...response,
+            name: data.payload.name
+         })).catch(error => from([new workflowActions.GetExecutionInfoErrorAction(), new errorActions.ServerErrorAction(error)])));
 
    constructor(
       private actions$: Actions,

@@ -1,51 +1,57 @@
-  {
-     "name": "Repartition",
-     "icon": "Repartition",
-     "className": "RepartitionTransformStep",
-     "supportedEngines": ["Streaming", "Batch"],
-     "supportedDataRelations": ["ValidData"],
-     "classPrettyName": "Repartition",
-     "description": "Repartition the input DStream",
-     "properties": [
-        {
-           "propertyId": "partitions",
-           "propertyName": "_PARTITIONS_",
-           "propertyType": "text",
-           "required": false,
-           "tooltip": "Change the number of partitions associated to the Spark RDDs",
-           "qa": "fragment-details-repartition-partitions"
-        },
-        {
-           "propertyId": "inputSchemas",
-           "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
-           "propertyType": "list",
-           "required": false,
-           "complexForm": true,
-           "width": 8,
-           "tooltip": "Schema definition for steps",
-           "qa": "fragment-details-schema-fields",
-           "fields": [
-              {
-                 "propertyId": "stepName",
-                 "propertyName": "_INPUT_STEP_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "tooltip": "Step name",
-                 "width": 3,
-                 "float": false,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "schema",
-                 "propertyName": "_DESERIALIZER_SCHEMA_",
-                 "propertyType": "textarea",
-                 "contentType": "JSON",
-                 "width": 8,
-                 "tooltip": "Schema in json/Spark format or from example",
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              }
-           ]
-        }
-     ]
-  }
+{
+   "name": "Repartition",
+   "icon": "Repartition",
+   "category": "Spark Native",
+   "className": "RepartitionTransformStep",
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "classPrettyName": "Repartition",
+   "description": "Repartition the input DStream",
+   "properties": [
+      {
+         "propertyId": "partitions",
+         "propertyName": "_PARTITIONS_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Change the number of partitions associated to the Spark RDDs",
+         "qa": "fragment-details-repartition-partitions"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}
