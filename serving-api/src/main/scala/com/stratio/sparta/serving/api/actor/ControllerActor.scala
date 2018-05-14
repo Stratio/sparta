@@ -89,7 +89,8 @@ class ControllerActor(
     CrossdataActorName -> crossdataActor,
     MetadataActorName -> metadataActor,
     EnvironmentActorName -> environmentActor,
-    GroupActorName -> groupActor
+    GroupActorName -> groupActor,
+    DebugWorkflowApiActorName -> debugActor
   )
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
