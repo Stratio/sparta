@@ -47,4 +47,21 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
     )
     workflow
   }
+
+  //Set up some common string normalizers
+
+  import org.scalactic._
+  val whiteSpaceNormalised: Uniformity[String] =
+    new AbstractStringUniformity {
+      /**Returns the string with all consecutive white spaces reduced to a single space.*/
+      def normalized(s: String): String = s.replaceAll("\\s+", " ")
+      override def toString: String = "whiteSpaceNormalised"
+    }
+
+  val whiteSpaceAndNewlinesNormalised: Uniformity[String] =
+    new AbstractStringUniformity {
+      /**Returns the string with all consecutive white spaces reduced to a single space.*/
+      def normalized(s: String): String = s.replaceAll("\\s+", " ").replaceAll("\\n+", "\n")
+      override def toString: String = "whiteSpaceNewlinesNormalised"
+    }
 }

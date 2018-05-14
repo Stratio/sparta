@@ -30,7 +30,7 @@ import scala.concurrent.duration._
 import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
-class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
+class StatusActorTest extends TestKit(ActorSystem("StatusActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender
@@ -53,7 +53,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   val statusInMemoryApi = system.actorOf(Props(new StatusInMemoryApi))
 
   val actor = system.actorOf(Props(new StatusActor(curatorFramework, statusListenerActor, statusInMemoryApi)))
-  implicit val timeout: Timeout = Timeout(15.seconds)
+  implicit val timeout: Timeout = Timeout(30.seconds)
   val id = "existingID"
   val status = WorkflowStatus("existingID", WorkflowStatusEnum.Launched)
   val statusRaw =

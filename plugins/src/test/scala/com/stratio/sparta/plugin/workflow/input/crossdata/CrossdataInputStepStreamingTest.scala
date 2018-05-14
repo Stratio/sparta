@@ -15,6 +15,8 @@ import org.junit.runner.RunWith
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import com.stratio.sparta.plugin.utils.TestUtils._
+import org.scalactic._
 import java.io.{Serializable => JSerializable}
 
 
@@ -69,42 +71,44 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
     }
     "create a simple WHERE condition query if simple operators" in {
       val actualConditionsSimpleString =
-        conditions.extractConditionSentence(None).trim.replaceAll("\\s+", " ")
+        conditions.extractConditionSentence(None)
 
       val expectedConditionsSimpleString = " WHERE id >= '500' AND storeID >= '75' AND cashierID >= '1002'"
-        .trim.replaceAll("\\s+", " ")
 
-      actualConditionsSimpleString should be (expectedConditionsSimpleString)
+      assert((actualConditionsSimpleString === expectedConditionsSimpleString)
+        (after being whiteSpaceNormalisedAndTrimmed))
     }
 
     "append previous WHERE condition to the new query if simple operators" in {
       val actualConditionsSimpleString =
-        conditions.extractConditionSentence(Option("name > The")).trim.replaceAll("\\s+", " ")
+        conditions.extractConditionSentence(Option("name > The"))
 
       val expectedConditionsSimpleString =
         " WHERE id >= '500' AND storeID >= '75' AND cashierID >= '1002' AND name > The"
-          .trim.replaceAll("\\s+", " ")
 
-      actualConditionsSimpleString should be (expectedConditionsSimpleString)
+      assert((actualConditionsSimpleString === expectedConditionsSimpleString)
+        (after being whiteSpaceNormalisedAndTrimmed))
     }
 
     "create a complex WHERE condition query if incremental/decremental operators" in {
       val actualConditionsComplexString = complexConditions
-        .extractConditionSentence(None).trim.replaceAll("\\s+", " ")
+        .extractConditionSentence(None)
 
       val expectedConditionsComplexString =
-        ("  WHERE ( storeID = '75' AND id = '500' AND cashierID >'1002' ) OR ( id = '500' AND storeID >'75' ) " +
-          "OR id >'500'").trim.replaceAll("\\s+", " ")
-      actualConditionsComplexString should be (expectedConditionsComplexString)
+        "  WHERE ( storeID = '75' AND id = '500' AND cashierID >'1002' ) OR ( id = '500' AND storeID >'75' ) " +
+          "OR id >'500'"
+
+      assert((actualConditionsComplexString === expectedConditionsComplexString)
+        (after being whiteSpaceNormalisedAndTrimmed))
     }
 
     "create a simple ORDER BY condition no matter the operators" in {
       val actualConditionsComplexString = conditions.extractOrderSentence("select * from tableA")
-        .replaceAll("\\s+", " ")
       val actualConditionsSimpleString = complexConditions.extractOrderSentence("select * from tableA")
-        .replaceAll("\\s+", " ")
-      val expectedConditionsString = "ORDER BY id DESC, storeID DESC, cashierID DESC".replaceAll("\\s+", " ")
-      Seq(actualConditionsComplexString, actualConditionsSimpleString).forall(_ == expectedConditionsString)
+      val expectedConditionsString = " ORDER BY id DESC ,storeID DESC ,cashierID DESC"
+
+      assert(Seq(actualConditionsComplexString, actualConditionsSimpleString)
+        .forall(actual => (actual === expectedConditionsString)(after being whiteSpaceNormalised)))
     }
 
     "if no offsetConditions are passed should not add any WHERE or ORDER BY query unless it is in the sql query" in {
@@ -117,9 +121,9 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
         input.limitRecords)
 
       val actualConditionsComplexString = conditions.extractConditionSentence(None)
-        .replaceAll("\\s+", " ")
       val expectedConditionsString = ""
-      actualConditionsComplexString should be (expectedConditionsString)
+      assert((actualConditionsComplexString === expectedConditionsString)
+        (after being whiteSpaceNormalised))
 
       val actualOrderComplexString = conditions.extractOrderSentence("select * from tableA")
       val expectedOrderComplexString = ""
@@ -128,10 +132,9 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
 
       val actualConditionsComplexStringPrevious = conditions
         .extractConditionSentence(Some("storeID = '75' AND id = '500'"))
-        .trim
-        .replaceAll("\\s+", " ")
       val expectedConditionsStringPrevious = "WHERE storeID = '75' AND id = '500'"
-      actualConditionsComplexStringPrevious should equal (expectedConditionsStringPrevious)
+      assert((actualConditionsComplexStringPrevious === expectedConditionsStringPrevious)
+        (after being whiteSpaceNormalisedAndTrimmed))
     }
   }
 }

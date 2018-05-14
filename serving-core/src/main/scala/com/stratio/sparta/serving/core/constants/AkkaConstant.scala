@@ -32,6 +32,7 @@ object AkkaConstant {
   val StatusApiActorName = "StatusApiActor"
   val StatusChangeActorName = "StatusChangeActor"
   val EnvironmentCleanerActorName= "EnvironmentCleanerActor"
+  val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
 
   val DefaultInstances = 3
 

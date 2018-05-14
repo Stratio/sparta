@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.utils
 
-import akka.actor.Cancellable
+import akka.actor.{ActorRef, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -43,5 +43,30 @@ trait SchedulerUtils extends SLF4JLogging {
     SchedulerSystem.scheduler.schedule(
       AggregationTimeUtils.parseValueToMilliSeconds(initialDelay) milli,
       AggregationTimeUtils.parseValueToMilliSeconds(interval) milli)(f)
+  }
+
+  def scheduleMsg(initTimeProperty: String,
+                  defaultInitTime: String,
+                  intervalTimeProperty: String,
+                  defaultIntervalTime: String,
+                  receiverActor: ActorRef,
+                  msg: Any
+                 ): Cancellable = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val initialDelay = Try(SpartaConfig.getDetailConfig.get.getString(initTimeProperty)).toOption
+      .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultInitTime)
+
+    val interval = Try(SpartaConfig.getDetailConfig.get.getString(intervalTimeProperty)).toOption
+      .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultIntervalTime)
+
+    log.info(s"Starting scheduling of msg reception with delay " +
+      s"$initTimeProperty with time: $initialDelay and interval " +
+      s"$intervalTimeProperty with time: $interval")
+
+    SchedulerSystem.scheduler.schedule(
+      AggregationTimeUtils.parseValueToMilliSeconds(initialDelay) milli, //Initial delay
+      AggregationTimeUtils.parseValueToMilliSeconds(interval) milli, //Interval
+      receiverActor,
+      msg)
   }
 }

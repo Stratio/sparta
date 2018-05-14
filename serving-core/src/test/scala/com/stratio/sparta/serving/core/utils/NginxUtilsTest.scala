@@ -6,7 +6,8 @@
 package com.stratio.sparta.serving.core.utils
 
 import akka.stream.ActorMaterializer
-import com.stratio.sparta.serving.core.utils.NginxUtils.{AppParameters, NginxMetaConfig}
+import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
+import com.stratio.sparta.serving.core.utils.NginxUtils.NginxMetaConfig
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 

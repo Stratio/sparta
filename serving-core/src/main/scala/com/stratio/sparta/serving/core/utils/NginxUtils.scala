@@ -16,12 +16,12 @@ import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.utils.NginxUtils._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
 
-
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.sys.process._
 import scala.util.{Failure, Properties, Success, Try}
+import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
 
 object NginxUtils {
 
@@ -46,19 +46,6 @@ object NginxUtils {
     s"http${if (ssl) "s" else ""}://$vhost/workflows-$spartaInstance/$nameWithoutRoot/"
   }
 
-  case class AppParameters(appId: String, addressIP: String, port: Int)
-
-  private class JsonPathExtractor(jsonDoc: String, isLeafToNull: Boolean) {
-
-    val conf = {
-      if (isLeafToNull)
-        Configuration.defaultConfiguration().addOptions(com.jayway.jsonpath.Option.DEFAULT_PATH_LEAF_TO_NULL)
-      else Configuration.defaultConfiguration()
-    }
-    private val ctx: ReadContext = JsonPath.using(conf).parse(jsonDoc)
-
-    def query(query: String): Any = ctx.read(query)
-  }
 
   case class NginxMetaConfig(
                               configFile: File,
@@ -99,42 +86,39 @@ object NginxUtils {
 
   }
 
-  abstract class Error protected(description: String) extends RuntimeException {
+  abstract class NginxError protected(description: String) extends RuntimeException {
     override def getMessage: String = s"Nginx service problem: $description"
   }
 
-  object Error {
+  object NginxError {
 
-    case class InvalidConfig(config: Option[String]) extends Error("Invalid configuration detected")
+    case class InvalidConfig(config: Option[String]) extends NginxError("Invalid configuration detected")
 
-    object CouldNotStart extends Error("Couldn't start service")
+    object CouldNotStart extends NginxError("Couldn't start service")
 
-    object CouldNotStop extends Error("Couldn't stop service")
+    object CouldNotStop extends NginxError("Couldn't stop service")
 
-    object CouldNotReload extends Error("Couldn't reload configuration")
+    object CouldNotReload extends NginxError("Couldn't reload configuration")
 
-    object Unauthorized extends Error("Unauthorized in Marathon API")
-
-    case class UnExpectedError(ex: Exception) extends Error(s"Unexpected error with message: ${ex.toString}")
+    case class UnExpectedError(ex: Exception) extends NginxError(s"Unexpected error with message: ${ex.toString}")
 
     case class CouldNotWriteConfig(
                                     file: File,
-                                    explanation: Option[Exception] = None) extends Error(
+                                    explanation: Option[Exception] = None) extends NginxError(
       s"Couldn't overwrite configuration file ($file)" + explanation.map(exp => s": $exp").getOrElse("")
     )
 
-    case class CouldNotResolve(serviceName: String) extends Error(s"Couldn't retrieve $serviceName IP address")
+    case class CouldNotResolve(serviceName: String) extends NginxError(s"Couldn't retrieve $serviceName IP address")
 
-    case class NoServiceStatus(explanation: Option[Exception] = None) extends Error(
+    case class NoServiceStatus(explanation: Option[Exception] = None) extends NginxError(
       "Cannot retrieve workflows status" + explanation.map(exp => s": $exp").getOrElse("")
     )
 
-    object AlreadyRunning extends Error("Can not start Nginx as it is currently running")
+    object AlreadyRunning extends NginxError("Can not start Nginx as it is currently running")
 
-    object NotRunning extends Error("Can not stop Nginx as it is currently stopped")
+    object NotRunning extends NginxError("Can not stop Nginx as it is currently stopped")
 
   }
-
 
 }
 
@@ -142,7 +126,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
   extends MarathonAPIUtils(system, materializer)
     with SLF4JLogging {
 
-  import Error._
+  import NginxError._
   import nginxMetaConfig._
 
 
@@ -325,99 +309,4 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
        """.stripMargin
     } mkString
 
-  private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
-    val GroupPath = s"v2/groups/sparta/$instanceName/workflows"
-    val classNginxUtilsLogger = log
-
-    import oauthUtils._
-
-      for {
-        group <- doRequest[String](marathonApiUri.get, GroupPath, cookies = Seq(getToken))
-        seqApps = {
-          if (!group.contains(UnauthorizedKey)) {
-            extractAppsId(group) match {
-              case Some(appsId) =>
-                classNginxUtilsLogger.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
-                Future.sequence {
-                  appsId.map { appId =>
-                    val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
-                    appResponse.flatMap { response =>
-                      if (response.contains(UnauthorizedKey))
-                        responseUnauthorized()
-                      else{
-                        classNginxUtilsLogger.debug(s"Extracted info for appID $appId: $response")
-                        Future(response)}
-                    }
-                  }
-                }
-              case None => Future(Seq.empty[String])
-            }
-          } else responseUnauthorized()
-        }
-        appsStrings <- seqApps
-      } yield {
-        classNginxUtilsLogger.debug(s"Marathon API responses from AppsIds: $appsStrings")
-        appsStrings.flatMap(extractAppParameters)
-      }
-  } recoverWith {
-    case exception: Exception =>
-      responseUnExpectedError(exception)
-  }
-
-
-  private[utils] def extractAppIDs(stringJson: String): Seq[String] = {
-    log.debug(s"Marathon API responses from groups: $stringJson")
-    if (stringJson.trim.nonEmpty)
-      Try(new ObjectMapper().readTree(stringJson)) match {
-        case Success(json) => extractID(json)
-        case Failure(_) => Seq.empty
-      }
-    else Seq.empty
-  }
-
-  private[utils] def extractID(jsonNode: JsonNode): List[String] = {
-    //Find apps and related ids in this node and all its subtrees
-    val apps = jsonNode.findValues("apps")
-    if (apps.isEmpty) List.empty
-    else {
-      apps.asScala.toList.flatMap(app =>
-        if (app.elements().asScala.toList.nonEmpty)
-          Try(app.findValues("id").asScala.toList) match {
-            case Success(list) if list.nonEmpty =>
-              list.flatMap( node => Try(node.asText).toOption.notBlank)
-            case Failure(e) =>
-              log.warn(s"Impossible to extract App in JsonNode: ${jsonNode.toString} .Error: ${e.getLocalizedMessage}")
-              None
-          }
-        else None
-      )
-    }
-  }
-
-  private[utils] def extractAppsId(json: String): Option[Seq[String]] =
-    extractAppIDs(json) match {
-      case seq if seq.nonEmpty => Some(seq)
-      case _ => None
-    }
-
-  private[utils] def extractAppParameters(json: String): Option[AppParameters] = {
-    val queryId = "$.app.id"
-    val queryIpAddress = "$.app.tasks.[0].ipAddresses.[0].ipAddress"
-    val queryPort = "$.app.tasks.[0].ports.[0]"
-
-    Try {
-      val extractor = new JsonPathExtractor(json, false)
-      import extractor.query
-      val id = query(queryId).asInstanceOf[String]
-      val ip = query(queryIpAddress).asInstanceOf[String]
-      val port = query(queryPort).asInstanceOf[Int]
-      AppParameters(id, ip, port)
-    } match {
-      case Success(apps) =>
-        Option(apps)
-      case Failure(e) =>
-        log.warn(s"Invalid App extraction, the Marathon API responses: $json .Error: ${e.getLocalizedMessage}")
-        None
-    }
-  }
 }

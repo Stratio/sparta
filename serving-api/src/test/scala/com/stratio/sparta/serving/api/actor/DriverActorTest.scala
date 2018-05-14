@@ -29,7 +29,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
+class DriverActorTest extends TestKit(ActorSystem("DriverActorSpec"))
   with DefaultTimeout
   with ImplicitSender
   with WordSpecLike

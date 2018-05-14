@@ -73,6 +73,7 @@ This software – including all its source code – contains proprietary informa
         <spray.json.test.version>1.3.2</spray.json.test.version>
         <akka.version>2.4.8</akka.version>
         <akka.persistence.version>2.4.10</akka.persistence.version>
+        <akka-persistence-inmemory>2.4.18.2</akka-persistence-inmemory>
         <thoughtworks.paranamer.version>2.6</thoughtworks.paranamer.version>
         <json4s.version>3.2.11</json4s.version>
         <jackson.version>2.7.1</jackson.version>
@@ -573,6 +574,11 @@ This software – including all its source code – contains proprietary informa
                 <groupId>org.fusesource.leveldbjni</groupId>
                 <artifactId>leveldbjni-all</artifactId>
                 <version>${leveldbjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.dnvriend</groupId>
+                <artifactId>akka-persistence-inmemory_${scala.binary.version}</artifactId>
+                <version>${akka-persistence-inmemory}</version>
             </dependency>
             <dependency>
                 <groupId>io.spray</groupId>

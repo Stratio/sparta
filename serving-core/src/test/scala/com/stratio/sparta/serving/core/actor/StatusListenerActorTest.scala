@@ -15,7 +15,7 @@ import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
 
-class StatusListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec", SpartaConfig.daemonicAkkaConfig))
+class StatusListenerActorTest extends TestKit(ActorSystem("StatusListenerActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender

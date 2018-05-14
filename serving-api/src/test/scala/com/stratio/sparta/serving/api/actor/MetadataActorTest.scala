@@ -34,7 +34,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
+class MetadataActorTest extends TestKit(ActorSystem("MetadataActorSpec"))
   with DefaultTimeout
   with ImplicitSender
   with WordSpecLike

@@ -90,6 +90,10 @@ This software – including all its source code – contains proprietary informa
             <artifactId>leveldbjni-all</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.dnvriend</groupId>
+            <artifactId>akka-persistence-inmemory_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.json4s</groupId>
             <artifactId>json4s-native_${scala.binary.version}</artifactId>
         </dependency>

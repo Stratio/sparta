@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.api.actor
 
 import java.util.concurrent.TimeUnit
 
-import akka.actor.Actor
+import akka.actor.{Actor, Cancellable}
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
@@ -16,21 +16,21 @@ import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 
-
 import scala.concurrent.Future
-import scala.concurrent.duration.Duration
-import scala.util.Success
+import scala.concurrent.duration._
 
 
 class NginxActor extends Actor {
 
   import context.dispatcher
 
+  private lazy val scheduledInitialCheck: Cancellable =
+    context.system.scheduler.scheduleOnce(30.seconds, self, UpdateAndMakeSureIsRunning)
+
+
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[StatusChange])
-    context.system.scheduler.scheduleOnce(Duration(30, TimeUnit.SECONDS),
-      self,
-      UpdateAndMakeSureIsRunning)
+    scheduledInitialCheck
   }
 
   private val nginxService = {
@@ -39,11 +39,13 @@ class NginxActor extends Actor {
     new NginxUtils(context.system, materializer, config)
   }
 
-  context.system.scheduler.schedule(
+  private lazy val scheduledPeriodicCheck: Cancellable = context.system.scheduler.schedule(
     Duration(3, TimeUnit.MINUTES), //Initial delay
     Duration(3, TimeUnit.MINUTES), //Interval
     self,
     GetServiceStatus)
+
+  scheduledPeriodicCheck
 
   private def updateAndMakeSureIsRunning: Future[Unit] =
     for {
@@ -77,8 +79,11 @@ class NginxActor extends Actor {
       updateIfNecessary(workflowStatusChange.workflowStatus)
   }
 
-  override def postStop(): Unit =
+  override def postStop(): Unit = {
+    scheduledPeriodicCheck.cancel()
+    scheduledInitialCheck.cancel()
     updateAndMakeSureIsRunning
+  }
 }
 
 object NginxActor {

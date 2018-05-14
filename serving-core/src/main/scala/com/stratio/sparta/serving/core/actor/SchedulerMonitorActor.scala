@@ -5,10 +5,10 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.Cancellable
+import akka.actor.{ActorRef, Cancellable, Props}
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
-import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.WorkflowRemove
+import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -19,6 +19,8 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.curator.framework.CuratorFramework
@@ -29,17 +31,21 @@ import org.json4s.jackson.Serialization.read
 
 import scala.concurrent._
 import scala.io.Source
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils with SpartaSerializer {
 
-  val curatorFramework: CuratorFramework = CuratorFactoryHolder.getInstance()
+  import SchedulerMonitorActor._
+
+  val curatorFramework: CuratorFramework = getInstanceCurator
+  def getInstanceCurator : CuratorFramework =  CuratorFactoryHolder.getInstance()
   val statusService = new WorkflowStatusService(curatorFramework)
   val executionService = new ExecutionService(curatorFramework)
-  val stopStates = Seq(Stopped, Failed, Stopping)
-  val finishedStates = Seq(Created, Finished, Failed)
+  lazy val inconsistentStatusCheckerActor : ActorRef =
+    context.system.actorOf(Props(new InconsistentStatusCheckerActor()), AkkaConstant.InconsistentStatusCheckerActorName)
+  implicit lazy val currentInstanceName: Option[String] = instanceName
 
-  override def persistenceId: String = AkkaConstant.StatusChangeActorName
+  override def persistenceId: String = AkkaConstant.InconsistentStatusCheckerActorName
 
   type SchedulerAction = WorkflowStatus => Unit
 
@@ -47,11 +53,27 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
   private val invalidStateActions = scala.collection.mutable.Buffer[SchedulerAction]()
   private val invalidStartupStateActions = scala.collection.mutable.Buffer[SchedulerAction]()
   private val scheduledActions = scala.collection.mutable.Buffer[(String, Cancellable)]()
+  private val propertyCheckInterval = "marathon.checkInterval"
+  private val defaultTimeInterval = "30s"
+  private val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
+  private lazy val checkTaskMarathon: Cancellable = { scheduleMsg(propertyCheckInterval,
+    defaultTimeInterval,
+    propertyCheckInterval,
+    defaultTimeInterval,
+    self,
+    TriggerCheck)
+  }
 
   override def preStart(): Unit = {
+
+    //Trigger check only if run in Marathon
+    if (marathonApiUri.isDefined) checkTaskMarathon
+
     context.system.eventStream.subscribe(self, classOf[StatusChange])
     context.system.eventStream.subscribe(self, classOf[StatusRemove])
     context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
+    context.system.eventStream.subscribe(self, classOf[WorkflowRawChange])
+    context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.subscribe(self, classOf[ExecutionChange])
     context.system.eventStream.subscribe(self, classOf[ExecutionRemove])
 
@@ -65,10 +87,14 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     context.system.eventStream.unsubscribe(self, classOf[StatusChange])
     context.system.eventStream.unsubscribe(self, classOf[StatusRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
+    context.system.eventStream.subscribe(self, classOf[WorkflowRawChange])
+    context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionChange])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
 
     scheduledActions.foreach { case (_, task) => if (!task.isCancelled) task.cancel() }
+
+    if (marathonApiUri.isDefined) checkTaskMarathon.cancel()
   }
 
   val receiveCommand: Receive = managementReceive.orElse(eventsReceive).orElse(snapshotSaveNotificationReceive)
@@ -97,6 +123,10 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         }
         checkSaveSnapshot()
       }
+    case TriggerCheck =>
+      checkForOrphanedWorkflows()
+    case msg@InconsistentStatuses(_,_) =>
+      cleanOrphanedWorkflows(msg.runningButActuallyStopped,msg.stoppedButActuallyRunning)
   }
 
   def executeActions(
@@ -348,4 +378,109 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     }
   }
 
+
+  def checkForOrphanedWorkflows(): Unit = {
+
+    val currentRunningWorkflows: Map[String, String] = fromStatusesToMapWorkflowNameAndId(statuses, workflowsRaw)
+
+    inconsistentStatusCheckerActor ! CheckConsistency(currentRunningWorkflows)
+  }
+
+
+  def cleanOrphanedWorkflows(runningButActuallyStopped: Map[String, String], stoppedButActuallyRunning: Seq[String]): Unit = {
+    // Kill all the workflows that are stored as RUNNING but that are actually STOPPED in Marathon.
+    // Update the status with discrepancy as the StatusInfo and Stopped as Status
+    val listNewStatuses =
+    for {
+      (nameWorkflow, idWorkflow) <- runningButActuallyStopped
+    } yield {
+      val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon of the workflow. Therefore, the workflow   was terminated."
+      log.info(information.replace("  ", s" with id $idWorkflow and name $nameWorkflow "))
+      WorkflowStatus(id = idWorkflow, status = Stopped, statusInfo = Some(information))
+    }
+
+    listNewStatuses.foreach(newStatus => statusService.update(newStatus))
+
+
+    // Kill all the workflows that are stored as STOPPED but that are actually RUNNING in Marathon.
+    // Reuse the last Status because it might have failed just the previous DELETE Rest call for that appID
+    // and overwriting the status could cause the loss of useful info
+
+    val mapStoppedAsNameAndGroup = fromDCOSName2NameAndTupleGroupVersion(stoppedButActuallyRunning)
+
+    log.debug(s" Stopped but running: ${ for ( (id,(value, version)) <- mapStoppedAsNameAndGroup) yield "Application stopped: " + id + " with group " + value + " and version " + version}")
+
+    val listIDsToStop: Seq[String] = {
+      for {
+        (idWorkflow, rawWorkflow) <- workflowsRaw
+      } yield {
+        if (mapStoppedAsNameAndGroup.contains(rawWorkflow.name) &&
+          mapStoppedAsNameAndGroup(rawWorkflow.name)._1 == rawWorkflow.group.name &&
+          mapStoppedAsNameAndGroup(rawWorkflow.name)._2 == rawWorkflow.version)
+          Some(idWorkflow)
+        else None
+      }
+    }.flatten.toSeq
+
+    listIDsToStop.foreach {
+      idWorkflow =>
+        for {
+          status <- statuses.get(idWorkflow)
+          execution <- executions.get(idWorkflow)
+        } yield {
+          marathonStop(status, execution)
+          log.info(s"The application with id $idWorkflow was marked ${status.status} but it was running, therefore its termination was triggered")
+        }
+    }
+  }
+}
+
+
+object SchedulerMonitorActor{
+
+  trait Notification
+
+  object TriggerCheck extends Notification
+
+  object RetrieveStatuses extends Notification
+
+  object RetrieveWorkflowsEnv extends Notification
+
+  case class CheckConsistency(runningInZookeeper: Map[String, String]) extends Notification
+
+  case class InconsistentStatuses(runningButActuallyStopped: Map[String, String], stoppedButActuallyRunning: Seq[String]) extends Notification
+
+  val stopStates = Seq(Stopped, Failed, Stopping)
+  val finishedStates = Seq(Created, Finished, Failed)
+  val notRunningStates: Seq[WorkflowStatusEnum.Value] = stopStates ++ finishedStates
+
+
+  def fromDCOSName2NameAndTupleGroupVersion(stoppedButActuallyRunning : Seq[String]) : Map[String, (String,Long)] =
+    stoppedButActuallyRunning.map { nameWorkflowDCOS =>
+      val splittedNameDCOS = nameWorkflowDCOS.substring(nameWorkflowDCOS.indexOf("/home")).split("/")
+      val nameAndVersion = splittedNameDCOS.last
+      val actualName = nameAndVersion.replaceAll("(-v[0-9]*)", "")
+      // We want to cut out the -v and the name from the string to retrieve the version
+      val regexVersion = "(?<=-v)[0-9]*".r
+      val version = regexVersion.findFirstIn(nameAndVersion).fold(0L){_.toLong}
+      // The last two items of the array will contain [nameWorkflow, nameWorkflow-v] so they don't belong to the group name
+      val group = s"${splittedNameDCOS.slice(0, splittedNameDCOS.size - 2).mkString("/")}"
+      (actualName, (group, version))
+    }.toMap
+
+  def fromStatusesToMapWorkflowNameAndId(statuses: scala.collection.mutable.Map[String, WorkflowStatus],
+                                         workflows: scala.collection.mutable.Map[String, Workflow])(implicit instanceName: Option[String]): Map[String, String] = {
+
+    statuses.filter { status =>
+      !notRunningStates.contains(status._2.status) &&
+        status._2.lastExecutionMode.fold(false) { executionMode => executionMode == marathon }
+    }.keys.toSeq.flatMap { id =>
+      workflows.get(id) match {
+        case Some(workflow) =>
+          val name = s"/sparta/${instanceName.get}/workflows${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}"
+          Some(name, id)
+        case None => None
+      }
+    }.toMap
+  }
 }

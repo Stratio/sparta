@@ -18,7 +18,7 @@ class EnvironmentCleanerUtilsTest extends WordSpecLike
   "The Environment Cleaner Actor" when {
     "passing a JSON describing the path /sparta/tenantName/workflows" should {
       "be able to retrieve all empty groups" in {
-        val actualResult = EnvironmentCleanerUtils.parseFindingEmpty(lotsOfEmptyGroups)
+        val actualResult = MarathonAPIUtils.parseFindingEmpty(lotsOfEmptyGroups)
         val expectedResult = Seq("/sparta/sparta-fl/workflows/home/kafka-elastic",
           "/sparta/sparta-fl/workflows/home/kafka-elastic-tickets-p10",
           "/sparta/sparta-fl/workflows/home/workflow-name",
@@ -30,14 +30,14 @@ class EnvironmentCleanerUtilsTest extends WordSpecLike
       }
 
       "be able to retrieve only the empty groups" in {
-        val actualResult = EnvironmentCleanerUtils.parseFindingEmpty(someEmptySomeFull)
+        val actualResult = MarathonAPIUtils.parseFindingEmpty(someEmptySomeFull)
         val expectedResult = Seq("/sparta/eventra-test/workflows/home/workflow-jc")
         assertResult(expectedResult)(actualResult)
         assert(actualResult.forall(res => expectedResult.contains(res)))
       }
 
       "be able to retrieve also nested empty groups" in {
-        val actualResult = EnvironmentCleanerUtils.parseFindingEmpty(deeplyNestedEmpty)
+        val actualResult = MarathonAPIUtils.parseFindingEmpty(deeplyNestedEmpty)
         val expectedResult = Seq("/sparta/sparta-server/workflows/home/a/a2",
           "/sparta/sparta-server/workflows/home/a/a3/a4",
           "/sparta/sparta-server/workflows/home/a/a3",
@@ -51,7 +51,7 @@ class EnvironmentCleanerUtilsTest extends WordSpecLike
 
     "an empty JSON is passed" should {
       "return an empty DCOSgroup sequence" in {
-        val actualResult = EnvironmentCleanerUtils.parseFindingEmpty(emptyDCOSResponse)
+        val actualResult = MarathonAPIUtils.parseFindingEmpty(emptyDCOSResponse)
         val expectedResult = Seq.empty
         assertResult(expectedResult)(actualResult)
       }
@@ -59,7 +59,7 @@ class EnvironmentCleanerUtilsTest extends WordSpecLike
 
     "a JSON with no empty groups is passed" should {
       "return an empty DCOSgroup sequence" in {
-        val actualResult = EnvironmentCleanerUtils.parseFindingEmpty(allFull)
+        val actualResult = MarathonAPIUtils.parseFindingEmpty(allFull)
         val expectedResult = Seq.empty
         assertResult(expectedResult)(actualResult)
       }
