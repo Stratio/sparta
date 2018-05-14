@@ -107,6 +107,7 @@ object AppConstant extends ZookeeperUtils {
   lazy val ErrorsZkPath = s"$BaseZkPath/error"
   lazy val EnvironmentZkPath = s"$BaseZkPath/environment"
   lazy val GroupZkPath = s"$BaseZkPath/group"
+  lazy val DebugWorkflowZkPath = s"$BaseZkPath/debug"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)

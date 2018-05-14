@@ -29,6 +29,7 @@ object AkkaConstant {
   val GroupApiActorName = "GroupApiActor"
   val ExecutionApiActorName = "ExecutionApiActor"
   val WorkflowApiActorName = "WorkflowApiActor"
+  val DebugWorkflowApiActorName = "DebugWorkflowApiActor"
   val StatusApiActorName = "StatusApiActor"
   val StatusChangeActorName = "StatusChangeActor"
   val EnvironmentCleanerActorName= "EnvironmentCleanerActor"

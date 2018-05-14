@@ -10,6 +10,7 @@ import scala.util.Properties
 object HttpConstant {
 
   final val SpartaRootPath = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
+  final val DebugWorkflowsPath = "debug"
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"
   final val TemplatePath = "template"

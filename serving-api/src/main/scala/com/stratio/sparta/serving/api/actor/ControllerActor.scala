@@ -73,6 +73,9 @@ class ControllerActor(
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
+  val debugActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new DebugWorkflowActor(
+      curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi))), DebugWorkflowApiActorName)
 
   val actorsMap = Map(
     StatusActorName -> statusActor,
@@ -135,7 +138,8 @@ class ControllerActor(
       serviceRoutes.executionRoute(user) ~ serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
-      serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user)
+      serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user) ~
+      serviceRoutes.debugRoutes(user)
   }
 
   lazy val webRoutes: Route =
@@ -162,7 +166,8 @@ case class InMemoryApiActors(
                               workflowInMemoryApi: ActorRef,
                               statusInMemoryApi: ActorRef,
                               groupInMemoryApi: ActorRef,
-                              executionInMemoryApi: ActorRef
+                              executionInMemoryApi: ActorRef,
+                              debugWorkflowInMemoryApi: ActorRef
                             )
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
@@ -192,6 +197,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def serviceInfoRoute(user: Option[LoggedUser]): Route = serviceInfoService.routes(user)
 
   def crossdataRoute(user: Option[LoggedUser]): Route = crossdataService.routes(user)
+
+  def debugRoutes(user: Option[LoggedUser]) :Route = debugService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -271,6 +278,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val crossdataService = new CrossdataHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.CrossdataActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val debugService = new DebugWorkflowHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.DebugWorkflowApiActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

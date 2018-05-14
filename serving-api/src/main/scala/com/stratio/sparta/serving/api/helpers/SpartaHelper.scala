@@ -56,9 +56,10 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val executionApiActor = system.actorOf(Props[ExecutionInMemoryApi])
       val workflowApiActor = system.actorOf(Props[WorkflowInMemoryApi])
       val statusApiActor = system.actorOf(Props[StatusInMemoryApi])
+      val debugWorkflowApiActor = system.actorOf(Props[DebugWorkflowInMemoryApi])
       val stListenerActor = system.actorOf(Props[StatusListenerActor])
       val workflowListenerActor = system.actorOf(Props[WorkflowListenerActor])
-      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor)
+      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor, debugWorkflowApiActor)
 
       system.actorOf(Props[SchedulerMonitorActor])
 
@@ -79,6 +80,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       system.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
       system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
       system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
+      system.actorOf(Props(new DebugWorkflowPublisherActor(curatorFramework)))
 
       val controllerActor = system.actorOf(Props(new ControllerActor(
           curatorFramework,

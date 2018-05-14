@@ -35,6 +35,8 @@ class WorkflowService(
   private val executionService = new ExecutionService(curatorFramework)
   private val validatorService = new WorkflowValidatorService(Option(curatorFramework))
 
+  import WorkflowService._
+
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
 
   def findById(id: String): Workflow = {
@@ -419,11 +421,6 @@ class WorkflowService(
         None
     }
 
-  private[sparta] def addId(workflow: Workflow, force: Boolean = false): Workflow =
-    if (workflow.id.notBlank.isEmpty || (workflow.id.notBlank.isDefined && force))
-      workflow.copy(id = Some(UUID.randomUUID.toString))
-    else workflow
-
   private[sparta] def incVersion(workflow: Workflow, userVersion: Option[Long] = None): Workflow =
     userVersion match {
       case None =>
@@ -432,15 +429,6 @@ class WorkflowService(
         workflow.copy(version = maxVersion)
       case Some(usrVersion) => workflow.copy(version = usrVersion)
     }
-
-  private[sparta] def addCreationDate(workflow: Workflow): Workflow =
-    workflow.creationDate match {
-      case None => workflow.copy(creationDate = Some(new DateTime()))
-      case Some(_) => workflow
-    }
-
-  private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
-    workflow.copy(lastUpdateDate = Some(new DateTime()))
 
   private[sparta] def workflowVersions(name: String, group: String): Seq[Workflow] =
     Try {
@@ -455,4 +443,22 @@ class WorkflowService(
         log.error(exception.getLocalizedMessage, exception)
         Seq.empty
     }
+}
+
+object WorkflowService{
+
+  private[sparta] def addId(workflow: Workflow, force: Boolean = false): Workflow =
+    if (workflow.id.notBlank.isEmpty || (workflow.id.notBlank.isDefined && force))
+      workflow.copy(id = Some(UUID.randomUUID.toString))
+    else workflow
+
+
+  private[sparta] def addCreationDate(workflow: Workflow): Workflow =
+    workflow.creationDate match {
+      case None => workflow.copy(creationDate = Some(new DateTime()))
+      case Some(_) => workflow
+    }
+
+  private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
+    workflow.copy(lastUpdateDate = Some(new DateTime()))
 }

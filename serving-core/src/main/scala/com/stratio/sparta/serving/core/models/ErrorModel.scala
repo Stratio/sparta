@@ -152,6 +152,18 @@ object ErrorModel extends SpartaSerializer {
   val MetadataServiceDeleteBackup = "806"
   val MetadataServiceCleanAll = "807"
 
+  /* Debug Service 900-950 */
+  val DebugWorkflowServiceUnexpected = "900"
+  val DebugWorkflowServiceFindById = "901"
+  val DebugWorkflowServiceFind = "902"
+  val DebugWorkflowServiceFindAll = "904"
+  val DebugWorkflowServiceCreate = "905"
+  val DebugWorkflowServiceUpdate = "907"
+  val DebugWorkflowServiceDeleteAll = "909"
+  val DebugWorkflowServiceDeleteById = "911"
+  val DebugWorkflowServiceRun = "913"
+  val DebugWorkflowServiceResultsFindById = "921"
+
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
     UnknownErrorCode -> UnknownError,
@@ -249,7 +261,17 @@ object ErrorModel extends SpartaSerializer {
     GroupServiceCreateGroup -> "Error creating group",
     GroupServiceDeleteGroup -> "Error deleting group",
     GroupServiceFindAllGroups -> "Error obtaining all groups",
-    GroupServiceDeleteAllGroups -> "Error deleting all groups"
+    GroupServiceDeleteAllGroups -> "Error deleting all groups",
+    DebugWorkflowServiceUnexpected -> "Unexpected behaviour in Debug Workflow service",
+    DebugWorkflowServiceFindById -> "Error finding debug workflow by ID",
+    DebugWorkflowServiceFind -> "Error executing debug workflow query",
+    DebugWorkflowServiceFindAll -> "Error obtaining all debug workflows",
+    DebugWorkflowServiceCreate -> "Error creating debug workflow",
+    DebugWorkflowServiceUpdate -> "Error updating debug workflow",
+    DebugWorkflowServiceDeleteAll -> "Error deleting all debug workflows",
+    DebugWorkflowServiceDeleteById -> "Error deleting debug workflows by ID",
+    DebugWorkflowServiceRun -> "Error running debug workflow",
+    DebugWorkflowServiceResultsFindById -> "Error finding the debug results for that workflow ID"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

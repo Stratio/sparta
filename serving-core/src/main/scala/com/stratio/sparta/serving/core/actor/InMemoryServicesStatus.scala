@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.actor
 import akka.event.slf4j.SLF4JLogging
 import akka.persistence._
 import akka.serialization.SerializationExtension
+import com.stratio.sparta.serving.core.actor.DebugWorkflowPublisherActor.{DebugWorkflowChange, DebugWorkflowRemove}
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.GroupPublisherActor.{GroupChange, GroupRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
@@ -21,6 +22,7 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
   var statuses = scala.collection.mutable.Map[String, WorkflowStatus]()
   var executions = scala.collection.mutable.Map[String, WorkflowExecution]()
   var groups = scala.collection.mutable.Map[String, Group]()
+  var debugWorkflows = scala.collection.mutable.Map[String, DebugWorkflow]()
   val snapShotInterval = 1000
   val serialization = SerializationExtension(context.system)
   val serializer = serialization.findSerializerFor(SnapshotState(
@@ -28,11 +30,15 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
     workflowsRaw,
     statuses,
     executions,
-    groups
+    groups,
+    debugWorkflows
   ))
 
   def addWorkflowsWithEnv(workflow: Workflow): Unit =
     workflow.id.foreach(id => workflowsWithEnv += (id -> workflow))
+
+  def addDebugWorkflow(debugWorkflow: DebugWorkflow): Unit =
+    debugWorkflow.workflowOriginal.id.foreach(id => debugWorkflows += (id -> debugWorkflow))
 
   def addStatus(status: WorkflowStatus): Unit =
     statuses += (status.id -> status)
@@ -61,6 +67,9 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
   def removeWorkflowsWithEnv(workflow: Workflow): Unit =
     workflow.id.foreach(id => workflowsWithEnv -= id)
 
+  def removeDebugWorkflow(debugWorkflow: DebugWorkflow): Unit =
+    debugWorkflow.workflowOriginal.id.foreach(id => debugWorkflows -= id)
+
   val receiveRecover: Receive = eventsReceive.orElse(snapshotRecover).orElse(recoverComplete)
 
   //scalastyle:off
@@ -75,6 +84,8 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
     case WorkflowRemove(_, workflow) => removeWorkflowsWithEnv(workflow)
     case WorkflowRawRemove(_, workflow) => removeWorkflowsRaw(workflow)
     case GroupRemove(_, group) => removeGroup(group)
+    case DebugWorkflowChange(_, debugWorkflow) => addDebugWorkflow(debugWorkflow)
+    case DebugWorkflowRemove(_, debugWorkflow) => removeDebugWorkflow(debugWorkflow)
   }
 
   def snapshotRecover: Receive = {
@@ -86,6 +97,7 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
       statuses = snapshot.statuses
       executions = snapshot.executions
       groups = snapshot.groups
+      debugWorkflows = snapshot.debugWorkflows
   }
 
   def recoverComplete: Receive = {
@@ -108,7 +120,8 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
         workflowsRaw,
         statuses,
         executions,
-        groups
+        groups,
+        debugWorkflows
       ))
       saveSnapshot(bytes)
     }
@@ -165,6 +178,16 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
         removeGroup(gRemove.group)
         checkSaveSnapshot()
       }
+    case request@DebugWorkflowChange(path, debugWorkflow) =>
+      persist(request) { case wChange =>
+        addDebugWorkflow(wChange.debugWorkflow)
+        checkSaveSnapshot()
+      }
+    case request@DebugWorkflowRemove(path, debugWorkflow) =>
+      persist(request) { case wRemove =>
+        removeDebugWorkflow(wRemove.debugWorkflow)
+        checkSaveSnapshot()
+      }
   }
 }
 
@@ -173,5 +196,6 @@ case class SnapshotState(
                           workflowsRaw: scala.collection.mutable.Map[String, Workflow],
                           statuses: scala.collection.mutable.Map[String, WorkflowStatus],
                           executions: scala.collection.mutable.Map[String, WorkflowExecution],
-                          groups: scala.collection.mutable.Map[String, Group]
+                          groups: scala.collection.mutable.Map[String, Group],
+                          debugWorkflows: scala.collection.mutable.Map[String, DebugWorkflow]
                         )
