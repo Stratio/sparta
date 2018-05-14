@@ -12,6 +12,7 @@ syntax: glob
 *.swp
 *.lock
 *.st
+*.flattened-pom.xml
 output.txt
 
 # eclipse conf file
