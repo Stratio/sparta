@@ -58,7 +58,7 @@ abstract class JsonTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ s"$name: the input field cannot be empty")
 
-    if (jsonSchema.isEmpty) {
+    if (!useRowSchema && jsonSchema.isEmpty) {
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ s"$name: the output schema cannot be generated")
