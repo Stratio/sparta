@@ -14,6 +14,6 @@ case class EdgeGraph(
                       dataType: Option[DataType] = Option(DataType.ValidData)
                     ) {
 
-  override def toString: String = s"$origin ---> $destination"
+  override def toString: String = s"$origin ---> $destination (${dataType.getOrElse(DataType.ValidData)})"
 }
 
