@@ -6,10 +6,10 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.persistence.inmemory.extension.{InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtension}
 import akka.testkit._
 import akka.util.Timeout
 import com.stratio.sparta.sdk.properties.JsoneyString
-import akka.persistence.inmemory.extension.{InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtension}
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActor.{RetrieveStatuses, RetrieveWorkflowsEnv, _}
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActorTest._
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
@@ -22,16 +22,15 @@ import com.stratio.sparta.serving.core.utils.MarathonAPIUtils
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.mockito.Mockito._
 import org.scalatest._
-import org.scalatest.mock.MockitoSugar
-import org.mockito.Mockito.{mock,_}
-
-import scala.concurrent.Future
-import scala.concurrent.duration._
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 
 import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec", SpartaConfig.daemonicAkkaConfig))
@@ -62,6 +61,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     workflowsRaw = scala.collection.mutable.Map("1234" -> testWorkflow, "5678" -> testWorkflow2)
     workflowsWithEnv = scala.collection.mutable.Map("1234" -> testWorkflow,"5678" -> testWorkflow2)
     statuses = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
+    executions = scala.collection.mutable.Map("1234" -> testExecution, "5678" -> testExecution2)
 
     def getStatuses: Map[String, WorkflowStatus] = statuses.toMap
 
@@ -153,7 +153,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     "the method fromStatusesToMapWorkflow is invoked" should {
       "retrieve correctly the app names in Marathon" in {
         val objectSchedulerMonitorActor = SchedulerMonitorActor
-        val extractApp = objectSchedulerMonitorActor.fromStatusesToMapWorkflowNameAndId(statusesTest,
+        val extractApp = objectSchedulerMonitorActor.fromStatusesToMapWorkflowNameAndId(statusesTest, executionsTest,
           workflowsTest)(Some("sparta-fl"))
         extractApp should be(
           Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0" -> "1234"))
@@ -211,13 +211,18 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       lastUpdateDate = Option(new DateTime(timestampEpochTest))
     )
 
-    val testStatus = WorkflowStatus("1234", WorkflowStatusEnum.Started,
-      lastExecutionMode = Some(WorkflowExecutionMode.marathon))
+    val testStatus = WorkflowStatus("1234", WorkflowStatusEnum.Started)
 
-    val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed,
-      lastExecutionMode = Some(WorkflowExecutionMode.marathon))
+    val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed)
+
+    val testExecution = WorkflowExecution("1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
+      WorkflowExecutionMode.marathon, "abc")))
+
+    val testExecution2 = WorkflowExecution("5678",None, None, None, None, Some(GenericDataExecution(testWorkflow,
+      WorkflowExecutionMode.local, "abc")))
 
     val statusesTest = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
+    val executionsTest = scala.collection.mutable.Map("1234" -> testExecution, "5678" -> testExecution2)
     val workflowsTest = scala.collection.mutable.Map("1234" -> testWorkflow, "5678" -> testWorkflow2)
 
 

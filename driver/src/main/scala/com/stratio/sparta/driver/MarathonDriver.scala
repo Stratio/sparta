@@ -63,8 +63,7 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
           statusService.update(WorkflowStatus(
             id = workflowId,
             status = Failed,
-            statusInfo = Option(information),
-            lastError = Option(error)
+            statusInfo = Option(information)
           ))
           executionService.setLastError(workflowId, error)
           throw DriverException(information, exception)

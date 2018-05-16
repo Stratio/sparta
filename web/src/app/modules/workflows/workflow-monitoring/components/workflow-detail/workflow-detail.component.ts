@@ -5,7 +5,7 @@
  */
 import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input } from '@angular/core';
 
-import { MonitoringWorkflow } from './../../models/workflow';
+import { MonitoringExecution, MonitoringWorkflow } from './../../models/workflow';
 @Component({
     selector: 'workflow-detail',
     templateUrl: './workflow-detail.template.html',
@@ -20,7 +20,13 @@ export class WorkflowDetailComponent implements OnInit {
     public outputs: Array<string> = [];
     public transformations: Array<string> = [];
 
+    public lastError: any;
+    public execution: MonitoringExecution;
+
     ngOnChanges() {
+        this.execution = this.workflowData && this.workflowData.execution ? this.workflowData.execution : null;
+        this.lastError = this.execution && this.execution.genericDataExecution ?
+            this.workflowData.execution.genericDataExecution.lastError : null;
         this._cd.detectChanges();
     }
 

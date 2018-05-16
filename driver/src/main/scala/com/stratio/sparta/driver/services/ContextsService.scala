@@ -118,10 +118,9 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
 
   private[driver] def setDispatcherSettings(workflow: Workflow, sparkContext: SparkContext): Unit = {
     for {
-      status <- statusService.findById(workflow.id.get)
       execution <- executionService.findById(workflow.id.get)
-      execMode <- status.lastExecutionMode
-    } if (execMode == dispatcher)
+      exec <- execution.genericDataExecution
+    } if (exec.executionMode == dispatcher)
       executionService.update {
         execution.copy(
           sparkExecution = Option(SparkExecution(

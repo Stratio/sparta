@@ -65,6 +65,10 @@ export function reducer(state: State = initialState, action: any): State {
             const lastUpdateDate = new Date(lastUpdate).getTime();
             version.lastUpdateAux = lastUpdateDate;
             version.lastUpdate = formatDate(lastUpdate);
+            try {
+               const lastErrorDate = version.execution.genericDataExecution.lastError.date;
+               version.lastErrorDate = formatDate(lastErrorDate, true, true);
+            } catch (error) { }
             if (workflows[version.name]) {
                if (workflows[version.name].lastUpdateAux < lastUpdateDate) {
                   workflows[version.name].lastUpdateAux = lastUpdateDate;
@@ -172,9 +176,12 @@ export function reducer(state: State = initialState, action: any): State {
          const isSelected = state.selectedGroups.indexOf(action.payload) > -1;
          return {
             ...state,
-            selectedGroups: isSelected ? state.selectedGroups.filter((groupName: string) => groupName !== action.payload) : [...state.selectedGroups, action.payload],
+            selectedGroups: isSelected ?
+                  state.selectedGroups.filter((groupName: string) => groupName !== action.payload) :
+                        [...state.selectedGroups, action.payload],
             selectedEntities: isSelected ? state.selectedEntities.filter((entity: DataDetails) =>
-               entity.type !== 'group' || entity.data !== action.payload) : [{type: 'group',data: action.payload}, ...state.selectedEntities]
+               entity.type !== 'group' || entity.data !== action.payload) :
+                  [{type: 'group', data: action.payload}, ...state.selectedEntities]
          };
       }
       case workflowActions.DELETE_WORKFLOW_COMPLETE: {

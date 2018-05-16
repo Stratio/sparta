@@ -22,7 +22,6 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.edge.LDiEdge
 
 @RunWith(classOf[JUnitRunner])
@@ -132,7 +131,8 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
       val result: Option[List[SpartaWorkflowStatusMetadata]] = LineageUtils.statusMetadataLineage(WorkflowStatusStream(
         WorkflowStatus("qwerty12345", WorkflowStatusEnum.Failed),
         Option(testWorkflow01),
-        None))
+        Option(WorkflowExecution("qwerty12345", None, None, None, None, Option(GenericDataExecution(
+          testWorkflow01, WorkflowExecutionMode.dispatcher, "1234"))))))
       result.head.size shouldBe 1
       result.get.head.genericType.value should equal("status")
     }

@@ -11,7 +11,7 @@ import com.stratio.sparta.serving.core.actor.StatusActor._
 import com.stratio.sparta.serving.core.actor.StatusInMemoryApi._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.stratio.sparta.serving.core.services.{ListenerService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
@@ -31,7 +31,6 @@ class StatusActor(
   override def receive: Receive = {
     case CreateStatus(policyStatus, user) => createStatus(policyStatus, user)
     case Update(policyStatus, user) => update(policyStatus, user)
-    case ClearLastError(id) => sender ! statusService.clearLastError(id)
     case FindAll(user) => findAll(user)
     case FindById(id, user) => findById(id, user)
     case DeleteAll(user) => deleteAll(user)
@@ -96,8 +95,6 @@ object StatusActor {
   case class FindAll(user: Option[LoggedUser])
 
   case class FindById(id: String, user: Option[LoggedUser])
-
-  case class ClearLastError(id: String)
 
   type Response = Try[Unit]
 

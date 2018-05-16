@@ -69,7 +69,7 @@ function getOrderPropertyValue(value: any, orderProperty: string): any {
   }
 }
 
-export function formatDate(stringDate: string, hours = true) {
+export function formatDate(stringDate: string, hours = true, complete = false) {
   if(!stringDate) {
     return '';
   }
@@ -77,7 +77,7 @@ export function formatDate(stringDate: string, hours = true) {
     const date: Date = new Date(stringDate);
     const todaysDate = new Date();
     // call setHours to take the time out of the comparison
-    if (date.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0)) {
+    if (!complete && date.setHours(0, 0, 0, 0) === todaysDate.setHours(0, 0, 0, 0)) {
       // Date equals today's date
       const dateToday: Date = new Date(stringDate);
       return dateToday.getHours() + ':' + ('0' + dateToday.getMinutes()).slice(-2);

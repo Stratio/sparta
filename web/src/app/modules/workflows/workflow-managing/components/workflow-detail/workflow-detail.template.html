@@ -22,9 +22,9 @@
         <span class="title2">Last update</span>
         <span class="values">{{workflowData.lastUpdate}}</span>
      </div>
-      <div *ngIf="workflowData && workflowData.lastExecutionMode">
+      <div *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode">
          <span class="title2">Execution mode</span>
-         <span class="">{{workflowData.lastExecutionMode}}</span>
+         <span class="">{{execution.genericDataExecution.executionMode}}</span>
       </div>
       <div *ngIf="inputs && inputs.length">
          <span class="title">{{'GLOBAL.INPUTS' | translate}}</span>
@@ -38,19 +38,19 @@
          <span class="title">{{'GLOBAL.OUTPUTS' | translate}}</span>
          <span class="values" *ngFor="let output of outputs">{{output}}</span>
       </div>
-      <div class="last-error" *ngIf="workflowData.status.lastError">
+      <div class="last-error" *ngIf="lastError">
          <span class="title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
          <div class="errors">
             <div>
                <span class=""><!--<i class="icon icon-calendar"></i>--> Date: </span>
-               <span class="val">{{workflowData.status.lastError.date | date:'yyyy-mm-dd HH:mm'}}</span>
+               <span class="val">{{workflowData.lastErrorDate}}</span>
             </div>
             <div>
                <span class=""><!--<i class="icon icon-evolution"></i>--> Phase: </span>
-               <span class="val">{{workflowData.status.lastError.phase}}</span>
+               <span class="val">{{lastError.phase}}</span>
             </div>
-            <span class="message">{{workflowData.status.lastError.message}}</span>
-            <span class="original-msg">{{workflowData.status.lastError.originalMsg}}</span>
+            <span class="message">{{lastError.message}}</span>
+            <span class="original-msg">{{lastError.originalMsg}}</span>
          </div>
       </div>
    </div>

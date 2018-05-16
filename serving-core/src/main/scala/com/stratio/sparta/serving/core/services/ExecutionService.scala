@@ -9,8 +9,8 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{WorkflowError, WorkflowExecution}
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
@@ -130,4 +130,26 @@ class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSeriali
       case Failure(_) => throw new ServerException(s"Unable to update error with id: $executionId.")
     }
   }
+
+  def setSparkUri(executionId: String, uri: Option[String]): Try[WorkflowExecution] = {
+      findById(executionId) match {
+        case Success(execution) =>
+          update(execution.copy(
+            marathonExecution = execution.marathonExecution.map(_.copy(sparkURI = uri))
+          ))
+        case Failure(_) => throw new ServerException(s"Unable to update Spark URI with id: $executionId.")
+      }
+  }
+
+  def clearLastError(executionId: String): Try[WorkflowExecution] = {
+    findById(executionId) match {
+      case Success(execution) =>
+        log.debug(s"Clearing last workflow execution error with id $executionId")
+        update(execution.copy(
+          genericDataExecution = execution.genericDataExecution.map(_.copy(lastError = None))
+        ))
+      case Failure(_) =>
+        throw new ServerException(s"Unable to clear last error with id: $executionId.")
+    }
+   }
 }

@@ -19,7 +19,27 @@ object WorkflowDtoImplicit {
       version = workflow.version,
       group = workflow.group.name,
       tags = workflow.tags,
-      status = workflow.status)
+      status = workflow.status,
+      execution = workflow.execution.map(executionToDto))
 
   private[sparta] def nodeToDto(node: NodeGraph): NodeGraphDto = NodeGraphDto(node.name, node.stepType)
+
+  private[sparta] def executionToDto(execution: WorkflowExecution): WorkflowExecutionDto =
+    WorkflowExecutionDto(
+      execution.id,
+      execution.marathonExecution,
+      execution.genericDataExecution.map(genericExecutionToDto),
+      execution.localExecution
+    )
+
+   def genericExecutionToDto(ge: GenericDataExecution): GenericDataExecutionDto =
+    GenericDataExecutionDto(
+      ge.executionMode,
+      ge.executionId,
+      ge.launchDate,
+      ge.startDate,
+      ge.endDate,
+      ge.userId,
+      ge.lastError
+    )
 }

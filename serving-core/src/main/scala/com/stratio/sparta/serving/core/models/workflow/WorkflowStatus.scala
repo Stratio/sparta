@@ -5,7 +5,6 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import org.joda.time.DateTime
 
@@ -13,10 +12,7 @@ case class WorkflowStatus(
                            id: String,
                            status: WorkflowStatusEnum.Value,
                            statusInfo: Option[String] = None,
-                           lastExecutionMode: Option[WorkflowExecutionMode] = None,
-                           lastError: Option[WorkflowError] = None,
                            creationDate: Option[DateTime] = None,
                            lastUpdateDate: Option[DateTime] = None,
-                           sparkURI: Option[String] = None,
                            lastUpdateDateWorkflow: Option[DateTime] = None
                          )

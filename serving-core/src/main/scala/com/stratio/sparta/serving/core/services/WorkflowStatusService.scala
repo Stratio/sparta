@@ -8,15 +8,13 @@ package com.stratio.sparta.serving.core.services
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -75,20 +73,10 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
             if (workflowStatus.status == NotDefined) actualStatus.status
             else workflowStatus.status
           },
-          lastError = {
-            if (workflowStatus.lastError.isDefined) workflowStatus.lastError
-            else if (workflowStatus.status == Created || workflowStatus.status == NotStarted) None
-            else actualStatus.lastError
-          },
           statusInfo = {
             if (workflowStatus.statusInfo.isEmpty) actualStatus.statusInfo
             else workflowStatus.statusInfo
           },
-          lastExecutionMode = {
-            if (workflowStatus.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
-            else workflowStatus.lastExecutionMode
-          },
-          sparkURI = updateSparkURI(workflowStatus, actualStatus),
           lastUpdateDate = {
             if (workflowStatus.status == NotDefined || workflowStatus.status == actualStatus.status)
               actualStatus.lastUpdateDate
@@ -108,8 +96,6 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
           newStatusInformation.append(s"\tStatus -> ${actualStatus.status} to ${newStatus.status}")
         if (actualStatus.statusInfo != newStatus.statusInfo)
           newStatusInformation.append(s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
-        if (actualStatus.lastError != newStatus.lastError)
-          newStatusInformation.append(s"\tLast Error -> ${newStatus.lastError.getOrElse("No errors registered")}")
         if (newStatusInformation.nonEmpty)
           log.info(s"Updating status ${newStatus.id}: $newStatusInformation")
 
@@ -145,27 +131,14 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
     }
   }
 
-  def clearLastError(id: String): Try[Option[WorkflowStatus]] = {
-    log.debug(s"Clearing last workflow status error with id $id")
-    Try {
-      val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
-      if (CuratorFactoryHolder.existsPath(statusPath)) {
-        val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
-        val newStatus = actualStatus.copy(lastError = None)
-        curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
-        Some(newStatus)
-      } else None
-    }
-  }
-
-  private[sparta] def isAnyLocalWorkflowStarted: Boolean =
+  private[sparta] def workflowsStarted: Seq[WorkflowStatus] =
     findAll() match {
       case Success(statuses) =>
-        statuses.exists(wStatus =>
-          wStatus.status == Started && wStatus.lastExecutionMode == Option(local))
+        statuses.filter(wStatus =>
+          wStatus.status == Started)
       case Failure(e) =>
         log.error("An error was encountered while finding all the workflow statuses", e)
-        false
+        Seq()
     }
 
   private[sparta] def getNewUpdateDate: Option[DateTime] = Option(new DateTime())
@@ -175,15 +148,4 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       case None => workflowStatus.copy(creationDate = Some(new DateTime()))
       case Some(_) => workflowStatus
     }
-
-  @inline
-  private[sparta] def updateSparkURI(workflowStatus: WorkflowStatus,
-                                     zkWorkflowStatus: WorkflowStatus): Option[String] = {
-    if (workflowStatus.sparkURI.notBlank.isDefined) workflowStatus.sparkURI
-    else if (workflowStatus.status == NotStarted ||
-      workflowStatus.status == Created ||
-      workflowStatus.status == Stopped ||
-      workflowStatus.status == Failed) None
-    else zkWorkflowStatus.sparkURI
-  }
 }

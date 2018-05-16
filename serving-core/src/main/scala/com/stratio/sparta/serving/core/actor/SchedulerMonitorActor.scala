@@ -87,8 +87,8 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     context.system.eventStream.unsubscribe(self, classOf[StatusChange])
     context.system.eventStream.unsubscribe(self, classOf[StatusRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
-    context.system.eventStream.subscribe(self, classOf[WorkflowRawChange])
-    context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
+    context.system.eventStream.unsubscribe(self, classOf[WorkflowRawChange])
+    context.system.eventStream.unsubscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionChange])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
 
@@ -147,23 +147,25 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
 
   val manageStopAction: WorkflowStatus => Unit = (workflowStatus: WorkflowStatus) => {
     if (stopStates.contains(workflowStatus.status)) {
-      (workflowStatus.lastExecutionMode, executions.get(workflowStatus.id))
+      executions.get(workflowStatus.id)
       match {
-        case (Some(lastExecutionMode), Some(execution))
-          if lastExecutionMode == marathon && execution.marathonExecution.isDefined =>
-          marathonStop(workflowStatus, execution)
-        case (Some(lastExecutionMode), Some(execution))
-          if lastExecutionMode == dispatcher &&
-            execution.sparkDispatcherExecution.isDefined &&
-            execution.sparkExecution.isDefined =>
-          dispatcherStop(workflowStatus, execution)
-        case (Some(lastExecutionMode), _) if lastExecutionMode == local =>
-          localStop(workflowStatus)
+        case Some(execution) =>
+          for {
+            gEx <- execution.genericDataExecution
+          } yield {
+            if (gEx.executionMode == marathon && execution.marathonExecution.isDefined)
+              marathonStop(workflowStatus, execution)
+            else if (gEx.executionMode == dispatcher && execution.sparkDispatcherExecution.isDefined)
+              dispatcherStop(workflowStatus, execution)
+            else if (gEx.executionMode == local)
+              localStop(workflowStatus)
+          }
         case _ =>
-          log.debug("Stop message received and any action will be executed")
+              log.debug("Stop message received and any action will be executed")
       }
     }
   }
+
 
   val manageRunningAction: WorkflowStatus => Unit = (workflowStatus: WorkflowStatus) => {
     if (workflowStatus.status == Uploaded ||
@@ -220,8 +222,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
-              statusInfo = Some(error),
-              lastError = Option(wError)
+              statusInfo = Some(error)
             ))
             executionService.setLastError(workflowStatus.id, wError)
           }
@@ -272,8 +273,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
-              statusInfo = Some(error),
-              lastError = Option(wError)
+              statusInfo = Some(error)
             ))
             executionService.setLastError(workflowStatus.id, wError)
           }
@@ -318,8 +318,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
-            statusInfo = Some(information),
-            lastError = wError
+            statusInfo = Some(information)
           ))
           wError.foreach(error => executionService.setLastError(workflowStatus.id, error))
         case Failure(e) =>
@@ -329,8 +328,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
-            statusInfo = Some(error),
-            lastError = Option(wError)
+            statusInfo = Some(error)
           ))
           executionService.setLastError(workflowStatus.id, wError)
       }
@@ -381,7 +379,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
 
   def checkForOrphanedWorkflows(): Unit = {
 
-    val currentRunningWorkflows: Map[String, String] = fromStatusesToMapWorkflowNameAndId(statuses, workflowsRaw)
+    val currentRunningWorkflows: Map[String, String] = fromStatusesToMapWorkflowNameAndId(statuses, executions, workflowsRaw)
 
     inconsistentStatusCheckerActor ! CheckConsistency(currentRunningWorkflows)
   }
@@ -469,11 +467,15 @@ object SchedulerMonitorActor{
     }.toMap
 
   def fromStatusesToMapWorkflowNameAndId(statuses: scala.collection.mutable.Map[String, WorkflowStatus],
+                                         executions: scala.collection.mutable.Map[String, WorkflowExecution],
                                          workflows: scala.collection.mutable.Map[String, Workflow])(implicit instanceName: Option[String]): Map[String, String] = {
 
+   val filteredExecutions = executions.filter{ executions =>
+     executions._2.genericDataExecution.fold (false) { ge => ge.executionMode == marathon}
+   }.keys.toSeq
+
     statuses.filter { status =>
-      !notRunningStates.contains(status._2.status) &&
-        status._2.lastExecutionMode.fold(false) { executionMode => executionMode == marathon }
+      !notRunningStates.contains(status._2.status) && filteredExecutions.contains(status._1)
     }.keys.toSeq.flatMap { id =>
       workflows.get(id) match {
         case Some(workflow) =>

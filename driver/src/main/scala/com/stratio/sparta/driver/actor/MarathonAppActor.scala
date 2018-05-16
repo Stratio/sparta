@@ -80,8 +80,7 @@ class MarathonAppActor(
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(error)
+          statusInfo = Option(information)
         ))
         executionService.setLastError(workflow.id.get, error)
     }

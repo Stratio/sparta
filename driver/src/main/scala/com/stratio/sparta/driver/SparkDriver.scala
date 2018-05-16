@@ -20,7 +20,6 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
-import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -103,8 +102,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
             status = Failed,
-            statusInfo = Option(information),
-            lastError = Option(error)
+            statusInfo = Option(information)
           ))
           executionService.setLastError(workflowId, error)
           throw DriverException(information, exception)

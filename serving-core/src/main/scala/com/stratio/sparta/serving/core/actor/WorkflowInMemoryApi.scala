@@ -5,6 +5,7 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.GroupPublisherActor.{GroupChange, GroupRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
 import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
@@ -25,17 +26,22 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[StatusChange])
     context.system.eventStream.subscribe(self, classOf[StatusRemove])
+    context.system.eventStream.subscribe(self, classOf[ExecutionChange])
+    context.system.eventStream.subscribe(self, classOf[ExecutionRemove])
     context.system.eventStream.subscribe(self, classOf[WorkflowChange])
     context.system.eventStream.subscribe(self, classOf[WorkflowRawChange])
     context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
     context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.subscribe(self, classOf[GroupChange])
     context.system.eventStream.subscribe(self, classOf[GroupRemove])
+
   }
 
   override def postStop(): Unit = {
     context.system.eventStream.unsubscribe(self, classOf[StatusChange])
     context.system.eventStream.unsubscribe(self, classOf[StatusRemove])
+    context.system.eventStream.unsubscribe(self, classOf[ExecutionChange])
+    context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowChange])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRawChange])
@@ -54,7 +60,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
         workflowsRaw.getOrElse(
           workflowId,
           throw new ServerException(s"No workflow with id $workflowId")
-        ).copy(status = statuses.get(workflowId))
+        ).copy(status = statuses.get(workflowId), execution = executions.get(workflowId))
       }
     case FindMemoryWorkflowWithEnv(workflowId) =>
       log.debug(s"Find workflow with environment by id $workflowId")
@@ -62,23 +68,23 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
         workflowsWithEnv.getOrElse(
           workflowId,
           throw new ServerException(s"No workflow with id $workflowId")
-        ).copy(status = statuses.get(workflowId))
+        ).copy(status = statuses.get(workflowId), execution = executions.get(workflowId))
       }
     case FindAllMemoryWorkflowRaw =>
       log.debug(s"Find all workflows")
       sender ! Try {
-        workflowsRaw.values.map(workflow => workflow.copy(status = statuses.get(workflow.id.get))).toSeq
+        workflowsRaw.values.map(workflow => wfCopy(workflow)).toSeq
       }
     case FindAllMemoryWorkflowWithEnv =>
       log.debug(s"Find all workflows with environment")
       sender ! Try {
-        workflowsWithEnv.values.map(workflow => workflow.copy(status = statuses.get(workflow.id.get))).toSeq
+        workflowsWithEnv.values.map(workflow => wfCopy(workflow)).toSeq
       }
     case FindAllMemoryWorkflowDto =>
       log.debug(s"Find all workflows dto")
       sender ! Try {
         workflowsRaw.values.map { workflow =>
-          val workflowDto: WorkflowDto = workflow.copy(status = statuses.get(workflow.id.get))
+          val workflowDto: WorkflowDto = wfCopy(workflow)
           workflowDto
         }.toSeq
       }
@@ -87,7 +93,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
       sender ! Try {
         workflowsRaw.values.flatMap { workflow =>
           if (workflow.group.id.get == groupId) {
-            val workflowDto: WorkflowDto = workflow.copy(status = statuses.get(workflow.id.get))
+            val workflowDto: WorkflowDto = wfCopy(workflow)
             Option(workflowDto)
           } else None
         }.toSeq
@@ -96,17 +102,24 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
       log.debug(s"Find workflows by workflow ids $workflowsId")
       sender ! Try {
         workflowsRaw.filterKeys(key => workflowsId.contains(key)).values.toSeq
-          .map(workflow => workflow.copy(status = statuses.get(workflow.id.get)))
+          .map(workflow => wfCopy(workflow))
       }
     case FindByQueryMemoryWorkflowRaw(query) =>
       log.debug(s"Find workflow by query $query")
       sender ! Try {
         workflowsRaw.find { case (_, workflow) =>
           workflow.name == query.name && workflow.version == query.version.getOrElse(0L) && workflow.group.id.get == query.group.getOrElse(DefaultGroup.id.get)
-        }.map { case (_, workflow) =>
-          workflow.copy(status = statuses.get(workflow.id.get))
+        }.map { case (_, workflow) => wfCopy(workflow)
         }.getOrElse(throw new ServerException(s"No workflow with name ${query.name}"))
       }
+  }
+
+
+  /** PRIVATE METHODS **/
+
+  private [sparta] def wfCopy(workflow: Workflow): Workflow = {
+    workflow.copy(status = statuses.get(workflow.id.get),
+      execution = executions.get(workflow.id.get))
   }
 }
 

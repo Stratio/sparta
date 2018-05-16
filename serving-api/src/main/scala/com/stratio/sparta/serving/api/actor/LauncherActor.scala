@@ -5,20 +5,21 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import scala.util.{Failure, Success, Try}
 import akka.actor.{Props, _}
-import org.apache.curator.framework.CuratorFramework
 import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Failed
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import org.apache.curator.framework.CuratorFramework
+
+import scala.util.{Failure, Success, Try}
 
 class LauncherActor(curatorFramework: CuratorFramework,
                     statusListenerActor: ActorRef,
@@ -52,12 +53,13 @@ class LauncherActor(curatorFramework: CuratorFramework,
           case WorkflowExecutionMode.dispatcher =>
             log.info(s"Launching workflow: ${workflow.name} in cluster mode")
             clusterLauncherActor
-          case WorkflowExecutionMode.local if !statusService.isAnyLocalWorkflowStarted =>
-            val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
-            val childLauncherActor = context.children.find(children => children.path.name == actorName)
-            log.info(s"Launching workflow: ${workflow.name} in local mode")
-            childLauncherActor.getOrElse(context.actorOf(Props(
-              new LocalLauncherActor(statusListenerActor,curatorFramework)), actorName))
+          case WorkflowExecutionMode.local if !workflowService.anyLocalWorkflowRunning =>
+
+              val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
+              val childLauncherActor = context.children.find(children => children.path.name == actorName)
+              log.info(s"Launching workflow: ${workflow.name} in local mode")
+              childLauncherActor.getOrElse(context.actorOf(Props(
+                new LocalLauncherActor(statusListenerActor,curatorFramework)), actorName))
           case _ =>
             throw new Exception(
               s"Invalid execution mode in workflow ${workflow.name}: ${workflow.settings.global.executionMode}")
@@ -75,8 +77,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
           statusService.update(WorkflowStatus(
             id = id,
             status = Failed,
-            statusInfo = Option(information),
-            lastError = Option(error)
+            statusInfo = Option(information)
           ))
           executionService.setLastError(id, error)
       }

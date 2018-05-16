@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
@@ -443,6 +444,18 @@ class WorkflowService(
         log.error(exception.getLocalizedMessage, exception)
         Seq.empty
     }
+
+  private[sparta] def anyLocalWorkflowRunning: Boolean = {
+    val wfStarted = statusService.workflowsStarted
+    executionService.findAll() match {
+      case Success(list) =>
+        list.filter(wfExec => wfExec.genericDataExecution.get.executionMode == local &&
+          wfStarted.exists(_.id == wfExec.id))
+      case Failure(e) =>
+        log.error("An error was encountered while finding all the workflow executions", e)
+        Seq()
+    }
+  }.nonEmpty
 }
 
 object WorkflowService{

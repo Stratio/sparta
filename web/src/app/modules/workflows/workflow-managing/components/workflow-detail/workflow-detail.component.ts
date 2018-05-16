@@ -25,13 +25,15 @@ export class WorkflowManagingDetailComponent implements OnInit {
 
     public workflowData: any;
     public groupLabel = '';
+    public lastError: any;
+    public execution: any;
 
     ngOnChanges() {
         if (this.data) {
             this.workflowData = this.data.data;
             if (this.data.type === 'version') {
                 this.getWorkflowData();
-            } else if(this.data.type === 'group') {
+            } else if (this.data.type === 'group') {
                 const split = this.data.data.name.split(FOLDER_SEPARATOR);
                 this.groupLabel = split[split.length - 1];
             }
@@ -44,7 +46,10 @@ export class WorkflowManagingDetailComponent implements OnInit {
         const inputs: Array<string> = [];
         const outputs: Array<string> = [];
         const transformations: Array<string> = [];
-
+        const workflowData = this.data.data;
+        this.execution = workflowData && workflowData.execution ? workflowData.execution : null;
+        this.lastError = this.execution && this.execution.genericDataExecution ?
+            this.workflowData.execution.genericDataExecution.lastError : null;
         if (this.data) {
             this.data.data.nodes.forEach((node: any) => {
                 if (node.stepType.indexOf('Input') > -1) {

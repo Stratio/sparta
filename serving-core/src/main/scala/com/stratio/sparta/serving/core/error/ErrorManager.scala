@@ -11,7 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.WorkflowStatusService
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
@@ -65,12 +65,16 @@ trait ZooKeeperError extends ErrorManager {
 
   val curatorFramework: CuratorFramework
   val statusService = new WorkflowStatusService(curatorFramework)
+  val executionService = new ExecutionService(curatorFramework)
 
-  def traceError(error: WorkflowError): Unit =
-    statusService.update(WorkflowStatus(workflow.id.get, NotDefined, None, None, lastError = Some(error)))
+
+  def traceError(error: WorkflowError): Unit = {
+    statusService.update(WorkflowStatus(workflow.id.get, NotDefined, None))
+    executionService.setLastError(workflow.id.get, error)
+  }
 
   def clearError(): Unit =
-    workflow.id.foreach(id => statusService.clearLastError(id))
+    workflow.id.foreach(id => executionService.clearLastError(id))
 
 }
 

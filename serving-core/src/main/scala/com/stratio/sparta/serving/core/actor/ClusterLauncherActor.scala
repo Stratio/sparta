@@ -10,7 +10,6 @@ import java.util.UUID
 import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
@@ -87,8 +86,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(error)
+          statusInfo = Option(information)
         ))
         executionService.setLastError(workflow.id.get, error)
       case Success(Failure(exception)) =>
@@ -98,8 +96,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(error)
+          statusInfo = Option(information)
         ))
         executionService.setLastError(workflow.id.get, error)
       case Success(Success(submitRequestCreated)) =>
@@ -108,8 +105,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = NotStarted,
-          statusInfo = Option(information),
-          lastExecutionMode = Option(workflow.settings.global.executionMode)
+          statusInfo = Option(information)
         ))
         executionService.setLaunchDate(workflow.id.get, new DateTime())
 
@@ -159,8 +155,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(error)
+          statusInfo = Option(information)
         ))
         executionService.setLastError(workflow.id.get, error)
       case Success(sparkHandler) =>

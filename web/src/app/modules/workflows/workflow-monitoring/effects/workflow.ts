@@ -42,6 +42,22 @@ export class WorkflowEffect {
                workflow.filterStatus = getFilterStatus(workflow.status.status);
                workflow.tagsAux = workflow.tags ? workflow.tags.join(', ') : '';
                try {
+                  const sparkURI = workflow.execution.marathonExecution.sparkURI;
+                  if (sparkURI.length) {
+                     workflow.sparkURI = sparkURI;
+                  }
+               } catch (error) { }
+                  try {
+                        const lastErrorDate = workflow.execution.genericDataExecution.lastError.date;
+                        workflow.lastErrorDate = formatDate(lastErrorDate, true, true);
+                  } catch (error) { }
+               try {
+                  const sparkURI = workflow.execution.localExecution.sparkURI;
+                  if (sparkURI.length) {
+                     workflow.sparkURI = sparkURI;
+                  }
+               } catch (error) { }
+               try {
                   workflow.lastUpdate = workflow.status.lastUpdateDate ? formatDate(workflow.status.lastUpdateDate) : '';
                   workflow.lastUpdateOrder = workflow.status.lastUpdateDate ? new Date(workflow.status.lastUpdateDate).getTime() : 0;
                } catch (error) { }

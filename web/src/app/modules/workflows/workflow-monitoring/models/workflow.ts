@@ -8,6 +8,7 @@ export class MonitoringWorkflow {
     id: string;
     name: string;
     description: string;
+    execution: MonitoringExecution;
     settings?: {
         executionMode: string;
         userPluginsJars: Array<string>;
@@ -29,16 +30,21 @@ export class MonitoringWorkflowNode {
     stepType: string;
 }
 
+export class MonitoringExecution {
+    genericDataExecution: {
+        lastError: {
+            message: string;
+            phase: string;
+            originalMsg: string;
+            date: string;
+        };
+        lastExecutionMode: string;
+    };
+}
+
 export class MonitoringWorkflowStatus {
     id: string;
     status: string;
     statusInfo: string;
-    lastExecutionMode: string;
     lastUpdateDate: string;
-    lastError: {
-        message: string;
-        phase: string;
-        originalMsg: string;
-        date: string;
-    };
 }

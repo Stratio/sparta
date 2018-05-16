@@ -88,39 +88,35 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
-          statusInfo = Option(information),
-          lastExecutionMode = Option(workflow.settings.global.executionMode),
-          lastError = Option(error)
+          statusInfo = Option(information)
         ))
         executionService.setLastError(workflow.id.get, error)
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized correctly"
         log.info(information)
-        val lastExecutionMode = Option(workflow.settings.global.executionMode)
         statusService.update(WorkflowStatus(
           workflow.id.get,
-          status = NotStarted,
-          lastExecutionMode = lastExecutionMode))
+          status = NotStarted))
         Try(marathonApp.launch()) match {
           case Success(_) =>
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
               status = Uploaded,
               statusInfo = Option(information),
-              lastUpdateDateWorkflow = workflow.lastUpdateDate,
-              sparkURI = NginxUtils.buildSparkUI(
-                s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
+              lastUpdateDateWorkflow = workflow.lastUpdateDate
             ))
+            val sparkUri = NginxUtils.buildSparkUI(
+              s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
             executionService.setLaunchDate(workflow.id.get, new DateTime())
+            executionService.setSparkUri(workflow.id.get, sparkUri)
           case Failure(exception) =>
             val information = s"An error was encountered while launching the Workflow App in the Marathon API"
             val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
               status = Failed,
-              statusInfo = Option(information),
-              lastError = Option(error)
+              statusInfo = Option(information)
             ))
             executionService.setLastError(workflow.id.get, error)
         }

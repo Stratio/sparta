@@ -62,8 +62,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                   statusService.update(WorkflowStatus(
                     id = workflowId,
                     status = Failed,
-                    statusInfo = Some(error),
-                    lastError = Option(wError)
+                    statusInfo = Some(error)
                   ))
                   executionService.setLastError(workflowId, wError)
               }

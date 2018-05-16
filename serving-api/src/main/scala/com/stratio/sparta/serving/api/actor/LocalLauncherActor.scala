@@ -44,9 +44,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
         status = NotStarted,
-        sparkURI = sparkUri,
-        lastUpdateDateWorkflow = workflow.lastUpdateDate,
-        lastExecutionMode = Option(local)
+        lastUpdateDateWorkflow = workflow.lastUpdateDate
       ))
       val jars = userPluginsFiles(workflow)
       jars.foreach(file => JarsHelper.addJarToClasspath(file))
@@ -96,8 +94,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(error)
+          statusInfo = Option(information)
         ))
         executionService.setLastError(workflow.id.get, error)
         self ! PoisonPill

@@ -25,7 +25,8 @@ case class Workflow(
                      version: Long = 0L,
                      group: Group = DefaultGroup,
                      tags: Option[Seq[String]] = None,
-                     status: Option[WorkflowStatus] = None
+                     status: Option[WorkflowStatus] = None,
+                     execution: Option[WorkflowExecution] = None
                    )
 
 /**
@@ -41,4 +42,5 @@ case class WorkflowDto(id: Option[String],
                        version: Long,
                        group: String,
                        tags: Option[Seq[String]] = None,
-                       status: Option[WorkflowStatus]) extends Dto
+                       status: Option[WorkflowStatus],
+                       execution: Option[WorkflowExecutionDto]) extends Dto

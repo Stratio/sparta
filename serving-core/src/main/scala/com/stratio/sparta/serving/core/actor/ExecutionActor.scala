@@ -29,6 +29,7 @@ class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecutio
     case FindById(id, user) => findExecutionById(id, user)
     case DeleteAll(user) => deleteAllExecutions(user)
     case DeleteExecution(id, user) => deleteExecution(id, user)
+    case ClearLastError(id) => sender ! executionService.clearLastError(id)
     case _ => log.info("Unrecognized message in Workflow Execution Actor")
   }
 
@@ -87,4 +88,5 @@ object ExecutionActor {
 
   case class FindById(id: String, user: Option[LoggedUser])
 
+  case class ClearLastError(id: String)
 }

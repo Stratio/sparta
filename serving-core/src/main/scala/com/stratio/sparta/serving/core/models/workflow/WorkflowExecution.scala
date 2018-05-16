@@ -5,6 +5,7 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import org.joda.time.DateTime
 
@@ -51,3 +52,25 @@ case class MarathonExecution(
 case class SparkExecution(applicationId: String)
 
 case class LocalExecution(sparkURI: Option[String] = None)
+
+/**
+  * Wrapper class used by the api consumers
+  */
+case class WorkflowExecutionDto(
+                                 id: String,
+                                 marathonExecution: Option[MarathonExecution] = None,
+                                 genericDataExecution: Option[GenericDataExecutionDto] = None,
+                                 localExecution: Option[LocalExecution] = None
+                               ) extends Dto
+
+case class GenericDataExecutionDto(
+                                    executionMode: WorkflowExecutionMode,
+                                    executionId: String,
+                                    launchDate: Option[DateTime] = None,
+                                    startDate: Option[DateTime] = None,
+                                    endDate: Option[DateTime] = None,
+                                    userId: Option[String] = None,
+                                    lastError: Option[WorkflowError] = None
+                                  ) extends Dto
+
+

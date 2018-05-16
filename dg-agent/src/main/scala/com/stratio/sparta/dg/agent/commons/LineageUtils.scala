@@ -13,7 +13,7 @@ import com.stratio.sparta.dg.agent.model._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Failed, Finished, Started}
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowStatus, WorkflowStatusStream}
+import com.stratio.sparta.serving.core.models.workflow._
 import org.joda.time.DateTime
 
 import scala.util.{Properties, Try}
@@ -106,12 +106,12 @@ object LineageUtils {
     import WorkflowStatusUtils._
 
     if (checkIfProcessableStatus(workflowStatusStream)) {
+      val wfError = workflowStatusStream.execution.flatMap(_.genericDataExecution.flatMap(_.lastError))
       val metadataSerialized = new SpartaWorkflowStatusMetadata(
         name = workflowStatusStream.workflow.get.name,
         status = mapSparta2GovernanceStatuses(workflowStatusStream.workflowStatus.status),
-        error = if (workflowStatusStream.workflowStatus.status == Failed
-          && workflowStatusStream.workflowStatus.lastError.isDefined)
-          Some(workflowStatusStream.workflowStatus.lastError.get.message) else Some(""),
+        error = if (workflowStatusStream.workflowStatus.status == Failed && wfError.isDefined)
+          Some(workflowStatusStream.execution.get.genericDataExecution.get.lastError.get.message) else Some(""),
         key = workflowStatusStream.workflowStatus.id,
         metadataPath = workflowMetadataPathString(workflowStatusStream.workflow.get,
           Some(workflowStatusStream.workflowStatus),
