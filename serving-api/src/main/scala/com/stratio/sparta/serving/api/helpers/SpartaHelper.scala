@@ -89,6 +89,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
           inMemoryApiActors
         )), ControllerActorName)
 
+      system.actorOf(ExecutionHistoryActor.props())
       log.info("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
         interface = SpartaConfig.apiConfig.get.getString("host"),

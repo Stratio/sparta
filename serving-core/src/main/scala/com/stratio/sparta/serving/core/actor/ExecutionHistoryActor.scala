@@ -7,16 +7,20 @@
 package com.stratio.sparta.serving.core.actor
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.{Actor, Props}
 import akka.event.slf4j.SLF4JLogging
+import com.typesafe.config.ConfigFactory
+import org.json4s.jackson.Serialization._
 import slick.jdbc.H2Profile.api._
 
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
+import com.stratio.sparta.serving.core.dao.ExecutionHistoryDaoImpl
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
-import com.stratio.sparta.serving.core.utils.ExecutionHistoryDaoImpl
-import org.json4s.jackson.Serialization._
+
 //scalastyle:off
 class ExecutionHistoryActor extends Actor with ExecutionHistoryDaoImpl with SLF4JLogging {
 
@@ -25,18 +29,22 @@ class ExecutionHistoryActor extends Actor with ExecutionHistoryDaoImpl with SLF4
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[ExecutionChange])
     context.system.eventStream.subscribe(self, classOf[ExecutionRemove])
-    createSchema()
+    createSchema() onComplete {
+      case Success(_) => log.info("Schema created")
+      case Failure(f) => log.error(f.getMessage, f)
+    }
   }
 
   override def postStop(): Unit = {
     context.system.eventStream.unsubscribe(self, classOf[ExecutionChange])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
+    db.close()
   }
 
   override def receive: Receive = {
     case ec: ExecutionChange =>
       ec.execution.genericDataExecution.map(ge => ge.workflow.lastUpdateDate match {
-        case Some(_) => update(ec.execution)  onFailure {
+        case Some(_) => update(ec.execution) onFailure {
           case f: Exception => log.error(f.getMessage, f)
         }
         case None => insert(ec.execution) onFailure {
@@ -46,12 +54,13 @@ class ExecutionHistoryActor extends Actor with ExecutionHistoryDaoImpl with SLF4
     case QueryAll() => sender ! selectAll()
     case QueryByWorkflowId(id) => sender ! findByWorkflowId(id)
     case QueryByUserId(id) => sender ! findByUserId(id)
-    case _ => unhandled("")
   }
 }
 
 //scalastyle:off
 object ExecutionHistoryActor extends SpartaSerializer {
+
+  def props() = Props[ExecutionHistoryActor]
 
   case class QueryAll()
 
@@ -59,26 +68,24 @@ object ExecutionHistoryActor extends SpartaSerializer {
 
   case class QueryByUserId(userId: String)
 
-
   implicit def executionToDb(workflowExecution: WorkflowExecution): WorkflowExecutionHistory = {
     WorkflowExecutionHistory(
       id = workflowExecution.id,
       workflowId = workflowExecution.genericDataExecution.flatMap(_.workflow.id).get,
-      executionMode = workflowExecution.genericDataExecution.get.executionMode.toString,
-      launchDate = workflowExecution.genericDataExecution.get.endDate.map(d => d.getMillis),
-      startDate = workflowExecution.genericDataExecution.get.endDate.map(d => d.getMillis),
-      endDate = workflowExecution.genericDataExecution.get.endDate.map(d => d.getMillis),
+      executionMode = workflowExecution.genericDataExecution.map(ge => ge.executionMode.toString).getOrElse(WorkflowExecutionMode.marathon.toString),
+      launchDate = workflowExecution.genericDataExecution.flatMap(ge => ge.launchDate.map(d => d.getMillis)).orElse(None),
+      startDate = workflowExecution.genericDataExecution.flatMap(ge => ge.startDate.map(d => d.getMillis)).orElse(None),
+      endDate = workflowExecution.genericDataExecution.flatMap(ge => ge.endDate.map(d => d.getMillis)).orElse(None),
       workflow = write(workflowExecution.genericDataExecution.get.workflow))
   }
-
-  def props() = Props[ExecutionHistoryActor]
 
   case class WorkflowExecutionHistory(id: String, workflowId: String, executionMode: String,
                                       launchDate: Option[Long] = None, startDate: Option[Long] = None,
                                       endDate: Option[Long] = None, userId: Option[String] = None,
                                       workflow: String)
 
-  class WorkflowExecutionHistoryTable(tag: Tag) extends Table[WorkflowExecutionHistory](tag, "workflow_execution_history") {
+  class WorkflowExecutionHistoryTable(tag: Tag) extends Table[WorkflowExecutionHistory](tag, Try(ConfigFactory.load.getString("sparta.postgres.execHistory.table")).getOrElse
+  ("workflow_execution_history")) {
 
     def id = column[String]("execution_id")
 
@@ -102,6 +109,4 @@ object ExecutionHistoryActor extends SpartaSerializer {
   }
 
   val workflowExecutionHistoryTable = TableQuery[WorkflowExecutionHistoryTable]
-
-  val WorkflowExecutionHistoryKey = "workflow-exec-history"
 }
