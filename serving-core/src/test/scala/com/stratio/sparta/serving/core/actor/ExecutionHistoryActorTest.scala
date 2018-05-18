@@ -9,9 +9,8 @@ package com.stratio.sparta.serving.core.actor
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
 
-import akka.actor.{ActorRef, ActorSystem}
+import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
@@ -23,7 +22,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.ExecutionHistoryActor.{QueryAll, QueryByUserId, QueryByWorkflowId, WorkflowExecutionHistory}
-import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.ExecutionChange
+import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, Notification}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.dao.ExecutionHistoryDaoImpl
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
@@ -31,7 +30,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])
-class ExecutionHistoryActorTest extends TestKit(ActorSystem("ExecutionHistoryActorSpec", SpartaConfig.daemonicAkkaConfig))
+class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryActorSpec", SpartaConfig.daemonicAkkaConfig))
   with ImplicitSender
   with Matchers
   with WordSpecLike
@@ -40,6 +39,10 @@ class ExecutionHistoryActorTest extends TestKit(ActorSystem("ExecutionHistoryAct
 
   private lazy val config = ConfigFactory.load()
   implicit val timeout = Timeout(10 seconds)
+
+  def publishEvent(event: Notification): Unit = system.eventStream.publish(event)
+
+  override protected def afterAll(): Unit = TestKit.shutdownActorSystem(system)
 
   private def getWorkflowModel(update: Boolean): Workflow = {
     val settingsModel = Settings(
@@ -67,6 +70,7 @@ class ExecutionHistoryActorTest extends TestKit(ActorSystem("ExecutionHistoryAct
   private def getWorkflowExecutionModel(update: Boolean): WorkflowExecution =
     WorkflowExecution(
       id = "exec1",
+      uniqueId = "uniqueId",
       genericDataExecution = Option(GenericDataExecution(getWorkflowModel(update), WorkflowExecutionMode.local, "1", userId = Some("testUser"))),
       sparkSubmitExecution = Option(SparkSubmitExecution(
         driverClass = "driver",
@@ -91,8 +95,9 @@ class ExecutionHistoryActorTest extends TestKit(ActorSystem("ExecutionHistoryAct
       import profile.api._
 
       val wk = getWorkflowExecutionModel(false)
-      actor ! ExecutionChange("/test", wk)
-      db.run(table.filter(_.id === wk.id).result).map(_.toList) onSuccess {
+      publishEvent(ExecutionChange("/test", wk))
+      expectNoMsg()
+      db.run(table.filter(_.executionId === wk.id).result).map(_.toList) onSuccess {
         case s: Future[_] => assert(true)
       }
     }
@@ -102,32 +107,39 @@ class ExecutionHistoryActorTest extends TestKit(ActorSystem("ExecutionHistoryAct
       import profile.api._
 
       val wk = getWorkflowExecutionModel(true)
-      actor ! ExecutionChange("/test", wk)
+      publishEvent(ExecutionChange("/test", wk))
+      expectNoMsg()
       db.run(table.filter(_.workflowId === wk.genericDataExecution.get.workflow.id.get).result).map(_.toList) onSuccess {
         case s: Future[_] => assert(true)
       }
     }
 
     "Query All" in new ExecutionHistoryTrait {
-
-      import akka.pattern.ask
-
-      (actor ? QueryAll()).mapTo[Future[List[WorkflowExecutionHistory]]] onSuccess {
-        case s: List[WorkflowExecutionHistory] => s.size shouldBe >(1)
+      actor ! QueryAll()
+      expectMsgPF() {
+        case future: Future[List[WorkflowExecutionHistory]] => future onSuccess {
+          case s: List[WorkflowExecutionHistory] => s.size shouldBe 1
+        }
       }
     }
 
     "Query By WorkflowId" in {
-      import akka.pattern.ask
-      (actor ? QueryByWorkflowId(getWorkflowModel(false).id.get)).mapTo[Future[List[WorkflowExecutionHistory]]] onSuccess {
-        case s: List[WorkflowExecutionHistory] => s.size shouldBe >(1)
+      val wfId = getWorkflowModel(false).id.get
+      actor ! QueryByWorkflowId(wfId)
+      expectMsgPF() {
+        case future: Future[List[WorkflowExecutionHistory]] => future onSuccess {
+          case s: List[WorkflowExecutionHistory] => assert(s.head.workflowId == wfId)
+        }
       }
     }
 
     "Query By UserId" in {
-      import akka.pattern.ask
-      (actor ? QueryByUserId(getWorkflowExecutionModel(false).genericDataExecution.get.userId.get)).mapTo[Future[List[WorkflowExecutionHistory]]] onSuccess {
-        case s: List[WorkflowExecutionHistory] => s.size shouldBe >(1)
+      val userId = getWorkflowExecutionModel(false).genericDataExecution.get.userId.get
+      actor ! QueryByUserId(userId)
+      expectMsgPF() {
+        case future: Future[List[WorkflowExecutionHistory]] => future onSuccess {
+          case s: List[WorkflowExecutionHistory] => assert(s.head.workflowId == userId)
+        }
       }
     }
   }

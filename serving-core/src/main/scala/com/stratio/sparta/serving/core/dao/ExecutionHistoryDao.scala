@@ -23,14 +23,14 @@ trait ExecutionHistoryDao {
 
   val table = workflowExecutionHistoryTable
 
-  def insert(workflowExecution: WorkflowExecutionHistory): Future[_] = {
+  def upsert(workflowExecution: WorkflowExecutionHistory): Future[_] = {
     val dbioAction = DBIO.seq(
-      table += workflowExecution
+      table.insertOrUpdate(workflowExecution)
     ).transactionally
     db.run(txHandler(dbioAction))
   }
 
-  private def txHandler(dbioAction: DBIOAction[Unit, NoStream, Effect.Write with Effect.Transactional]) = {
+  private def txHandler(dbioAction: DBIOAction[Unit, NoStream, Effect.All with Effect.Transactional]) = {
     val txHandler = dbioAction.asTry.flatMap {
       case Failure(e: Throwable) => DBIO.failed(e)
       case Success(s) => DBIO.successful(s)
@@ -38,22 +38,11 @@ trait ExecutionHistoryDao {
     txHandler
   }
 
-  def update(workflowExecution: WorkflowExecutionHistory): Future[_] = {
-    val updateQuery = for {
-      data <- table
-      if data.id === workflowExecution.id
-    } yield data
-    val dbioAction = DBIO.seq(
-      updateQuery.update(workflowExecution)
-    ).transactionally
-    db.run(txHandler(dbioAction))
-  }
-
-  def createSchema(): Future[Unit] = {
+  def createSchema(): Future[_] = {
     val dbioAction = (for {
       _ <- table.schema.create
     } yield ()).transactionally
-    db.run(dbioAction)
+    db.run(txHandler(dbioAction))
   }
 
   def selectAll(): Future[List[WorkflowExecutionHistory]] = {
@@ -61,7 +50,7 @@ trait ExecutionHistoryDao {
   }
 
   def findByWorkflowId(workflowId: String): Future[List[WorkflowExecutionHistory]] = {
-    db.run(table.filter(_.id === workflowId).result).map(_.toList)
+    db.run(table.filter(_.workflowId === workflowId).result).map(_.toList)
   }
 
   def findByUserId(userId: String): Future[List[WorkflowExecutionHistory]] = {

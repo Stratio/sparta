@@ -5,12 +5,15 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import java.util.UUID
+
 import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import org.joda.time.DateTime
 
 case class WorkflowExecution(
                               id: String,
+                              uniqueId : String = UUID.randomUUID().toString,
                               sparkSubmitExecution: Option[SparkSubmitExecution] = None,
                               sparkExecution: Option[SparkExecution] = None,
                               sparkDispatcherExecution: Option[SparkDispatcherExecution] = None,
