@@ -449,8 +449,8 @@ class WorkflowService(
     val wfStarted = statusService.workflowsStarted
     executionService.findAll() match {
       case Success(list) =>
-        list.filter(wfExec => wfExec.genericDataExecution.get.executionMode == local &&
-          wfStarted.exists(_.id == wfExec.id))
+        list.filter(wfExec => wfExec.genericDataExecution.map(we => we.executionMode == local).getOrElse(false)
+          && wfStarted.exists(_.id == wfExec.id))
       case Failure(e) =>
         log.error("An error was encountered while finding all the workflow executions", e)
         Seq()

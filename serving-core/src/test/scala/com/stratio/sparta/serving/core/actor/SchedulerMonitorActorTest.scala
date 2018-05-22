@@ -215,10 +215,10 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
 
     val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed)
 
-    val testExecution = WorkflowExecution("1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
+    val testExecution = WorkflowExecution("1234","1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
       WorkflowExecutionMode.marathon, "abc")))
 
-    val testExecution2 = WorkflowExecution("5678",None, None, None, None, Some(GenericDataExecution(testWorkflow,
+    val testExecution2 = WorkflowExecution("5678","5678",None, None, None, None, Some(GenericDataExecution(testWorkflow,
       WorkflowExecutionMode.local, "abc")))
 
     val statusesTest = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
