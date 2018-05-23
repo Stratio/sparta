@@ -5,9 +5,11 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.sdk.models.{DebugResults, ErrorsManagement}
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.step.{DebugResults, ErrorsManagement, InputStep, OutputStep}
+import com.stratio.sparta.sdk.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 
 case class DebugWorkflow(
@@ -16,12 +18,13 @@ case class DebugWorkflow(
                           result: Option[DebugResults]
                         ) {
 
-  private val inputClassName = "DummyDebugInputStep"
-  private val inputPrettyClassName = "DummyDebug"
+  //private val inputClassName = "DummyDebugInputStep"
+  private val inputClassName = "TestInputStep"
+  //private val inputPrettyClassName = "DummyDebug"
+  private val inputPrettyClassName = "Test"
   private val outputDebugName = "output_debug"
-  private val sparkWindow = "100ms"
-  private val maxDebugTimeout = "1000"
-  private val sparkLocalResources = "local[1]"
+  private val sparkWindow = s"${AppConstant.DebugSparkWindow}ms"
+  private val maxDebugTimeout = "5000"
   private val debugOutputNode = NodeGraph(
     name = outputDebugName,
     stepType = OutputStep.StepType,
@@ -46,7 +49,8 @@ case class DebugWorkflow(
       name = s"${workflowOriginal.name}-debug",
       status = None,
       uiSettings = None,
-      pipelineGraph = pipelineGraphDebug()
+      pipelineGraph = pipelineGraphDebug(),
+      debugMode = Option(true)
     )
   }
 
@@ -87,7 +91,7 @@ case class DebugWorkflow(
     import workflowOriginal.settings.sparkSettings
 
     sparkSettings.copy(
-      master = JsoneyString(sparkLocalResources),
+      master = JsoneyString(AppConstant.SparkLocalMaster),
       sparkKerberos = false,
       sparkMesosSecurity = false,
       killUrl = None,
@@ -103,7 +107,12 @@ case class DebugWorkflow(
       node.stepType.toLowerCase match {
         case InputStep.StepType => Option(node.copy(
           className = s"$inputClassName${workflowOriginal.executionEngine}",
-          classPrettyName = inputPrettyClassName)
+          classPrettyName = inputPrettyClassName,
+          configuration = Map(
+            "event" -> JsoneyString("""{"name":"jc", "age":33}""""),
+            "numEvents" -> JsoneyString("1")
+          )
+        )
         )
         case OutputStep.StepType => None
         case _ => Option(node)
@@ -115,7 +124,7 @@ case class DebugWorkflow(
     }
     val outputEdges = newNodes.flatMap { node =>
       node.stepType.toLowerCase match {
-        case OutputStep.StepType => None
+        case OutputStep.StepType | InputStep.StepType => None
         case _ => Option(EdgeGraph(origin = node.name, destination = outputDebugName))
       }
     }

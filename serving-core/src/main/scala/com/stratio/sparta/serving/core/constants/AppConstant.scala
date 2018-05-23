@@ -29,6 +29,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigZookeeper = "zookeeper"
   val ConfigSpark = "spark"
   val ConfigCrossdata = "crossdata"
+  val ConfigPostgres = "sparta.postgres"
   val DefaultOauth2CookieName = "user"
   val ConfigMarathon = "marathon"
   val DefaultRememberPartitioner = true
@@ -55,6 +56,10 @@ object AppConstant extends ZookeeperUtils {
   val DefaultSerializationTimeout = 5000
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
+  val SparkLocalMaster = "local[1]"
+
+  //Debug Options
+  val DebugSparkWindow = 100
 
   //Workflow
   val defaultWorkflowRelationSettings = WorkflowRelationSettings(DataType.ValidData)
@@ -99,7 +104,6 @@ object AppConstant extends ZookeeperUtils {
     case (_, _, Some(confPath)) if checkIfValidPath(confPath) => confPath
     case _ => DefaultZKPath
   }
-
   lazy val WorkflowsZkPath = s"$BaseZkPath/workflows"
   lazy val WorkflowStatusesZkPath = s"$BaseZkPath/workflowStatuses"
   lazy val WorkflowExecutionsZkPath = s"$BaseZkPath/workflowExecutions"
@@ -108,6 +112,8 @@ object AppConstant extends ZookeeperUtils {
   lazy val EnvironmentZkPath = s"$BaseZkPath/environment"
   lazy val GroupZkPath = s"$BaseZkPath/group"
   lazy val DebugWorkflowZkPath = s"$BaseZkPath/debug"
+  lazy val DebugStepDataZkPath = s"$BaseZkPath/debugStepData"
+  lazy val DebugStepErrorZkPath = s"$BaseZkPath/debugStepError"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
@@ -145,8 +151,8 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_STREAMING_WINDOW","2s"),
     EnvironmentVariable("SPARK_STREAMING_BLOCK_INTERVAL","100ms"),
     EnvironmentVariable("SPARK_MASTER","mesos://leader.mesos:5050"),
-    EnvironmentVariable("SPARK_DRIVER_JAVA_OPTIONS","""-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -XX:OnOutOfMemoryError="echo 'Spark Driver has run out of memory'" """),
-    EnvironmentVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","""-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -XX:OnOutOfMemoryError="echo 'Spark Executor has run out of memory'" """),
+    EnvironmentVariable("SPARK_DRIVER_JAVA_OPTIONS","-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
+    EnvironmentVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
     EnvironmentVariable("SPARK_LOCAL_PATH", "/opt/spark/dist"),
     EnvironmentVariable("SPARK_CORES_MAX","2"),
     EnvironmentVariable("SPARK_EXECUTOR_MEMORY","2G"),

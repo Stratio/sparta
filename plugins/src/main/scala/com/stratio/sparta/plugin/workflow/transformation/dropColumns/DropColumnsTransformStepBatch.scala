@@ -12,11 +12,10 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-
 import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
 
 class DropColumnsTransformStepBatch(
                                     name: String,

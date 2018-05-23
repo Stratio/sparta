@@ -14,7 +14,7 @@ import scala.concurrent.duration._
 import akka.testkit._
 import akka.util.Timeout
 import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.sdk.workflow.step.{DebugResults, ResultStep}
+import com.stratio.sparta.sdk.models.{DebugResults, ResultStep}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
@@ -94,8 +94,8 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       val schemaFake = StructType(StructField("name", StringType, false) ::
         StructField("age", IntegerType, false) ::
         StructField("year", IntegerType, true) :: Nil)
-      val fakedResults = DebugResults(true, Seq(ResultStep("Kafka", Option(schemaFake),
-        Option("Gregor Samza, 28, 1915"), None)))
+      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep("Kafka", 0, Option(schemaFake),
+        Option("Gregor Samza, 28, 1915"))))
       startAutopilot(Left(Success(fakedResults)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]

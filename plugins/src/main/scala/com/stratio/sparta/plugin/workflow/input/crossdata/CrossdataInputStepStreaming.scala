@@ -13,9 +13,10 @@ import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.models.OffsetFieldItem
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.InputStep
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext

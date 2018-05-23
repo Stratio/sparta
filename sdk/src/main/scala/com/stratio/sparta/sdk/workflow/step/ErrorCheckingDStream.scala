@@ -6,8 +6,8 @@
 package com.stratio.sparta.sdk.workflow.step
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.enumerators.WhenError
+import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream

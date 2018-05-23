@@ -13,9 +13,9 @@ import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.{TableNameKey, saveOptionsFromOutputOptions}
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper._
-import com.stratio.sparta.sdk.models.DiscardCondition
+import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorOutputAction, ErrorsManagement, OutputOptions}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
+import com.stratio.sparta.sdk.enumerators.{SaveModeEnum, WhenError}
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.RowEncoder

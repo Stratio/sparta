@@ -8,9 +8,10 @@ package com.stratio.sparta.plugin.workflow.output.http
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.enumerations.PostType
+import com.stratio.sparta.sdk.models.ErrorValidations
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.{OutputFormatEnum, SaveModeEnum}
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
+import com.stratio.sparta.sdk.enumerators.{OutputFormatEnum, SaveModeEnum}
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 

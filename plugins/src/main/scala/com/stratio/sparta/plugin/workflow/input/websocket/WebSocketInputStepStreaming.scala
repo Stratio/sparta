@@ -9,12 +9,13 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
 
 class WebSocketInputStepStreaming(
                                    name: String,

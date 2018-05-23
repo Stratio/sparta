@@ -3,13 +3,15 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.config
 
+import scala.util.Try
+
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.typesafe.config.{Config, ConfigFactory}
 
-import scala.util.{Success, Try}
+import com.stratio.sparta.serving.core.constants.AppConstant._
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
@@ -21,6 +23,7 @@ object SpartaConfig extends SLF4JLogging {
   var crossdataConfig: Option[Config] = None
   var apiConfig: Option[Config] = None
   var oauth2Config: Option[Config] = None
+  var spartaPostgresConfig: Option[Config] = None
 
   def initConfig(node: String,
                  currentConfig: Option[Config] = None,
@@ -49,13 +52,13 @@ object SpartaConfig extends SLF4JLogging {
   }
 
   def initSparkConfig(currentConfig: Option[Config] = None,
-                     configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
+                      configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
     sparkConfig = initConfig(ConfigSpark, currentConfig, configFactory)
     sparkConfig
   }
 
   def initCrossdataConfig(currentConfig: Option[Config] = None,
-                      configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
+                          configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
     crossdataConfig = initConfig(ConfigCrossdata, currentConfig, configFactory)
     crossdataConfig
   }
@@ -75,13 +78,18 @@ object SpartaConfig extends SLF4JLogging {
     oauth2Config
   }
 
+  def initSpartaPostgresConfig(currentConfig: Option[Config] = None, configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
+    spartaPostgresConfig = initConfig(ConfigPostgres, currentConfig, configFactory)
+    spartaPostgresConfig
+  }
+
   def getHdfsConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigHdfs, config))
 
   def getDetailConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigDetail, config))
 
   def getZookeeperConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigZookeeper, config))
 
-  def getMarathonConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigMarathon,config))
+  def getMarathonConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigMarathon, config))
 
   def getOauth2Config: Option[Config] = oauth2Config match {
     case Some(config) => Some(config)
@@ -91,6 +99,8 @@ object SpartaConfig extends SLF4JLogging {
   }
 
   def getSprayConfig: Option[Config] = SpartaConfigFactory().getConfig(ConfigSpray)
+
+  def getSpartaPostgres: Option[Config] = spartaPostgresConfig
 
   def initOptionalConfig(node: String,
                          currentConfig: Option[Config] = None,
@@ -115,5 +125,4 @@ object SpartaConfig extends SLF4JLogging {
       mainSpartaConfig.withFallback(ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
     case None => ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on"))
   }
-
 }

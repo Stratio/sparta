@@ -3,12 +3,14 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.helpers
 
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import spray.can.Http
+
 import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
@@ -21,6 +23,8 @@ import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
 import scala.util.{Properties, Try}
+
+import slick.jdbc.PostgresProfile
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
@@ -81,6 +85,8 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
       system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugWorkflowPublisherActor(curatorFramework)))
+      system.actorOf(Props(new DebugStepDataPublisherActor(curatorFramework)))
+      system.actorOf(Props(new DebugStepErrorPublisherActor(curatorFramework)))
 
       val controllerActor = system.actorOf(Props(new ControllerActor(
           curatorFramework,
@@ -89,17 +95,21 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
           inMemoryApiActors
         )), ControllerActorName)
 
-      system.actorOf(ExecutionHistoryActor.props())
+      if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
+        log.debug("Initializing history actors ...")
+        system.actorOf(ExecutionHistoryActor.props(PostgresProfile))
+      }
+
       log.info("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
         interface = SpartaConfig.apiConfig.get.getString("host"),
         port = SpartaConfig.apiConfig.get.getInt("port")
       )
 
-      if(Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true })
+      if (Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true })
         Option(system.actorOf(Props(new NginxActor()), NginxActorName))
 
-      log.info("Sparta server initiated correctly")
+      log.info("Sparta server initiated successfully")
     } else log.info("Sparta configuration is not defined")
   }
 }

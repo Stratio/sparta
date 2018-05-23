@@ -7,7 +7,7 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 

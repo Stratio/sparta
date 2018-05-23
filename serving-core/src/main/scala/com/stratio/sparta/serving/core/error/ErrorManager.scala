@@ -5,14 +5,19 @@
  */
 package com.stratio.sparta.serving.core.error
 
-import java.util.UUID
+import java.util.Date
 
 import akka.event.Logging
 import akka.event.Logging.LogLevel
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.models
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.{DebugWorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
@@ -26,7 +31,8 @@ trait ErrorManager extends SLF4JLogging {
                         code: PhaseEnum.Value,
                         okMessage: String,
                         errorMessage: String,
-                        logLevel: LogLevel = Logging.InfoLevel
+                        logLevel: LogLevel = Logging.InfoLevel,
+                        step: Option[String] = None
                       )(f: => T): T = {
     Try(f) match {
       case Success(result) =>
@@ -39,19 +45,23 @@ trait ErrorManager extends SLF4JLogging {
 
         result
       case Failure(ex: Exception) =>
-        throw logAndCreateEx(code, ex, workflow, errorMessage)
+        throw logAndCreateEx(code, ex, workflow, errorMessage, step)
     }
   }
 
+  def clearError(): Unit
+
   protected def traceError(error: WorkflowError): Unit
 
-  private def logAndCreateEx(code: PhaseEnum.Value,
-                     exception: Exception,
-                     workflow: Workflow,
-                     message: String
-                    ): Throwable = {
+  private def logAndCreateEx(
+                              code: PhaseEnum.Value,
+                              exception: Exception,
+                              workflow: Workflow,
+                              message: String,
+                              step: Option[String] = None
+                            ): Throwable = {
     val originalMsg = exception.toString
-    val workflowError = WorkflowError(message, code, originalMsg)
+    val workflowError = WorkflowError(message, code, originalMsg, new Date, step)
     log.error("An error was detected : {}", workflowError)
     Try {
       traceError(workflowError)
@@ -69,7 +79,6 @@ trait ZooKeeperError extends ErrorManager {
   val statusService = new WorkflowStatusService(curatorFramework)
   val executionService = new ExecutionService(curatorFramework)
 
-
   def traceError(error: WorkflowError): Unit = {
     statusService.update(WorkflowStatus(workflow.id.get,statusId = UUID.randomUUID.toString, NotDefined, None))
     executionService.setLastError(workflow.id.get, error)
@@ -80,8 +89,27 @@ trait ZooKeeperError extends ErrorManager {
 
 }
 
+trait ZooKeeperDebugError extends ErrorManager {
+
+  val curatorFramework: CuratorFramework
+  val debugService = new DebugWorkflowService(curatorFramework)
+
+  def traceError(error: WorkflowError): Unit =
+    workflow.id.foreach(id => debugService.setError(id, Option(error)))
+
+  def clearError(): Unit =
+    workflow.id.foreach(id => debugService.clearLastError(id))
+
+}
+
+case class ZookeeperErrorImpl(workflow: Workflow, curatorFramework: CuratorFramework) extends ZooKeeperError
+
+case class ZookeeperDebugErrorImpl(workflow: Workflow, curatorFramework: CuratorFramework) extends ZooKeeperDebugError
+
 trait LogError extends ErrorManager with SLF4JLogging {
 
   def traceError(error: WorkflowError): Unit = log.error(s"This error was not saved to Zookeeper : $error")
+
+  def clearError(): Unit = log.error(s"Cleaned errors")
 }
 

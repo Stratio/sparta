@@ -7,8 +7,8 @@ package com.stratio.sparta.plugin.workflow.transformation.datetime
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith

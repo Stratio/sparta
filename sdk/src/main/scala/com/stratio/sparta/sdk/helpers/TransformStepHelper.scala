@@ -6,8 +6,8 @@
 
 package com.stratio.sparta.sdk.helpers
 
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.WhenRowError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema

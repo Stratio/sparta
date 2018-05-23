@@ -13,7 +13,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, ShouldMatchers}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.workflow.enumerators.OutputFormatEnum
+import com.stratio.sparta.sdk.enumerators.OutputFormatEnum
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.{as, entity, get, parameterSeq, pathPrefix, post, _}

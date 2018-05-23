@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import org.joda.time.DateTime
 

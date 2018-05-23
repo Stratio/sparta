@@ -7,8 +7,8 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError, WhenFieldError}
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.enumerators.{SaveModeEnum, WhenError, WhenFieldError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

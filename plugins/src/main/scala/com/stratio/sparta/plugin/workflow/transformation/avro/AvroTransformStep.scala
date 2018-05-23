@@ -14,7 +14,7 @@ import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.DiscardCondition
+import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
 import com.twitter.bijection.avro.GenericAvroCodecs

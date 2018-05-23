@@ -9,7 +9,7 @@ import java.util.Date
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import org.apache.spark.sql._
 import org.apache.spark.sql.DataFrame

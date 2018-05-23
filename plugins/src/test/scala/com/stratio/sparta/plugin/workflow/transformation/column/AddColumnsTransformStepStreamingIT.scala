@@ -7,8 +7,8 @@
 package com.stratio.sparta.plugin.workflow.transformation.column
 
 import java.io.{Serializable => JSerializable}
-import scala.collection.mutable
 
+import scala.collection.mutable
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -16,11 +16,10 @@ import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructT
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
-
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])

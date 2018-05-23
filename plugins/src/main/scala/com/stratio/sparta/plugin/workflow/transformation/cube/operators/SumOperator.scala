@@ -7,9 +7,9 @@ package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
 import com.stratio.sparta.sdk.utils.CastingUtils
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataType, DoubleType}
 

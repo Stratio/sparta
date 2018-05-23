@@ -7,22 +7,30 @@
 package com.stratio.sparta.serving.core.actor
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 import akka.actor.{Actor, Props}
 import akka.event.slf4j.SLF4JLogging
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigFactory}
 import org.json4s.jackson.Serialization._
-import slick.jdbc.H2Profile.api._
+import slick.jdbc.JdbcProfile
 
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.ExecutionChange
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.dao.ExecutionHistoryDaoImpl
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
+import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistory
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 
 //scalastyle:off
-class ExecutionHistoryActor extends Actor with ExecutionHistoryDaoImpl with SLF4JLogging {
+class ExecutionHistoryActor(val profileHistory: JdbcProfile, val config: Config) extends Actor with ExecutionHistoryDaoImpl with SLF4JLogging {
+
+  override val profile = profileHistory
+
+  import profile.api._
+
+  override val db: profile.api.Database = Database.forConfig("", config)
 
   import ExecutionHistoryActor._
 
@@ -52,7 +60,7 @@ class ExecutionHistoryActor extends Actor with ExecutionHistoryDaoImpl with SLF4
 //scalastyle:off
 object ExecutionHistoryActor extends SpartaSerializer {
 
-  def props() = Props[ExecutionHistoryActor]
+  def props(profile: JdbcProfile, config: Config = SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load())) = Props(new ExecutionHistoryActor(profile, config))
 
   case class QueryAll()
 
@@ -62,8 +70,7 @@ object ExecutionHistoryActor extends SpartaSerializer {
 
   implicit def executionToDb(workflowExecution: WorkflowExecution): WorkflowExecutionHistory = {
     WorkflowExecutionHistory(
-      uniqueId = workflowExecution.uniqueId,
-      executionId = workflowExecution.id,
+      executionId = workflowExecution.genericDataExecution.map(_.executionId).get,
       workflowId = workflowExecution.genericDataExecution.flatMap(_.workflow.id).get,
       executionMode = workflowExecution.genericDataExecution.map(ge => ge.executionMode.toString).getOrElse(WorkflowExecutionMode.marathon.toString),
       launchDate = workflowExecution.genericDataExecution.flatMap(ge => ge.launchDate.map(d => d.getMillis)).orElse(None),
@@ -74,45 +81,4 @@ object ExecutionHistoryActor extends SpartaSerializer {
       genericExecution = write(workflowExecution.genericDataExecution))
   }
 
-  case class WorkflowExecutionHistory(uniqueId: String,
-                                      executionId: String,
-                                      workflowId: String,
-                                      executionMode: String,
-                                      launchDate: Option[Long] = None,
-                                      startDate: Option[Long] = None,
-                                      endDate: Option[Long] = None,
-                                      userId: Option[String] = None,
-                                      lastError: Option[String] = None,
-                                      genericExecution: String)
-
-  class WorkflowExecutionHistoryTable(tag: Tag) extends Table[WorkflowExecutionHistory](tag, Some("public"),
-    Try(ConfigFactory.load.getString("sparta.postgres.execHistory.table")).getOrElse("workflow_execution_history")) {
-
-    def uniqueId = column[String]("uniqueId")
-
-    def executionId = column[String]("execution_id")
-
-    def workflowId = column[String]("workflow_id")
-
-    def executionMode = column[String]("execution_mode")
-
-    def launchDate = column[Option[Long]]("launch_date")
-
-    def startDate = column[Option[Long]]("start_date")
-
-    def endDate = column[Option[Long]]("end_date")
-
-    def userId = column[Option[String]]("user_id")
-
-    def lastError = column[Option[String]]("lastError")
-
-    def genericExecution = column[String]("genericExecution")
-
-    def * = (uniqueId, executionId, workflowId, executionMode, launchDate, startDate, endDate, userId, lastError, genericExecution) <> (WorkflowExecutionHistory.tupled,
-      WorkflowExecutionHistory.unapply)
-
-    def pk = primaryKey(s"pk_${Try(ConfigFactory.load.getString("sparta.postgres.execHistory.table")).getOrElse("workflow_execution_history")}", uniqueId)
-  }
-
-  val workflowExecutionHistoryTable = TableQuery[WorkflowExecutionHistoryTable]
 }

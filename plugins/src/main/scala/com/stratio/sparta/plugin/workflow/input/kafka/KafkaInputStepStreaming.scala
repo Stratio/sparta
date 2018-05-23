@@ -14,7 +14,7 @@ import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
@@ -29,6 +29,7 @@ import org.json4s.{DefaultFormats, Formats}
 import scala.util.Try
 import DistributedMonad.Implicits._
 import com.stratio.sparta.plugin.models.TopicModel
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
 import org.apache.kafka.clients.consumer.ConsumerConfig._
 
 class KafkaInputStepStreaming(

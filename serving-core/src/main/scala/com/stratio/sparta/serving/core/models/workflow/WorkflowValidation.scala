@@ -12,6 +12,7 @@ import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.error.ZookeeperErrorImpl
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
@@ -57,13 +58,6 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
         valid = false,
         messages = messages :+ s"The selected execution mode is Marathon or Mesos," +
           s" therefore Spark Master should start with mesos://"
-      )
-    else if (workflow.settings.global.executionMode == local &&
-      !workflow.settings.sparkSettings.master.toString.startsWith("local"))
-      copy(
-        valid = false,
-        messages = messages :+ s"The selected execution mode is local, therefore, the Spark Master " +
-          s"value should start with local"
       )
     else this
   }
@@ -155,11 +149,13 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
 
   def validatePlugins(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
     val pluginsValidations = if (workflow.executionEngine == Streaming && curator.isDefined) {
-      val spartaWorkflow = SpartaWorkflow[DStream](workflow, curator.get)
+      val errorManager = ZookeeperErrorImpl(workflow, curator.get)
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else if (workflow.executionEngine == Batch && curator.isDefined) {
-      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curator.get)
+      val errorManager = ZookeeperErrorImpl(workflow, curator.get)
+      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else Seq.empty

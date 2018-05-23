@@ -75,7 +75,7 @@ class ControllerActor(
     .props(Props(new CrossdataActor())), CrossdataActorName)
   val debugActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new DebugWorkflowActor(
-      curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi))), DebugWorkflowApiActorName)
+      curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi, launcherActor))), DebugWorkflowApiActorName)
 
   val actorsMap = Map(
     StatusActorName -> statusActor,

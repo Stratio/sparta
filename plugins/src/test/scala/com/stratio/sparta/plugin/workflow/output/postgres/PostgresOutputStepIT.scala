@@ -21,7 +21,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, ShouldMatchers}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])

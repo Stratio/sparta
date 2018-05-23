@@ -5,9 +5,9 @@
  */
 package com.stratio.sparta.sdk.workflow.step
 
-import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenFieldError, WhenRowError}
+import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.{WhenFieldError, WhenRowError}
 
 import scala.util.{Failure, Success, Try}
 

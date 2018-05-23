@@ -6,23 +6,14 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import slick.jdbc.{JdbcProfile, PostgresProfile}
+import slick.jdbc.JdbcProfile
 
-private[core] trait JdbcSlickUtils {
+trait JdbcSlickUtils {
 
   val profile: JdbcProfile
 
   import profile.api._
 
   val db: Database
-}
-
-trait PostgresJdbcSlickImpl extends JdbcSlickUtils {
-
-  val profile = PostgresProfile
-
-  import profile.api._
-
-  val db: profile.api.Database = Database.forConfig("sparta.postgres")
 }
 

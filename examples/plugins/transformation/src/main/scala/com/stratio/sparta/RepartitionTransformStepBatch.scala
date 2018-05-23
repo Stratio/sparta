@@ -17,7 +17,7 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession

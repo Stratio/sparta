@@ -16,6 +16,7 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.collection.mutable
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.models.OutputOptions
 
 class MockInputStep(
                      name: String,

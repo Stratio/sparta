@@ -12,10 +12,11 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.json4s.jackson.Serialization.read
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
-class DebugWorkflowPublisherActor (curatorFramework: CuratorFramework) extends ListenerPublisher {
-import DebugWorkflowPublisherActor._
+class DebugWorkflowPublisherActor(curatorFramework: CuratorFramework) extends ListenerPublisher {
+
+  import DebugWorkflowPublisherActor._
 
   override val relativePath = AppConstant.DebugWorkflowZkPath
 
@@ -24,14 +25,16 @@ import DebugWorkflowPublisherActor._
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
         Try {
           read[DebugWorkflow](new String(event.getData.getData))
-        } foreach { status =>
-          event.getType match {
-            case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
-              self ! DebugWorkflowChange(event.getData.getPath, status)
-            case Type.CHILD_REMOVED =>
-              self ! DebugWorkflowRemove(event.getData.getPath, status)
-            case _ => {}
-          }
+        } match {
+          case Success(debugWorkflow) =>
+            event.getType match {
+              case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
+                self ! DebugWorkflowChange(event.getData.getPath, debugWorkflow)
+              case Type.CHILD_REMOVED =>
+                self ! DebugWorkflowRemove(event.getData.getPath, debugWorkflow)
+              case _ =>
+            }
+          case Failure(_) =>
         }
       }
     }

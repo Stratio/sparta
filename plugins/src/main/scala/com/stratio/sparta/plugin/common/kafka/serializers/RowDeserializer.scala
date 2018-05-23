@@ -11,7 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.databricks.spark.avro.RowAvroHelper
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode
 import com.stratio.sparta.plugin.helper.SchemaHelper
-import com.stratio.sparta.sdk.workflow.enumerators.InputFormatEnum
+import com.stratio.sparta.sdk.enumerators.InputFormatEnum
 import com.twitter.bijection.Injection
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.generic.GenericRecord

@@ -8,6 +8,7 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream

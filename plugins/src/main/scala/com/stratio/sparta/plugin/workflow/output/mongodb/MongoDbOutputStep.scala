@@ -8,9 +8,10 @@ package com.stratio.sparta.plugin.workflow.output.mongodb
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.datasource.mongodb.config.MongodbConfig
+import com.stratio.sparta.sdk.models.ErrorValidations
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType

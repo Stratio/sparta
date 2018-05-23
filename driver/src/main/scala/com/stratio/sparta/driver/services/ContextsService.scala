@@ -8,16 +8,17 @@ package com.stratio.sparta.driver.services
 import java.io.File
 import java.util.UUID
 
-import akka.actor.ActorRef
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.error.{ErrorManager, ZookeeperDebugErrorImpl, ZookeeperErrorImpl}
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{SparkDispatcherExecution, SparkExecution, Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{ExecutionService, SparkSubmitService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
@@ -28,93 +29,137 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-case class ContextsService(curatorFramework: CuratorFramework, listenerActor: ActorRef)
+case class ContextsService(curatorFramework: CuratorFramework)
 
   extends SchedulerUtils with CheckpointUtils with DistributedMonadImplicits with ContextBuilderImplicits {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val executionService = new ExecutionService(curatorFramework)
+  private val phase = PhaseEnum.Context
+  private val errorMessage = s"An error was encountered while initializing Spark Contexts"
+  private val okMessage = s"Spark Contexts created successfully"
 
-  def localStreamingContext(workflow: Workflow, files: Seq[File]): Unit = {
-    import workflow.settings.streamingSettings.checkpointSettings._
+  def localStreamingContext(workflow: Workflow, files: Seq[File], timeout: Option[Long] = None): Unit = {
+    val errorManager = getErrorManager(workflow)
 
-    if (enableCheckpointing) {
-      if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
-      createLocalCheckpointPath(workflow)
-    }
-
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
-    val sparkSubmitService = new SparkSubmitService(workflow)
-    val sparkConfig = sparkSubmitService.getSparkLocalWorkflowConfig
-
-    getOrCreateSparkContext(sparkConfig ++ stepsSparkConfig, files)
-
-    val spartaWorkflow = SpartaWorkflow[DStream](workflow, curatorFramework)
-    spartaWorkflow.stages()
-    val ssc = getStreamingContext
-
-    spartaWorkflow.setup()
-    ssc.start()
-    notifyWorkflowStarted(workflow)
-    ssc.awaitTermination()
-    spartaWorkflow.cleanUp()
-  }
-
-  def localContext(workflow: Workflow, files: Seq[File]): Unit = {
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
-    val sparkSubmitService = new SparkSubmitService(workflow)
-    val sparkConfig = sparkSubmitService.getSparkLocalWorkflowConfig
-
-    getOrCreateSparkContext(sparkConfig ++ stepsSparkConfig, files)
-
-    val spartaWorkflow = SpartaWorkflow[RDD](workflow, curatorFramework)
-
-    spartaWorkflow.setup()
-    notifyWorkflowStarted(workflow)
-    spartaWorkflow.stages()
-    spartaWorkflow.cleanUp()
-  }
-
-  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): Unit = {
-    val spartaWorkflow = SpartaWorkflow[DStream](workflow, curatorFramework)
-    val ssc = {
+    errorManager.traceFunction(phase, okMessage, errorMessage) {
       import workflow.settings.streamingSettings.checkpointSettings._
 
       if (enableCheckpointing) {
         if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
-        StreamingContext.getOrCreate(checkpointPathFromWorkflow(workflow), () => {
-          log.info(s"Nothing in checkpoint path: ${checkpointPathFromWorkflow(workflow)}")
-          val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
-          getOrCreateClusterSparkContext(stepsSparkConfig, files)
-          spartaWorkflow.stages()
-          getStreamingContext
-        })
-      } else {
-        val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
-        getOrCreateClusterSparkContext(stepsSparkConfig, files)
-        spartaWorkflow.stages()
-        getStreamingContext
+        createLocalCheckpointPath(workflow)
       }
+
+      val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+      val sparkSubmitService = new SparkSubmitService(workflow)
+      val sparkConfig = sparkSubmitService.getSparkLocalWorkflowConfig
+
+      getOrCreateSparkContext(sparkConfig ++ stepsSparkConfig, files)
     }
 
-    setDispatcherSettings(workflow, ssc.sparkContext)
-    spartaWorkflow.setup()
-    ssc.start
-    notifyWorkflowStarted(workflow)
-    ssc.awaitTermination()
-    spartaWorkflow.cleanUp()
+    val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+
+    try {
+      spartaWorkflow.stages()
+      val ssc = getStreamingContext
+
+      spartaWorkflow.setup()
+      ssc.start()
+      notifyWorkflowStarted(workflow)
+      timeout match {
+        case Some(time) => ssc.awaitTerminationOrTimeout(time)
+        case None => ssc.awaitTermination()
+      }
+    } finally {
+      spartaWorkflow.cleanUp()
+    }
+  }
+
+  def localContext(workflow: Workflow, files: Seq[File]): Unit = {
+    val errorManager = getErrorManager(workflow)
+
+    errorManager.traceFunction(phase, okMessage, errorMessage) {
+      val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+      val sparkSubmitService = new SparkSubmitService(workflow)
+      val sparkConfig = sparkSubmitService.getSparkLocalWorkflowConfig
+
+      getOrCreateSparkContext(sparkConfig ++ stepsSparkConfig, files)
+    }
+
+    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+
+    try {
+      spartaWorkflow.setup()
+      notifyWorkflowStarted(workflow)
+      spartaWorkflow.stages()
+    } finally {
+      spartaWorkflow.cleanUp()
+    }
+  }
+
+  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): Unit = {
+    val errorManager = getErrorManager(workflow)
+    val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+    try {
+      val ssc = {
+        import workflow.settings.streamingSettings.checkpointSettings._
+
+        if (enableCheckpointing) {
+          if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
+          StreamingContext.getOrCreate(checkpointPathFromWorkflow(workflow), () => {
+            errorManager.traceFunction(phase, okMessage, errorMessage) {
+              log.info(s"Creating streaming context from empty checkpoint: ${checkpointPathFromWorkflow(workflow)}")
+              val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+              getOrCreateClusterSparkContext(stepsSparkConfig, files)
+              spartaWorkflow.stages()
+            }
+            getStreamingContext
+          })
+        } else {
+          errorManager.traceFunction(phase, okMessage, errorMessage) {
+            val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+            getOrCreateClusterSparkContext(stepsSparkConfig, files)
+            spartaWorkflow.stages()
+          }
+          getStreamingContext
+        }
+      }
+
+      setDispatcherSettings(workflow, ssc.sparkContext)
+      spartaWorkflow.setup()
+      ssc.start
+      notifyWorkflowStarted(workflow)
+      ssc.awaitTermination()
+    } finally {
+      spartaWorkflow.cleanUp()
+    }
   }
 
   def clusterContext(workflow: Workflow, files: Seq[String]): Unit = {
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
-    val sparkContext = getOrCreateClusterSparkContext(stepsSparkConfig, files)
-    val spartaWorkflow = SpartaWorkflow[RDD](workflow, curatorFramework)
+    val errorManager = getErrorManager(workflow)
 
-    setDispatcherSettings(workflow, sparkContext)
-    spartaWorkflow.setup()
-    notifyWorkflowStarted(workflow)
-    spartaWorkflow.stages()
-    spartaWorkflow.cleanUp()
+    errorManager.traceFunction(phase, okMessage, errorMessage) {
+      val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+      val sparkContext = getOrCreateClusterSparkContext(stepsSparkConfig, files)
+
+      setDispatcherSettings(workflow, sparkContext)
+    }
+
+    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+
+    try {
+      spartaWorkflow.setup()
+      notifyWorkflowStarted(workflow)
+      spartaWorkflow.stages()
+    } finally {
+      spartaWorkflow.cleanUp()
+    }
+  }
+
+  private[driver] def getErrorManager(workflow: Workflow): ErrorManager = {
+    if (workflow.debugMode.forall(mode => mode))
+      ZookeeperDebugErrorImpl(workflow, curatorFramework)
+    else ZookeeperErrorImpl(workflow, curatorFramework)
   }
 
   private[driver] def setDispatcherSettings(workflow: Workflow, sparkContext: SparkContext): Unit = {
@@ -143,13 +188,15 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
   }
 
   private[driver] def notifyWorkflowStarted(workflow: Workflow): Unit = {
-    val startedInfo = s"Workflow started correctly"
-    log.info(startedInfo)
-    statusService.update(WorkflowStatus(
-      id = workflow.id.get,
-      statusId = UUID.randomUUID.toString,
-      status = Started,
-      statusInfo = Some(startedInfo)
-    ))
+    if (workflow.debugMode.forall(mode => !mode)) {
+      val startedInfo = s"Workflow started successfully"
+      log.info(startedInfo)
+      statusService.update(WorkflowStatus(
+        id = workflow.id.get,
+        statusId = UUID.randomUUID.toString,
+        status = Started,
+        statusInfo = Some(startedInfo)
+      ))
+    }
   }
 }

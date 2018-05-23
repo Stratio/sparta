@@ -9,13 +9,13 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getNewOutputSchema, getSchemaFromRdd, getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd}
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.helpers.TransformStepHelper.sparkStreamingDiscardFunction
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.types.StructType
 
 class SplitTransformStepStreaming(

@@ -6,7 +6,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}

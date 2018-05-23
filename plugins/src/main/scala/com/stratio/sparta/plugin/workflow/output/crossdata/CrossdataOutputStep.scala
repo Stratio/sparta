@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.crossdata
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.sdk.workflow.step.OutputStep._
 import org.apache.spark.sql.DataFrame

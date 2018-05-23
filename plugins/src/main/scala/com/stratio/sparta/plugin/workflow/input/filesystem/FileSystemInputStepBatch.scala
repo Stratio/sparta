@@ -10,7 +10,7 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -18,6 +18,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
 
 class FileSystemInputStepBatch(
                                 name: String,

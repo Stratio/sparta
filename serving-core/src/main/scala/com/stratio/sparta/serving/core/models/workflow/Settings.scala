@@ -5,8 +5,8 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.sdk.models.ErrorsManagement
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.step.ErrorsManagement
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.{DeployMode, WorkflowExecutionMode}
@@ -60,7 +60,7 @@ case class SubmitArguments(
                             userArguments: Seq[UserSubmitArgument] = Seq.empty[UserSubmitArgument],
                             deployMode: Option[DeployMode] = Option(DeployMode.client),
                             driverJavaOptions: Option[JsoneyString] = Option(JsoneyString(
-                              """-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -XX:OnOutOfMemoryError="echo 'Spark Driver has run out of memory'" """))
+                              "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"))
                           )
 
 case class SparkConf(
@@ -75,7 +75,7 @@ case class SparkConf(
                       sparkSqlCaseSensitive: Option[Boolean] = None,
                       logStagesProgress: Option[Boolean] = None,
                       hdfsTokenCache: Option[Boolean] = None,
-                      executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString("""-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -XX:OnOutOfMemoryError="echo 'Spark Executor has run out of memory'" """))
+                      executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"))
                     )
 
 case class SparkResourcesConf(

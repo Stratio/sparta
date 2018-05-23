@@ -13,11 +13,12 @@ import com.stratio.sparta.plugin.workflow.transformation.cube.models._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.{CastingUtils, ClasspathUtils}
-import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema

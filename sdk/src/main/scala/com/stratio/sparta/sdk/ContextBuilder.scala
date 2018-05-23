@@ -6,7 +6,6 @@
 package com.stratio.sparta.sdk
 
 import com.stratio.sparta.sdk.utils.ClasspathUtils
-import com.stratio.sparta.sdk.workflow.step.WorkflowContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.crossdata.XDSession
