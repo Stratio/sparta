@@ -6,8 +6,8 @@
 package com.stratio.sparta.plugin.workflow.input.test
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.junit.runner.RunWith
 import org.scalatest.Matchers

@@ -10,9 +10,9 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.properties.{EnvironmentContext, JsoneyStringSerializer}
-import com.stratio.sparta.sdk.workflow.enumerators._
+import com.stratio.sparta.sdk.enumerators._
 import com.stratio.sparta.serving.core.actor.EnvironmentListenerActor.GetEnvironment
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._

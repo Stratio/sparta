@@ -6,9 +6,10 @@
 package com.stratio.sparta.plugin.workflow.input.crossdata
 
 import java.io.{Serializable => JSerializable}
+
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
+import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith

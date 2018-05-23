@@ -9,9 +9,9 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}

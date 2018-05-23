@@ -9,7 +9,7 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorRef, PoisonPill}
 import com.stratio.sparta.sdk.models.WorkflowError
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.SparkConstant._

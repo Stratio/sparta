@@ -9,7 +9,7 @@ import java.util.Date
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.apache.spark.streaming.TestSuiteBase

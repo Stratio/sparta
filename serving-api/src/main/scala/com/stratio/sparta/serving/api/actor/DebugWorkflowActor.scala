@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.workflow.step.DebugResults
+import com.stratio.sparta.sdk.models.DebugResults
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.DebugWorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Debug

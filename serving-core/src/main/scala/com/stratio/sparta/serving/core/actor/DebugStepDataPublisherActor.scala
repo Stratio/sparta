@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import com.stratio.sparta.sdk.workflow.step.ResultStep
+import com.stratio.sparta.sdk.models.ResultStep
 import com.stratio.sparta.serving.core.constants.AppConstant
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type

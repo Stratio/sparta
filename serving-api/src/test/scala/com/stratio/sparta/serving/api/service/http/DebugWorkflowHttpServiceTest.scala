@@ -14,7 +14,7 @@ import scala.concurrent.duration._
 import akka.testkit._
 import akka.util.Timeout
 import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.sdk.workflow.step.{DebugResults, ResultStep}
+import com.stratio.sparta.sdk.models.{DebugResults, ResultStep}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}

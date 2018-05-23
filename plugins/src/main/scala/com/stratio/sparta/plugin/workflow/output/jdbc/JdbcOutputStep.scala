@@ -7,21 +7,21 @@
 package com.stratio.sparta.plugin.workflow.output.jdbc
 
 import java.io.{Serializable => JSerializable}
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.apache.spark.sql.jdbc.{SpartaJdbcUtils, TxSaveMode}
-
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
+import com.stratio.sparta.sdk.models.ErrorValidations
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum.SpartaSaveMode
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputStep}
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum.SpartaSaveMode
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 
 class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {

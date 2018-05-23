@@ -15,12 +15,13 @@ import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.hadoop.fs.Path
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, InputStep, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.hadoop.io.{LongWritable, Text}
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
 
 class FileSystemInputStepStreaming(
                                     name: String,

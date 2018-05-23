@@ -5,9 +5,10 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.sdk.models.{DebugResults, ErrorsManagement}
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.step.{DebugResults, ErrorsManagement, InputStep, OutputStep}
+import com.stratio.sparta.sdk.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 

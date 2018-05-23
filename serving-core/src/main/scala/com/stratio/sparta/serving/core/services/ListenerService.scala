@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.services
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.models.WorkflowError
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._

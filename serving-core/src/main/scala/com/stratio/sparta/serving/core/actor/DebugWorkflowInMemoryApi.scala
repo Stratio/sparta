@@ -5,8 +5,7 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import com.stratio.sparta.sdk.models.WorkflowError
-import com.stratio.sparta.sdk.workflow.step.{DebugResults, ResultStep}
+import com.stratio.sparta.sdk.models.{DebugResults, ResultStep, WorkflowError}
 import com.stratio.sparta.serving.core.actor.DebugStepDataPublisherActor._
 import com.stratio.sparta.serving.core.actor.DebugStepErrorPublisherActor._
 import com.stratio.sparta.serving.core.actor.DebugWorkflowPublisherActor._

@@ -20,8 +20,8 @@ import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalVie
 import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{DiscardCondition, PropertyFields}
-import com.stratio.sparta.sdk.workflow.step.{ErrorValidations, OutputOptions, TransformStep, TransformationStepManagement}
+import com.stratio.sparta.sdk.models._
+import com.stratio.sparta.sdk.workflow.step.TransformStep
 
 //scalastyle:off
 abstract class DropColumnsTransformStep[Underlying[Row]](

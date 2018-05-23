@@ -10,7 +10,7 @@ import java.io.File
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.error.{ErrorManager, ZookeeperDebugErrorImpl, ZookeeperErrorImpl}

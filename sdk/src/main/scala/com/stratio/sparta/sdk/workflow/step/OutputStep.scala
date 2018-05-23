@@ -9,9 +9,10 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.models.{ErrorsManagement, OutputOptions}
 import com.stratio.sparta.sdk.properties.Parameterizable
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, Row, SaveMode}

@@ -9,7 +9,7 @@ import java.sql.Timestamp
 import java.util.UUID
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.sdk.workflow.step.OutputStep._
 import org.apache.log4j.{Level, Logger}

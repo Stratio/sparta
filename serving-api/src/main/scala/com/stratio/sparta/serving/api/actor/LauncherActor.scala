@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Props, _}
 import com.stratio.sparta.sdk.models.WorkflowError
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.security.{Edit, Execute, SpartaSecurityManager}
 import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor

@@ -3,12 +3,12 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.sdk.workflow.step
+package com.stratio.sparta.sdk.models
 
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
 
 case class ErrorsManagement(
                              genericErrorManagement: GenericManagement = GenericManagement(),

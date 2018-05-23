@@ -8,6 +8,7 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.models.OutputOptions
 import com.stratio.sparta.sdk.properties.Parameterizable
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.crossdata.XDSession

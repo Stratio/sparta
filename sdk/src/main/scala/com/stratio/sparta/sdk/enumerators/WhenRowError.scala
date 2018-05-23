@@ -3,11 +3,11 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.sdk.workflow.enumerators
+package com.stratio.sparta.sdk.enumerators
 
-object OutputFormatEnum extends Enumeration {
+object WhenRowError extends Enumeration {
 
-  type Status = Value
-  val ROW, JSON, AVRO = Value
+  type WhenRowError = Value
+  val RowError, RowDiscard = Value
 
 }

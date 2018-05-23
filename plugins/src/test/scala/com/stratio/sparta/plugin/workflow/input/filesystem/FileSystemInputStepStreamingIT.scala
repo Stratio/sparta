@@ -8,8 +8,8 @@ package com.stratio.sparta.plugin.workflow.input.filesystem
 import java.io.{File, PrintWriter}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

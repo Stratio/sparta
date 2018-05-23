@@ -11,10 +11,10 @@ import com.stratio.sparta.plugin.workflow.transformation.cube.Cube._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils._
 import com.stratio.sparta.sdk.utils.CastingUtils
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.workflow.step.ErrorCheckingOption
 import org.apache.spark.HashPartitioner
 import org.apache.spark.sql.Row

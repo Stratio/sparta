@@ -9,7 +9,7 @@ import java.util
 
 import com.databricks.spark.avro.RowAvroHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper
-import com.stratio.sparta.sdk.workflow.enumerators.OutputFormatEnum
+import com.stratio.sparta.sdk.enumerators.OutputFormatEnum
 import com.twitter.bijection.Injection
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.Schema

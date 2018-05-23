@@ -11,14 +11,14 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{DiscardCondition, PropertySchemasInput}
+import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
 import com.stratio.sparta.sdk.utils.CastingUtils
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
-import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession

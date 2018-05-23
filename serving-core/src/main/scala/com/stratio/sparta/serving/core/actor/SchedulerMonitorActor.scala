@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.{ActorRef, Cancellable, Props}
 import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
 import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._

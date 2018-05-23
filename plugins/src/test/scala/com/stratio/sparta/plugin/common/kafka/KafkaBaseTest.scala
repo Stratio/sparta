@@ -9,9 +9,9 @@ import java.io.Serializable
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStepStreaming
+import com.stratio.sparta.sdk.models.OutputOptions
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext

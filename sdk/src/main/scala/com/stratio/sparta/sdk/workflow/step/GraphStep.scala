@@ -7,6 +7,7 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.Serializable
 
+import com.stratio.sparta.sdk.models.ErrorValidations
 import com.stratio.sparta.sdk.properties.CustomProperties
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
 import org.apache.spark.sql.types.{IntegerType, _}

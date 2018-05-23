@@ -7,7 +7,8 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.models.{OutputFields, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext

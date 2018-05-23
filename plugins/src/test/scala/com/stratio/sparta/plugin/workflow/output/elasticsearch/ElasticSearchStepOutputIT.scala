@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.elasticsearch
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterAll

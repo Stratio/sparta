@@ -12,11 +12,13 @@ import akka.event.Logging
 import akka.util.Timeout
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
-import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.workflow.step._
-import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
+import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad, WorkflowContext}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv

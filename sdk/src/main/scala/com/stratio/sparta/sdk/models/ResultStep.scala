@@ -5,14 +5,11 @@
  */
 package com.stratio.sparta.sdk.models
 
-import java.util.Date
+import org.apache.spark.sql.types.StructType
 
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
-
-case class WorkflowError(
-                               message: String,
-                               phase: PhaseEnum.Value,
-                               originalMsg: String,
-                               date: Date = new Date,
-                               step: Option[String] = None
-                             )
+case class ResultStep(
+                       step: String,
+                       numEvents: Int = 0,
+                       schema: Option[StructType] = None,
+                       data: Option[String] = None
+                     )
