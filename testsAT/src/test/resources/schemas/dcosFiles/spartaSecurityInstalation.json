@@ -29,7 +29,7 @@
     "CORE_SITE_FROM_URI": "false",
     "CROSSDATA_LOG_LEVEL": "ERROR",
     "OAUTH2_URL_LOGOUT": "https://intbootstrap.labs.stratio.com:9005/sso/logout",
-    "HDFS_KEYTAB_RELOAD": "false",
+    "HDFS_KEYTAB_RELOAD": "true",
     "HADOOP_SECURITY_AUTH": "kerberos",
     "CROSSDATA_HDFS_DELEGATION_TOKEN_DISABLE_CACHE": "true",
     "SPARTA_PLUGIN_ZK_CONNECT": "gosec1.node.paas.labs.stratio.com:2181,gosec2.node.paas.labs.stratio.com:2181,gosec3.node.paas.labs.stratio.com:2181",

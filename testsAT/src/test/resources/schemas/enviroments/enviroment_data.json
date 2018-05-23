@@ -58,7 +58,7 @@
             "sparkSqlCaseSensitive": false,
             "logStagesProgress": false,
             "hdfsTokenCache": true,
-            "executorExtraJavaOptions": "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -XX:OnOutOfMemoryError=`echo 'Spark Executor has run out of memory'`"
+            "executorExtraJavaOptions": "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"
           }
         },
         "errorsManagement": {
