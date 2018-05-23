@@ -109,6 +109,7 @@ This software – including all its source code – contains proprietary informa
         <akka-kryo.version>0.5.0</akka-kryo.version>
         <leveldb.version>0.7</leveldb.version>
         <leveldbjni.version>1.8</leveldbjni.version>
+        <slick.version>3.2.3</slick.version>
         <license.header>LICENSE.txt</license.header>
         <sonar.exclusions>
             **/*.js,
@@ -867,6 +868,44 @@ This software – including all its source code – contains proprietary informa
                 <groupId>com.github.romix.akka</groupId>
                 <artifactId>akka-kryo-serialization_${scala.binary.version}</artifactId>
                 <version>${akka-kryo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.slick</groupId>
+                <artifactId>slick_2.11</artifactId>
+                <version>${slick.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.slick</groupId>
+                <artifactId>slick-hikaricp_2.11</artifactId>
+                <version>${slick.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

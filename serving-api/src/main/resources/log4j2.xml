@@ -79,5 +79,9 @@
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="stderr"/>
         </Logger>
+        <Logger name="slick" level="ERROR" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
     </Loggers>
 </Configuration>

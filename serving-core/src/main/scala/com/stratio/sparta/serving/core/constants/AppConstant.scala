@@ -29,6 +29,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigZookeeper = "zookeeper"
   val ConfigSpark = "spark"
   val ConfigCrossdata = "crossdata"
+  val ConfigPostgres = "sparta.postgres"
   val DefaultOauth2CookieName = "user"
   val ConfigMarathon = "marathon"
   val DefaultRememberPartitioner = true
