@@ -6,6 +6,9 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorRef, Cancellable, Props}
+import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
+import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
 import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._
@@ -16,11 +19,10 @@ import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.curator.framework.CuratorFramework

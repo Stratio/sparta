@@ -5,4 +5,12 @@
  */
 package com.stratio.sparta.sdk.workflow.step
 
-case class DebugResults(debugSuccessful: Boolean, results: Seq[ResultStep])
+import com.stratio.sparta.sdk.models.WorkflowError
+
+
+case class DebugResults(
+                         debugSuccessful: Boolean,
+                         stepResults: Map[String, ResultStep] = Map.empty,
+                         stepErrors: Map[String, WorkflowError] = Map.empty,
+                         genericError: Option[WorkflowError] = None
+                       )

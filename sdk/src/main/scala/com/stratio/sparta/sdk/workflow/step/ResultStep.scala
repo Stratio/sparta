@@ -8,7 +8,8 @@ package com.stratio.sparta.sdk.workflow.step
 import org.apache.spark.sql.types.StructType
 
 case class ResultStep(
-                   step: String,
-                   schema: Option[StructType],
-                   exampleData: Option[String],
-                   error: Option[String])
+                       step: String,
+                       numEvents: Int = 0,
+                       schema: Option[StructType] = None,
+                       data: Option[String] = None
+                     )

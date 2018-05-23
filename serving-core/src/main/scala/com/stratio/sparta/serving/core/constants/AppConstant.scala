@@ -55,6 +55,10 @@ object AppConstant extends ZookeeperUtils {
   val DefaultSerializationTimeout = 5000
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
+  val SparkLocalMaster = "local[1]"
+
+  //Debug Options
+  val DebugSparkWindow = 100
 
   //Workflow
   val defaultWorkflowRelationSettings = WorkflowRelationSettings(DataType.ValidData)
@@ -99,7 +103,6 @@ object AppConstant extends ZookeeperUtils {
     case (_, _, Some(confPath)) if checkIfValidPath(confPath) => confPath
     case _ => DefaultZKPath
   }
-
   lazy val WorkflowsZkPath = s"$BaseZkPath/workflows"
   lazy val WorkflowStatusesZkPath = s"$BaseZkPath/workflowStatuses"
   lazy val WorkflowExecutionsZkPath = s"$BaseZkPath/workflowExecutions"
@@ -108,6 +111,8 @@ object AppConstant extends ZookeeperUtils {
   lazy val EnvironmentZkPath = s"$BaseZkPath/environment"
   lazy val GroupZkPath = s"$BaseZkPath/group"
   lazy val DebugWorkflowZkPath = s"$BaseZkPath/debug"
+  lazy val DebugStepDataZkPath = s"$BaseZkPath/debugStepData"
+  lazy val DebugStepErrorZkPath = s"$BaseZkPath/debugStepError"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)

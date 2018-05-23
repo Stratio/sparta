@@ -6,16 +6,22 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Props, _}
+import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
+import com.stratio.sparta.security.{Edit, Execute, SpartaSecurityManager}
 import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
+import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, Start}
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Failed
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.services.{DebugWorkflowService, ExecutionService, WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
@@ -28,10 +34,12 @@ class LauncherActor(curatorFramework: CuratorFramework,
   extends Actor with ActionUserAuthorize {
 
   private val ResourceStatus = "status"
+  private val ResourceWorkflow = "workflow"
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val executionService = new ExecutionService(curatorFramework)
   private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
-
+  private val debugWorkflowService =
+    new DebugWorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
   private val marathonLauncherActor = context.actorOf(Props(
     new MarathonLauncherActor(curatorFramework, statusListenerActor)), MarathonLauncherActorName)
   private val clusterLauncherActor = context.actorOf(Props(
@@ -39,6 +47,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
 
   override def receive: Receive = {
     case Launch(id, user) => launch(id, user)
+    case Debug(id, user) => debug(id, user)
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 
@@ -53,13 +62,12 @@ class LauncherActor(curatorFramework: CuratorFramework,
           case WorkflowExecutionMode.dispatcher =>
             log.info(s"Launching workflow: ${workflow.name} in cluster mode")
             clusterLauncherActor
-          case WorkflowExecutionMode.local if !workflowService.anyLocalWorkflowRunning =>
-
-              val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
-              val childLauncherActor = context.children.find(children => children.path.name == actorName)
-              log.info(s"Launching workflow: ${workflow.name} in local mode")
-              childLauncherActor.getOrElse(context.actorOf(Props(
-                new LocalLauncherActor(statusListenerActor,curatorFramework)), actorName))
+          case WorkflowExecutionMode.local if !workflowService .anyLocalWorkflowRunning =>
+            val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
+            val childLauncherActor = context.children.find(children => children.path.name == actorName)
+            log.info(s"Launching workflow: ${workflow.name} in local mode")
+            childLauncherActor.getOrElse(
+              context.actorOf(Props(new LocalLauncherActor(curatorFramework)), actorName))
           case _ =>
             throw new Exception(
               s"Invalid execution mode in workflow ${workflow.name}: ${workflow.settings.global.executionMode}")
@@ -83,4 +91,32 @@ class LauncherActor(curatorFramework: CuratorFramework,
       }
     }
   }
+
+  def debug(id: String, user: Option[LoggedUser]): Unit = {
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> Execute)) {
+      Try {
+        val debugExecution = debugWorkflowService.findByID(id)
+          .getOrElse(throw new ServerException(s"No workflow debug execution with id $id"))
+        val workflow = debugExecution.workflowDebug
+          .getOrElse(throw new ServerException(s"The workflow debug is not created yet"))
+        val actorName = AkkaConstant.cleanActorName(s"DebugActor-${workflow.name}")
+        val childLauncherActor = context.children.find(children => children.path.name == actorName)
+        log.info(s"Debugging workflow: ${workflow.name}")
+        val workflowLauncherActor = childLauncherActor.getOrElse(
+          context.actorOf(Props(new DebugLauncherActor(curatorFramework)), actorName))
+
+        workflowLauncherActor ! Start(workflow, user.map(_.id))
+        (workflow, workflowLauncherActor)
+      } match {
+        case Success((workflow, launcherActor)) =>
+          log.debug(s"Workflow ${workflow.name} debugged into: ${launcherActor.toString()}")
+        case Failure(exception) =>
+          val information = s"Error debugging workflow with the selected execution mode"
+          log.error(information)
+          debugWorkflowService.setSuccessful(id, state = false)
+          debugWorkflowService.setError(id, Option(WorkflowError(information, PhaseEnum.Launch, exception.toString)))
+      }
+    }
+  }
+
 }

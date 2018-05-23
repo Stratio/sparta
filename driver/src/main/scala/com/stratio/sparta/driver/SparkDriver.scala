@@ -9,6 +9,8 @@ import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.services.ContextsService
+import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.exception.{DriverException, ErrorManagerException}
@@ -62,7 +64,6 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
       val workflow = execution.genericDataExecution.get.workflow
 
       Try {
-        val statusListenerActor = system.actorOf(Props(new StatusListenerActor))
         system.actorOf(Props(new ExecutionPublisherActor(curatorInstance)))
         system.actorOf(Props(new WorkflowPublisherActor(curatorInstance)))
         system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
@@ -75,7 +76,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
-        val contextService = ContextsService(curatorInstance, statusListenerActor)
+        val contextService = ContextsService(curatorInstance)
 
         if(workflow.executionEngine == WorkflowExecutionEngine.Batch)
           contextService.clusterContext(workflow, localPlugins)

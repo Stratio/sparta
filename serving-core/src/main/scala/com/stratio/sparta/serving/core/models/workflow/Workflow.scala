@@ -26,7 +26,8 @@ case class Workflow(
                      group: Group = DefaultGroup,
                      tags: Option[Seq[String]] = None,
                      status: Option[WorkflowStatus] = None,
-                     execution: Option[WorkflowExecution] = None
+                     execution: Option[WorkflowExecution] = None,
+                     debugMode: Option[Boolean] = Option(false)
                    )
 
 /**

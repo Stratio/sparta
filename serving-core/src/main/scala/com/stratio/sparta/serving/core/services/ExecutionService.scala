@@ -6,11 +6,12 @@
 package com.stratio.sparta.serving.core.services
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.{WorkflowError, WorkflowExecution}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._

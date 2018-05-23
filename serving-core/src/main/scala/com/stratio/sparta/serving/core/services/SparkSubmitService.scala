@@ -468,7 +468,7 @@ object SparkSubmitService {
   def getSparkLocalConfig: Map[String, String] = {
     val defaultConf = Map(
       SubmitNameConf -> spartaLocalAppName,
-      SubmitMasterConf -> "local[*]"
+      SubmitMasterConf -> SparkLocalMaster
     )
     val referenceConf = SpartaConfig.sparkConfig.fold(defaultConf) { sparkConfig =>
       sparkConfig.entrySet().iterator().toSeq.map { values =>

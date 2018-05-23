@@ -5,8 +5,8 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import com.stratio.sparta.sdk.workflow.step.ResultStep
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
@@ -14,24 +14,25 @@ import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Success, Try}
 
-class DebugWorkflowPublisherActor(curatorFramework: CuratorFramework) extends ListenerPublisher {
+class DebugStepDataPublisherActor(curatorFramework: CuratorFramework) extends ListenerPublisher {
 
-  import DebugWorkflowPublisherActor._
+  import DebugStepDataPublisherActor._
 
-  override val relativePath = AppConstant.DebugWorkflowZkPath
+  override val relativePath = AppConstant.DebugStepDataZkPath
 
   override def initNodeListener(): Unit = {
     val nodeListener = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
+        val eventData = event.getData
         Try {
-          read[DebugWorkflow](new String(event.getData.getData))
+          read[ResultStep](new String(eventData.getData))
         } match {
-          case Success(debugWorkflow) =>
+          case Success(debugStepData) =>
             event.getType match {
               case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
-                self ! DebugWorkflowChange(event.getData.getPath, debugWorkflow)
+                self ! DebugStepDataChange(event.getData.getPath, debugStepData)
               case Type.CHILD_REMOVED =>
-                self ! DebugWorkflowRemove(event.getData.getPath, debugWorkflow)
+                self ! DebugStepDataRemove(event.getData.getPath, debugStepData)
               case _ =>
             }
           case Failure(_) =>
@@ -46,19 +47,21 @@ class DebugWorkflowPublisherActor(curatorFramework: CuratorFramework) extends Li
   override def receive: Receive = debugWorkflowReceive.orElse(listenerReceive)
 
   def debugWorkflowReceive: Receive = {
-    case cd: DebugWorkflowChange =>
+    case cd: DebugStepDataChange =>
       context.system.eventStream.publish(cd)
-    case cd: DebugWorkflowRemove =>
+    case cd: DebugStepDataRemove =>
       context.system.eventStream.publish(cd)
   }
 }
 
-object DebugWorkflowPublisherActor {
+object DebugStepDataPublisherActor {
 
   trait Notification
 
-  case class DebugWorkflowChange(path: String, debugWorkflow: DebugWorkflow) extends Notification
+  case class DebugStepDataChange(path: String, debugStepData: ResultStep) extends Notification
 
-  case class DebugWorkflowRemove(path: String, debugWorkflow: DebugWorkflow) extends Notification
+  case class DebugStepDataRemove(path: String, debugStepData: ResultStep) extends Notification
 
 }
+
+

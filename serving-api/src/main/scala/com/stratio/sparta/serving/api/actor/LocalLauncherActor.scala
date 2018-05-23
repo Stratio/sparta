@@ -5,15 +5,16 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import java.io.File
 import java.util.UUID
 
-import akka.actor.{Actor, ActorRef, PoisonPill}
+import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
+import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
@@ -24,10 +25,9 @@ import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 
-class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: CuratorFramework)
-  extends Actor with SLF4JLogging {
+class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with SLF4JLogging {
 
-  lazy private val contextService: ContextsService = ContextsService(curatorFramework, statusListenerActor)
+  lazy private val contextService: ContextsService = ContextsService(curatorFramework)
   lazy private val statusService = new WorkflowStatusService(curatorFramework)
   lazy private val executionService = new ExecutionService(curatorFramework)
   lazy private val hdfsFilesService = HdfsFilesService()
@@ -46,7 +46,7 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
         status = NotStarted,
         lastUpdateDateWorkflow = workflow.lastUpdateDate
       ))
-      val jars = userPluginsFiles(workflow)
+      val jars = WorkflowHelper.userPluginsFiles(workflow, hdfsFilesService)
       jars.foreach(file => JarsHelper.addJarToClasspath(file))
       val startedInformation = s"Starting workflow in local mode"
       log.info(startedInformation)
@@ -68,18 +68,18 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
         localExecution = Option(LocalExecution(sparkURI = sparkUri))
       ))
       if (workflow.executionEngine == Streaming)
-        executeLocalStreamingContext(workflow, jars)
+        contextService.localStreamingContext(workflow, jars)
       if (workflow.executionEngine == Batch) {
-        executeLocalBatchContext(workflow, jars)
+        contextService.localContext(workflow, jars)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Stopping,
-          statusInfo = Some("Workflow executed correctly")
+          statusInfo = Some("Workflow executed successfully")
         ))
       }
     } match {
       case Success(_) =>
-        log.info("Workflow executed correctly")
+        log.info("Workflow executed successfully")
         self ! PoisonPill
       case Failure(_: ErrorManagerException) =>
         statusService.update(WorkflowStatus(
@@ -101,30 +101,4 @@ class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: Cu
     }
   }
 
-  private def executeLocalStreamingContext(workflow: Workflow, jars: Seq[File]): Unit =
-    contextService.localStreamingContext(workflow, jars)
-
-  private def executeLocalBatchContext(workflow: Workflow, jars: Seq[File]): Unit =
-    contextService.localContext(workflow, jars)
-
-  private def userPluginsFiles(workflow: Workflow): Seq[File] = {
-    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
-      Try {
-        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
-          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar")) {
-            val fileName = fileStatus.getPath.toUri.toString.replace("file://", "")
-            Option(new File(fileName))
-          } else None
-        }
-      }.getOrElse(Seq.empty[File])
-    else Seq.empty[File]
-
-    val userPlugins = workflow.settings.global.userPluginsJars
-      .filter(userJar => userJar.jarPath.toString.nonEmpty && userJar.jarPath.toString.endsWith(".jar"))
-      .map(_.jarPath.toString)
-      .distinct
-      .map(filePath => new File(filePath))
-
-    uploadedPlugins ++ userPlugins
-  }
 }

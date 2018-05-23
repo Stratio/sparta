@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.helpers
 
-import java.io.Serializable
+import java.io.{File, Serializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.utils.ClasspathUtils
@@ -13,6 +13,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
+import com.stratio.sparta.serving.core.services.HdfsFilesService
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -68,5 +69,26 @@ object WorkflowHelper extends SLF4JLogging {
     val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
     s"sparta/$inputServiceName/workflows/${retrieveGroup(wfModel.group.name)}" +
       s"/${wfModel.name}/${wfModel.name}-v${wfModel.version}"
+  }
+
+  def userPluginsFiles(workflow: Workflow, hdfsFilesService: HdfsFilesService): Seq[File] = {
+    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
+      Try {
+        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
+          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar")) {
+            val fileName = fileStatus.getPath.toUri.toString.replace("file://", "")
+            Option(new File(fileName))
+          } else None
+        }
+      }.getOrElse(Seq.empty[File])
+    else Seq.empty[File]
+
+    val userPlugins = workflow.settings.global.userPluginsJars
+      .filter(userJar => userJar.jarPath.toString.nonEmpty && userJar.jarPath.toString.endsWith(".jar"))
+      .map(_.jarPath.toString)
+      .distinct
+      .map(filePath => new File(filePath))
+
+    uploadedPlugins ++ userPlugins
   }
 }

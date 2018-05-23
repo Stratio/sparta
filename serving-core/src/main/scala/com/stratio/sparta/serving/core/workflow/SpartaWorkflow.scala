@@ -14,12 +14,13 @@ import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
+import com.stratio.sparta.sdk.workflow.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
-import com.stratio.sparta.serving.core.error.ZooKeeperError
+import com.stratio.sparta.serving.core.error.ErrorManager
 import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
@@ -27,9 +28,8 @@ import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow, WorkflowRelationSettings}
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
-import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -40,8 +40,8 @@ import scalax.collection.Graph
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
 import scalax.collection.edge.LDiEdge
 
-case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, curatorFramework: CuratorFramework)
-  extends CheckpointUtils with ZooKeeperError with DistributedMonadImplicits {
+case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, errorManager: ErrorManager)
+  extends CheckpointUtils with DistributedMonadImplicits {
 
   private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout")).getOrElse(DefaultApiTimeout) - 1
 
@@ -59,7 +59,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while executing the setup steps"
     val okMessage = s"Setup steps executed successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage) {
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       steps.foreach(step => step.setUp())
     }
   }
@@ -73,7 +73,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while executing the cleanup steps."
     val okMessage = s"Cleanup steps executed successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage) {
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       steps.foreach(step => step.cleanUp())
     }
   }
@@ -87,7 +87,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while executing the validate steps"
     val okMessage = s"Validate steps executed successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       steps.map(step => step.validate())
     }
   }
@@ -102,7 +102,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     log.debug("Creating workflow stages")
 
-    if (execute) clearError()
+    if (execute) errorManager.clearError()
 
     val withStandAloneExtraConf = !execute || workflow.settings.global.executionMode == local
     val initSqlSentences = {
@@ -212,7 +212,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
             val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
             val okMessage = s"Input step ${predecessor.name} written successfully"
 
-            traceFunction(phaseEnum, okMessage, errorMessage) {
+            errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
               inputs.find(_._1 == predecessor.name).foreach {
                 case (_, InputStepData(step, data, _)) =>
                   newOutput.writeTransform(
@@ -230,7 +230,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
             val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}"
             val okMessage = s"Transform step ${predecessor.name} written successfully"
 
-            traceFunction(phaseEnum, okMessage, errorMessage) {
+            errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
               val relationSettings = Try {
                 predecessor.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
               }.getOrElse(defaultWorkflowRelationSettings)
@@ -272,37 +272,49 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     node.stepType.toLowerCase match {
       case value if value == InputStep.StepType =>
         if (!graphContext.inputs.contains(node.name)) {
-          val input = createInputStep(node)
-          val (data, schema) = input.initWithSchema()
-          val inputStepData = InputStepData(input, data, schema)
+          val phaseEnum = PhaseEnum.Input
+          val errorMessage = s"An error was encountered while executing input step ${node.name}"
+          val okMessage = s"Input step ${node.name} executed successfully"
 
-          schema.foreach(sc => data.registerAsTable(workflowContext.xDSession, sc, node.name))
-          data.setStepName(inputIdentificationName(input), forced = true)
-          graphContext.inputs += (input.name -> inputStepData)
+          errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
+            val input = createInputStep(node)
+            val (data, schema) = input.initWithSchema()
+            val inputStepData = InputStepData(input, data, schema)
+
+            schema.foreach(sc => data.registerAsTable(workflowContext.xDSession, sc, node.name))
+            data.setStepName(inputIdentificationName(input), forced = true)
+            graphContext.inputs += (input.name -> inputStepData)
+          }
         }
       case value if value == TransformStep.StepType =>
         if (!graphContext.transformations.contains(node.name)) {
-          val tPredecessors = findTransformPredecessors(node)
-          val iPredecessors = findInputPredecessors(node)
-          val transform = createTransformStep(node)
-          val (validData, validSchema, discardedData, discardedSchema) = transform.transformWithDiscards(
-            iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
-          val iPredecessorsNames = iPredecessors.map { case (_, pInput) => inputIdentificationName(pInput.step) }.toSeq
-          val tPredecessorsNames = tPredecessors.map { case (name, pTransform) =>
-            transformIdentificationName(pTransform.step, relationDataTypeFromName(name))
-          }.toSeq
-          val discardedDataName = SdkSchemaHelper.discardTableName(node.name)
+          val phaseEnum = PhaseEnum.Transform
+          val errorMessage = s"An error was encountered while executing transform step ${node.name}"
+          val okMessage = s"Transform step ${node.name} executed successfully"
 
-          validSchema.foreach(sc => validData.registerAsTable(workflowContext.xDSession, sc, node.name))
-          discardedSchema.foreach(sc => discardedData.foreach(data => data.registerAsTable(workflowContext.xDSession, sc, discardedDataName)))
+          errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
+            val tPredecessors = findTransformPredecessors(node)
+            val iPredecessors = findInputPredecessors(node)
+            val transform = createTransformStep(node)
+            val (validData, validSchema, discardedData, discardedSchema) = transform.transformWithDiscards(
+              iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
+            val iPredecessorsNames = iPredecessors.map { case (_, pInput) => inputIdentificationName(pInput.step) }.toSeq
+            val tPredecessorsNames = tPredecessors.map { case (name, pTransform) =>
+              transformIdentificationName(pTransform.step, relationDataTypeFromName(name))
+            }.toSeq
+            val discardedDataName = SdkSchemaHelper.discardTableName(node.name)
 
-          validData.setStepName(transformIdentificationName(transform, DataType.ValidData), forced = false)
-          discardedData.foreach(data => data.setStepName(transformIdentificationName(transform, DataType.DiscardedData), forced = false))
+            validSchema.foreach(sc => validData.registerAsTable(workflowContext.xDSession, sc, node.name))
+            discardedSchema.foreach(sc => discardedData.foreach(data => data.registerAsTable(workflowContext.xDSession, sc, discardedDataName)))
 
-          graphContext.transformations += (node.name -> TransformStepData(
-            transform, validData, iPredecessorsNames ++ tPredecessorsNames, validSchema))
-          discardedData.foreach(data => graphContext.transformations += (discardedDataName -> TransformStepData(
-            transform, data, iPredecessorsNames ++ tPredecessorsNames, discardedSchema)))
+            validData.setStepName(transformIdentificationName(transform, DataType.ValidData), forced = false)
+            discardedData.foreach(data => data.setStepName(transformIdentificationName(transform, DataType.DiscardedData), forced = false))
+
+            graphContext.transformations += (node.name -> TransformStepData(
+              transform, validData, iPredecessorsNames ++ tPredecessorsNames, validSchema))
+            discardedData.foreach(data => graphContext.transformations += (discardedDataName -> TransformStepData(
+              transform, data, iPredecessorsNames ++ tPredecessorsNames, discardedSchema)))
+          }
         }
       case _ =>
         log.warn(s"Invalid node step type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
@@ -378,7 +390,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while creating transform step ${node.name}"
     val okMessage = s"Transform step ${node.name} created successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
@@ -420,7 +432,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while creating input step ${node.name}."
     val okMessage = s"Input step ${node.name} created successfully."
 
-    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
@@ -460,7 +472,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val errorMessage = s"An error was encountered while creating output step ${node.name}"
     val okMessage = s"Output step ${node.name} created successfully"
 
-    traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val classType = node.configuration.getOrElse(CustomTypeKey, node.className).toString
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(

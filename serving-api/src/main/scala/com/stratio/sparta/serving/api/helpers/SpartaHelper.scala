@@ -81,6 +81,8 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
       system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugWorkflowPublisherActor(curatorFramework)))
+      system.actorOf(Props(new DebugStepDataPublisherActor(curatorFramework)))
+      system.actorOf(Props(new DebugStepErrorPublisherActor(curatorFramework)))
 
       val controllerActor = system.actorOf(Props(new ControllerActor(
           curatorFramework,
@@ -98,7 +100,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       if(Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true })
         Option(system.actorOf(Props(new NginxActor()), NginxActorName))
 
-      log.info("Sparta server initiated correctly")
+      log.info("Sparta server initiated successfully")
     } else log.info("Sparta configuration is not defined")
   }
 }

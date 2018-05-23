@@ -8,6 +8,10 @@ package com.stratio.sparta.serving.core.actor
 import akka.event.slf4j.SLF4JLogging
 import akka.persistence._
 import akka.serialization.SerializationExtension
+import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.sdk.workflow.step.ResultStep
+import com.stratio.sparta.serving.core.actor.DebugStepDataPublisherActor.{DebugStepDataChange, DebugStepDataRemove}
+import com.stratio.sparta.serving.core.actor.DebugStepErrorPublisherActor.{DebugStepErrorChange, DebugStepErrorRemove}
 import com.stratio.sparta.serving.core.actor.DebugWorkflowPublisherActor.{DebugWorkflowChange, DebugWorkflowRemove}
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.GroupPublisherActor.{GroupChange, GroupRemove}
@@ -23,6 +27,8 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
   var executions = scala.collection.mutable.Map[String, WorkflowExecution]()
   var groups = scala.collection.mutable.Map[String, Group]()
   var debugWorkflows = scala.collection.mutable.Map[String, DebugWorkflow]()
+  var debugStepData = scala.collection.mutable.Map[String, ResultStep]()
+  var debugStepError = scala.collection.mutable.Map[String, WorkflowError]()
   val snapShotInterval = 1000
   val serialization = SerializationExtension(context.system)
   val serializer = serialization.findSerializerFor(SnapshotState(
@@ -31,7 +37,9 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
     statuses,
     executions,
     groups,
-    debugWorkflows
+    debugWorkflows,
+    debugStepData,
+    debugStepError
   ))
 
   def addWorkflowsWithEnv(workflow: Workflow): Unit =
@@ -39,6 +47,12 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
 
   def addDebugWorkflow(debugWorkflow: DebugWorkflow): Unit =
     debugWorkflow.workflowOriginal.id.foreach(id => debugWorkflows += (id -> debugWorkflow))
+
+  def addDebugStepData(path: String, data: ResultStep): Unit =
+    debugStepData += (path -> data)
+
+  def addDebugStepError(path: String, error: WorkflowError): Unit =
+    debugStepError += (path -> error)
 
   def addStatus(status: WorkflowStatus): Unit =
     statuses += (status.id -> status)
@@ -70,6 +84,13 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
   def removeDebugWorkflow(debugWorkflow: DebugWorkflow): Unit =
     debugWorkflow.workflowOriginal.id.foreach(id => debugWorkflows -= id)
 
+  def removeDebugStepData(path: String): Unit =
+    debugStepData -= path
+
+  def removeDebugStepError(path: String): Unit =
+    debugStepError -= path
+
+
   val receiveRecover: Receive = eventsReceive.orElse(snapshotRecover).orElse(recoverComplete)
 
   //scalastyle:off
@@ -85,7 +106,11 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
     case WorkflowRawRemove(_, workflow) => removeWorkflowsRaw(workflow)
     case GroupRemove(_, group) => removeGroup(group)
     case DebugWorkflowChange(_, debugWorkflow) => addDebugWorkflow(debugWorkflow)
+    case DebugStepDataChange(path, debugData) => addDebugStepData(path, debugData)
+    case DebugStepErrorChange(path, debugError) => addDebugStepError(path, debugError)
     case DebugWorkflowRemove(_, debugWorkflow) => removeDebugWorkflow(debugWorkflow)
+    case DebugStepDataRemove(path, _) => removeDebugStepData(path)
+    case DebugStepErrorRemove(path, _) => removeDebugStepError(path)
   }
 
   def snapshotRecover: Receive = {
@@ -98,6 +123,8 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
       executions = snapshot.executions
       groups = snapshot.groups
       debugWorkflows = snapshot.debugWorkflows
+      debugStepData = snapshot.debugStepData
+      debugStepError = snapshot.debugStepError
   }
 
   def recoverComplete: Receive = {
@@ -121,71 +148,93 @@ trait InMemoryServicesStatus extends PersistentActor with SLF4JLogging {
         statuses,
         executions,
         groups,
-        debugWorkflows
+        debugWorkflows,
+        debugStepData,
+        debugStepError
       ))
       saveSnapshot(bytes)
     }
   }
 
   def eventsReceive: Receive = {
-    case request@StatusChange(path, status) =>
-      persist(request) { case stChange =>
-        addStatus(stChange.workflowStatus)
+    case request@StatusChange(_, workflowStatus) =>
+      persist(request) { _ =>
+        addStatus(workflowStatus)
         checkSaveSnapshot()
       }
-    case request@StatusRemove(path, status) =>
-      persist(request) { case stRemove =>
-        removeStatus(stRemove.workflowStatus.id)
+    case request@StatusRemove(_, workflowStatus) =>
+      persist(request) { _ =>
+        removeStatus(workflowStatus.id)
         checkSaveSnapshot()
       }
-    case request@WorkflowChange(path, workflow) =>
-      persist(request) { case wChange =>
-        addWorkflowsWithEnv(wChange.workflow)
+    case request@WorkflowChange(_, workflow) =>
+      persist(request) { _ =>
+        addWorkflowsWithEnv(workflow)
         checkSaveSnapshot()
       }
-    case request@GroupChange(path, group) =>
-      persist(request) { case gChange =>
-        addGroup(gChange.group)
+    case request@GroupChange(_, group) =>
+      persist(request) { _ =>
+        addGroup(group)
         checkSaveSnapshot()
       }
-    case request@WorkflowRawChange(path, workflow) =>
-      persist(request) { case wChange =>
-        addWorkflowsRaw(wChange.workflow)
+    case request@WorkflowRawChange(_, workflow) =>
+      persist(request) { _ =>
+        addWorkflowsRaw(workflow)
         checkSaveSnapshot()
       }
-    case request@ExecutionChange(path, execution) =>
-      persist(request) { case eChange =>
-        addExecution(eChange.execution)
+    case request@ExecutionChange(_, execution) =>
+      persist(request) { _ =>
+        addExecution(execution)
         checkSaveSnapshot()
       }
-    case request@ExecutionRemove(path, execution) =>
-      persist(request) { case eRemove =>
-        removeExecution(eRemove.execution.id)
+    case request@ExecutionRemove(_, execution) =>
+      persist(request) { _ =>
+        removeExecution(execution.id)
         checkSaveSnapshot()
       }
-    case request@WorkflowRemove(path, workflow) =>
-      persist(request) { case wRemove =>
-        removeWorkflowsWithEnv(wRemove.workflow)
+    case request@WorkflowRemove(_, workflow) =>
+      persist(request) { _ =>
+        removeWorkflowsWithEnv(workflow)
         checkSaveSnapshot()
       }
-    case request@WorkflowRawRemove(path, workflow) =>
-      persist(request) { case wRemove =>
-        removeWorkflowsRaw(wRemove.workflow)
+    case request@WorkflowRawRemove(_, workflow) =>
+      persist(request) { _ =>
+        removeWorkflowsRaw(workflow)
         checkSaveSnapshot()
       }
-    case request@GroupRemove(path, group) =>
-      persist(request) { case gRemove =>
-        removeGroup(gRemove.group)
+    case request@GroupRemove(_, group) =>
+      persist(request) { _ =>
+        removeGroup(group)
         checkSaveSnapshot()
       }
-    case request@DebugWorkflowChange(path, debugWorkflow) =>
-      persist(request) { case wChange =>
-        addDebugWorkflow(wChange.debugWorkflow)
+    case request@DebugWorkflowChange(_, debugWorkflow) =>
+      persist(request) { _ =>
+        addDebugWorkflow(debugWorkflow)
         checkSaveSnapshot()
       }
-    case request@DebugWorkflowRemove(path, debugWorkflow) =>
-      persist(request) { case wRemove =>
-        removeDebugWorkflow(wRemove.debugWorkflow)
+    case request@DebugStepDataChange(path, stepData) =>
+      persist(request) { _ =>
+        addDebugStepData(path, stepData)
+        checkSaveSnapshot()
+      }
+    case request@DebugStepErrorChange(path, stepError) =>
+      persist(request) { _ =>
+        addDebugStepError(path, stepError)
+        checkSaveSnapshot()
+      }
+    case request@DebugWorkflowRemove(_, debugWorkflow) =>
+      persist(request) { _ =>
+        removeDebugWorkflow(debugWorkflow)
+        checkSaveSnapshot()
+      }
+    case request@DebugStepErrorRemove(path, _) =>
+      persist(request) { _ =>
+        removeDebugStepError(path)
+        checkSaveSnapshot()
+      }
+    case request@DebugStepDataRemove(path, _) =>
+      persist(request) { _ =>
+        removeDebugStepData(path)
         checkSaveSnapshot()
       }
   }
@@ -197,5 +246,7 @@ case class SnapshotState(
                           statuses: scala.collection.mutable.Map[String, WorkflowStatus],
                           executions: scala.collection.mutable.Map[String, WorkflowExecution],
                           groups: scala.collection.mutable.Map[String, Group],
-                          debugWorkflows: scala.collection.mutable.Map[String, DebugWorkflow]
+                          debugWorkflows: scala.collection.mutable.Map[String, DebugWorkflow],
+                          debugStepData: scala.collection.mutable.Map[String, ResultStep],
+                          debugStepError: scala.collection.mutable.Map[String, WorkflowError]
                         )

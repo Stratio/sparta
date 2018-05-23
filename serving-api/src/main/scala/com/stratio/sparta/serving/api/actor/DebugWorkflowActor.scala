@@ -11,6 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.workflow.step.DebugResults
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.DebugWorkflowInMemoryApi._
+import com.stratio.sparta.serving.core.actor.LauncherActor.Debug
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import com.stratio.sparta.serving.core.services.DebugWorkflowService
@@ -19,8 +20,11 @@ import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class DebugWorkflowActor(val curatorFramework: CuratorFramework,
-                         inMemoryDebugWorkflowApi: ActorRef)
+class DebugWorkflowActor(
+                          val curatorFramework: CuratorFramework,
+                          inMemoryDebugWorkflowApi: ActorRef,
+                          launcherActor: ActorRef
+                        )
                         (implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -28,7 +32,7 @@ class DebugWorkflowActor(val curatorFramework: CuratorFramework,
 
   val ResourceWorkflow = "workflow"
   val ResourceStatus = "status"
-  private val debugWorkflowService = new DebugWorkflowService(curatorFramework)
+  val debugService = new DebugWorkflowService(curatorFramework)
 
   override def receive: Receive = {
     case CreateDebugWorkflow(workflow, user) => createDebugWorkflow(workflow, user)
@@ -40,42 +44,41 @@ class DebugWorkflowActor(val curatorFramework: CuratorFramework,
 
   //@TODO[fl] controllare permessi dyplon
 
-  def createDebugWorkflow(debugWorkflow: DebugWorkflow, user: Option[LoggedUser]) : Unit = {
+  def createDebugWorkflow(debugWorkflow: DebugWorkflow, user: Option[LoggedUser]): Unit = {
     securityActionAuthorizer[ResponseDebugWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
-      debugWorkflowService.createDebugWorkflow(debugWorkflow)
+      debugService.createDebugWorkflow(debugWorkflow)
     }
   }
 
-  def find(id: String, user: Option[LoggedUser]) : Unit =
+  def find(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(
-    user,
-    Map(ResourceWorkflow -> View, ResourceStatus -> View),
-    Option(inMemoryDebugWorkflowApi)
-  ) {
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryDebugWorkflowApi)
+    ) {
       FindMemoryDebugWorkflow(id)
-  }
+    }
 
-  def findAll(user: Option[LoggedUser]) : Unit =  securityActionAuthorizer(
-    user,
-    Map(ResourceWorkflow -> View, ResourceStatus -> View),
-    Option(inMemoryDebugWorkflowApi)
-  ) {
-    FindAllMemoryDebugWorkflows
-  }
+  def findAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(
+      user,
+      Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryDebugWorkflowApi)
+    ) {
+      FindAllMemoryDebugWorkflows
+    }
 
-  def getResults(id: String, user: Option[LoggedUser]) : Unit =
-    securityActionAuthorizer(user,
-    Map(ResourceWorkflow -> View, ResourceStatus -> View),
+  def getResults(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> View, ResourceStatus -> View),
       Option(inMemoryDebugWorkflowApi)) {
       FindMemoryDebugResultsWorkflow(id)
     }
 
-  //@TODO[fl] add the actual running
-  def run(id: String, user: Option[LoggedUser]) : Unit = {
-    val actions = Map(ResourceStatus -> Edit)
+  def run(id: String, user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceStatus -> Execute)
     securityActionAuthorizer(user, actions) {
       Try {
-        id
+        launcherActor.forward(Debug(id.toString, user))
       }
     }
   }
