@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import java.util.UUID
+
 import akka.actor.{Props, _}
 import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
@@ -76,6 +78,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
           val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
             id = id,
+            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Option(information)
           ))

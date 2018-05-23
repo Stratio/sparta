@@ -6,6 +6,7 @@
 package com.stratio.sparta.driver.services
 
 import java.io.File
+import java.util.UUID
 
 import akka.actor.ActorRef
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
@@ -146,6 +147,7 @@ case class ContextsService(curatorFramework: CuratorFramework, listenerActor: Ac
     log.info(startedInfo)
     statusService.update(WorkflowStatus(
       id = workflow.id.get,
+      statusId = UUID.randomUUID.toString,
       status = Started,
       statusInfo = Some(startedInfo)
     ))

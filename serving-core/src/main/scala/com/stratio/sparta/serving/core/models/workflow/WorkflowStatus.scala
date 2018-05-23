@@ -10,6 +10,7 @@ import org.joda.time.DateTime
 
 case class WorkflowStatus(
                            id: String,
+                           statusId: String,
                            status: WorkflowStatusEnum.Value,
                            statusInfo: Option[String] = None,
                            creationDate: Option[DateTime] = None,

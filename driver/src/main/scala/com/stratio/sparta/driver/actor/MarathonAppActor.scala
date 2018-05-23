@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.driver.actor
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
@@ -63,6 +65,7 @@ class MarathonAppActor(
             preStopActions()
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
+              statusId = UUID.randomUUID.toString,
               status = if(status.status == Stopping) Stopped else status.status,
               statusInfo = Option(information)
             ))
@@ -79,6 +82,7 @@ class MarathonAppActor(
         val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
+          statusId = UUID.randomUUID.toString,
           status = Failed,
           statusInfo = Option(information)
         ))

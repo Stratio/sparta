@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.driver
 
+import java.util.UUID
+
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
@@ -72,6 +74,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
         log.info(startingInfo)
         statusService.update(WorkflowStatus(
           id = workflowId,
+          statusId = UUID.randomUUID.toString,
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
@@ -86,12 +89,14 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           log.info(information)
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
+            statusId = UUID.randomUUID.toString,
             status = Stopped,
             statusInfo = Some(information)
           ))
         case Failure(exception: ErrorManagerException) =>
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
+            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Option(exception.msg)
           ))
@@ -101,6 +106,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
+            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Option(information)
           ))

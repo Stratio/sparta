@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import java.util.UUID
+
 import akka.actor.{ActorRef, Cancellable, Props}
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
@@ -211,6 +213,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           log.info(information)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
+            statusId = UUID.randomUUID.toString,
             status = newStatus,
             statusInfo = newInformation
           ))
@@ -221,6 +224,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
+              statusId = UUID.randomUUID.toString,
               status = Failed,
               statusInfo = Some(error)
             ))
@@ -238,6 +242,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
       val newStatus = if (workflowStatus.status == Failed) NotDefined else Finished
       statusService.update(WorkflowStatus(
         id = workflowStatus.id,
+        statusId = UUID.randomUUID.toString,
         status = newStatus
       ))
     }
@@ -262,6 +267,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           log.info(information)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
+            statusId = UUID.randomUUID.toString,
             status = newStatus,
             statusInfo = newInformation
           ))
@@ -272,6 +278,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
+              statusId = UUID.randomUUID.toString,
               status = Failed,
               statusInfo = Some(error)
             ))
@@ -307,6 +314,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           log.info(information)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
+            statusId = UUID.randomUUID.toString,
             status = newStatus,
             statusInfo = Some(information)
           ))
@@ -317,6 +325,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error))
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
+            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Some(information)
           ))
@@ -327,6 +336,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
+            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Some(error)
           ))
@@ -351,23 +361,23 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         case status if wrongStartStates.contains(status) =>
           val information = s"Checker: the workflow  did not start correctly after maximum deployment time"
           log.warn(information.replace("  ", s" $id "))
-          statusService.update(WorkflowStatus(id = id, status = Failed, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(id = id, statusId = UUID.randomUUID.toString, status = Failed, statusInfo = Some(information)))
         case status if wrongStopStates.contains(status) =>
           val information = s"Checker: the workflow  did not stop correctly after maximum deployment time"
           log.warn(information.replace("  ", s" $id "))
-          statusService.update(WorkflowStatus(id = id, status = Failed, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(id = id, statusId = UUID.randomUUID.toString, status = Failed, statusInfo = Some(information)))
         case status if validStartStates.contains(status) =>
           val information = s"Checker: the workflow  started correctly"
           log.info(information.replace("  ", s" $id "))
-          statusService.update(WorkflowStatus(id = id, status = NotDefined, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(id = id, statusId = UUID.randomUUID.toString, status = NotDefined, statusInfo = Some(information)))
         case status if validStopStates.contains(status) =>
           val information = s"Checker: the workflow  stopped correctly"
           log.info(information.replace("  ", s" $id "))
-          statusService.update(WorkflowStatus(id = id, status = NotDefined, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(id = id, statusId = UUID.randomUUID.toString, status = NotDefined, statusInfo = Some(information)))
         case _ =>
           val information = s"Checker: the workflow  has invalid state ${workflowStatus.get.status}"
           log.info(information.replace("  ", s" $id "))
-          statusService.update(WorkflowStatus(id = id, status = Failed, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(id = id, statusId = UUID.randomUUID.toString, status = Failed, statusInfo = Some(information)))
       }
     } else log.info(s"Unable to find status $id in checker")
 
@@ -392,9 +402,9 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     for {
       (nameWorkflow, idWorkflow) <- runningButActuallyStopped
     } yield {
-      val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon of the workflow. Therefore, the workflow   was terminated."
+      val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon of the workflow. Therefore, the workflow was terminated."
       log.info(information.replace("  ", s" with id $idWorkflow and name $nameWorkflow "))
-      WorkflowStatus(id = idWorkflow, status = Stopped, statusInfo = Some(information))
+      WorkflowStatus(id = idWorkflow, statusId = UUID.randomUUID.toString, status = Stopped, statusInfo = Some(information))
     }
 
     listNewStatuses.foreach(newStatus => statusService.update(newStatus))

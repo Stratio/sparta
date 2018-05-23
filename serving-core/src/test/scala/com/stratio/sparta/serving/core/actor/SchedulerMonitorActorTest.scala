@@ -211,9 +211,9 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       lastUpdateDate = Option(new DateTime(timestampEpochTest))
     )
 
-    val testStatus = WorkflowStatus("1234", WorkflowStatusEnum.Started)
+    val testStatus = WorkflowStatus("1234", "statusId", WorkflowStatusEnum.Started)
 
-    val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed)
+    val testStatus2 = WorkflowStatus("5678", "statusId", WorkflowStatusEnum.Failed)
 
     val testExecution = WorkflowExecution("1234","1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
       WorkflowExecutionMode.marathon, "abc")))

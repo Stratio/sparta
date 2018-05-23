@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.driver
 
+import java.util.UUID
+
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
@@ -62,6 +64,7 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
           val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
             id = workflowId,
+            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Option(information)
           ))

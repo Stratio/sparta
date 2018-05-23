@@ -129,7 +129,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
 
     "LineageUtils StatusMetadata return metadataList with status" in new CommonMetadata {
       val result: Option[List[SpartaWorkflowStatusMetadata]] = LineageUtils.statusMetadataLineage(WorkflowStatusStream(
-        WorkflowStatus("qwerty12345", WorkflowStatusEnum.Failed),
+        WorkflowStatus("qwerty12345", "statusId", WorkflowStatusEnum.Failed),
         Option(testWorkflow01),
         Option(WorkflowExecution("qwerty12345","qwerty12345", None, None, None, None, Option(GenericDataExecution(
           testWorkflow01, WorkflowExecutionMode.dispatcher, "1234"))))))

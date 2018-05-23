@@ -55,7 +55,7 @@ class StatusActorTest extends TestKit(ActorSystem("StatusActorSpec", SpartaConfi
   val actor = system.actorOf(Props(new StatusActor(curatorFramework, statusListenerActor, statusInMemoryApi)))
   implicit val timeout: Timeout = Timeout(30.seconds)
   val id = "existingID"
-  val status = WorkflowStatus("existingID", WorkflowStatusEnum.Launched)
+  val status = WorkflowStatus("existingID", "statusId", WorkflowStatusEnum.Launched)
   val statusRaw =
     """
       |{

@@ -87,6 +87,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
         val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
+          statusId = UUID.randomUUID.toString,
           status = Failed,
           statusInfo = Option(information)
         ))
@@ -97,11 +98,13 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
         log.info(information)
         statusService.update(WorkflowStatus(
           workflow.id.get,
+          statusId = UUID.randomUUID.toString,
           status = NotStarted))
         Try(marathonApp.launch()) match {
           case Success(_) =>
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
+              statusId = UUID.randomUUID.toString,
               status = Uploaded,
               statusInfo = Option(information),
               lastUpdateDateWorkflow = workflow.lastUpdateDate
@@ -115,6 +118,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
             val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
+              statusId = UUID.randomUUID.toString,
               status = Failed,
               statusInfo = Option(information)
             ))

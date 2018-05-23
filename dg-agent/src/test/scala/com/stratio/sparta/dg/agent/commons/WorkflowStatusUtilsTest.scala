@@ -51,17 +51,18 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
       "we receive a transient state event" in {
         val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
           WorkflowStatus("qwerty12345",
-            WorkflowStatusEnum.Starting,
-            lastUpdateDate = Some(new DateTime(timestampEpochTest))),
-          Some(testWorkflow),
-          None
+                         "statusId",
+                         WorkflowStatusEnum.Starting,
+                         lastUpdateDate = Some(new DateTime(timestampEpochTest))),
+                         Some(testWorkflow),
+                         None
         )
         LineageUtils.statusMetadataLineage(statusEvent) should be (None)
       }
 
       "the event has no workflow info associated to the status" in {
         val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
-          WorkflowStatus("qwerty12345", WorkflowStatusEnum.Finished),
+          WorkflowStatus("qwerty12345", "statusId", WorkflowStatusEnum.Finished),
           None,
           None
         )
@@ -71,11 +72,13 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
 
     "return a List[SpartaWorkflowStatusMetadata]" in {
       val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
-        WorkflowStatus("qwerty12345", WorkflowStatusEnum.Finished,
-          lastUpdateDate = Option(new DateTime(timestampEpochTest)),
-          lastUpdateDateWorkflow = Option(new DateTime(timestampEpochTest))),
-        Some(testWorkflow),
-        None
+        WorkflowStatus("qwerty12345",
+                       "statusId",
+                       WorkflowStatusEnum.Finished,
+                       lastUpdateDate = Option(new DateTime(timestampEpochTest)),
+                       lastUpdateDateWorkflow = Option(new DateTime(timestampEpochTest))),
+                       Some(testWorkflow),
+                       None
       )
       val metadataPath =  MetadataPath(Seq("sparta",
         "home_test_subgroup_kafka-test_0",
