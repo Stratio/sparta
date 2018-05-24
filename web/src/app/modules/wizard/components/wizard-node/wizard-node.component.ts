@@ -60,8 +60,8 @@ export class WizardNodeComponent implements OnInit {
 
    /** Selectors */
    private _el: HTMLElement;
-   private _containerElement: d3.Selection<BaseType, any, any, any>;
-   private _nodeRectElement: d3.Selection<BaseType, any, any, any>;
+   private _containerElement: d3.Selection<any>;
+   private _nodeRectElement: d3.Selection<any>;
 
    private _drawingConectionStatus: DrawingConnectorStatus;
    private _selectedNode = false;

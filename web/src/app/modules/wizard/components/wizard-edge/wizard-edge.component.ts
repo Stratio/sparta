@@ -18,6 +18,8 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as d3 from 'd3';
+import { event as d3Event } from 'd3-selection';
+import { select as d3Select } from 'd3-selection';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
@@ -68,8 +70,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    }
 
    ngAfterContentInit(): void {
-      const container = d3
-         .select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
+      const container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
 
       this._svgAuxDefs = container.append('defs')
          .append('path')
@@ -86,7 +87,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
          .attr('class', 'edge-hover')
          .attr('stroke-width', '15')
          .on('contextmenu', (d, i) => {
-            const event = d3.event;
+            const event = d3Event;
             event.preventDefault();
             this.store.dispatch(new wizardActions.SelectSegmentAction({
                origin: this.initialEntityName,
@@ -145,7 +146,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    }
 
    selectedge() {
-      d3.event.stopPropagation();
+      d3Event.sourceEvent.stopPropagation();
       // deselect nodes
       this.store.dispatch(new wizardActions.UnselectEntityAction());
       if (this.selectedEdge && this.selectedEdge.origin === this.initialEntityName

@@ -173,7 +173,7 @@ export class WizardEffect {
             const wizard = state.wizard.wizard;
             const entities = state.wizard.entities;
             const workflow = Object.assign({
-                id: wizard.workflowId,
+                id: wizard.workflowId && wizard.workflowId.length ? wizard.workflowId : undefined,
                 version: wizard.workflowVersion,
                 executionEngine: entities.workflowType,
                 uiSettings: {

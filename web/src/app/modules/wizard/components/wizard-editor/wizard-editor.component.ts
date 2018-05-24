@@ -20,7 +20,7 @@ import { Store } from '@ngrx/store';
 import { event as d3Event } from 'd3-selection';
 import { zoom as d3Zoom } from 'd3-zoom';
 import { select as d3Select } from 'd3-selection';
-import { zoomIdentity } from 'd3';
+import { zoomIdentity } from 'd3-zoom';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
@@ -67,10 +67,10 @@ export class WizardEditorComponent implements OnInit {
    public showConnector = false;
 
    /** Selectors */
-   private _SVGParent: d3.Selection<d3.BaseType, any, any, any>;
-   private _SVGContainer: d3.Selection<d3.BaseType, any, any, any>;
-   private _documentRef: d3.Selection<d3.BaseType, any, any, any>;
-   private _connectorElement: d3.Selection<d3.BaseType, any, any, any>;
+   private _SVGParent: d3.Selection<any>;
+   private _SVGContainer: d3.Selection<any>;
+   private _documentRef: d3.Selection<any>;
+   private _connectorElement: d3.Selection<any>;
 
    public drawingConnectionStatus: DrawingConnectorStatus = {
       status: false,
@@ -79,7 +79,7 @@ export class WizardEditorComponent implements OnInit {
 
    public _svgPosition: ZoomTransform;
    private newOrigin = '';
-   private zoom: d3.ZoomBehavior<any, any>;
+   private zoom: any;
 
    constructor(private _elementRef: ElementRef,
       private _editorService: WizardEditorService,
@@ -97,7 +97,7 @@ export class WizardEditorComponent implements OnInit {
 
    private _initSelectors() {
       this._documentRef = d3Select(document);
-      const element: d3.Selection<Element, any, any, any> = d3Select(this._elementRef.nativeElement);
+      const element: d3.Selection<any> = d3Select(this._elementRef.nativeElement);
       this._SVGParent = element.select('#composition');
       this._SVGContainer = element.select('#svg-container');
       this._connectorElement = element.select('.connector-line');
