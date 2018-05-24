@@ -5,20 +5,17 @@
  */
 package com.stratio.sparta.serving.core.error
 
-import java.util.Date
+import java.util.{Date, UUID}
 
 import akka.event.Logging
 import akka.event.Logging.LogLevel
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.models
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{DebugWorkflowService, WorkflowStatusService}
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{DebugWorkflowService, ExecutionService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
@@ -80,7 +77,7 @@ trait ZooKeeperError extends ErrorManager {
   val executionService = new ExecutionService(curatorFramework)
 
   def traceError(error: WorkflowError): Unit = {
-    statusService.update(WorkflowStatus(workflow.id.get,statusId = UUID.randomUUID.toString, NotDefined, None))
+    statusService.update(WorkflowStatus(workflow.id.get, statusId = UUID.randomUUID.toString, NotDefined, None))
     executionService.setLastError(workflow.id.get, error)
   }
 

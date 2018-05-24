@@ -57,7 +57,6 @@ class ExecutionServiceTest extends WordSpecLike
   val executionID = "exec1"
   val exec = WorkflowExecution(
     id = "exec1",
-    uniqueId = "uniqueId",
     genericDataExecution = Option(GenericDataExecution(testWorkflow, WorkflowExecutionMode.local, "1")),
     sparkSubmitExecution = Option(SparkSubmitExecution(
       driverClass = "driver",

@@ -10,17 +10,29 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.StatusHistoryActor._
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
 import com.stratio.sparta.serving.core.dao.StatusHistoryDaoImpl
+import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistory
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.typesafe.config.ConfigFactory
-import slick.jdbc.H2Profile.api._
+import com.typesafe.config.Config
+import slick.jdbc.JdbcProfile
 
-import scala.util.Try
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
-class StatusHistoryActor extends Actor with StatusHistoryDaoImpl with SLF4JLogging {
+class StatusHistoryActor(val profileHistory: JdbcProfile, val config: Config) extends Actor
+  with StatusHistoryDaoImpl with SLF4JLogging {
+
+  val profile = profileHistory
+
+  import profile.api._
+
+  override val db: profile.api.Database = Database.forConfig("", config)
 
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[StatusChange])
-    //createSchema
+    createSchema() onComplete {
+      case Success(s) => log.info("Schema for status history table created")
+      case Failure(e) => log.error(e.getMessage, e)
+    }
   }
 
   override def postStop(): Unit = {
@@ -30,54 +42,28 @@ class StatusHistoryActor extends Actor with StatusHistoryDaoImpl with SLF4JLoggi
 
   override def receive: Receive = {
     case sc: StatusChange => upsert(sc.workflowStatus)
-    case QueryAll() => sender ! queryAll()
-    case QueryByWorkflowId(id) => sender ! queryByWorkflowId(id)
-    case QueryByUserId(userId) => sender ! queryByUserId(userId)
+    case FindAll() => sender ! findAll()
+    case FindByWorkflowId(id) => sender ! findByWorkflowId(id)
   }
 }
 
 //scalastyle:off
-object StatusHistoryActor{
+object StatusHistoryActor {
 
-  case class QueryAll()
+  case class FindAll()
 
-  case class QueryByWorkflowId(id: String)
+  case class FindByWorkflowId(id: String)
 
-  case class QueryByUserId(userId: String)
+  case class FindByUserId(userId: String)
 
   implicit def statusToDb(workflowStatus: WorkflowStatus): WorkflowStatusHistory = {
     WorkflowStatusHistory(
       workflowId = workflowStatus.id,
+      statusId = workflowStatus.statusId,
       statusInfo = workflowStatus.statusInfo,
       creationDate = workflowStatus.creationDate.map(_.getMillis).orElse(None),
       lastUpdateDate = workflowStatus.lastUpdateDate.map(_.getMillis).orElse(None),
       lastUpdateDateWorkflow = workflowStatus.lastUpdateDateWorkflow.map(_.getMillis).orElse(None)
     )
   }
-
-  case class WorkflowStatusHistory(workflowId: String,
-                                    statusInfo: Option[String] = None,
-                                    creationDate: Option[Long] = None,
-                                    lastUpdateDate: Option[Long] = None,
-                                    lastUpdateDateWorkflow: Option[Long] = None)
-
-  class WorkflowStatusHistoryTable(tag: Tag) extends Table[WorkflowStatusHistory](tag, Some("public"),
-    Try(ConfigFactory.load.getString("sparta.postgres.statusHistory.table")).getOrElse("workflow_status_history")){
-
-    def workflowId = column[String]("workflowId")
-
-    def statusInfo = column[Option[String]]("status_info")
-
-    def creationDate = column[Option[Long]]("creation_date")
-
-    def lastUpdateDate = column[Option[Long]]("last_update_date")
-
-    def lastUpdateDateWorkflow = column[Option[Long]]("last_update_date_workflow")
-
-    def * = (workflowId, statusInfo, creationDate, lastUpdateDate, lastUpdateDateWorkflow) <> (WorkflowStatusHistory.tupled, WorkflowStatusHistory.unapply)
-
-    def pk = primaryKey(s"pk_${Try(ConfigFactory.load.getString("sparta.postgres.statusHistory.table")).getOrElse("workflow_status_history")}", workflowId)
-  }
-
-  val workflowStatusHistoryTable = TableQuery[WorkflowStatusHistoryTable]
 }

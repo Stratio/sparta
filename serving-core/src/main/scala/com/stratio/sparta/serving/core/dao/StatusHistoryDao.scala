@@ -6,26 +6,73 @@
 
 package com.stratio.sparta.serving.core.dao
 
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.stratio.sparta.serving.core.utils.{JdbcSlickUtils, PostgresJdbcSlickImpl}
-import com.stratio.sparta.serving.core.actor.StatusHistoryActor._
-
+import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistory
+import com.stratio.sparta.serving.core.utils.JdbcSlickUtils
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
 
-trait StatusHistoryDao {
+//scalastyle:off
+trait StatusHistoryDao extends JdbcSlickUtils with SLF4JLogging{
 
- this: JdbcSlickUtils =>
+  import profile.api._
 
-  val table = workflowStatusHistoryTable
+  lazy val statusTableName : String = Try(SpartaConfig.getSpartaPostgres.get.getString("statusHistory.table"))
+    .getOrElse("workflow_status_history")
+  lazy val statusHistoryTable = TableQuery[WorkflowStatusHistoryTable]
 
-  def upsert(workflowStatus: WorkflowStatus): Future[_]  = ???
+  private def txHandler(dbioAction: DBIOAction[Unit, NoStream, Effect.All with Effect.Transactional]) = {
+    dbioAction.asTry.flatMap {
+      case Success(s) => DBIO.successful(s)
+      case Failure(e) => {
+        log.error(s"Error while trying to execute action over table $statusHistoryTable", e)
+        DBIO.failed(e)
+      }
+    }
+  }
 
-  def queryAll() : Future[_] = ???
+  def createSchema() : Future[Unit] = {
+    val dbioAction = (for {
+      _ <- statusHistoryTable.schema.create
+    } yield ()).transactionally
+    db.run(txHandler(dbioAction))
+  }
 
-  def queryByWorkflowId(id: String): Future[_]  = ???
+  def upsert(workflowStatus: WorkflowStatusHistory): Future[Unit]  = {
+    val dbioAction = DBIO.seq(
+      statusHistoryTable.insertOrUpdate(workflowStatus)
+    ).transactionally
+    db.run(txHandler(dbioAction))
+  }
 
-  def queryByUserId(userId: String): Future[_]  = ???
+  def findAll() : Future[List[WorkflowStatusHistory]] = db.run(statusHistoryTable.result).map(_.toList)
+
+  def findByWorkflowId(workflowId: String): Future[List[WorkflowStatusHistory]]  = db.run(
+    statusHistoryTable.filter(_.workflowId === workflowId).result).map(_.toList)
+
+  class WorkflowStatusHistoryTable(tag: Tag) extends Table[WorkflowStatusHistory](tag, Some("public"), statusTableName){
+
+    def workflowId = column[String]("workflow_id")
+
+    def statusId = column[String]("status_id")
+
+    def statusInfo = column[Option[String]]("status_info")
+
+    def creationDate = column[Option[Long]]("creation_date")
+
+    def lastUpdateDate = column[Option[Long]]("last_update_date")
+
+    def lastUpdateDateWorkflow = column[Option[Long]]("last_update_date_workflow")
+
+    def * = (workflowId, statusId, statusInfo, creationDate, lastUpdateDate, lastUpdateDateWorkflow) <>
+      (WorkflowStatusHistory.tupled, WorkflowStatusHistory.unapply)
+
+    def pk = primaryKey(s"pk_${Try(SpartaConfig.getSpartaPostgres.get.getString("statusHistory.table"))
+      .getOrElse("workflow_status_history")}", statusId)
+  }
 }
 
-trait StatusHistoryDaoImpl extends StatusHistoryDao with PostgresJdbcSlickImpl
+trait StatusHistoryDaoImpl extends StatusHistoryDao
