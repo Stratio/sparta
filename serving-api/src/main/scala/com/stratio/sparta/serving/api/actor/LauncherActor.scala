@@ -6,14 +6,11 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Props, _}
-import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.security.{Edit, Execute, SpartaSecurityManager}
-import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, Start}
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -55,6 +52,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
     securityActionAuthorizer(user, Map(ResourceStatus -> Edit)) {
       Try {
         val workflow = workflowService.findById(id)
+
+        workflowService.validateWorkflow(workflow)
+
         val workflowLauncherActor = workflow.settings.global.executionMode match {
           case WorkflowExecutionMode.marathon =>
             log.info(s"Launching workflow: ${workflow.name} in marathon mode")
@@ -99,6 +99,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
           .getOrElse(throw new ServerException(s"No workflow debug execution with id $id"))
         val workflow = debugExecution.workflowDebug
           .getOrElse(throw new ServerException(s"The workflow debug is not created yet"))
+
+        workflowService.validateDebugWorkflow(workflow)
+
         val actorName = AkkaConstant.cleanActorName(s"DebugActor-${workflow.name}")
         val childLauncherActor = context.children.find(children => children.path.name == actorName)
         log.info(s"Debugging workflow: ${workflow.name}")

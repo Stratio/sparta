@@ -56,26 +56,35 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
 
     "validate a correct workflow" in {
       val workflow = emptyWorkflow.copy(pipelineGraph = validPipeGraph)
-      val result = workflowValidatorService.validate(workflow)
-      val advancedResult = workflowValidatorService.validateJsoneySettings(workflow)
+      val basicResult = workflowValidatorService.validateBasicSettings(workflow)
+      val graphResult = workflowValidatorService.validateGraph(workflow)
+      val advancedResult = workflowValidatorService.validateAdvancedSettings(workflow)
+      val pluginsResult = workflowValidatorService.validatePlugins(workflow)
+      val allResult = workflowValidatorService.validateAll(workflow)
 
-      result.valid shouldBe true
+      basicResult.valid shouldBe true
+      graphResult.valid shouldBe true
       advancedResult.valid shouldBe true
+      pluginsResult.valid shouldBe true
+      allResult.valid shouldBe true
 
     }
 
     "validate a wrong workflow" in {
       val workflow = emptyWorkflow.copy(pipelineGraph = emptyPipeGraph)
-      val result = workflowValidatorService.validate(workflow)
-      val advancedResult = workflowValidatorService.validateJsoneySettings(workflow.copy(settings = wrongSettingsModel))
+      val graphResult = workflowValidatorService.validateGraph(workflow)
+      val allResult = workflowValidatorService.validateAll(workflow)
+      val advancedResult = workflowValidatorService.validateAdvancedSettings(
+        workflow.copy(settings = wrongSettingsModel))
 
-      result.valid shouldBe false
+      graphResult.valid shouldBe false
       advancedResult.valid shouldBe false
+      allResult.valid shouldBe false
     }
 
     "validate a wrong workflow with empty name" in {
       val workflow = emptyWorkflow.copy(name = "", pipelineGraph = validPipeGraph)
-      val result = workflowValidatorService.validate(workflow)
+      val result = workflowValidatorService.validateBasicSettings(workflow)
 
       result.valid shouldBe false
     }

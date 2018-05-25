@@ -102,7 +102,7 @@ class WorkflowService(
     log.debug(s"Creating workflow with name ${workflow.name}, version ${workflow.version} " +
       s"and group ${workflow.group.name}")
 
-    validateWorkflow(workflow, workflowWithEnv)
+    mandatoryValidationsWorkflow(workflow)
 
     val workflowWithFields = addCreationDate(addId(workflow))
 
@@ -170,7 +170,7 @@ class WorkflowService(
           )
           val workflowWithFields = addCreationDate(incVersion(addId(workflowWithVersionFields, force = true)))
 
-          validateWorkflow(workflowWithFields)
+          mandatoryValidationsWorkflow(workflowWithFields)
 
           curatorFramework.create.creatingParentsIfNeeded.forPath(
             s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
@@ -196,7 +196,8 @@ class WorkflowService(
 
   def update(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {
     log.debug(s"Updating workflow with id ${workflow.id.get}")
-    validateWorkflow(workflow, workflowWithEnv)
+
+    mandatoryValidationsWorkflow(workflow)
 
     val searchWorkflow = existsById(workflow.id.get)
     val searchByName = exists(workflow.name, workflow.version, workflow.group.id.get)
@@ -355,18 +356,30 @@ class WorkflowService(
     }
   }
 
-  /** PRIVATE METHODS **/
+  def validateWorkflow(workflow: Workflow): Unit = {
+    val basicValidation = validatorService.validateBasicSettings(workflow)
+    val validationWithGraph = basicValidation.combineWithAnd(basicValidation, validatorService.validateGraph(workflow))
+    val validationWithPlugins = validationWithGraph.combineWithAnd(validationWithGraph, validatorService.validatePlugins(workflow))
 
-  private[sparta] def validateWorkflow(workflow: Workflow, envWorkflow: Option[Workflow] = None): Unit = {
-    val basicValidation = validatorService.validate(workflow)
-    val validationResult = envWorkflow match {
-      case Some(workflowWithEnv) =>
-        basicValidation.combineWithAnd(basicValidation, validatorService.validateJsoneySettings(workflowWithEnv))
-      case None =>
-        basicValidation
-    }
+    if (!validationWithPlugins.valid)
+      throw new ServerException(s"Workflow is not valid. Cause: ${validationWithPlugins.messages.mkString("-")}")
+  }
+
+  def validateDebugWorkflow(workflow: Workflow): Unit = {
+    val validationResult = validatorService.validateBasicSettings(workflow)
+
     if (!validationResult.valid)
       throw new ServerException(s"Workflow is not valid. Cause: ${validationResult.messages.mkString("-")}")
+  }
+
+  /** PRIVATE METHODS **/
+
+  private[sparta] def mandatoryValidationsWorkflow(workflow: Workflow): Unit = {
+    val basicValidation = validatorService.validateBasicSettings(workflow)
+    val validationWithGraph = basicValidation.combineWithAnd(basicValidation, validatorService.validateGraph(workflow))
+
+    if (!validationWithGraph.valid)
+      throw new ServerException(s"Workflow is not valid. Cause: ${validationWithGraph.messages.mkString("-")}")
   }
 
   private[sparta] def exists(name: String, version: Long, group: String): Option[Workflow] =
