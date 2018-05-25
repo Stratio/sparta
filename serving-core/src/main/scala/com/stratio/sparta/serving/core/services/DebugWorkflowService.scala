@@ -117,6 +117,18 @@ class DebugWorkflowService(
 
   //scalastyle:on
 
+  def removeDebugStepData(id: String): Try[Unit] = {
+    Try {
+      if (CuratorFactoryHolder.existsPath(DebugStepDataZkPath)) {
+        val stepDataKey = curatorFramework.getChildren.forPath(DebugStepDataZkPath)
+        JavaConversions.asScalaBuffer(stepDataKey).toList.foreach { element =>
+          if (element.contains(id))
+            curatorFramework.delete().forPath(s"$DebugStepDataZkPath/$element")
+        }
+      }
+    }
+  }
+
   private def getDebugStepData(id: String): Map[String, ResultStep] =
     Try {
       if (CuratorFactoryHolder.existsPath(DebugStepDataZkPath)) {

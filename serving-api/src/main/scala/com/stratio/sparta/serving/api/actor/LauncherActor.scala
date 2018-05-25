@@ -105,6 +105,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
         val workflowLauncherActor = childLauncherActor.getOrElse(
           context.actorOf(Props(new DebugLauncherActor(curatorFramework)), actorName))
 
+        debugWorkflowService.removeDebugStepData(id)
         workflowLauncherActor ! Start(workflow, user.map(_.id))
         (workflow, workflowLauncherActor)
       } match {

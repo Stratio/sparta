@@ -264,6 +264,7 @@ object DistributedMonad {
   val PrimaryKey = "primaryKey"
   val TableNameKey = "tableName"
   val PartitionByKey = "partitionBy"
+  val StepName = "stepName"
 
   //scalastyle:off
   trait DistributedMonadImplicits {
@@ -488,7 +489,7 @@ object DistributedMonad {
   object Implicits extends DistributedMonadImplicits with ContextBuilderImplicits with Serializable
 
   private def saveOptionsFromOutputOptions(outputOptions: OutputOptions): Map[String, String] = {
-    Map(TableNameKey -> outputOptions.tableName) ++
+    Map(TableNameKey -> outputOptions.tableName, StepName -> outputOptions.stepName) ++
       outputOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
         Map(PartitionByKey -> partition)
       } ++

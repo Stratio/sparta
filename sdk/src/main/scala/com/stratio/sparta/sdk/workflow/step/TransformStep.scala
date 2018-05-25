@@ -10,11 +10,10 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.helpers.{CastingHelper, SdkSchemaHelper}
 import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
-import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
@@ -226,7 +225,7 @@ abstract class TransformStep[Underlying[Row]](
 
   def castingToOutputSchema(outSchema: StructField, inputValue: Any): Any =
     Try {
-      CastingUtils.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
+      CastingHelper.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
     } match {
       case Success(result) => result
       case Failure(e) => returnWhenFieldError(new Exception(

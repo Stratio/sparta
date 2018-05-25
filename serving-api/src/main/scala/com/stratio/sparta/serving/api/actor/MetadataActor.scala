@@ -26,6 +26,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.BackupRequest
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.sdk.constants.SdkConstants._
 
 class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with Json4sJacksonSupport

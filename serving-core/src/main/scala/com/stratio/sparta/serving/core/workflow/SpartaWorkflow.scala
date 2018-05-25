@@ -11,11 +11,10 @@ import java.io.Serializable
 import akka.event.Logging
 import akka.util.Timeout
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.helpers.{AggregationTimeHelper, SdkSchemaHelper}
 import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad, WorkflowContext}
@@ -35,6 +34,7 @@ import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
+import com.stratio.sparta.sdk.constants.SdkConstants._
 
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
@@ -124,7 +124,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       */
       val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
         .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
-      val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
+      val window = AggregationTimeHelper.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
       getOrCreateStreamingContext(Duration(window),
         workflowCheckpointPath.notBlank,
         workflow.settings.streamingSettings.remember.notBlank
@@ -476,12 +476,30 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val classType = node.configuration.getOrElse(CustomTypeKey, node.className).toString
+      val configuration = if(node.className.equalsIgnoreCase("DebugOutputStep")){
+        val zkConfig = SpartaConfig.getZookeeperConfig match {
+          case Some(config) => Map(
+            ZKConnection -> JsoneyString(config.getString(ZKConnection)),
+            ZKConnectionTimeout -> JsoneyString(config.getString(ZKConnectionTimeout)),
+            ZKSessionTimeout -> JsoneyString(config.getString(ZKSessionTimeout)),
+            ZKRetryAttemps -> JsoneyString(config.getString(ZKRetryAttemps)),
+            ZKRetryInterval -> JsoneyString(config.getString(ZKRetryInterval)),
+            StepErrorDataKey -> JsoneyString(DebugStepErrorZkPath),
+            StepDataKey -> JsoneyString(DebugStepDataZkPath),
+            WorkflowIdKey -> JsoneyString(workflow.id.get)
+
+          )
+          case None => Map.empty[String, JsoneyString]
+        }
+
+        node.configuration ++ zkConfig
+        } else node.configuration
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, workflowContext.xDSession, node.configuration).asInstanceOf[OutputStep[Underlying]],
+        ).newInstance(node.name, workflowContext.xDSession, configuration).asInstanceOf[OutputStep[Underlying]],
         customClasspathClasses
       )
     }

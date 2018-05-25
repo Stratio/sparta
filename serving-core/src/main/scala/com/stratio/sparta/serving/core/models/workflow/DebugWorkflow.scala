@@ -28,8 +28,8 @@ case class DebugWorkflow(
   private val debugOutputNode = NodeGraph(
     name = outputDebugName,
     stepType = OutputStep.StepType,
-    className = "PrintOutputStep",
-    classPrettyName = "Print",
+    className = "DebugOutputStep",
+    classPrettyName = "Debug",
     arity = Seq(NodeArityEnum.NullaryToNullary, NodeArityEnum.NaryToNullary),
     writer = WriterGraph(),
     configuration = Map(
@@ -48,6 +48,7 @@ case class DebugWorkflow(
       ),
       name = s"${workflowOriginal.name}-debug",
       status = None,
+      execution = None,
       uiSettings = None,
       pipelineGraph = pipelineGraphDebug(),
       debugMode = Option(true)

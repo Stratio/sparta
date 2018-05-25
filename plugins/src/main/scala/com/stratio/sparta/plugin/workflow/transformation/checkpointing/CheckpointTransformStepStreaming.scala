@@ -9,10 +9,9 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.helpers.{AggregationTimeHelper, SdkSchemaHelper}
 import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.TransformStep
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
@@ -32,7 +31,7 @@ class CheckpointTransformStepStreaming(
   extends TransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val interval: Option[Duration] = Try(properties.getString("interval", None).notBlank.map(time =>
-    Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(time)))).toOption.flatten
+    Milliseconds(AggregationTimeHelper.parseValueToMilliSeconds(time)))).toOption.flatten
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

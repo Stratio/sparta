@@ -8,10 +8,10 @@ package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 import java.util.Date
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
-import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.helpers.CastingHelper
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
@@ -51,21 +51,21 @@ class MinOperator(
   private[operators] def minCheckingType(values: Iterable[Any]): Any =
     values.head match {
       case _: Double =>
-        values.map(CastingUtils.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).min
+        values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).min
       case _: Float =>
-        values.map(CastingUtils.castingToSchemaType(FloatType, _).asInstanceOf[Float]).min
+        values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]).min
       case _: Int =>
-        values.map(CastingUtils.castingToSchemaType(IntegerType, _).asInstanceOf[Int]).min
+        values.map(CastingHelper.castingToSchemaType(IntegerType, _).asInstanceOf[Int]).min
       case _: Short =>
-        values.map(CastingUtils.castingToSchemaType(ShortType, _).asInstanceOf[Short]).min
+        values.map(CastingHelper.castingToSchemaType(ShortType, _).asInstanceOf[Short]).min
       case _: Long =>
-        values.map(CastingUtils.castingToSchemaType(LongType, _).asInstanceOf[Long]).min
+        values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).min
       case _: String =>
-        values.map(CastingUtils.castingToSchemaType(StringType, _).asInstanceOf[String]).min
+        values.map(CastingHelper.castingToSchemaType(StringType, _).asInstanceOf[String]).min
       case _: java.sql.Timestamp =>
-        values.map(CastingUtils.castingToSchemaType(LongType, _).asInstanceOf[Long]).min
+        values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).min
       case _: Date =>
-        values.map(CastingUtils.castingToSchemaType(DateType, _).asInstanceOf[Date]).min
+        values.map(CastingHelper.castingToSchemaType(DateType, _).asInstanceOf[Date]).min
       case _ =>
         throw new Exception(s"Unsupported type in MinOperator")
     }

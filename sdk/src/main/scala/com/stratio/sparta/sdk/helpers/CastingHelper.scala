@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.sdk.utils
+package com.stratio.sparta.sdk.helpers
 
 import java.nio.charset.Charset
 import java.sql.Timestamp
@@ -11,7 +11,7 @@ import java.util
 import java.util.Date
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils._
+import com.stratio.sparta.sdk.helpers.AggregationTimeHelper._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StructType, _}
 import org.json4s.JDecimal
@@ -20,7 +20,7 @@ import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
 import scala.collection.JavaConverters._
 
 //scalastyle:off
-object CastingUtils {
+object CastingHelper {
 
   def castingToSchemaType(dataTypeToCast: DataType, origValue: Any): Any = {
     dataTypeToCast match {

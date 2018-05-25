@@ -9,10 +9,9 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModel, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
+import com.stratio.sparta.sdk.helpers.{AggregationTimeHelper, SdkSchemaHelper}
 import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.TransformStep
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
@@ -32,9 +31,9 @@ class WindowTransformStepStreaming(
   extends TransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val overLast: Option[Duration] = Try(properties.getString("overLast", None)
-    .notBlank.map(over => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(over)))).toOption.flatten
+    .notBlank.map(over => Milliseconds(AggregationTimeHelper.parseValueToMilliSeconds(over)))).toOption.flatten
   lazy val computeEvery: Option[Duration] = Try(properties.getString("computeEvery", None)
-    .notBlank.map(every => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(every)))).toOption.flatten
+    .notBlank.map(every => Milliseconds(AggregationTimeHelper.parseValueToMilliSeconds(every)))).toOption.flatten
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
