@@ -4,15 +4,15 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.dao
+package com.stratio.sparta.serving.api.dao
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistory
 import com.stratio.sparta.serving.core.utils.JdbcSlickUtils
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
@@ -28,17 +28,23 @@ trait StatusHistoryDao extends JdbcSlickUtils with SLF4JLogging{
     dbioAction.asTry.flatMap {
       case Success(s) => DBIO.successful(s)
       case Failure(e) => {
-        log.error(s"Error while trying to execute action over table $statusHistoryTable", e)
+        log.error(s"Error while trying to execute action over table $statusTableName", e)
         DBIO.failed(e)
       }
     }
   }
 
-  def createSchema() : Future[Unit] = {
-    val dbioAction = (for {
-      _ <- statusHistoryTable.schema.create
-    } yield ()).transactionally
-    db.run(txHandler(dbioAction))
+  def createSchema() : Unit = {
+    db.run(statusHistoryTable.exists.result) onComplete {
+      case Success(_) =>
+        log.info(s"Schema already exists")
+      case Failure(_) =>
+        log.info(s"Creating schema for table $statusTableName")
+        val dbioAction = (for {
+          _ <- statusHistoryTable.schema.create
+        } yield ()).transactionally
+        db.run(txHandler(dbioAction))
+    }
   }
 
   def upsert(workflowStatus: WorkflowStatusHistory): Future[Unit]  = {
@@ -59,6 +65,8 @@ trait StatusHistoryDao extends JdbcSlickUtils with SLF4JLogging{
 
     def statusId = column[String]("status_id")
 
+    def status = column[String]("status")
+
     def statusInfo = column[Option[String]]("status_info")
 
     def creationDate = column[Option[Long]]("creation_date")
@@ -67,11 +75,12 @@ trait StatusHistoryDao extends JdbcSlickUtils with SLF4JLogging{
 
     def lastUpdateDateWorkflow = column[Option[Long]]("last_update_date_workflow")
 
-    def * = (workflowId, statusId, statusInfo, creationDate, lastUpdateDate, lastUpdateDateWorkflow) <>
+    def * = (workflowId, statusId, status, statusInfo, creationDate, lastUpdateDate, lastUpdateDateWorkflow) <>
       (WorkflowStatusHistory.tupled, WorkflowStatusHistory.unapply)
 
-    def pk = primaryKey(s"pk_${Try(SpartaConfig.getSpartaPostgres.get.getString("statusHistory.table"))
-      .getOrElse("workflow_status_history")}", statusId)
+    def pk = primaryKey(s"pk_$statusTableName", statusId)
+
+    def statusIndex = index(s"idx_$statusTableName", statusId, unique = true)
   }
 }
 

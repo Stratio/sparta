@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.models.history
 
 case class WorkflowStatusHistory(workflowId: String,
                                  statusId: String,
+                                 status: String,
                                  statusInfo: Option[String] = None,
                                  creationDate: Option[Long] = None,
                                  lastUpdateDate: Option[Long] = None,
