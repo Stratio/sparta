@@ -274,11 +274,6 @@ This software – including all its source code – contains proprietary informa
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>1.6.4</version>
-        </dependency>
-        <dependency>
             <groupId>com.typesafe.slick</groupId>
             <artifactId>slick_2.11</artifactId>
             <exclusions>

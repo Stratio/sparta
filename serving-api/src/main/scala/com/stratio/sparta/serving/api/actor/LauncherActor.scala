@@ -21,6 +21,7 @@ import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.stratio.sparta.serving.core.services.{DebugWorkflowService, ExecutionService, WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 
@@ -113,12 +114,15 @@ class LauncherActor(curatorFramework: CuratorFramework,
         (workflow, workflowLauncherActor)
       } match {
         case Success((workflow, launcherActor)) =>
-          log.debug(s"Workflow ${workflow.name} debugged into: ${launcherActor.toString()}")
+          val startDate = new DateTime()
+          log.debug(s"Workflow ${workflow.name} debugged into: ${launcherActor.toString()} at time: $startDate")
+          Try(startDate)
         case Failure(exception) =>
           val information = s"Error debugging workflow with the selected execution mode"
           log.error(information)
           debugWorkflowService.setSuccessful(id, state = false)
           debugWorkflowService.setError(id, Option(WorkflowError(information, PhaseEnum.Launch, exception.toString)))
+          throw exception
       }
     }
   }

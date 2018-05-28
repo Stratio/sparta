@@ -15,6 +15,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import com.stratio.sparta.serving.core.services.WorkflowService._
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.{read, _}
 
 import scala.collection.JavaConversions
@@ -75,6 +76,23 @@ class DebugWorkflowService(
         val newDebug = actualDebug.copy(result = Option(newResult))
         curatorFramework.setData().forPath(debugWorkflowLocation, write(newDebug).getBytes)
         newDebug
+      } else throw new ServerException(errorFindById(id))
+    }
+  }
+
+  def setEndDate(id: String): Try[Unit] = {
+    log.debug(s"Setting end date to debug execution with id $id")
+    Try {
+      val debugWorkflowLocation = s"$DebugWorkflowZkPath/$id"
+      if (CuratorFactoryHolder.existsPath(debugWorkflowLocation)) {
+        val actualDebug = read[DebugWorkflow](new String(curatorFramework.getData.forPath(debugWorkflowLocation)))
+
+        actualDebug.result.foreach { result =>
+          val newResult = result.copy(endExecutionDate = Option(new DateTime()))
+          val newDebug = actualDebug.copy(result = Option(newResult))
+
+          curatorFramework.setData().forPath(debugWorkflowLocation, write(newDebug).getBytes)
+        }
       } else throw new ServerException(errorFindById(id))
     }
   }

@@ -17,6 +17,7 @@ import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import com.stratio.sparta.serving.core.services.DebugWorkflowService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 
 import scala.util.Try
 
@@ -75,12 +76,7 @@ class DebugWorkflowActor(
     }
 
   def run(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceStatus -> Execute)
-    securityActionAuthorizer(user, actions) {
-      Try {
-        launcherActor.forward(Debug(id.toString, user))
-      }
-    }
+    launcherActor.forward(Debug(id.toString, user))
   }
 
 }
@@ -104,7 +100,7 @@ object DebugWorkflowActor extends SLF4JLogging {
 
   type ResponseResult = Try[DebugResults]
 
-  type ResponseRun = Try[String]
+  type ResponseRun = Try[DateTime]
 
   type ResponseAny = Try[Any]
 
