@@ -43,12 +43,12 @@ abstract class DropColumnsTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
 
     if (Try(fields.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input fields are not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input fields are not valid", name))
     }
 
     //If contains schemas, validate if it can be parsed
@@ -57,20 +57,20 @@ abstract class DropColumnsTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
       }
     }
 
     if (fields.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory at least one column to drop"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory at least one column to drop", name)
       )
 
     validation

@@ -12,7 +12,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper.getDataStoreUri
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
@@ -45,19 +45,19 @@ class JdbcInputStepBatch(
     if (urlWithSSL.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the url must be provided"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the url must be provided", name)
       )
 
     if (table.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the table must be provided"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the table must be provided", name)
       )
 
     if(tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: when TLS is enabled the sparkConf must contain the security options"
+        messages = validation.messages :+ WorkflowValidationMessage(s"when TLS is enabled the sparkConf must contain the security options", name)
       )
     validation
   }

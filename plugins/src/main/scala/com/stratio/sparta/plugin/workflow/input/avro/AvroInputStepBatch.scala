@@ -18,7 +18,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import com.databricks.spark.avro._
 import com.stratio.sparta.plugin.helper.SchemaHelper
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import org.apache.avro.Schema
 import org.apache.spark.sql.Row
 
@@ -43,7 +43,7 @@ class AvroInputStepBatch(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input path cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input path cannot be empty", name)
       )
 
     validation

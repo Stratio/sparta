@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
+import com.stratio.sparta.sdk.models.WorkflowValidationMessage
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
@@ -83,7 +84,7 @@ trait HttpServiceBaseTest extends WordSpec
   }
 
   protected def getNotValidWorkflowValidation(): WorkflowValidation = {
-    WorkflowValidation(valid = false, Seq("Invalid workflow"))
+    WorkflowValidation(valid = false, Seq(WorkflowValidationMessage("Invalid workflow")))
   }
 
   protected def getWorkflowModel(): Workflow = {

@@ -18,7 +18,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 
 class FileSystemInputStepBatch(
                                 name: String,
@@ -39,7 +39,7 @@ class FileSystemInputStepBatch(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the path cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the path cannot be empty", name)
       )
 
     validation

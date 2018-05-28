@@ -19,7 +19,7 @@ import org.postgresql.core.BaseConnection
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum.SpartaSaveMode
@@ -47,11 +47,11 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
     if (url.isEmpty)
-      validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name: the url must be provided")
+      validation = ErrorValidations(valid = false, messages = validation.messages :+ WorkflowValidationMessage(s"the url must be provided", name))
     if (tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: when TLS is enable the sparkConf must contain the security options"
+        messages = validation.messages :+ WorkflowValidationMessage(s"when TLS is enabled, the security options inside sparkConf must be filled", name)
       )
 
     validation

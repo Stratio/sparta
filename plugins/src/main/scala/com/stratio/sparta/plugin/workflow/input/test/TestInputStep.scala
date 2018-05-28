@@ -11,7 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.enumerations.EventType
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
@@ -64,18 +64,18 @@ abstract class TestInputStep[Underlying[Row]](
     if(eventType.equals(EventType.STRING) && event.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the event field cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the event field cannot be empty", name)
       )
     else if (eventType.equals(EventType.RANDOM_NUMBER) && maxNumber.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the max number field cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the max number field cannot be empty", name)
       )
 
     if (properties.getString("numEvents", None).isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the number of events field cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the number of events field cannot be empty", name)
       )
     validation
   }

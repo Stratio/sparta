@@ -29,7 +29,7 @@ import org.json4s.{DefaultFormats, Formats}
 import scala.util.Try
 import DistributedMonad.Implicits._
 import com.stratio.sparta.plugin.models.TopicModel
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import org.apache.kafka.clients.consumer.ConsumerConfig._
 
 class KafkaInputStepStreaming(
@@ -64,33 +64,33 @@ class KafkaInputStepStreaming(
     if (brokerList.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the bootstrap server definition is wrong"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the bootstrap server definition is wrong", name)
       )
     if (topics.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the topic cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the topic cannot be empty", name)
       )
 
     if (heartbeatIntervalMs >= sessionTimeOutMs)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+
-          s"$name: the $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG"
+          WorkflowValidationMessage(s"the $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG", name)
       )
 
     if (requestTimeoutMs <= sessionTimeOutMs)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+
-          s"$name: the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG"
+          WorkflowValidationMessage(s"the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG", name)
       )
 
     if (requestTimeoutMs <= fetchMaxWaitMs)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+
-          s"$name: the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG"
+          WorkflowValidationMessage(s"the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG", name)
       )
 
     validation
