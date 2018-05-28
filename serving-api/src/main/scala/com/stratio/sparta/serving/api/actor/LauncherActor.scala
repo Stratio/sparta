@@ -86,7 +86,6 @@ class LauncherActor(curatorFramework: CuratorFramework,
           val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
           statusService.update(WorkflowStatus(
             id = id,
-            statusId = UUID.randomUUID.toString,
             status = Failed,
             statusInfo = Option(information)
           ))

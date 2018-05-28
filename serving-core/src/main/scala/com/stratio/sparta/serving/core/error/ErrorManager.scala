@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.error
 
-import java.util.{Date, UUID}
+import java.util.Date
 
 import akka.event.Logging
 import akka.event.Logging.LogLevel
@@ -77,7 +77,7 @@ trait ZooKeeperError extends ErrorManager {
   val executionService = new ExecutionService(curatorFramework)
 
   def traceError(error: WorkflowError): Unit = {
-    statusService.update(WorkflowStatus(workflow.id.get, statusId = UUID.randomUUID.toString, NotDefined, None))
+    statusService.update(WorkflowStatus(workflow.id.get, NotDefined, None, None))
     executionService.setLastError(workflow.id.get, error)
   }
 

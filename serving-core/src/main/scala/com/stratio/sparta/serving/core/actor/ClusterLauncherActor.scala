@@ -87,7 +87,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Failed,
           statusInfo = Option(information)
         ))
@@ -98,7 +97,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Failed,
           statusInfo = Option(information)
         ))
@@ -108,7 +106,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         log.info(information)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = NotStarted,
           statusInfo = Option(information)
         ))
@@ -159,7 +156,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         val error = WorkflowError(information, PhaseEnum.Execution, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Failed,
           statusInfo = Option(information)
         ))
@@ -169,7 +165,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         log.info(information)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Launched,
           statusInfo = Option(information)
         ))

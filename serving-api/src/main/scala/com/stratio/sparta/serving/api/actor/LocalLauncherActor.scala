@@ -43,7 +43,6 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
       val sparkUri = LinkHelper.getClusterLocalLink
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
-        statusId = UUID.randomUUID.toString,
         status = NotStarted,
         lastUpdateDateWorkflow = workflow.lastUpdateDate
       ))
@@ -53,7 +52,6 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
       log.info(startedInformation)
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
-        statusId = UUID.randomUUID.toString,
         status = Starting,
         statusInfo = Some(startedInformation)
       ))
@@ -75,7 +73,6 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         contextService.localContext(workflow, jars)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Stopping,
           statusInfo = Some("Workflow executed successfully")
         ))
@@ -87,7 +84,6 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
       case Failure(_: ErrorManagerException) =>
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Failed
         ))
         self ! PoisonPill
@@ -97,7 +93,6 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         val error = WorkflowError(information, PhaseEnum.Execution, exception.toString)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          statusId = UUID.randomUUID.toString,
           status = Failed,
           statusInfo = Option(information)
         ))

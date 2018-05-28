@@ -63,9 +63,9 @@ trait StatusHistoryDao extends JdbcSlickUtils with SLF4JLogging{
 
     def workflowId = column[String]("workflow_id")
 
-    def statusId = column[String]("status_id")
-
     def status = column[String]("status")
+
+    def statusId = column[Option[String]]("status_id")
 
     def statusInfo = column[Option[String]]("status_info")
 
@@ -75,7 +75,7 @@ trait StatusHistoryDao extends JdbcSlickUtils with SLF4JLogging{
 
     def lastUpdateDateWorkflow = column[Option[Long]]("last_update_date_workflow")
 
-    def * = (workflowId, statusId, status, statusInfo, creationDate, lastUpdateDate, lastUpdateDateWorkflow) <>
+    def * = (workflowId,  status, statusId, statusInfo, creationDate, lastUpdateDate, lastUpdateDateWorkflow) <>
       (WorkflowStatusHistory.tupled, WorkflowStatusHistory.unapply)
 
     def pk = primaryKey(s"pk_$statusTableName", statusId)

@@ -39,7 +39,6 @@ class StatusActor(
   }
 
   //scalastyle:on cyclomatic.complexity
-
   def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> Create)) {
       statusService.create(policyStatus)
@@ -49,7 +48,6 @@ class StatusActor(
     securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
       statusService.update(policyStatus)
     }
-
 
   def findAll(user: Option[LoggedUser]): Unit = {
     securityActionAuthorizer(

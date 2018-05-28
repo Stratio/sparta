@@ -68,9 +68,9 @@ class StatusHistoryActorTestIT extends TestKit(ActorSystem("StatusHistoryActorSp
   "A WorkflowStatusHistoryActor" should {
     val actor =system.actorOf(Props(new StatusHistoryActor(PostgresProfile, conf.get)))
 
-    val status1 = WorkflowStatus("existingID", "statusId1", WorkflowStatusEnum.Launched)
-    val status2 =  WorkflowStatus("existingID", "statusId1", WorkflowStatusEnum.Stopped)
-    val status3 =  WorkflowStatus("existingID", "statusId2", WorkflowStatusEnum.Stopped)
+    val status1 = WorkflowStatus("existingID", WorkflowStatusEnum.Launched, Some("statusId1"))
+    val status2 =  WorkflowStatus("existingID", WorkflowStatusEnum.Stopped, Some("statusId1"))
+    val status3 =  WorkflowStatus("existingID", WorkflowStatusEnum.Stopped, Some("statusId2"))
 
 
     "Insert new data" in new StatusHistoryTrait {

@@ -76,7 +76,7 @@ trait HttpServiceBaseTest extends WordSpec
     EnvironmentData(Seq(), Seq(), Seq(), Seq())
 
   protected def getWorkflowStatusModel(): WorkflowStatus =
-    WorkflowStatus("id", "statusId", WorkflowStatusEnum.Launched)
+    WorkflowStatus("id", WorkflowStatusEnum.Launched, Some("statusId"))
 
   protected def getValidWorkflowValidation(): WorkflowValidation = {
     new WorkflowValidation(valid = true)

@@ -121,7 +121,6 @@ class WorkflowService(
       s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
     statusService.update(WorkflowStatus(
       id = workflowWithFields.id.get,
-      statusId = UUID.randomUUID.toString,
       status = WorkflowStatusEnum.Created
     ))
 
@@ -177,7 +176,6 @@ class WorkflowService(
             s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
           statusService.update(WorkflowStatus(
             id = workflowWithFields.id.get,
-            statusId = UUID.randomUUID.toString,
             status = WorkflowStatusEnum.Created
           ))
 
@@ -313,7 +311,7 @@ class WorkflowService(
         val children = curatorFramework.getChildren.forPath(workflowPath)
 
         JavaConversions.asScalaBuffer(children).toList.foreach(workflow =>
-          statusService.update(WorkflowStatus(workflow, UUID.randomUUID.toString, WorkflowStatusEnum.Created))
+          statusService.update(WorkflowStatus(workflow, WorkflowStatusEnum.Created))
         )
       }
     }
@@ -321,12 +319,12 @@ class WorkflowService(
 
   def stop(id: String): Try[Any] = {
     log.debug(s"Stopping workflow with id $id")
-    statusService.update(WorkflowStatus(id, UUID.randomUUID.toString, WorkflowStatusEnum.Stopping))
+    statusService.update(WorkflowStatus(id, WorkflowStatusEnum.Stopping))
   }
 
   def reset(id: String): Try[Any] = {
     log.debug(s"Resetting workflow with id $id")
-    statusService.update(WorkflowStatus(id, UUID.randomUUID.toString, WorkflowStatusEnum.Created))
+    statusService.update(WorkflowStatus(id, WorkflowStatusEnum.Created))
   }
 
   def applyEnv(workflow: Workflow): Workflow = {

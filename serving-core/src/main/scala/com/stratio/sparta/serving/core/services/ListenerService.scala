@@ -5,12 +5,10 @@
  */
 package com.stratio.sparta.serving.core.services
 
-import java.util.UUID
-
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
@@ -44,7 +42,6 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
               log.info(information)
               statusService.update(WorkflowStatus(
                 id = workflowId,
-                statusId = UUID.randomUUID.toString,
                 status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                 statusInfo = Some(information)
               ))
@@ -57,7 +54,6 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                   log.info(information)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
-                    statusId = UUID.randomUUID.toString,
                     status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                     statusInfo = Some(information)
                   ))
@@ -67,7 +63,6 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                   val wError = WorkflowError(error, PhaseEnum.Stop, exception.toString)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
-                    statusId = UUID.randomUUID.toString,
                     status = Failed,
                     statusInfo = Some(error)
                   ))

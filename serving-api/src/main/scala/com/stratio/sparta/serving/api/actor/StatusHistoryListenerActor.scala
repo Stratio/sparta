@@ -56,8 +56,8 @@ object StatusHistoryListenerActor {
   implicit def statusToDb(workflowStatus: WorkflowStatus): WorkflowStatusHistory = {
     WorkflowStatusHistory(
       workflowId = workflowStatus.id,
-      statusId = workflowStatus.statusId,
       status = workflowStatus.status.toString,
+      statusId = workflowStatus.statusId,
       statusInfo = workflowStatus.statusInfo,
       creationDate = workflowStatus.creationDate.map(_.getMillis).orElse(None),
       lastUpdateDate = workflowStatus.lastUpdateDate.map(_.getMillis).orElse(None),

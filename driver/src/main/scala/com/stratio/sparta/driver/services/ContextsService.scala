@@ -193,7 +193,6 @@ case class ContextsService(curatorFramework: CuratorFramework)
       log.info(startedInfo)
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
-        statusId = UUID.randomUUID.toString,
         status = Started,
         statusInfo = Some(startedInfo)
       ))

@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.core.services
 
+import java.util.UUID
+
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -51,13 +53,15 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
     log.debug(s"Creating workflow ${workflowStatus.id} with status ${workflowStatus.status}")
     val workflowStatusWithFields = addCreationDate(workflowStatus)
     val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatusWithFields.id}"
+    val workflowStatusWithFieldsAndId = addStatusId(workflowStatusWithFields)
     if (CuratorFactoryHolder.existsPath(statusPath)) {
       log.debug(s"The workflow status ${workflowStatus.id} exists, updating it")
-      update(workflowStatusWithFields)
+      update(workflowStatusWithFieldsAndId)
     } else {
       Try {
-        curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatusWithFields).getBytes)
-        workflowStatusWithFields
+        curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath,
+          write(workflowStatusWithFieldsAndId).getBytes)
+        workflowStatusWithFieldsAndId
       }
     }
   }
@@ -86,6 +90,12 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
             if (workflowStatus.lastUpdateDateWorkflow.isDefined)
               workflowStatus.lastUpdateDateWorkflow
             else actualStatus.lastUpdateDateWorkflow
+          },
+          statusId = {
+            if (workflowStatus.status != NotDefined && workflowStatus.status != actualStatus.status)
+              Option(UUID.randomUUID.toString)
+            else
+              actualStatus.statusId
           }
         )
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
@@ -146,6 +156,12 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
   private[sparta] def addCreationDate(workflowStatus: WorkflowStatus): WorkflowStatus =
     workflowStatus.creationDate match {
       case None => workflowStatus.copy(creationDate = Some(new DateTime()))
+      case Some(_) => workflowStatus
+    }
+
+  private[sparta] def addStatusId(workflowStatus: WorkflowStatus): WorkflowStatus =
+    workflowStatus.statusId match{
+      case None => workflowStatus.copy(statusId = Option(UUID.randomUUID.toString))
       case Some(_) => workflowStatus
     }
 }

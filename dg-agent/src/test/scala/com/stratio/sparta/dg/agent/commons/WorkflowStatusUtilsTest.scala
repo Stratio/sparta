@@ -51,8 +51,8 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
       "we receive a transient state event" in {
         val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
           WorkflowStatus("qwerty12345",
-                         "statusId",
                          WorkflowStatusEnum.Starting,
+                         Some("statusId"),
                          lastUpdateDate = Some(new DateTime(timestampEpochTest))),
                          Some(testWorkflow),
                          None
@@ -62,7 +62,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
 
       "the event has no workflow info associated to the status" in {
         val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
-          WorkflowStatus("qwerty12345", "statusId", WorkflowStatusEnum.Finished),
+          WorkflowStatus("qwerty12345", WorkflowStatusEnum.Finished, Some("statusId")),
           None,
           None
         )
@@ -73,8 +73,8 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
     "return a List[SpartaWorkflowStatusMetadata]" in {
       val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
         WorkflowStatus("qwerty12345",
-                       "statusId",
                        WorkflowStatusEnum.Finished,
+                       Some("statusId"),
                        lastUpdateDate = Option(new DateTime(timestampEpochTest)),
                        lastUpdateDateWorkflow = Option(new DateTime(timestampEpochTest))),
                        Some(testWorkflow),
