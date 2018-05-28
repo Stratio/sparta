@@ -1,9 +1,12 @@
 @rest @web
 Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
-  Background: conect to navigator
-    Given My app is running in '${CLUSTER_ID}.labs.stratio.com/service/${DCOS_SERVICE_NAME}/#'
+
+  Background: [SetUp] Setup EOS GUI
+    Given My app is running in '${CLUSTER_ID}.labs.stratio.com:443'
+    When I securely browse to '/service/${DCOS_SERVICE_NAME}/#/'
+    Then I switch to iframe with 'id:oauth-iframe'
+
   Scenario: [SPARTA-1196][01]See workflow Details
-    When I securely browse to '/workflows'
     And I wait '2' seconds
     When '1' elements exists with 'id:username'
     And I type 'admin' on the element on index '0'
@@ -12,10 +15,6 @@ Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
     And '1' elements exists with 'id:login-button'
     Then I click on the element on index '0'
     And I wait '5' seconds
-    Then '2' element exists with 'xpath://table[@id='table-qa-tag']/tbody/tr/td[2]/label'
-    When I click on the element on index '0'
-    And I wait '5' seconds
-    Then '1' element exists with 'id:composition'
     Then I take a snapshot
 
     #MVN Example

@@ -84,9 +84,9 @@ hose {
     }
     INSTALLSERVICES = [
         ['CHROME': [
-            'image': 'stratio/selenium-chrome:48',
+            'image': 'selenium/node-chrome-debug:3.9.1',
             'volumes': ['/dev/shm:/dev/shm'],
-            'env': ['SELENIUM_GRID=selenium.cd','ID=%%JUID']
+            'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID"']
             ]
         ],
         ['DCOSCLI': [

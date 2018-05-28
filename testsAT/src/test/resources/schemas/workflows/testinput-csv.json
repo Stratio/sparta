@@ -14,7 +14,7 @@
       "window": "{{SPARK_STREAMING_WINDOW}}",
       "stopGracefully": true,
       "checkpointSettings": {
-        "checkpointPath": "{{SPARTA_CHECKPOINT_PATH}}",
+        "checkpointPath": "{{SPARK_STREAMING_CHECKPOINT_PATH}}",
         "enableCheckpointing": true,
         "autoDeleteCheckpoint": true,
         "addTimeToCheckpointPath": false
