@@ -57,6 +57,7 @@ export class WizardEditorComponent implements OnInit {
    @Input() creationMode: CreationData;
    @Input() selectedNodeName = '';
    @Input() selectedEdge: WizardEdge;
+   @Input() serverStepValidations: any = {};
 
    @Output() editEntity = new EventEmitter<WizardNode>();
    @Output() selectNode = new EventEmitter<WizardNode>();

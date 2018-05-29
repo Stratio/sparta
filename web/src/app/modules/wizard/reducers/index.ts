@@ -71,6 +71,11 @@ export const getDebugResult = createSelector(
   (state) => state.lastDebugResult
 );
 
+export const getServerStepValidation = createSelector(
+  getWizardState,
+  (state) => state.serverStepValidations
+);
+
 export const getWorkflowEdges = createSelector(
   getEdges,
   getWorkflowNodes,
@@ -102,13 +107,28 @@ export const getSelectedNodeData = createSelector(getWizardState, fromWizard.get
 export const getSelectedEntityData = createSelector(
   getSelectedNodeData,
   getDebugResult,
-  (selectedNode: WizardNode, debugResult: any) => {
-    return selectedNode && debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
+  getServerStepValidation,
+  (selectedNode: WizardNode, debugResult: any, serverStepValidation: Array<any>) => {
+    const entityData = selectedNode && debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
       ...selectedNode,
       debugResult: debugResult && debugResult.steps && debugResult.steps[selectedNode.name]
     } : selectedNode;
+
+    return {
+      ...entityData,
+      serverValidationError: selectedNode ? serverStepValidation[selectedNode.name] : {}
+    };
   }
 );
+export const getEditionConfig = createSelector(getWizardState, fromWizard.getEditionConfigMode);
+
+export const getEditionConfigMode = createSelector(
+  getEditionConfig,
+  getServerStepValidation,
+  (editionConfig: any, stepValidation) =>
+    editionConfig && editionConfig.isEdition ?
+      {...editionConfig, serverValidation: stepValidation[editionConfig.editionType.data.name]} : editionConfig
+  );
 
 // wizard
 export const isCreationMode = createSelector(getEntitiesState, fromEntities.isCreationMode);
@@ -117,7 +137,6 @@ export const getWorkflowType = createSelector(getEntitiesState, fromEntities.get
 export const getTemplates = createSelector(getEntitiesState, fromEntities.getTemplates);
 export const isShowedEntityDetails = createSelector(getWizardState, state => state.showEntityDetails);
 export const getSelectedEntities = createSelector(getWizardState, state => state.selectedEntity);
-export const getEditionConfigMode = createSelector(getWizardState, fromWizard.getEditionConfigMode);
 export const showSettings = createSelector(getWizardState, state => state.showSettings);
 export const isEntitySaved = createSelector(getWizardState, state => state.editionSaved);
 export const getWorkflowSettings = createSelector(getWizardState, state => state.settings);

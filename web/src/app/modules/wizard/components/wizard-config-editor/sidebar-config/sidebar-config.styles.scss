@@ -23,3 +23,18 @@
     top: 70px;
     min-height: 100%;
 }
+
+.validation-error {
+    margin: 20px 0;
+    margin-bottom: 10px;
+  .icon-alert {
+        line-height: 22px;
+    /* margin: 4px; */
+    float: left;
+    margin-right: 6px;
+  }
+  .validation-error-message {
+    color: #ff1744;
+    font-size: 15px;
+  }
+}

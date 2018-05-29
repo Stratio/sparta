@@ -13,6 +13,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/operator/delay';
 import 'rxjs/add/observable/if';
 import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/timer';
@@ -59,7 +60,7 @@ export class DebugEffect {
       .map((action: any) => action.payload)
       .switchMap((workflowId: string) => Observable.timer(0, 2000)
          .takeUntil(this._actions$.ofType(debugActions.CANCEL_DEBUG_POLLING))
-         .switchMap(() => this._wizardApiService.getDebugResult(workflowId)
+         .concatMap(() => this._wizardApiService.getDebugResult(workflowId)
             .mergeMap(result => [
                new debugActions.CancelDebugPollingAction(),
                new debugActions.GetDebugResultCompleteAction(result),

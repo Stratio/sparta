@@ -11,7 +11,8 @@ import {
     ElementRef,
     EventEmitter,
     Input,
-    Output
+    Output,
+    ChangeDetectorRef
 } from '@angular/core';
 
 @Component({
@@ -26,12 +27,15 @@ export class SpartaSidebarComponent implements AfterViewInit {
     @Input() showScrollBar = false;
     @Output() onCloseSidebar = new EventEmitter();
 
+    public loaded = false;
     public minHeight: number;
 
-    constructor(private _element: ElementRef) { }
+    constructor(private _element: ElementRef, private _cd: ChangeDetectorRef) { }
 
     ngAfterViewInit(): void {
+        this.loaded =  true;
         const rect = this._element.nativeElement.getBoundingClientRect();
         this.minHeight = window.innerHeight - rect.top - 30;
+        this._cd.markForCheck();
     }
 }

@@ -7,11 +7,15 @@ import { SpHighlightTextareaComponent } from '../shared/components/highlight-tex
 
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
+import {
+    StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
     StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService, StForegroundNotificationsModule
 } from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 
 import {
     WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
@@ -35,6 +39,10 @@ import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-o
 import { MocksConfigComponent } from '@app/wizard/components/wizard-config-editor/mocks-config/mocks-config.component';
 import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
 import { SidebarConfigComponent } from '@app/wizard/components/wizard-config-editor/sidebar-config/sidebar-config.component';
+
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+    suppressScrollX: true
+};
 
 @NgModule({
     declarations: [
@@ -70,9 +78,19 @@ import { SidebarConfigComponent } from '@app/wizard/components/wizard-config-edi
         SharedModule,
         FormsModule,
         ReactiveFormsModule,
-        CrossdataModule
+        CrossdataModule,
+        PerfectScrollbarModule
     ],
-    providers: [WizardEditorService, WizardService, ValidateSchemaService, StModalService, EgeoResolveService]
+    providers: [
+        WizardEditorService,
+        WizardService,
+        ValidateSchemaService,
+        StModalService,
+        EgeoResolveService,
+        {
+            provide: PERFECT_SCROLLBAR_CONFIG,
+            useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+        }]
 })
 
 export class WizardModule { }

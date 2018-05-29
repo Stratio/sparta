@@ -33,14 +33,15 @@
 .values {
    display: block;
    word-break: break-all;
-  font-size: $egeo-font-size-xxsmall;
-
+   font-size: $egeo-font-size-xxsmall;
+   display: block;
+   width: 100%;
 }
 
 
 .debug-error {
     margin: 20px 0;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
   .icon-alert {
         line-height: 22px;
     /* margin: 4px; */
@@ -56,4 +57,5 @@
 .fields-title {
     font-family: $egeo-nunito-sans-semiBold;
     color: $action-secondary-06;
+    margin-top: 20px;
 }

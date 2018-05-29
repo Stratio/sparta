@@ -22,7 +22,7 @@ export class WizardDetailsComponent implements OnInit, OnDestroy {
 
     private _workflowTypeSubscription: Subscription;
     public templates: any = {};
-
+    public config = {};
     constructor(private _cd: ChangeDetectorRef, private wizardService: WizardService, private _store: Store<fromWizard.State>, ) { }
 
     ngOnInit() {
