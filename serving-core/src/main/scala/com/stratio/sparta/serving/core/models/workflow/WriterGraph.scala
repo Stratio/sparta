@@ -12,6 +12,9 @@ case class WriterGraph(
                         saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
                         tableName: Option[JsoneyString] = None,
                         partitionBy: Option[JsoneyString] = None,
+                        constraintType: Option[JsoneyString] = None,
                         primaryKey: Option[JsoneyString] = None,
+                        uniqueConstraintName: Option[JsoneyString] = None,
+                        uniqueConstraintFields: Option[JsoneyString] = None,
                         errorTableName: Option[JsoneyString] = None
                       )

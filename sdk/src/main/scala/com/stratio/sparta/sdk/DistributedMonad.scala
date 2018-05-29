@@ -265,6 +265,8 @@ object DistributedMonad {
   val TableNameKey = "tableName"
   val PartitionByKey = "partitionBy"
   val StepName = "stepName"
+  val UniqueConstraintName = "uniqueConstraintName"
+  val UniqueConstraintFields = "uniqueConstraintFields"
 
   //scalastyle:off
   trait DistributedMonadImplicits {
@@ -495,7 +497,13 @@ object DistributedMonad {
       } ++
       outputOptions.primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
         Map(PrimaryKey -> key)
-      }
+      } ++
+      outputOptions.uniqueConstraintName.notBlank.fold(Map.empty[String, String]) { key =>
+        Map(UniqueConstraintName -> key)
+      } ++
+    outputOptions.uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
+      Map(UniqueConstraintFields -> key)
+    }
   }
 }
 

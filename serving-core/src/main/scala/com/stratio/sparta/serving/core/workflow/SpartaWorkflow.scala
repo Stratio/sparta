@@ -402,7 +402,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
         node.name,
         tableName,
         node.writer.partitionBy.notBlank,
+        node.writer.constraintType.notBlank,
         node.writer.primaryKey.notBlank,
+        node.writer.uniqueConstraintName.notBlank,
+        node.writer.uniqueConstraintFields.notBlank,
         node.writer.errorTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[TransformStep[Underlying]](classType, (c) =>
@@ -444,7 +447,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
         node.name,
         tableName,
         node.writer.partitionBy.notBlank,
+        node.writer.constraintType.notBlank,
         node.writer.primaryKey.notBlank,
+        node.writer.uniqueConstraintName.notBlank,
+        node.writer.uniqueConstraintFields.notBlank,
         node.writer.errorTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>

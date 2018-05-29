@@ -85,17 +85,17 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
                 }
                 require(updateFields.nonEmpty, "The primary key fields must be provided")
                 require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                  "The all the primary key fields should be present in the dataFrame schema")
+                  "All the primary key fields should be present in the dataFrame schema")
                 SpartaJdbcUtils.deleteTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
               } else if (saveMode == SaveModeEnum.Upsert) {
                 val updateFields = getPrimaryKeyOptions(options) match {
-                  case Some(pk) => pk.trim.split(",").toSeq
+                  case Some(pk) =>  pk.split(",").map(_.trim).toSeq
                   case None => Seq.empty[String]
                 }
 
                 require(updateFields.nonEmpty, "The primary key fields must be provided")
                 require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                  "The all the primary key fields should be present in the dataFrame schema")
+                  "All the primary key fields should be present in the dataFrame schema")
 
                 SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
               }

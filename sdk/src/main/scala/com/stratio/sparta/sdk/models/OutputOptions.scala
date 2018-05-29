@@ -14,6 +14,9 @@ case class OutputOptions(
                           stepName: String,
                           tableName: String,
                           partitionBy: Option[String] = None,
+                          constraintType : Option[String] = None,
                           primaryKey: Option[String] = None,
+                          uniqueConstraintName: Option[String] = None,
+                          uniqueConstraintFields: Option[String] = None,
                           errorTableName: Option[String] = None
                         )
