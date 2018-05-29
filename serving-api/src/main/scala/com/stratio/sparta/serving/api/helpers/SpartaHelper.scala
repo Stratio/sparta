@@ -10,7 +10,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import spray.can.Http
-
 import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
@@ -22,9 +21,11 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonL
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
-import scala.util.{Properties, Try}
 
+import scala.util.{Properties, Try}
 import slick.jdbc.PostgresProfile
+import com.typesafe.config.ConfigFactory
+
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
@@ -91,6 +92,10 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
         log.debug("Initializing history actors ...")
         system.actorOf(ExecutionHistoryListenerActor.props(PostgresProfile))
+        system.actorOf(Props(new StatusHistoryListenerActor(PostgresProfile,
+          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
+        system.actorOf(Props(new StatusHistoryActor(PostgresProfile,
+          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
       }
 
       val controllerActor = system.actorOf(Props(new ControllerActor(

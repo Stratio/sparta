@@ -6,6 +6,7 @@
 package com.stratio.sparta.driver.services
 
 import java.io.File
+import java.util.UUID
 
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits

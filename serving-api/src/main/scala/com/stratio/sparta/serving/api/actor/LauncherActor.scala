@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import java.util.UUID
+
 import akka.actor.{Props, _}
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.models.WorkflowError

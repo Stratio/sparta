@@ -6,9 +6,9 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorRef, Cancellable, Props}
+import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
 import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._
@@ -396,7 +396,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     for {
       (nameWorkflow, idWorkflow) <- runningButActuallyStopped
     } yield {
-      val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon of the workflow. Therefore, the workflow   was terminated."
+      val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon of the workflow. Therefore, the workflow was terminated."
       log.info(information.replace("  ", s" with id $idWorkflow and name $nameWorkflow "))
       WorkflowStatus(id = idWorkflow, status = Stopped, statusInfo = Some(information))
     }

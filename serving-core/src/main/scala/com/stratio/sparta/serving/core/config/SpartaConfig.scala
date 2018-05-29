@@ -78,7 +78,8 @@ object SpartaConfig extends SLF4JLogging {
     oauth2Config
   }
 
-  def initSpartaPostgresConfig(currentConfig: Option[Config] = None, configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
+  def initSpartaPostgresConfig(currentConfig: Option[Config] = None, configFactory: SpartaConfigFactory =
+  SpartaConfigFactory()): Option[Config] = {
     spartaPostgresConfig = initConfig(ConfigPostgres, currentConfig, configFactory)
     spartaPostgresConfig
   }

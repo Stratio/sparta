@@ -63,7 +63,7 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
       name = "testworkflow",
       description = "whatever",
       pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph]),
-      status = Some(WorkflowStatus("id", WorkflowStatusEnum.Launched))
+      status = Some(WorkflowStatus("id", WorkflowStatusEnum.Launched, Some("statudId")))
     )
     if (update) {
       workflow = workflow.copy(lastUpdateDate = Some(new DateTime()), id = workflow.id.map(id => s"$id-update"))

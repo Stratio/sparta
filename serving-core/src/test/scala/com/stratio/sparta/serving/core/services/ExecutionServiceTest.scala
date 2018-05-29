@@ -75,6 +75,7 @@ class ExecutionServiceTest extends WordSpecLike
     """
       |{
       |"id": "exec1",
+      |"uniqueId" : "uniqueId",
       |"genericDataExecution": {
       | "workflow": {
       |  "id": "wf1",

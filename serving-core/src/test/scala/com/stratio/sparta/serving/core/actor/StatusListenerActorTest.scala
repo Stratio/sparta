@@ -28,8 +28,8 @@ class StatusListenerActorTest extends TestKit(ActorSystem("StatusListenerActorSp
 
     val statusListenerActor = system.actorOf(Props(new StatusListenerActor))
 
-    val testWorkflowStatus01 = WorkflowStatus("workflow-01", WorkflowStatusEnum.Finished)
-    val testWorkflowStatus02 = WorkflowStatus("workflow-02", WorkflowStatusEnum.Launched)
+    val testWorkflowStatus01 = WorkflowStatus("workflow-01", WorkflowStatusEnum.Finished, Some("statusId"))
+    val testWorkflowStatus02 = WorkflowStatus("workflow-02", WorkflowStatusEnum.Launched, Some("statusId"))
 
     "Accept subscription requests from clients" in {
       statusListenerActor ! OnWorkflowStatusChangeDo(testWorkflowStatus01.id)(self ! _)

@@ -230,6 +230,7 @@ class WorkflowServiceTest extends WordSpecLike
     """
       |{
       |"id": "wfs1",
+      |"statusId": "statusId",
       |"status": "Launched",
       |"statusInfo": "Workflow stopped correctly",
       |"lastExecutionMode": "local",

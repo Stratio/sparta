@@ -211,14 +211,14 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       lastUpdateDate = Option(new DateTime(timestampEpochTest))
     )
 
-    val testStatus = WorkflowStatus("1234", WorkflowStatusEnum.Started)
+    val testStatus = WorkflowStatus("1234", WorkflowStatusEnum.Started, Some("statusId"))
 
-    val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed)
+    val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed, Some("statusId"))
 
-    val testExecution = WorkflowExecution("1234", None, None, None, None, Some(GenericDataExecution(testWorkflow,
+    val testExecution = WorkflowExecution("1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
       WorkflowExecutionMode.marathon, "abc")))
 
-    val testExecution2 = WorkflowExecution("5678", None, None, None, None, Some(GenericDataExecution(testWorkflow,
+    val testExecution2 = WorkflowExecution("5678",None, None, None, None, Some(GenericDataExecution(testWorkflow,
       WorkflowExecutionMode.local, "abc")))
 
     val statusesTest = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
