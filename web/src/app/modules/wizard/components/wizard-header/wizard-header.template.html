@@ -9,106 +9,112 @@
 -->
 
 <div class="wizard-header">
-   <div class="title-header">
-      <div class="container">
-         <div class="row">
-            <div class="col-sm-12">
-               <div class="header-info" *ngIf="workflowName.length">
-                  <span class="icon icon-infinite workflow-type" *ngIf="workflowType === 'Streaming'"></span>
-                  <span class="icon icon-channel workflow-type" *ngIf="workflowType === 'Batch'"></span>
-                  <div class="workflow-name-container">
-                     <span class="title egeo-title-extra-large">{{workflowName}} -</span>
-                     <span class="title egeo-title-giant">v{{workflowVersion}}</span>
-                  </div>
-               </div>
-               <div class="header-links">
-                  <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
-                  <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine || !validations.valid">
-                    {{'WIZARD.SAVE' | translate}}
-                  </button>
-
-               </div>
+  <div class="title-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="header-info" *ngIf="workflowName.length">
+            <span class="icon icon-infinite workflow-type" *ngIf="workflowType === 'Streaming'"></span>
+            <span class="icon icon-channel workflow-type" *ngIf="workflowType === 'Batch'"></span>
+            <div class="workflow-name-container">
+              <span class="title egeo-title-extra-large">{{workflowName}} -</span>
+              <span class="title egeo-title-giant">v{{workflowVersion}}</span>
             </div>
-         </div>
-      </div>
-   </div>
-   <div #wizardModal qaTag="wizard-modal"></div>
-   <div class="tool-header">
-      <div class="container">
-         <div class="row">
-            <div class="col-xs-6">
-               <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options"
-                  (selectedOption)="selectedMenuOption($event)">
-                  <div id="create-node-menu" menu-action>
-                     <button class="button button-toolbar">
-                        <i class="icon-plus"></i>
-                    </button>
-                     <i class="icon-arrow2_down"></i>
-                  </div>
-               </floating-menu>
-               <div class="position-tools">
-                  <button menu-action class="button button-toolbar" (click)="onZoomIn.emit()" id="zoom-in-button">
-                    <i class="icon-zoom-in"></i>
-                </button>
-                  <button menu-action class="button button-toolbar" (click)="onZoomOut.emit()" id="zoom-out-button">
-                    <i class="icon-zoom-out"></i>
-                </button>
-                  <button menu-action class="button button-toolbar" (click)="onCenter.emit()" id="center-button">
-                    <i class="icon-move"></i>
-                </button>
-                  <button menu-action [disabled]="!undoEnabled" class="undo-action button button-toolbar" (click)="undoAction()" id="undo-button">
-                  <i class="icon-reload2"></i>
-              </button>
-                  <button menu-action [disabled]="!redoEnabled" class="button button-toolbar" (click)="redoAction()" id="redo-button">
-                <i class="icon-reload"></i>
+          </div>
+          <div class="header-links">
+            <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
+            <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine || !validations.valid">
+              {{'WIZARD.SAVE' | translate}}
             </button>
-               </div>
-            </div>
-            <div class="col-xs-6">
-               <div style="float:left">
-                  <button class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected" id="edit-node-button">
-                    <i class="icon-edit"></i>
-                </button>
-                  <button class="button button-toolbar" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected" id="copy-node-button">
-                   <i class="icon-copy2"></i>
-                 </button>
-                  <button class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || isEdgeSelected" id="delete-node-button">
-                    <i class="icon-trash"></i>
-                  </button>
-               </div>
-               <div class="" style="float:right">
-                  <sp-popover [(active)]="showErrors">
-                     <div popover-link>
-                        <button menu-action id="show-errors-button" class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length, 'selected-button' : showErrors}">
-                          <i class="icon-alert"></i>
-                        </button>
-                     </div>
-                     <div popover-content>
-                        <div *ngIf="!validations.valid && validations.messages">
-                           <span *ngIf="validations.messages.length > 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_N' | translate:({ number: validations.messages.length})}}</span>
-                           <span *ngIf="validations.messages.length === 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_1' | translate }}</span>
-                           <ul class="errors-list">
-                              <li *ngFor="let message of validations.messages" class="validation-message">
-                                 - {{message}}
-                              </li>
-                           </ul>
-                        </div>
-                        <div *ngIf="validations.valid">
-                           <span>{{'WIZARD.NO_VALIDATION_ERROR' | translate}}</span>
-                        </div>
-                     </div>
-
-                  </sp-popover>
-                  <button menu-action class="button button-toolbar" id="sho-info-button" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
-                     <i class="icon-info1"></i>
-                  </button>
-                  <button menu-action class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
-                    <i class="icon-cog"></i>
-                  </button>
-               </div>
-            </div>
-         </div>
+          </div>
+        </div>
       </div>
-   </div>
-   <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
+    </div>
+  </div>
+  <div #wizardModal qaTag="wizard-modal"></div>
+  <div class="tool-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-6">
+          <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options"
+            (selectedOption)="selectedMenuOption($event)">
+            <div id="create-node-menu" menu-action>
+              <button class="button button-toolbar" stTitle="Create node">
+                  <i class="icon-plus"></i>
+              </button>
+            </div>
+          </floating-menu>
+          <div class="position-tools">
+            <button menu-action class="button button-toolbar" stTitle="Zoom in" (click)="onZoomIn.emit()" id="zoom-in-button">
+              <i class="icon-zoom-in"></i>
+            </button>
+            <button menu-action class="button button-toolbar" stTitle="Zoom out" (click)="onZoomOut.emit()" id="zoom-out-button">
+              <i class="icon-zoom-out"></i>
+            </button>
+            <button menu-action class="button button-toolbar" stTitle="Center workflow" (click)="onCenter.emit()" id="center-button">
+              <i class="icon-move"></i>
+            </button>
+            <button menu-action [disabled]="!undoEnabled" stTitle="Undo action" class="undo-action button button-toolbar" (click)="undoAction()"
+              id="undo-button">
+              <i class="icon-reload2"></i>
+            </button>
+            <button menu-action [disabled]="!redoEnabled" stTitle="Redo action" class="button button-toolbar" (click)="redoAction()"
+              id="redo-button">
+              <i class="icon-reload"></i>
+            </button>
+          </div>
+        </div>
+        <div class="col-xs-6">
+          <div style="float:left">
+            <button class="button button-toolbar" stTitle="Edit selected node" (click)="onEditEntity.emit()" *ngIf="isNodeSelected" id="edit-node-button">
+              <i class="icon-edit"></i>
+            </button>
+            <button class="button button-toolbar" stTitle="Copy selected node" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected"
+              id="copy-node-button">
+              <i class="icon-copy2"></i>
+            </button>
+            <button class="button button-toolbar" stTitle="Delete selected node" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || isEdgeSelected"
+              id="delete-node-button">
+              <i class="icon-trash"></i>
+            </button>
+          </div>
+          <div class="" style="float:right">
+             <button [disabled]="isWorkflowDebugging" (click)="debugWorkflow()" id="debug-mode" stTitle="Run debug mode" class="button button-toolbar">
+              <i class="icon-input"></i>
+            </button>
+            <sp-popover [(active)]="showErrors">
+              <div popover-link>
+                <button menu-action id="show-errors-button" stTitle="Show validation errors" class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length, 'selected-button' : showErrors}">
+                  <i class="icon-alert"></i>
+                </button>
+              </div>
+              <div popover-content>
+                <div *ngIf="!validations.valid && validations.messages">
+                  <span *ngIf="validations.messages.length > 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_N' | translate:({ number: validations.messages.length})}}</span>
+                  <span *ngIf="validations.messages.length === 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_1' | translate }}</span>
+                  <ul class="errors-list">
+                    <li *ngFor="let message of validations.messages" class="validation-message">
+                      - {{message}}
+                    </li>
+                  </ul>
+                </div>
+                <div *ngIf="validations.valid">
+                  <span>{{'WIZARD.NO_VALIDATION_ERROR' | translate}}</span>
+                </div>
+              </div>
+            </sp-popover>
+            <button stTitle="Show node info" class="button button-toolbar" id="sho-info-button" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
+                <i class="icon-info1"></i>
+            </button>
+            <button stTitle="Workflow settings" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
+              <i class="icon-cog"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <st-foreground-notifications *ngIf="notification.visible" class="notification" [status]="notification.type" [text]="('WIZARD.NOTIFICATION.' + notification.message) | translate" [visible]="notification.visible"></st-foreground-notifications>
+
+  <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
 </div>

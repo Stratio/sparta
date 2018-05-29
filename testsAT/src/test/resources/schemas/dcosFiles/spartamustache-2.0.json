@@ -48,12 +48,11 @@
     "verifyhost": "sparta.marathon.mesos"
   },
   "Hdfs": {
-    "generate_hdfs_conf_from_dfs": true,
+    "generate_hdfs_conf_from_dfs": false,
     "generate_hdfs_conf_from_dfs_not_secured": false,
-    "hdfs_conf_from_uri": false,
+    "hdfs_conf_from_uri": true,
     "core_site_from_uri": false,
-    "default_fs": "10.200.0.74",
-    "conf_uri": "hdfs://10.200.0.74:8020"
+    "conf_uri": "http://10.200.0.74:8085/"
   },
   "Security": {
     "Components": {

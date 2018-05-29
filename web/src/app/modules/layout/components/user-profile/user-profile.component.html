@@ -14,7 +14,7 @@
       <div pop-over-button>
          <div [title]="userName ? userName : ''" class="user-profile" (click)="toggleUserProfile()">
             <span *ngIf="userName && userName.length">{{userName.substring(0, 2).toUpperCase()}}</span>
-            <span *ngIf="!userName || !userName.length" class="icon icon-head"></span>
+            <span *ngIf="!userName || !userName.length">S</span>
          </div>
       </div>
       <div pop-over-content class="user-profile-container">

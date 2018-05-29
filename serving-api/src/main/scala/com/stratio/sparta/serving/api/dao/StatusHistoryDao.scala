@@ -9,7 +9,7 @@ package com.stratio.sparta.serving.api.dao
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistory
-import com.stratio.sparta.serving.core.utils.JdbcSlickUtils
+import com.stratio.sparta.serving.api.utils.JdbcSlickUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

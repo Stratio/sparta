@@ -22,8 +22,8 @@
 
 .wizard-sidebar {
    position: absolute;
-   top: 0;
+   top: 135px;
    right: 0;
-   height: 100%;
+   height: calc(100% - 135px);
    z-index: 10;
 }

@@ -7,10 +7,10 @@ package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import breeze.stats._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
-import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.helpers.CastingHelper
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataType, DoubleType}
 
@@ -35,7 +35,7 @@ class VarianceOperator(
         val valuesFlattened = values.flatten
         if (valuesFlattened.nonEmpty)
           variance(valuesFlattened.map(value =>
-            CastingUtils.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]))
+            CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]))
         else 0d
       }
     }

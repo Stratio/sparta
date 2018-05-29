@@ -57,6 +57,7 @@ export const TOGGLE_CROSSDATA_CATALOG = '[Wizard] Toggle crossdata catalog';
 export const SHOW_EDGE_OPTIONS = '[Wizard] Show edge options';
 export const HIDE_EDGE_OPTIONS = '[Wizard] Hide edge options';
 export const SELECT_EDGE_TYPE = '[Wizard] Select edge type';
+export const SHOW_NOTIFICATION = '[Wizard] Show notification';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -290,6 +291,11 @@ export class SelectEdgeTypeAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class ShowNotificationAction implements Action {
+    readonly type = SHOW_NOTIFICATION;
+    constructor(public payload: any) { }
+}
+
 export type Actions =
     ResetWizardAction |
     GetMenuTemplatesAction |
@@ -337,4 +343,5 @@ export type Actions =
     ToggleCrossdataCatalogAction |
     ShowEdgeOptionsAction |
     HideEdgeOptionsAction |
-    SelectEdgeTypeAction;
+    SelectEdgeTypeAction |
+    ShowNotificationAction;

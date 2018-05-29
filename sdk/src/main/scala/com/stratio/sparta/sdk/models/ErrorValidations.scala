@@ -5,4 +5,4 @@
  */
 package com.stratio.sparta.sdk.models
 
-case class ErrorValidations(valid: Boolean, messages: Seq[String])
+case class ErrorValidations(valid: Boolean, messages: Seq[WorkflowValidationMessage])

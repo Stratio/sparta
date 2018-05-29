@@ -1,3 +1,4 @@
+import { SpHighlightTextareaComponent } from '../shared/components/highlight-textarea/highlight-textarea.component';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -7,7 +8,7 @@
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
-    StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService
+    StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService, StForegroundNotificationsModule
 } from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
@@ -25,10 +26,15 @@ import { WizardDetailsComponent } from './components/wizard-details/wizard-detai
 import { WizardService } from './services/wizard.service';
 import { ValidateSchemaService } from './services/validate-schema.service';
 import { WizardEffect } from './effects/wizard';
+import { DebugEffect } from './effects/debug';
+
 import { reducers } from './reducers/';
 import { WizardEditorContainer } from './containers/wizard-editor-container/wizard-editor-container.component';
 import { CrossdataModule } from '@app/crossdata/crossdata.module';
 import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-options.component';
+import { MocksConfigComponent } from '@app/wizard/components/wizard-config-editor/mocks-config/mocks-config.component';
+import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
+import { SidebarConfigComponent } from '@app/wizard/components/wizard-config-editor/sidebar-config/sidebar-config.component';
 
 @NgModule({
     declarations: [
@@ -44,7 +50,9 @@ import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-o
         WizardConfigEditorComponent,
         SelectedEntityComponent,
         EdgeOptionsComponent,
-        WizardModalComponent
+        WizardModalComponent,
+        MocksConfigComponent,
+        SidebarConfigComponent
     ],
     imports: [
         StProgressBarModule,
@@ -52,9 +60,11 @@ import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-o
         StFullscreenLayoutModule,
         StDropdownMenuModule,
         StHorizontalTabsModule,
+        StForegroundNotificationsModule,
         StModalModule.withComponents([WizardModalComponent]),
         StoreModule.forFeature('wizard', reducers),
-        EffectsModule.forFeature([WizardEffect]),
+        EffectsModule.forFeature([DebugEffect, WizardEffect]),
+        HighlightTextareaModule,
         WizardRoutingModule,
         FormsModule,
         SharedModule,

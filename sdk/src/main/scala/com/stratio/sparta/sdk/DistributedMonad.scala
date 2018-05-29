@@ -264,6 +264,9 @@ object DistributedMonad {
   val PrimaryKey = "primaryKey"
   val TableNameKey = "tableName"
   val PartitionByKey = "partitionBy"
+  val StepName = "stepName"
+  val UniqueConstraintName = "uniqueConstraintName"
+  val UniqueConstraintFields = "uniqueConstraintFields"
 
   //scalastyle:off
   trait DistributedMonadImplicits {
@@ -488,13 +491,19 @@ object DistributedMonad {
   object Implicits extends DistributedMonadImplicits with ContextBuilderImplicits with Serializable
 
   private def saveOptionsFromOutputOptions(outputOptions: OutputOptions): Map[String, String] = {
-    Map(TableNameKey -> outputOptions.tableName) ++
+    Map(TableNameKey -> outputOptions.tableName, StepName -> outputOptions.stepName) ++
       outputOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
         Map(PartitionByKey -> partition)
       } ++
       outputOptions.primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
         Map(PrimaryKey -> key)
-      }
+      } ++
+      outputOptions.uniqueConstraintName.notBlank.fold(Map.empty[String, String]) { key =>
+        Map(UniqueConstraintName -> key)
+      } ++
+    outputOptions.uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
+      Map(UniqueConstraintFields -> key)
+    }
   }
 }
 

@@ -15,7 +15,7 @@ import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.plugin.models.PropertyColumn
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.TransformStep
@@ -80,7 +80,7 @@ abstract class SelectTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -88,38 +88,38 @@ abstract class SelectTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
       }
     }
 
     if (selectType == SelectType.COLUMNS && columns.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory to specify almost one column"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory to specify almost one column", name)
       )
 
     if (selectType == SelectType.EXPRESSION && selectExpression.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory one select expression, such as colA, abs(colC)"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory one select expression, such as colA, abs(colC)", name)
       )
 
     if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the select expression is invalid"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the select expression is invalid", name)
       )
 
     if (selectType == SelectType.COLUMNS && columns.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the select columns are invalid"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the select columns are invalid", name)
       )
 
     validation

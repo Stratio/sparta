@@ -7,7 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.text
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
@@ -36,7 +36,7 @@ class TextOutputStep(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the destination path can not be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the destination path can not be empty", name)
       )
 
     validation

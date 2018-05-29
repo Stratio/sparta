@@ -16,7 +16,7 @@ import {
    Output,
    ViewEncapsulation
 } from '@angular/core';
-import { select as d3Select, event as d3Event, BaseType } from 'd3-selection';
+import { select as d3Select, event as d3Event } from 'd3-selection';
 
 import { ENTITY_BOX } from './../../wizard.constants';
 import { UtilsService } from '@app/shared/services/utils.service';
@@ -55,16 +55,27 @@ export class WizardNodeComponent implements OnInit {
       }
       this._drawingConectionStatus = dstatus;
    }
+   @Input() get debugResult(): any {
+      return this._debugResult;
+   }
+   set debugResult(value: any) {
+      this._debugResult = value;
+      if (value && this._errorIconElement) {
+         this._getIcon(this._errorIconElement);
+      }
+   }
    @Output() onDrawConnector = new EventEmitter<any>();
    @Output() onFinishConnector = new EventEmitter<any>();
 
    /** Selectors */
    private _el: HTMLElement;
-   private _containerElement: d3.Selection<BaseType, any, any, any>;
-   private _nodeRectElement: d3.Selection<BaseType, any, any, any>;
+   private _containerElement: d3.Selection<any>;
+   private _nodeRectElement: d3.Selection<any>;
+   private _errorIconElement: d3.Selection<any>;
 
    private _drawingConectionStatus: DrawingConnectorStatus;
    private _selectedNode = false;
+   private _debugResult: any;
 
    constructor(elementRef: ElementRef, private utilsService: UtilsService, private _cd: ChangeDetectorRef, private _ngZone: NgZone) {
       this._cd.detach();
@@ -113,7 +124,7 @@ export class WizardNodeComponent implements OnInit {
          .attr('stroke-linecap', 'round')
          .attr('class', 'entity ' + this.data.stepType.toLowerCase() + '-step');
       if (this._selectedNode) {
-            this._nodeRectElement.classed('selected', true);
+         this._nodeRectElement.classed('selected', true);
       }
    }
 
@@ -131,12 +142,14 @@ export class WizardNodeComponent implements OnInit {
          .attr('width', 110)
          .append('xhtml:p')
          .attr('class', 'entity-name');
+
       if (this.data.nodeTemplate) {
          nodeText.append('span')
-            .attr('class', 'template-label')
-            .text('T');
+         .attr('class', 'template-label')
+         .text('T');
       }
-      nodeText.text(this.data.name);
+
+      nodeText.append('span').text(this.data.name);
 
       textContainer.append('text')
          .attr('x', 20)
@@ -146,15 +159,14 @@ export class WizardNodeComponent implements OnInit {
          .attr('fill', this.createdNew ? '#999' : '#0f1b27')
          .text((d) => icons[this.data.classPrettyName]);
 
-      if (this.data.hasErrors && !this.createdNew) {
-         textContainer.append('text')
-            .attr('x', 116)
-            .attr('y', 22)
-            .attr('class', 'error-icon')
-            .style('font-size', '16')
-            .attr('fill', '#ec445c')
-            .text(function (d) { return '\uE613'; });
-      }
+
+      this._errorIconElement = textContainer.append('text')
+         .attr('x', 116)
+         .attr('y', 22)
+         .style('font-size', '16')
+         .text('');
+         this._getIcon(this._errorIconElement);
+
    }
 
    generateEntries() {
@@ -212,5 +224,23 @@ export class WizardNodeComponent implements OnInit {
          .attr('height', 12)
          .attr('class', 'relation');
       return output;
+   }
+
+   private _getIcon(iconElement: any) {
+      let icon = '';
+      let error = true;
+      if (this.data.hasErrors && !this.createdNew) {
+         icon = '\uE613';
+      } else if (this.debugResult) {
+         if (this.debugResult.error) {
+            icon = '\ue049';
+         } else if (this.debugResult.result) {
+            icon = '\ue048';
+            error = false;
+         }
+      }
+      iconElement
+         .attr('class', error ? 'error-icon' : 'success-icon')
+         .text(function (d) { return icon; });
    }
 }

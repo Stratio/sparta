@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.avro
 import java.io.{Serializable => JSerializable}
 
 import com.databricks.spark.avro._
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
@@ -37,7 +37,7 @@ class AvroOutputStep(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: destination path cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"destination path cannot be empty", name)
       )
 
     validation

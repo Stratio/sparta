@@ -6,6 +6,11 @@
 
 package com.stratio.sparta.serving.core.models.history
 
+import org.joda.time.DateTime
+
+import com.stratio.sparta.serving.core.models.dto.Dto
+import com.stratio.sparta.serving.core.models.workflow.GenericDataExecutionDto
+
 case class WorkflowExecutionHistory(executionId: String,
                                     workflowId: String,
                                     executionMode: String,
@@ -15,3 +20,13 @@ case class WorkflowExecutionHistory(executionId: String,
                                     userId: Option[String] = None,
                                     lastError: Option[String] = None,
                                     genericExecution: String)
+
+case class WorkflowExecutionHistoryDto(executionId: String,
+                                    workflowId: String,
+                                    executionMode: String,
+                                    launchDate: Option[DateTime] = None,
+                                    startDate: Option[DateTime] = None,
+                                    endDate: Option[DateTime] = None,
+                                    userId: Option[String] = None,
+                                    lastError: Option[String] = None,
+                                    genericExecution: GenericDataExecutionDto) extends Dto

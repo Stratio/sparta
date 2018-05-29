@@ -20,10 +20,10 @@ Feature: [SPARTA-1161] Installation sparta with mustache
       |   $.Framework.environment_uri                         |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com                                  |n/a |
       |   $.Zookeeper.address                                 |  UPDATE     | ${ZK_URL}                                                               |n/a |
       |   $.Marathon-LB.nginx_proxy                           |  REPLACE    | ${NGINX_ACTIVE}                                                         |boolean |
+      |   $.Marathon-LB.haproxy_host                          |  UPDATE     | sparta.${CLUSTER_ID}.labs.stratio.com                                   |n/a |
       |   $.Marathon.sparta_docker_image                      |  UPDATE     | ${DOCKER_URL}:${STRATIO_SPARTA_VERSION}                                 |n/a |
       |   $.Calico.enabled                                    |  REPLACE    | ${CALICOENABLED}                                                        |boolean |
-      |   $.Hdfs.default_fs                                   |  UPDATE     | ${HDFS_IP}                                                              |n/a |
-      |   $.Hdfs.conf_uri                                     |  UPDATE     | hdfs://${HDFS_IP}:8020                                                  |n/a |
+      |   $.Hdfs.conf_uri                                     |  UPDATE     | ${CONF_HDFS_URI:-http://10.200.0.74:8085/}                                                  |n/a |
       |   $.Security.Components.oauth2_enabled                |  REPLACE    | true                                                         |boolean |
       |   $.Security.Components.gosec_enabled                 |  REPLACE    | true                                                         |boolean |
       |   $.Security.Components.marathon_enabled              |  REPLACE    | true                                                                    |boolean |

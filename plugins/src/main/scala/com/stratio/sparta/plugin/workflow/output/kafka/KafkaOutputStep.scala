@@ -13,7 +13,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
@@ -55,7 +55,8 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     if (brokerList.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the bootstrap server definition is wrong"
+        messages = validation.messages :+ WorkflowValidationMessage(
+          s"the bootstrap server definition is empty or not valid", name)
       )
 
     validation

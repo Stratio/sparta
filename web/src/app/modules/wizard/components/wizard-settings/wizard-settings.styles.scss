@@ -1,3 +1,12 @@
+.layout {
+  opacity: 0;
+  transition: 0.6s opacity;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
 .cancel-button {
    margin-right: 20px;
 }

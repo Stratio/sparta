@@ -10,6 +10,7 @@ import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs/Subject';
 
 import * as fromWizard from './reducers';
+import * as debugActions from './actions/debug';
 import * as wizardActions from './actions/wizard';
 import { WizardService } from './services/wizard.service';
 import { Engine } from 'app/models/enums';
@@ -46,6 +47,7 @@ export class WizardComponent implements OnInit, OnDestroy {
 
         if (this.isEdit) {
             this._store.dispatch(new wizardActions.ModifyWorkflowAction(id));
+            this._store.dispatch(new debugActions.GetDebugResultAction(id));
         } else {
             this._wizardService.workflowType = type;
             this._store.dispatch(new wizardActions.SetWorkflowTypeAction(type));
@@ -66,7 +68,8 @@ export class WizardComponent implements OnInit, OnDestroy {
             .subscribe(creationMode => {
                 this.creationMode = creationMode;
                 this._cd.markForCheck();
-            });               // show create node pointer icon
+            });
+        // show create node pointer icon
         this._store.select(fromWizard.getEditionConfigMode)
             .takeUntil(this._componentDestroyed)
             .subscribe(editionMode => {

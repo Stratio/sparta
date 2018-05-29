@@ -159,7 +159,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val result = new WorkflowValidation().validateGraphIsAcyclic
 
       result.valid shouldBe false
-      assert(result.messages.exists(msg => msg.contains("cycle")))
+      assert(result.messages.exists(msg => msg.message.contains("cycle")))
     }
 
     "validate a graph with correct arity" in {

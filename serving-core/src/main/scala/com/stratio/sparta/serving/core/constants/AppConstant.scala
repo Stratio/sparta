@@ -84,16 +84,6 @@ object AppConstant extends ZookeeperUtils {
   val DefaultFSProperty = "fs.defaultFS"
 
   //Zookeeper
-  val ZKConnection = "connectionString"
-  val DefaultZKConnection = "127.0.0.1:2181"
-  val ZKConnectionTimeout = "connectionTimeout"
-  val DefaultZKConnectionTimeout = 19000
-  val ZKSessionTimeout = "sessionTimeout"
-  val DefaultZKSessionTimeout = 60000
-  val ZKRetryAttemps = "retryAttempts"
-  val DefaultZKRetryAttemps = 5
-  val ZKRetryInterval = "retryInterval"
-  val DefaultZKRetryInterval = 10000
   val DefaultZKPath = "/stratio/sparta/sparta"
 
   //Zookeeper paths

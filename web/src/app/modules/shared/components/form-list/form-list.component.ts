@@ -194,7 +194,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
             });
             const form: FormGroup = this.formBuilder.group(item);
             /** fix initial validation in egeo inputs: the input initial value is not validated until it changes*/
-            setTimeout(() => form.setValue(value));
+            setTimeout(() => form.patchValue(value));
             this.items.push(form);
             const i = this.items.length - 1;
             this.addObservableVisibleRules(i);

@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.elasticsearch
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
@@ -127,20 +127,20 @@ class ElasticSearchOutputStep(
     if (httpNodes.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: nodes should have at least one host"
+        messages = validation.messages :+ WorkflowValidationMessage(s"nodes should have at least one host", name)
       )
 
     if(httpNodes.nonEmpty) {
       if (httpNodes.forall(_._1.trim.isEmpty))
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: nodes host should be a valid url"
+          messages = validation.messages :+ WorkflowValidationMessage(s"nodes host should be a valid url", name)
         )
 
       if (httpNodes.forall(hp => hp._2.isInstanceOf[Int] && hp._2 <= 0))
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: nodes port should be a positive number"
+          messages = validation.messages :+ WorkflowValidationMessage(s"nodes port should be a positive number", name)
         )
     }
 

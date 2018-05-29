@@ -136,15 +136,16 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     rows.foreach(row => assert(upsertDataOut.contains(row)))
   }
 
-  "Native upsert with composed primary key statement" should "return the same records " in new JdbcCommons {
+  "Native upsert with unique constraint statement" should "return the same records " in new JdbcCommons {
     val tableName = s"test_upsert_${System.currentTimeMillis()}"
-    val primaryKey = "id,text"
+    val uniqueConstraint = "id,text"
     val postgresOutputStep = new PostgresOutputStep("postgresNativeUpsert", xdSession, properties
       ++ Map("postgresSaveMode" -> "STATEMENT", "failFast" -> "true", "dropTemporalTableSuccess" -> "true", "dropTemporalTableFailure" -> "true"))
     postgresOutputStep.save(upsertData, SaveModeEnum.Upsert, Map("tableName" -> tableName,
       "auto-commit" -> "false", "numPartitions" -> "1",
       "isolationLevel" -> "READ-COMMITED",
-      "primaryKey" -> primaryKey))
+      "uniqueConstraintName" -> s"uniqueConstraint_$tableName",
+      "uniqueConstraintFields" -> uniqueConstraint))
     xdSession.sql(tableCreate(tableName))
     val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
     rows.foreach(row => assert(upsert.contains(row)))
@@ -170,13 +171,13 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "Native upsert with composed primary key statement and OneTx" should "return the same records " in new JdbcCommons {
     val tableName = s"test_upsert_${System.currentTimeMillis()}"
-    val primaryKey = "id,text"
+    val uniqueConstraint = "id,text"
     val postgresOutputStep = new PostgresOutputStep("postgresNativeUpsert", xdSession, properties
       ++ Map("postgresSaveMode" -> "ONE_TRANSACTION", "failFast" -> "true", "dropTemporalTableSuccess" -> "true", "dropTemporalTableFailure" -> "true"))
     postgresOutputStep.save(upsertData, SaveModeEnum.Upsert, Map("tableName" -> tableName,
       "auto-commit" -> "false", "numPartitions" -> "1",
       "isolationLevel" -> "READ-COMMITED",
-      "primaryKey" -> primaryKey))
+      "primaryKey" -> uniqueConstraint))
     xdSession.sql(tableCreate(tableName))
     val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
     rows.foreach(row => assert(upsert.contains(row)))
@@ -234,5 +235,14 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     rows.foreach(row => assert(dataInsert.contains(row)))
     SpartaJdbcUtils.dropTable(connectionProperties, "deleteTable", Some(tableName))
   }
+
+  "Savemode ignore" should "thrown an exception" in new JdbcCommons {
+    val tableName = s"test_delete_${System.currentTimeMillis()}"
+    val postgresOutputStep = new PostgresOutputStep("postgresIgnore", xdSession, properties ++ Map("postgresSaveMode" -> "STATEMENT", "failFast" -> "true"))
+    an[RuntimeException] should be thrownBy
+      postgresOutputStep.save(okData, SaveModeEnum.Ignore, Map("tableName" -> tableName, "primaryKey" -> "text", "auto-commit" -> "false",
+        "isolationLevel" ->
+          "READ-COMMITED"))
+    }
 }
 

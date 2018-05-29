@@ -15,7 +15,7 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 
 class WebSocketInputStepStreaming(
                                    name: String,
@@ -40,7 +40,8 @@ class WebSocketInputStepStreaming(
     if (url.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name url cannot be empty")
+        messages = validation.messages :+ WorkflowValidationMessage(s"url cannot be empty", name)
+      )
 
     validation
   }

@@ -24,6 +24,7 @@
          [data]="nodeData"
          [attr.id]="nodeData.name + '-node'"
          [createdNew]="nodeData.createdNew"
+         [debugResult]="debugResult[nodeData.name]"
          [selected]="selectedNodeName === nodeData.name"
          [drawingConnectionStatus]="drawingConnectionStatus"
          (onDrawConnector)="createEdge($event)"

@@ -12,7 +12,7 @@ import com.stratio.sparta.plugin.enumerations.{JoinReturn, JoinTypes, TableSide}
 import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.TransformStep
@@ -119,18 +119,18 @@ abstract class JoinTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
 
     if (Try(joinConditions.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input join conditions are not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input join conditions are not valid", name))
     }
 
     if (Try(joinReturnColumns.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input join return columns are not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input join return columns are not valid", name))
     }
 
     //If contains schemas, validate if it can be parsed
@@ -139,44 +139,44 @@ abstract class JoinTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
       }
     }
 
     if (leftTable.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory to specify the left table"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory to specify the left table", name)
       )
 
     if (rightTable.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory to specify the right table"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory to specify the right table", name)
       )
 
     if (joinType != JoinTypes.CROSS && joinConditions.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory to specify join conditions"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory to specify join conditions", name)
       )
 
     if (joinReturn == JoinReturn.COLUMNS && joinReturnColumns.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory to specify join columns to return"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory to specify join columns to return", name)
       )
 
     if (leftTable.nonEmpty && rightTable.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the join expression is invalid"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the join expression is invalid", name)
       )
 
     validation

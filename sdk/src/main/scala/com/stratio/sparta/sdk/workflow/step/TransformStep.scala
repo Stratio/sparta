@@ -10,17 +10,14 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
-import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import com.stratio.sparta.sdk.helpers.{CastingHelper, SdkSchemaHelper}
+import com.stratio.sparta.sdk.models._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
@@ -74,7 +71,7 @@ abstract class TransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
 
     validation
   }
@@ -226,7 +223,7 @@ abstract class TransformStep[Underlying[Row]](
 
   def castingToOutputSchema(outSchema: StructField, inputValue: Any): Any =
     Try {
-      CastingUtils.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
+      CastingHelper.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
     } match {
       case Success(result) => result
       case Failure(e) => returnWhenFieldError(new Exception(

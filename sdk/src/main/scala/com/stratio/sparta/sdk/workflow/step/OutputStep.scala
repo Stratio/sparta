@@ -30,6 +30,8 @@ abstract class OutputStep[Underlying[Row]](
   val PrimaryKey = "primaryKey"
   val TableNameKey = "tableName"
   val PartitionByKey = "partitionBy"
+  val UniqueConstraintName = "uniqueConstraintName"
+  val UniqueConstraintFields = "uniqueConstraintFields"
 
   /**
     * Generic write function that receives the stream data and passes it to the dataFrame, calling the save
@@ -82,6 +84,12 @@ abstract class OutputStep[Underlying[Row]](
 
   private[sparta] def getPrimaryKeyOptions(options: Map[String, String]): Option[String] =
     options.get(PrimaryKey).notBlank
+
+  private[sparta] def getUniqueConstraintNameOptions(options: Map[String, String]): Option[String] =
+    options.get(UniqueConstraintName).notBlank
+
+  private[sparta] def getUniqueConstraintFieldsOptions(options: Map[String, String]): Option[String] =
+    options.get(UniqueConstraintFields).notBlank
 
   private[sparta] def getTableNameFromOptions(options: Map[String, String]): String =
     options.getOrElse(TableNameKey, {

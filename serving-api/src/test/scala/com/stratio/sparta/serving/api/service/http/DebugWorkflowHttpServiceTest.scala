@@ -20,6 +20,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -94,8 +95,8 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       val schemaFake = StructType(StructField("name", StringType, false) ::
         StructField("age", IntegerType, false) ::
         StructField("year", IntegerType, true) :: Nil)
-      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep("Kafka", 0, Option(schemaFake),
-        Option("Gregor Samza, 28, 1915"))))
+      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep("Kafka", 0, Option(schemaFake.json),
+        Option(Seq("Gregor Samza, 28, 1915")))))
       startAutopilot(Left(Success(fakedResults)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
@@ -113,10 +114,11 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.run" should {
     "return a true if the run was launched" in {
-      startAutopilot(Left(Success(true)))
+      val startDate = new DateTime()
+      startAutopilot(Left(Success(startDate)))
       Post(s"/${HttpConstant.DebugWorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Run]
-        status should be(StatusCodes.OK)
+        responseAs[DateTime].withMillis(0) should equal(startDate.withMillis(0))
       }
     }
     "return a 500 if there was any error" in {

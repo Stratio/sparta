@@ -12,6 +12,7 @@ export interface WizardNode {
     hasErrors: boolean;
     nodeTemplate: any;
     configuration: any;
+    debugResult: any;
     uiConfiguration: {
         position: WizardNodePosition
     };

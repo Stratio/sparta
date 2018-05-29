@@ -7,6 +7,7 @@
 package com.stratio.sparta.serving.core.factory
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.constants.SdkConstants._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
@@ -35,33 +36,20 @@ object CuratorFactoryHolder extends SLF4JLogging {
     */
   def getInstance(config: Option[Config] = SpartaConfig.getZookeeperConfig): CuratorFramework = {
     curatorFramework match {
-      case None => {
-        var defaultConnectionString = AppConstant.DefaultZKConnection
-        var connectionTimeout = AppConstant.DefaultZKConnectionTimeout
-        var sessionTimeout = AppConstant.DefaultZKSessionTimeout
-        var retryAttempts = AppConstant.DefaultZKRetryAttemps
-        var retryInterval = AppConstant.DefaultZKRetryInterval
-        var pathZookeeper = AppConstant.DefaultZKPath
-
-        Try(config.foreach(zkConfig => {
-          defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZKConnection)
-          connectionTimeout = getIntConfigValue(zkConfig, AppConstant.ZKConnectionTimeout)
-          sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZKSessionTimeout)
-          retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZKRetryAttemps)
-          retryInterval = getIntConfigValue(zkConfig, AppConstant.ZKRetryInterval)
-          pathZookeeper = getStringConfigValue(zkConfig, AppConstant.DefaultZKPath)
-        }))
+      case None =>
+        val defaultConnectionString = getStringConfigValue(config, ZKConnection, DefaultZKConnection)
+        val connectionTimeout = getIntConfigValue(config, ZKConnectionTimeout, DefaultZKConnectionTimeout)
+        val sessionTimeout = getIntConfigValue(config, ZKSessionTimeout, DefaultZKSessionTimeout)
+        val retryAttempts = getIntConfigValue(config, ZKRetryAttemps, DefaultZKRetryAttemps)
+        val retryInterval = getIntConfigValue(config, ZKRetryInterval, DefaultZKRetryInterval)
 
         Try {
-
           curatorFramework = Some(CuratorFrameworkFactory.builder()
             .connectString(defaultConnectionString)
             .connectionTimeoutMs(connectionTimeout)
             .sessionTimeoutMs(sessionTimeout)
-            //.namespace(pathZookeeper)
             .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
             ).build())
-
 
           curatorFramework.get.start()
           log.info(s"Curator instance created correctly for Zookeeper cluster $defaultConnectionString")
@@ -70,7 +58,6 @@ object CuratorFactoryHolder extends SLF4JLogging {
           case Success(curatorFk) => curatorFk
           case Failure(e) => log.error("Unable to establish a connection with the specified Zookeeper", e); throw e
         }
-      }
       case Some(curatorFk) => curatorFk
     }
   }
@@ -90,18 +77,12 @@ object CuratorFactoryHolder extends SLF4JLogging {
     case None => false
   }
 
-  /**
-    * Tries to instantiate a configuration value depending of its type.
-    * @param configKey with the name of the property instead of configuration file.
-    * @param config with the global configuration.
-    * @param defaultValue if there is not configuration or any error appears a default value must be set.
-    * @tparam U generic type of the value.
-    * @return the parsed value of the configuration.
-    */
-  protected def getPathValue[U](configKey: String, config: Config, defaultValue: Class[U]): U =
+  protected def getPathValue[U](configKey: String, config: Config, typeToReturn: Class[U]): U =
     config.getAnyRef(configKey).asInstanceOf[U]
 
-  protected def getStringConfigValue(config: Config, key: String): String = getPathValue(key, config, classOf[String])
+  protected def getStringConfigValue(config: Option[Config], key: String, default: String): String =
+    Try(getPathValue(key, config.get, classOf[String])).getOrElse(default)
 
-  protected def getIntConfigValue(config: Config, key: String): Int = getPathValue(key, config, classOf[Int])
+  protected def getIntConfigValue(config: Option[Config], key: String, default: Int): Int =
+    Try(getPathValue(key, config.get, classOf[Int])).getOrElse(default)
 }

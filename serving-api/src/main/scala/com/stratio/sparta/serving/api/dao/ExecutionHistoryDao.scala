@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.dao
+package com.stratio.sparta.serving.api.dao
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -12,9 +12,9 @@ import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
 
+import com.stratio.sparta.serving.api.utils.JdbcSlickUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistory
-import com.stratio.sparta.serving.core.utils.JdbcSlickUtils
 
 //scalastyle:off
 trait ExecutionHistoryDao extends JdbcSlickUtils with SLF4JLogging {
@@ -39,11 +39,20 @@ trait ExecutionHistoryDao extends JdbcSlickUtils with SLF4JLogging {
     txHandler
   }
 
-  def createSchema(): Future[_] = {
-    val dbioAction = (for {
-      _ <- table.schema.create
-    } yield ()).transactionally
-    db.run(txHandler(dbioAction))
+  def createSchema(): Unit = {
+    db.run(table.exists.result) onComplete {
+      case Success(exists) =>
+        log.info("Schema already exists")
+      case Failure(e) => {
+        log.info("Creating schema for executionHistory")
+        val dbioAction = (
+          for {
+            _ <- table.schema.create
+          } yield ()
+          ).transactionally
+        db.run(txHandler(dbioAction))
+      }
+    }
   }
 
   def selectAll(): Future[List[WorkflowExecutionHistory]] = {

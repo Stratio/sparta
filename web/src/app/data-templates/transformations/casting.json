@@ -41,7 +41,7 @@
          "propertyName": "_FIELDS_DEFINITION_STRING_",
          "propertyType": "textarea",
          "contentType": "JSON",
-         "width": 8,
+         "width": 12,
          "visible": [
             [
                {
@@ -178,7 +178,7 @@
          "propertyType": "list",
          "complexForm": true,
          "required": false,
-         "width": 8,
+         "width": 12,
          "tooltip": "Schema definition for steps",
          "qa": "fragment-details-schema-fields",
          "fields": [
@@ -188,7 +188,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Step name",
-               "width": 3,
+               "width": 4,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -197,7 +197,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Schema in json/Spark format or from example",
                "required": true,
                "qa": "fragment-details-field-query"

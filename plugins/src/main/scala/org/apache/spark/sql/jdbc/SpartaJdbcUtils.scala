@@ -19,6 +19,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
+import com.stratio.sparta.sdk.workflow.enumerators.ConstraintType
 
 case class TxSaveMode(txType: TxType, failFast: Boolean)
 
@@ -42,11 +43,26 @@ object SpartaJdbcUtils extends SLF4JLogging {
   def tableExists(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): (Boolean, Boolean) = {
     synchronized {
       val conn = getConnection(connectionProperties, outputName)
-      val exists = JdbcUtils.tableExists(conn, connectionProperties)
-
+      val exists = spartaTableExists(conn, connectionProperties)
       if (exists) (true, false)
       else createTable(connectionProperties, dataFrame, outputName)
     }
+  }
+
+  private[jdbc] def spartaTableExists(conn: Connection, options: JDBCOptions) = {
+    val dialect = JdbcDialects.get(options.url)
+    val statement = conn.prepareStatement(dialect.getTableExistsQuery(options.table))
+    var exists = false
+    try {
+      statement.executeQuery()
+      exists = true
+    } catch {
+      case e: SQLException =>
+        log.warn(s"Error in table ${options.table} validation, does not exist, will be created. ${e.getMessage}")
+    } finally {
+      statement.close()
+    }
+    exists
   }
 
   def dropTable(connectionProperties: JDBCOptions, outputName: String, tableName: Option[String] = None): Unit = {
@@ -122,16 +138,15 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def createConstraint(connectionProperties: JDBCOptions, outputName: String, constraintFields: String, constraintType: ConstraintType.Value): String = {
+  def createConstraint(connectionProperties: JDBCOptions, outputName: String, uniqueConstraintName: String, uniqueConstraintFields: String, constraintType: ConstraintType.Value): String = {
     synchronized {
-      val constraintString = s"${connectionProperties.table}_constraint_${System.currentTimeMillis()}"
       val connection = getConnection(connectionProperties, s"constraint_${connectionProperties.table}_$outputName")
       connection.setAutoCommit(false)
       val constraintSql = constraintType match {
         case ConstraintType.Unique =>
-          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $constraintString UNIQUE ($constraintFields)"
+          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $uniqueConstraintName UNIQUE ($uniqueConstraintFields)"
         case ConstraintType.PrimaryKey =>
-          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $constraintString PRIMARY KEY ($constraintFields)"
+          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $uniqueConstraintName PRIMARY KEY ($uniqueConstraintFields)"
       }
       val stmt = connection.prepareStatement(constraintSql)
       Try(stmt.execute()) match {
@@ -139,7 +154,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           log.debug(s"Created correctly constraint on table ${connectionProperties.table} ")
           stmt.close()
           connection.commit()
-          constraintString
+          uniqueConstraintName
         case Failure(e) =>
           stmt.close()
           connection.rollback()
@@ -236,13 +251,14 @@ object SpartaJdbcUtils extends SLF4JLogging {
         Option(index -> (searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
       else None
     }.toMap
+    val updateFields = schema.fields.filter(field => !searchFields.contains(field.name))
     val updateTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
       if (!searchFields.contains(field.name))
-        Option(index -> getJdbcType(field.dataType, dialect).jdbcNullType)
+        Option(index -> (updateFields.indexOf(field), getJdbcType(field.dataType, dialect).jdbcNullType))
       else None
-    }.toMap.zipWithIndex.map { case ((index, nullType), updateIndex) => index -> (updateIndex, nullType) }
-    val insert = insertWithExistsSql(properties.table, schema, searchFields)
-    val update = updateSql(properties.table, schema, searchFields)
+    }.toMap
+    val insert = insertWithExistsSql(properties.table, schema, searchFields, dialect)
+    val update = updateSql(properties.table, schema, searchFields, dialect)
     val repartitionedDF = properties.numPartitions match {
       case Some(n) if n <= 0 => throw new IllegalArgumentException(
         s"Invalid value `$n` for parameter `${JDBCOptions.JDBC_NUM_PARTITIONS}` in table writing " +
@@ -277,21 +293,31 @@ object SpartaJdbcUtils extends SLF4JLogging {
       throw new IllegalArgumentException(s"can not get JDBC type for ${dt.simpleString}"))
   }
 
-  private def updateSql(table: String, rddSchema: StructType, searchFields: Seq[String]): String = {
+  private def updateSql(
+                         table: String,
+                         rddSchema: StructType,
+                         searchFields: Seq[String],
+                         dialect: JdbcDialect
+                       ): String = {
     val valuesPlaceholders = rddSchema.fields.filter(field => !searchFields.contains(field.name))
-      .map(field => s"${field.name} = ?")
+      .map(field => s"${dialect.quoteIdentifier(field.name)} = ?")
       .mkString(", ")
-    val wherePlaceholders = searchFields.map(field => s"$field = ?").mkString(" AND ")
+    val wherePlaceholders = searchFields.map(field => s"${dialect.quoteIdentifier(field)} = ?").mkString(" AND ")
 
     if (valuesPlaceholders.nonEmpty && wherePlaceholders.nonEmpty)
       s"UPDATE $table SET $valuesPlaceholders WHERE $wherePlaceholders"
     else ""
   }
 
-  private def insertWithExistsSql(table: String, rddSchema: StructType, searchFields: Seq[String]): String = {
-    val columns = rddSchema.fields.map(_.name).mkString(",")
+  private def insertWithExistsSql(
+                                   table: String,
+                                   rddSchema: StructType,
+                                   searchFields: Seq[String],
+                                   dialect: JdbcDialect
+                                 ): String = {
+    val columns = rddSchema.fields.map(field => dialect.quoteIdentifier(field.name)).mkString(",")
     val placeholders = rddSchema.fields.map(_ => "?").mkString(",")
-    val wherePlaceholders = searchFields.map(field => s"$field = ?").mkString(" AND ")
+    val wherePlaceholders = searchFields.map(field => s"${dialect.quoteIdentifier(field)} = ?").mkString(" AND ")
     s"INSERT INTO $table ($columns)" +
       s" SELECT $placeholders WHERE NOT EXISTS (SELECT 1 FROM $table WHERE $wherePlaceholders)"
   }

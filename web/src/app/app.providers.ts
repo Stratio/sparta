@@ -12,6 +12,7 @@ import {
     BackupService,
     EnvironmentService,
     ResourcesService,
+    WizardApiService,
     ApiService,
     ErrorMessagesService,
     CrossdataService,
@@ -32,6 +33,7 @@ export const APP_PROVIDERS: Array<any> = [
       multi: true
     },
     GlobalConfigService,
+    WizardApiService,
     WorkflowService,
     TemplatesService,
     BackupService,

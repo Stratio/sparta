@@ -3,16 +3,15 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.sdk.utils
+package com.stratio.sparta.sdk.helpers
 
 import java.sql.Timestamp
-import java.util.Date
 
 import akka.event.slf4j.SLF4JLogging
 import com.github.nscala_time.time.Imports._
 import org.joda.time.{DateTimeConstants, Duration}
 
-object AggregationTimeUtils extends SLF4JLogging {
+object AggregationTimeHelper extends SLF4JLogging {
 
   val DefaultGranularity = "second"
   val GranularityPropertyName = "granularity"

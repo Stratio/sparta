@@ -1,81 +1,140 @@
- [
-    {
-       "propertyId": "tableName",
-       "propertyName": "_TABLE_NAME_",
-       "propertyType": "text",
-       "required": false,
-       "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name. If is not assigned then the output name is the step name",
-       "qa": "table-name-writer-tableName"
-    },
-    {
-       "propertyId": "errorTableName",
-       "propertyName": "_ERROR_TABLE_NAME_",
-       "propertyType": "text",
-       "required": false,
-       "tooltip": "If is assigned the errors data is saved in one table, topic or similar with this name. If is not assigned then the output name is the step name",
-       "qa": "table-name-writer-errorTableName"
-    },
-    {
-       "propertyId": "saveMode",
-       "propertyName": "_SAVEMODE_",
-       "propertyType": "select",
-       "required": true,
-       "default": "Append",
-       "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-       "qa": "save-mode-writer",
-       "values": [
-          {
-             "label": "Append",
-             "value": "Append"
-          },
-          {
-             "label": "Error if exists",
-             "value": "Error if exists"
-          },
-          {
-             "label": "Ignore",
-             "value": "Ignore"
-          },
-          {
-             "label": "Overwrite",
-             "value": "Overwrite"
-          },
-          {
-             "label": "Upsert",
-             "value": "Upsert"
-          },
-          {
-             "label": "Delete",
-             "value": "Delete"
-          }
-       ]
-    },
-    {
-       "propertyId": "primaryKey",
-       "propertyName": "_PRIMARY_KEY_",
-       "propertyType": "text",
-       "required": true,
-       "visibleOR": [
-          [
-             {
+[
+   {
+      "propertyId": "tableName",
+      "propertyName": "_TABLE_NAME_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name. If is not assigned then the output name is the step name",
+      "qa": "table-name-writer-tableName"
+   },
+   {
+      "propertyId": "errorTableName",
+      "propertyName": "_ERROR_TABLE_NAME_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "If is assigned the errors data is saved in one table, topic or similar with this name. If is not assigned then the output name is the step name",
+      "qa": "table-name-writer-errorTableName"
+   },
+   {
+      "propertyId": "saveMode",
+      "propertyName": "_SAVEMODE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "Append",
+      "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
+      "qa": "save-mode-writer",
+      "values": [
+         {
+            "label": "Append",
+            "value": "Append"
+         },
+         {
+            "label": "Error if exists",
+            "value": "Error if exists"
+         },
+         {
+            "label": "Ignore",
+            "value": "Ignore"
+         },
+         {
+            "label": "Overwrite",
+            "value": "Overwrite"
+         },
+         {
+            "label": "Upsert",
+            "value": "Upsert"
+         },
+         {
+            "label": "Delete",
+            "value": "Delete"
+         }
+      ]
+   },
+   {
+      "propertyId": "constraintType",
+      "propertyName": "_CONSTRAINT_TYPE_",
+      "propertyType": "select",
+      "required": true,
+      "default": "primaryKey",
+      "tooltip": "The constraint type used for upsert, primaryKey or unique constraint, mandatory only one",
+      "qa": "constraint-type-writer",
+      "visibleOR": [
+         [
+            {
                "propertyId": "saveMode",
                "value": "Upsert"
-             },
-             {
-                "propertyId": "saveMode",
-                "value": "Delete"
-             }
-          ]
-       ],
-       "tooltip": "Set the fields that indicates the where clause in upsert save mode",
-       "qa": "primaryKey-by-writer"
-    },
-    {
-       "propertyId": "partitionBy",
-       "propertyName": "_PARTITION_BY_",
-       "propertyType": "text",
-       "required": false,
-       "tooltip": "Partition the output by one or more fields, separated by '.'. This property is supported by outputs that write on file systems",
-       "qa": "partition-by-writer"
-    }
- ]
+            },
+            {
+               "propertyId": "saveMode",
+               "value": "Delete"
+            }
+         ]
+      ],
+      "values": [
+         {
+            "label": "By primary key",
+            "value": "primaryKey"
+         },
+         {
+            "label": "By unique constraint",
+            "value": "uniqueConstraint"
+         }
+      ]
+   },
+   {
+      "propertyId": "primaryKey",
+      "propertyName": "_PRIMARY_KEY_",
+      "propertyType": "text",
+      "required": true,
+      "visible": [
+         [
+            {
+               "propertyId": "constraintType",
+               "value": "primaryKey"
+            }
+         ]
+      ],
+      "tooltip": "Set the fields that indicates the where clause in upsert save mode",
+      "qa": "primaryKey-by-writer"
+   },
+   {
+      "propertyId": "uniqueConstraintName",
+      "propertyName": "_UNIQUE_CONSTRAINT_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "visible": [
+         [
+            {
+               "propertyId": "constraintType",
+               "value": "uniqueConstraint"
+            }
+         ]
+      ],
+      "tooltip": "The Unique Constraint used in upsert operation. If exists it will be used on upsert sentence. If it doesn't exist or table is created for the first time, it will be created using the Unique Constraint Fields property values separated by ','.",
+      "qa": "constraint-by-writer"
+   },
+   {
+      "propertyId": "uniqueConstraintFields",
+      "propertyName": "_UNIQUE_CONSTRAINT_FIELDS_",
+      "propertyType": "text",
+      "required": false,
+      "visible": [
+         [
+            {
+               "propertyId": "constraintType",
+               "value": "uniqueConstraint"
+            }
+         ]
+      ],
+      "tooltip": "When the table is created for the first time, the unique constraint will be created with the value inside this property. During the upsert, if this field is empty, the above Unique Constraint Name property will be used",
+      "qa": "constraint-by-writer"
+   },
+   {
+      "propertyId": "partitionBy",
+      "propertyName": "_PARTITION_BY_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+      "qa": "partition-by-writer"
+   }
+]

@@ -6,10 +6,10 @@
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
-import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.helpers.CastingHelper
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataType, DoubleType}
 
@@ -31,7 +31,7 @@ class SumOperator(
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     returnFromTryWithNullCheck("Error in SumOperator when reducing values") {
       Try{
-        values.flatten.map(value => CastingUtils.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]).sum
+        values.flatten.map(value => CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]).sum
       }
     }
 
@@ -39,7 +39,7 @@ class SumOperator(
     returnFromTryWithNullCheck("Error in SumOperator when associating values") {
       Try {
           extractValues(values, None)
-            .map(value => CastingUtils.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double])
+            .map(value => CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double])
             .sum
       }
     }
