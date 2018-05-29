@@ -63,6 +63,7 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         )
         self ! PoisonPill
     }
+    debugWorkflowService.setEndDate(workflow.id.get)
     stopSparkContext()
   }
 }

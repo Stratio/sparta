@@ -21,7 +21,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 
 class FileSystemInputStepStreaming(
                                     name: String,
@@ -44,7 +44,8 @@ class FileSystemInputStepStreaming(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the path cannot be empty")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the path cannot be empty", name)
+      )
 
     validation
   }

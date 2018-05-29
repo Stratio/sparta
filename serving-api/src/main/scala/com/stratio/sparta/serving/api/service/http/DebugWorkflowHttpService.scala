@@ -105,7 +105,7 @@ trait DebugWorkflowHttpService extends BaseHttpService {
           for {
             response <- (supervisor ? Run(id.toString, user))
               .mapTo[Either[ResponseRun, UnauthorizedResponse]]
-          } yield deletePostPutResponse(DebugWorkflowServiceRun, response, genericError, StatusCodes.OK)
+          } yield deletePostPutResponse(DebugWorkflowServiceRun, response, genericError)
         }
       }
     }

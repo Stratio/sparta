@@ -21,10 +21,11 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonL
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
-import com.typesafe.config.ConfigFactory
 
 import scala.util.{Properties, Try}
 import slick.jdbc.PostgresProfile
+import com.typesafe.config.ConfigFactory
+
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
@@ -88,6 +89,15 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       system.actorOf(Props(new DebugStepDataPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugStepErrorPublisherActor(curatorFramework)))
 
+      if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
+        log.debug("Initializing history actors ...")
+        system.actorOf(ExecutionHistoryListenerActor.props(PostgresProfile))
+        system.actorOf(Props(new StatusHistoryListenerActor(PostgresProfile,
+          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
+        system.actorOf(Props(new StatusHistoryActor(PostgresProfile,
+          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
+      }
+
       val controllerActor = system.actorOf(Props(new ControllerActor(
           curatorFramework,
           stListenerActor,
@@ -95,14 +105,6 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
           inMemoryApiActors
         )), ControllerActorName)
 
-      if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
-        log.debug("Initializing history actors ...")
-        system.actorOf(ExecutionHistoryActor.props(PostgresProfile))
-        system.actorOf(Props(new StatusHistoryActor(PostgresProfile,
-          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
-        system.actorOf(Props(new StatusHistoryListenerActor(PostgresProfile,
-          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
-      }
 
       log.info("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,

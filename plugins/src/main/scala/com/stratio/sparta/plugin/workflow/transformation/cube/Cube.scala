@@ -9,12 +9,12 @@ import akka.event.slf4j.SLF4JLogging
 import com.github.nscala_time.time.Imports.DateTime
 import com.stratio.sparta.plugin.workflow.transformation.cube.Cube._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils._
-import com.stratio.sparta.sdk.utils.CastingUtils
+import com.stratio.sparta.sdk.helpers.AggregationTimeHelper._
 import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.helpers.CastingHelper
 import com.stratio.sparta.sdk.workflow.step.ErrorCheckingOption
 import org.apache.spark.HashPartitioner
 import org.apache.spark.sql.Row
@@ -109,7 +109,7 @@ case class Cube(
   private[cube] def getWaterMark(inputValues: Row, waterMarkPolicy: WaterMarkPolicy): Long =
     Try(inputValues.schema.fieldIndex(waterMarkPolicy.name)) match {
       case Success(index) =>
-        CastingUtils.checkLongType(inputValues.get(index)).asInstanceOf[Long]
+        CastingHelper.checkLongType(inputValues.get(index)).asInstanceOf[Long]
       case Failure(e) =>
         val message = s"Impossible to extract waterMark from row ${inputValues.mkString(",")}"
         log.error(message, e)

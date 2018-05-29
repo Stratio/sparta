@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.{ActorRef, Cancellable}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils
+import com.stratio.sparta.sdk.helpers.AggregationTimeHelper
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 
@@ -22,7 +22,7 @@ trait SchedulerUtils extends SLF4JLogging {
       .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultTime)
 
     log.info(s"Starting scheduler task in $timeProperty with time: $delay")
-    SchedulerSystem.scheduler.scheduleOnce(AggregationTimeUtils.parseValueToMilliSeconds(delay) milli)(f)
+    SchedulerSystem.scheduler.scheduleOnce(AggregationTimeHelper.parseValueToMilliSeconds(delay) milli)(f)
   }
 
   def scheduleTask(initTimeProperty: String,
@@ -41,8 +41,8 @@ trait SchedulerUtils extends SLF4JLogging {
       s"$intervalTimeProperty with time: $interval")
 
     SchedulerSystem.scheduler.schedule(
-      AggregationTimeUtils.parseValueToMilliSeconds(initialDelay) milli,
-      AggregationTimeUtils.parseValueToMilliSeconds(interval) milli)(f)
+      AggregationTimeHelper.parseValueToMilliSeconds(initialDelay) milli,
+      AggregationTimeHelper.parseValueToMilliSeconds(interval) milli)(f)
   }
 
   def scheduleMsg(initTimeProperty: String,
@@ -64,8 +64,8 @@ trait SchedulerUtils extends SLF4JLogging {
       s"$intervalTimeProperty with time: $interval")
 
     SchedulerSystem.scheduler.schedule(
-      AggregationTimeUtils.parseValueToMilliSeconds(initialDelay) milli, //Initial delay
-      AggregationTimeUtils.parseValueToMilliSeconds(interval) milli, //Interval
+      AggregationTimeHelper.parseValueToMilliSeconds(initialDelay) milli, //Initial delay
+      AggregationTimeHelper.parseValueToMilliSeconds(interval) milli, //Interval
       receiverActor,
       msg)
   }

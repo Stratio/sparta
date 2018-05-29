@@ -18,151 +18,193 @@ import { StModalService } from '@stratio/egeo';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
+import * as debugActions from './../../actions/debug';
 
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
 import { workflowNamePattern } from './../../wizard.constants';
 
 @Component({
-   selector: 'wizard-header',
-   styleUrls: ['wizard-header.styles.scss'],
-   templateUrl: 'wizard-header.template.html'
+  selector: 'wizard-header',
+  styleUrls: ['wizard-header.styles.scss'],
+  templateUrl: 'wizard-header.template.html'
 })
 
 export class WizardHeaderComponent implements OnInit, OnDestroy {
 
-   @Output() onZoomIn = new EventEmitter();
-   @Output() onZoomOut = new EventEmitter();
-   @Output() onCenter = new EventEmitter();
-   @Output() onDelete = new EventEmitter();
-   @Output() onSaveWorkflow = new EventEmitter<boolean>();
-   @Output() onEditEntity = new EventEmitter();
-   @Output() deleteSelection = new EventEmitter();
-   @Output() onDuplicateNode = new EventEmitter();
+  @Output() onZoomIn = new EventEmitter();
+  @Output() onZoomOut = new EventEmitter();
+  @Output() onCenter = new EventEmitter();
+  @Output() onDelete = new EventEmitter();
+  @Output() onSaveWorkflow = new EventEmitter<boolean>();
+  @Output() onEditEntity = new EventEmitter();
+  @Output() deleteSelection = new EventEmitter();
+  @Output() onDuplicateNode = new EventEmitter();
 
-   @Input() isNodeSelected = false;
-   @Input() isEdgeSelected = false;
-   @Input() workflowName = '';
-   @Input() workflowVersion = 0;
+  @Input() isNodeSelected = false;
+  @Input() isEdgeSelected = false;
+  @Input() workflowName = '';
+  @Input() isWorkflowDebugging: boolean;
+  @Input() workflowVersion = 0;
 
-   @ViewChild('nameForm') public nameForm: NgForm;
-   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
+  @ViewChild('nameForm') public nameForm: NgForm;
+  @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
-   public workflowNamePattern = workflowNamePattern;
-   public isShowedEntityDetails$: Observable<boolean>;
-   public menuOptions$: Observable<Array<FloatingMenuModel>>;
-   public isLoading$: Observable<boolean>;
-   public showErrors = false;
-   public workflowType = '';
+  public workflowNamePattern = workflowNamePattern;
+  public isShowedEntityDetails$: Observable<boolean>;
+  public menuOptions$: Observable<Array<FloatingMenuModel>>;
+  public isLoading$: Observable<boolean>;
+  public showErrors = false;
+  public workflowType = '';
 
-   public undoEnabled = false;
-   public redoEnabled = false;
-   public isPristine = true;
-   public validations: any = {};
+  public notification: any;
 
-   private _componentDestroyed = new Subject();
+  public undoEnabled = false;
+  public redoEnabled = false;
+  public isPristine = true;
+  public validations: any = {};
 
-   constructor(private route: Router,
-      private currentActivatedRoute: ActivatedRoute,
-      private store: Store<fromWizard.State>,
-      private _cd: ChangeDetectorRef,
-      private _modalService: StModalService,
-      private _location: Location) { }
+  private _componentDestroyed = new Subject();
 
-   ngOnInit(): void {
-      this._modalService.container = this.target;
-      this.isShowedEntityDetails$ = this.store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
-      this.isLoading$ = this.store.select(fromWizard.isLoading);
+  constructor(private route: Router,
+    private currentActivatedRoute: ActivatedRoute,
+    private _store: Store<fromWizard.State>,
+    private _cd: ChangeDetectorRef,
+    private _modalService: StModalService,
+    private _location: Location) { }
 
-      this.store.select(fromWizard.areUndoRedoEnabled)
-         .takeUntil(this._componentDestroyed)
-         .subscribe((actions: any) => {
-            this.undoEnabled = actions.undo;
-            this.redoEnabled = actions.redo;
+  ngOnInit(): void {
+    this._modalService.container = this.target;
+    this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
+    this.isLoading$ = this._store.select(fromWizard.isLoading);
+
+    this._store.select(fromWizard.areUndoRedoEnabled)
+      .takeUntil(this._componentDestroyed)
+      .subscribe((actions: any) => {
+        this.undoEnabled = actions.undo;
+        this.redoEnabled = actions.redo;
+        this._cd.markForCheck();
+      });
+
+    this._store.select(fromWizard.getValidationErrors)
+      .takeUntil(this._componentDestroyed)
+      .subscribe((validations: any) => {
+        this.validations = validations;
+        this._cd.markForCheck();
+      });
+
+    this._store.select(fromWizard.isPristine).distinctUntilChanged()
+      .takeUntil(this._componentDestroyed)
+      .subscribe((isPristine: boolean) => {
+        this.isPristine = isPristine;
+        this._cd.markForCheck();
+      });
+
+    this._store.select(fromWizard.getWorkflowType)
+      .takeUntil(this._componentDestroyed)
+      .subscribe((type) => this.workflowType = type);
+
+    let handler;
+    this._store.select(fromWizard.getWizardNofications)
+      .takeUntil(this._componentDestroyed)
+      .subscribe((notification) => {
+        if (notification.message.length) {
+          this.notification = {
+            ...this.notification,
+            visible: false
+          };
+          this._cd.markForCheck();
+          clearTimeout(handler);
+          setTimeout(() => {
+            this.notification = {
+              ...notification,
+              visible: true
+            };
             this._cd.markForCheck();
-         });
+            handler = setTimeout(() => {
+              this.notification = {
+                ...this.notification,
+                visible: false
+              };
+              this._cd.markForCheck();
+            }, 4000);
+          });
+        } else {
+          this.notification = {};
+        }
+      });
 
-      this.store.select(fromWizard.getValidationErrors)
-         .takeUntil(this._componentDestroyed)
-         .subscribe((validations: any) => {
-            this.validations = validations;
-            this._cd.markForCheck();
-         });
+    this.menuOptions$ = this._store.select(fromWizard.getMenuOptions);
+  }
 
-      this.store.select(fromWizard.isPristine).distinctUntilChanged()
-         .takeUntil(this._componentDestroyed)
-         .subscribe((isPristine: boolean) => {
-            this.isPristine = isPristine;
-            this._cd.markForCheck();
-         });
+  changeVisible(event) {
+    console.log(event)
+  }
 
-      this.store.select(fromWizard.getWorkflowType)
-         .takeUntil(this._componentDestroyed)
-         .subscribe((type) => this.workflowType = type);
+  selectedMenuOption($event: any): void {
+    this._store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
+  }
 
-      this.menuOptions$ = this.store.select(fromWizard.getMenuOptions);
-   }
+  showSettings() {
+    this._store.dispatch(new wizardActions.ShowSettingsAction());
+  }
 
-   selectedMenuOption($event: any): void {
-      this.store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
-   }
+  filterOptions($event: any) {
+    this._store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
+  }
 
-   showSettings() {
-      this.store.dispatch(new wizardActions.ShowSettingsAction());
-   }
+  toggleEntityInfo() {
+    this._store.dispatch(new wizardActions.ToggleDetailSidebarAction());
+  }
 
-   filterOptions($event: any) {
-      this.store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
-   }
+  debugWorkflow() {
+    this._store.dispatch(new debugActions.InitDebugWorkflowAction());
+  }
 
-   toggleEntityInfo() {
-      this.store.dispatch(new wizardActions.ToggleDetailSidebarAction());
-   }
-
-   public showConfirmModal(): void {
-      if (this.isPristine) {
-         this.redirectPrevious();
-         return;
+  public showConfirmModal(): void {
+    if (this.isPristine) {
+      this.redirectPrevious();
+      return;
+    }
+    this._modalService.show({
+      modalTitle: 'Exit workflow',
+      outputs: {
+        onCloseConfirmModal: this.onCloseConfirmationModal.bind(this)
       }
-      this._modalService.show({
-         modalTitle: 'Exit workflow',
-         outputs: {
-            onCloseConfirmModal: this.onCloseConfirmationModal.bind(this)
-         }
-      }, WizardModalComponent);
-   }
+    }, WizardModalComponent);
+  }
 
-   public saveWorkflow(): void {
-      this.onSaveWorkflow.emit();
-   }
+  public saveWorkflow(): void {
+    this.onSaveWorkflow.emit();
+  }
 
-   onCloseConfirmationModal(event: any) {
-      this._modalService.close();
-      if (event === '1') {
-         this.onSaveWorkflow.emit(true);
-      } else {
-         this.redirectPrevious();
-      }
-   }
+  onCloseConfirmationModal(event: any) {
+    this._modalService.close();
+    if (event === '1') {
+      this.onSaveWorkflow.emit(true);
+    } else {
+      this.redirectPrevious();
+    }
+  }
 
-   redirectPrevious() {
-      if (window.history.length > 2) {
-         this._location.back();
-      } else {
-         this.route.navigate(['workflow-managing']);
-      }
-   }
+  redirectPrevious() {
+    if (window.history.length > 2) {
+      this._location.back();
+    } else {
+      this.route.navigate(['workflow-managing']);
+    }
+  }
 
-   undoAction() {
-      this.store.dispatch(new wizardActions.UndoChangesAction());
-   }
+  undoAction() {
+    this._store.dispatch(new wizardActions.UndoChangesAction());
+  }
 
-   redoAction() {
-      this.store.dispatch(new wizardActions.RedoChangesAction());
-   }
+  redoAction() {
+    this._store.dispatch(new wizardActions.RedoChangesAction());
+  }
 
-   ngOnDestroy(): void {
-      this._componentDestroyed.next();
-      this._componentDestroyed.unsubscribe();
-   }
+  ngOnDestroy(): void {
+    this._componentDestroyed.next();
+    this._componentDestroyed.unsubscribe();
+  }
 }

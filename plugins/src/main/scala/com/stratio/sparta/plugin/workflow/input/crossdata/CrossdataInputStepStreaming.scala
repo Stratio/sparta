@@ -13,7 +13,7 @@ import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.models.OffsetFieldItem
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.InputStep
@@ -76,19 +76,19 @@ class CrossdataInputStepStreaming(
     if (query.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input sql query cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query cannot be empty", name)
       )
 
     if (query.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input sql query is invalid"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query is invalid", name)
       )
 
     if (offsetItems.nonEmpty && offsetItems.exists(offsetField => offsetField.name.isEmpty))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: there are offset items with an incorrect definition"
+        messages = validation.messages :+ WorkflowValidationMessage(s"there are offset items with an incorrect definition", name)
       )
 
     validation

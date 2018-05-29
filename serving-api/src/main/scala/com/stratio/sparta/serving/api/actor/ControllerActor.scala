@@ -5,10 +5,19 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import scala.concurrent.duration._
+import scala.util.{Properties, Try}
+
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
+import com.typesafe.config.Config
+import org.apache.curator.framework.CuratorFramework
+import spray.http.StatusCodes._
+import spray.routing._
+
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
@@ -17,18 +26,9 @@ import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.constants.MarathonConstant._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
-import com.typesafe.config.Config
-import org.apache.curator.framework.CuratorFramework
-import spray.http.StatusCodes._
-import spray.routing._
-
-import scala.concurrent.duration._
-import scala.util.{Properties, Try}
 
 class ControllerActor(
                        curatorFramework: CuratorFramework,
@@ -76,6 +76,8 @@ class ControllerActor(
   val debugActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new DebugWorkflowActor(
       curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi, launcherActor))), DebugWorkflowApiActorName)
+  val workflowHistoryExecutionActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new ExecutionHistoryActor)), WorkflowHistoryExecutionApiActorName)
 
   val actorsMap = Map(
     StatusActorName -> statusActor,
@@ -90,7 +92,8 @@ class ControllerActor(
     MetadataActorName -> metadataActor,
     EnvironmentActorName -> environmentActor,
     GroupActorName -> groupActor,
-    DebugWorkflowApiActorName -> debugActor
+    DebugWorkflowApiActorName -> debugActor,
+    WorkflowHistoryExecutionApiActorName -> workflowHistoryExecutionActor
   )
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
@@ -140,7 +143,7 @@ class ControllerActor(
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
       serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user) ~
-      serviceRoutes.debugRoutes(user)
+      serviceRoutes.debugRoutes(user) ~ serviceRoutes.workflowHistoryRoutes(user)
   }
 
   lazy val webRoutes: Route =
@@ -200,6 +203,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def crossdataRoute(user: Option[LoggedUser]): Route = crossdataService.routes(user)
 
   def debugRoutes(user: Option[LoggedUser]) :Route = debugService.routes(user)
+
+  def workflowHistoryRoutes(user: Option[LoggedUser]): Route = workflowHistoryService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -285,6 +290,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val debugService = new DebugWorkflowHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.DebugWorkflowApiActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val workflowHistoryService = new HistoryExecutionHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.WorkflowHistoryExecutionApiActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

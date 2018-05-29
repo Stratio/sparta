@@ -225,7 +225,7 @@
         "propertyType": "boolean",
         "default": false,
          "float": "true",
-         "width": 3,
+         "width": 4,
         "tooltip": "Stop the Spark contexts on shutdown receiver",
         "qa": "fragment-details-crossdata-stopContextsWhenEmpty"
       },
@@ -234,7 +234,7 @@
           "propertyName": "_FINISH_APP_WHEN_EMPTY_",
           "propertyType": "boolean",
           "default": false,
-          "width": 3,
+          "width": 4,
           "tooltip": "Stop the streaming context when the resulted query don't have data If enable simulate finite processes and disable infinite processes",
           "qa": "fragment-details-crossdata-stopWhenEmpty"
        },

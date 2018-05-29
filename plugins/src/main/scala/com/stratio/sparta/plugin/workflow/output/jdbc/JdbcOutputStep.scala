@@ -17,7 +17,7 @@ import org.apache.spark.sql.jdbc.{SpartaJdbcUtils, TxSaveMode}
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum.SpartaSaveMode
@@ -38,11 +38,11 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
     if (url.isEmpty)
-      validation = ErrorValidations(valid = false, messages = validation.messages :+ s"$name: the url must be provided")
+      validation = ErrorValidations(valid = false, messages = validation.messages :+ WorkflowValidationMessage(s"the url must be provided", name))
     if (tlsEnable && securityUri.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: when TLS is enabled the sparkConf must contain the security options"
+        messages = validation.messages :+ WorkflowValidationMessage(s"when TLS is enabled the sparkConf must contain the security options", name)
       )
 
     validation
@@ -85,17 +85,17 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
                 }
                 require(updateFields.nonEmpty, "The primary key fields must be provided")
                 require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                  "The all the primary key fields should be present in the dataFrame schema")
+                  "All the primary key fields should be present in the dataFrame schema")
                 SpartaJdbcUtils.deleteTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
               } else if (saveMode == SaveModeEnum.Upsert) {
                 val updateFields = getPrimaryKeyOptions(options) match {
-                  case Some(pk) => pk.trim.split(",").toSeq
+                  case Some(pk) =>  pk.split(",").map(_.trim).toSeq
                   case None => Seq.empty[String]
                 }
 
                 require(updateFields.nonEmpty, "The primary key fields must be provided")
                 require(updateFields.forall(dataFrame.schema.fieldNames.contains(_)),
-                  "The all the primary key fields should be present in the dataFrame schema")
+                  "All the primary key fields should be present in the dataFrame schema")
 
                 SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name, txSaveMode)
               }

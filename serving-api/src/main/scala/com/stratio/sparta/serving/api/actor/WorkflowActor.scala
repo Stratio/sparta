@@ -99,10 +99,7 @@ class WorkflowActor(
   def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try {
-        val withEnv = wServiceWithEnv.applyEnv(workflow)
-        val basicValidation = workflowValidatorService.validate(workflow)
-        val advancedValidation = workflowValidatorService.validateJsoneySettings(withEnv)
-        basicValidation.combineWithAnd(basicValidation, advancedValidation)
+        workflowValidatorService.validateAll(wServiceWithEnv.applyEnv(workflow))
       }
     }
 

@@ -4,16 +4,26 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input,
-  OnChanges, OnDestroy, OnInit, ViewChildren, ViewChild, ElementRef, Renderer
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  forwardRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Renderer,
+  ViewChild,
+  ViewChildren,
+  ViewEncapsulation
 } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 import * as CodeMirror from 'codemirror/lib/codemirror';
-import * as jsmirror from 'codemirror/mode/javascript/javascript';
-import * as sqlmirror from 'codemirror/mode/sql/sql';
-import * as showHint from 'codemirror/addon/hint/show-hint';
-import * as sqlHint from 'codemirror/addon/hint/sql-hint';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/sql/sql';
+import 'codemirror/addon/display/placeholder';
 
 import { SpTextareaError } from '@app/shared/components/sp-textarea/sp-textarea.error.model';
 
@@ -21,6 +31,7 @@ import { SpTextareaError } from '@app/shared/components/sp-textarea/sp-textarea.
   selector: 'sp-textarea-highlight',
   templateUrl: './highlight-textarea.template.html',
   styleUrls: ['./highlight-textarea.styles.scss'],
+  encapsulation: ViewEncapsulation.None,
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => SpHighlightTextareaComponent), multi: true },
     { provide: NG_VALIDATORS, useExisting: forwardRef(() => SpHighlightTextareaComponent), multi: true }
@@ -106,10 +117,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
 
   ngOnInit(): void {
-    const h = showHint;
-    const a = jsmirror;
-    const b = sqlmirror;
-    const b1 = sqlHint;
     this.internalControl = new FormControl(this.internalTextareaModel);
     this.config = this.getConfig(this.contentType);
   }

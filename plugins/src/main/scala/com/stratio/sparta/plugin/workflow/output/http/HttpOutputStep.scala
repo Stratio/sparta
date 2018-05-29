@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.http
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.enumerations.PostType
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.{OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.workflow.step.OutputStep
@@ -44,7 +44,7 @@ class HttpOutputStep(name: String, xDSession: XDSession, properties: Map[String,
     if (urlRegex.findFirstIn(url).isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: url must be valid and start with http(s)://"
+        messages = validation.messages :+ WorkflowValidationMessage(s"url must be valid and start with http(s)://", name)
       )
 
     validation

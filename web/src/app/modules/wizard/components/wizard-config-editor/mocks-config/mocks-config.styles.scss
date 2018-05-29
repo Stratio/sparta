@@ -1,0 +1,45 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.mock-options{
+  list-style: none;
+  margin-bottom: 30px;
+
+  li {
+    color: $action-primary-default;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 15px;
+
+    .icon {
+      font-size: 16px;
+      margin-right: 5px;
+    }
+
+    &.selected {
+      color: $neutral-11;
+    }
+  }
+}
+
+.line-label {
+    float: right;
+    margin-top: -13px;
+}
+
+.read-file {
+  margin-right: 40px;
+}
+.uri-field {
+  margin-top: -15px;
+  display: block;
+}
+
+.action-buttons {
+  margin-top:20px;
+}

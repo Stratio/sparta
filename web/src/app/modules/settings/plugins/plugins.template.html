@@ -14,12 +14,10 @@
       <div breadcrumb>
          <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="backups-breadcrumb"></st-breadcrumbs>
       </div>
-      <div selection-tools>
-         <button class="button button-toolbar" *ngIf="selectedPlugins.length" (click)="deletePluginConfirmModal()">
-        <i class="icon-trash"></i>
-    </button>
-      </div>
       <div general-tools>
+         <button class="button button-toolbar" *ngIf="selectedPlugins.length" (click)="deletePluginConfirmModal()">
+            <i class="icon-trash"></i>
+         </button>
          <form-file type="button-toolbar" class="form-file" #fileInput (onFileUpload)="uploadPlugin($event)"></form-file>
       </div>
    </tool-bar>
@@ -29,10 +27,7 @@
          <!--<st-horizontal-tabs [options]="options" [qaTag]="'plugins-menu'" [activeOption]="activeOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>-->
       </div>
       <div class="row">
-         <st-table [fields]="fields" 
-            [sortable]="true" 
-            [selectableAll]="true" 
-            [selectedAll]="pluginsList.length && pluginsList.length === selectedPlugins.length" 
+         <st-table [fields]="fields" [sortable]="true" [selectableAll]="true" [selectedAll]="pluginsList.length && pluginsList.length === selectedPlugins.length"
             (selectAll)="selectAll($event)" qaTag="plugins-list-table" class="plugins-table col-sm-12" (changeOrder)="changeOrder($event)">
             <tr st-table-row *ngFor="let plugin of pluginsList" (click)="checkRow(!((selectedPlugins.indexOf(plugin.fileName)) > -1), plugin)"
                [selected]="selectedPlugins.indexOf(plugin.fileName) > -1" class="plugin-row">
@@ -47,7 +42,8 @@
                </td>
             </tr>
          </st-table>
-         <table-notification *ngIf="!pluginsList.length && (loaded$ | async)" (onClickLink)="fileInput.click()" [text]="'PLUGINS.NO_ITEMS' | translate" [link]="'PLUGINS.NO_ITEMS_LINK' | translate"></table-notification>
+         <table-notification *ngIf="!pluginsList.length && (loaded$ | async)" (onClickLink)="fileInput.click()" [text]="'PLUGINS.NO_ITEMS' | translate"
+            [link]="'PLUGINS.NO_ITEMS_LINK' | translate"></table-notification>
       </div>
    </div>
 </div>

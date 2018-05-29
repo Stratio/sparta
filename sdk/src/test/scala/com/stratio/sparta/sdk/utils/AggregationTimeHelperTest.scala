@@ -15,10 +15,10 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import AggregationTimeUtils._
+import com.stratio.sparta.sdk.helpers.AggregationTimeHelper._
 
 @RunWith(classOf[JUnitRunner])
-class AggregationTimeUtilsTest extends FlatSpec with ShouldMatchers {
+class AggregationTimeHelperTest extends FlatSpec with ShouldMatchers {
 
   trait CommonValues {
     

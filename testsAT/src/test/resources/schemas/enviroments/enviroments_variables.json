@@ -93,7 +93,7 @@
       "value": "6379"
     },
     {
-      "name": "SPARTA_CHECKPOINT_PATH",
+      "name": "SPARK_STREAMING_CHECKPOINT_PATH",
       "value": "sparta/checkpoint"
     },
     {

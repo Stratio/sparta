@@ -18,16 +18,42 @@
    font-size: 14px;
    margin-top: 6px;
    display: block;
+   font-family: $egeo-nunito-sans-semiBold;
+
 }
 
 .selected {
-   position: absolute;
-   width: 330px;
-   height: calc(100% - 90px);
-   overflow-y: auto;
+  position: absolute;
+    width: 375px;
+    height: calc(100% - 90px);
+    overflow-y: scroll;
+    padding-right: 35px;
 }
 
 .values {
    display: block;
    word-break: break-all;
+  font-size: $egeo-font-size-xxsmall;
+
+}
+
+
+.debug-error {
+    margin: 20px 0;
+    margin-bottom: 30px;
+  .icon-alert {
+        line-height: 22px;
+    /* margin: 4px; */
+    float: left;
+    margin-right: 6px;
+  }
+  .debug-error-message {
+    color: #ff1744;
+    font-size: 15px;
+  }
+}
+
+.fields-title {
+    font-family: $egeo-nunito-sans-semiBold;
+    color: $action-secondary-06;
 }

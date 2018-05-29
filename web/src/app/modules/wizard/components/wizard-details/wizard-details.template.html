@@ -9,24 +9,52 @@
 -->
 
 <div class="workflow-detail">
-   <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
-   <div class="not-selected" *ngIf="!entityData || !entityData.name">
-      <img src="assets/images/wizard-details.svg" class="workflow-detail-image" />
-      <div class="workflow-info">{{'DASHBOARD.NODE_INFO' | translate}}</div>
-   </div>
-   <div class="selected" *ngIf="entityData && entityData.name">
-      <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
-      <h3 class="egeo-title-giant">{{entityData.name}}</h3>
-      <span>{{entityData.description}}</span>
-      <div *ngFor="let item of templates[entityData.stepType][entityData.classPrettyName].properties">
-         <div *ngIf="(item.propertyType === 'text' || item.propertyType === 'select') && item && entityData.configuration[item.propertyId]">
-            <span class="title">{{item.propertyName | translate}}</span>
-            <span class="values">{{entityData.configuration[item.propertyId]}}</span>
-         </div>
-         <div *ngIf="item.propertyType === 'boolean' || item.propertyType === 'switch'">
-            <span class="title">{{item.propertyName | translate}}</span>
-            <span class="values">{{entityData.configuration[item.propertyId] ? 'true' : 'false'}}</span>
-         </div>
+  <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
+  <div class="not-selected" *ngIf="!entityData || !entityData.name">
+    <img src="assets/images/wizard-details.svg" class="workflow-detail-image" />
+    <div class="workflow-info">{{'DASHBOARD.NODE_INFO' | translate}}</div>
+  </div>
+  <div class="selected" *ngIf="entityData && entityData.name">
+    <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
+    <h3 class="egeo-title-giant">{{entityData.name}}</h3>
+    <span>{{entityData.description}}</span>
+    <div *ngIf="entityData.debugResult && entityData.debugResult.error" class="debug-error">
+      <div class="debug-error-message">
+        <span class="icon-alert"></span> {{entityData.debugResult.error.message}}
       </div>
-   </div>
+      <span class="title">Phase</span>
+      <div class="values">
+        {{entityData.debugResult.error.phase}}
+      </div>
+      <span class="title">Original message</span>
+      <div class="values">
+        {{entityData.debugResult.error.originalMsg}}
+      </div>
+      <span class="title">Date</span>
+      <div class="values">
+        {{entityData.debugResult.error.date}}
+      </div>
+    </div>
+    <div *ngIf="entityData.debugResult && entityData.debugResult.result" class="debug-error">
+      <span class="title">Debug result</span>
+      <div class="debug-error-message">
+        <span class="icon-alert"></span> {{entityData.debugResult.result | json}}
+      </div>
+    </div>
+    <div class="fields-title">FIELDS</div>
+    <div *ngFor="let item of templates[entityData.stepType][entityData.classPrettyName].properties">
+      <div *ngIf="(item.propertyType === 'text' || item.propertyType === 'select') && item && entityData.configuration[item.propertyId]">
+        <span class="title">{{item.propertyName | translate}}</span>
+        <span class="values">{{entityData.configuration[item.propertyId]}}</span>
+      </div>
+      <div *ngIf="item.propertyType === 'boolean' || item.propertyType === 'switch'">
+        <span class="title">{{item.propertyName | translate}}</span>
+        <span class="values">{{entityData.configuration[item.propertyId] ? 'true' : 'false'}}</span>
+      </div>
+      <div *ngIf="item.propertyType === 'textarea'&& item && entityData.configuration[item.propertyId]">
+        <span class="title">{{item.propertyName | translate}}</span>
+        <span class="values">{{entityData.configuration[item.propertyId]}}</span>
+      </div>
+    </div>
+  </div>
 </div>

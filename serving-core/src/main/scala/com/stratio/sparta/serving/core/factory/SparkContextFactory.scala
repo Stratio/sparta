@@ -10,8 +10,8 @@ import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.helpers.AggregationTimeHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.services.SparkSubmitService.spartaTenant
@@ -228,7 +228,7 @@ object SparkContextFactory extends SLF4JLogging {
       " is mandatory initialize it before create a new Streaming Context"))
     ssc = Option(new StreamingContext(sparkContext, batchDuration))
     checkpointDir.foreach(ssc.get.checkpoint)
-    remember.foreach(value => ssc.get.remember(Duration(AggregationTimeUtils.parseValueToMilliSeconds(value))))
+    remember.foreach(value => ssc.get.remember(Duration(AggregationTimeHelper.parseValueToMilliSeconds(value))))
     ssc.get
   }
 

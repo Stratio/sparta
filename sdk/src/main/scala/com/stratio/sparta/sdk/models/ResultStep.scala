@@ -5,11 +5,9 @@
  */
 package com.stratio.sparta.sdk.models
 
-import org.apache.spark.sql.types.StructType
-
 case class ResultStep(
                        step: String,
                        numEvents: Int = 0,
-                       schema: Option[StructType] = None,
-                       data: Option[String] = None
+                       schema: Option[String] = None,
+                       data: Option[Seq[String]] = None
                      )

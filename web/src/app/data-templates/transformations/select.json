@@ -21,6 +21,7 @@
          "propertyName": "_SELECT_TYPE_",
          "required": true,
          "propertyType": "select",
+         "width": 4,
          "default": "EXPRESSION",
          "values": [
             {
@@ -39,7 +40,7 @@
          "propertyName": "_SELECT_EXPRESSION_",
          "propertyType": "textarea",
          "contentType": "SQL",
-         "width": 8,
+         "width": 12,
          "required": false,
          "visible": [
             [
@@ -57,7 +58,7 @@
          "propertyName": "_SELECT_COLUMNS_",
          "propertyType": "list",
          "required": false,
-         "width": 8,
+         "width": 12,
          "tooltip": "List of columns to return after the join execution",
          "qa": "fragment-details-select-columns",
          "fields": [
@@ -66,7 +67,7 @@
                "propertyName": "_JOIN_RETURN_COLUMN_",
                "propertyType": "text",
                "required": true,
-               "width": 3,
+               "width": 4,
                "tooltip": "Column name on input table",
                "qa": "fragment-details-select-return-column"
             },
@@ -74,7 +75,7 @@
                "propertyId": "alias",
                "propertyName": "_JOIN_RETURN_ALIAS_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "tooltip": "Alias/new name assigned to the input column ",
                "required": false,
                "qa": "fragment-details-select-return-column"
@@ -105,7 +106,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Step name",
-               "width": 3,
+               "width": 4,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -114,7 +115,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Schema in json/Spark format or from example",
                "required": true,
                "qa": "fragment-details-field-query"

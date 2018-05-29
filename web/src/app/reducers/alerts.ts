@@ -296,16 +296,6 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case wizardActions.SAVE_WORKFLOW_COMPLETE: {
-            return Object.assign({}, state, {
-                currentAlert: [{
-                    type: STALERT_SEVERITY.SUCCESS,
-                    title: 'SUCCESS',
-                    description: 'WORKFLOW_SAVE_SUCCESS',
-                    duration: 1500
-                }]
-            });
-        }
         case wizardActions.GET_MENU_TEMPLATES_ERROR: {
             return Object.assign({}, state, {
                 currentAlert: [{

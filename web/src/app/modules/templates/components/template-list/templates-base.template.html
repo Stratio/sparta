@@ -17,10 +17,10 @@
 
       <div class="general-tools" general-tools>
          <div class="selected-tools" *ngIf="selectedTemplates.selected && selectedTemplates.selected.length">
-            <button class="button button-toolbar" (click)="editTemplate(selectedTemplates.selected[0])" *ngIf="selectedTemplates.selected && selectedTemplates.selected.length == 1">
+            <button class="button button-toolbar" stTitle="Edit template" (click)="editTemplate(selectedTemplates.selected[0])" *ngIf="selectedTemplates.selected && selectedTemplates.selected.length == 1">
                 <i class="icon-edit"></i>
             </button>
-            <button class="button button-toolbar" (click)="duplicateTemplates()">
+            <button class="button button-toolbar" stTitle="Duplicate template" (click)="duplicateTemplates()">
                 <i class="icon-paper-stack"></i>
             </button>
             <button class="button button-toolbar" (click)="deleteTemplateConfirmModal()">

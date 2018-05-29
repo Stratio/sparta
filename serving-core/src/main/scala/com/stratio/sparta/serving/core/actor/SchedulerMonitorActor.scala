@@ -229,8 +229,6 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             executionService.setLastError(workflowStatus.id, wError)
           }
       }
-      Try(executionService.setEndDate(workflowStatus.id, new DateTime()))
-        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowStatus.id}"))
     }
     if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
       scheduledActions.filter(_._1 == workflowStatus.id).foreach { task =>
@@ -242,6 +240,10 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         id = workflowStatus.id,
         status = newStatus
       ))
+    }
+    if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
+      Try(executionService.setEndDate(workflowStatus.id, new DateTime()))
+        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowStatus.id}"))
     }
   }
 

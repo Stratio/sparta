@@ -14,7 +14,7 @@ import com.stratio.sparta.plugin.models.PropertyColumn
 import com.stratio.sparta.plugin.enumerations.CleanMode.CleanMode
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.TransformStep
@@ -55,12 +55,12 @@ abstract class DropNullsTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
 
     if (Try(columns.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input columns are not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input columns are not valid", name))
     }
 
     //If contains schemas, validate if it can be parsed
@@ -69,13 +69,13 @@ abstract class DropNullsTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
       }
     }
 

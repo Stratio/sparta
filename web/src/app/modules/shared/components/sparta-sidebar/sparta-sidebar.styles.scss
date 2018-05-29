@@ -23,8 +23,15 @@
    background-color: #f3f6f8;
    padding: 29px;
    width: 387px;
+   height: 100%;
    box-shadow: 0 6px 10px 2px #dedede;
    min-height: 100%;
+
+   &.scroll {
+       overflow-y: scroll;
+       width: 400px;
+       padding-right: 30px;
+   }
 }
 
 .sidebar-header {

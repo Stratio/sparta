@@ -1,0 +1,35 @@
+<ul class="mock-options">
+  <li *ngFor="let option of mockOptions" [ngClass]="{'selected' : model.selectedMock === option.value}" (click)="selectMockType(option.value)">
+    <span class="icon" [className]="'icon ' + option.icon"></span>{{option.label | translate}}
+  </li>
+</ul>
+<div [ngSwitch]="model.selectedMock">
+  <div *ngSwitchCase="'userProvidedExample'">
+    <sp-textarea *ngIf="!model.userProvidedExample || (model.userProvidedExample && model.userProvidedExample.length < 100000)"
+      [(ngModel)]="model.userProvidedExample" 
+      name="description" 
+      fieldType="text"
+      rows="6"
+      [placeholder]="'WIZARD.MOCKS.PASTE_PLACEHOLDER' | translate"
+      qaTag="paste" 
+      class="mock-text-field"></sp-textarea>
+    <div>
+      <span *ngIf="model.userProvidedExample && model.userProvidedExample.length > 100000">Mock data content is too long to be showed: 
+        <b>{{model.userProvidedExample.length}}</b> characters</span>
+      <p [ngClass]="{'line-label' : !model.userProvidedExample || (model.userProvidedExample && model.userProvidedExample.length < 100000)}">
+        {{model.userProvidedExample ? model.userProvidedExample.split("\n").length : '0'}} lines
+      </p>
+    </div>
+    <div class="action-buttons">
+      <file-reader class="read-file" (changedFile)="uploadFile($event)" [text]="'WIZARD.MOCKS.UPLOAD_FILE_BUTTON' | translate"></file-reader>
+      <ng-container *ngIf="model.userProvidedExample && model.userProvidedExample.length > 100000">
+        <button type="button" (click)="downloadTextData()" class="button button-primary">Download data</button>
+        <button type="button" (click)="removeTextData()" class="button button-critical">Remove data</button>
+      </ng-container>
+    </div>
+  </div>
+
+  <sp-input name="path" [(ngModel)]="model.path" class="uri-field" *ngSwitchCase="'path'" [placeholder]="'WIZARD.MOCKS.URI_PLACEHOLDER' | translate"></sp-input>
+  <sp-textarea-highlight *ngSwitchCase="'query'" class="st-form-field" [(ngModel)]="model.query" contentType="SQL" placeholder="SQL query"
+    qaTag="sql-query-mock"></sp-textarea-highlight>
+</div>

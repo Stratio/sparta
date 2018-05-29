@@ -9,11 +9,14 @@ import { createFeatureSelector } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import * as fromWizard from './wizard';
 import * as fromEntities from './entities';
+import * as fromDebug from './debug';
+
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 
 export interface WizardState {
   wizard: fromWizard.State;
   entities: fromEntities.State;
+  debug: fromDebug.State;
 }
 
 export interface State extends fromRoot.State {
@@ -22,7 +25,8 @@ export interface State extends fromRoot.State {
 
 export const reducers = {
   wizard: fromWizard.reducer,
-  entities: fromEntities.reducer
+  entities: fromEntities.reducer,
+  debug: fromDebug.reducer
 };
 
 export const getWizardFeatureState = createFeatureSelector<WizardState>('wizard');
@@ -30,6 +34,11 @@ export const getWizardFeatureState = createFeatureSelector<WizardState>('wizard'
 export const getWizardState = createSelector(
   getWizardFeatureState,
   state => state.wizard
+);
+
+export const getDebugState = createSelector(
+  getWizardFeatureState,
+  state => state.debug
 );
 
 export const getEntitiesState = createSelector(
@@ -50,6 +59,16 @@ export const getWorkflowNodes = createSelector(
 export const getEdgeOptions = createSelector(
   getWizardState,
   (state) => state.edgeOptions
+);
+
+export const getWizardNofications = createSelector(
+  getEntitiesState,
+  (state) => state.notification
+);
+
+export const getDebugResult = createSelector(
+  getDebugState,
+  (state) => state.lastDebugResult
 );
 
 export const getWorkflowEdges = createSelector(
@@ -78,6 +97,19 @@ export const getErrorsManagementOutputs = createSelector(
   }, [])
 );
 
+export const getSelectedNodeData = createSelector(getWizardState, fromWizard.getSelectedEntityData);
+
+export const getSelectedEntityData = createSelector(
+  getSelectedNodeData,
+  getDebugResult,
+  (selectedNode: WizardNode, debugResult: any) => {
+    return selectedNode && debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
+      ...selectedNode,
+      debugResult: debugResult && debugResult.steps && debugResult.steps[selectedNode.name]
+    } : selectedNode;
+  }
+);
+
 // wizard
 export const isCreationMode = createSelector(getEntitiesState, fromEntities.isCreationMode);
 export const getMenuOptions = createSelector(getEntitiesState, fromEntities.getMenuOptions);
@@ -85,7 +117,6 @@ export const getWorkflowType = createSelector(getEntitiesState, fromEntities.get
 export const getTemplates = createSelector(getEntitiesState, fromEntities.getTemplates);
 export const isShowedEntityDetails = createSelector(getWizardState, state => state.showEntityDetails);
 export const getSelectedEntities = createSelector(getWizardState, state => state.selectedEntity);
-export const getSelectedEntityData = createSelector(getWizardState, fromWizard.getSelectedEntityData);
 export const getEditionConfigMode = createSelector(getWizardState, fromWizard.getEditionConfigMode);
 export const showSettings = createSelector(getWizardState, state => state.showSettings);
 export const isEntitySaved = createSelector(getWizardState, state => state.editionSaved);
@@ -100,3 +131,4 @@ export const isLoading = createSelector(getWizardState, state => state.loading);
 export const getWorkflowHeaderData = createSelector(getWizardState, fromWizard.getWorkflowHeaderData);
 export const getValidatedEntityName = createSelector(getWizardState, state => state.entityNameValidation);
 export const isShowedCrossdataCatalog = createSelector(getWizardState, state => state.isShowedCrossdataCatalog);
+export const isWorkflowDebugging = createSelector(getDebugState, state => state.isDebugging);

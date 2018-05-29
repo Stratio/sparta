@@ -32,6 +32,10 @@ $cloudy-black: #cdd6df;
    .button {
        margin-left: 5px;
    }
+
+   .undo-action {
+       margin-left: 25px;
+   }
 }
 
 .position-tools {
@@ -39,7 +43,7 @@ $cloudy-black: #cdd6df;
 }
 
 .show-options {
-   margin-right: 40px;
+   margin-right: 20px;
    .button {
        margin: 0;
    }
@@ -175,4 +179,13 @@ $cloudy-black: #cdd6df;
    font-size: 28px;
    line-height: 43px;
    color: #888;
+}
+
+.notification {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    top: 145px;
+    min-width: 500px;
 }

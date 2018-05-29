@@ -72,4 +72,4 @@ Feature: [SPARTA-1896] E2E Execution of AuditJob Workflow -Streaming mode
     Then the service response status must be '200'
 
 #MVN Example
-# mvn verify -DCLUSTER_ID=nightly  -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.SPARTA_1896_AuditJob_IT -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nightly.demo.stratio.com -DFORCE_BROWSER=chrome_64gbecares -DSELENIUM_GRID=sl.demo.stratio.com:4444 -DSPARTA_HOST=localhost -DSPARTA_PORT=9090
+# mvn verify -DCLUSTER_ID=nightly  -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.SPARTA_1896_AuditJob_IT -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nightly.demo.stratio.com -DFORCE_BROWSER=chrome_64sparta -DSELENIUM_GRID=sl.demo.stratio.com:4444 -DSPARTA_HOST=localhost -DSPARTA_PORT=9090

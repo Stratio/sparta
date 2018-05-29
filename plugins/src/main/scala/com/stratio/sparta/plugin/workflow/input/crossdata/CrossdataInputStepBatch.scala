@@ -11,7 +11,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
@@ -40,13 +40,13 @@ class CrossdataInputStepBatch(
     if (query.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input sql query cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query cannot be empty", name)
       )
 
     if (query.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the input sql query is invalid"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query is invalid", name)
       )
 
     validation

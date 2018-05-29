@@ -8,6 +8,11 @@
     padding-bottom:8px;
 }
 
+.selection-tools {
+    display: inline-block;
+    margin-right: 40px;
+}
+
 .general-actions{
     display:inline-block;
 }
@@ -19,6 +24,10 @@
 .backups-table {    
     display: block;
     margin-top: 30px;
+}
+
+.button-toolbar, .form-file {
+        margin-left: 5px;
 }
 
 .delete-all {

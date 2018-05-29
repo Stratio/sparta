@@ -9,36 +9,37 @@
 -->
 
 <section [ngClass]="{'mobile' : isMobile}">
-      <wizard-header class="wizard-header"
-         [isNodeSelected]="selectedNodeName && selectedNodeName.length"
-         [isEdgeSelected]="selectedEdge && selectedEdge.origin"
-         [workflowName]="workflowName"
-         [workflowVersion]="workflowVersion"
-         (onZoomOut)="editor.changeZoom(false)"
-         (onZoomIn)="editor.changeZoom(true)"
-         (onCenter)="editor.centerWorkflow()"
-         (onSaveWorkflow)="saveWorkflow($event)"
-         (onEditEntity)="editButtonEntity()"
-         (onDuplicateNode)="duplicateNode()"
-         (deleteSelection)="deleteSelection()"></wizard-header>
+  <wizard-header class="wizard-header"
+      [isWorkflowDebugging]="isWorkflowDebugging"
+      [isNodeSelected]="selectedNodeName && selectedNodeName.length"
+      [isEdgeSelected]="selectedEdge && selectedEdge.origin"
+      [workflowName]="workflowName"
+      [workflowVersion]="workflowVersion"
+      (onZoomOut)="editor.changeZoom(false)"
+      (onZoomIn)="editor.changeZoom(true)"
+      (onCenter)="editor.centerWorkflow()"
+      (onSaveWorkflow)="saveWorkflow($event)"
+      (onEditEntity)="editButtonEntity()"
+      (onDuplicateNode)="duplicateNode()"
+      (deleteSelection)="deleteSelection()"></wizard-header>
 
-      <div class="editor" #editorArea>
-         <wizard-editor class="editor-component" [ngClass]="{'loaded' : workflowName && workflowName.length}"
-           [workflowType]="workflowType"
-           [workflowEdges]="workflowEdges"
-           [workflowNodes]="workflowNodes"
-           [svgPosition]="svgPosition"
-           [selectedNodeName]="selectedNodeName"
-           [selectedEdge]="selectedEdge"
-           [creationMode]="creationMode$ | async"
-           (editEntity)="editEntity($event)"
-           (selectNode)="selectNode($event)"
-           (createNode)="createNode($event)"
-           (onCreateEdge)="createEdge($event)"></wizard-editor>
-
-         <sparta-sidebar [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
-            <wizard-details [entityData]="selectedNodeModel"></wizard-details>
-         </sparta-sidebar>
-      </div>
-   </section>
-   <edge-options *ngIf="edgeOptions.active" [edgeOptions]="edgeOptions"></edge-options>
+  <div class="editor" #editorArea>
+    <wizard-editor class="editor-component" [ngClass]="{'loaded' : workflowName && workflowName.length}"
+        [workflowType]="workflowType"
+        [workflowEdges]="workflowEdges"
+        [workflowNodes]="workflowNodes"
+        [svgPosition]="svgPosition"
+        [selectedNodeName]="selectedNodeName"
+        [debugResult]="debugResult"
+        [selectedEdge]="selectedEdge"
+        [creationMode]="creationMode$ | async"
+        (editEntity)="editEntity($event)"
+        (selectNode)="selectNode($event)"
+        (createNode)="createNode($event)"
+        (onCreateEdge)="createEdge($event)"></wizard-editor>
+  </div>
+  <sparta-sidebar showScrollBar="true" [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
+    <wizard-details [entityData]="selectedNodeModel"></wizard-details>
+  </sparta-sidebar>
+</section>
+<edge-options *ngIf="edgeOptions.active" [edgeOptions]="edgeOptions"></edge-options>

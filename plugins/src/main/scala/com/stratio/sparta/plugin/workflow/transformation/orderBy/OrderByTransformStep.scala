@@ -12,7 +12,7 @@ import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalVie
 import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{DiscardCondition, ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.TransformStep
 import org.apache.spark.rdd.RDD
@@ -61,7 +61,7 @@ abstract class OrderByTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the step name $name is not valid")
+        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -69,26 +69,26 @@ abstract class OrderByTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ s"$name: the input schema from step ${input.stepName} is not valid")
+            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ s"$name: the input table name ${is.stepName} is not valid")
+          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
       }
     }
 
     if (orderExpression.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: it's mandatory one order expression, such as colA, colB"
+        messages = validation.messages :+ WorkflowValidationMessage(s"it is mandatory to specify at least one order expression, such as colA, colB", name)
       )
 
     if (orderExpression.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: the order by expression is invalid"
+        messages = validation.messages :+ WorkflowValidationMessage(s"the ORDER BY expression is invalid", name)
       )
 
     validation

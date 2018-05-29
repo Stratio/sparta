@@ -84,13 +84,13 @@ hose {
     }
     INSTALLSERVICES = [
         ['CHROME': [
-            'image': 'stratio/selenium-chrome:48',
+            'image': 'selenium/node-chrome-debug:3.9.1',
             'volumes': ['/dev/shm:/dev/shm'],
-            'env': ['SELENIUM_GRID=selenium.cd','ID=%%JUID']
+            'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID"']
             ]
         ],
         ['DCOSCLI': [
-                'image': 'stratio/dcos-cli:0.4.15-SNAPSHOT',
+                'image': 'stratio/dcos-cli:0.6.1-SNAPSHOT',
                 'volumes': ['stratio/paasintegrationpem:0.1.0'],
                 'env': [
                     'DCOS_IP=10.200.0.205',
@@ -102,7 +102,7 @@ hose {
                     'BOOTSTRAP_USER=operador',
                     'PEM_FILE_PATH=/paascerts/PaasIntegration.pem'
                     ],
-                'sleep':  10
+                'sleep':  20
                 ]
         ]  
     ]

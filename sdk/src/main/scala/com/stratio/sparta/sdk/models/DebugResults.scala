@@ -5,10 +5,13 @@
  */
 package com.stratio.sparta.sdk.models
 
+import org.joda.time.DateTime
+
 
 case class DebugResults(
                          debugSuccessful: Boolean,
                          stepResults: Map[String, ResultStep] = Map.empty,
                          stepErrors: Map[String, WorkflowError] = Map.empty,
-                         genericError: Option[WorkflowError] = None
+                         genericError: Option[WorkflowError] = None,
+                         endExecutionDate: Option[DateTime] = None
                        )

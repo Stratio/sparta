@@ -17,11 +17,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { GlobalEffect } from './effects/global';
 import { HttpClientModule } from '@angular/common/http';
 
-export function instrumentOptions(): any {
-   return {
-      // monitor: useLogMonitor({ visible: false, position: 'right' })
-   };
-}
+
 export const APP_IMPORTS: Array<any> = [
    AppRouter,
    BrowserModule,

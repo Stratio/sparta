@@ -1,4 +1,13 @@
 @import '~@stratio/egeo/theme/constants';
+.layout {
+  opacity: 0;
+  transition: 0.6s opacity;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
 .name-validation {
    margin-top: -10px;
 }
@@ -15,7 +24,6 @@
 .entity-categories {
    margin-bottom: 30px;
    display: block;
-   width: 340px;
 }
 
 .template-data {
@@ -45,13 +53,11 @@
 .node-edition {
    margin-bottom: 50px;
    position: relative;
+   width: calc(100% - 430px);
 }
 
 .show-catalog {
-   position: absolute;
-   top: 0;
-   right: 0;
-   z-index: 1001;
+  margin-right: 20px;
 }
 
 .catalog {
@@ -61,5 +67,9 @@
    z-index: 100;
    right: 0;
    height: auto;
-   top: 60px;
+   top: -30px;
+}
+
+.mocks-tab {
+  width: 100%;
 }

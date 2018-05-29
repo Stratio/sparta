@@ -6,10 +6,10 @@
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
-import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
 import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.helpers.CastingHelper
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
@@ -38,7 +38,7 @@ class AvgOperator(
         values.flatten.flatMap { value =>
           value match {
             case v if v.isInstanceOf[Seq[Double]] => v.asInstanceOf[Seq[Double]]
-            case _ => Seq(CastingUtils.castingToSchemaType(DoubleType, value).asInstanceOf[Double])
+            case _ => Seq(CastingHelper.castingToSchemaType(DoubleType, value).asInstanceOf[Double])
           }
         }
       }
@@ -49,10 +49,10 @@ class AvgOperator(
     returnFromTryWithNullCheck("Error in AvgOperator when associating values") {
       Try {
         val oldValues = extractValues(values, Option(Operator.OldValuesKey)).map { value =>
-          CastingUtils.castingToSchemaType(MapType(StringType, DoubleType), value).asInstanceOf[Map[String, Double]]
+          CastingHelper.castingToSchemaType(MapType(StringType, DoubleType), value).asInstanceOf[Map[String, Double]]
         }.headOption
         val newValues = extractValues(values, Option(Operator.NewValuesKey)).flatMap{value =>
-          CastingUtils.castingToSchemaType(ArrayType(DoubleType), value).asInstanceOf[Seq[Double]]
+          CastingHelper.castingToSchemaType(ArrayType(DoubleType), value).asInstanceOf[Seq[Double]]
         }.toList
 
         if (newValues.nonEmpty) {

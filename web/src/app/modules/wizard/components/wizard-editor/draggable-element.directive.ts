@@ -35,7 +35,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     @Output() onDoubleClickEvent = new EventEmitter();
 
     private clicks = 0;
-    private element: d3.Selection<HTMLElement, any, any, any>;
+    private element: d3.Selection<any>;
     private lastUpdateCall: number;
 
     ngOnInit(): void {

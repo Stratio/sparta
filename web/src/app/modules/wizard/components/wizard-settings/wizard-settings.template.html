@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<st-fullscreen-layout [title]="'WIZARD.SETTINGS' | translate">
+<st-fullscreen-layout class="layout" [title]="'WIZARD.SETTINGS' | translate" [ngClass]="{'active': fadeActive}">>
    <div class="st-fullscreen-layout-buttons">
       <div class="return-link">
          <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()" id="cancel-settings-edition">

@@ -67,7 +67,7 @@ const initialState: State = {
    selectedEntity: '',
    showEntityDetails: false,
    showSettings: false,
-   isShowedCrossdataCatalog: false,
+   isShowedCrossdataCatalog: true,
    edgeOptions: {
       clientX: 0,
       clientY: 0,
@@ -435,5 +435,11 @@ export const areUndoRedoEnabled = (state: State) => ({
 
 export const getEditionConfigMode = (state: State) => ({
    isEdition: state.editionConfig,
-   editionType: state.editionConfigType
+   editionType: state.editionConfigType,
+   relationData: state.editionConfig ? {
+      inputs: state.edges.filter(edge => edge.destination === state.editionConfigType.data.name)
+         .map(edge => edge.origin).sort(),
+      outputs: state.edges.filter(edge => edge.origin === state.editionConfigType.data.name)
+         .map(edge => edge.destination).sort(),
+   } : null
 });

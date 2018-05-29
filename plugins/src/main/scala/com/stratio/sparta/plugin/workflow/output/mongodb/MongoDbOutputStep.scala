@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.mongodb
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.datasource.mongodb.config.MongodbConfig
-import com.stratio.sparta.sdk.models.ErrorValidations
+import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
@@ -33,13 +33,13 @@ class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[Stri
     if (hosts.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: hosts definition is wrong"
+        messages = validation.messages :+ WorkflowValidationMessage(s"hosts definition is empty or not valid", name)
       )
 
     if (dbName.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ s"$name: database name cannot be empty"
+        messages = validation.messages :+ WorkflowValidationMessage(s"database name cannot be empty", name)
       )
 
     validation

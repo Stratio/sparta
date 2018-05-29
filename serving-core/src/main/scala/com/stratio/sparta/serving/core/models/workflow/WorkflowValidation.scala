@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.sdk.models.WorkflowValidationMessage
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -30,10 +31,10 @@ import scalax.collection.Graph
 import scalax.collection.GraphTraversal.Visitor
 import scalax.collection.edge.LDiEdge
 
-case class WorkflowValidation(valid: Boolean, messages: Seq[String])
+case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMessage])
   extends DistributedMonadImplicits with ContextBuilderImplicits {
 
-  def this(valid: Boolean) = this(valid, messages = Seq.empty[String])
+  def this(valid: Boolean) = this(valid, messages = Seq.empty[WorkflowValidationMessage])
 
   def this() = this(valid = true)
 
@@ -56,8 +57,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
       !workflow.settings.sparkSettings.master.toString.startsWith("mesos://"))
       copy(
         valid = false,
-        messages = messages :+ s"The selected execution mode is Marathon or Mesos," +
-          s" therefore Spark Master should start with mesos://"
+        messages = messages :+ WorkflowValidationMessage(s"The selected execution mode is Marathon or Mesos," +
+          s" therefore Spark Master should start with mesos://")
       )
     else this
   }
@@ -68,14 +69,14 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
       workflow.settings.sparkSettings.submitArguments.deployMode.get != DeployMode.client)
       copy(
         valid = false,
-        messages = messages :+ s"The selected execution mode is Marathon and the deploy mode is not client"
+        messages = messages :+ WorkflowValidationMessage(s"The selected execution mode is Marathon and the deploy mode is not client")
       )
     else if (workflow.settings.global.executionMode == dispatcher &&
       workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
       workflow.settings.sparkSettings.submitArguments.deployMode.get != DeployMode.cluster)
       copy(
         valid = false,
-        messages = messages :+ s"The selected execution mode is Mesos and the deploy mode is not cluster"
+        messages = messages :+ WorkflowValidationMessage(s"The selected execution mode is Mesos and the deploy mode is not cluster")
       )
     else this
   }
@@ -89,8 +90,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
         workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble)
       copy(
         valid = false,
-        messages = messages :+ s"The total number of executor cores (max cores) should be greater than" +
-          s" the number of executor cores"
+        messages = messages :+ WorkflowValidationMessage(s"The total number of executor cores (max cores) should be greater than" +
+          s" the number of executor cores")
       )
     else this
   }
@@ -100,7 +101,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
       case Some(_) => if (!workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
         copy(
           valid = false,
-          messages = messages :+ s"The workflow contains Cubes and the checkpoint is not enabled"
+          messages = messages :+ WorkflowValidationMessage(s"The workflow contains Cubes and the checkpoint is not enabled")
         )
       else this
       case None => this
@@ -115,7 +116,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
         && workflow.group.name.matches(regexGroups))
         this
       else {
-        val msg = messages :+ "The workflow group does not exist or is invalid"
+        val msg = messages :+ WorkflowValidationMessage("The workflow group does not exist or is invalid")
         copy(valid = false, messages = msg)
       }
     }
@@ -126,14 +127,14 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
       mesosConstraint.get.toString.contains(":"))
       copy(
         valid = false,
-        messages = messages :+ s"The Mesos constraints must be two alphanumeric strings separated by a colon"
+        messages = messages :+ WorkflowValidationMessage(s"The Mesos constraints must be two alphanumeric strings separated by a colon")
       )
     else if (workflow.settings.global.mesosConstraint.notBlank.isDefined &&
       workflow.settings.global.mesosConstraint.get.toString.contains(":") &&
       workflow.settings.global.mesosConstraint.get.toString.count(_ == ':') > 1)
       copy(
         valid = false,
-        messages = messages :+ s"The colon may appear only once in the Mesos constraint definition"
+        messages = messages :+ WorkflowValidationMessage(s"The colon may appear only once in the Mesos constraint definition")
       )
     else if (workflow.settings.global.mesosConstraint.notBlank.isDefined &&
       workflow.settings.global.mesosConstraint.get.toString.contains(":") &&
@@ -142,7 +143,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
           workflow.settings.global.mesosConstraint.get.toString.length))
       copy(
         valid = false,
-        messages = messages :+ s"The colon cannot be situated at the edges of the Mesos constraint definition"
+        messages = messages :+ WorkflowValidationMessage(s"The colon cannot be situated at the edges of the Mesos constraint definition")
       )
     else this
   }
@@ -182,24 +183,24 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     if (saveErrors.nonEmpty) {
       copy(
         valid = false,
-        messages = messages :+ s"The workflow has 'Error outputs' defined" +
-          s"that don't exist as nodes. ${saveErrors.mkString(", ")}"
+        messages = messages :+ WorkflowValidationMessage(s"The workflow has 'Error outputs' defined" +
+          s"that don't exist as nodes. ${saveErrors.mkString(", ")}")
       )
     } else this
   }
 
   def validateName(implicit workflow: Workflow): WorkflowValidation = {
     if (workflow.name.nonEmpty && workflow.name.matches(regexName)) this
-    else copy(valid = false, messages = messages :+ "The workflow name is empty or invalid")
+    else copy(valid = false, messages = messages :+ WorkflowValidationMessage("The workflow name is empty or invalid"))
   }
 
   def validateNonEmptyNodes(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.nodes.size >= 2) this
-    else copy(valid = false, messages = messages :+ "The workflow must contain at least two nodes")
+    else copy(valid = false, messages = messages :+ WorkflowValidationMessage("The workflow must contain at least two nodes"))
 
   def validateNonEmptyEdges(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.edges.nonEmpty) this
-    else copy(valid = false, messages = messages :+ "The workflow must contain at least one relation")
+    else copy(valid = false, messages = messages :+ WorkflowValidationMessage("The workflow must contain at least one relation"))
 
   def validateEdgesNodesExists(implicit workflow: Workflow): WorkflowValidation = {
     val nodesNames = workflow.pipelineGraph.nodes.map(_.name)
@@ -211,7 +212,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     if (wrongEdges.isEmpty || workflow.pipelineGraph.edges.isEmpty) this
     else copy(
       valid = false,
-      messages = messages :+ s"The workflow has relations that don't exist as nodes: ${wrongEdges.mkString(" , ")}"
+      messages = messages :+ WorkflowValidationMessage(s"The workflow has relations that don't exist as nodes: ${wrongEdges.mkString(" , ")}")
     )
   }
 
@@ -221,11 +222,11 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     if (cycle.isEmpty || workflow.pipelineGraph.edges.isEmpty) this
     else copy(
       valid = false,
-      messages = messages :+ s"The workflow contains one or more cycles" + {
+      messages = messages :+ WorkflowValidationMessage(s"The workflow contains one or more cycles" + {
         if (cycle.isDefined)
           s"${": " + cycle.get.nodes.toList.map(node => node.value.asInstanceOf[NodeGraph].name).mkString(",")}"
         else "!"
-      }
+      })
     )
   }
 
@@ -249,7 +250,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
 
     if (path) this else this.copy(
       valid = false,
-      messages = messages :+ s"The workflow has no I->O path"
+      messages = messages :+ WorkflowValidationMessage(s"The workflow has no I->O path")
     )
   }
 
@@ -259,7 +260,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
       case Some(duplicate) =>
         this.copy(
           valid = false,
-          messages = messages :+ s"The workflow has two nodes with the same name: ${duplicate._1}"
+          messages = messages :+ WorkflowValidationMessage(s"The workflow has two nodes with the same name: ${duplicate._1}")
         )
       case None => this
     }
@@ -351,8 +352,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
         if (degree > 0) new WorkflowValidation()
         else WorkflowValidation(
           valid = false,
-          messages = Seq(s"Invalid number of relations, the node ${invalidMessage.nodeName} has $degree" +
-            s" ${invalidMessage.relationType} relations and support 1 to N")
+          messages = Seq(WorkflowValidationMessage(s"Invalid number of relations, the node ${invalidMessage.nodeName} has $degree" +
+            s" ${invalidMessage.relationType} relations and support 1 to N"))
         )
     }
 
@@ -364,8 +365,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String])
     if (degree == arityDegree) new WorkflowValidation()
     else WorkflowValidation(
       valid = false,
-      messages = Seq(s"Invalid number of relations, the node ${invalidMessage.nodeName} has $degree" +
-        s" ${invalidMessage.relationType} relations and support $arityDegree")
+      messages = Seq(WorkflowValidationMessage(s"Invalid number of relations, the node ${invalidMessage.nodeName} has $degree" +
+        s" ${invalidMessage.relationType} relations and support $arityDegree"))
     )
 
   case class InvalidMessage(nodeName: String, relationType: String)
