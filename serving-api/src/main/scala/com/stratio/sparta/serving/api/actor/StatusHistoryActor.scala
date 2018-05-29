@@ -6,31 +6,40 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
+import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.actor.StatusHistoryActor._
-import com.stratio.sparta.serving.api.dao.StatusHistoryDaoImpl
-import com.typesafe.config.Config
-import slick.jdbc.JdbcProfile
+import com.stratio.sparta.serving.api.services.WorkflowStatusHistoryService
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
-class StatusHistoryActor(val profileHistory: JdbcProfile, config: Config) extends Actor
-  with StatusHistoryDaoImpl{
+class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+  with ActionUserAuthorize{
 
-  val profile = profileHistory
-
-  import profile.api._
-
-  override val db: profile.api.Database = Database.forConfig("", config)
-
+  private val ResourceType = "workflow"
+  private val statusHistoryService = new WorkflowStatusHistoryService()
 
   override def receive: Receive = {
-    case FindAll() => sender ! findAll()
-    case FindByWorkflowId(id) => sender ! findByWorkflowId(id)
+    case FindAll(user) => sender ! findAll(user)
+    case FindByWorkflowId(id, user) => sender ! findByWorkflowId(id, user)
   }
+
+  def findAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      statusHistoryService.findAll()
+    }
+
+  def findByWorkflowId(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      statusHistoryService.findByWorkflowId(id)
+    }
 }
 
 //scalastyle:off
 object StatusHistoryActor {
 
-  case class FindAll()
+  case class FindAll(user: Option[LoggedUser])
 
-  case class FindByWorkflowId(id: String)
+  case class FindByWorkflowId(id: String, user: Option[LoggedUser])
+
+
 }

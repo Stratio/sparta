@@ -98,8 +98,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
         log.debug("Initializing history actors ...")
         system.actorOf(ExecutionHistoryActor.props(PostgresProfile))
-        system.actorOf(Props(new StatusHistoryActor(PostgresProfile,
-          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
+        system.actorOf(Props(new StatusHistoryActor()))
         system.actorOf(Props(new StatusHistoryListenerActor(PostgresProfile,
           SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))))
       }
