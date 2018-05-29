@@ -184,6 +184,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val yPredecessors = graph.get(nodeY).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
 
           xPredecessors.compare(yPredecessors) * -1
+          //TODO check nodeX.name.compare(nodeY.name) * -1
         }
       case _ => 0
     })
@@ -194,7 +195,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       val isSinkOutput = Try(node.configuration(WorkflowHelper.OutputStepErrorProperty).toString.toBoolean)
         .getOrElse(false)
       node.stepType.toLowerCase == OutputStep.StepType && isSinkOutput
-    }.map(errorOutputNode => createOutputStep(errorOutputNode))
+    }.map(errorOutputNode => createOutputStep(errorOutputNode)).sortBy(step => step.name)
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
@@ -203,7 +204,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       .foreach { outputNode =>
         val newOutput = createOutputStep(outputNode)
         val outNodeGraph = graph.get(outputNode)
-        outNodeGraph.diPredecessors.foreach { predecessor =>
+        outNodeGraph.diPredecessors.toList.sortBy(node => node.name).foreach { predecessor =>
           predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering)
             .toList.reverse.foreach { node =>
             createStep(node)
