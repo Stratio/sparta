@@ -41,28 +41,38 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
    public isTemplate = false;
    public templateData: any;
-   public showCrossdataCatalog = false;
 
    public validatedName = false;
    public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
    public entityFormModel: any = {};   // common config
-   public isShowedCrossdataCatalog = false;
+   public showCrossdataCatalog = false;
+   public isShowedInfo = true;
+   public fadeActive = false;
 
    public activeOption = 'Global';
-   public options: StHorizontalTab[] = [{
+   public options: StHorizontalTab[] = [];
+   public debugOptions: any = {};
+
+   private _componentDestroyed = new Subject();
+   private _allOptions: StHorizontalTab[] = [{
       id: 'Global',
       text: 'Global'
    }, {
       id: 'Writer',
       text: 'Writer'
+   },
+   {
+      id: 'Mocks',
+      text: 'Mock Data'
    }];
-
-   private _componentDestroyed = new Subject();
-
    private saveSubscription: Subscription;
    private validatedNameSubcription: Subscription;
 
    ngOnInit(): void {
+      setTimeout(() => {
+         this.fadeActive = true;
+      });
+      this._getMenuTabs();
       this.validatedNameSubcription = this._store.select(fromWizard.getValidatedEntityName)
          .takeUntil(this._componentDestroyed)
          .subscribe((validation: boolean) => {
@@ -80,7 +90,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       this._store.select(fromWizard.isShowedCrossdataCatalog)
          .takeUntil(this._componentDestroyed)
          .subscribe((showed: boolean) => {
-            this.isShowedCrossdataCatalog = showed;
+            this.isShowedInfo = showed;
             this._cd.markForCheck();
          });
 
@@ -100,10 +110,9 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       this.activeOption = $event.id;
    }
 
-   toggleCrossdataCatalog() {
+   toggleInfo() {
       this._store.dispatch(new wizardActions.ToggleCrossdataCatalogAction());
    }
-
 
    editTemplate(templateId) {
       let routeType = '';
@@ -133,6 +142,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       }
 
       this.entityFormModel = _cloneDeep(this.config.editionType.data);
+      const debugOptions = this.entityFormModel.configuration.debugOptions || {};
+      this.debugOptions = typeof debugOptions === 'string' ? JSON.parse(debugOptions) : debugOptions;
       this.currentName = this.entityFormModel['name'];
       let template: any;
       switch (this.config.editionType.stepType) {
@@ -149,7 +160,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             break;
       }
       this.showCrossdataCatalog = template.crossdataCatalog ? true : false;
-
       this.basicSettings = template.properties;
       if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
          this.isTemplate = true;
@@ -175,12 +185,33 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
          this.entityFormModel.configuration = this.templateData.configuration;
       }
 
+      if (this.debugOptions.selectedMock) {
+         const value = this.debugOptions[this.debugOptions.selectedMock];
+         if (value && value.length) {
+            this.entityFormModel.configuration.debugOptions = {};
+            this.entityFormModel.configuration.debugOptions[this.debugOptions.selectedMock] = value;
+         }
+      }
       this.entityFormModel.relationType = this.config.editionType.data.relationType;
       this.entityFormModel.createdNew = false;
       this._store.dispatch(new wizardActions.SaveEntityAction({
          oldName: this.config.editionType.data.name,
          data: this.entityFormModel
       }));
+   }
+
+   _getMenuTabs() {
+      switch (this.config.editionType.stepType) {
+         case 'Input':
+            this.options = this._allOptions;
+            break;
+         case 'Transformation':
+            this.options = this._allOptions.slice(0, 2);
+            break;
+         case 'Output':
+            this.options = [];
+            break;
+      }
    }
 
    constructor(private _store: Store<fromWizard.State>,

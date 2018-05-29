@@ -20,6 +20,10 @@ export interface State {
    workflowType: string;
    menuOptions: Array<FloatingMenuModel>;
    floatingMenuSearch: string;
+   notification: {
+      type: string;
+      message: string;
+   };
 };
 
 const initialState: State = {
@@ -32,32 +36,24 @@ const initialState: State = {
       name: 'Input',
       icon: 'icon-login',
       value: 'action',
-      subMenus: [...[{
-         name: 'Templates',
-         value: '',
-         subMenus: []
-      }]]
+      subMenus: []
    },
    {
       name: 'Transformation',
       value: 'action',
       icon: 'icon-shuffle',
-      subMenus: [{
-         name: 'Templates',
-         value: '',
-         subMenus: []
-      }]
+      subMenus: []
    },
    {
       name: 'Output',
       value: 'action',
       icon: 'icon-logout',
-      subMenus: [...[{
-         name: 'Templates',
-         value: '',
-         subMenus: []
-      }]]
-   }]
+      subMenus: []
+   }],
+   notification: {
+      type: '',
+      message: ''
+   }
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -141,30 +137,28 @@ export function reducer(state: State = initialState, action: any): State {
       }
       case wizardActions.GET_MENU_TEMPLATES_COMPLETE: {
          const menuOptions: any = _cloneDeep(state.menuOptions);
-         menuOptions[0].subMenus[0].subMenus = action.payload.input.filter((input: any) =>
-            input.executionEngine === state.workflowType)
-            .map((template: any) => ({
-               name: template.name,
-               type: 'template',
-               data: template,
-               stepType: StepType.Input
-            }));
-         menuOptions[2].subMenus[0].subMenus = action.payload.output.filter((output: any) =>
-            output.executionEngine === state.workflowType)
-            .map((template: any) => ({
-               name: template.name,
-               type: 'template',
-               data: template,
-               stepType: StepType.Output
-            }));
-         menuOptions[1].subMenus[0].subMenus = action.payload.transformation.filter((transformation: any) =>
-            transformation.executionEngine === state.workflowType)
-            .map((template: any) => ({
-               name: template.name,
-               type: 'template',
-               data: template,
-               stepType: StepType.Transformation
-            }));
+         const type = [StepType.Input, StepType.Transformation, StepType.Output];
+         menuOptions.forEach((option, index) => {
+            const templateGroup = action.payload[type[index].toLowerCase()];
+            if (!templateGroup.length) {
+               option.subMenus.splice(index, 1);
+            }
+            const templates = templateGroup.filter((template: any) =>
+               template.executionEngine === state.workflowType)
+               .map((template: any) => ({
+                  name: template.name,
+                  type: 'template',
+                  data: template,
+                  stepType: type[index]
+               }));
+            if (templates && templates.length) {
+               option.subMenus = [{
+                  name: 'Templates',
+                  value: '',
+                  subMenus: templates
+               }, ...option.subMenus];
+            }
+         });
          return {
             ...state,
             menuOptions: menuOptions,
@@ -178,11 +172,16 @@ export function reducer(state: State = initialState, action: any): State {
             entityCreationMode: true
          };
       }
+      case wizardActions.SHOW_NOTIFICATION: {
+         return {
+            ...state,
+            notification: action.payload
+         };
+      }
       default:
          return state;
    }
 }
-
 export const getWorkflowType = (state: State) => state.workflowType;
 export const getTemplates = (state: State) => state.templates;
 export const getMenuOptions = (state: State) => {

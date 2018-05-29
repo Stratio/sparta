@@ -3,6 +3,7 @@ $egeo-sanitize: true;
 @import '~@stratio/egeo/theme/sanitize';
 @import '~@stratio/egeo/theme/grid.css';
 @import '~@stratio/egeo/theme/theme.css';
+@import '~@stratio/egeo/theme/constants';
 @import '~codemirror/lib/codemirror.css';
 @import '~codemirror/addon/hint/show-hint.css';
 
@@ -26,42 +27,6 @@ button.selected-button {
 
 .custom-checkbox {
     margin-right: 6px!important;
-}
-
-/* codemirror overrides */
-
-.disabled .CodeMirror pre,
-.disabled .CodeMirror * {
-    color: #dedede!important;
-}
-
-.CodeMirror {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    height: inherit;
-    cursor: text;
-    padding: 10px 12px 10px 15px;
-}
-
-.CodeMirror-focused {
-    .CodeMirror-cursor {
-    height: 19px!important;
-    }
-}
-
-.workflow-json-content .CodeMirror-scroll {
-    min-height: 240px!important;
-}
-
-.disabled {
-    .CodeMirror-cursor {
-    display: none;
-    }
-
-    .CodeMirror {
-        background-color: #fafafa;
-    }
 }
 
 .sp-loading-advice{

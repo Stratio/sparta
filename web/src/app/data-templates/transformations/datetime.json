@@ -30,7 +30,7 @@
                "propertyId": "formatFrom",
                "propertyName": "_FORMAT_FROM_",
                "propertyType": "select",
-               "width": 3,
+               "width": 4,
                "qa": "fragment-details-datetime-field-formatFrom",
                "values": [
                   {
@@ -53,7 +53,7 @@
                "propertyId": "inputField",
                "propertyName": "_INPUT_FIELD_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "required": true,
                "qa": "fragment-details-datetime-field-name",
                "visibleOR": [
@@ -73,7 +73,7 @@
                "propertyId": "userFormat",
                "propertyName": "_USER_FORMAT_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "required": false,
                "visible": [
                   [
@@ -90,7 +90,7 @@
                "propertyName": "_STANDARD_FORMAT_",
                "propertyType": "select",
                "float": false,
-               "width": 3,
+               "width": 4,
                "qa": "fragment-details-datetime-field-standardFormat",
                "values": [
                   {
@@ -200,7 +200,7 @@
                "propertyId": "localeTime",
                "propertyName": "_LOCALE_TIME_",
                "propertyType": "select",
-               "width": 3,
+               "width": 4,
                "required": true,
                "float": false,
                "default": "ENGLISH",
@@ -256,7 +256,7 @@
                "propertyId": "granularityNumber",
                "propertyName": "_GRANULARITY_NUMBER_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "position": "left",
                "required": false,
                "regexp": "^[0-9]*$",
@@ -267,7 +267,7 @@
                "propertyId": "granularityTime",
                "propertyName": "_GRANULARITY_TIME_",
                "propertyType": "select",
-               "width": 3,
+               "width": 4,
                "required": false,
                "float": false,
                "qa": "fragment-details-datetime-field-granularityTime",
@@ -337,7 +337,7 @@
                "required": true,
                "propertyType": "select",
                "default": "APPEND",
-               "width": 3,
+               "width": 4,
                "float": false,
                "values": [
                   {
@@ -356,7 +356,7 @@
                "propertyName": "_OUTPUT_NAME_",
                "propertyType": "text",
                "required": true,
-               "width": 3,
+               "width": 4,
                "qa": "fragment-details-datetime-field-outputFieldName"
             },
             {
@@ -364,7 +364,7 @@
                "propertyName": "_DATE_TYPE_",
                "propertyType": "select",
                "custom": true,
-               "width": 3,
+               "width": 4,
                "required": true,
                "values": [
                   {
@@ -400,7 +400,7 @@
                "propertyId": "outputFormatFrom",
                "propertyName": "_OUTPUT_FORMAT_FROM_",
                "propertyType": "select",
-               "width": 3,
+               "width": 4,
                "qa": "fragment-details-datetime-field-outputFormatFrom",
                "values": [
                   {
@@ -423,7 +423,7 @@
                "propertyId": "outputUserFormat",
                "propertyName": "_OUTPUT_USER_FORMAT_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "required": false,
                "visible": [
                   [
@@ -439,7 +439,7 @@
                "propertyId": "outputStandardFormat",
                "propertyName": "_OUTPUT_STANDARD_FORMAT_",
                "propertyType": "select",
-               "width": 3,
+               "width": 4,
                "qa": "fragment-details-datetime-field-outputStandardFormat",
                "values": [
                   {
@@ -537,7 +537,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 8,
+         "width": 12,
          "tooltip": "Schema definition for steps",
          "qa": "fragment-details-schema-fields",
          "fields": [
@@ -547,7 +547,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Step name",
-               "width": 3,
+               "width": 4,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -556,7 +556,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Schema in json/Spark format or from example",
                "required": true,
                "qa": "fragment-details-field-query"
@@ -567,6 +567,7 @@
          "propertyId": "whenRowError",
          "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
          "propertyType": "select",
+         "width": "4",
          "values": [
             {
                "label": "Error",
@@ -583,6 +584,7 @@
          "propertyId": "whenFieldError",
          "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
          "propertyType": "select",
+         "width": "4",
          "values": [
             {
                "label": "Error",

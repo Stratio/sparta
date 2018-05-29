@@ -39,6 +39,7 @@ import { ZoomTransform, CreationData, NodeConnector, DrawingConnectorStatus } fr
 export class WizardEditorComponent implements OnInit {
 
    @Input() workflowType: string;
+   @Input() debugResult: any;
    @Input() workflowEdges: Array<WizardEdge> = [];
    @Input()
    get svgPosition(): ZoomTransform {
@@ -197,7 +198,7 @@ export class WizardEditorComponent implements OnInit {
          let repaints = 0;
          /** zoom behaviour */
          this.zoom = d3Zoom()
-            .scaleExtent([1 / 8, 3])
+            .scaleExtent([1 / 8, 23])
             .wheelDelta(this._deltaFn)
             .on('start', () => {
                const sourceEvent = d3Event.sourceEvent;

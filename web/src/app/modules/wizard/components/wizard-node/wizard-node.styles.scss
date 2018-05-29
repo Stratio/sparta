@@ -24,7 +24,16 @@
       font-family: $egeo-stratio-icons;
       user-select: none;
       cursor: move;
+      fill: $status-critical-default;
    }
+
+   .success-icon {
+      font-family: $egeo-stratio-icons;
+      user-select: none;
+      cursor: move;
+      fill: $status-success-hover;
+   }
+
    .input-step {
       stroke: #fcb66c;
       &.active {
@@ -83,4 +92,20 @@
          }
       }
    }
+
+   .template-label {
+    font-family: Nunito Sans Bold;
+    margin-right: 6px;
+    font-size: 12px;
+   }
+   
+    .input-step + .text-container.template-label{
+        color: #e67905;
+    }
+    .transformation-step + .text-container .template-label {
+        color: #9349bc;
+    }
+    .output-step  + .text-container .template-label {
+        color: #2d96b4;
+    }
 }

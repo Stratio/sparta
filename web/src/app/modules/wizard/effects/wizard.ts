@@ -13,6 +13,7 @@ import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/observable/if';
+import 'rxjs/add/observable/throw';
 import { Observable } from 'rxjs/Observable';
 
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,189 +26,168 @@ import * as fromWizard from './../reducers';
 import * as errorActions from 'actions/errors';
 import * as wizardActions from './../actions/wizard';
 import { InitializeWorkflowService, TemplatesService } from 'services/initialize-workflow.service';
-import { homeGroup } from '@app/shared/constants/global';
 import { WorkflowService } from 'services/workflow.service';
 import { WizardEdge } from '@app/wizard/models/node';
+import { WizardService } from '@app/wizard/services/wizard.service';
 
 @Injectable()
 export class WizardEffect {
 
-    @Effect()
-    getTemplates$: Observable<Action> = this.actions$
-        .ofType(wizardActions.GET_MENU_TEMPLATES)
-        .switchMap((toPayload: any) => {
-            return this.templatesService.getAllTemplates().map((results: any) => {
-                const templatesObj: any = {
-                    input: [],
-                    output: [],
-                    transformation: []
-                };
-                results.forEach(template => templatesObj[template.templateType].push(template));
-                return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);
-            }).catch(error =>
-                Observable.if(() => error.statusText === 'Unknown Error',
-                    Observable.of(new wizardActions.GetMenuTemplatesErrorAction()),
-                    Observable.of(new errorActions.ServerErrorAction(error))));
-        });
-
-
-    @Effect()
-    saveEntity$: Observable<Action> = this.actions$
-        .ofType(wizardActions.SAVE_ENTITY)
-        .map(toPayload)
-        .withLatestFrom(this.store.select(state => state.wizard.wizard))
-        .map(([payload, wizard]: [any, any]) => {
-            if (payload.oldName === payload.data.name) {
-                return new wizardActions.SaveEntityCompleteAction(payload);
-            } else {
-                for (let i = 0; i < wizard.nodes.length; i++) {
-                    if (payload.data.name === wizard.nodes[i].name) {
-                        return new wizardActions.SaveEntityErrorAction(true);
-                    }
-                }
-            }
-            return new wizardActions.SaveEntityCompleteAction(payload);
-        });
-
-
-    @Effect()
-    saveWorkflow$: Observable<any> = this.actions$
-        .ofType(wizardActions.SAVE_WORKFLOW)
-        .map(toPayload)
-        // Retrieve part of the current state
-        .withLatestFrom(this.store.select(state => state))
-        .switchMap(([redirectOnSave, state]: [any, any]) => {
-            const wizard = state.wizard.wizard;
-            const entities = state.wizard.entities;
-            if (!wizard.nodes.length) {
-                return Observable.of(new wizardActions.SaveWorkflowErrorAction({
-                    title: 'NO_ENTITY_WORKFLOW_TITLE',
-                    description: 'NO_ENTITY_WORKFLOW_MESSAGE'
-                }));
-            }
-            for (let i = 0; i < wizard.nodes.length; i++) {
-                if (wizard.nodes[i].hasErrors) { //At least one entity has errors
-                    return Observable.of(new wizardActions.SaveWorkflowErrorAction({
-                        title: 'VALIDATION_ERRORS_TITLE',
-                        description: 'VALIDATION_ERRORS_MESSAGE'
-                    }));
-                }
+   @Effect()
+   getTemplates$: Observable<Action> = this.actions$
+      .ofType(wizardActions.GET_MENU_TEMPLATES)
+      .switchMap((toPayload: any) => {
+         return this._templatesService.getAllTemplates().map((results: any) => {
+            const templatesObj: any = {
+               input: [],
+               output: [],
+               transformation: []
             };
-            const workflow = Object.assign({
-                id: wizard.workflowId,
-                version: wizard.workflowVersion,
-                executionEngine: entities.workflowType,
-                uiSettings: {
-                    position: wizard.svgPosition
-                },
-                pipelineGraph: {
-                    nodes: wizard.nodes,
-                    edges: wizard.edges
-                },
-                settings: wizard.settings.advancedSettings
-            }, wizard.settings.basic);
+            results.forEach(template => templatesObj[template.templateType].push(template));
+            return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);
+         }).catch(error =>
+            Observable.if(() => error.statusText === 'Unknown Error',
+               Observable.of(new wizardActions.GetMenuTemplatesErrorAction()),
+               Observable.of(new errorActions.ServerErrorAction(error))));
+      });
 
-            if (wizard.workflowId && wizard.workflowId.length) {
-                workflow.group = wizard.workflowGroup;
-                return this.workflowService.updateWorkflow(workflow).map((res) => {
-                    redirectOnSave && this.redirectOnSave();
-                    return new wizardActions.SaveWorkflowCompleteAction(workflow.id);
-                }).catch(error => Observable.from([
-                    new errorActions.ServerErrorAction(error),
-                    new wizardActions.SaveWorkflowErrorAction('')
-                ]));
-            } else {
-                delete workflow.id;
-                workflow.group = state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup;
-                return this.workflowService.saveWorkflow(workflow).map((res) => {
-                    redirectOnSave && this.redirectOnSave();
-                    return new wizardActions.SaveWorkflowCompleteAction(res.id);
-                }).catch(error => Observable.from([
-                    new errorActions.ServerErrorAction(error),
-                    new wizardActions.SaveWorkflowErrorAction('')
-                ]));
+
+   @Effect()
+   saveEntity$: Observable<Action> = this.actions$
+      .ofType(wizardActions.SAVE_ENTITY)
+      .map(toPayload)
+      .withLatestFrom(this._store.select(state => state.wizard.wizard))
+      .map(([payload, wizard]: [any, any]) => {
+         if (payload.oldName === payload.data.name) {
+            return new wizardActions.SaveEntityCompleteAction(payload);
+         } else {
+            for (let i = 0; i < wizard.nodes.length; i++) {
+               if (payload.data.name === wizard.nodes[i].name) {
+                  return new wizardActions.SaveEntityErrorAction(true);
+               }
             }
-        });
+         }
+         return new wizardActions.SaveEntityCompleteAction(payload);
+      });
 
-    @Effect()
-    createEdge$: Observable<Action> = this.actions$
-        .ofType(wizardActions.CREATE_NODE_RELATION)
-        .map(toPayload)
-        .withLatestFrom(this.store.select(state => state.wizard.wizard))
-        .map(([payload, wizard]: [any, any]) => {
-            let relationExist = false;
-            // get number of connected entities in destionation and check if relation exists
-            wizard.edges.forEach((edge: WizardEdge) => {
-                if ((edge.origin === payload.origin && edge.destination === payload.destination) ||
-                    (edge.origin === payload.destination && edge.destination === payload.origin)) {
-                    relationExist = true;
-                }
-            });
-            // throw error if relation exist or destination is the same than the origin
-            if (relationExist || (payload.origin === payload.destination)) {
-                return new wizardActions.CreateNodeRelationErrorAction('');
-            } else {
-                payload.dataType = 'ValidData';
-                return new wizardActions.CreateNodeRelationCompleteAction(payload);
+
+   @Effect()
+   saveWorkflow$: Observable<any> = this.actions$
+      .ofType(wizardActions.SAVE_WORKFLOW)
+      .map(toPayload)
+      // Retrieve part of the current state
+      .withLatestFrom(this._store.select(state => state))
+      .switchMap(([redirectOnSave, state]: [any, any]) => {
+         const wizard = state.wizard.wizard;
+         if (!wizard.nodes.length) {
+            return Observable.of(new wizardActions.SaveWorkflowErrorAction({
+               title: 'NO_ENTITY_WORKFLOW_TITLE',
+               description: 'NO_ENTITY_WORKFLOW_MESSAGE'
+            }));
+         }
+         for (let i = 0; i < wizard.nodes.length; i++) {
+            if (wizard.nodes[i].hasErrors) { //At least one entity has errors
+               return Observable.of(new wizardActions.SaveWorkflowErrorAction({
+                  title: 'VALIDATION_ERRORS_TITLE',
+                  description: 'VALIDATION_ERRORS_MESSAGE'
+               }));
             }
-        });
+         };
+         const workflow = this._wizardService.getWorkflowModel(state);
 
-    @Effect()
-    getEditedWorkflow$: Observable<Action> = this.actions$
-        .ofType(wizardActions.MODIFY_WORKFLOW)
-        .map((action: any) => action.payload)
-        .switchMap((id: any) =>
-            this.workflowService.getWorkflowById(id)
-                .switchMap(workflow => [
-                    new wizardActions.SetWorkflowTypeAction(workflow.executionEngine),
-                    new wizardActions.GetMenuTemplatesAction(),
-                    new wizardActions.ModifyWorkflowCompleteAction(this.initializeWorkflowService.getInitializedWorkflow(workflow))
-                ]).catch(error => Observable.of(new wizardActions.ModifyWorkflowErrorAction(''))));
+         if (wizard.workflowId && wizard.workflowId.length) {
+            return this._workflowService.updateWorkflow(workflow).mergeMap((res) => {
+               redirectOnSave && this.redirectOnSave();
+               return [
+                  new wizardActions.SaveWorkflowCompleteAction(workflow.id),
+                  new wizardActions.ShowNotificationAction({
+                     type: 'success',
+                     message: 'WORKFLOW_SAVE_SUCCESS'
+                  })
+               ];
+            }).catch(error => Observable.from([
+               new errorActions.ServerErrorAction(error),
+               new wizardActions.SaveWorkflowErrorAction('')
+            ]));
+         } else {
+            delete workflow.id;
+            return this._workflowService.saveWorkflow(workflow).mergeMap((res) => {
+               redirectOnSave && this.redirectOnSave();
+               return [
+                  new wizardActions.SaveWorkflowCompleteAction(res.id),
+                  new wizardActions.ShowNotificationAction({
+                     type: 'success',
+                     message: 'WORKFLOW_SAVE_SUCCESS'
+                  })
+               ];
+            }).catch(error => Observable.from([
+               new errorActions.ServerErrorAction(error),
+               new wizardActions.SaveWorkflowErrorAction('')
+            ]));
+         }
+      });
 
-    @Effect()
-    validateWorkflow$: Observable<Action> = this.actions$
-        .ofType(wizardActions.VALIDATE_WORKFLOW)
-        .map(toPayload)
-        .withLatestFrom(this.store.select(state => state))
-        .switchMap(([payload, state]: [any, any]) => {
-            const wizard = state.wizard.wizard;
-            const entities = state.wizard.entities;
-            const workflow = Object.assign({
-                id: wizard.workflowId && wizard.workflowId.length ? wizard.workflowId : undefined,
-                version: wizard.workflowVersion,
-                executionEngine: entities.workflowType,
-                uiSettings: {
-                    position: wizard.svgPosition
-                },
-                pipelineGraph: {
-                    nodes: wizard.nodes,
-                    edges: wizard.edges
-                },
-                group: wizard.workflowGroup && wizard.workflowGroup.length ?
-                    wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,
-                settings: wizard.settings.advancedSettings
-            }, wizard.settings.basic);
+   @Effect()
+   createEdge$: Observable<Action> = this.actions$
+      .ofType(wizardActions.CREATE_NODE_RELATION)
+      .map(toPayload)
+      .withLatestFrom(this._store.select(state => state.wizard.wizard))
+      .map(([payload, wizard]: [any, any]) => {
+         let relationExist = false;
+         // get number of connected entities in destionation and check if relation exists
+         wizard.edges.forEach((edge: WizardEdge) => {
+            if ((edge.origin === payload.origin && edge.destination === payload.destination) ||
+               (edge.origin === payload.destination && edge.destination === payload.origin)) {
+               relationExist = true;
+            }
+         });
+         // throw error if relation exist or destination is the same than the origin
+         if (relationExist || (payload.origin === payload.destination)) {
+            return new wizardActions.CreateNodeRelationErrorAction('');
+         } else {
+            payload.dataType = 'ValidData';
+            return new wizardActions.CreateNodeRelationCompleteAction(payload);
+         }
+      });
 
-            return this.workflowService.validateWorkflow(workflow).map((response: any) =>
-                new wizardActions.ValidateWorkflowCompleteAction(response))
-                .catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
-        }).catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
+   @Effect()
+   getEditedWorkflow$: Observable<Action> = this.actions$
+      .ofType(wizardActions.MODIFY_WORKFLOW)
+      .map((action: any) => action.payload)
+      .switchMap((id: any) =>
+         this._workflowService.getWorkflowById(id)
+            .switchMap(workflow => [
+               new wizardActions.SetWorkflowTypeAction(workflow.executionEngine),
+               new wizardActions.GetMenuTemplatesAction(),
+               new wizardActions.ModifyWorkflowCompleteAction(this._initializeWorkflowService.getInitializedWorkflow(workflow))
+            ]).catch(error => Observable.of(new wizardActions.ModifyWorkflowErrorAction(''))));
 
-    redirectOnSave() {
-        window.history.length > 2 ? this._location.back() : this.route.navigate(['workflow-managing']);
-    }
+   @Effect()
+   validateWorkflow$: Observable<Action> = this.actions$
+      .ofType(wizardActions.VALIDATE_WORKFLOW)
+      .map(toPayload)
+      .withLatestFrom(this._store.select(state => state))
+      .switchMap(([payload, state]: [any, any]) => {
+         const workflow = this._wizardService.getWorkflowModel(state);
+         return this._workflowService.validateWorkflow(workflow).map((response: any) =>
+            new wizardActions.ValidateWorkflowCompleteAction(response))
+            .catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
+      }).catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
 
-    constructor(
-        private actions$: Actions,
-        private store: Store<fromWizard.State>,
-        private workflowService: WorkflowService,
-        private templatesService: TemplatesService,
-        private initializeWorkflowService: InitializeWorkflowService,
-        private route: Router,
-        private currentActivatedRoute: ActivatedRoute,
-        private _location: Location
-    ) { }
+   redirectOnSave() {
+      window.history.length > 2 ? this._location.back() : this._route.navigate(['workflow-managing']);
+   }
 
-
+   constructor(
+      private actions$: Actions,
+      private _store: Store<fromWizard.State>,
+      private _workflowService: WorkflowService,
+      private _wizardService: WizardService,
+      private _templatesService: TemplatesService,
+      private _initializeWorkflowService: InitializeWorkflowService,
+      private _route: Router,
+      private _currentActivatedRoute: ActivatedRoute,
+      private _location: Location
+   ) { }
 }
 

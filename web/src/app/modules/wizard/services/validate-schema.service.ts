@@ -11,104 +11,90 @@ import { WizardService } from './wizard.service';
 @Injectable()
 export class ValidateSchemaService {
 
+   constructor(private wizardService: WizardService) { }
 
-    constructor(private wizardService: WizardService) { }
+   validateEntity(model: any, stepType: string, schema?: any) {
+      if (!schema) {
+         switch (stepType) {
+            case 'Input':
+               return this.validate(this.wizardService.getInputs()[model.classPrettyName].properties, model.configuration)
+                  .concat(this.validate(writerTemplate, model.writer));
+            case 'Output':
+               return this.validate(this.wizardService.getOutputs()[model.classPrettyName].properties, model.configuration);
+            case 'Transformation':
+               return this.validate(this.wizardService.getTransformations()[model.classPrettyName].properties, model.configuration)
+                  .concat(this.validate(writerTemplate, model.writer));
+            default:
+               break;
+         }
+      } else {
+         // if its an output skip writer validation (outputs has not writer)
+         if (stepType === 'Output') {
+            return this.validate(schema.properties, model.configuration);
+         } else {
+            return this.validate(schema.properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
+         }
+      }
+   }
 
-    validateEntity(model: any, stepType: string, schema?: any) {
-        if (!schema) {
-            switch (stepType) {
-                case 'Input':
-                    return this.validate(this.wizardService.getInputs()[model.classPrettyName].properties, model.configuration)
-                        .concat(this.validate(writerTemplate, model.writer));
-                case 'Output':
-                    return this.validate(this.wizardService.getOutputs()[model.classPrettyName].properties, model.configuration);
-                case 'Transformation':
-                    return this.validate(this.wizardService.getTransformations()[model.classPrettyName].properties, model.configuration)
-                        .concat(this.validate(writerTemplate, model.writer));
-                default:
-                    break;
-            }
-        } else {
-            // if its an output skip writer validation (outputs has not writer)
-            if (stepType === 'Output') {
-                return this.validate(schema.properties, model.configuration);
+
+   validate(schema: any, model: any): Array<any> {
+      const errors: Array<any> = [];
+
+      schema.forEach((prop: any) => {
+         const value = model[prop.propertyId];
+         let disabled = false;
+
+         // if there are not validations skip this input
+         if (!prop.regexp && !prop.required) {
+            return;
+         }
+
+         // check if the input is disabled
+         if (prop.visible && prop.visible[0].length) {
+            prop.visible[0].forEach((condition: any) => {
+               if (model[condition.propertyId] !== condition.value) {
+                  disabled = true;
+               }
+            });
+         }
+
+         if (disabled) {
+            return;
+         }
+
+         // check required validation
+         if (prop.required && prop.propertyType !== 'boolean' && prop.propertyType !== 'switch') {
+            if (prop.propertyType === 'number') {
+               if (!value) {
+                  errors.push({
+                     propertyName: prop.propertyId,
+                     type: 'required'
+                  });
+               }
             } else {
-                return this.validate(schema.properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
+               if (!value || !value.length) {
+                  errors.push({
+                     propertyName: prop.propertyId,
+                     type: 'required'
+                  });
+               }
             }
-        }
-    }
+         }
 
-    validateSettings() {
-
-    }
-
-    validate(schema: any, model: any): Array<any> {
-        const errors: Array<any> = [];
-
-        schema.forEach((prop: any) => {
-            const value = model[prop.propertyId];
-            let disabled = false;
-
-            // if there are not validations skip this input
-            if (!prop.regexp && !prop.required) {
-                return;
+         // check regex validation
+         if (prop.regexp && prop.propertyType !== 'boolean' && prop.propertyType !== 'switch') {
+            const re: RegExp = new RegExp(prop.regexp);
+            if (!re.test(value)) {
+               errors.push({
+                  propertyName: prop.propertyId,
+                  type: 'regex'
+               });
             }
-
-            // check if the input is disabled
-            if (prop.visible && prop.visible[0].length) {
-                prop.visible[0].forEach((condition: any) => {
-                    if (model[condition.propertyId] !== condition.value) {
-                        disabled = true;
-                    }
-                });
-            }
-
-            if (disabled) {
-                return;
-            }
-
-            // check required validation
-            if (prop.required && prop.propertyType !== 'boolean' && prop.propertyType !== 'switch') {
-                if (prop.propertyType === 'number') {
-                    if (!value) {
-                        errors.push({
-                            propertyName: prop.propertyId,
-                            type: 'required'
-                        });
-                    }
-                } else {
-                    if (!value || !value.length) {
-                        errors.push({
-                            propertyName: prop.propertyId,
-                            type: 'required'
-                        });
-                    }
-                }
-            }
-
-            // check regex validation
-            if (prop.regexp && prop.propertyType !== 'boolean' && prop.propertyType !== 'switch') {
-                const re: RegExp = new RegExp(prop.regexp);
-                if (!re.test(value)) {
-                    errors.push({
-                        propertyName: prop.propertyId,
-                        type: 'regex'
-                    });
-                }
-            }
-        });
-
-        return errors;
-    }
-
-    validateWorkflow(nodes: any, edges: any) {
-
-        edges.map((edge: any) => {
-
-        });
-
-        // function validateNode()
-    }
+         }
+      });
+      return errors;
+   }
 }
 
 

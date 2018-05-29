@@ -21,14 +21,12 @@ export class CrossdataService extends ApiService {
     }
 
     getCrossdataTables(): Observable<any> {
-
         const options: any = {};
         return this.request('crossdata/tables', 'get', options);
     }
 
 
     getDatabaseTables(query: any): Observable<any> {
-
         const options: any = {
             body: query
         };

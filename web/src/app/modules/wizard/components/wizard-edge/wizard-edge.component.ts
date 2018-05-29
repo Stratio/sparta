@@ -146,7 +146,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    }
 
    selectedge() {
-      d3Event.sourceEvent.stopPropagation();
+      d3Event.stopPropagation();
       // deselect nodes
       this.store.dispatch(new wizardActions.UnselectEntityAction());
       if (this.selectedEdge && this.selectedEdge.origin === this.initialEntityName

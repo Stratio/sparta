@@ -39,6 +39,7 @@
    width: 100%;
    display: flex;
    flex-wrap: wrap;
+   font-size: 20px;
    flex-direction: row;
    line-height: 1.89;
    margin-bottom: 10px;
@@ -85,6 +86,7 @@
 .complex-form {
    .list-field {
       display: flex;
+      font-size: 16px;
       flex-direction: row;
    }
    .form-item {

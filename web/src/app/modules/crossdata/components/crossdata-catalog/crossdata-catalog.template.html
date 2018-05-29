@@ -10,7 +10,6 @@
 
 <section>
    <div class="filters">
-       <h3 class="title">Crossdata catalog</h3>
       <sp-select [options]="databases" qaTag="database-selection" label="{{'DASHBOARD.DATABASE' | translate}}" name="fragmentType"
          (change)="getTablesFromDatabase($event)" class="database-selector st-form-field" [(ngModel)]="selectedDatabase"></sp-select>
 

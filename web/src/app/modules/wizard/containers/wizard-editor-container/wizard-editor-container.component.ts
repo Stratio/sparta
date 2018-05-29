@@ -54,6 +54,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public creationMode$: Observable<any>;
    public isShowedEntityDetails$: Observable<any>;
    public edgeOptions: any;
+   public isWorkflowDebugging: boolean;
+   public debugResult: any;
 
    private _componentDestroyed = new Subject();
 
@@ -160,6 +162,19 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
             this._cd.markForCheck();
          });
+      this.store.select(fromWizard.isWorkflowDebugging)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((isDebugging => {
+            this.isWorkflowDebugging = isDebugging;
+            this._cd.markForCheck();
+         }));
+
+      this.store.select(fromWizard.getDebugResult)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((debugResult => {
+            this.debugResult = debugResult && debugResult.steps ? debugResult.steps : {};
+            this._cd.markForCheck();
+         }));
    }
 
    deleteSelection() {
