@@ -23,8 +23,8 @@ import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistoryDto
 
-@Api(value = HttpConstant.HistoryExecutionsPath, description = "Workflow executions history", position = 0)
-trait HistoryExecutionHttpService extends BaseHttpService {
+@Api(value = HttpConstant.ExecutionsHistoryPath, description = "Workflow executions history", position = 0)
+trait ExecutionHistoryHttpService extends BaseHttpService {
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
@@ -52,7 +52,7 @@ trait HistoryExecutionHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def findByUser(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.HistoryExecutionsPath / "findByUserId" / Segment) { (id) =>
+    path(HttpConstant.ExecutionsHistoryPath / "findByUserId" / Segment) { (id) =>
       get {
         context =>
           for {
@@ -80,7 +80,7 @@ trait HistoryExecutionHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def findByWorkflowId(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.HistoryExecutionsPath / "findByWorkflowId" / JavaUUID) { (id) =>
+    path(HttpConstant.ExecutionsHistoryPath / "findByWorkflowId" / JavaUUID) { (id) =>
       get {
         context => {
           for {
