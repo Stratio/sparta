@@ -4,27 +4,27 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.actor
+package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, PoisonPill, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.{Config, ConfigFactory}
-import org.json4s.jackson.Serialization._
+import org.json4s.jackson.Serialization.write
 import slick.jdbc.JdbcProfile
 
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.ExecutionChange
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.dao.ExecutionHistoryDaoImpl
+import com.stratio.sparta.serving.api.dao.ExecutionHistoryDaoImpl
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistory
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 
 //scalastyle:off
-class ExecutionHistoryActor(val profileHistory: JdbcProfile, val config: Config) extends Actor with ExecutionHistoryDaoImpl with SLF4JLogging {
+class ExecutionHistoryListenerActor(val profileHistory: JdbcProfile, val config: Config) extends Actor with ExecutionHistoryDaoImpl with SLF4JLogging {
 
   override val profile = profileHistory
 
@@ -32,13 +32,19 @@ class ExecutionHistoryActor(val profileHistory: JdbcProfile, val config: Config)
 
   override val db: profile.api.Database = Database.forConfig("", config)
 
-  import ExecutionHistoryActor._
+  import ExecutionHistoryListenerActor._
 
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[ExecutionChange])
-    createSchema() onComplete {
-      case Success(_) => log.info("Schema created")
-      case Failure(f) => log.error(f.getMessage, f)
+    Try(db.createSession.conn) match {
+      case Success(con) => {
+        createSchema()
+        con.close
+      }
+      case Failure(f) => {
+        log.error(s"Unable to connect to Postgres database: ${f.getMessage}", f)
+        self ! PoisonPill
+      }
     }
   }
 
@@ -49,24 +55,15 @@ class ExecutionHistoryActor(val profileHistory: JdbcProfile, val config: Config)
 
   override def receive: Receive = {
     case ec: ExecutionChange => upsert(ec.execution) onFailure {
-      case e: Exception => log.error("Error", e)
+      case e: Exception => log.error("Error while upserting into execution history table", e)
     }
-    case QueryAll() => sender ! selectAll()
-    case QueryByWorkflowId(id) => sender ! findByWorkflowId(id)
-    case QueryByUserId(id) => sender ! findByUserId(id)
   }
 }
 
 //scalastyle:off
-object ExecutionHistoryActor extends SpartaSerializer {
+object ExecutionHistoryListenerActor extends SpartaSerializer {
 
-  def props(profile: JdbcProfile, config: Config = SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load())) = Props(new ExecutionHistoryActor(profile, config))
-
-  case class QueryAll()
-
-  case class QueryByWorkflowId(workflowId: String)
-
-  case class QueryByUserId(userId: String)
+  def props(profile: JdbcProfile, config: Config = SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load())) = Props(new ExecutionHistoryListenerActor(profile, config))
 
   implicit def executionToDb(workflowExecution: WorkflowExecution): WorkflowExecutionHistory = {
     WorkflowExecutionHistory(
@@ -80,5 +77,4 @@ object ExecutionHistoryActor extends SpartaSerializer {
       lastError = workflowExecution.genericDataExecution.flatMap(ge => ge.lastError.map(le => write(le))).orElse(None),
       genericExecution = write(workflowExecution.genericDataExecution))
   }
-
 }

@@ -88,6 +88,11 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       system.actorOf(Props(new DebugStepDataPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugStepErrorPublisherActor(curatorFramework)))
 
+      if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
+        log.debug("Initializing history actors ...")
+        system.actorOf(ExecutionHistoryListenerActor.props(PostgresProfile))
+      }
+
       val controllerActor = system.actorOf(Props(new ControllerActor(
           curatorFramework,
           stListenerActor,
@@ -95,10 +100,6 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
           inMemoryApiActors
         )), ControllerActorName)
 
-      if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
-        log.debug("Initializing history actors ...")
-        system.actorOf(ExecutionHistoryActor.props(PostgresProfile))
-      }
 
       log.info("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,

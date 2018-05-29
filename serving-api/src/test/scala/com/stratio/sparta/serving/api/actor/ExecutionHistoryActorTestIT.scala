@@ -4,14 +4,14 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.actor
+package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
@@ -23,12 +23,12 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.actor.ExecutionHistoryActor.{QueryAll, QueryByUserId, QueryByWorkflowId}
+import com.stratio.sparta.serving.api.actor.ExecutionHistoryActor.{QueryByUserId, QueryByWorkflowId}
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, Notification}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.dao.ExecutionHistoryDaoImpl
+import com.stratio.sparta.serving.api.dao.ExecutionHistoryDaoImpl
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
-import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistory
+import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistoryDto
 import com.stratio.sparta.serving.core.models.workflow._
 
 //scalastyle:off
@@ -42,6 +42,7 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
 
   private lazy val config = ConfigFactory.load()
   implicit val timeout = Timeout(10 seconds)
+  implicit val secManager = None
 
   def publishEvent(event: Notification): Unit = system.eventStream.publish(event)
 
@@ -93,7 +94,7 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
       s"sparta.postgres.url = $hostUrl\n"
     case Failure(e) =>
       log.info(s"Postgres host from default")
-      val hostUrl =s""""jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres""""
+      val hostUrl =s""""jdbc:postgresql://localhost:5432/postgres?user=postgres""""
       s"sparta.postgres.url = $hostUrl\n"
   }
 
@@ -112,7 +113,9 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
 
   "A WorkflowExecutionHistoryActor" should {
 
-    val actor = system.actorOf(ExecutionHistoryActor.props(PostgresProfile, conf.get))
+    system.actorOf(ExecutionHistoryListenerActor.props(PostgresProfile, conf.get))
+
+    val actor = system.actorOf(Props(new ExecutionHistoryActor))
 
     "Insert new data" in new ExecutionHistoryTrait {
 
@@ -140,32 +143,36 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
       db.close()
     }
 
-    "Query All" in new ExecutionHistoryTrait {
-      actor ! QueryAll()
-      expectMsgPF() {
-        case future: Future[List[WorkflowExecutionHistory]] => future onSuccess {
-          case s: List[WorkflowExecutionHistory] => s.size shouldBe 1
-        }
-      }
-      db.close()
-    }
-
     "Query By WorkflowId" in {
       val wfId = getWorkflowModel(true).id.get
-      actor ! QueryByWorkflowId(wfId)
+      actor ! QueryByWorkflowId(wfId, None)
       expectMsgPF() {
-        case future: Future[List[WorkflowExecutionHistory]] => future onSuccess {
-          case s: List[WorkflowExecutionHistory] => assert(s.head.workflowId == wfId)
+        case response: Either[Success[Future[Seq[WorkflowExecutionHistoryDto]]],_] => {
+          response match {
+            case Left((Success(result))) => {
+              result onSuccess {
+                case s: List[WorkflowExecutionHistoryDto] => assert(s.head.workflowId == wfId)
+              }
+            }
+            case Right(_) => assert(false)
+          }
         }
       }
     }
 
     "Query By UserId" in {
       val userId = getWorkflowExecutionModel(false).genericDataExecution.get.userId.get
-      actor ! QueryByUserId(userId)
+      actor ! QueryByUserId(userId, None)
       expectMsgPF() {
-        case future: Future[List[WorkflowExecutionHistory]] => future onSuccess {
-          case s: List[WorkflowExecutionHistory] => assert(s.head.userId.get == userId)
+        case response: Either[Success[Future[Seq[WorkflowExecutionHistoryDto]]],_] => {
+          response match {
+            case Left((Success(result))) => {
+              result onSuccess {
+                case s: List[WorkflowExecutionHistoryDto] => assert(s.head.userId.get == userId)
+              }
+            }
+            case Right(_) => assert(false)
+          }
         }
       }
     }

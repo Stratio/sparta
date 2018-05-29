@@ -13,8 +13,8 @@ object HttpConstant {
   final val DebugWorkflowsPath = "debug"
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"
-  final val TemplatePath = "template"
   final val WorkflowsPath = "workflows"
+  final val TemplatePath = "template"
   final val WorkflowStatusesPath = "workflowStatuses"
   final val ExecutionsPath = "workflowExecutions"
   final val GroupsPath = "groups"
@@ -25,6 +25,7 @@ object HttpConstant {
   final val CrossdataPath = "crossdata"
   final val AppInfoPath = "appInfo"
   final val MetadataPath = "metadata"
+  final val HistoryExecutionsPath = "historyWorkflowExecutions"
   final val NotFound = 400
   final val NotFoundMessage = "Not Found"
 }
