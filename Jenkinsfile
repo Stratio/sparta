@@ -86,7 +86,7 @@ hose {
         ['CHROME': [
             'image': 'selenium/node-chrome-debug:3.9.1',
             'volumes': ['/dev/shm:/dev/shm'],
-            'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID"']
+            'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID "']
             ]
         ],
         ['DCOSCLI': [
@@ -126,8 +126,8 @@ hose {
             | -DCALICOENABLED=false
             | -DCLIENTSECRET=cr7gDH6hX2-C3SBZYWj8F
             | -DIDNODE=564        
-            | -DSELENIUM_GRID=selenium.cd:4444
-            | -DFORCE_BROWSER=chrome_48%%JUID
+            | -DSELENIUM_GRID=selenium391.cd:4444
+            | -DFORCE_BROWSER=chrome_64%%JUID
             | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
             | -Dquietasdefault=false
             | -DNGINX_ACTIVE=false
