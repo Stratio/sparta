@@ -25,7 +25,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
 
   import ExecutionHistoryActor._
 
-  private val workflowExecutionHistoryService = new WorkflowExecutionHistoryService()
+  private lazy val workflowExecutionHistoryService = new WorkflowExecutionHistoryService()
   private val ResourceType = "workflow"
 
   override def receive: Receive = {
