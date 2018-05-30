@@ -22,6 +22,8 @@
       "GREETINGS": "Hello World!",
       "RESOURCES": "Resources",
       "DISPLAY": "Display:",
+      "DOCUMENTATION_LINK": "Stratio Product Documentation",
+      "HELP_TITLE": "Help",
       "FILTER_PLACEHOLDER": "Filter by element...",
       "USER_PROFILE": {
          "TITLE": "PROFILE",

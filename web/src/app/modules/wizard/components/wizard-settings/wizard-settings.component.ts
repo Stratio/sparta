@@ -16,6 +16,8 @@ import * as wizardActions from './../../actions/wizard';
 
 import { settingsTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
+import { InitializeSchemaService } from 'app/services/initialize-schema.service';
+import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 
 
 @Component({
@@ -32,16 +34,18 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
    @ViewChild('entityForm') public entityForm: NgForm;
 
    public basicSettings: any = [];
-   public advancedSettings: Array<any> = [];
+   public advancedSettings: any = {};
    public submitted = true;
    public currentName = '';
    public tags: Array<string> = [];
    public fadeActive = false;
+   public isShowedHelp = false;
 
    public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
    public entityFormModel: any = {};   // common config
    public settingsFormModel: any = {}; // advanced settings
    public valueDictionary: any = {};
+   public helpOptions: Array<HelpOptions> = [];
 
    private errorManagementOutputs: Array<string> = [];
    private settingsSubscription: Subscription;
@@ -69,7 +73,6 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
          this.basicFormModel = settings.basic;
          this.settingsFormModel = settings.advancedSettings;
       });
-
       const settings = _cloneDeep(<any>settingsTemplate);
 
       // hides workflow name edition when its in edit mode
@@ -89,9 +92,11 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
          settings.advancedSettings.filter((section: any) => {
             return section.name !== 'streamingSettings';
          });
+      this.helpOptions = this._initializeSchemaService.getHelpOptions(this.advancedSettings[0].properties);
+
    }
 
-   public saveForm() {
+   saveForm() {
       if (this.entityForm.valid) {
          this.basicFormModel.tags = this.tags;
          this.store.dispatch(new wizardActions.SaveSettingsAction({
@@ -103,8 +108,13 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
       }
    }
 
+   onChangeGroup(event) {
+      this.helpOptions = this._initializeSchemaService.getHelpOptions(this.advancedSettings[event].properties);
+   }
+
 
    constructor(private store: Store<fromWizard.State>,
+      private _initializeSchemaService: InitializeSchemaService,
       private _wizardService: WizardService) {
    }
 

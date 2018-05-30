@@ -46,6 +46,7 @@
           [minlength]="field.minlength"
           [maxlength]="field.maxlength"></sp-textarea>
     </div>
+
    <sp-select *ngIf="field.propertyType == 'select' && isVisible"
       [options]="field.externalValueKey ? valueDictionary[field.externalValueKey]: field.values"
       class="st-form-field"

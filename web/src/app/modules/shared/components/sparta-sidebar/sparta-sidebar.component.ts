@@ -36,6 +36,6 @@ export class SpartaSidebarComponent implements AfterViewInit {
         this.loaded =  true;
         const rect = this._element.nativeElement.getBoundingClientRect();
         this.minHeight = window.innerHeight - rect.top - 30;
-        this._cd.markForCheck();
+        this._cd.detectChanges();
     }
 }

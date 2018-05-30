@@ -10,16 +10,20 @@
 
 <st-fullscreen-layout class="layout" title="{{entityFormModel.stepType}} - {{currentName}}" [ngClass]="{'active': fadeActive}">
    <div class="st-fullscreen-layout-buttons">
+      <button class="button button-toolbar help-button" [ngClass]="{'selected-button' : isShowedHelp}" (click)="isShowedHelp = !isShowedHelp">
+         <i class="icon-help2"></i>
+      </button>
       <button class="show-catalog button button-toolbar" [ngClass]="{'selected-button' : isShowedInfo}" id="show-catalog-button"
          (click)="toggleInfo()">
          <i class="icon-info1"></i>
       </button>
       <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()" id="cancel-edit-node">
-            <span>{{'WIZARD.CANCEL' | translate}}</span>
+         <span>{{'WIZARD.CANCEL' | translate}}</span>
       </button>
       <button class="button button-primary" (click)="saveForm()" id="save-node-button">
-            <span>{{'WIZARD.SAVE' | translate}}</span>
+         <span>{{'WIZARD.SAVE' | translate}}</span>
       </button>
+      <sp-help *ngIf="isShowedHelp" [xPos]="-346" [yPos]="10" [helpOptions]="helpOptions"></sp-help>
    </div>
    <div class="st-fullscreen-layout-content">
       <div class="node-edition">

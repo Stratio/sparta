@@ -1,0 +1,29 @@
+<section class="help">
+   <div class="help-search">
+      <div class="help-header" (mousedown)="moveBox($event)">
+         <span class="icon-arrow-left return-arrow" (click)="returnList()" *ngIf="definitionShowed"></span>
+         <span class="help-label">{{'GLOBAL.HELP_TITLE' | translate}}</span>
+      </div>
+      <st-search (search)="search($event)"></st-search>
+   </div>
+   <div class="help-content">
+      <perfect-scrollbar class="scroll-bar" style="max-width: 600px; max-height: 320px;" [config]="config" [scrollIndicators]="false">
+         <ul class="tips" *ngIf="!definitionShowed">
+            <li *ngFor="let option of options" (click)="showDefinition(option.label)">{{option.label | translate}}</li>
+         </ul>
+         <div class="definition-container" *ngIf="definitionShowed">
+            <div class="egeo-title-small">{{definitionShowed.label | translate}}</div>
+            <div class="definition">{{definitionShowed.text}}</div>
+            <div *ngIf="definitionShowed.sections && definitionShowed.sections.length">
+               <div class="section" *ngFor="let section of definitionShowed.sections">
+                  <div class="egeo-title-mini">{{section.label}}</div>
+                  <div class="definition">{{section.text}}</div>
+               </div>
+            </div>
+         </div>
+      </perfect-scrollbar>
+      <div class="help-links" *ngIf="!definitionShowed" (click)="showSpartaDoc()">
+         <span class="icon icon-export"></span> {{'GLOBAL.DOCUMENTATION_LINK' | translate}}
+      </div>
+   </div>
+</section>

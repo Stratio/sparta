@@ -1,0 +1,72 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+  position: fixed;
+  z-index: 9999;
+}
+
+.help {
+  width: 387px;
+  max-height: 529px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px 0 #dedede;
+}
+
+.return-arrow{
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.help-search {
+  background-color: #edf2f6;
+  padding: 8px 20px;
+}
+
+.help-header {
+  padding-bottom: 12px;
+  padding-top:5px;
+  cursor: move;
+}
+
+.help-label {
+  font-family: $egeo-nunito-sans-bold;
+  font-size: $egeo-font-size-large;
+}
+
+.help-content {
+  padding: 0 25px;
+}
+
+.tips {
+  list-style: none;
+  padding-top: 20px;
+  li{
+    border-bottom: solid 1px $neutral-04;
+    padding: 12px 0;
+    cursor: pointer;
+    color: $neutral-11;
+  }
+}
+
+.definition-container {
+  padding: 20px 0;
+  .definition {
+    margin-top:10px;
+    color: $neutral-11;
+  }
+}
+
+.section {
+  margin-top: 15px; 
+}
+
+.help-links {
+  font-size: 15px;
+  display: inline-block;
+  margin: 24px 0;
+  cursor: pointer;
+  .icon {
+    padding-right: 8px;
+  }
+}

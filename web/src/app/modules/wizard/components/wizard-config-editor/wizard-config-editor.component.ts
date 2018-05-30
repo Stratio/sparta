@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import {
    Component, OnInit, OnDestroy, ChangeDetectionStrategy, Input, ViewChild, ChangeDetectorRef
 } from '@angular/core';
@@ -16,9 +17,10 @@ import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 
 import { Subscription } from 'rxjs/Subscription';
-import { ErrorMessagesService } from 'services';
+import { ErrorMessagesService, InitializeSchemaService } from 'services';
 import { writerTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
+import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 
 @Component({
    selector: 'wizard-config-editor',
@@ -38,6 +40,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    public submitted = true;
    public currentName = '';
    public arity: any;
+   public isShowedHelp = false;
 
    public isTemplate = false;
    public templateData: any;
@@ -52,6 +55,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    public activeOption = 'Global';
    public options: StHorizontalTab[] = [];
    public debugOptions: any = {};
+   public helpOptions: Array<HelpOptions> = [];
 
    private _componentDestroyed = new Subject();
    private _allOptions: StHorizontalTab[] = [{
@@ -106,8 +110,13 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       this._store.dispatch(new wizardActions.SaveEntityErrorAction(false));
    }
 
-   changeFormOption($event: any) {
-      this.activeOption = $event.id;
+   changeFormOption(event: any) {
+      this.activeOption = event.id;
+      if (event.id === 'Global') {
+         this.helpOptions = this._initializeSchemaService.getHelpOptions(this.basicSettings);
+      } else if (event.id === 'Writer') {
+         this.helpOptions = this._initializeSchemaService.getHelpOptions(this.writerSettings);
+      }
    }
 
    toggleInfo() {
@@ -159,6 +168,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             this.writerSettings = writerTemplate;
             break;
       }
+      this.helpOptions = this._initializeSchemaService.getHelpOptions(template.properties);
+      this._cd.markForCheck();
       this.showCrossdataCatalog = template.crossdataCatalog ? true : false;
       this.basicSettings = template.properties;
       if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
@@ -216,6 +227,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
    constructor(private _store: Store<fromWizard.State>,
       private _router: Router,
+      private _initializeSchemaService: InitializeSchemaService,
       private _cd: ChangeDetectorRef,
       private _wizardService: WizardService,
       public errorsService: ErrorMessagesService) {
