@@ -4,7 +4,17 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, Input, OnInit, ChangeDetectionStrategy, ElementRef, NgZone, AfterContentInit } from '@angular/core';
+import {
+   AfterContentInit,
+   ChangeDetectionStrategy,
+   Component,
+   ElementRef,
+   Inject,
+   Input,
+   NgZone,
+   OnInit
+} from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
    selector: 'sp-help',
@@ -12,12 +22,12 @@ import { Component, Input, OnInit, ChangeDetectionStrategy, ElementRef, NgZone, 
    styleUrls: ['./sp-help.component.scss'],
    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpHelpComponent implements OnInit, AfterContentInit{
+export class SpHelpComponent implements OnInit, AfterContentInit {
 
    @Input() get helpOptions(): Array<HelpOptions> {
       return this._helpOptions;
    }
-   set helpOptions(value){
+   set helpOptions(value) {
       this._helpOptions = value;
       if (this.searchValue && this.searchValue.length) {
          this.search({
@@ -43,7 +53,10 @@ export class SpHelpComponent implements OnInit, AfterContentInit{
 
    private _element: any;
    private _helpOptions: Array<HelpOptions> = [];
-   constructor(private _el: ElementRef, private _ngZone: NgZone) {
+   constructor(private _el: ElementRef,
+      private _ngZone: NgZone,
+      @Inject(DOCUMENT) private _document: Document,
+   ) {
       this._element = _el.nativeElement;
    }
 
@@ -76,6 +89,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit{
    }
 
    moveBox(e) {
+      this._document.body.classList.add('dragging');
       this._ngZone.runOutsideAngular(() => {
          this.pos3 = e.clientX;
          this.pos4 = e.clientY;
@@ -109,6 +123,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit{
    }
 
    private _closeDragElement() {
+      this._document.body.classList.remove('dragging');
       /* stop moving when mouse button is released:*/
       document.onmouseup = null;
       document.onmousemove = null;
