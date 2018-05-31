@@ -199,7 +199,7 @@ export class WizardEditorComponent implements OnInit {
          let repaints = 0;
          /** zoom behaviour */
          this.zoom = d3Zoom()
-            .scaleExtent([1 / 8, 23])
+            .scaleExtent([1 / 8, 4])
             .wheelDelta(this._deltaFn)
             .on('start', () => {
                const sourceEvent = d3Event.sourceEvent;

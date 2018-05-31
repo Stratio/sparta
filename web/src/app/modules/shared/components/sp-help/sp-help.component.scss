@@ -27,6 +27,15 @@
   padding-bottom: 12px;
   padding-top:5px;
   cursor: move;
+  position: relative;
+}
+
+.close-help {
+  position:absolute;
+  z-index: 10;
+  top:15px;
+  right: 15px;
+  cursor: pointer;
 }
 
 .help-label {

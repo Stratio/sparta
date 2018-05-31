@@ -38,3 +38,46 @@
     font-size: 15px;
   }
 }
+
+.debug-error {
+    margin: 12px 0;
+    margin-bottom: 10px;
+  .icon-alert {
+        line-height: 22px;
+    /* margin: 4px; */
+    float: left;
+    margin-right: 6px;
+  }
+  .debug-error-message {
+    color: #ff1744;
+    font-size: 15px;
+  }
+
+  .errors {
+   color: #444;
+   background: rgba(255, 255, 255, 0.3);
+   padding: 7px 12px;
+   border-left: 1px solid #efefef;
+   margin: 5px 0 18px 0px;
+   font-size: 14px;
+   width: 104%;
+   margin-left: -2%;
+   .val {
+      font-family: $egeo-nunito-sans-semiBold;
+   }
+   .icon {
+      font-size: 13px;
+   }
+   .message {
+      display: block;
+      margin-top: 8px;
+      margin-bottom: 3px;
+      font-family: $egeo-nunito-sans-semiBold;
+   }
+   .original-msg {
+      word-break: break-word;
+      font-size: 13px;
+   }
+}
+
+}

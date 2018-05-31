@@ -67,6 +67,9 @@ export class DebugEffect {
                new wizardActions.ShowNotificationAction(result.debugSuccessful ? {
                   type: 'success',
                   message: 'DEBUG_SUCCESS'
+               } : result.genericError && result.genericError.message ? {
+                  type: 'critical',
+                  message: 'DEBUG_GENERIC_FAIL'
                } : {
                      type: 'critical',
                      message: 'DEBUG_FAIL'

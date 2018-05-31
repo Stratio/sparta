@@ -4,16 +4,15 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 
-@Component({
-   selector: '[stTitle]',
-   styleUrls: ['./st-title.component.scss'],
-   templateUrl: './st-title.component.html'
+import { SpTitleComponent } from './sp-title.component';
+
+@NgModule({
+   declarations: [SpTitleComponent],
+   exports: [SpTitleComponent],
+   imports: [CommonModule]
 })
-export class StTitleComponent {
 
-   @Input() stTitle = '';
-
-   constructor() { }
-}
+export class SpTitleModule { }

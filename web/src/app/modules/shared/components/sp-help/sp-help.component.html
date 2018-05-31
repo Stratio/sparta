@@ -5,6 +5,7 @@
          <span class="help-label">{{'GLOBAL.HELP_TITLE' | translate}}</span>
       </div>
       <st-search (search)="search($event)"></st-search>
+      <span (click)="onCloseHelpMenu.emit()" class="icon-cross close-help"></span>
    </div>
    <div class="help-content">
       <perfect-scrollbar class="scroll-bar" style="max-width: 600px; max-height: 320px;" [config]="config" [scrollIndicators]="false">

@@ -142,7 +142,10 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       if (ask) {
          this._router.navigate(['templates', routeType, 'edit', templateId]);
       }
+   }
 
+   closeHelp() {
+      this.isShowedHelp = false;
    }
 
    getFormTemplate() {

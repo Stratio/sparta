@@ -111,7 +111,7 @@ export const getSelectedEntityData = createSelector(
   (selectedNode: WizardNode, debugResult: any, serverStepValidation: Array<any>) => {
     const entityData = selectedNode && debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
       ...selectedNode,
-      debugResult: debugResult && debugResult.steps && debugResult.steps[selectedNode.name]
+      debugResult: debugResult.steps[selectedNode.name]
     } : selectedNode;
 
     return {
@@ -124,10 +124,14 @@ export const getEditionConfig = createSelector(getWizardState, fromWizard.getEdi
 
 export const getEditionConfigMode = createSelector(
   getEditionConfig,
+  getDebugResult,
   getServerStepValidation,
-  (editionConfig: any, stepValidation) =>
+  (editionConfig: any, debugResult: any, stepValidation) =>
     editionConfig && editionConfig.isEdition ?
-      {...editionConfig, serverValidation: stepValidation[editionConfig.editionType.data.name]} : editionConfig
+      {...editionConfig,
+        serverValidation: stepValidation[editionConfig.editionType.data.name],
+        debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name]
+      } : editionConfig
   );
 
 // wizard

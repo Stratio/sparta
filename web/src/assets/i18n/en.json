@@ -643,14 +643,17 @@
       "TRANSACTIONSMANAGEMENT": "Error sinks",
       "SAVEACTIONMANAGEMENT": "Save Steps",
       "SETTINGS": "Workflow Settings",
+      "DEBUG_ERROR_DETAILS": "Debug error details",
+      "DEBUG_ERROR_DATE": "Date",
+      "DEBUG_ERROR_PHASE": "Phase",
       "MENU_SEARCH": "Search...",
       "VALIDATION_ERROR_1": "There is a validation error:",
       "VALIDATION_ERROR_N": "Validation errors:",
       "NO_VALIDATION_ERROR": "No validation errors.",
       "NODE_NAME_VALIDATION": "There is another node with the same name",
       "STEP_VALIDATIONS": "There are validation errors in one or more steps",
-      "OUTPUT_FIELDS": "Output fields",
-      "INPUT_FIELDS": "Input fields",
+      "OUTPUT_STEPS": "Output steps",
+      "INPUT_STEPS": "Input steps",
       "RELATIONS": {
         "DEFAULT": "Default relation",
         "VALIDDATA": "Valid data",
@@ -669,6 +672,7 @@
         "WORKFLOW_SAVE_SUCCESS": "Workflow has been saved succesfully",
         "DEBUG_SUCCESS": "Execution in debug mode has been successful",
         "DEBUG_FAIL": "The execution in debug mode has errors",
+        "DEBUG_GENERIC_FAIL": "There has been a generic error when executing the debug",
         "DEBUG_RUN": "Workflow debug mode is running"
       }
    },

@@ -11,34 +11,45 @@ import { WizardService } from '@app/wizard/services/wizard.service';
 import * as fromWizard from './../../reducers';
 
 @Component({
-    selector: 'wizard-details',
-    templateUrl: './wizard-details.template.html',
-    styleUrls: ['./wizard-details.styles.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+   selector: 'wizard-details',
+   templateUrl: './wizard-details.template.html',
+   styleUrls: ['./wizard-details.styles.scss'],
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WizardDetailsComponent implements OnInit, OnDestroy {
 
-    @Input() entityData: any;
+   @Input() entityData: any;
+   public templates: any = {};
+   public config = {};
+   public genericError: any;
 
-    private _workflowTypeSubscription: Subscription;
-    public templates: any = {};
-    public config = {};
-    constructor(private _cd: ChangeDetectorRef, private wizardService: WizardService, private _store: Store<fromWizard.State>, ) { }
+   private _workflowTypeSubscription: Subscription;
+   private _debugSubscription: Subscription;
 
-    ngOnInit() {
-        this._workflowTypeSubscription = this._store.select(fromWizard.getWorkflowType).subscribe((workflowType: string) => {
+   constructor(private _cd: ChangeDetectorRef, private wizardService: WizardService, private _store: Store<fromWizard.State>, ) { }
+
+   ngOnInit() {
+      this._workflowTypeSubscription = this._store.select(fromWizard.getWorkflowType)
+         .subscribe((workflowType: string) => {
             this.wizardService.workflowType = workflowType;
             this.templates = {
-                Input: this.wizardService.getInputs(),
-                Output: this.wizardService.getOutputs(),
-                Transformation: this.wizardService.getTransformations(),
+               Input: this.wizardService.getInputs(),
+               Output: this.wizardService.getOutputs(),
+               Transformation: this.wizardService.getTransformations(),
             };
             this._cd.markForCheck();
-        });
+         });
 
-    }
+      this._debugSubscription = this._store.select(fromWizard.getDebugResult)
+         .subscribe((debugResult: any) => {
+            this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
+            this._cd.markForCheck();
+         });
 
-    ngOnDestroy(): void {
-        this._workflowTypeSubscription && this._workflowTypeSubscription.unsubscribe();
-    }
+   }
+
+   ngOnDestroy(): void {
+      this._workflowTypeSubscription && this._workflowTypeSubscription.unsubscribe();
+      this._debugSubscription && this._debugSubscription.unsubscribe();
+   }
 }

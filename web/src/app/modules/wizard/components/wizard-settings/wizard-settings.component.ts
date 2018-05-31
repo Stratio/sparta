@@ -112,6 +112,9 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
       this.helpOptions = this._initializeSchemaService.getHelpOptions(this.advancedSettings[event].properties);
    }
 
+   closeHelp() {
+      this.isShowedHelp = false;
+   }
 
    constructor(private store: Store<fromWizard.State>,
       private _initializeSchemaService: InitializeSchemaService,

@@ -77,7 +77,7 @@ export class WizardNodeComponent implements OnInit {
    }
    set debugResult(value: any) {
       this._debugResult = value;
-      if (value && this._errorIconElement) {
+      if (this._errorIconElement) {
          this._getIcon(this._errorIconElement);
       }
    }

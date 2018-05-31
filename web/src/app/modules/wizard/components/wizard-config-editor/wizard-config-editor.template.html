@@ -23,7 +23,7 @@
       <button class="button button-primary" (click)="saveForm()" id="save-node-button">
          <span>{{'WIZARD.SAVE' | translate}}</span>
       </button>
-      <sp-help *ngIf="isShowedHelp" [xPos]="-346" [yPos]="10" [helpOptions]="helpOptions"></sp-help>
+      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" [xPos]="-346" [yPos]="10" [helpOptions]="helpOptions"></sp-help>
    </div>
    <div class="st-fullscreen-layout-content">
       <div class="node-edition">

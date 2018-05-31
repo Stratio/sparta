@@ -33,7 +33,8 @@ export function reducer(state: State = initialState, action: any): State {
       const debug = action.payload;
       const debugResult = {
         debugSuccessful: debug.debugSuccessful,
-        steps: {}
+        steps: {},
+        genericError: null
       };
       if (debug.stepErrors) {
         for (let nodeError in debug.stepErrors) {
@@ -48,6 +49,10 @@ export function reducer(state: State = initialState, action: any): State {
           step.result = debug.stepResults[nodeResult]
           debugResult.steps[nodeResult] = step;
         }
+      }
+
+      if (debug.genericError && debug.genericError.message) {
+        debugResult.genericError = debug.genericError;
       }
       return {
         ...state,

@@ -5,14 +5,16 @@
  */
 
 import {
-   AfterContentInit,
-   ChangeDetectionStrategy,
-   Component,
-   ElementRef,
-   Inject,
-   Input,
-   NgZone,
-   OnInit
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  Input,
+  NgZone,
+  OnInit,
+  Output
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
@@ -40,6 +42,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
    }
    @Input() xPos = 0;
    @Input() yPos = 0;
+   @Output() onCloseHelpMenu =  new EventEmitter();
 
    public definitionShowed: HelpOptions = null;
    public options: Array<HelpOptions> = [];

@@ -39,26 +39,26 @@
           <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options"
             (selectedOption)="selectedMenuOption($event)">
             <div id="create-node-menu" menu-action>
-              <button class="button button-toolbar" stTitle="Create node">
+              <button class="button button-toolbar" spTitle="Create node">
                   <i class="icon-plus"></i>
               </button>
             </div>
           </floating-menu>
           <div class="position-tools">
-            <button menu-action class="button button-toolbar" stTitle="Zoom in" (click)="onZoomIn.emit()" id="zoom-in-button">
+            <button menu-action class="button button-toolbar" spTitle="Zoom in" (click)="onZoomIn.emit()" id="zoom-in-button">
               <i class="icon-zoom-in"></i>
             </button>
-            <button menu-action class="button button-toolbar" stTitle="Zoom out" (click)="onZoomOut.emit()" id="zoom-out-button">
+            <button menu-action class="button button-toolbar" spTitle="Zoom out" (click)="onZoomOut.emit()" id="zoom-out-button">
               <i class="icon-zoom-out"></i>
             </button>
-            <button menu-action class="button button-toolbar" stTitle="Center workflow" (click)="onCenter.emit()" id="center-button">
+            <button menu-action class="button button-toolbar" spTitle="Center workflow" (click)="onCenter.emit()" id="center-button">
               <i class="icon-move"></i>
             </button>
-            <button menu-action [disabled]="!undoEnabled" stTitle="Undo action" class="undo-action button button-toolbar" (click)="undoAction()"
+            <button menu-action [disabled]="!undoEnabled" spTitle="Undo action" class="undo-action button button-toolbar" (click)="undoAction()"
               id="undo-button">
               <i class="icon-reload2"></i>
             </button>
-            <button menu-action [disabled]="!redoEnabled" stTitle="Redo action" class="button button-toolbar" (click)="redoAction()"
+            <button menu-action [disabled]="!redoEnabled" spTitle="Redo action" class="button button-toolbar" (click)="redoAction()"
               id="redo-button">
               <i class="icon-reload"></i>
             </button>
@@ -66,25 +66,25 @@
         </div>
         <div class="col-xs-6">
           <div style="float:left">
-            <button class="button button-toolbar" stTitle="Edit selected node" (click)="onEditEntity.emit()" *ngIf="isNodeSelected" id="edit-node-button">
+            <button class="button button-toolbar" spTitle="Edit selected node" (click)="onEditEntity.emit()" *ngIf="isNodeSelected" id="edit-node-button">
               <i class="icon-edit"></i>
             </button>
-            <button class="button button-toolbar" stTitle="Copy selected node" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected"
+            <button class="button button-toolbar" spTitle="Copy selected node" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected"
               id="copy-node-button">
               <i class="icon-copy2"></i>
             </button>
-            <button class="button button-toolbar" stTitle="Delete selected node" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || isEdgeSelected"
+            <button class="button button-toolbar" spTitle="Delete selected node" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || isEdgeSelected"
               id="delete-node-button">
               <i class="icon-trash"></i>
             </button>
           </div>
           <div class="" style="float:right">
-             <button [disabled]="isWorkflowDebugging" (click)="debugWorkflow()" id="debug-mode" stTitle="Run debug mode" class="button button-toolbar">
+             <button [disabled]="isWorkflowDebugging" (click)="debugWorkflow()" id="debug-mode" spTitle="Run debug mode" class="button button-toolbar">
               <i class="icon-input"></i>
             </button>
             <sp-popover [(active)]="showErrors">
               <div popover-link>
-                <button menu-action id="show-errors-button" stTitle="Show validation errors" class="button button-toolbar" [ngClass]="{'errors' : !validations.valid, 'selected-button' : showErrors}">
+                <button menu-action id="show-errors-button" spTitle="Show validation errors" class="button button-toolbar" [ngClass]="{'errors' : !validations.valid, 'selected-button' : showErrors}">
                   <i class="icon-alert"></i>
                 </button>
               </div>
@@ -106,10 +106,10 @@
                 </div>
               </div>
             </sp-popover>
-            <button stTitle="Show node info" class="button button-toolbar" id="sho-info-button" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
+            <button spTitle="Show node info" class="button button-toolbar" id="sho-info-button" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
                 <i class="icon-info1"></i>
             </button>
-            <button stTitle="Workflow settings" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
+            <button spTitle="Workflow settings" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
               <i class="icon-cog"></i>
             </button>
           </div>
