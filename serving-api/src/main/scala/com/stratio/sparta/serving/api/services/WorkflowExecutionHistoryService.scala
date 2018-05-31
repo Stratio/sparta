@@ -6,15 +6,15 @@
 
 package com.stratio.sparta.serving.api.services
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile
 
-import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.api.dao.ExecutionHistoryDaoImpl
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 
 //scalastyle:off
@@ -31,10 +31,21 @@ class WorkflowExecutionHistoryService extends SpartaSerializer with ExecutionHis
     Try(findByWorkflowId(id))
 }
 
-object WorkflowExecutionHistoryService {
+object WorkflowExecutionHistoryService extends SLF4JLogging {
 
   lazy val db = {
     val conf = ConfigFactory.parseString("poolName = queryExecutionPool").withFallback(SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))
-    Database.forConfig("", conf)
+    val dbconf = Database.forConfig("", conf)
+    Try(dbconf.createSession.conn) match {
+      case Success(con) => {
+        con.close
+      }
+      case Failure(f) => {
+        dbconf.close()
+        dbconf.shutdown
+        log.warn(s"Unable to connect to dataSource ${f.getMessage} ")
+      }
+    }
+    dbconf
   }
 }

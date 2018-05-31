@@ -99,6 +99,7 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
   }
 
   val host = ConfigFactory.parseString(hostConf).withFallback(ConfigFactory.parseString("sparta.postgres.executionHistory.table = execution_test"))
+    .withFallback(ConfigFactory.parseString("sparta.postgres.historyEnabled = true"))
 
   val conf = SpartaConfig.initSpartaPostgresConfig(Some(host))
 
