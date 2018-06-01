@@ -49,6 +49,12 @@ class CrossdataInputStepBatch(
         messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query is invalid", name)
       )
 
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
     validation
   }
 

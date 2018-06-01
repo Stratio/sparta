@@ -10,7 +10,9 @@ import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.actor.StatusHistoryActor._
 import com.stratio.sparta.serving.api.services.WorkflowStatusHistoryService
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.history.{WorkflowStatusHistory, WorkflowStatusHistoryDto}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import org.joda.time.DateTime
 
 class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with ActionUserAuthorize{
@@ -41,5 +43,15 @@ object StatusHistoryActor {
 
   case class FindByWorkflowId(id: String, user: Option[LoggedUser])
 
-
+  implicit def dbToStatus(workflowStatusHistory: WorkflowStatusHistory): WorkflowStatusHistoryDto = {
+    WorkflowStatusHistoryDto(
+      workflowId = workflowStatusHistory.workflowId,
+      status = workflowStatusHistory.status,
+      statusId = workflowStatusHistory.statusId,
+      statusInfo = workflowStatusHistory.statusInfo,
+      creationDate = workflowStatusHistory.creationDate.map(d => new DateTime(d)),
+      lastUpdateDate = workflowStatusHistory.lastUpdateDate.map(d => new DateTime(d)),
+      lastUpdateDateWorkflow = workflowStatusHistory.creationDate.map(d => new DateTime(d))
+    )
+  }
 }

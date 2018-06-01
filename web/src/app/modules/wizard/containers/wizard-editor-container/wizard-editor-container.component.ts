@@ -56,6 +56,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public edgeOptions: any;
    public isWorkflowDebugging: boolean;
    public debugResult: any;
+   public serverStepValidations: any;
 
    private _componentDestroyed = new Subject();
 
@@ -144,7 +145,12 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
             this.selectedEdge = edge;
             this._cd.markForCheck();
          });
-
+      this.store.select(fromWizard.getServerStepValidation)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((serverStepValidations: any) => {
+            this.serverStepValidations = serverStepValidations;
+            this._cd.markForCheck();
+         });
       this.store.select(fromWizard.getEdgeOptions)
          .takeUntil(this._componentDestroyed)
          .subscribe((edgeOptions: any) => {

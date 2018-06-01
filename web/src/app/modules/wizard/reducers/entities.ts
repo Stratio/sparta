@@ -137,19 +137,17 @@ export function reducer(state: State = initialState, action: any): State {
       }
       case wizardActions.GET_MENU_TEMPLATES_COMPLETE: {
          const menuOptions: any = _cloneDeep(state.menuOptions);
-         const type = [StepType.Input, StepType.Transformation, StepType.Output];
+         const types = [StepType.Input, StepType.Transformation, StepType.Output];
          menuOptions.forEach((option, index) => {
-            const templateGroup = action.payload[type[index].toLowerCase()];
-            if (!templateGroup.length) {
-               option.subMenus.splice(index, 1);
-            }
+            const templateGroup = action.payload[types[index].toLowerCase()];
+
             const templates = templateGroup.filter((template: any) =>
                template.executionEngine === state.workflowType)
                .map((template: any) => ({
                   name: template.name,
                   type: 'template',
                   data: template,
-                  stepType: type[index]
+                  stepType: types[index]
                }));
             if (templates && templates.length) {
                option.subMenus = [{

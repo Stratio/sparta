@@ -95,6 +95,7 @@
          "propertyType": "boolean",
          "default": true,
          "required": true,
+         "width": 12,
          "tooltip": "Execute the query when any, or both, of the steps are empty and no schema is provided. This is a useful feature when the query contains joins",
          "qa": "fragment-trigger-executeSqlWhenEmpty"
       }

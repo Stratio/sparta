@@ -7,17 +7,12 @@ package com.stratio.sparta.serving.api.service.http
 
 import java.util.UUID
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.TestProbe
-
-import scala.concurrent.duration._
-import akka.testkit._
-import akka.util.Timeout
+import akka.actor.ActorRef
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.sdk.models.{DebugResults, ResultStep}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
+import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.joda.time.DateTime
@@ -25,6 +20,8 @@ import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
+import com.stratio.sparta.serving.core.exception.ServerException
+
 
 import scala.util.{Failure, Success}
 
@@ -37,7 +34,6 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   override val supervisor: ActorRef = testProbe.ref
   override implicit val actors: Map[String, ActorRef] = Map.empty[String, ActorRef]
-  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
   val dummyUser = Some(LoggedUserConstant.AnonymousUser)
 
 
@@ -59,7 +55,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.DebugWorkflowsPath}/findById/$id") ~> routes(rootUser) ~> check {
+      Get(s"/${HttpConstant.DebugWorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
       }
@@ -91,21 +87,28 @@ class DebugWorkflowHttpServiceTest extends WordSpec
         testProbe.expectMsgType[GetResults]
       }
     }
-    "return the debug results of a workflow" ignore {
-      val schemaFake = StructType(StructField("name", StringType, false) ::
-        StructField("age", IntegerType, false) ::
-        StructField("year", IntegerType, true) :: Nil)
-      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep("Kafka", 0, Option(schemaFake.json),
-        Option(Seq("Gregor Samza, 28, 1915")))))
+    "return the debug results of a workflow" in {
+      val schemaFake= StructType(Seq(StructField("name", StringType, false),
+        StructField("age", IntegerType, false),
+        StructField("year", IntegerType, true))).json
+      val fakedResults = DebugResults(true, Map("Kafka" ->  ResultStep("Kafka", 0, Option(schemaFake),
+          Option(Seq("Gregor Samza, 28, 1915")))))
       startAutopilot(Left(Success(fakedResults)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
-        responseAs[DebugResults].debugSuccessful should equal(true)
+        responseAs[DebugResults].debugSuccessful should be (true)
+      }
+    }
+    "send that the results are unavailable" in {
+      startAutopilot(Left(Failure(new ServerException("no results yet"))))
+      Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[GetResults]
+        status should be(StatusCodes.EnhanceYourCalm)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(rootUser) ~> check {
+      Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
         status should be(StatusCodes.InternalServerError)
       }
@@ -125,6 +128,40 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       startAutopilot(Left(Failure(new MockException())))
       Post(s"/${HttpConstant.DebugWorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Run]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "WorkflowHttpService.deleteById" should {
+    "return an OK because the workflow was deleted" in {
+      startAutopilot(Left(Success(true)))
+      Delete(s"/${HttpConstant.DebugWorkflowsPath}/$id") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteById]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.DebugWorkflowsPath}/$id") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteById]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "WorkflowHttpService.deleteAll" should {
+    "return an OK because the workflow was deleted" in {
+      startAutopilot(Left(Success(true)))
+      Delete(s"/${HttpConstant.DebugWorkflowsPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteAll]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.DebugWorkflowsPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteAll]
         status should be(StatusCodes.InternalServerError)
       }
     }

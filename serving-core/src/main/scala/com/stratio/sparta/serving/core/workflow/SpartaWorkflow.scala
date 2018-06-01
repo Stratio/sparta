@@ -52,6 +52,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   private val classpathUtils = WorkflowHelper.classpathUtils
   private var steps = Seq.empty[GraphStep]
 
+  private var order = 0L
+
   /**
     * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
     * function because the steps variable is mutable and is initialized to empty value.
@@ -133,12 +135,11 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter(_.className.matches("Custom[\\w]*Step")) match {
       case Nil => Map[String, String]()
-      case x :: xs => {
+      case x :: xs =>
         val pluginsFiles = workflow.settings.global.userPluginsJars.map(_.jarPath.toString)
         JarsHelper.addJarsToClassPath(pluginsFiles)
         (x :: xs).map(jar => (jar.configuration.getString("customClassType"),
           s"com.stratio.sparta.${jar.configuration.getString("customClassType")}")).toMap
-      }
     }
 
     steps = workflow.pipelineGraph.nodes.map { node =>
@@ -171,21 +172,20 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     log.debug("Executing workflow")
 
+    order = 0L
+
     val nodesModel = workflow.pipelineGraph.nodes
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
     val nodeOrdering = graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
-      case (x, _) if x == InputStep.StepType => 1
+      case (x, y) if x == InputStep.StepType && y != InputStep.StepType => 1
       case (x, y) if x != InputStep.StepType && y == InputStep.StepType => -1
+      case (x, y) if x == InputStep.StepType && y == InputStep.StepType => nodeX.name.compare(nodeY.name) * -1
       case (x, y) if x == TransformStep.StepType && y == TransformStep.StepType =>
-        if (graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) 1
-        else if (graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) -1
-        else {
-          val xPredecessors = graph.get(nodeX).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
-          val yPredecessors = graph.get(nodeY).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
-
-          xPredecessors.compare(yPredecessors) * -1
-          //TODO check nodeX.name.compare(nodeY.name) * -1
-        }
+        val xAllInputs = graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
+        val yAllInputs = graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
+        if (xAllInputs && !yAllInputs) 1
+        else if (!xAllInputs && yAllInputs) -1
+        else nodeX.name.compare(nodeY.name) * -1
       case _ => 0
     })
     val parameters = Parameters(direction = Predecessors)
@@ -204,12 +204,25 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       .foreach { outputNode =>
         val newOutput = createOutputStep(outputNode)
         val outNodeGraph = graph.get(outputNode)
-        outNodeGraph.diPredecessors.toList.sortBy(node => node.name).foreach { predecessor =>
-          predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering)
-            .toList.reverse.foreach { node =>
+        val outputPredecessors = outNodeGraph.diPredecessors.toList
+
+        outputPredecessors.sortBy(node => node.name).foreach { predecessor =>
+          predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse.foreach { node =>
             createStep(node)
           }
+        }
 
+        val outputPredecessorsOrdered = outputPredecessors.sortBy { node =>
+          node.stepType.toLowerCase match {
+            case value if value == InputStep.StepType && graphContext.inputs.contains(node.name) =>
+              graphContext.inputs(node.name).order
+            case value if value == TransformStep.StepType && graphContext.transformations.contains(node.name) =>
+              graphContext.transformations(node.name).order
+            case _ => Long.MaxValue
+          }
+        }
+
+        outputPredecessorsOrdered.foreach { predecessor =>
           if (predecessor.stepType.toLowerCase == InputStep.StepType) {
             val phaseEnum = PhaseEnum.Write
             val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
@@ -217,7 +230,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
             errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
               inputs.find(_._1 == predecessor.name).foreach {
-                case (_, InputStepData(step, data, _)) =>
+                case (_, InputStepData(step, data, _, _)) =>
                   newOutput.writeTransform(
                     data,
                     step.outputOptions,
@@ -282,10 +295,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
             val input = createInputStep(node)
             val (data, schema) = input.initWithSchema()
-            val inputStepData = InputStepData(input, data, schema)
+            val inputStepData = InputStepData(input, data, schema, order)
+            order += 1
 
             schema.foreach(sc => data.registerAsTable(workflowContext.xDSession, sc, node.name))
             data.setStepName(inputIdentificationName(input), forced = true)
+
             graphContext.inputs += (input.name -> inputStepData)
           }
         }
@@ -314,9 +329,11 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
             discardedData.foreach(data => data.setStepName(transformIdentificationName(transform, DataType.DiscardedData), forced = false))
 
             graphContext.transformations += (node.name -> TransformStepData(
-              transform, validData, iPredecessorsNames ++ tPredecessorsNames, validSchema))
+              transform, validData, iPredecessorsNames ++ tPredecessorsNames, validSchema, order))
+            order += 1
             discardedData.foreach(data => graphContext.transformations += (discardedDataName -> TransformStepData(
-              transform, data, iPredecessorsNames ++ tPredecessorsNames, discardedSchema)))
+              transform, data, iPredecessorsNames ++ tPredecessorsNames, discardedSchema, order)))
+            order += 1
           }
         }
       case _ =>
@@ -483,7 +500,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val classType = node.configuration.getOrElse(CustomTypeKey, node.className).toString
-      val configuration = if(node.className.equalsIgnoreCase("DebugOutputStep")){
+      val configuration = if (node.className.equalsIgnoreCase("DebugOutputStep")) {
         val zkConfig = SpartaConfig.getZookeeperConfig match {
           case Some(config) => Map(
             ZKConnection -> JsoneyString(config.getString(ZKConnection)),
@@ -500,7 +517,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
         }
 
         node.configuration ++ zkConfig
-        } else node.configuration
+      } else node.configuration
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
@@ -517,13 +534,15 @@ case class TransformStepData[Underlying[Row]](
                                                step: TransformStep[Underlying],
                                                data: DistributedMonad[Underlying],
                                                predecessors: Seq[String],
-                                               schema: Option[StructType]
+                                               schema: Option[StructType],
+                                               order: Long
                                              )
 
 case class InputStepData[Underlying[Row]](
                                            step: InputStep[Underlying],
                                            data: DistributedMonad[Underlying],
-                                           schema: Option[StructType]
+                                           schema: Option[StructType],
+                                           order: Long
                                          )
 
 case class GraphContext[Underlying[Row]](graph: Graph[NodeGraph, LDiEdge],

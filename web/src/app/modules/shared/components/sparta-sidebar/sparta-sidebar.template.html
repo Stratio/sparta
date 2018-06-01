@@ -1,4 +1,5 @@
-<section class="sidebar-container" [ngClass]="isVisible ? 'show' : 'hide'">
+
+<section class="sidebar-container" [ngClass]="isVisible ? 'show' : 'hide'" *ngIf="loaded">
    <div class="sparta-sidebar" [ngClass]="{'scroll' : showScrollBar}" [style.minHeight.px]="minHeight">
         <div class="sidebar-header">
             <i class="icon icon-cross close-button" (click)="onCloseSidebar.emit()"></i>

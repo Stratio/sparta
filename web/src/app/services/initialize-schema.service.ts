@@ -6,9 +6,12 @@
 
 import { Injectable } from '@angular/core';
 import { writerTemplate } from 'data-templates/index';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class InitializeSchemaService {
+
+   constructor(private _translate: TranslateService) { }
 
    public static setDefaultWorkflowSettings(value: any): any {
       const model: any = {};
@@ -85,6 +88,34 @@ export class InitializeSchemaService {
          writer[prop.propertyId] = prop.default ? prop.default : null;
       });
       return writer;
+   }
+
+   getHelpOptions(template: any) {
+      return this.getSubProperties(template)
+         .filter(prop => prop.tooltip && prop.tooltip.length)
+         .map(prop => {
+            return {
+               label: this._translate.instant(prop.propertyName),
+               text: prop.tooltip,
+               sections: prop.propertyType === 'list' ? this.getHelpOptions(prop.fields) : null
+            };
+         });
+   }
+
+   getSubProperties(property: any) {
+      if (property.length) {
+         let props = [];
+         property.forEach(prop => {
+            if (prop.properties) {
+               props = props.concat(this.getSubProperties(prop.properties));
+            } else {
+               props.push(prop);
+            }
+         });
+         return props;
+      } else {
+         return [property];
+      }
    }
 }
 

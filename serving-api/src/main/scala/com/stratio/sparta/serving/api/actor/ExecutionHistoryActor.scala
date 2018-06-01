@@ -7,6 +7,8 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
 import akka.actor.Actor
 import org.joda.time.DateTime
@@ -14,6 +16,7 @@ import org.json4s.jackson.Serialization._
 
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.services.WorkflowExecutionHistoryService
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.history.{WorkflowExecutionHistory, WorkflowExecutionHistoryDto}
@@ -25,8 +28,16 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
 
   import ExecutionHistoryActor._
 
-  private val workflowExecutionHistoryService = new WorkflowExecutionHistoryService()
+  private lazy val workflowExecutionHistoryService = new WorkflowExecutionHistoryService()
   private val ResourceType = "workflow"
+
+  private lazy val enabled = Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)
+
+  override def preStart(): Unit = {
+    if (!enabled) {
+      log.warn(s"History is not enabled to execute queries")
+    }
+  }
 
   override def receive: Receive = {
     case QueryByWorkflowId(id, user) => queryByWorkflowId(id, user)
@@ -35,25 +46,47 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
 
   def queryByWorkflowId(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-        val result = workflowExecutionHistoryService.queryByWorkflowId(id)
-        val list = result.map(f => f.map(eh => eh.map(dbToExecution)))
-        list
+      if (enabled)
+        Try {
+          validateSlickFuture(workflowExecutionHistoryService.queryByWorkflowId(id))
+        }.getOrElse(
+          Failure(new RuntimeException(s"Unable to obtain workflow execution history data from database"))
+        )
+      else
+        Failure(new RuntimeException(s"History is not enabled to execute queries"))
     }
 
   def queryByUserId(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      val result = workflowExecutionHistoryService.queryByUserId(id)
-      val list = result.map(f => f.map(eh => eh.map(dbToExecution)))
-      list
+      if (enabled)
+        Try {
+          validateSlickFuture(workflowExecutionHistoryService.queryByUserId(id))
+        }.getOrElse(
+          Failure(new RuntimeException(s"Unable to obtain workflow execution history data from database"))
+        )
+      else
+        Failure(new RuntimeException(s"History is not enabled to execute queries"))
     }
+
+  private def validateSlickFuture(result: Try[Future[List[WorkflowExecutionHistory]]]) = {
+    val list = result.map(f => f.map(eh => eh.map(dbToExecution)).recover {
+      case e: Exception => {
+        log.warn(s"Unable to obtain data from database ${e.getMessage}")
+        throw new RuntimeException(s"Unable to obtain data from database ${e.getMessage}", e)
+      }
+    })
+    list
+  }
 }
 
 //scalastyle:off
 object ExecutionHistoryActor extends SpartaSerializer {
 
-  case class QueryByWorkflowId(workflowId: String, user: Option[LoggedUser])
+  class QueryByHistory(user: Option[LoggedUser])
 
-  case class QueryByUserId(userId: String, user: Option[LoggedUser])
+  case class QueryByWorkflowId(workflowId: String, user: Option[LoggedUser]) extends QueryByHistory(user)
+
+  case class QueryByUserId(userId: String, user: Option[LoggedUser]) extends QueryByHistory(user)
 
   implicit def dbToExecution(workflowExecutionHistory: WorkflowExecutionHistory): WorkflowExecutionHistoryDto = {
     WorkflowExecutionHistoryDto(

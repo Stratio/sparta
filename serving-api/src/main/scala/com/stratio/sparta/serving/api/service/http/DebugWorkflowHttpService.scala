@@ -13,23 +13,28 @@ import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
+import com.stratio.sparta.serving.api.actor.WorkflowActor.Response
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.wordnik.swagger.annotations._
 import spray.routing.Route
 import javax.ws.rs.Path
 import spray.http.StatusCodes
+
+import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.DebugWorkflowsPath, description = "Workflow debug utility")
 trait DebugWorkflowHttpService extends BaseHttpService {
 
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~ create(user) ~ run(user) ~
-    findById(user) ~ resultsById(user)
+    findById(user) ~ resultsById(user) ~ remove(user) ~ removeAll(user)
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
     DebugWorkflowServiceUnexpected,
     ErrorCodesMessages.getOrElse(DebugWorkflowServiceUnexpected, UnknownError)
   )
+
 
   @Path("")
   @ApiOperation(value = "Finds all debug workflows.",
@@ -60,10 +65,10 @@ trait DebugWorkflowHttpService extends BaseHttpService {
     httpMethod = "POST",
     response = classOf[DebugWorkflow])
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "workflow",
+    new ApiImplicitParam(name = "Debug workflow",
       defaultValue = "",
-      value = "workflow json",
-      dataType = "Workflow",
+      value = "debug workflow json",
+      dataType = "DebugWorkflow",
       required = true,
       paramType = "body")))
   def create(user: Option[LoggedUser]): Route = {
@@ -89,7 +94,7 @@ trait DebugWorkflowHttpService extends BaseHttpService {
     httpMethod = "POST")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
-      value = "id of the workflow",
+      value = "id of the debug workflow",
       dataType = "String",
       required = true,
       paramType = "path")
@@ -118,7 +123,7 @@ trait DebugWorkflowHttpService extends BaseHttpService {
     response = classOf[DebugWorkflow])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
-      value = "id of the workflow",
+      value = "id of the debug workflow",
       dataType = "String",
       required = true,
       paramType = "path")
@@ -146,7 +151,7 @@ trait DebugWorkflowHttpService extends BaseHttpService {
     response = classOf[ResponseResult])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
-      value = "id of the workflow",
+      value = "id of the debug workflow",
       dataType = "String",
       required = true,
       paramType = "path")
@@ -162,7 +167,69 @@ trait DebugWorkflowHttpService extends BaseHttpService {
           for {
             response <- (supervisor ? GetResults(id.toString, user))
               .mapTo[Either[ResponseResult, UnauthorizedResponse]]
-          } yield getResponse(context, DebugWorkflowServiceResultsFindById, response, genericError)
+          } yield {
+            response match {
+              case Left(Success(data)) =>
+                getResponse(context, DebugWorkflowServiceResultsFindByIdNotAvailable, response, genericError)
+              case Left(Failure(e: ServerException)) =>
+                context.complete( StatusCodes.EnhanceYourCalm,
+                  ErrorCodesMessages.getOrElse(DebugWorkflowServiceResultsFindByIdNotAvailable, UnknownError))
+              case _=>
+                getResponse(context, DebugWorkflowServiceResultsFindByIdNotAvailable, response, genericError)
+            }
+          }
+      }
+    }
+  }
+
+
+  @Path("")
+  @ApiOperation(value = "Deletes all debug workflows.",
+    notes = "Deletes all debug workflows.",
+    httpMethod = "DELETE")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def removeAll(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.DebugWorkflowsPath) {
+      pathEndOrSingleSlash {
+        delete {
+          complete {
+            for {
+              response <- (supervisor ? DeleteAll(user))
+                .mapTo[Either[Response, UnauthorizedResponse]]
+            } yield deletePostPutResponse(DebugWorkflowServiceDeleteAll, response, genericError, StatusCodes.OK)
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/{id}")
+  @ApiOperation(value = "Deletes a debug workflow from its id.",
+    notes = "Deletes a debug workflow from its id.",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the debug workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def remove(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.DebugWorkflowsPath / JavaUUID) { id =>
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeleteById(id.toString, user))
+              .mapTo[Either[Response, UnauthorizedResponse]]
+          } yield deletePostPutResponse(DebugWorkflowServiceDeleteById, response, genericError, StatusCodes.OK)
+        }
       }
     }
   }

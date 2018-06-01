@@ -59,6 +59,13 @@ class JdbcInputStepBatch(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"when TLS is enabled the sparkConf must contain the security options", name)
       )
+
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
     validation
   }
 

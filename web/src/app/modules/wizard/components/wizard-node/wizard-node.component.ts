@@ -37,6 +37,19 @@ export class WizardNodeComponent implements OnInit {
 
    @Input() data: WizardNode;
    @Input() createdNew: boolean;
+
+
+   @Input() get serverStepValidation(): string {
+      return this._serverStepValidation;
+   }
+   set serverStepValidation(value: string) {
+      this._serverStepValidation = value;
+      if (this._errorIconElement) {
+         this._getIcon(this._errorIconElement);
+      }
+   }
+
+
    @Input() get selected(): boolean {
       return this._selectedNode;
    }
@@ -46,6 +59,8 @@ export class WizardNodeComponent implements OnInit {
       }
       this._selectedNode = value;
    }
+
+
    @Input() get drawingConnectionStatus() {
       return this._drawingConectionStatus;
    }
@@ -55,15 +70,19 @@ export class WizardNodeComponent implements OnInit {
       }
       this._drawingConectionStatus = dstatus;
    }
+
+
    @Input() get debugResult(): any {
       return this._debugResult;
    }
    set debugResult(value: any) {
       this._debugResult = value;
-      if (value && this._errorIconElement) {
+      if (this._errorIconElement) {
          this._getIcon(this._errorIconElement);
       }
    }
+
+
    @Output() onDrawConnector = new EventEmitter<any>();
    @Output() onFinishConnector = new EventEmitter<any>();
 
@@ -76,6 +95,7 @@ export class WizardNodeComponent implements OnInit {
    private _drawingConectionStatus: DrawingConnectorStatus;
    private _selectedNode = false;
    private _debugResult: any;
+   private _serverStepValidation: string;
 
    constructor(elementRef: ElementRef, private utilsService: UtilsService, private _cd: ChangeDetectorRef, private _ngZone: NgZone) {
       this._cd.detach();
@@ -145,8 +165,8 @@ export class WizardNodeComponent implements OnInit {
 
       if (this.data.nodeTemplate) {
          nodeText.append('span')
-         .attr('class', 'template-label')
-         .text('T');
+            .attr('class', 'template-label')
+            .text('T');
       }
 
       nodeText.append('span').text(this.data.name);
@@ -165,7 +185,7 @@ export class WizardNodeComponent implements OnInit {
          .attr('y', 22)
          .style('font-size', '16')
          .text('');
-         this._getIcon(this._errorIconElement);
+      this._getIcon(this._errorIconElement);
 
    }
 
@@ -229,7 +249,7 @@ export class WizardNodeComponent implements OnInit {
    private _getIcon(iconElement: any) {
       let icon = '';
       let error = true;
-      if (this.data.hasErrors && !this.createdNew) {
+      if ((this.data.hasErrors || this._serverStepValidation) && !this.createdNew) {
          icon = '\uE613';
       } else if (this.debugResult) {
          if (this.debugResult.error) {

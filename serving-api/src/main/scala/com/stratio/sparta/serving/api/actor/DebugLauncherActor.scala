@@ -11,7 +11,6 @@ import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory.stopSparkContext
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
@@ -40,7 +39,7 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
       log.info(s"Starting workflow debug")
 
       if (workflow.executionEngine == Streaming)
-        contextService.localStreamingContext(workflow, jars, Option(AppConstant.DebugSparkWindow))
+        contextService.localStreamingContext(workflow, jars)
       if (workflow.executionEngine == Batch)
         contextService.localContext(workflow, jars)
 

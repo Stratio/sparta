@@ -163,6 +163,7 @@ object ErrorModel extends SpartaSerializer {
   val DebugWorkflowServiceDeleteById = "911"
   val DebugWorkflowServiceRun = "913"
   val DebugWorkflowServiceResultsFindById = "921"
+  val DebugWorkflowServiceResultsFindByIdNotAvailable = "922"
 
   /* history Service 950 - 975 */
   val WorkflowHistoryExecutionUnexpected = "950"
@@ -276,8 +277,9 @@ object ErrorModel extends SpartaSerializer {
     DebugWorkflowServiceDeleteAll -> "Error deleting all debug workflows",
     DebugWorkflowServiceDeleteById -> "Error deleting debug workflows by ID",
     DebugWorkflowServiceRun -> "Error running debug workflow",
+    DebugWorkflowServiceResultsFindByIdNotAvailable -> "Not found any debug result for that ID. Try again later",
     DebugWorkflowServiceResultsFindById -> "Error finding the debug results for that workflow ID",
-    WorkflowHistoryExecutionUnexpected ->"Unexpected behaviour in Workflow History Execution service",
+    WorkflowHistoryExecutionUnexpected -> "Unexpected behaviour in Workflow History Execution service",
     WorkflowHistoryExecutionFindByUserId -> "Error finding workflow History Execution by userId",
     WorkflowHistoryExecutionFindByWorkflowId -> "Error finding workflow History Execution by workflowId"
   )

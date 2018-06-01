@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{SparkDispatcherExecution, SparkExecution, Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{ExecutionService, SparkSubmitService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
@@ -39,7 +39,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
   private val errorMessage = s"An error was encountered while initializing Spark Contexts"
   private val okMessage = s"Spark Contexts created successfully"
 
-  def localStreamingContext(workflow: Workflow, files: Seq[File], timeout: Option[Long] = None): Unit = {
+  def localStreamingContext(workflow: Workflow, files: Seq[File]): Unit = {
     val errorManager = getErrorManager(workflow)
 
     errorManager.traceFunction(phase, okMessage, errorMessage) {
@@ -59,18 +59,16 @@ case class ContextsService(curatorFramework: CuratorFramework)
 
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
 
-    try {
-      spartaWorkflow.stages()
-      val ssc = getStreamingContext
+   try {
+     spartaWorkflow.stages()
+     val ssc = getStreamingContext
 
-      spartaWorkflow.setup()
-      ssc.start()
-      notifyWorkflowStarted(workflow)
-      timeout match {
-        case Some(time) => ssc.awaitTerminationOrTimeout(time)
-        case None => ssc.awaitTermination()
-      }
-    } finally {
+     spartaWorkflow.setup()
+     ssc.start()
+     notifyWorkflowStarted(workflow)
+     ssc.awaitTermination()
+   }
+    finally {
       spartaWorkflow.cleanUp()
     }
   }

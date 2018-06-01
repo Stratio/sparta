@@ -8,6 +8,6 @@ package com.stratio.sparta.sdk.enumerators
 object InputFormatEnum extends Enumeration {
 
   type Status = Value
-  val JSON, STRING, AVRO = Value
+  val JSON, STRING, AVRO, CSV, PARQUET = Value
 
 }

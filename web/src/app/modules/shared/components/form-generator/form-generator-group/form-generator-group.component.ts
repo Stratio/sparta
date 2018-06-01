@@ -43,6 +43,7 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
    @Input() public valueDictionary: any = {};
 
    @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
+   @Output() public changeGroup: EventEmitter<number> = new EventEmitter<number>();
    @ViewChild('groupForm') public groupForm: NgForm;
 
    public options: StHorizontalTab[] = [];
@@ -50,11 +51,11 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
    public formGroup: FormGroup;
    private stFormGroupSubcription: Subscription;
 
-
    constructor(private _cd: ChangeDetectorRef, private translate: TranslateService) { }
 
-   public changeFormOption($event: StHorizontalTab) {
-      this.activeOption = $event.id;
+   public changeFormOption(event: StHorizontalTab) {
+      this.activeOption = event.id;
+      this.changeGroup.emit(this.formData.findIndex((element) => element.name === event.id));
    }
 
    ngOnInit(): void {

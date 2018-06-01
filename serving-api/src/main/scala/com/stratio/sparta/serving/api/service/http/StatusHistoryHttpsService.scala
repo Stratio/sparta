@@ -5,18 +5,42 @@
  */
 package com.stratio.sparta.serving.api.service.http
 
+import javax.ws.rs.Path
+
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError, WorkflowHistoryExecutionUnexpected}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.wordnik.swagger.annotations.Api
-import spray.routing.Route
+import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistoryDto
+import com.wordnik.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}
+import spray.http.StatusCodes
+import spray.routing._
 
 @Api(value = HttpConstant.StatusHistoryPath, description = "Workflow status history", position = 0)
 trait StatusHistoryHttpsService extends BaseHttpService {
 
-  def findByWorkflowId(user: Option[LoggedUser]) = ???
-  def findByUser(user: Option[LoggedUser]) = ???
-
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    WorkflowHistoryExecutionUnexpected,
+    ErrorCodesMessages.getOrElse(WorkflowHistoryExecutionUnexpected, UnknownError)
+  )
 
   override def routes(user: Option[LoggedUser] = None): Route =
-    findByWorkflowId(user) ~ findByUser(user)
+    findAll(user) ~ findByWorkflowId(user)
+
+  @Path("/findAll")
+  @ApiOperation(value = "Finds all workflow status stored in Postgres.",
+    notes = "Returns a history of workflow statuses",
+    httpMethod = "GET",
+    response = classOf[Seq[WorkflowStatusHistoryDto]])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findAll(user: Option[LoggedUser]) = ???
+
+
+  def findByWorkflowId(user: Option[LoggedUser]) = ???
+
+
 }

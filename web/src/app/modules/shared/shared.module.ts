@@ -20,7 +20,8 @@ import { TableNotificationModule } from '@app/shared/components/table-notificati
 import { FormGeneratorModule } from '@app/shared/components/form-generator/form-generator.module';
 import { FormListModule } from '@app/shared/components/form-list/form-list.module';
 import { FormFieldModule } from '@app/shared/components/form-field/form-field.module';
-import { StTitleModule } from '@app/shared/components/st-title/st-title.module';
+import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
+import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
 
 @NgModule({
    exports: [
@@ -30,7 +31,8 @@ import { StTitleModule } from '@app/shared/components/st-title/st-title.module';
       SpInputModule,
       SpTextareaModule,
       SpSelectModule,
-      StTitleModule,
+      SpTitleModule,
+      SpHelpModule,
       FormGeneratorModule,
       FormFieldModule,
       FormListModule,
@@ -42,6 +44,7 @@ import { StTitleModule } from '@app/shared/components/st-title/st-title.module';
       FormListModule,
       FormFieldModule,
       FormGeneratorModule,
+      SpHelpModule,
       ReactiveFormsModule,
       SpInputModule,
       SpTextareaModule,

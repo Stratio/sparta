@@ -9,7 +9,6 @@ import com.stratio.sparta.sdk.models.{DebugResults, ResultStep, WorkflowError}
 import com.stratio.sparta.serving.core.actor.DebugStepDataPublisherActor._
 import com.stratio.sparta.serving.core.actor.DebugStepErrorPublisherActor._
 import com.stratio.sparta.serving.core.actor.DebugWorkflowPublisherActor._
-import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow

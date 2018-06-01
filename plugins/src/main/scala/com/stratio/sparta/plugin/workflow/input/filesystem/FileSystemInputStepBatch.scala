@@ -29,7 +29,8 @@ class FileSystemInputStepBatch(
                               ) extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties)
   with SLF4JLogging {
 
-  lazy val path: String = properties.getString("path", "").trim
+  lazy val pathKey = "path"
+  lazy val path: Option[String] = properties.getString(pathKey, None)
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 
@@ -40,6 +41,12 @@ class FileSystemInputStepBatch(
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"the path cannot be empty", name)
+      )
+
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
       )
 
     validation
@@ -53,7 +60,7 @@ class FileSystemInputStepBatch(
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(path.nonEmpty, "Input path cannot be empty")
 
-    val rdd = xDSession.sparkContext.textFile(path).map { text =>
+    val rdd = xDSession.sparkContext.textFile(path.get).map { text =>
       new GenericRowWithSchema(Array(text), outputSchema).asInstanceOf[Row]
     }
 

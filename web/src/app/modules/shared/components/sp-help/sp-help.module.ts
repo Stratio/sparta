@@ -3,16 +3,22 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { StSearchModule } from '@stratio/egeo';
+import { TranslateModule } from '@ngx-translate/core';
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 
-import { StTitleComponent } from './st-title.component';
+import { SpHelpComponent } from './sp-help.component';
 
 @NgModule({
-   declarations: [StTitleComponent],
-   exports: [StTitleComponent],
-   imports: [CommonModule]
+   imports: [
+     CommonModule,
+     StSearchModule,
+     TranslateModule,
+     PerfectScrollbarModule
+   ],
+   declarations: [SpHelpComponent],
+   exports: [SpHelpComponent]
 })
-
-export class StTitleModule { }
+export class SpHelpModule { }
