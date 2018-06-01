@@ -60,6 +60,7 @@ object AppConstant extends ZookeeperUtils {
 
   //Debug Options
   val DebugSparkWindow = 100
+  val maxDebugTimeout = 5000
 
   //Workflow
   val defaultWorkflowRelationSettings = WorkflowRelationSettings(DataType.ValidData)

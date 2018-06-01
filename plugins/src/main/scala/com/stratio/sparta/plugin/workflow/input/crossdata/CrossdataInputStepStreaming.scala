@@ -91,6 +91,12 @@ class CrossdataInputStepStreaming(
         messages = validation.messages :+ WorkflowValidationMessage(s"there are offset items with an incorrect definition", name)
       )
 
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
     validation
   }
 

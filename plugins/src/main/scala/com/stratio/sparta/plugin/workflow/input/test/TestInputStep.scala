@@ -77,6 +77,13 @@ abstract class TestInputStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"the number of events field cannot be empty", name)
       )
+
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
     validation
   }
 }

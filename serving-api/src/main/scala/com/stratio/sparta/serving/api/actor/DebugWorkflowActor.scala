@@ -37,6 +37,8 @@ class DebugWorkflowActor(
 
   override def receive: Receive = {
     case CreateDebugWorkflow(workflow, user) => createDebugWorkflow(workflow, user)
+    case DeleteById(id, user) => deleteByID(id, user)
+    case DeleteAll(user) => deleteAll(user)
     case Find(id, user) => find(id, user)
     case FindAll(user) => findAll(user)
     case GetResults(id, user) => getResults(id, user)
@@ -50,6 +52,16 @@ class DebugWorkflowActor(
       debugService.createDebugWorkflow(debugWorkflow)
     }
   }
+
+  def deleteByID(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> Delete)) {
+      debugService.deleteDebugWorkflowByID(id)
+    }
+
+  def deleteAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> Delete)) {
+      debugService.deleteAllDebugWorkflows
+    }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(
@@ -70,8 +82,9 @@ class DebugWorkflowActor(
     }
 
   def getResults(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceWorkflow -> View, ResourceStatus -> View),
-      Option(inMemoryDebugWorkflowApi)) {
+    securityActionAuthorizer( user, Map(ResourceWorkflow -> View, ResourceStatus -> View),
+      Option(inMemoryDebugWorkflowApi)
+    ) {
       FindMemoryDebugResultsWorkflow(id)
     }
 
@@ -89,6 +102,10 @@ object DebugWorkflowActor extends SLF4JLogging {
 
   case class FindAll(user: Option[LoggedUser])
 
+  case class DeleteById(id: String, user: Option[LoggedUser])
+
+  case class DeleteAll(user: Option[LoggedUser])
+
   case class GetResults(id: String, user: Option[LoggedUser])
 
   case class Run(id: String, user: Option[LoggedUser])
@@ -103,5 +120,7 @@ object DebugWorkflowActor extends SLF4JLogging {
   type ResponseRun = Try[DateTime]
 
   type ResponseAny = Try[Any]
+
+  type Response = Try[Unit]
 
 }

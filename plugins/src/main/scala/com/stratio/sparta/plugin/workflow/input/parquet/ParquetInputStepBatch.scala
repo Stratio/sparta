@@ -39,6 +39,12 @@ class ParquetInputStepBatch(
         messages = validation.messages :+ WorkflowValidationMessage(s"the input path cannot be empty", name)
       )
 
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
     validation
   }
 

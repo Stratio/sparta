@@ -293,6 +293,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }
 
+
   private val workflowHistoryService = new HistoryExecutionHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.WorkflowHistoryExecutionApiActorName)

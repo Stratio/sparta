@@ -7,14 +7,18 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.{Serializable => JSerializable}
 
+import com.google.common.io.Files
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.enumerators.InputFormatEnum
 import com.stratio.sparta.sdk.models.OutputOptions
-import com.stratio.sparta.sdk.properties.Parameterizable
+import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
+import org.json4s.jackson.Serialization._
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 
@@ -41,6 +45,31 @@ abstract class InputStep[Underlying[Row]](
     val storageLevel = properties.getString("storageLevel", StorageDefaultValue)
     StorageLevel.fromString(storageLevel)
   }
+
+
+  lazy val debugOptions: Option[DebugOptions] = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    properties.getString("debugOptions", None).map{ debug =>
+      read[DebugOptions](debug)
+    }
+  }
+
+  lazy val (debugPath, debugQuery, debugUserProvidedExample): (Option[String], Option[String],Option[String]) =
+    debugOptions.map(debugOpt =>
+      (debugOpt.path.notBlank, debugOpt.query.notBlank, debugOpt.userProvidedExample.notBlank))
+      .getOrElse((None, None,None))
+
+  lazy val fileExtension: Option[String] = debugPath.map(Files.getFileExtension)
+
+  lazy val serializerForInput: Option[InputFormatEnum.Value] =
+    if (fileExtension.isDefined)
+      Try(InputFormatEnum.withName(fileExtension.get.toUpperCase)).map(Some(_)).getOrElse(None)
+    else None
+
+  lazy val validDebuggingOptions = debugPath.isDefined || debugQuery.isDefined || debugUserProvidedExample.isDefined
+
+  val errorDebugValidation = "Either an input path or a user-defined example " +
+    "or a valid query to execute must be provided inside the debugging options"
 
   def initWithSchema(): (DistributedMonad[Underlying], Option[StructType]) = {
     val monad = init()

@@ -546,7 +546,7 @@
    "_KEY_": "Name",
    "_VALUE_": "Value",
    "_INPUTS_TRIGGER_SCHEMA_": "Provides steps schema",
-   "_EXECUTE_WHEN_EMPTY_": "Execute query when is not possible to obtains schema",
+   "_EXECUTE_WHEN_EMPTY_": "Execute query when is not possible to obtain schema",
    "_INPUT_STEP_NAME_" : "Step name",
    "_COLUMNS_TO_DROP_" : "Columns to delete",
    "_COLUMNS_TO_RENAME_" : "Columns to Rename",

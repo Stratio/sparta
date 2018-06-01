@@ -40,6 +40,42 @@ class DebugWorkflowService(
       storedWorkflow
     }
 
+  def deleteDebugWorkflowByID(id: String): Try[Unit] = {
+    log.debug(s"Deleting workflow with id: $id")
+    Try {
+      val debugWorkflowPath = s"$DebugWorkflowZkPath/$id"
+
+      if (CuratorFactoryHolder.existsPath(debugWorkflowPath)) {
+        curatorFramework.delete().forPath(s"$DebugWorkflowZkPath/$id")
+      } else throw new ServerException(s"No debug workflow with id $id")
+    }
+  }
+
+  def deleteAllDebugWorkflows: Try[Unit] = {
+    log.debug(s"Deleting all existing workflows")
+    Try {
+      val debugWorkflowPath = s"$DebugWorkflowZkPath"
+
+      if (CuratorFactoryHolder.existsPath(debugWorkflowPath)) {
+        val children = curatorFramework.getChildren.forPath(debugWorkflowPath)
+        val workflows = JavaConversions.asScalaBuffer(children).toList.map(workflow =>
+          read[DebugWorkflow](new String(curatorFramework.getData.forPath(
+            s"$debugWorkflowPath/$workflow")))
+        )
+
+        try {
+          workflows.foreach(workflow => deleteDebugWorkflowByID(workflow.workflowOriginal.id.get))
+          log.debug(s"All workflows deleted")
+        } catch {
+          case e: Exception =>
+            log.error("Error deleting debug workflows. The debug workflows deleted will be rolled back", e)
+            Try(workflows.foreach(workflow => createDebugWorkflow(workflow)))
+            throw new RuntimeException("Error deleting debug workflows", e)
+        }
+      }
+    }
+  }
+
   def findByID(id: String): Try[DebugWorkflow] =
     Try {
       val debugWorkflowLocation = s"$DebugWorkflowZkPath/$id"
@@ -155,7 +191,7 @@ class DebugWorkflowService(
           if (element.contains(id))
             Try {
               val resultStep = read[ResultStep](
-                new String(curatorFramework.getData.forPath(s"$DebugStepErrorZkPath/$element")))
+                new String(curatorFramework.getData.forPath(s"$DebugStepDataZkPath/$element")))
               resultStep.step -> resultStep
             }.toOption
           else None

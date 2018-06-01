@@ -10,7 +10,7 @@ import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.enumerators.WhenError
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}
 
 case class DebugWorkflow(
                           workflowOriginal: Workflow,
@@ -18,13 +18,10 @@ case class DebugWorkflow(
                           result: Option[DebugResults]
                         ) {
 
-  //private val inputClassName = "DummyDebugInputStep"
-  private val inputClassName = "TestInputStep"
-  //private val inputPrettyClassName = "DummyDebug"
-  private val inputPrettyClassName = "Test"
+  private val inputClassName = "DummyDebugInputStep"
+  private val inputPrettyClassName = "DummyDebug"
   private val outputDebugName = "output_debug"
   private val sparkWindow = s"${AppConstant.DebugSparkWindow}ms"
-  private val maxDebugTimeout = "5000"
   private val debugOutputNode = NodeGraph(
     name = outputDebugName,
     stepType = OutputStep.StepType,
@@ -56,7 +53,10 @@ case class DebugWorkflow(
   }
 
   private[workflow] def globalDebugSettings(): GlobalSettings =
-    workflowOriginal.settings.global.copy(mesosConstraint = None, mesosConstraintOperator = None)
+    workflowOriginal.settings.global.copy(
+      mesosConstraint = None,
+      mesosConstraintOperator = None,
+      executionMode = WorkflowExecutionMode.local)
 
   private[workflow] def streamingDebugSettings(): StreamingSettings = {
     import workflowOriginal.settings.streamingSettings
@@ -69,7 +69,7 @@ case class DebugWorkflow(
       backpressureMaxRate = None,
       blockInterval = Option(JsoneyString(sparkWindow)),
       stopGracefully = Option(true),
-      stopGracefulTimeout = Option(JsoneyString(maxDebugTimeout)),
+      stopGracefulTimeout = Option(JsoneyString(AppConstant.maxDebugTimeout.toString)),
       checkpointSettings = streamingSettings.checkpointSettings.copy(enableCheckpointing = false)
     )
   }
@@ -108,12 +108,7 @@ case class DebugWorkflow(
       node.stepType.toLowerCase match {
         case InputStep.StepType => Option(node.copy(
           className = s"$inputClassName${workflowOriginal.executionEngine}",
-          classPrettyName = inputPrettyClassName,
-          configuration = Map(
-            "event" -> JsoneyString("""{"name":"jc", "age":33}""""),
-            "numEvents" -> JsoneyString("1")
-          )
-        )
+          classPrettyName = inputPrettyClassName)
         )
         case OutputStep.StepType => None
         case _ => Option(node)

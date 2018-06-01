@@ -26,6 +26,7 @@
         - Select columns with alias configuration mode 
     - Explode transformation:
         - Change the implementation to Spark functions
+    - Debugging options added for simulated data in each input
 
 * Bug fixing:
     - Prevent the max size in marathon applications
