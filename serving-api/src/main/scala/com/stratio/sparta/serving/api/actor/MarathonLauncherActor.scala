@@ -86,7 +86,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"
         log.error(information, exception)
-        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
+        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
@@ -114,7 +114,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
             executionService.setSparkUri(workflow.id.get, sparkUri)
           case Failure(exception) =>
             val information = s"An error was encountered while launching the Workflow App in the Marathon API"
-            val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
+            val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
               status = Failed,

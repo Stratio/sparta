@@ -10,9 +10,10 @@ import java.util.Date
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 
 case class WorkflowError(
-                               message: String,
-                               phase: PhaseEnum.Value,
-                               originalMsg: String,
-                               date: Date = new Date,
-                               step: Option[String] = None
-                             )
+                          message: String,
+                          phase: PhaseEnum.Value,
+                          exceptionMsg: String,
+                          localizedMsg: String,
+                          date: Date = new Date,
+                          step: Option[String] = None
+                        )

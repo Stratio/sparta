@@ -90,7 +90,7 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
       case Failure(exception) =>
         val information = s"Error initiating the workflow"
         log.error(information, exception)
-        val error = WorkflowError(information, PhaseEnum.Execution, exception.toString)
+        val error = WorkflowError(information, PhaseEnum.Execution, exception.toString, exception.getCause.getMessage)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,

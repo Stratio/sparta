@@ -60,7 +60,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                 case Failure(exception) =>
                   val error = s"Problems encountered while killing workflow with Spark Handler"
                   log.warn(error)
-                  val wError = WorkflowError(error, PhaseEnum.Stop, exception.toString)
+                  val wError = WorkflowError(error, PhaseEnum.Stop, exception.toString, exception.getCause.getMessage)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
                     status = Failed,

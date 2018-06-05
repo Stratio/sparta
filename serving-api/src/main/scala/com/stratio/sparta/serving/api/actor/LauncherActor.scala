@@ -84,7 +84,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
         case Failure(exception) =>
           val information = s"Error launching workflow with the selected execution mode"
           log.error(information)
-          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString)
+          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
           statusService.update(WorkflowStatus(
             id = id,
             status = Failed,
@@ -123,7 +123,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
           val information = s"Error debugging workflow with the selected execution mode"
           log.error(information)
           debugWorkflowService.setSuccessful(id, state = false)
-          debugWorkflowService.setError(id, Option(WorkflowError(information, PhaseEnum.Launch, exception.toString)))
+          debugWorkflowService.setError(id, Option(WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)))
           throw exception
       }
     }

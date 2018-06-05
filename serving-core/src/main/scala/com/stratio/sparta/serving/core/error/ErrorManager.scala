@@ -57,8 +57,7 @@ trait ErrorManager extends SLF4JLogging {
                               message: String,
                               step: Option[String] = None
                             ): Throwable = {
-    val originalMsg = exception.toString
-    val workflowError = WorkflowError(message, code, originalMsg, new Date, step)
+    val workflowError = WorkflowError(message, code, exception.toString, exception.getCause.getMessage, new Date, step)
     log.error("An error was detected : {}", workflowError)
     Try {
       traceError(workflowError)

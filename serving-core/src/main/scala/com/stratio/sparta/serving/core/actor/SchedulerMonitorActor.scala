@@ -220,7 +220,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val error = "An error was encountered while stopping contexts"
           log.error(error, e)
           if (workflowStatus.status != Failed) {
-            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
+            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString, e.getCause.getMessage)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
@@ -273,7 +273,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val error = "An error was encountered while sending a stop message to Marathon API"
           log.error(error, e)
           if (workflowStatus.status != Failed) {
-            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
+            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString, e.getCause.getMessage)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
@@ -318,7 +318,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           log.debug(s"Failed response: $submissionResponse")
           val information = s"Error while stopping task"
           log.info(information)
-          val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error))
+          val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error, error))
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
@@ -328,7 +328,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         case Failure(e) =>
           val error = "Impossible to parse submission killing response"
           log.error(error, e)
-          val wError = WorkflowError(error, PhaseEnum.Stop, e.toString)
+          val wError = WorkflowError(error, PhaseEnum.Stop, e.toString, e.getCause.getMessage)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,

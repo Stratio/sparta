@@ -58,7 +58,7 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         debugWorkflowService.setSuccessful(workflow.id.get, state = false)
         debugWorkflowService.setError(
           workflow.id.get,
-          Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          Option(WorkflowError(information, PhaseEnum.Execution, exception.toString, exception.getCause.getMessage))
         )
         self ! PoisonPill
     }
