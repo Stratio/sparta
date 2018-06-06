@@ -6,13 +6,18 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
+import scala.concurrent.ExecutionContext.Implicits.global
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.actor.StatusHistoryActor._
 import com.stratio.sparta.serving.api.services.WorkflowStatusHistoryService
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.history.{WorkflowStatusHistory, WorkflowStatusHistoryDto}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.joda.time.DateTime
+
+import scala.concurrent.Future
+import scala.util.{Failure, Try}
 
 class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with ActionUserAuthorize{
@@ -20,26 +25,43 @@ class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityMana
   private val ResourceType = "workflow"
   private val statusHistoryService = new WorkflowStatusHistoryService()
 
-  override def receive: Receive = {
-    case FindAll(user) => sender ! findAll(user)
-    case FindByWorkflowId(id, user) => sender ! findByWorkflowId(id, user)
+  private lazy val enabled = Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)
+
+  override def preStart(): Unit = {
+    if (!enabled) {
+      log.warn("History is not enabled. Impossible to execute queries")
+    }
   }
 
-  def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      statusHistoryService.findAll()
-    }
+  override def receive: Receive = {
+    case FindByWorkflowId(id, user) => findByWorkflowId(id, user)
+  }
 
   def findByWorkflowId(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      statusHistoryService.findByWorkflowId(id)
+      if(enabled)
+        Try{
+          validateSlickFuture(statusHistoryService.findAllStatusByWorkflowId(id))
+        }.getOrElse(
+          Failure(new RuntimeException("Unable to obtain workflow status history data from database"))
+        )
+      else
+          Failure(new RuntimeException("History is not enable. Impossible to execute queries"))
     }
+
+  private def validateSlickFuture(result: Try[Future[List[WorkflowStatusHistory]]]) = {
+    val list = result.map(f => f.map(sh => sh.map(dbToStatus)).recover {
+      case e: Exception => {
+        log.warn(s"Unable to obtain data from database ${e.getMessage}")
+        throw new RuntimeException(s"Unable to obtain data from database ${e.getMessage}", e)
+      }
+    })
+    list
+  }
 }
 
 //scalastyle:off
 object StatusHistoryActor {
-
-  case class FindAll(user: Option[LoggedUser])
 
   case class FindByWorkflowId(id: String, user: Option[LoggedUser])
 

@@ -36,6 +36,8 @@ class StatusHistoryListenerActor(val profileHistory: JdbcProfile, val config: Co
         conn.close()
       case Failure(x) =>
         log.error(s"Unable to connect to Postgres database: ${x.getMessage}", x)
+        db.close()
+        db.shutdown
         self ! PoisonPill
     }
   }

@@ -7,28 +7,44 @@ package com.stratio.sparta.serving.api.services
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.dao.StatusHistoryDaoImpl
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistoryDto
+import com.typesafe.config.ConfigFactory
+import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.PostgresProfile
 
-import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
+//scalastyle:off
 class WorkflowStatusHistoryService extends SpartaSerializer
   with SLF4JLogging
   with StatusHistoryDaoImpl{
 
   val profile = PostgresProfile
 
-  import profile.api._
+  override val db = WorkflowExecutionHistoryService.db
 
-  def findAllStatus(): Try[Future[Seq[WorkflowStatusHistoryDto]]] = {
-    log.debug(s"Finding all status history entries")
-    Try(findAll())
-  }
-
-  def findAllStatusByWorkflowId(id: String): Try[Future[Seq[WorkflowStatusHistoryDto]]] = {
+  def findAllStatusByWorkflowId(id: String) = {
     log.debug(s"Finding all status history entries with workflow id: $id")
     Try(findByWorkflowId(id))
+  }
+}
+
+object WorkflowStatusHistoryService extends SLF4JLogging {
+  lazy val db = {
+    val conf = ConfigFactory.parseString("poolName = queryExecutionPool")
+      .withFallback(SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load()))
+    val dbconf = Database.forConfig("", conf)
+    Try(dbconf.createSession.conn) match {
+      case Success(con) => {
+        con.close()
+      }
+      case Failure(f) => {
+        dbconf.close()
+        dbconf.shutdown
+        log.warn(s"Unable to connect to dataSource ${f.getMessage} ")
+      }
+    }
+    dbconf
   }
 }

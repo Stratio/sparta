@@ -35,7 +35,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
 
   override def preStart(): Unit = {
     if (!enabled) {
-      log.warn(s"History is not enabled to execute queries")
+      log.warn(s"History is not enabled. Impossible to execute queries")
     }
   }
 
@@ -65,7 +65,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
           Failure(new RuntimeException(s"Unable to obtain workflow execution history data from database"))
         )
       else
-        Failure(new RuntimeException(s"History is not enabled to execute queries"))
+        Failure(new RuntimeException(s"History is not enabled. Impossible to execute queries"))
     }
 
   private def validateSlickFuture(result: Try[Future[List[WorkflowExecutionHistory]]]) = {
