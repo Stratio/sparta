@@ -70,12 +70,13 @@ case class SparkConf(
                       sparkUser: Option[JsoneyString] = None,
                       sparkLocalDir: Option[JsoneyString] = None,
                       executorDockerImage: Option[JsoneyString] = Option(JsoneyString(
-                        "qa.stratio.com/stratio/stratio-spark:2.2.0.5")),
+                        "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0")),
                       sparkKryoSerialization: Option[Boolean] = None,
                       sparkSqlCaseSensitive: Option[Boolean] = None,
                       logStagesProgress: Option[Boolean] = None,
                       hdfsTokenCache: Option[Boolean] = None,
-                      executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"))
+                      executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString(
+                        "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"))
                     )
 
 case class SparkResourcesConf(

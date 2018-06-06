@@ -12,7 +12,7 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.SparkConf
 import org.apache.spark.security.VaultHelper._
 
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 object SecurityHelper extends SLF4JLogging {
 
@@ -121,7 +121,13 @@ object SecurityHelper extends SLF4JLogging {
           "spark.mesos.driverEnv.VAULT_PROTOCOL" -> "https"
         ) ++ {
           if (vaultToken.isDefined && !useDynamicAuthentication)
-            Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> getTemporalToken)
+            getTemporalToken match {
+              case Success(token) =>
+                Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> token)
+              case Failure(x) =>
+                log.error("The temporal token could not be retrieved")
+                Map.empty[String, String]
+            }
           else Map.empty[String, String]
         }
       case _ =>

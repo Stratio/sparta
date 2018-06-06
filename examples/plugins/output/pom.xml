@@ -13,7 +13,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <scala.binary.version>2.11</scala.binary.version>
-        <stratio.spark.version>2.2.0.5</stratio.spark.version>
+        <stratio.spark.version>1.0.0-e3622dd</stratio.spark.version>
     </properties>
 
     <dependencies>
@@ -25,19 +25,19 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
             <version>${stratio.spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
             <version>${stratio.spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <artifactId>spark-sql-${apache.spark.version}_${scala.binary.version}</artifactId>
             <version>${stratio.spark.version}</version>
             <scope>provided</scope>
         </dependency>

@@ -19,17 +19,17 @@ This software – including all its source code – contains proprietary informa
     <dependencies>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <artifactId>spark-sql-${apache.spark.version}_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

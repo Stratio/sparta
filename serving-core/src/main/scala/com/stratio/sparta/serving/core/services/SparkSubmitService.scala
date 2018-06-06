@@ -25,7 +25,7 @@ import com.typesafe.config.Config
 import org.apache.spark.security.VaultHelper._
 
 import scala.collection.JavaConversions._
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
@@ -152,7 +152,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkMemoryFraction.notBlank,
       SubmitExecutorDockerImageConf -> workflow.settings.sparkSettings.sparkConf.executorDockerImage.notBlank
-        .orElse(Option("qa.stratio.com/stratio/stratio-spark:2.2.0.5")),
+        .orElse(Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0")),
       SubmitExecutorDockerVolumeConf -> Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
         "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
         "/etc/pki/ca-trust/extracted/java/cacerts/:" +
@@ -243,7 +243,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val vaultHost = Properties.envOrNone("VAULT_HOSTS").notBlank
     val vaultPort = Properties.envOrNone("VAULT_PORT").notBlank
     val vaultToken = Properties.envOrNone("VAULT_TOKEN").notBlank
-    val securityProperties = (vaultHost, vaultPort) match {
+    val securityProperties: Map[String, String] = (vaultHost, vaultPort) match {
       case (Some(host), Some(port)) =>
         Map(
           "spark.mesos.driverEnv.VAULT_HOSTS" -> host,
@@ -252,7 +252,13 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
           "spark.mesos.driverEnv.VAULT_PROTOCOL" -> "https"
         ) ++ {
           if (vaultToken.isDefined && !useDynamicAuthentication)
-            Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> getTemporalToken)
+            getTemporalToken match {
+              case Success(token) =>
+                Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> token)
+              case Failure(x) =>
+                log.error("The temporal token could not be retrieved")
+                Map.empty[String, String]
+            }
           else Map.empty[String, String]
         }
       case _ =>

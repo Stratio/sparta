@@ -16,6 +16,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.services.SparkSubmitService.spartaTenant
 import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
+import org.apache.spark.scheduler.KerberosUser
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -43,6 +44,7 @@ object SparkContextFactory extends SLF4JLogging {
     val hdfsConfig = SpartaConfig.getHdfsConfig
     (HdfsService.getPrincipalName(hdfsConfig).notBlank, HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
       case (Some(principal), Some(keyTabPath)) =>
+        KerberosUser.securize(principal, keyTabPath)
         Seq(
           ("spark.mesos.kerberos.keytabBase64", DatatypeConverter.printBase64Binary(
             Files.readAllBytes(Paths.get(keyTabPath)))),

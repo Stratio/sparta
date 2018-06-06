@@ -136,7 +136,7 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
@@ -175,15 +175,15 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-sql_${scala.binary.version}</artifactId>
+            <artifactId>spark-sql-${apache.spark.version}_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-mesos_${scala.binary.version}</artifactId>
+            <artifactId>spark-mesos-${apache.spark.version}_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.crossdata</groupId>
@@ -191,7 +191,7 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -283,6 +283,10 @@ This software – including all its source code – contains proprietary informa
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
         </dependency>
     </dependencies>
 </project>

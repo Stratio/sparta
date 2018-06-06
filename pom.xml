@@ -92,13 +92,14 @@ This software – including all its source code – contains proprietary informa
         <scalaj.version>2.3.0</scalaj.version>
         <stratio.common.utils.version>0.6.0</stratio.common.utils.version>
         <commons-configuration.version>1.6</commons-configuration.version>
-        <stratio.spark.version>2.2.0.5</stratio.spark.version>
+        <apache.spark.version>2.2.0</apache.spark.version>
+        <stratio.spark.version>1.0.0-e3622dd</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <sparta.dyplon.version>0.15.0-SNAPSHOT</sparta.dyplon.version>
         <crossdata.dyplon.version>0.14.1</crossdata.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.12.0</crossdata.version>
+        <crossdata.version>2.13.0-M3</crossdata.version>
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
@@ -335,7 +336,7 @@ This software – including all its source code – contains proprietary informa
             <!-- Spark -->
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-launcher_${scala.binary.version}</artifactId>
+                <artifactId>spark-launcher-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -354,7 +355,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-mesos_${scala.binary.version}</artifactId>
+                <artifactId>spark-mesos-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -373,7 +374,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-core_${scala.binary.version}</artifactId>
+                <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -392,7 +393,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-core_${scala.binary.version}</artifactId>
+                <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -412,7 +413,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-sql_${scala.binary.version}</artifactId>
+                <artifactId>spark-sql-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -431,7 +432,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -450,7 +451,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
