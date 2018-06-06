@@ -33,7 +33,6 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
       .validateExistenceCorrectPath
       .validateDuplicateNames
       .validateCheckpointCubes
-      .validateExecutionMode
       .validateDeployMode
       .validateSparkCores
       .validateMesosConstraints
@@ -77,7 +76,6 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
     val validationResult = new WorkflowValidation()
       .validateExistenceCorrectPath
       .validateErrorOutputs
-      .validateExecutionMode
       .validateDeployMode
       .validateSparkCores
       .validateMesosConstraints

@@ -9,7 +9,7 @@ import com.stratio.sparta.sdk.models.{DebugResults, ErrorsManagement}
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.enumerators.WhenError
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep}
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}
 
 case class DebugWorkflow(
@@ -29,10 +29,7 @@ case class DebugWorkflow(
     classPrettyName = "Debug",
     arity = Seq(NodeArityEnum.NullaryToNullary, NodeArityEnum.NaryToNullary),
     writer = WriterGraph(),
-    configuration = Map(
-      "printMetadata" -> JsoneyString("true"),
-      "printData" -> JsoneyString("true")
-    )
+    configuration = Map.empty
   )
 
   def transformToWorkflowRunnable: Workflow = {
@@ -92,7 +89,6 @@ case class DebugWorkflow(
     import workflowOriginal.settings.sparkSettings
 
     sparkSettings.copy(
-      master = JsoneyString(AppConstant.SparkLocalMaster),
       sparkKerberos = false,
       sparkMesosSecurity = false,
       killUrl = None,

@@ -121,9 +121,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     uploadedPlugins ++ userPlugins ++ JarsHelper.getJdbcDriverPaths
   }
 
-  def getSparkLocalWorkflowConfig: Map[String, String] = {
-    SparkSubmitService.getSparkLocalConfig ++ getUserSparkConfig
-  }
+  def getSparkLocalWorkflowConfig: Map[String, String] = getUserSparkConfig
 
   /** Private Methods **/
 
@@ -216,7 +214,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod)  ++ getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod)++ getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
 
   //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =
@@ -354,7 +352,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def addAppNameConf(sparkConfs: Map[String, String]): Map[String, String] =
     if (!sparkConfs.contains(SubmitAppNameConf)) {
-      sparkConfs ++ Map(SubmitAppNameConf -> s"${workflow.name}")
+      val appName = s"${workflow.group.name.replaceFirst("/", "").replaceAll("/", "-")}-${workflow.name}-v${workflow.version}"
+      sparkConfs ++ Map(SubmitAppNameConf -> appName)
     } else sparkConfs
 
   private[core] def driverLocation(driverPath: String): String = {
@@ -430,9 +429,8 @@ object SparkSubmitService {
   lazy val spartaTenant = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
     Properties.envOrElse("TENANT_NAME", "sparta"))
   lazy val spartaLocalAppName = s"$spartaTenant-spark-standalone"
-
-  lazy val extraSparJarsPath = Try(SpartaConfig.crossdataConfig.get.getString("session.sparkjars-path")).getOrElse("/opt/sds/sparta/repo")
-
+  lazy val extraSparJarsPath = Try(SpartaConfig.crossdataConfig.get.getString("session.sparkjars-path"))
+    .getOrElse("/opt/sds/sparta/repo")
   lazy val mapExtraSparkJars: Seq[String] = Seq(
     s"$extraSparJarsPath/org/elasticsearch/elasticsearch-spark-20_2.11/6.1.1/elasticsearch-spark-20_2.11-6.1.1.jar",
     s"$extraSparJarsPath/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar"
@@ -471,17 +469,20 @@ object SparkSubmitService {
     }
   }
 
-  def getSparkLocalConfig: Map[String, String] = {
+  def getSparkStandAloneConfig: Map[String, String] = {
     val defaultConf = Map(
-      SubmitNameConf -> spartaLocalAppName,
-      SubmitMasterConf -> SparkLocalMaster
+      SubmitNameConf -> spartaLocalAppName
     )
     val referenceConf = SpartaConfig.sparkConfig.fold(defaultConf) { sparkConfig =>
       sparkConfig.entrySet().iterator().toSeq.map { values =>
         s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
       }.toMap
     }
-    defaultConf ++ referenceConf
+    val envConf = sys.env.filterKeys(key => key.startsWith("SPARK_EXTRA_CONFIG"))
+      .map{ case (key, value) =>
+        key.replaceAll("SPARK_EXTRA_CONFIG_", "").replaceAll("_", ".") -> value
+      }
+    referenceConf ++ defaultConf ++ envConf
   }
 
 }

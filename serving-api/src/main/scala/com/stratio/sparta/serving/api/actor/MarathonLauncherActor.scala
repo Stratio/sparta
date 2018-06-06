@@ -12,6 +12,7 @@ import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.marathon.MarathonService
@@ -63,7 +64,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
           pluginFiles = pluginJars,
-          master = workflow.settings.sparkSettings.master.toString,
+          master = SparkConstant.SparkMesosMaster,
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,

@@ -393,22 +393,6 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       result.valid shouldBe false
     }
 
-    "not validate an incorrect execution mode" in {
-      val pipeline = PipelineGraph(nodes , edges)
-      val wrongSettingsModel = Settings(
-        GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
-        StreamingSettings(
-          JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
-        SparkSettings(
-          JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
-          None, SubmitArguments(), SparkConf(SparkResourcesConf())
-        )
-      )
-      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
-      val result = new WorkflowValidation().validateExecutionMode
-      result.valid shouldBe false
-    }
-
     "not validate an incorrect deploy mode" in {
       val pipeline = PipelineGraph(nodes , edges)
       val wrongSettingsModel = Settings(

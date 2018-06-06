@@ -12,7 +12,7 @@ import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
-import com.stratio.sparta.serving.core.factory.SparkContextFactory.stopSparkContext
+import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.workflow._
@@ -38,12 +38,12 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
       jars.foreach(file => JarsHelper.addJarToClasspath(file))
       log.info(s"Starting workflow debug")
 
-      if (workflow.executionEngine == Streaming)
+      if (workflow.executionEngine == Streaming) {
         contextService.localStreamingContext(workflow, jars)
+        stopStreamingContext()
+      }
       if (workflow.executionEngine == Batch)
         contextService.localContext(workflow, jars)
-
-      stopSparkContext()
     } match {
       case Success(_) =>
         log.info("Workflow debug executed successfully")
@@ -63,6 +63,6 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         self ! PoisonPill
     }
     debugWorkflowService.setEndDate(workflow.id.get)
-    stopSparkContext()
+    stopStreamingContext()
   }
 }

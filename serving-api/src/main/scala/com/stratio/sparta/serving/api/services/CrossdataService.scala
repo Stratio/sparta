@@ -20,24 +20,24 @@ class CrossdataService() extends SLF4JLogging {
     Try {
       (dbName.notBlank, temporary) match {
         case (Some(database), true) =>
-          getOrCreateXDSession(userId).catalog.listTables(database).collect().filter(_.isTemporary)
+          getOrCreateStandAloneXDSession(userId).catalog.listTables(database).collect().filter(_.isTemporary)
         case (Some(database), false) =>
-          getOrCreateXDSession(userId).catalog.listTables(database).collect().filterNot(_.isTemporary)
+          getOrCreateStandAloneXDSession(userId).catalog.listTables(database).collect().filterNot(_.isTemporary)
         case (None, true) =>
-          getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateXDSession(userId).catalog.listTables(db.name).collect()
+          getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+            getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()
           ).filter(_.isTemporary)
         case (None, false) =>
-          getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateXDSession(userId).catalog.listTables(db.name).collect()
+          getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+            getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()
           ).filterNot(_.isTemporary)
       }
     }
 
   def listAllTables(userId: Option[String]): Try[Array[Table]] =
     Try {
-      getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-        Try(getOrCreateXDSession(userId).catalog.listTables(db.name).collect()) match {
+      getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+        Try(getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()) match {
           case Success(table) => Option(table)
           case Failure(e) =>
             log.debug(s"Error obtaining tables from database ${db.name}", e)
@@ -47,24 +47,24 @@ class CrossdataService() extends SLF4JLogging {
     }
 
   def listDatabases(userId: Option[String]): Try[Array[Database]] =
-    Try(getOrCreateXDSession(userId).catalog.listDatabases().collect())
+    Try(getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect())
 
   def listColumns(tableName: String, dbName: Option[String], userId: Option[String]): Try[Array[Column]] =
     Try {
       dbName match {
         case Some(database) =>
-          getOrCreateXDSession(userId).catalog.listColumns(database, tableName).collect()
+          getOrCreateStandAloneXDSession(userId).catalog.listColumns(database, tableName).collect()
         case None =>
-          val table = getOrCreateXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateXDSession(userId).catalog.listTables(db.name).collect()
+          val table = getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
+            getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()
           ).find(_.name == tableName).getOrElse(throw new Exception(s"Unable to find table $tableName in XDCatalog"))
-          getOrCreateXDSession(userId).catalog.listColumns(table.database, table.name).collect()
+          getOrCreateStandAloneXDSession(userId).catalog.listColumns(table.database, table.name).collect()
       }
     }
 
   def executeQuery(query: String, userId: Option[String]): Try[Array[Map[String, Any]]] =
     Try {
-      getOrCreateXDSession(userId).sql(query.trim)
+      getOrCreateStandAloneXDSession(userId).sql(query.trim)
         .collect()
         .map { row =>
           row.schema.fields.zipWithIndex.map { case (field, index) =>

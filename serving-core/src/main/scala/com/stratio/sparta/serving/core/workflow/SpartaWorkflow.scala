@@ -35,6 +35,8 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import com.stratio.sparta.sdk.constants.SdkConstants._
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper.getConfigurationsFromObjects
+import com.stratio.sparta.serving.core.services.SparkSubmitService
 
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
@@ -42,7 +44,11 @@ import scalax.collection.Graph
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
 import scalax.collection.edge.LDiEdge
 
-case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, errorManager: ErrorManager)
+case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
+                                                             workflow: Workflow,
+                                                             errorManager: ErrorManager,
+                                                             files: Seq[String] = Seq.empty
+                                                           )
   extends CheckpointUtils with DistributedMonadImplicits {
 
   private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout")).getOrElse(DefaultApiTimeout) - 1
@@ -51,7 +57,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
   private val classpathUtils = WorkflowHelper.classpathUtils
   private var steps = Seq.empty[GraphStep]
-
   private var order = 0L
 
   /**
@@ -108,14 +113,34 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     if (execute) errorManager.clearError()
 
-    val withStandAloneExtraConf = !execute || workflow.settings.global.executionMode == local
-    val initSqlSentences = {
-      if (execute)
-        workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
-      else Seq.empty[String]
+    val phaseEnum = PhaseEnum.Context
+    val errorMessage = s"An error was encountered while initializing Spark Session"
+    val okMessage = s"Spark Session initialized successfully"
+    val xDSession = errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+      val isLocal = !execute || workflow.settings.global.executionMode == local// || workflow.debugMode.forall(mode => mode)
+      val initSqlSentences = {
+        if (execute)
+          workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
+        else Seq.empty[String]
+      }
+      val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+      val sparkLocalConfig = if (isLocal) {
+        val sparkSubmitService = new SparkSubmitService(workflow)
+        sparkSubmitService.getSparkLocalWorkflowConfig
+      } else Map.empty[String, String]
+      val userId = Properties.envOrNone(UserNameEnv)
+      val xDSession = getOrCreateXDSession(
+        isLocal,
+        userId,
+        forceStop = false,
+        extraConfiguration = stepsSparkConfig ++ sparkLocalConfig
+      )
+
+      addFilesToSparkContext(files)
+      executeSentences(initSqlSentences, userId)
+
+      xDSession
     }
-    val userId = Properties.envOrNone(UserNameEnv)
-    val xDSession = getOrCreateXDSession(withStandAloneExtraConf, initSqlSentences, userId)
 
     implicit val workflowContext = implicitly[ContextBuilder[Underlying]].buildContext(classpathUtils, xDSession) {
       /*

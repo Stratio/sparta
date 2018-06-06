@@ -204,7 +204,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         scheduledActions -= task
       }
       Try {
-        stopSparkContext()
+        stopStreamingContext()
       } match {
         case Success(_) =>
           val information = "The workflow was successfully stopped"

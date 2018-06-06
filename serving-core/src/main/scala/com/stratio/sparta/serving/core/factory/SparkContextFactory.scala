@@ -63,16 +63,24 @@ object SparkContextFactory extends SLF4JLogging {
 
   //scalastyle:off
 
-  def getOrCreateXDSession(userId: Option[String]): XDSession =
-    getOrCreateXDSession(withStandAloneExtraConf = true, initSqlSentences = Seq.empty, userId)
+  def getXDSession(userId: Option[String] = None): Option[XDSession] = {
+    val sessionId = getSessionIdFromUserId(userId)
+
+    xdSession.get(sessionId)
+  }
+
+  def getOrCreateStandAloneXDSession(userId: Option[String]): XDSession =
+    getOrCreateXDSession(withStandAloneExtraConf = true, userId, forceStop = false)
 
   def getOrCreateXDSession(
-                            withStandAloneExtraConf: Boolean = true,
-                            initSqlSentences: Seq[String] = Seq.empty[String],
-                            userId: Option[String] = None
+                            withStandAloneExtraConf: Boolean,
+                            userId: Option[String],
+                            forceStop: Boolean,
+                            extraConfiguration: Map[String, String] = Map.empty[String, String]
                           ): XDSession = {
     synchronized {
-      val sessionId = userId.getOrElse(spartaTenant)
+      if (forceStop) stopSparkContext()
+      val sessionId = getSessionIdFromUserId(userId)
       maybeWithHdfsUgiService {
         if (xdSession.isEmpty) {
           val referenceFile = Try {
@@ -94,7 +102,10 @@ object SparkContextFactory extends SLF4JLogging {
             case Some(sparkContext) =>
               val sparkConf = sparkContext.getConf
 
-              if (withStandAloneExtraConf) addStandAloneExtraConf(sparkConf)
+              if (withStandAloneExtraConf){
+                log.debug("Adding StandAlone configuration to Spark Session")
+                addStandAloneExtraConf(sparkConf)
+              }
 
               log.debug(s"Creating session($sessionId) from file $referenceFile with sparkConf: ${sparkConf.toDebugString}")
 
@@ -107,15 +118,15 @@ object SparkContextFactory extends SLF4JLogging {
             case None =>
               val sparkConf = new SparkConf()
 
-              if (withStandAloneExtraConf) addStandAloneExtraConf(sparkConf)
+              if (withStandAloneExtraConf){
+                log.debug("Adding StandAlone configuration to Spark Session")
+                addStandAloneExtraConf(sparkConf)
+              }
 
               log.debug(s"Creating session($sessionId) and sparkContext from file $referenceFile with sparkConf: ${sparkConf.toDebugString}")
 
-              getOrCreateSparkContext(
-                extraConfiguration = SparkSubmitService.getSparkLocalConfig ++ sparkConf.getAll.toMap,
-                jars = Seq.empty,
-                forceStop = false
-              )
+              getOrCreateSparkContext(sparkConf.getAll.toMap ++ extraConfiguration)
+
               val newSession = XDSession.builder()
                 .config(referenceFile)
                 .config(sparkConf)
@@ -128,20 +139,31 @@ object SparkContextFactory extends SLF4JLogging {
         } else if (!xdSession.contains(sessionId)) {
           xdSession += (sessionId -> xdSession.head._2.newSession(sessionId))
         }
-        executeSentences(sessionId, initSqlSentences)
       }
 
       xdSession.getOrElse(sessionId, throw new Exception("Spark Session not initialized"))
     }
   }
 
-  def executeSentences(sessionId: String, initSqlSentences: Seq[String]): Unit = {
-    xdSession.get(sessionId).foreach { session =>
-      initSqlSentences.filter(_.nonEmpty).foreach { sentence =>
-        val trimSentence = sentence.trim
-        if (trimSentence.startsWith("CREATE") || trimSentence.startsWith("IMPORT"))
+  def executeSentences(initSqlSentences: Seq[String], userId: Option[String] = None): Unit = {
+    maybeWithHdfsUgiService {
+      val sessionId = getSessionIdFromUserId(userId)
+      xdSession.get(sessionId).foreach { session =>
+        initSqlSentences.filter(_.nonEmpty).foreach { sentence =>
+          val trimSentence = sentence.trim
           session.sql(trimSentence)
-        else log.warn(s"Initial query ($trimSentence) not supported. Available operations: CREATE and IMPORT")
+        }
+      }
+    }
+  }
+
+  def addFilesToSparkContext(files: Seq[String]): Unit = {
+    maybeWithHdfsUgiService {
+      sc.foreach { sparkContext =>
+        files.foreach { file =>
+          log.info(s"Adding file $file to Spark context")
+          sparkContext.addJar(file)
+        }
       }
     }
   }
@@ -158,40 +180,20 @@ object SparkContextFactory extends SLF4JLogging {
   def getStreamingContext: StreamingContext =
     ssc.getOrElse(throw new Exception("Streaming Context not initialized"))
 
-  def getOrCreateSparkContext(
-                               extraConfiguration: Map[String, String],
-                               jars: Seq[File],
-                               forceStop: Boolean = true
-                             ): SparkContext =
-    synchronized {
-      if (forceStop) stopSparkContext()
-      sc.getOrElse(createSparkContext(extraConfiguration, jars))
-    }
-
-  def getOrCreateClusterSparkContext(
-                                      extraConfiguration: Map[String, String],
-                                      files: Seq[String],
-                                      forceStop: Boolean = false
-                                    ): SparkContext =
-    synchronized {
-      if (forceStop) stopSparkContext()
-      sc.getOrElse(createClusterContext(extraConfiguration, files))
-    }
-
-  def stopSparkContext(stopStreaming: Boolean = true): Unit = {
-    if (stopStreaming) stopStreamingContext()
-
-    sc.fold(log.debug("Spark Context is empty")) { sparkContext =>
-      synchronized {
-        try {
-          log.debug("Stopping SparkContext: " + sparkContext.appName)
-          sparkContext.stop()
-          log.debug("SparkContext: " + sparkContext.appName + " stopped correctly")
-        } finally {
-          xdSession.clear()
-          ssc = None
-          sc = None
+  def stopStreamingContext(stopGracefully: Boolean = false): Unit = {
+    ssc.fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
+      try {
+        synchronized {
+          log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
+          Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
+            case Success(_) =>
+              log.debug("Streaming Context has been stopped")
+            case Failure(error) =>
+              log.debug("Streaming Context not properly stopped", error)
+          }
         }
+      } finally {
+        ssc = None
       }
     }
   }
@@ -199,24 +201,34 @@ object SparkContextFactory extends SLF4JLogging {
 
   /* PRIVATE METHODS */
 
+  private[core] def getSessionIdFromUserId(userId: Option[String] = None): String = userId.getOrElse(spartaTenant)
+
+  private[core] def getOrCreateSparkContext(extraConfiguration: Map[String, String]): SparkContext =
+    synchronized {
+      sc = Option(SparkContext.getOrCreate(configurationToSparkConf(extraConfiguration)))
+      sc.get
+    }
+
   private[core] def addStandAloneExtraConf(sparkConf: SparkConf): SparkConf = {
-    val additionalConfigurations = jdbcDriverVariables ++ kerberosYarnDefaultVariables
-    sparkConf.setAll(additionalConfigurations)
-    log.debug(s"Added variables to Spark Conf in XDSession: $additionalConfigurations")
-
-    sparkConf.setAppName(SparkSubmitService.spartaLocalAppName)
-
-    if (Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").isDefined) {
+    val additionalConf = jdbcDriverVariables ++ kerberosYarnDefaultVariables
+    val proxyConf = if (Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").isDefined) {
       val proxyPath = s"/workflows-$spartaTenant/crossdata-sparkUI"
       log.debug(s"XDSession with proxy base: $proxyPath")
-      sparkConf.set("spark.ui.proxyBase", proxyPath)
-    } else log.debug(s"XDSession without proxy base")
-
-    if (Properties.envOrNone("SPARK_SECURITY_DATASTORE_ENABLE").isDefined) {
+      Seq(("spark.ui.proxyBase", proxyPath))
+    } else Seq.empty[(String, String)]
+    val securityConf = if (Properties.envOrNone("SPARK_SECURITY_DATASTORE_ENABLE").isDefined) {
       val environment = ConfigSecurity.prepareEnvironment
       log.debug(s"XDSession secured environment prepared with variables: $environment")
-      sparkConf.setAll(environment.toSeq)
-    } else log.debug(s"XDSession secured environment not configured")
+      environment.toSeq
+    } else Seq.empty[(String, String)]
+
+    val configurationsToAdd = additionalConf ++ proxyConf ++ securityConf ++ SparkSubmitService.getSparkStandAloneConfig
+
+    sparkConf.setAll(configurationsToAdd)
+
+    log.debug(s"Added variables to Spark Conf in XDSession: $configurationsToAdd")
+
+    sparkConf.setAppName(SparkSubmitService.spartaLocalAppName)
 
     sparkConf
   }
@@ -234,46 +246,28 @@ object SparkContextFactory extends SLF4JLogging {
     ssc.get
   }
 
-  private[core] def createSparkContext(configuration: Map[String, String], jars: Seq[File]): SparkContext = {
-    sc = Option(SparkContext.getOrCreate(configurationToSparkConf(configuration)))
-    jars.foreach { jar =>
-      log.debug(s"Adding jar ${jar.getAbsolutePath} to Spark context")
-      sc.get.addJar(jar.getAbsolutePath)
-    }
-    sc.get
-  }
-
-  private[core] def createClusterContext(configuration: Map[String, String], files: Seq[String]): SparkContext = {
-    sc = Option(SparkContext.getOrCreate(configurationToSparkConf(configuration)))
-    files.foreach { jar =>
-      log.info(s"Adding jar $jar to Spark context")
-      sc.get.addJar(jar)
-    }
-    sc.get
-  }
-
   private[core] def configurationToSparkConf(configuration: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
     configuration.foreach { case (key, value) => conf.set(key, value) }
-    if (Try(conf.get("spark.app.name")).toOption.isEmpty)
-      conf.setAppName(SparkSubmitService.spartaLocalAppName)
     conf
   }
 
-  private[core] def stopStreamingContext(): Unit = {
-    ssc.fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
-      try {
-        synchronized {
-          log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
-          Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
-            case Success(_) =>
-              log.debug("Streaming Context has been stopped")
-            case Failure(error) =>
-              log.debug("Streaming Context not properly stopped", error)
-          }
+  private[core] def stopSparkContext(stopStreaming: Boolean = true): Unit = {
+    if (stopStreaming) stopStreamingContext()
+
+    sc.fold(log.debug("Spark Context is empty")) { sparkContext =>
+      synchronized {
+        try {
+          log.debug("Stopping XDSessions")
+          xdSession.foreach(_._2.stopAll())
+          log.debug("Stopping SparkContext: " + sparkContext.appName)
+          sparkContext.stop()
+          log.debug("SparkContext: " + sparkContext.appName + " stopped correctly")
+        } finally {
+          xdSession.clear()
+          ssc = None
+          sc = None
         }
-      } finally {
-        ssc = None
       }
     }
   }

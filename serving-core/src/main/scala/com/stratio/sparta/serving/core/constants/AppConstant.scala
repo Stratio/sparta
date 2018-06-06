@@ -56,7 +56,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultSerializationTimeout = 5000
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
-  val SparkLocalMaster = "local[1]"
+
 
   //Debug Options
   val DebugSparkWindow = 100
@@ -141,7 +141,6 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_STREAMING_CHECKPOINT_PATH","sparta/checkpoint"),
     EnvironmentVariable("SPARK_STREAMING_WINDOW","2s"),
     EnvironmentVariable("SPARK_STREAMING_BLOCK_INTERVAL","100ms"),
-    EnvironmentVariable("SPARK_MASTER","mesos://leader.mesos:5050"),
     EnvironmentVariable("SPARK_DRIVER_JAVA_OPTIONS","-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
     EnvironmentVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
     EnvironmentVariable("SPARK_LOCAL_PATH", "/opt/spark/dist"),

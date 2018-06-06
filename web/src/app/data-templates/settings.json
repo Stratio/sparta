@@ -312,20 +312,12 @@
       "name" : "sparkSettings",
       "properties": [
         {
-          "propertyId": "master",
-          "width": 4,
-          "propertyName": "SETTINGS._SPARK_MASTER_",
-          "propertyType": "text",
-          "default": "{{SPARK_MASTER}}",
-          "toltip": "Sets the spark master. In Marathon deployments: mesos://leader.mesos:5050 . Local deployments:local[*] . Dispatcher deployments: dispatcherURI:7077",
-          "qa": "workflow-spark-user"
-        },
-        {
           "propertyId": "sparkKerberos",
           "propertyName": "SETTINGS._SPARK_KERBEROS_ENABLE_",
           "propertyType": "boolean",
           "width": "auto",
           "default": true,
+           "float": true,
           "tooltip": "Enables Kerberos integration and send the principal and keytab arguments if  available through the spark submit",
           "qa": "workflow-spark-kerberos"
         },
@@ -335,6 +327,7 @@
           "propertyType": "boolean",
           "width": "auto",
           "default": true,
+           "float": true,
           "tooltip": "Enables dataStore with TLS integration and send options through the spark submit",
           "qa": "workflow-spark-datastore-tls"
         },

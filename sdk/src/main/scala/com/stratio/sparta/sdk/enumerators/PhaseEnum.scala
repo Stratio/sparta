@@ -8,6 +8,7 @@ package com.stratio.sparta.sdk.enumerators
 
 object PhaseEnum extends Enumeration {
 
+  val Checkpoint = Value("Checkpoint")
   val Context = Value("Context")
   val Setup = Value("Setup")
   val Cleanup = Value("Cleanup")

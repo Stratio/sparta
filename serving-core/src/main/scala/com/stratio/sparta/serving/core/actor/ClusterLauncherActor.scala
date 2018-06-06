@@ -12,6 +12,7 @@ import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
@@ -70,7 +71,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
           pluginFiles = pluginJars,
-          master = workflow.settings.sparkSettings.master.toString,
+          master = SparkConstant.SparkMesosMaster,
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,
@@ -115,9 +116,9 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
     }
   }
 
-  def launch(workflow: Workflow, submitRequest: WorkflowExecution): Unit = {
+  def launch(workflow: Workflow, workflowExecution: WorkflowExecution): Unit = {
     Try {
-      val submitExecution = submitRequest.sparkSubmitExecution.get
+      val submitExecution = workflowExecution.sparkSubmitExecution.get
       log.info(s"Launching Sparta workflow with options ... \n\t" +
         s"Workflow name: ${workflow.name}\n\t" +
         s"Main Class: $SpartaDriverClass\n\t" +

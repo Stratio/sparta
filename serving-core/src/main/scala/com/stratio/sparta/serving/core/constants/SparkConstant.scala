@@ -88,4 +88,8 @@ object SparkConstant {
   val SubmitKeyTab = "--keytab"
   val SubmitSupervise = "--supervise"
 
+  // Other properties
+  val SparkMesosMaster = "mesos://leader.mesos:5050"
+  val SparkLocalMaster = "local[2]"
+
 }

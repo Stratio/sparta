@@ -51,17 +51,6 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
   // A Workflow name should not contain special characters and Uppercase letters (because of DCOS deployment)
   val regexName = "^[a-z0-9-]*"
 
-  def validateExecutionMode(implicit workflow: Workflow): WorkflowValidation = {
-    if ((workflow.settings.global.executionMode == marathon ||
-      workflow.settings.global.executionMode == dispatcher) &&
-      !workflow.settings.sparkSettings.master.toString.startsWith("mesos://"))
-      copy(
-        valid = false,
-        messages = messages :+ WorkflowValidationMessage(s"The selected execution mode is Marathon or Mesos," +
-          s" therefore Spark Master should start with mesos://")
-      )
-    else this
-  }
 
   def validateDeployMode(implicit workflow: Workflow): WorkflowValidation = {
     if (workflow.settings.global.executionMode == marathon &&
