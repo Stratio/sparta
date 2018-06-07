@@ -99,7 +99,12 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           throw exception
         case Failure(exception) =>
           val information = s"Error initiating workflow in Spark driver"
-          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
+          val error = WorkflowError(
+            information,
+            PhaseEnum.Launch,
+            exception.toString,
+            Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          )
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
             status = Failed,

@@ -250,7 +250,7 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>com.stratio.tikitakka</groupId>
             <artifactId>core</artifactId>
-            <version>0.4.0-RC5</version>
+            <version>0.4.0-RC3</version>
         </dependency>
         <dependency>
             <groupId>org.scalaj</groupId>

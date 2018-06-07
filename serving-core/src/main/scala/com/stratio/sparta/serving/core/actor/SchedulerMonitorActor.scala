@@ -220,7 +220,12 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val error = "An error was encountered while stopping contexts"
           log.error(error, e)
           if (workflowStatus.status != Failed) {
-            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString, e.getCause.getMessage)
+            val wError = WorkflowError(
+              error,
+              PhaseEnum.Stop,
+              e.toString,
+              Try(e.getCause.getMessage).toOption.getOrElse(e.getMessage)
+            )
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
@@ -273,7 +278,12 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val error = "An error was encountered while sending a stop message to Marathon API"
           log.error(error, e)
           if (workflowStatus.status != Failed) {
-            val wError = WorkflowError(error, PhaseEnum.Stop, e.toString, e.getCause.getMessage)
+            val wError = WorkflowError(
+              error,
+              PhaseEnum.Stop,
+              e.toString,
+              Try(e.getCause.getMessage).toOption.getOrElse(e.getMessage)
+            )
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
@@ -328,7 +338,12 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
         case Failure(e) =>
           val error = "Impossible to parse submission killing response"
           log.error(error, e)
-          val wError = WorkflowError(error, PhaseEnum.Stop, e.toString, e.getCause.getMessage)
+          val wError = WorkflowError(
+            error,
+            PhaseEnum.Stop,
+            e.toString,
+            Try(e.getCause.getMessage).toOption.getOrElse(e.getMessage)
+          )
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,

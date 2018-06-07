@@ -85,7 +85,12 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       case Failure(exception) =>
         val information = s"An error was encountered while initializing the submit options"
         log.error(information, exception)
-        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
+        val error = WorkflowError(
+          information,
+          PhaseEnum.Launch,
+          exception.toString,
+          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+        )
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
@@ -95,7 +100,12 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       case Success(Failure(exception)) =>
         val information = s"An error was encountered while creating an execution submit in the persistence"
         log.error(information, exception)
-        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
+        val error = WorkflowError(
+          information,
+          PhaseEnum.Launch,
+          exception.toString,
+          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+        )
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
@@ -154,7 +164,12 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       case Failure(exception) =>
         val information = s"An error was encountered while launching the workflow"
         log.error(information, exception)
-        val error = WorkflowError(information, PhaseEnum.Execution, exception.toString, exception.getCause.getMessage)
+        val error = WorkflowError(
+          information,
+          PhaseEnum.Execution,
+          exception.toString,
+          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+        )
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
