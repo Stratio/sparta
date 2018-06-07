@@ -243,7 +243,7 @@ case class MarathonService(
     val newPortMappings = {
       if (calicoEnabled)
         Option(
-          Seq(PortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = Option("tcp"))) ++
+          Seq(PortMapping(Option(DefaultSparkUIPort), DefaultSparkUIPort, Option(0), protocol = Option("tcp"))) ++
             app.container.docker.portMappings.getOrElse(Seq.empty)
         )
       else app.container.docker.portMappings
