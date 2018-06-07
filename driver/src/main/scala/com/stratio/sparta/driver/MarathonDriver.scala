@@ -61,7 +61,12 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
         case Success(_) =>
         case Failure(exception) =>
           val information = s"Error initiating workflow app environment in Marathon driver"
-          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
+          val error = WorkflowError(
+            information,
+            PhaseEnum.Launch,
+            exception.toString,
+            Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          )
           statusService.update(WorkflowStatus(
             id = workflowId,
             status = Failed,

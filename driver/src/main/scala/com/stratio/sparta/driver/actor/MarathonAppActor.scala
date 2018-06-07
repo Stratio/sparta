@@ -78,7 +78,12 @@ class MarathonAppActor(
         val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
         preStopActions()
-        val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
+        val error = WorkflowError(
+          information,
+          PhaseEnum.Launch,
+          exception.toString,
+          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+        )
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,

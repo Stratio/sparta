@@ -33,36 +33,44 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
   }
 
   private def doDebugWorkflow(workflow: Workflow): Unit = {
-    Try {
-      val jars = WorkflowHelper.userPluginsFiles(workflow, hdfsFilesService)
-      jars.foreach(file => JarsHelper.addJarToClasspath(file))
-      log.info(s"Starting workflow debug")
+    try {
+      Try {
+        val jars = WorkflowHelper.userPluginsFiles(workflow, hdfsFilesService)
+        jars.foreach(file => JarsHelper.addJarToClasspath(file))
+        log.info(s"Starting workflow debug")
 
-      if (workflow.executionEngine == Streaming) {
-        contextService.localStreamingContext(workflow, jars)
-        stopStreamingContext()
+        if (workflow.executionEngine == Streaming) {
+          contextService.localStreamingContext(workflow, jars)
+          stopStreamingContext()
+        }
+        if (workflow.executionEngine == Batch)
+          contextService.localContext(workflow, jars)
+      } match {
+        case Success(_) =>
+          log.info("Workflow debug executed successfully")
+          debugWorkflowService.setSuccessful(workflow.id.get, state = true)
+          self ! PoisonPill
+        case Failure(_: ErrorManagerException) =>
+          debugWorkflowService.setSuccessful(workflow.id.get, state = false)
+          self ! PoisonPill
+        case Failure(exception) =>
+          val information = s"Error initiating the workflow debug"
+          log.error(information, exception)
+          debugWorkflowService.setSuccessful(workflow.id.get, state = false)
+          debugWorkflowService.setError(
+            workflow.id.get,
+            Option(WorkflowError(
+              information,
+              PhaseEnum.Execution,
+              exception.toString,
+              Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+            ))
+          )
+          self ! PoisonPill
       }
-      if (workflow.executionEngine == Batch)
-        contextService.localContext(workflow, jars)
-    } match {
-      case Success(_) =>
-        log.info("Workflow debug executed successfully")
-        debugWorkflowService.setSuccessful(workflow.id.get, state = true)
-        self ! PoisonPill
-      case Failure(_: ErrorManagerException) =>
-        debugWorkflowService.setSuccessful(workflow.id.get, state = false)
-        self ! PoisonPill
-      case Failure(exception) =>
-        val information = s"Error initiating the workflow debug"
-        log.error(information, exception)
-        debugWorkflowService.setSuccessful(workflow.id.get, state = false)
-        debugWorkflowService.setError(
-          workflow.id.get,
-          Option(WorkflowError(information, PhaseEnum.Execution, exception.toString, exception.getCause.getMessage))
-        )
-        self ! PoisonPill
+      debugWorkflowService.setEndDate(workflow.id.get)
+    } finally {
+      stopStreamingContext()
     }
-    debugWorkflowService.setEndDate(workflow.id.get)
-    stopStreamingContext()
   }
 }
