@@ -8,17 +8,20 @@ package com.stratio.sparta.serving.core.helpers
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
-import java.util.{Calendar, UUID}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.services.HdfsService
+import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.services.{HdfsFilesService, HdfsService}
 import org.apache.commons.io.FileUtils
+
+import scala.util.Try
 
 object JarsHelper extends JarsHelper
 
 trait JarsHelper extends SLF4JLogging {
 
   protected lazy val hdfsService = HdfsService()
+  protected lazy val hdfsFilesService = HdfsFilesService()
 
   /**
     * Finds files that are the driver application.
@@ -40,6 +43,15 @@ trait JarsHelper extends SLF4JLogging {
       Seq()
     }
   }
+
+  def addLocalUserPluginJarsToClasspath(workflow: Workflow): Seq[File] = {
+    val jars = localUserPluginJars(workflow)
+    jars.foreach(file => addJarToClasspath(file))
+    jars
+  }
+
+  def clusterUserPluginJars(workflow: Workflow): Seq[String] =
+    (userJars(workflow) ++ JarsHelper.getJdbcDriverPaths).distinct
 
   def getJdbcDriverPaths: Seq[String] = {
     val jdbcDrivers = new File("/jdbc-drivers")
@@ -86,7 +98,7 @@ trait JarsHelper extends SLF4JLogging {
       else None
     }
 
-  private def pathFromLocal(filePath: String) : String = filePath.replace("file://", "")
+  private def pathFromLocal(filePath: String): String = filePath.replace("file://", "")
 
   private def addFromLocal(filePath: String): Unit = {
     log.debug(s"Getting file from local: $filePath")
@@ -113,6 +125,27 @@ trait JarsHelper extends SLF4JLogging {
     val url = new URL(fileURI)
     FileUtils.copyURLToFile(url, file)
     addJarToClasspath(file)
+  }
+
+  private def localUserPluginJars(workflow: Workflow): Seq[File] =
+    userJars(workflow).map(jar => new File(jar.replace("file://", "")))
+
+  private def userJars(workflow: Workflow): Seq[String] = {
+    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
+      Try {
+        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
+          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar"))
+            Option(fileStatus.getPath.toUri.toString)
+          else None
+        }
+      }.getOrElse(Seq.empty[String])
+    else Seq.empty[String]
+    val userPlugins = workflow.settings.global.userPluginsJars
+      .filter(userJar => userJar.jarPath.toString.nonEmpty && userJar.jarPath.toString.endsWith(".jar"))
+      .map(_.jarPath.toString.trim)
+      .distinct
+
+    (uploadedPlugins ++ userPlugins).filter(_.nonEmpty).distinct
   }
 
 }

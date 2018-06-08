@@ -56,7 +56,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       }
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
-      val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
+      val pluginJars = JarsHelper.clusterUserPluginJars(workflow)
       val localPluginJars = JarsHelper.getLocalPathFromJars(pluginJars)
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginJars, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(localPluginJars)

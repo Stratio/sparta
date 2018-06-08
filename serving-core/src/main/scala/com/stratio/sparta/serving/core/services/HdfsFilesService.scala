@@ -19,9 +19,9 @@ import scala.util.{Properties, Try}
 
 case class HdfsFilesService() extends CheckpointUtils {
 
-  lazy private val hdfsConfig = SpartaConfig.getHdfsConfig.get
-  lazy private val host = Try(hdfsConfig.getString(AppConstant.HdfsMaster)).toOption
-  lazy private val port = Try(hdfsConfig.getInt(AppConstant.HdfsPort)).toOption
+  lazy private val hdfsConfig = SpartaConfig.getHdfsConfig
+  lazy private val host = Try(hdfsConfig.get.getString(AppConstant.HdfsMaster)).toOption
+  lazy private val port = Try(hdfsConfig.get.getInt(AppConstant.HdfsPort)).toOption
   lazy private val hdfsService = HdfsService()
   lazy private val instanceName = {
     val instancePrefix = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "")

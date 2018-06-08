@@ -8,15 +8,15 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
-import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{DebugWorkflowService, HdfsFilesService}
+import com.stratio.sparta.serving.core.services.DebugWorkflowService
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
@@ -25,7 +25,6 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
 
   lazy private val contextService: ContextsService = ContextsService(curatorFramework)
   lazy private val debugWorkflowService = new DebugWorkflowService(curatorFramework)
-  lazy private val hdfsFilesService = HdfsFilesService()
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow, userId: Option[String]) => doDebugWorkflow(workflow)
@@ -35,8 +34,7 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
   private def doDebugWorkflow(workflow: Workflow): Unit = {
     try {
       Try {
-        val jars = WorkflowHelper.userPluginsFiles(workflow, hdfsFilesService)
-        jars.foreach(file => JarsHelper.addJarToClasspath(file))
+        val jars = JarsHelper.addLocalUserPluginJarsToClasspath(workflow)
         log.info(s"Starting workflow debug")
 
         if (workflow.executionEngine == Streaming) {
