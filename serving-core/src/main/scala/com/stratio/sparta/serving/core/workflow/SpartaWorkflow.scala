@@ -163,8 +163,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       case x :: xs =>
         val pluginsFiles = workflow.settings.global.userPluginsJars.map(_.jarPath.toString)
         JarsHelper.addJarsToClassPath(pluginsFiles)
-        (x :: xs).map(jar => (jar.configuration.getString("customClassType"),
-          s"com.stratio.sparta.${jar.configuration.getString("customClassType")}")).toMap
+        (x :: xs).map { node =>
+          val customClassType = node.configuration.getString("customClassType")
+          if(customClassType.contains(".")){
+            (customClassType.substring(customClassType.lastIndexOf(".")), customClassType)
+          } else (customClassType, s"com.stratio.sparta.$customClassType")
+        }.toMap
     }
 
     steps = workflow.pipelineGraph.nodes.map { node =>
