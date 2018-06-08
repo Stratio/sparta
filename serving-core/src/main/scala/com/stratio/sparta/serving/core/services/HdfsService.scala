@@ -191,7 +191,7 @@ object HdfsService extends SLF4JLogging {
 
     Option(System.getenv(SystemHadoopConfDir)) match {
       case Some(confDir) =>
-        log.debug(s"The HDFS configuration was read from the files located at: $confDir")
+        log.debug(s"The HDFS configuration have been created for read files with conf located at: $confDir")
       case None =>
         hdfsConfig.foreach { config =>
           if(config.hasPath(HdfsMaster) && config.hasPath(HdfsPort)) {
@@ -207,8 +207,8 @@ object HdfsService extends SLF4JLogging {
 
             conf.set(DefaultFSProperty, hdfsPath)
 
-            log.debug(s"The HDFS configuration was assigned with $DefaultFSProperty and located at: $hdfsPath")
-          }
+            log.debug(s"The HDFS configuration have been assigned with $DefaultFSProperty and located at: $hdfsPath")
+          } else log.debug(s"The HDFS configuration have been created for read files in the local filesystem")
         }
     }
     conf

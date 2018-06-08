@@ -74,7 +74,7 @@ trait JarsHelper extends SLF4JLogging {
       method.setAccessible(true)
       method.invoke(getClass.getClassLoader, file.toURI.toURL)
     } else {
-      log.warn(s"The file ${file.getName} not exists.")
+      log.warn(s"The file ${file.getName} not exists in path ${file.getAbsolutePath}")
     }
   }
 
