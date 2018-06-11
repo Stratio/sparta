@@ -23,8 +23,8 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
 
 @RunWith(classOf[JUnitRunner])
-class HistoryExecutionHttpServiceTest extends WordSpec
-  with HistoryExecutionHttpService
+class ExecutionHistoryHttpServiceTest extends WordSpec
+  with ExecutionHistoryHttpService
   with HttpServiceBaseTest with SpartaSerializer {
 
   import com.stratio.sparta.serving.api.actor.ExecutionHistoryActor._
@@ -38,18 +38,18 @@ class HistoryExecutionHttpServiceTest extends WordSpec
 
   override implicit val actors: Map[String, ActorRef] = Map(
     //AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
-    AkkaConstant.WorkflowHistoryExecutionApiActorName -> statusActorTestProbe.ref
+    AkkaConstant.ExecutionHistoryApiActorName -> statusActorTestProbe.ref
   )
 
   "historyExecutionHttpService.findByWorkflowId" should {
     "return history execution" in {
-      Get(s"/${HttpConstant.HistoryExecutionsPath}/findByWorkflowId/$id") ~> routes(dummyUser) ~> check {
+      Get(s"/${HttpConstant.ExecutionsHistoryPath}/findByWorkflowId/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[QueryByWorkflowId]
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.HistoryExecutionsPath}/findByWorkflowId/$id") ~> routes(rootUser) ~> check {
+      Get(s"/${HttpConstant.ExecutionsHistoryPath}/findByWorkflowId/$id") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[QueryByWorkflowId]
         status should be(StatusCodes.InternalServerError)
       }
@@ -58,13 +58,13 @@ class HistoryExecutionHttpServiceTest extends WordSpec
 
   "historyExecutionHttpService.findByUserId" should {
     "return history execution" in {
-      Get(s"/${HttpConstant.HistoryExecutionsPath}/findByUserId/1234") ~> routes(dummyUser) ~> check {
+      Get(s"/${HttpConstant.ExecutionsHistoryPath}/findByUserId/1234") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[QueryByUserId]
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.HistoryExecutionsPath}/findByUserId/$id") ~> routes(rootUser) ~> check {
+      Get(s"/${HttpConstant.ExecutionsHistoryPath}/findByUserId/$id") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[QueryByUserId]
         status should be(StatusCodes.InternalServerError)
       }

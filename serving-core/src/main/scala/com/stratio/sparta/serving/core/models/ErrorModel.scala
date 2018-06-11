@@ -169,6 +169,8 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowHistoryExecutionUnexpected = "950"
   val WorkflowHistoryExecutionFindByUserId = "951"
   val WorkflowHistoryExecutionFindByWorkflowId = "952"
+  val WorkflowHistoryStatusUnexpected = "953"
+  val WorkflowHistoryStatusFindByWorkflowId = "954"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -281,7 +283,9 @@ object ErrorModel extends SpartaSerializer {
     DebugWorkflowServiceResultsFindById -> "Error finding the debug results for that workflow ID",
     WorkflowHistoryExecutionUnexpected -> "Unexpected behaviour in Workflow History Execution service",
     WorkflowHistoryExecutionFindByUserId -> "Error finding workflow History Execution by userId",
-    WorkflowHistoryExecutionFindByWorkflowId -> "Error finding workflow History Execution by workflowId"
+    WorkflowHistoryExecutionFindByWorkflowId -> "Error finding workflow History Execution by workflowId",
+    WorkflowHistoryStatusUnexpected -> "Unexpected behaviour in Workflow Status History service",
+    WorkflowHistoryStatusFindByWorkflowId -> "Error finding workflow status history by workflow ID"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

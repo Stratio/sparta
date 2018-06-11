@@ -5,6 +5,9 @@
  */
 package com.stratio.sparta.serving.core.models.history
 
+import com.stratio.sparta.serving.core.models.dto.Dto
+import org.joda.time.DateTime
+
 case class WorkflowStatusHistory(workflowId: String,
                                  status: String,
                                  statusId: Option[String] = None,
@@ -12,3 +15,11 @@ case class WorkflowStatusHistory(workflowId: String,
                                  creationDate: Option[Long] = None,
                                  lastUpdateDate: Option[Long] = None,
                                  lastUpdateDateWorkflow: Option[Long] = None)
+
+case class WorkflowStatusHistoryDto(workflowId: String,
+                                     status: String,
+                                     statusId: Option[String] = None,
+                                     statusInfo: Option[String] = None,
+                                     creationDate: Option[DateTime] = None,
+                                     lastUpdateDate: Option[DateTime] = None,
+                                     lastUpdateDateWorkflow: Option[DateTime] = None) extends Dto

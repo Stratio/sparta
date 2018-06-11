@@ -25,7 +25,8 @@ object HttpConstant {
   final val CrossdataPath = "crossdata"
   final val AppInfoPath = "appInfo"
   final val MetadataPath = "metadata"
-  final val HistoryExecutionsPath = "historyWorkflowExecutions"
+  final val ExecutionsHistoryPath = "workflowExecutionsHistory"
+  final val StatusHistoryPath = "workflowStatusHistory"
   final val NotFound = 400
   final val NotFoundMessage = "Not Found"
 }

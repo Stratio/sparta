@@ -5,17 +5,18 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import com.stratio.sparta.serving.api.actor.StatusHistoryActor.{FindAll, FindByWorkflowId}
+import com.stratio.sparta.serving.api.actor.StatusHistoryActor.FindByWorkflowId
 import com.stratio.sparta.serving.api.dao.StatusHistoryDaoImpl
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{Notification, StatusChange}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistory
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistoryDto
+import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -37,12 +38,13 @@ class StatusHistoryActorTestIT extends TestKit(ActorSystem("StatusHistoryActorSp
 
   implicit val timeout = Timeout(10 seconds)
   private lazy val config = ConfigFactory.load()
+  implicit val secManager = None
 
   def publishEvent(event: Notification): Unit = system.eventStream.publish(event)
 
   override protected def afterAll(): Unit = TestKit.shutdownActorSystem(system)
 
-  val host : String = Try(config.getString("postgresql.host")) match {
+  val host: String = Try(config.getString("postgresql.host")) match {
     case Success(configHost) =>
       val hostUrl = s""""jdbc:postgresql://$configHost:5432/postgres?user=postgres""""
       log.info(s"Postgres host from config: $hostUrl")
@@ -54,23 +56,27 @@ class StatusHistoryActorTestIT extends TestKit(ActorSystem("StatusHistoryActorSp
   }
   val hostConf = ConfigFactory.parseString(host).withFallback(
     ConfigFactory.parseString("sparta.postgres.statusHistory.table = status_test"))
+    .withFallback(ConfigFactory.parseString("sparta.postgres.historyEnabled = true"))
 
   val conf = SpartaConfig.initSpartaPostgresConfig(Some(hostConf))
 
   trait StatusHistoryTrait extends StatusHistoryDaoImpl {
 
     val profile = PostgresProfile
+
     import profile.api._
+
     override val db: profile.api.Database = Database.forConfig("", conf.get)
   }
 
-  //do some testing!
   "A WorkflowStatusHistoryActor" should {
-    val actor =system.actorOf(Props(new StatusHistoryActor(PostgresProfile, conf.get)))
+    system.actorOf(Props(new StatusHistoryListenerActor(PostgresProfile, conf.get)))
+
+    val actor = system.actorOf(Props(new StatusHistoryActor))
 
     val status1 = WorkflowStatus("existingID", WorkflowStatusEnum.Launched, Some("statusId1"))
-    val status2 =  WorkflowStatus("existingID", WorkflowStatusEnum.Stopped, Some("statusId1"))
-    val status3 =  WorkflowStatus("existingID", WorkflowStatusEnum.Stopped, Some("statusId2"))
+    val status2 = WorkflowStatus("existingID", WorkflowStatusEnum.Stopped, Some("statusId1"))
+    val status3 = WorkflowStatus("existingID", WorkflowStatusEnum.Stopped, Some("statusId2"))
 
 
     "Insert new data" in new StatusHistoryTrait {
@@ -99,31 +105,24 @@ class StatusHistoryActorTestIT extends TestKit(ActorSystem("StatusHistoryActorSp
       db.close()
     }
 
-    "Find all" in  new StatusHistoryTrait {
 
-      publishEvent(StatusChange("test", status3))
+    "Find by workflowId" in new StatusHistoryTrait {
 
-      actor ! FindAll()
-      expectMsgPF(){
-        case future: Future[List[WorkflowStatusHistory]] => future onSuccess {
-          case s: List[WorkflowStatusHistory] => s.size should be (2)
+      val workflowId: String = status1.id
+
+      actor ! FindByWorkflowId(workflowId, None)
+      expectMsgPF() {
+        case response: Either[Success[Future[Seq[WorkflowStatusHistoryDto]]], _] => {
+          response match {
+            case Left((Success(result))) => {
+              result onSuccess {
+                case s: List[WorkflowStatusHistoryDto] => assert(s.head.workflowId == workflowId)
+              }
+            }
+            case Right(_) => assert(false)
+          }
         }
       }
-      db.close()
-    }
-
-    "Find by workflowId" in  new StatusHistoryTrait {
-
-      val workflowId : String = status1.id
-
-      actor ! FindByWorkflowId(workflowId)
-      expectMsgPF(){
-        case future: Future[List[WorkflowStatusHistory]] => future onSuccess {
-          case s: List[WorkflowStatusHistory] => s.head.workflowId shouldEqual workflowId
-        }
-      }
-      db.close()
     }
   }
-
 }
