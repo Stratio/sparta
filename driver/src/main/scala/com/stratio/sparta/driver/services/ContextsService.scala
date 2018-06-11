@@ -77,10 +77,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
     }
   }
 
-  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): Unit = {
-
-    JarsHelper.addJarsToClassPath(files)
-
+  def clusterStreamingContext(workflow: Workflow): Unit = {
     val errorManager = getErrorManager(workflow)
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
     try {
@@ -114,10 +111,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
     }
   }
 
-  def clusterContext(workflow: Workflow, files: Seq[String]): Unit = {
-
-    JarsHelper.addJarsToClassPath(files)
-
+  def clusterContext(workflow: Workflow): Unit = {
     val spartaWorkflow = SpartaWorkflow[RDD](workflow, getErrorManager(workflow))
 
     try {
