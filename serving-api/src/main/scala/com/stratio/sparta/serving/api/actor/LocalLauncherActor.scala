@@ -45,7 +45,7 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         status = NotStarted,
         lastUpdateDateWorkflow = workflow.lastUpdateDate
       ))
-      val jars = JarsHelper.addLocalUserPluginJarsToClasspath(workflow)
+      val jars = JarsHelper.localUserPluginJars(workflow)
       val startedInformation = s"Starting workflow in local mode"
       log.info(startedInformation)
       statusService.update(WorkflowStatus(

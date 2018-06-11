@@ -44,11 +44,8 @@ trait JarsHelper extends SLF4JLogging {
     }
   }
 
-  def addLocalUserPluginJarsToClasspath(workflow: Workflow): Seq[File] = {
-    val jars = localUserPluginJars(workflow)
-    jars.foreach(file => addJarToClasspath(file))
-    jars
-  }
+  def localUserPluginJars(workflow: Workflow): Seq[String] =
+    userJars(workflow)
 
   def clusterUserPluginJars(workflow: Workflow): Seq[String] =
     (userJars(workflow) ++ JarsHelper.getJdbcDriverPaths).distinct
@@ -60,22 +57,6 @@ trait JarsHelper extends SLF4JLogging {
         .filter(file => file.isFile && file.getName.endsWith("jar"))
         .map(file => file.getAbsolutePath)
     } else Seq.empty[String]
-  }
-
-  /**
-    * Adds a file to the classpath of the application.
-    *
-    * @param file to add in the classpath.
-    */
-  def addJarToClasspath(file: File): Unit = {
-    if (file.exists) {
-      val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
-
-      method.setAccessible(true)
-      method.invoke(getClass.getClassLoader, file.toURI.toURL)
-    } else {
-      log.warn(s"The file ${file.getName} not exists in path ${file.getAbsolutePath}")
-    }
   }
 
   def addJdbcDriversToClassPath(): Unit =
@@ -99,6 +80,17 @@ trait JarsHelper extends SLF4JLogging {
     }
 
   private def pathFromLocal(filePath: String): String = filePath.replace("file://", "")
+
+  private def addJarToClasspath(file: File): Unit = {
+    if (file.exists) {
+      val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
+
+      method.setAccessible(true)
+      method.invoke(getClass.getClassLoader, file.toURI.toURL)
+    } else {
+      log.warn(s"The file ${file.getName} not exists in path ${file.getAbsolutePath}")
+    }
+  }
 
   private def addFromLocal(filePath: String): Unit = {
     log.debug(s"Getting file from local: $filePath")
@@ -126,9 +118,6 @@ trait JarsHelper extends SLF4JLogging {
     FileUtils.copyURLToFile(url, file)
     addJarToClasspath(file)
   }
-
-  private def localUserPluginJars(workflow: Workflow): Seq[File] =
-    userJars(workflow).map(jar => new File(jar.replace("file://", "")))
 
   private def userJars(workflow: Workflow): Seq[String] = {
     val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)

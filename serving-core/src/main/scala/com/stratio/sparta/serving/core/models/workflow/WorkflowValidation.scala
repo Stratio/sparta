@@ -139,15 +139,15 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
   def validatePlugins(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
     val pluginsValidations = if (workflow.executionEngine == Streaming && curator.isDefined) {
-      JarsHelper.addLocalUserPluginJarsToClasspath(workflow)
+      val plugins = JarsHelper.localUserPluginJars(workflow)
       val errorManager = ZookeeperErrorImpl(workflow, curator.get)
-      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else if (workflow.executionEngine == Batch && curator.isDefined) {
-      JarsHelper.addLocalUserPluginJarsToClasspath(workflow)
+      val plugins = JarsHelper.localUserPluginJars(workflow)
       val errorManager = ZookeeperErrorImpl(workflow, curator.get)
-      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else Seq.empty

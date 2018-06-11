@@ -34,7 +34,7 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
   private def doDebugWorkflow(workflow: Workflow): Unit = {
     try {
       Try {
-        val jars = JarsHelper.addLocalUserPluginJarsToClasspath(workflow)
+        val jars = JarsHelper.localUserPluginJars(workflow)
         log.info(s"Starting workflow debug")
 
         if (workflow.executionEngine == Streaming) {
