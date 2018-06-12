@@ -23,7 +23,7 @@ class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityMana
   with ActionUserAuthorize{
 
   private val ResourceType = "workflow"
-  private val statusHistoryService = new WorkflowStatusHistoryService()
+  private lazy val statusHistoryService = new WorkflowStatusHistoryService()
 
   private lazy val enabled = Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)
 
