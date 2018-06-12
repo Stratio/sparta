@@ -6,10 +6,9 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
 import com.stratio.sparta.serving.core.models.dto.Dto
-import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 
 case class NodeGraph(
@@ -25,10 +24,13 @@ case class NodeGraph(
                       nodeTemplate: Option[NodeTemplateInfo] = None,
                       supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
                       executionEngine: Option[ExecutionEngine] = Option(Streaming),
-                      supportedDataRelations: Option[Seq[DataType]] = None
+                      supportedDataRelations: Option[Seq[DataType]] = None,
+                      lineageProperties : Seq[NodeLineageProperty] = Seq.empty[NodeLineageProperty]
                     )
 
 /**
   * Wrapper class used by the api consumers
   */
 case class NodeGraphDto(name: String, stepType: String) extends Dto
+
+case class NodeLineageProperty(name: String)

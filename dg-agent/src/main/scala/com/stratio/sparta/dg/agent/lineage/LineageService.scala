@@ -3,24 +3,24 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.dg.agent.lineage
 
 import scala.util.{Failure, Success, Try}
 import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
+import scalax.collection.edge.LDiEdge
+
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorRef, ActorSystem, AllForOneStrategy, Props}
 import akka.event.slf4j.SLF4JLogging
-import com.typesafe.config.ConfigFactory
-import com.stratio.governance.commons.agent.actors.KafkaSender
-import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
+
+import com.stratio.governance.commons.agent.actors.PostgresSender
+import com.stratio.governance.commons.agent.actors.PostgresSender.PostgresEvent
 import com.stratio.sparta.dg.agent.commons.LineageUtils
-import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.StatusListenerActor._
+import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.NodeGraph
-
-import scalax.collection.edge.LDiEdge
 
 class LineageService(statusListenerActor: ActorRef,
                      workflowListenerActor: ActorRef) extends Actor with SLF4JLogging {
@@ -30,15 +30,14 @@ class LineageService(statusListenerActor: ActorRef,
   override val supervisorStrategy =
     AllForOneStrategy() {
       case t: Exception ⇒ {
-        log.error(s"Exception on actor $sender : ${t.getMessage}", t)
+        log.error(s"Exception on PostgresSender actor $sender : ${t.getMessage}", t)
         Restart
       }
     }
 
   implicit val system: ActorSystem = context.system
 
-  val senderKafka = context.actorOf(Props(new KafkaSender()))
-  val topicKafka = Try(ConfigFactory.load.getString("sender.topic")).getOrElse("dg-metadata")
+  val senderPostgres = context.actorOf(Props(new PostgresSender()))
 
   override def preStart(): Unit = {
     extractTenantMetadata()
@@ -56,10 +55,10 @@ class LineageService(statusListenerActor: ActorRef,
 
     Try(LineageUtils.tenantMetadataLineage()) match {
       case Success(tenantMetadataList) =>
-        senderKafka ! KafkaEvent(tenantMetadataList, topicKafka)
+        senderPostgres ! PostgresEvent(tenantMetadataList)
         log.debug("Tenant metadata sent to Kafka")
       case Failure(ex) =>
-        log.warn(s"The tenant event couldn't be sent to Kafka. Error was: ${ex.getMessage}")
+        log.warn(s"The tenant event couldn't be sent to Postgres. Error was: ${ex.getMessage}")
     }
   }
 
@@ -72,7 +71,7 @@ class LineageService(statusListenerActor: ActorRef,
           LineageUtils.transformationMetadataLineage(workflow, graph) :::
           LineageUtils.outputMetadataLineage(workflow, graph)) match {
         case Success(listSteps) =>
-          senderKafka ! KafkaEvent(listSteps, topicKafka)
+          senderPostgres ! PostgresEvent(listSteps)
           log.debug(s"Sending workflow lineage for workflow: ${workflow.id.get}")
         case Failure(exception) =>
           log.warn(s"Error while generating the metadata related to the workflow steps:${exception.getMessage}")
@@ -84,7 +83,7 @@ class LineageService(statusListenerActor: ActorRef,
       Try(LineageUtils.statusMetadataLineage(workflowStatusStream)) match {
         case Success(maybeList) =>
           maybeList.fold() { listMetadata =>
-            senderKafka ! KafkaEvent(listMetadata, topicKafka)
+            senderPostgres ! PostgresEvent(listMetadata)
             log.debug(s"Sending workflow status lineage for workflowStatus: " +
               s"${workflowStatusStream.workflow.get.name}")
           }

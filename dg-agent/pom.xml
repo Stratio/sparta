@@ -17,7 +17,7 @@ This software – including all its source code – contains proprietary informa
     <artifactId>dg-agent</artifactId>
 
     <properties>
-        <dg.commons.version>0.5.1</dg.commons.version>
+        <dg.commons.version>0.7.0-M3</dg.commons.version>
     </properties>
 
     <dependencies>

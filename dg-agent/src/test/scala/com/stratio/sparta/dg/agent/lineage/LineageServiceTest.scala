@@ -5,24 +5,26 @@
  */
 package com.stratio.sparta.dg.agent.lineage
 
+import scalax.collection.Graph
+import scalax.collection.edge.LDiEdge
+
 import akka.actor.SupervisorStrategy.Restart
-import akka.actor.{ActorKilledException, ActorSystem, Kill, Props}
-import akka.testkit.{EventFilter, ImplicitSender, TestActorRef, TestKit}
-import com.stratio.sparta.dg.agent.commons.LineageUtils
-import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.actor.{StatusListenerActor, WorkflowListenerActor}
-import com.stratio.sparta.serving.core.helpers.GraphHelper
-import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode, WorkflowStatusEnum}
-import com.stratio.sparta.serving.core.models.workflow._
+import akka.actor.{ActorSystem, Props}
+import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scalax.collection.Graph
-import scalax.collection.edge.LDiEdge
+import com.stratio.governance.commons.agent.model.metadata.lineage.{TenantMetadataProperties, WorkflowStatusMetadata}
+import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
+import com.stratio.sparta.dg.agent.commons.LineageUtils
+import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.serving.core.actor.{StatusListenerActor, WorkflowListenerActor}
+import com.stratio.sparta.serving.core.helpers.GraphHelper
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode, WorkflowStatusEnum}
+import com.stratio.sparta.serving.core.models.workflow._
 
 @RunWith(classOf[JUnitRunner])
 class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigFactory.parseString(
@@ -73,20 +75,13 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
     )
     val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(testWorkflow01)
 
-    val indexTypeEvent = 3
-  }
-
-  trait CommonActors {
-
-    val stListenerActor = TestActorRef[StatusListenerActor](Props[StatusListenerActor])
-    val workflowListenerActor = TestActorRef[WorkflowListenerActor](Props[WorkflowListenerActor])
-    val lineageService = TestActorRef[LineageService](LineageService.props(stListenerActor, workflowListenerActor))
+    val indexTypeEvent = 2
   }
 
   "LineageService" should {
 
     "LineageUtils workflowToMetadatapath" in new CommonMetadata {
-      LineageUtils.workflowMetadataPathString(testWorkflow01, None, "input").toString()
+      LineageUtils.workflowMetadataPathString(testWorkflow01, "input").toString()
         .split("/")(1) should equal(testWorkflow01.group.name.substring(1).replace("_", "/") ++ "_" ++
       testWorkflow01.name ++ "_" ++ testWorkflow01.version.toString)
     }
@@ -119,37 +114,23 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
 
     "LineageUtils TenantMetadata return default values for attributes" in {
       val result = LineageUtils.tenantMetadataLineage()
+      val keys = result.head.properties.toList.map(mp => mp.asInstanceOf[TenantMetadataProperties]).map(m => TenantMetadataProperties.unapply(m).get._2)
 
-      result.head.oauthEnable shouldBe false
-      result.head.gosecEnable shouldBe false
-      result.head.xdCatalogEnable shouldBe false
-      result.head.mesosAttributeConstraint shouldBe empty
-      result.head.mesosHostnameConstraint shouldBe empty
+      keys.contains("oauthEnable") shouldBe true
+      keys.contains("gosecEnable") shouldBe true
+      keys.contains("xdCatalogEnable") shouldBe true
+      keys.contains("mesosAttributeConstraint") shouldBe true
+      keys.contains("mesosHostnameConstraint") shouldBe true
     }
 
     "LineageUtils StatusMetadata return metadataList with status" in new CommonMetadata {
-      val result: Option[List[SpartaWorkflowStatusMetadata]] = LineageUtils.statusMetadataLineage(WorkflowStatusStream(
-        WorkflowStatus("qwerty12345", WorkflowStatusEnum.Failed, Some("statusId")),
+      val result: Option[List[WorkflowStatusMetadata]] = LineageUtils.statusMetadataLineage(WorkflowStatusStream(
+        WorkflowStatus("qwerty12345", WorkflowStatusEnum.Failed),
         Option(testWorkflow01),
         Option(WorkflowExecution("qwerty12345", None, None, None, None, Option(GenericDataExecution(
           testWorkflow01, WorkflowExecutionMode.dispatcher, "1234"))))))
       result.head.size shouldBe 1
       result.get.head.genericType.value should equal("status")
-    }
-
-    "send start message on actor creation" in new CommonActors {
-      expectNoMsg()
-    }
-
-    "when senderKafka is dead supervisor restart the actor" in new CommonActors {
-      EventFilter[ActorKilledException](occurrences = 1) intercept {
-        lineageService.underlyingActor.senderKafka ! Kill
-      }
-    }
-
-    "supervisor strategy is always restart" in new CommonActors {
-      val strategy = lineageService.underlyingActor.supervisorStrategy.decider
-      strategy(new RuntimeException("boom")) should be(Restart)
     }
 
     "LineageUtils WorkflowMetadata correct values for attributes" in new CommonMetadata {
@@ -158,13 +139,9 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
       result.head.name shouldBe "workflow-01"
       result.head.key shouldBe "workflow-01"
       result.head.description shouldBe "whatever"
-      result.head.executionMode shouldBe "Streaming"
-      result.head.mesosConstraints shouldBe empty
-      result.head.kerberosEnabled shouldBe false
-      result.head.tlsEnabled shouldBe false
-      result.head.mesosSecurityEnabled shouldBe false
       result.head.tags shouldBe List.empty
       result.head.modificationTime.isDefined shouldBe true
+      result.head.customType.toString shouldBe SpartaType.WORKFLOW.toString
 
       result.head.metadataPath.toString().split("/")(1) should equal ("home_workflow-01_0")
     }

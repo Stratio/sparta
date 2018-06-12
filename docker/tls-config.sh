@@ -28,4 +28,7 @@ fold -w64 "${SPARTA_SECRET_FOLDER}/${TENANT_NAME}.key" >> "${SPARTA_SECRET_FOLDE
 mv "${SPARTA_SECRET_FOLDER}/aux.key" "${SPARTA_SECRET_FOLDER}/${TENANT_NAME}.key"
 openssl pkcs8 -topk8 -inform pem -in "${SPARTA_SECRET_FOLDER}/${TENANT_NAME}.key" -outform der -nocrypt -out "${SPARTA_SECRET_FOLDER}/key.pkcs8"
 mv $SPARTA_SECRET_FOLDER/${TENANT_NAME}.pem $SPARTA_SECRET_FOLDER/cert.crt
+export SPARTA_TLS_KEY_PKCS8="${SPARTA_SECRET_FOLDER}/key.pkcs8"
+export SPARTA_TLS_ROOTCERT="${SPARTA_SECRET_FOLDER}/ca.crt"
+export SPARTA_TLS_CERT="$SPARTA_SECRET_FOLDER/cert.crt"
 fold -w65 ${SPARTA_SECRET_FOLDER}/cert.crt > ${SPARTA_SECRET_FOLDER}/nginx_cert.crt

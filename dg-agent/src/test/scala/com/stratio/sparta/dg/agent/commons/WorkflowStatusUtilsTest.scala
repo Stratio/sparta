@@ -5,9 +5,8 @@
  */
 package com.stratio.sparta.dg.agent.commons
 
-import com.stratio.governance.commons.agent.model.metadata.MetadataPath
-import com.stratio.governance.commons.agent.model.metadata.lineage.EventType
-import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
+import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, OperationCommandType, SourceType}
+import com.stratio.governance.commons.agent.model.metadata.lineage.{EventType, WorkflowStatusMetadata}
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
@@ -16,6 +15,8 @@ import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.{Matchers, WordSpec}
 import org.scalatest.junit.JUnitRunner
+
+import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowStatusUtilsTest extends WordSpec with Matchers {
@@ -81,18 +82,21 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
                        None
       )
       val metadataPath =  MetadataPath(Seq("sparta",
-        "home_test_subgroup_kafka-test_0",
-        "1519051473",
-        "1519051473"))
+        "home_test_subgroup_kafka-test_0","status"))
 
-      val expected = SpartaWorkflowStatusMetadata("kafka-test",
+      val expected = WorkflowStatusMetadata("kafka-test",
         EventType.Success,
         Some(""),
         "qwerty12345",
         metadataPath,
         tags = List.empty[String],
+        agentVersion = SpartaType.agentVersion,
+        serverVersion = SpartaType.serverVersion,
+        sourceType = SourceType.SPARTA,
         modificationTime = Option(timestampEpochTest),
-        accessTime = Option(timestampEpochTest))
+        operationCommandType = OperationCommandType.ALTER,
+        accessTime = Option(timestampEpochTest),
+        customType = SpartaType.STATUS)
 
       LineageUtils.statusMetadataLineage(statusEvent) should equal (Some(List(expected)))
     }
