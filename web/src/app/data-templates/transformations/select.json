@@ -54,7 +54,7 @@
          "qa": "fragment-details-select-expression"
       },
       {
-         "propertyId": "selectColumns",
+         "propertyId": "columns",
          "propertyName": "_SELECT_COLUMNS_",
          "propertyType": "list",
          "required": false,

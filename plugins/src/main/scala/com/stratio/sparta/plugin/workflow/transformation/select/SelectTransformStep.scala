@@ -80,7 +80,7 @@ abstract class SelectTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid", name))
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -88,38 +88,38 @@ abstract class SelectTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
+            messages = validation.messages :+ WorkflowValidationMessage(s"The input schema from step ${input.stepName} is not valid", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
+          messages = validation.messages :+ WorkflowValidationMessage(s"The input table name ${is.stepName} is not valid", name))
       }
     }
 
     if (selectType == SelectType.COLUMNS && columns.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory to specify almost one column", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify at least one column", name)
       )
 
     if (selectType == SelectType.EXPRESSION && selectExpression.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory one select expression, such as colA, abs(colC)", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify a select expression, such as colA, abs(colC)", name)
       )
 
     if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the select expression is invalid", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The select expression is invalid", name)
       )
 
     if (selectType == SelectType.COLUMNS && columns.nonEmpty && !validateSql)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the select columns are invalid", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The select columns are invalid", name)
       )
 
     validation
