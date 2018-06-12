@@ -8,17 +8,20 @@ package com.stratio.sparta.serving.core.helpers
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
-import java.util.{Calendar, UUID}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.services.HdfsService
+import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.services.{HdfsFilesService, HdfsService}
 import org.apache.commons.io.FileUtils
+
+import scala.util.Try
 
 object JarsHelper extends JarsHelper
 
 trait JarsHelper extends SLF4JLogging {
 
   protected lazy val hdfsService = HdfsService()
+  protected lazy val hdfsFilesService = HdfsFilesService()
 
   /**
     * Finds files that are the driver application.
@@ -41,6 +44,12 @@ trait JarsHelper extends SLF4JLogging {
     }
   }
 
+  def localUserPluginJars(workflow: Workflow): Seq[String] =
+    userJars(workflow)
+
+  def clusterUserPluginJars(workflow: Workflow): Seq[String] =
+    (userJars(workflow) ++ JarsHelper.getJdbcDriverPaths).distinct
+
   def getJdbcDriverPaths: Seq[String] = {
     val jdbcDrivers = new File("/jdbc-drivers")
     if (jdbcDrivers.exists && jdbcDrivers.isDirectory) {
@@ -48,22 +57,6 @@ trait JarsHelper extends SLF4JLogging {
         .filter(file => file.isFile && file.getName.endsWith("jar"))
         .map(file => file.getAbsolutePath)
     } else Seq.empty[String]
-  }
-
-  /**
-    * Adds a file to the classpath of the application.
-    *
-    * @param file to add in the classpath.
-    */
-  def addJarToClasspath(file: File): Unit = {
-    if (file.exists) {
-      val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
-
-      method.setAccessible(true)
-      method.invoke(getClass.getClassLoader, file.toURI.toURL)
-    } else {
-      log.warn(s"The file ${file.getName} not exists.")
-    }
   }
 
   def addJdbcDriversToClassPath(): Unit =
@@ -86,7 +79,18 @@ trait JarsHelper extends SLF4JLogging {
       else None
     }
 
-  private def pathFromLocal(filePath: String) : String = filePath.replace("file://", "")
+  private def pathFromLocal(filePath: String): String = filePath.replace("file://", "")
+
+  private def addJarToClasspath(file: File): Unit = {
+    if (file.exists) {
+      val method: Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
+
+      method.setAccessible(true)
+      method.invoke(getClass.getClassLoader, file.toURI.toURL)
+    } else {
+      log.warn(s"The file ${file.getName} not exists in path ${file.getAbsolutePath}")
+    }
+  }
 
   private def addFromLocal(filePath: String): Unit = {
     log.debug(s"Getting file from local: $filePath")
@@ -113,6 +117,24 @@ trait JarsHelper extends SLF4JLogging {
     val url = new URL(fileURI)
     FileUtils.copyURLToFile(url, file)
     addJarToClasspath(file)
+  }
+
+  private def userJars(workflow: Workflow): Seq[String] = {
+    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
+      Try {
+        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
+          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar"))
+            Option(fileStatus.getPath.toUri.toString)
+          else None
+        }
+      }.getOrElse(Seq.empty[String])
+    else Seq.empty[String]
+    val userPlugins = workflow.settings.global.userPluginsJars
+      .filter(userJar => userJar.jarPath.toString.nonEmpty && userJar.jarPath.toString.endsWith(".jar"))
+      .map(_.jarPath.toString.trim)
+      .distinct
+
+    (uploadedPlugins ++ userPlugins).filter(_.nonEmpty).distinct
   }
 
 }

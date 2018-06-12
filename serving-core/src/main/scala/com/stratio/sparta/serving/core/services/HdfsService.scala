@@ -191,24 +191,24 @@ object HdfsService extends SLF4JLogging {
 
     Option(System.getenv(SystemHadoopConfDir)) match {
       case Some(confDir) =>
-        log.debug(s"The HDFS configuration was read from the files located at: $confDir")
+        log.debug(s"The HDFS configuration have been created for read files with conf located at: $confDir")
       case None =>
         hdfsConfig.foreach { config =>
-          val master = Try(config.getString(HdfsMaster))
-            .getOrElse(throw new Exception("Wrong HDFS master configuration"))
-          val port = Try(config.getInt(HdfsPort))
-            .getOrElse(throw new Exception("Wrong HDFS port configuration"))
-          val hdfsPath = s"hdfs://$master:$port"
+          if(config.hasPath(HdfsMaster) && config.hasPath(HdfsPort)) {
+            val master = config.getString(HdfsMaster)
+            val port = config.getInt(HdfsPort)
+            val hdfsPath = s"hdfs://$master:$port"
 
-          Properties.envOrNone(SystemHadoopUserName)
-            .orElse(Try(config.getString(HadoopUserName)).toOption.notBlank)
-            .foreach { user =>
-              System.setProperty(SystemHadoopUserName, user)
-            }
+            Properties.envOrNone(SystemHadoopUserName)
+              .orElse(Try(config.getString(HadoopUserName)).toOption.notBlank)
+              .foreach { user =>
+                System.setProperty(SystemHadoopUserName, user)
+              }
 
-          conf.set(DefaultFSProperty, hdfsPath)
+            conf.set(DefaultFSProperty, hdfsPath)
 
-          log.debug(s"The HDFS configuration was assigned with $DefaultFSProperty and located at: $hdfsPath")
+            log.debug(s"The HDFS configuration have been assigned with $DefaultFSProperty and located at: $hdfsPath")
+          } else log.debug(s"The HDFS configuration have been created for read files in the local filesystem")
         }
     }
     conf

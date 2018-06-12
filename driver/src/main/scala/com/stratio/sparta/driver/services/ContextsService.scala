@@ -14,6 +14,7 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.error.{ErrorManager, ZookeeperDebugErrorImpl, ZookeeperErrorImpl}
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
@@ -36,7 +37,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
   private val errorMessage = s"An error was encountered while initializing Checkpoint"
   private val okMessage = s"Spark Checkpoint initialized successfully"
 
-  def localStreamingContext(workflow: Workflow, files: Seq[File]): Unit = {
+  def localStreamingContext(workflow: Workflow, files: Seq[String]): Unit = {
     val errorManager = getErrorManager(workflow)
 
     import workflow.settings.streamingSettings.checkpointSettings._
@@ -48,7 +49,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
       }
     }
 
-    val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, files.map(_.getAbsolutePath))
+    val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, files)
 
     try {
       spartaWorkflow.stages()
@@ -63,9 +64,9 @@ case class ContextsService(curatorFramework: CuratorFramework)
     }
   }
 
-  def localContext(workflow: Workflow, files: Seq[File]): Unit = {
+  def localContext(workflow: Workflow, files: Seq[String]): Unit = {
     val errorManager = getErrorManager(workflow)
-    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, files.map(_.getAbsolutePath))
+    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, files)
 
     try {
       spartaWorkflow.setup()
@@ -77,6 +78,9 @@ case class ContextsService(curatorFramework: CuratorFramework)
   }
 
   def clusterStreamingContext(workflow: Workflow, files: Seq[String]): Unit = {
+
+    JarsHelper.addJarsToClassPath(files)
+
     val errorManager = getErrorManager(workflow)
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
     try {
@@ -111,8 +115,10 @@ case class ContextsService(curatorFramework: CuratorFramework)
   }
 
   def clusterContext(workflow: Workflow, files: Seq[String]): Unit = {
-    val errorManager = getErrorManager(workflow)
-    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+
+    JarsHelper.addJarsToClassPath(files)
+
+    val spartaWorkflow = SpartaWorkflow[RDD](workflow, getErrorManager(workflow))
 
     try {
       spartaWorkflow.setup()

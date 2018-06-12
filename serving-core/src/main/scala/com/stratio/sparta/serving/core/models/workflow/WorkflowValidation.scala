@@ -14,7 +14,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.error.ZookeeperErrorImpl
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
@@ -139,13 +139,15 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
   def validatePlugins(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
     val pluginsValidations = if (workflow.executionEngine == Streaming && curator.isDefined) {
+      val plugins = JarsHelper.localUserPluginJars(workflow)
       val errorManager = ZookeeperErrorImpl(workflow, curator.get)
-      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else if (workflow.executionEngine == Batch && curator.isDefined) {
+      val plugins = JarsHelper.localUserPluginJars(workflow)
       val errorManager = ZookeeperErrorImpl(workflow, curator.get)
-      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else Seq.empty

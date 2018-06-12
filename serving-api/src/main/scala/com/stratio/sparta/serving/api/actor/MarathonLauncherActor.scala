@@ -53,7 +53,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
         throw new RuntimeException(message)
       }
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
-      val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
+      val pluginJars = JarsHelper.clusterUserPluginJars(workflow)
       val localPluginJars = JarsHelper.getLocalPathFromJars(pluginJars)
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginJars, detailConfig)

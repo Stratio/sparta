@@ -10,16 +10,16 @@ import java.util.UUID
 import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
-import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
+import com.stratio.sparta.sdk.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{ExecutionService, HdfsFilesService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 
@@ -30,7 +30,6 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
   lazy private val contextService: ContextsService = ContextsService(curatorFramework)
   lazy private val statusService = new WorkflowStatusService(curatorFramework)
   lazy private val executionService = new ExecutionService(curatorFramework)
-  lazy private val hdfsFilesService = HdfsFilesService()
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow, userId: Option[String]) => doInitSpartaContext(workflow)
@@ -46,8 +45,7 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         status = NotStarted,
         lastUpdateDateWorkflow = workflow.lastUpdateDate
       ))
-      val jars = WorkflowHelper.userPluginsFiles(workflow, hdfsFilesService)
-      jars.foreach(file => JarsHelper.addJarToClasspath(file))
+      val jars = JarsHelper.localUserPluginJars(workflow)
       val startedInformation = s"Starting workflow in local mode"
       log.info(startedInformation)
       statusService.update(WorkflowStatus(

@@ -136,6 +136,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         extraConfiguration = stepsSparkConfig ++ sparkLocalConfig
       )
 
+      JarsHelper.addJarsToClassPath(files)
       addFilesToSparkContext(files)
       executeSentences(initSqlSentences, userId)
 
@@ -161,8 +162,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter(_.className.matches("Custom[\\w]*Step")) match {
       case Nil => Map[String, String]()
       case x :: xs =>
-        val pluginsFiles = workflow.settings.global.userPluginsJars.map(_.jarPath.toString)
-        JarsHelper.addJarsToClassPath(pluginsFiles)
         (x :: xs).map { node =>
           val customClassType = node.configuration.getString("customClassType")
           if(customClassType.contains(".")){

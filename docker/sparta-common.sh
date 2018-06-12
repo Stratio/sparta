@@ -103,6 +103,27 @@ function initHdfs() {
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
+    if [[ ! -v HADOOP_DFS_ENCRYPT_DATA_TRANSFER ]]; then
+       HADOOP_DFS_ENCRYPT_DATA_TRANSFER="true"
+    fi
+    if [[ ! -v HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES ]]; then
+       HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES="AES/CTR/NoPadding"
+    fi
+    if [[ ! -v HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH ]]; then
+       HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH="128"
+    fi
+    if [[ ! -v HADOOP_SECURITY_TOKEN_USE_IP ]]; then
+       HADOOP_SECURITY_TOKEN_USE_IP="false"
+    fi
+    if [[ ! -v MAP_REDUCE_FRAMEWORK_NAME ]]; then
+       MAP_REDUCE_FRAMEWORK_NAME="mesos"
+    fi
+    if [[ ! -v HADOOP_SECURITY_AUTH ]]; then
+       HADOOP_SECURITY_AUTH="kerberos"
+    fi
+    if [[ ! -v HADOOP_RPC_PROTECTION ]]; then
+       HADOOP_RPC_PROTECTION="authentication"
+    fi
     source hdfs_utils.sh
     generate_hdfs-conf-from-fs
   fi

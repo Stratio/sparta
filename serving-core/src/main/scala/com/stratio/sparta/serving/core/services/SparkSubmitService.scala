@@ -106,21 +106,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     )
   }
 
-  def userPluginsJars: Seq[String] = {
-    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
-      Try {
-        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
-          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar"))
-            Option(fileStatus.getPath.toUri.toString)
-          else None
-        }
-      }.getOrElse(Seq.empty[String])
-    else Seq.empty[String]
-    val userPlugins = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.toString.trim)
-
-    uploadedPlugins ++ userPlugins ++ JarsHelper.getJdbcDriverPaths
-  }
-
   def getSparkLocalWorkflowConfig: Map[String, String] = getUserSparkConfig
 
   /** Private Methods **/
@@ -214,7 +199,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod)++ getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod) ++ getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
 
   //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =
@@ -429,11 +414,11 @@ object SparkSubmitService {
   lazy val spartaTenant = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
     Properties.envOrElse("TENANT_NAME", "sparta"))
   lazy val spartaLocalAppName = s"$spartaTenant-spark-standalone"
-  lazy val extraSparJarsPath = Try(SpartaConfig.crossdataConfig.get.getString("session.sparkjars-path"))
+  lazy val extraSparkJarsPath = Try(SpartaConfig.crossdataConfig.get.getString("session.sparkjars-path"))
     .getOrElse("/opt/sds/sparta/repo")
   lazy val mapExtraSparkJars: Seq[String] = Seq(
-    s"$extraSparJarsPath/org/elasticsearch/elasticsearch-spark-20_2.11/6.1.1/elasticsearch-spark-20_2.11-6.1.1.jar",
-    s"$extraSparJarsPath/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar"
+    s"$extraSparkJarsPath/org/elasticsearch/elasticsearch-spark-20_2.11/6.1.1/elasticsearch-spark-20_2.11-6.1.1.jar",
+    s"$extraSparkJarsPath/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar"
   )
 
   def getJarsSparkConfigurations(jarFiles: Seq[String],extraJars : Boolean  = false): Map[String, String] =
