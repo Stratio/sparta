@@ -1,0 +1,113 @@
+{
+   "name": "BasicDataQuality",
+   "icon": "BasicDataQuality",
+   "category": "Data Quality",
+   "className": "BasicDataQualityTransformStep",
+   "classPrettyName": "BasicDataQuality",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "description": "Executes basic data quality analysis",
+   "properties": [
+      {
+         "propertyId": "columns",
+         "propertyName": "_COLUMNS_TO_ANALYZE_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "fragment-details-columnsToAnalyze",
+         "fields": [
+            {
+               "propertyId": "name",
+               "propertyName": "_COLUMN_NAME_PROFILING_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Name of the column",
+               "qa": "fragment-details-columns-name"
+            },
+            {
+               "propertyId": "characters",
+               "propertyName": "_CHARACTERS_ANALYSIS_",
+               "propertyType": "text",
+               "tooltip": "List of characters to analyze over the selected column. The characters must be separated by commas",
+               "qa": "fragment-details-characters"
+            },
+            {
+               "propertyId": "nullAnalysis",
+               "propertyName": "_NULL_ANALYSIS_",
+               "propertyType": "boolean",
+               "default": true,
+               "tooltip": "Enables or disables the null analysis over the column",
+               "qa": "fragment-details-nullAnalysis"
+            }
+         ]
+      },
+      {
+         "propertyId": "dataZone",
+         "propertyName": "_DATA_ZONE_",
+         "propertyType": "select",
+         "default": "MASTER",
+         "values": [
+            {
+               "label": "Master",
+               "value": "MASTER"
+            },
+            {
+               "label": "Raw",
+               "value": "RAW"
+            }
+         ],
+         "qa": "fragment-details-dataZone"
+      },
+      {
+         "propertyId": "path",
+         "propertyName": "_PATH_",
+         "propertyType": "text",
+         "tooltip": "File input path",
+         "qa": "fragment-details-path"
+      },
+      {
+         "propertyId": "addExecutionDate",
+         "propertyName": "_EXECUTION_DATE_",
+         "propertyType": "boolean",
+         "default": true,
+         "qa": "fragment-details-addExecutionDate"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "tooltip": "Schema definition for steps",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "tooltip": "Step name",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema in json/Spark format or from example",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

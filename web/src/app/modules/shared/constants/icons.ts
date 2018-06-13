@@ -42,5 +42,7 @@ export const icons: any = {
     ElasticSearch: '\ue624',
     DropColumns: '\ue123',
     AddColumns: '\ue104',
-    RenameColumns: '\ue91D'
+    RenameColumns: '\ue91D',
+    DataProfiling: '\uE091',
+    BasicDataQuality: '\uE94D'
 };

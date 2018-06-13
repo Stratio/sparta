@@ -8,11 +8,13 @@ import { StepType, Engine } from "@models/enums";
 
 import * as addColumnTemplate from './transformations/addColumns.json';
 import * as avroTemplate from './transformations/avro.json';
+import * as basicDataQualityTemplate from './transformations/basicDataQuality.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
 import * as customTemplate from './transformations/custom.json';
+import * as dataProfilingTemplate from './transformations/dataProfiling.json';
 import * as datetimeTemplate from './transformations/datetime.json';
 import * as distinctTemplate from './transformations/distinct.json';
 import * as dropColumnsTemplate from './transformations/dropColumns.json';
@@ -39,11 +41,13 @@ import * as windowTemplate from './transformations/window.json';
 export const transformations: any = [
     addColumnTemplate,
     avroTemplate,
+    basicDataQualityTemplate,
     castingTemplate,
     checkpointTemplate,
     csvTemplate,
     cubeTemplate,
     customTemplate,
+    dataProfilingTemplate,
     datetimeTemplate,
     distinctTemplate,
     dropColumnsTemplate,
