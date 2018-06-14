@@ -55,6 +55,20 @@ object SparkContextFactory extends SLF4JLogging {
         Seq.empty[(String, String)]
     }
   }
+  private lazy val securityVariables: Seq[(String, String)] = {
+    if (Properties.envOrNone("SPARK_SECURITY_DATASTORE_ENABLE").isDefined) {
+      val environment = ConfigSecurity.prepareEnvironment
+      log.debug(s"XDSession secured environment prepared with variables: $environment")
+      environment.toSeq
+    } else Seq.empty[(String, String)]
+  }
+  private lazy val proxyVariables: Seq[(String, String)] = {
+    if (Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").isDefined) {
+      val proxyPath = s"/workflows-$spartaTenant/crossdata-sparkUI"
+      log.debug(s"XDSession with proxy base: $proxyPath")
+      Seq(("spark.ui.proxyBase", proxyPath))
+    } else Seq.empty[(String, String)]
+  }
 
 
   /* PUBLIC METHODS */
@@ -210,19 +224,8 @@ object SparkContextFactory extends SLF4JLogging {
     }
 
   private[core] def addStandAloneExtraConf(sparkConf: SparkConf): SparkConf = {
-    val additionalConf = jdbcDriverVariables ++ kerberosYarnDefaultVariables
-    val proxyConf = if (Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").isDefined) {
-      val proxyPath = s"/workflows-$spartaTenant/crossdata-sparkUI"
-      log.debug(s"XDSession with proxy base: $proxyPath")
-      Seq(("spark.ui.proxyBase", proxyPath))
-    } else Seq.empty[(String, String)]
-    val securityConf = if (Properties.envOrNone("SPARK_SECURITY_DATASTORE_ENABLE").isDefined) {
-      val environment = ConfigSecurity.prepareEnvironment
-      log.debug(s"XDSession secured environment prepared with variables: $environment")
-      environment.toSeq
-    } else Seq.empty[(String, String)]
-
-    val configurationsToAdd = additionalConf ++ proxyConf ++ securityConf ++ SparkSubmitService.getSparkStandAloneConfig
+    val configurationsToAdd = securityVariables ++ proxyVariables ++ jdbcDriverVariables ++
+      kerberosYarnDefaultVariables ++ SparkSubmitService.getSparkStandAloneConfig
 
     sparkConf.setAll(configurationsToAdd)
 
