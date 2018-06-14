@@ -7,4 +7,5 @@ package com.stratio.sparta.sdk.workflow.step
 
 case class DebugOptions( path: Option[String] = None,
                          query: Option[String] = None,
-                         userProvidedExample: Option[String] = None)
+                         userProvidedExample: Option[String] = None,
+                         fileUploaded: Option[String] = None )

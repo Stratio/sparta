@@ -13,28 +13,34 @@ import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
-import com.stratio.sparta.serving.api.actor.WorkflowActor.Response
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.wordnik.swagger.annotations._
-import spray.routing.Route
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import javax.ws.rs.Path
-import spray.http.StatusCodes
+import com.stratio.spray.oauth2.client.OauthClient
+import com.wordnik.swagger.annotations._
+import spray.http.HttpHeaders.`Content-Disposition`
+import spray.http.Uri.Path.Segment
+import spray.http.{StatusCodes, _}
+import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
+import spray.routing.Route
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.DebugWorkflowsPath, description = "Workflow debug utility")
-trait DebugWorkflowHttpService extends BaseHttpService {
+trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
 
+  implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
+    FormDataUnmarshallers.MultipartFormDataUnmarshaller
 
-  override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~ create(user) ~ run(user) ~
-    findById(user) ~ resultsById(user) ~ remove(user) ~ removeAll(user)
+  override def routes(user: Option[LoggedUser] = None): Route = upload(user) ~ deleteFile(user) ~ downloadFile(user) ~
+    findAll(user) ~ create(user) ~ run(user) ~ remove(user) ~ removeAll(user) ~ findById(user) ~ resultsById(user)
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
     DebugWorkflowServiceUnexpected,
     ErrorCodesMessages.getOrElse(DebugWorkflowServiceUnexpected, UnknownError)
   )
-
 
   @Path("")
   @ApiOperation(value = "Finds all debug workflows.",
@@ -234,4 +240,117 @@ trait DebugWorkflowHttpService extends BaseHttpService {
     }
   }
 
+  @Path("/uploadFile/{id}")
+  @ApiOperation(value = "Uploads a file to the debug directory inside a folder workflowid",
+    notes = "Creates a file in the server filesystem with the uploaded file.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the debug workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path"),
+    new ApiImplicitParam(name = "file",
+      value = "The mock input file",
+      dataType = "file",
+      required = true,
+      paramType = "formData")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def upload(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.DebugWorkflowsPath / "uploadFile"/ Segment) { id =>
+      post {
+        pathEndOrSingleSlash {
+          entity(as[MultipartFormData]) { form =>
+            complete {
+              for {
+                response <- (supervisor ? UploadFile(form.fields, id, user))
+                  .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
+              } yield deletePostPutResponse(DebugWorkflowServiceUpload, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/deleteFile/{fileName}")
+  @ApiOperation(value = "Deletes an uploaded mock file by its name",
+    notes = "Deletes one mock file",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fileName",
+      value = "Name of the mock file",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def deleteFile(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.DebugWorkflowsPath / "deleteFile" / Rest) { file =>
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeleteFile(file, user))
+              .mapTo[Either[Response, UnauthorizedResponse]]
+          } yield deletePostPutResponse(DebugWorkflowServiceDeleteFile, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  private def debugTempFile(file: String, user: Option[LoggedUser]): Future[SpartaFile] = {
+    for {
+      response <- (supervisor ? DownloadFile(file, user)).mapTo[Either[SpartaFileResponse, UnauthorizedResponse]]
+    } yield response match {
+      case Left(Failure(e)) =>
+        throw new ServerException(ErrorModel.toString(ErrorModel(
+          StatusCodes.InternalServerError.intValue,
+          PluginsServiceDownload,
+          ErrorCodesMessages.getOrElse(PluginsServiceDownload, UnknownError),
+          None,
+          Option(e.getLocalizedMessage)
+        )))
+      case Left(Success(file: SpartaFile)) =>
+        file
+      case Right(UnauthorizedResponse(exception)) =>
+        throw exception
+      case _ =>
+        throw new ServerException(ErrorModel.toString(genericError))
+    }
+  }
+
+  @Path("/downloadFile/{fileName}")
+  @ApiOperation(value = "Download the desired mock file",
+    notes = "Download the desired mock file",
+    httpMethod = "GET")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fileName",
+      value = "Name of the mock file",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def downloadFile(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.DebugWorkflowsPath / "downloadFile" / Rest) { file =>
+      get {
+        onComplete(debugTempFile(file, user)) {
+          case Success(tempFile: SpartaFile) =>
+            respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> tempFile.fileName))) {
+              getFromFile(tempFile.path)
+            }
+          case Failure(ex) => throw ex
+        }
+      }
+    }
+  }
 }

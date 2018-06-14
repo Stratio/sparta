@@ -21,7 +21,7 @@ import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 import com.stratio.sparta.serving.core.exception.ServerException
-
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 
 import scala.util.{Failure, Success}
 
@@ -133,7 +133,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
     }
   }
 
-  "WorkflowHttpService.deleteById" should {
+  "DebugWorkflowHttpService.deleteById" should {
     "return an OK because the workflow was deleted" in {
       startAutopilot(Left(Success(true)))
       Delete(s"/${HttpConstant.DebugWorkflowsPath}/$id") ~> routes(dummyUser) ~> check {
@@ -150,7 +150,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
     }
   }
 
-  "WorkflowHttpService.deleteAll" should {
+  "DebugWorkflowHttpService.deleteAll" should {
     "return an OK because the workflow was deleted" in {
       startAutopilot(Left(Success(true)))
       Delete(s"/${HttpConstant.DebugWorkflowsPath}") ~> routes(dummyUser) ~> check {
@@ -162,6 +162,40 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       startAutopilot(Left(Failure(new MockException())))
       Delete(s"/${HttpConstant.DebugWorkflowsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeleteAll]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "DebugWorkflowHttpService.uploadFile" should {
+    "Upload a file" in {
+      startAutopilot(Left(Success(Seq(SpartaFile("", "", "")))))
+      Post(s"/${HttpConstant.DebugWorkflowsPath}/uploadFile/$id") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[UploadFile]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "Fail when service is not available" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Post(s"/${HttpConstant.DebugWorkflowsPath}/uploadFile/$id") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[UploadFile]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "DebugWorkflowHttpService.deleteFile" should {
+    "return an OK because the sparta mock file was deleted" in {
+      startAutopilot(Left(Success("")))
+      Delete(s"/${HttpConstant.DebugWorkflowsPath}/deleteFile//home/path/file.csv") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteFile]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.DebugWorkflowsPath}/deleteFile//home/path/file.csv") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteFile]
         status should be(StatusCodes.InternalServerError)
       }
     }

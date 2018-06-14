@@ -36,26 +36,26 @@ abstract class DummyDebugInputStep[Underlying[Row]](
                                              )
   extends InputStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  def createDebugFromPath(): (DistributedMonad[RDD], Option[StructType]) = {
-    serializerForInput match {
+  def createDebugFromPath(parsedPath: Option[String]): (DistributedMonad[RDD], Option[StructType]) = {
+    getSerializerForInput(parsedPath) match {
       case Some(AVRO) => new AvroInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
-        override lazy val path: Option[String] = debugPath
+        override lazy val path: Option[String] = parsedPath
         override lazy val schemaProvided: Option[String] = None
       }.initWithSchema()
       case Some(JSON) => new JsonInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
-        override lazy val path: Option[String] = debugPath
+        override lazy val path: Option[String] = parsedPath
       }.initWithSchema()
       case Some(CSV) => new CsvInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
-        override lazy val path: Option[String] = debugPath
+        override lazy val path: Option[String] = parsedPath
       }.initWithSchema()
       case Some(PARQUET) => new ParquetInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
-        override lazy val path: Option[String] = debugPath
+        override lazy val path: Option[String] = parsedPath
       }.initWithSchema()
       case _ =>
         log.info("It was not possible to infer which serializer should be used," +
           "therefore the input will be read as text file")
         new FileSystemInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
-          override lazy val path: Option[String] = debugPath
+          override lazy val path: Option[String] = parsedPath
         }.initWithSchema()
     }
   }
@@ -72,18 +72,26 @@ abstract class DummyDebugInputStep[Underlying[Row]](
     (debugRDD, Option(schema))
   }
 
-  def createDistributedMonadRDDwithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    require( debugPath.nonEmpty || debugUserProvidedExample.nonEmpty || debugQuery.nonEmpty,
-      errorDebugValidation)
+  private def forceToLocalFS(path : String): String = {
+    if (path.startsWith("file:///")) path
+    else {
+      s"file://${ if(path.head.equals('/')) "" else "/"}$path"
+    }
+  }
 
-    (debugPath, debugQuery, debugUserProvidedExample) match {
-      case (Some(path), _ , _) => createDebugFromPath()
-      case (None, Some(debQuery), _) =>
+  def createDistributedMonadRDDwithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
+    require( debugPath.nonEmpty || debugUserProvidedExample.nonEmpty || debugQuery.nonEmpty ||
+      debugFileUploaded.nonEmpty, errorDebugValidation)
+
+    (debugPath, debugQuery, debugUserProvidedExample, debugFileUploaded) match {
+      case (Some(path), _ , _,_) => createDebugFromPath(Some(path))
+      case (None, Some(debQuery), _, _) =>
         new CrossdataInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
           override lazy val query = debQuery
         }.initWithSchema()
-      case (None, None, Some(userExample)) => createDebugFromUserDefinedExample()
-      case (None, None, None) => throw new Exception("No simulated input for debugging")
+      case (None, None, Some(userExample), _) => createDebugFromUserDefinedExample()
+      case (None, None, None, Some(path)) => createDebugFromPath(Some(forceToLocalFS(path)))
+      case (None, None, None, None) => throw new Exception("No simulated input for debugging")
     }
   }
 }

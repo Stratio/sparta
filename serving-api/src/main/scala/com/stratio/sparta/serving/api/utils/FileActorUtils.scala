@@ -63,7 +63,8 @@ trait FileActorUtils extends SLF4JLogging {
       } else throw new Exception(s"The file $filePath is corrupted")
     }
 
-  def uploadFiles(files: Seq[BodyPart], useTemporalDirectory: Boolean = false): Try[Seq[SpartaFile]] =
+  def uploadFiles(files: Seq[BodyPart], useTemporalDirectory: Boolean = false,
+                  addCustomPath : Option[String] = None): Try[Seq[SpartaFile]] =
     Try {
       files.flatMap { file =>
         val fileNameOption = file.filename.orElse(file.name.orElse {
@@ -72,8 +73,15 @@ trait FileActorUtils extends SLF4JLogging {
         })
         fileNameOption.flatMap { fileName =>
             val localMachineDir = {
-              if(useTemporalDirectory) s"$temporalDir/$fileName"
-              else s"$targetDir/$fileName"
+              if(useTemporalDirectory) addCustomPath.fold(s"$temporalDir/$fileName") {
+                customPath => s"$temporalDir/$customPath/$fileName"
+              }
+
+              else {
+                addCustomPath.fold(s"$targetDir/$fileName"){
+                  customPath => s"$targetDir/$customPath/$fileName"
+                }
+              }
             }
 
             Try(saveFile(file.entity.data.toByteArray, localMachineDir)) match {

@@ -10,14 +10,20 @@ import akka.actor._
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.models.DebugResults
 import com.stratio.sparta.security._
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.actor.DebugWorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Debug
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import com.stratio.sparta.serving.core.services.DebugWorkflowService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
+import spray.http.BodyPart
+import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
 
@@ -27,7 +33,7 @@ class DebugWorkflowActor(
                           launcherActor: ActorRef
                         )
                         (implicit val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with ActionUserAuthorize {
+  extends Actor with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize {
 
   import DebugWorkflowActor._
 
@@ -35,6 +41,11 @@ class DebugWorkflowActor(
   val ResourceStatus = "status"
   val debugService = new DebugWorkflowService(curatorFramework)
 
+  val targetDir = "debug"
+  val temporalDir = "/tmp/sparta/debug"
+  val apiPath = s"${HttpConstant.DebugWorkflowsPath}/download"
+
+  //scalastyle:off cyclomatic
   override def receive: Receive = {
     case CreateDebugWorkflow(workflow, user) => createDebugWorkflow(workflow, user)
     case DeleteById(id, user) => deleteByID(id, user)
@@ -43,9 +54,11 @@ class DebugWorkflowActor(
     case FindAll(user) => findAll(user)
     case GetResults(id, user) => getResults(id, user)
     case Run(id, user) => run(id, user)
+    case UploadFile(files, id, user) => uploadFile(files, id, user)
+    case DeleteFile(fileName, user) => deleteFile(fileName, user)
+    case DownloadFile(fileName, user) => downloadFile(fileName, user)
   }
-
-  //@TODO[fl] controllare permessi dyplon
+  //scalastyle:on
 
   def createDebugWorkflow(debugWorkflow: DebugWorkflow, user: Option[LoggedUser]): Unit = {
     securityActionAuthorizer[ResponseDebugWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
@@ -92,6 +105,20 @@ class DebugWorkflowActor(
     launcherActor.forward(Debug(id.toString, user))
   }
 
+  def downloadFile(fileName: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFileResponse](user, Map(ResourceWorkflow -> Download)) {
+      browseFile(fileName)
+    }
+
+  def deleteFile(fileName: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete)) {
+      deleteFile(fileName)
+    }
+
+  def uploadFile(files: Seq[BodyPart], id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceWorkflow -> View)) {
+      uploadFiles(files, useTemporalDirectory = true, Some(id))
+    }
 }
 
 object DebugWorkflowActor extends SLF4JLogging {
@@ -110,6 +137,12 @@ object DebugWorkflowActor extends SLF4JLogging {
 
   case class Run(id: String, user: Option[LoggedUser])
 
+  case class UploadFile(files: Seq[BodyPart], workflowId: String, user: Option[LoggedUser])
+
+  case class DownloadFile(fileName: String, user: Option[LoggedUser])
+
+  case class DeleteFile(fileName: String, user: Option[LoggedUser])
+
 
   type ResponseDebugWorkflow = Try[DebugWorkflow]
 
@@ -122,5 +155,11 @@ object DebugWorkflowActor extends SLF4JLogging {
   type ResponseAny = Try[Any]
 
   type Response = Try[Unit]
+
+  type SpartaFilePath = Try[String]
+
+  type SpartaFileResponse = Try[SpartaFile]
+
+  type SpartaFilesResponse = Try[Seq[SpartaFile]]
 
 }

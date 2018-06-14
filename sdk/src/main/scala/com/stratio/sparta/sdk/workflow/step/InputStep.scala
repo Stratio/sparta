@@ -54,21 +54,25 @@ abstract class InputStep[Underlying[Row]](
     }
   }
 
-  lazy val (debugPath, debugQuery, debugUserProvidedExample): (Option[String], Option[String],Option[String]) =
+  lazy val (debugPath, debugQuery, debugUserProvidedExample, debugFileUploaded):
+    (Option[String], Option[String],Option[String], Option[String]) =
     debugOptions.map(debugOpt =>
-      (debugOpt.path.notBlank, debugOpt.query.notBlank, debugOpt.userProvidedExample.notBlank))
-      .getOrElse((None, None,None))
+      (debugOpt.path.notBlank, debugOpt.query.notBlank,
+        debugOpt.userProvidedExample.notBlank, debugOpt.fileUploaded.notBlank))
+      .getOrElse((None, None, None, None))
 
-  lazy val fileExtension: Option[String] = debugPath.map(Files.getFileExtension)
+  def getFileExtension(path: Option[String]): Option[String] = path.map(Files.getFileExtension)
 
-  lazy val serializerForInput: Option[InputFormatEnum.Value] =
-    if (fileExtension.isDefined)
-      Try(InputFormatEnum.withName(fileExtension.get.toUpperCase)).map(Some(_)).getOrElse(None)
-    else None
+  def getSerializerForInput(path: Option[String]): Option[InputFormatEnum.Value] =
+    getFileExtension(path) match{
+      case Some(extension) =>  Try(InputFormatEnum.withName(extension.toUpperCase)).map(Some(_)).getOrElse(None)
+      case _ => None
+    }
 
-  lazy val validDebuggingOptions = debugPath.isDefined || debugQuery.isDefined || debugUserProvidedExample.isDefined
+  lazy val validDebuggingOptions = debugPath.isDefined || debugQuery.isDefined ||
+    debugUserProvidedExample.isDefined || debugFileUploaded.isDefined
 
-  val errorDebugValidation = "Either an input path or a user-defined example " +
+  val errorDebugValidation = "Either an input path or an uploaded file path or a user-defined example " +
     "or a valid query to execute must be provided inside the debugging options"
 
   def initWithSchema(): (DistributedMonad[Underlying], Option[StructType]) = {
