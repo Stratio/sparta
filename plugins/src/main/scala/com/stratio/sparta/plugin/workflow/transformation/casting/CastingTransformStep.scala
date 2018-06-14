@@ -51,11 +51,11 @@ abstract class CastingTransformStep[Underlying[Row]](
               nullable = outputField.nullable.getOrElse(true)
             )
           })
-        } else throw new Exception("The input fields cannot be empty")
+        } else throw new Exception("The input fields cannot be empty.")
       case OutputFieldsFrom.STRING =>
         SchemaHelper.parserInputSchema(fieldsString.get).get
       case _ =>
-        throw new Exception("It's mandatory to specify the fields format")
+        throw new Exception("It's mandatory to specify the fields format.")
     }
   }
 

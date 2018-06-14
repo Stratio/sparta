@@ -55,12 +55,12 @@ abstract class DropNullsTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name))
 
     if (Try(columns.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the input columns are not valid", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The input columns are not valid.", name))
     }
 
     //If contains schemas, validate if it can be parsed
@@ -69,13 +69,13 @@ abstract class DropNullsTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
+            messages = validation.messages :+ WorkflowValidationMessage(s"The input schema from step ${input.stepName} is not valid.", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
+          messages = validation.messages :+ WorkflowValidationMessage(s"The input table name ${is.stepName} is not valid.", name))
       }
     }
 

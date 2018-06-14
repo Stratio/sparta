@@ -53,7 +53,7 @@ abstract class RenameColumnTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name))
 
     //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
@@ -61,26 +61,26 @@ abstract class RenameColumnTransformStep[Underlying[Row]](
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
+            messages = validation.messages :+ WorkflowValidationMessage(s"The input schema from step ${input.stepName} is not valid.", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
+          messages = validation.messages :+ WorkflowValidationMessage(s"The input table name ${is.stepName} is not valid.", name))
       }
     }
 
     if (columnsToRename.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"it's mandatory at least one column to rename", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify at least one column to be renamed", name)
       )
 
     columnsToRename.filter(c => c.name.trim.isEmpty || c.alias.get.trim.isEmpty).foreach(c =>
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"column name $c has an invalid format", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"Column name $c has an invalid format", name)
       )
     )
 
