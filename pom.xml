@@ -99,7 +99,7 @@ This software – including all its source code – contains proprietary informa
         <crossdata.dyplon.version>0.14.1</crossdata.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.13.0-M3</crossdata.version>
+        <crossdata.version>2.13.0-fa5ad1b</crossdata.version>
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
