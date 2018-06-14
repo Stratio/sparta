@@ -39,6 +39,12 @@ function generate_hdfs-conf-from-uri() {
   HDFS_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/hdfs-site.xml"
   wget "${HADOOP_CONF_URI}/core-site.xml"
   wget "${HADOOP_CONF_URI}/hdfs-site.xml"
+
+  if [ -v SPARTA_PRINCIPAL_NAME ] ; then
+    RESOURCE_MANAGER_PRINCIPAL_PROP="<configuration>\n  <property>\n    <name>yarn.resourcemanager.principal</name>\n    <value>${SPARTA_PRINCIPAL_NAME}</value>\n  </property> "
+    sed -i "s#<configuration>#$RESOURCE_MANAGER_PRINCIPAL_PROP#" "hdfs-site.xml"
+  fi
+
   cp core-site.xml "${CORE_SITE}"
   cp core-site.xml "${CORE_SITE_CLASSPATH}"
   cp hdfs-site.xml "${HDFS_SITE}"
