@@ -15,44 +15,38 @@
       <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
    </div>
    <div class="selected" *ngIf="workflowData && workflowData.name">
-      <span class="status" [ngClass]="workflowData.filterStatus.toLowerCase()">{{('DASHBOARD.' + (workflowData.filterStatus | uppercase)) | translate}}</span>
-      <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
+      <span class="status" [ngClass]="workflowData.filterStatus.toLowerCase()">
+        {{('DASHBOARD.' + (workflowData.filterStatus | uppercase)) | translate}}
+        <span class="status-advaced" *ngIf="workflowData.status.status !== (('DASHBOARD.' + (workflowData.filterStatus | uppercase)) | translate)">
+           / {{workflowData.status.status}}</span>
+      </span>
+      <h3 class="egeo-title-medium">{{workflowData.name}}</h3>
+      <span *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length" class="date">Last update: {{workflowData.lastUpdate}}</span>
       <span class="description">{{workflowData.description}}</span>
-      <div>
-         <span class="title2">{{'DASHBOARD.COMPLETE_STATUS' | translate}}</span>
-         <span class="values">{{workflowData.status.status}}</span>
-      </div>
       <div *ngIf="workflowData.tagsAux && workflowData.tagsAux.length">
-         <span class="title2">{{'DASHBOARD.TAGS' | translate}}</span>
+         <span class="egeo-title-mini title2">{{'DASHBOARD.TAGS' | translate}}</span>
          <span class="values">{{workflowData.tagsAux}}</span>
       </div>
       <div *ngIf="workflowData.status && workflowData.status.statusInfo && workflowData.status.statusInfo.length">
-         <span class="title2">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
+         <span class="egeo-title-mini title2">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
          <span class="values">{{workflowData.status.statusInfo}}</span>
       </div>
 
       <div *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode">
-         <span class="title2">Execution mode</span>
-         <span class="">{{execution.genericDataExecution.executionMode}}</span>
-      </div>
-
-      <div *ngIf="workflowData.lastUpdate">
-         <span class="title2">{{'DASHBOARD.LAST_STATUS_UPDATE' | translate}}</span>
-         <span class="values">{{workflowData.lastUpdate}}</span>
-      </div>
-      <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})" 
+         <span class="egeo-title-mini title2">Execution mode</span>
+         <span class="">
+           {{execution.genericDataExecution.executionMode}}
+           <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})" 
         *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode &&  execution.genericDataExecution.executionMode === 'marathon'">Show execution info</a>
 
+          </span>
+      </div>
       <div class="last-error" *ngIf="lastError">
-         <span class="title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
+         <span class="egeo-title-mini title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
          <div class="errors">
             <div>
-               <span class=""><!--<i class="icon icon-calendar"></i>--> Date: </span>
+               <span class="phase">{{lastError.phase}}</span>
                <span class="val">{{workflowData.lastErrorDate}}</span>
-            </div>
-            <div>
-               <span class=""><!--<i class="icon icon-evolution"></i>--> Phase: </span>
-               <span class="val">{{lastError.phase}}</span>
             </div>
             <span class="message">{{lastError.message}}</span>
             <span class="original-msg">{{lastError.originalMsg}}</span>

@@ -38,36 +38,8 @@
    width: 100%;
 }
 
-
-.debug-error {
-    margin: 12px 0;
-    margin-bottom: 10px;
-  .icon-alert {
-        line-height: 22px;
-    /* margin: 4px; */
-    float: left;
-    margin-right: 6px;
-  }
-  .debug-error-message {
-    color: #ff1744;
-    font-size: 15px;
-  }
-}
-
-
-.debug-result {
-    margin: 20px 0;
-    margin-bottom: 10px;
-  .icon-circle-check {
-        line-height: 22px;
-    /* margin: 4px; */
-    float: left;
-    margin-right: 6px;
-  }
-  .debug-result-message {
-    color: #0baa70;
-    font-size: 15px;
-  }
+.overview {
+  padding-bottom: 15px;
 }
 
 
@@ -77,29 +49,39 @@
     margin-top: 20px;
 }
 
-.errors {
-   color: #444;
-   background: rgba(255, 255, 255, 0.3);
-   padding: 7px 12px;
-   border-left: 1px solid #efefef;
-   margin: 5px 0 18px 0px;
-   font-size: 14px;
-   width: 104%;
-   margin-left: -2%;
-   .val {
-      font-family: $egeo-nunito-sans-semiBold;
-   }
-   .icon {
-      font-size: 13px;
-   }
-   .message {
-      display: block;
-      margin-top: 8px;
-      margin-bottom: 3px;
-      font-family: $egeo-nunito-sans-semiBold;
-   }
-   .original-msg {
-      word-break: break-word;
-      font-size: 13px;
-   }
+.workflow-detail-image {
+  width: 140px;
+}
+
+.workflow-info {
+  font-size: $egeo-font-size-xxsmall;
+  color: $neutral-10;
+}
+.validation-errors {
+  padding-bottom: 20px;
+  .validation-error-message{
+      font-size: $egeo-font-size-xsmall;
+      color: $status-critical-hover;
+      margin: 5px 0;
+  }
+}
+
+.debug-generic-errors{
+
+  .debug-global-error-message {
+    font-size: $egeo-font-size-xsmall;
+    color: $status-critical-hover;
+  }
+
+  .last-updated{
+    font-size: 13px;
+    color:#000;
+    margin-bottom: 10px;
+  }
+
+  .details {
+    color: #4a90e2;
+    font-size: 15px;
+    cursor: pointer;
+  }
 }

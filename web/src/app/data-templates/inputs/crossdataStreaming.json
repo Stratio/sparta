@@ -90,7 +90,7 @@
                 "propertyName": "_OFFSET_FILED_",
                 "propertyType": "text",
                 "required": true,
-                "width": 3,
+                "width": 4,
                 "tooltip": "Offset field in the source table",
                 "qa": "fragment-details-crossdata-offsetField"
              },
@@ -99,7 +99,7 @@
                 "propertyName": "_OFFSET_OPERATOR_",
                 "propertyType": "select",
                 "required": true,
-                "width": 3,
+                "width": 2,
                 "values": [
                    {
                       "label": ">",
@@ -126,7 +126,7 @@
                 "propertyId": "offsetValue",
                 "propertyName": "_OFFSET_VALUE_",
                 "propertyType": "text",
-                "width": 3,
+                "width": 4,
                 "tooltip": "Initial offset value",
                 "qa": "fragment-details-crossdata-offsetValue"
              }

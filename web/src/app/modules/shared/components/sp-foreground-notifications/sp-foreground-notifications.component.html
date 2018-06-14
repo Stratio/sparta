@@ -1,0 +1,4 @@
+<div class="foreground-notification" [ngClass]="getStatus()">
+   <p class="foreground-notification__text"><ng-content></ng-content>{{text}}</p>
+   <i class="close icon-cross" (click)="onClose()"></i>
+</div>

@@ -1,3 +1,5 @@
+@import '~@stratio/egeo/theme/constants';
+
 :host {
    display: inline-block;
 }
@@ -5,7 +7,7 @@
 .sp-three-bounce .sp-child {
    width: 20px;
    height: 20px;
-   background-color: #333;
+   background-color: $brand;
    border-radius: 100%;
    display: inline-block;
    -webkit-animation: sp-three-bounce 1.4s ease-in-out 0s infinite both;

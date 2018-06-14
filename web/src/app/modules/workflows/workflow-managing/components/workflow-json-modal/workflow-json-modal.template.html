@@ -28,9 +28,10 @@
             <st-textarea [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
                required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </st-textarea>
                <!-- {{serverErrors | async | json}} -->
+            <perfect-scrollbar class="format-error" style="max-height: 75px;" [scrollIndicators]="false" *ngIf="workflowValidationError || serverErrors.length">
                <p class="st-input-error-message validation-error" *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>
-               <p class="st-input-error-message validation-error" *ngIf="serverErrors.length"> {{serverErrors}}
-               </p>
+               <p class="st-input-error-message validation-error" *ngIf="serverErrors.length"> {{serverErrors}}</p>
+            </perfect-scrollbar>
             <file-reader text="{{'DASHBOARD.UPLOAD_JSON_FILE' | translate}}" (changedFile)="onChangedFile($event)"></file-reader>
 
             <div class="edition-buttons">

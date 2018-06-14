@@ -27,8 +27,9 @@
                     <div class="workflow-group">{{workflow.group}}</div>
                  </div>
                  <div content>
-                    <span [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Streaming'" class="icon icon-infinite icon-row"></span>
-                    <span [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Batch'" class="icon icon-channel icon-row"></span>
+                    <img src="assets/images/iconStreaming.svg" class="icon-row" [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Streaming'"/>
+                    <img src="assets/images/iconBatch.svg" class="icon-row" [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Batch'"/>
+
                     {{workflow.name}}
                     <span> - v{{workflow.version}}</span>
                  </div>

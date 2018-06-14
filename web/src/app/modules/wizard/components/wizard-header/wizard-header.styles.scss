@@ -27,6 +27,7 @@ $cloudy-black: #cdd6df;
 
 .tool-header {
    padding: 12px 0;
+   background: white;
    border-bottom: 1px solid #ddd;
 
    .button {
@@ -121,24 +122,9 @@ $cloudy-black: #cdd6df;
    padding: 2px 0;
 }
 
-.errors {
-   color: $status-critical-default;
-   border-color: $status-critical-default;
-   background: #fff;
-   &.selected-button {
-      color: $status-critical-hover;
-      border-color: $status-critical-hover!important;
-   }
-   &:hover {
-      color: $status-critical-hover;
-      border-color: $status-critical-hover!important;
-   }
-}
-
 .errors-list {
    color: #555;
    list-style: none;
-   li {}
 }
 
 .validation-title {
@@ -175,10 +161,11 @@ $cloudy-black: #cdd6df;
 }
 
 .workflow-type {
-   float: left;
-   font-size: 28px;
-   line-height: 43px;
-   color: #888;
+    float: left;
+    font-size: 28px;
+    line-height: 43px;
+    margin-top: 8px;
+    width: 28px;
 }
 
 .notification {
@@ -188,4 +175,35 @@ $cloudy-black: #cdd6df;
     z-index: 999;
     top: 145px;
     min-width: 500px;
+}
+
+#show-info-button {
+   position: relative;
+   &.errors {
+     &:before {
+        position: absolute;
+        content: ' ';
+        background: $status-critical-default;
+        width: 9px;
+        height: 9px;
+        right: 2px;
+        border-radius: 50%;
+        top: 2px;
+
+     }
+   }
+}
+
+.message {
+    .link {
+        color: $action-primary-default;
+        cursor: pointer;
+    }
+}
+
+.loading {
+    transform: scale(0.6);
+    display: inline-block;
+    position:relative;
+    bottom:-2px;
 }

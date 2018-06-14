@@ -1,7 +1,7 @@
 <div class="form-list" [ngClass]="{'complex-form' : complexForm}">
 
    <div class="col-sm-12" [ngClass]="{'disabled' : isDisabled}">
-      <span class="list-title">{{label}}</span>
+      <span class="egeo-title-small list-title">{{label}}</span>
    </div>
    <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length">
       <div formArrayName="items">
@@ -17,7 +17,6 @@
                                 *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                                 label="{{field.propertyName | translate}}" 
                                 fieldType="{{field.propertyType}}" 
-                                placeholder="{{field.propertyName | translate}}"
                                 [formControl]="item.controls[field.propertyId]" 
                                 qaTag="form-list-input" [required]="field.required"
                                 contextualHelp="{{field.tooltip | translate}}"
@@ -43,7 +42,6 @@
                                 [contentType]="field.contentType"
                                 [forceValidations]="forceValidations" 
                                 [label]="field.propertyName | translate" 
-                                [placeholder]="field.propertyName | translate"
                                 [formControl]="item.controls[field.propertyId]" 
                                 [rows]="field.rows" 
                                 qaTag="form-list-textarea" 

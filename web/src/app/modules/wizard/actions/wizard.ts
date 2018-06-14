@@ -58,6 +58,7 @@ export const SHOW_EDGE_OPTIONS = '[Wizard] Show edge options';
 export const HIDE_EDGE_OPTIONS = '[Wizard] Hide edge options';
 export const SELECT_EDGE_TYPE = '[Wizard] Select edge type';
 export const SHOW_NOTIFICATION = '[Wizard] Show notification';
+export const SHOW_GLOBAL_ERRORS = '[Wizard] Show global errors';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -296,6 +297,10 @@ export class ShowNotificationAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class ShowGlobalErrorsAction implements Action {
+    readonly type = SHOW_GLOBAL_ERRORS;
+}
+
 export type Actions =
     ResetWizardAction |
     GetMenuTemplatesAction |
@@ -344,4 +349,5 @@ export type Actions =
     ShowEdgeOptionsAction |
     HideEdgeOptionsAction |
     SelectEdgeTypeAction |
-    ShowNotificationAction;
+    ShowNotificationAction |
+    ShowGlobalErrorsAction;

@@ -77,5 +77,4 @@ export class MocksConfigComponent implements OnInit {
     element.click();
     document.body.removeChild(element);
   }
-
 }

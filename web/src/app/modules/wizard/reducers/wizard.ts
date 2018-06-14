@@ -9,7 +9,7 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 import * as wizardActions from './../actions/wizard';
 import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
-import { WizardNode, WizardEdge } from '@app/wizard/models/node';
+import { WizardNode, WizardEdge, EdgeOption } from '@app/wizard/models/node';
 
 export interface State {
   editionMode: boolean;
@@ -40,7 +40,7 @@ export interface State {
   svgPosition: any;
   settings: any;
   isShowedCrossdataCatalog: boolean;
-  edgeOptions: any;
+  edgeOptions: EdgeOption;
 };
 
 const initialState: State = {
@@ -160,8 +160,7 @@ export function reducer(state: State = initialState, action: any): State {
         ...state,
         editionConfig: true,
         editionConfigType: action.payload,
-        editionSaved: false,
-        selectedEntity: ''
+        editionSaved: false
       };
     }
     case wizardActions.HIDE_EDITOR_CONFIG: {
@@ -387,7 +386,7 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         isShowedCrossdataCatalog: !state.isShowedCrossdataCatalog
-      }
+      };
     }
     case wizardActions.SHOW_EDGE_OPTIONS: {
       return {
@@ -421,6 +420,13 @@ export function reducer(state: State = initialState, action: any): State {
         edgeOptions: {
           active: false
         }
+      };
+    }
+    case wizardActions.SHOW_GLOBAL_ERRORS: {
+      return {
+        ...state,
+        showEntityDetails: true,
+        selectedEntity: ''
       };
     }
     default:
@@ -459,11 +465,6 @@ export const areUndoRedoEnabled = (state: State) => ({
 
 export const getEditionConfigMode = (state: State) => ({
   isEdition: state.editionConfig,
-  editionType: state.editionConfigType,
-  relationData: state.editionConfig ? {
-    inputs: state.edges.filter(edge => edge.destination === state.editionConfigType.data.name)
-      .map(edge => edge.origin).sort(),
-    outputs: state.edges.filter(edge => edge.origin === state.editionConfigType.data.name)
-      .map(edge => edge.destination).sort(),
-  } : null
+  editionType: state.editionConfigType
 });
+

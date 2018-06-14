@@ -18,7 +18,7 @@
         <span>Execute query</span> 
     </button>
       <span class="success" *ngIf="showResult && (!queryError || !queryError.length)">
-          <span *ngIf="results.length">{{'DASHBOARD.EXECUTE_QUERY_OK' | translate:({ rows:results.length})}}</span>
+      <span *ngIf="results.length">{{'DASHBOARD.EXECUTE_QUERY_OK' | translate:({ rows:results.length})}}</span>
       <span *ngIf="!results.length">{{'DASHBOARD.EXECUTE_QUERY_OK_NO_LIST' | translate}}</span>
       </span>
       <span class="error st-input-error-message">{{queryError}}</span>

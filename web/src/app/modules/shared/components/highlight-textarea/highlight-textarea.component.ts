@@ -235,7 +235,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
 
   showError(): boolean {
-      return this.errorMessage !== undefined && (!this.pristine || this.forceValidations) && !this.focus && !this.isDisabled;
+      return this.errorMessage !== undefined && (!this.pristine || this.forceValidations) && !this.isDisabled;
   }
 
   /** Style functions */

@@ -4,23 +4,32 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import {
-   Component, OnDestroy, OnInit, ChangeDetectorRef,
-   ChangeDetectionStrategy
+   ChangeDetectionStrategy,
+   ChangeDetectorRef,
+   Component,
+   OnDestroy,
+   OnInit,
+   ViewChild,
+   ViewContainerRef
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/distinctUntilChanged';
 import { Subscription } from 'rxjs/Subscription';
+import { StModalService } from '@stratio/egeo';
 
 import * as workflowActions from './actions/workflows';
 import {
    State,
    getWorkflowList,
    getSelectedWorkflows,
-   getExecutionInfo
+   getExecutionInfo,
+   showInitialMode
 } from './reducers';
 import { MonitoringWorkflow } from './models/workflow';
 import { ExecutionInfo } from './models/execution-info';
+import { WorkflowJsonModal } from '@app/workflows/workflow-managing';
 
 
 @Component({
@@ -32,6 +41,8 @@ import { ExecutionInfo } from './models/execution-info';
 
 export class WorkflowsComponent implements OnInit, OnDestroy {
 
+   @ViewChild('newWorkflowModalMonitoring', { read: ViewContainerRef }) target: any;
+
    public workflowList: Array<MonitoringWorkflow> = [];
    public showDetails = false;
 
@@ -39,6 +50,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
    public selectedWorkflowsIds: string[] = [];
    public executionInfo: ExecutionInfo;
    public showExecutionInfo = false;
+   public showInitialMode: Observable<boolean>;
 
    private _modalOpen: Subscription;
    private _executionInfo: Subscription;
@@ -49,9 +61,12 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
    private timer;
 
    constructor(private _store: Store<State>,
-      private _cd: ChangeDetectorRef) { }
+      private _route: Router,
+      private _cd: ChangeDetectorRef,
+      private _modalService: StModalService) { }
 
    ngOnInit() {
+      this._modalService.container = this.target;
       this._store.dispatch(new workflowActions.ListWorkflowAction());
       this.updateWorkflowsStatus();
       this._workflowList = this._store.select(getWorkflowList)
@@ -71,6 +86,8 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
          this.executionInfo = executionInfo;
          this._cd.markForCheck();
       });
+
+      this.showInitialMode = this._store.select(showInitialMode);
    }
 
    updateWorkflowsStatus(): void {
@@ -87,6 +104,35 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
    hideExecutionInfo() {
       this.showExecutionInfo = false;
+   }
+
+   createWorkflow(creationType: string) {
+      switch (creationType) {
+         case 'streaming':
+            this._route.navigate(['wizard/streaming']);
+            break;
+         case 'batch':
+            this._route.navigate(['wizard/batch']);
+            break;
+         case 'json':
+            this._showCreateJsonModal();
+            break;
+      }
+   }
+
+   private _showCreateJsonModal(): void {
+      this._modalService.show({
+         modalTitle: 'Configuration from JSON',
+         maxWidth: 980,
+         outputs: {
+            onCloseJsonModal: this._onCloseJsonModal.bind(this)
+         },
+      }, WorkflowJsonModal);
+   }
+
+   private _onCloseJsonModal(action: any) {
+      this._modalService.close();
+      this._store.dispatch(new workflowActions.ListWorkflowAction());
    }
 
    public ngOnDestroy(): void {

@@ -7,33 +7,35 @@
    text-align: center;
    min-height: 230px;
    .workflow-detail-image {
-      width: 170px;
+      width: 140px;
    }
+
+   .workflow-info {
+    font-size: $egeo-font-size-xxsmall;
+    color: $neutral-10;
+  }
 }
 
 .description {
    font-size: $egeo-font-size-xsmall;
+   color:$neutral-10;
    margin-bottom: 15px;
    display: block;
+   padding-top: 10px;
+}
+
+.date {
+  font-size: $egeo-font-size-xxsmall;
 }
 
 .title {
-   text-transform: uppercase;
-   font-size: $egeo-font-size-xxsmall;
-   font-weight: 600;
-   line-height: 1.43;
-   margin-top: 10px;
    display: block;
-   color: #6c7b8b;
+   margin-top: 10px;
 }
 
 .title2 {
-   font-size: $egeo-font-size-xxsmall;
-   line-height: 1.43;
-   font-family: $egeo-nunito-sans-semiBold;
-   margin-top: 10px;
    display: block;
-   color: #6c7b8b;
+   margin-top: 10px;
 }
 
 .values {
@@ -45,7 +47,8 @@
    font-weight: 600;
    color: #3c3c3c;
    font-size: $egeo-font-size-xsmall;
-   .notstarted {}
+   background: rgba(205, 214, 223, 0.3);
+   padding: 3px 10px;
    display: inline-block;
    margin-bottom: 5px;
    &.started {
@@ -60,29 +63,21 @@
    }
 }
 
-.workflow-info {
-   color: #0f1b27;
-   font-size: 15px;
-   margin-top: 20px;
+.status-advaced {
+  font-weight: 400;
 }
 
 .execution-info-link {
    font-family: $egeo-nunito-sans-semiBold;
    cursor: pointer;
    color: $action-primary-default;
-   margin: 14px 0;
    display: block;
 }
 
 .errors {
    color: #444;
-   background: rgba(255, 255, 255, 0.3);
-   padding: 7px 12px;
-   border-left: 1px solid #efefef;
-   margin: 5px 0 18px 0px;
    font-size: 14px;
-   width: 104%;
-   margin-left: -2%;
+
    .val {
       font-family: $egeo-nunito-sans-semiBold;
    }
@@ -90,13 +85,18 @@
       font-size: 13px;
    }
    .message {
-      display: block;
-      margin-top: 8px;
-      margin-bottom: 3px;
-      font-family: $egeo-nunito-sans-semiBold;
+      display: block; 
+      font-family: $egeo-nunito-sans;
+      color: $status-critical-hover;
+
    }
    .original-msg {
       word-break: break-word;
       font-size: 13px;
    }
+}
+
+.phase {
+  font-family: $egeo-nunito-sans-bold;
+  display: block;
 }

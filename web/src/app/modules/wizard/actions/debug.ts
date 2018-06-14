@@ -12,6 +12,9 @@ export const GET_DEBUG_RESULT = '[Wizard] Get debug result';
 export const GET_DEBUG_RESULT_COMPLETE = '[Wizard] Get debug result complete';
 export const GET_DEBUG_RESULT_ERROR = '[Wizard] Get debug result error';
 export const CANCEL_DEBUG_POLLING = '[Wizard] Cancel debug polling';
+export const SHOW_DEBUG_CONSOLE = '[Wizard] Show debug console';
+export const HIDE_DEBUG_CONSOLE = '[Wizard] Hide debug console';
+export const CHANGE_SELECTED_CONSOLE_TAB = '[Wizard] Change selected console tab';
 
 export class InitDebugWorkflowAction implements Action {
     readonly type = INIT_DEBUG_WORKFLOW;
@@ -44,6 +47,20 @@ export class CancelDebugPollingAction implements Action {
     readonly type = CANCEL_DEBUG_POLLING;
 }
 
+export class ShowDebugConsoleAction implements Action {
+    readonly type = SHOW_DEBUG_CONSOLE;
+    constructor(public payload: any) { }
+}
+
+export class HideDebugConsoleAction implements Action {
+    readonly type = HIDE_DEBUG_CONSOLE;
+}
+
+export class ChangeSelectedConsoleTab implements Action {
+    readonly type = CHANGE_SELECTED_CONSOLE_TAB;
+    constructor(public payload: any) { }
+}
+
 
 export type Actions =
     InitDebugWorkflowAction |
@@ -52,4 +69,7 @@ export type Actions =
     GetDebugResultAction |
     GetDebugResultErrorAction |
     GetDebugResultCompleteAction |
-    CancelDebugPollingAction;
+    CancelDebugPollingAction |
+    ShowDebugConsoleAction |
+    HideDebugConsoleAction |
+    ChangeSelectedConsoleTab;

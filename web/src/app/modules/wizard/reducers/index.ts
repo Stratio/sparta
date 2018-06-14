@@ -104,11 +104,28 @@ export const getErrorsManagementOutputs = createSelector(
 
 export const getSelectedNodeData = createSelector(getWizardState, fromWizard.getSelectedEntityData);
 
+export const getSelectedNodeSchemas = createSelector(
+  getSelectedNodeData,
+  getDebugResult,
+  getEdges,
+  (selectedNode: WizardNode, debugResult: any, edges: any) => {
+    if (edges && edges.length && debugResult && debugResult.steps && selectedNode) {
+        return {
+        inputs: edges.filter(edge => edge.destination === selectedNode.name)
+          .map(edge => debugResult.steps[edge.origin]).filter(input => input).sort(),
+        output: debugResult.steps[selectedNode.name]
+    };
+  } else {
+    return null;
+  }
+});
+
 export const getSelectedEntityData = createSelector(
   getSelectedNodeData,
   getDebugResult,
   getServerStepValidation,
-  (selectedNode: WizardNode, debugResult: any, serverStepValidation: Array<any>) => {
+  getSelectedNodeSchemas,
+  (selectedNode: WizardNode, debugResult: any, serverStepValidation: Array<any>, schemas: any) => {
     const entityData = selectedNode && debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
       ...selectedNode,
       debugResult: debugResult.steps[selectedNode.name]
@@ -116,6 +133,7 @@ export const getSelectedEntityData = createSelector(
 
     return {
       ...entityData,
+      schemas: schemas,
       serverValidationError: selectedNode ? serverStepValidation[selectedNode.name] : {}
     };
   }
@@ -126,13 +144,16 @@ export const getEditionConfigMode = createSelector(
   getEditionConfig,
   getDebugResult,
   getServerStepValidation,
-  (editionConfig: any, debugResult: any, stepValidation) =>
-    editionConfig && editionConfig.isEdition ?
+  getSelectedNodeSchemas,
+  (editionConfig: any, debugResult: any, stepValidation, schemas: any) => {
+    return editionConfig && editionConfig.isEdition ?
       {...editionConfig,
         serverValidation: stepValidation[editionConfig.editionType.data.name],
-        debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name]
-      } : editionConfig
+        debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
+        schemas: schemas,
+      } : editionConfig}
   );
+
 
 // wizard
 export const isCreationMode = createSelector(getEntitiesState, fromEntities.isCreationMode);
@@ -155,3 +176,5 @@ export const getWorkflowHeaderData = createSelector(getWizardState, fromWizard.g
 export const getValidatedEntityName = createSelector(getWizardState, state => state.entityNameValidation);
 export const isShowedCrossdataCatalog = createSelector(getWizardState, state => state.isShowedCrossdataCatalog);
 export const isWorkflowDebugging = createSelector(getDebugState, state => state.isDebugging);
+export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
+export const getDebugConsoleSelectedTab = createSelector(getDebugState, state => state.debugConsoleSelectedTab);

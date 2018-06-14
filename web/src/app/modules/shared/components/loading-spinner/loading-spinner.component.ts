@@ -10,6 +10,4 @@ import { Component } from '@angular/core';
     styleUrls: ['loading-spinner.styles.scss'],
     templateUrl: 'loading-spinner.template.html'
 })
-export class LoadingSpinnerComponent {
-
-}
+export class LoadingSpinnerComponent { }

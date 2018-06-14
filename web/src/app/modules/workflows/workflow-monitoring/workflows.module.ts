@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StTableModule,
     StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-    StPaginationModule, StTooltipModule, StFullscreenLayoutModule
+    StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StModalModule
 } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
@@ -22,6 +22,8 @@ import {
 import { reducerToken, reducerProvider } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
+import { WorkflowsManageModule } from '@app/workflows/workflow-managing/workflows.module'; // import json modal from this module
+import { WorkflowJsonModal } from '@app/workflows/workflow-managing';
 
 @NgModule({
     declarations: [
@@ -45,9 +47,11 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
         StTooltipModule,
         StBreadcrumbsModule,
         StSearchModule,
+        StModalModule.withComponents([WorkflowJsonModal]),
         WorkflowRouterModule,
         StPaginationModule,
-        SharedModule
+        SharedModule,
+        WorkflowsManageModule
     ],
     providers: [reducerProvider]
 })

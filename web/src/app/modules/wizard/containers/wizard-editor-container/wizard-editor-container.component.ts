@@ -26,7 +26,7 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { isMobile } from 'constants/global';
-import { WizardNode, WizardEdge, WizardEdgeNodes } from '@app/wizard/models/node';
+import { WizardNode, WizardEdge, WizardEdgeNodes, EdgeOption } from '@app/wizard/models/node';
 import { KEYS } from '@app/wizard/wizard.constants';
 import { ZoomTransform } from '@app/wizard/models/drag';
 import { WizardEditorService, WizardEditorComponent } from '@app/wizard';
@@ -41,6 +41,7 @@ import { WizardEditorService, WizardEditorComponent } from '@app/wizard';
 export class WizardEditorContainer implements OnInit, OnDestroy {
 
    @Input() workflowType = '';
+   @Input() hiddenContent: boolean;
    @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
    public selectedNodeName = '';
    public selectedNodeModel: WizardNode;
@@ -53,15 +54,19 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public svgPosition: ZoomTransform;
    public creationMode$: Observable<any>;
    public isShowedEntityDetails$: Observable<any>;
-   public edgeOptions: any;
+   public edgeOptions: EdgeOption;
    public isWorkflowDebugging: boolean;
    public debugResult: any;
    public serverStepValidations: any;
-
+   public showDebugConsole: boolean;
+   public genericError: any;
    private _componentDestroyed = new Subject();
 
    @ViewChild('editorArea') editorArea: ElementRef;
    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+      if (this.hiddenContent) {
+        return;
+      }
       if (event.keyCode === KEYS.ESC_KEYCODE) {
          if (this.selectedNodeName.length) {
             this.store.dispatch(new wizardActions.UnselectEntityAction());
@@ -149,6 +154,19 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          .takeUntil(this._componentDestroyed)
          .subscribe((serverStepValidations: any) => {
             this.serverStepValidations = serverStepValidations;
+            this._cd.markForCheck();
+         });
+      this.store.select(fromWizard.showDebugConsole)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((showDebugConsole: any) => {
+            this.showDebugConsole = showDebugConsole;
+            this._cd.markForCheck();
+         });
+
+      this.store.select(fromWizard.getDebugResult)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(debugResult => {
+            this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
             this._cd.markForCheck();
          });
       this.store.select(fromWizard.getEdgeOptions)

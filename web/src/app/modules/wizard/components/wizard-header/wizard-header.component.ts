@@ -62,6 +62,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
   public undoEnabled = false;
   public redoEnabled = false;
   public isPristine = true;
+  public genericError: any;
   public validations: any = {};
 
   private _componentDestroyed = new Subject();
@@ -104,11 +105,18 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       .takeUntil(this._componentDestroyed)
       .subscribe((type) => this.workflowType = type);
 
+    this._store.select(fromWizard.getDebugResult)
+      .takeUntil(this._componentDestroyed)
+      .subscribe(debugResult => {
+        this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
+        this._cd.markForCheck();
+      });
+
     let handler;
     this._store.select(fromWizard.getWizardNofications)
       .takeUntil(this._componentDestroyed)
       .subscribe((notification) => {
-        if (notification.message.length) {
+        if ((notification.message && notification.message.length) || notification.templateType) {
           this.notification = {
             ...this.notification,
             visible: false
@@ -127,7 +135,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
                 visible: false
               };
               this._cd.markForCheck();
-            }, 4000);
+            }, notification.time === 0 ? 10000000 : (notification.time || 4000));
           });
         } else {
           this.notification = {};
@@ -135,10 +143,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       });
 
     this.menuOptions$ = this._store.select(fromWizard.getMenuOptions);
-  }
-
-  changeVisible(event) {
-    console.log(event)
   }
 
   selectedMenuOption($event: any): void {
@@ -159,6 +163,10 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
   debugWorkflow() {
     this._store.dispatch(new debugActions.InitDebugWorkflowAction());
+  }
+
+  showGlobalErrors() {
+    this._store.dispatch(new wizardActions.ShowGlobalErrorsAction());
   }
 
   public showConfirmModal(): void {

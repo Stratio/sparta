@@ -11,11 +11,15 @@ import * as debugActions from './../actions/debug';
 export interface State {
   isDebugging: boolean;
   lastDebugResult: any;
+  showDebugConsole: boolean;
+  debugConsoleSelectedTab: string;
 };
 
 const initialState: State = {
   isDebugging: false,
-  lastDebugResult: null
+  lastDebugResult: null,
+  showDebugConsole: false,
+  debugConsoleSelectedTab:  'Exceptions'
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -63,6 +67,25 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         isDebugging: false
+      };
+    }
+    case debugActions.CHANGE_SELECTED_CONSOLE_TAB: {
+      return {
+        ...state,
+        debugConsoleSelectedTab: action.payload
+      };
+    }
+    case debugActions.SHOW_DEBUG_CONSOLE: {
+      return {
+        ...state,
+        showDebugConsole: true,
+        debugConsoleSelectedTab: action.payload
+      };
+    }
+    case debugActions.HIDE_DEBUG_CONSOLE: {
+      return {
+        ...state,
+        showDebugConsole: false
       };
     }
     default:

@@ -83,3 +83,4 @@ export const getTableOrder = createSelector(getFiltersState, (state) => state.wo
 export const getSelectedFilter = createSelector(getFiltersState, (state) => state.currentFilterStatus);
 export const getPaginationNumber = createSelector(getFiltersState, (state) => state.paginationOptions);
 export const getWorkflowSearchQuery = createSelector(getFiltersState, fromFilters.getSearchQuery);
+export const showInitialMode = createSelector(getWorkflowsState, (state) => !state.workflowList.length && !state.loading);

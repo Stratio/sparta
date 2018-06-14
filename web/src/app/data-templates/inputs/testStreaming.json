@@ -31,6 +31,7 @@
            "propertyName": "_EVENT_",
            "propertyType": "textarea",
            "contentType": "JSON",
+           "width": 12,
            "visible": [
               [
                  {
@@ -74,7 +75,7 @@
            "propertyType": "text",
            "required": false,
            "validateValue": "true",
-           "width": 6,
+           "width": 8,
            "tooltip": "Set a threshold for the generation of events, otherwise leave it empty.",
            "qa": "fragment-details-test-maxNumEvents"
         },

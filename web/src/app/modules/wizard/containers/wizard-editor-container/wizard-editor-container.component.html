@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<section [ngClass]="{'mobile' : isMobile}">
+<section [ngClass]="{'mobile' : isMobile}" [hidden]="hiddenContent">
   <wizard-header class="wizard-header"
       [isWorkflowDebugging]="isWorkflowDebugging"
       [isNodeSelected]="selectedNodeName && selectedNodeName.length"
@@ -43,4 +43,5 @@
     <wizard-details [entityData]="selectedNodeModel"></wizard-details>
   </sparta-sidebar>
 </section>
+<wizard-console *ngIf="showDebugConsole" [genericError]="genericError" [entityData]="selectedNodeModel"></wizard-console>
 <edge-options *ngIf="edgeOptions.active" [edgeOptions]="edgeOptions"></edge-options>

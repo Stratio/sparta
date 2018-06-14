@@ -38,7 +38,7 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy 
 
   public sideBarOptions: StHorizontalTab[] = [{
     id: 'data',
-    text: 'Input/Output'
+    text: 'Overview'
   }, {
     id: 'crossdata',
     text: 'Crossdata'

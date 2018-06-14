@@ -131,7 +131,6 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
       document.onmouseup = null;
       document.onmousemove = null;
    }
-
 }
 
 export interface HelpOptions {

@@ -43,12 +43,13 @@ export class DebugEffect {
       .switchMap(([redirectOnSave, state]: [any, any]) => {
          const workflow = this._wizardService.getWorkflowModel(state);
          return this._wizardApiService.debug(workflow)
-            .flatMap((response) => this._wizardApiService.runDebug(response.workflowDebug.id)
+            .flatMap((response) => this._wizardApiService.runDebug(response.workflowDebug.id || response.workflowOriginal.id)
                .mergeMap(res => [
-                  new debugActions.InitDebugWorkflowCompleteAction(response.workflowDebug.id),
+                  new debugActions.InitDebugWorkflowCompleteAction(response.workflowDebug.id || response.workflowOriginal.id),
                   new wizardActions.ShowNotificationAction({
                      type: 'default',
-                     message: 'DEBUG_RUN'
+                     templateType: 'runDebug',
+                     time: 0
                   })]))
             .catch(error => of(new debugActions.InitDebugWorkflowErrorAction()));
 
@@ -65,14 +66,14 @@ export class DebugEffect {
                new debugActions.CancelDebugPollingAction(),
                new debugActions.GetDebugResultCompleteAction(result),
                new wizardActions.ShowNotificationAction(result.debugSuccessful ? {
-                  type: 'success',
-                  message: 'DEBUG_SUCCESS'
+                  type: 'default',
+                  templateType: 'debugSuccess'
                } : result.genericError && result.genericError.message ? {
-                  type: 'critical',
-                  message: 'DEBUG_GENERIC_FAIL'
+                  type: 'default',
+                  templateType: 'generic'
                } : {
-                     type: 'critical',
-                     message: 'DEBUG_FAIL'
+                     type: 'default',
+                     templateType: 'debugFail'
                   })
             ])
             .catch(error => of(new debugActions.GetDebugResultErrorAction()))

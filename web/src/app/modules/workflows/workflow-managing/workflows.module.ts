@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule,
     StModalService, StProgressBarModule, StTextareaModule } from '@stratio/egeo';
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 
 import { SharedModule } from '@app/shared';
 import {
@@ -24,6 +25,9 @@ import { reducers } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
 ;
 @NgModule({
+    exports: [
+      WorkflowJsonModal
+   ],
     declarations: [
         WorkflowsManagingComponent,
         WorkflowCreationModal,
@@ -44,6 +48,7 @@ import { WorkflowEffect } from './effects/workflow';
         FormsModule,
         StoreModule.forFeature('workflowsManaging', reducers),
         EffectsModule.forFeature([WorkflowEffect]),
+        PerfectScrollbarModule,
         StCheckboxModule,
         StHorizontalTabsModule,
         StProgressBarModule,

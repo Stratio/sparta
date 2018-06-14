@@ -62,7 +62,7 @@ export class WorkflowEffect {
                   workflow.lastUpdateOrder = workflow.status.lastUpdateDate ? new Date(workflow.status.lastUpdateDate).getTime() : 0;
                } catch (error) { }
             });
-            return isEqual(workflows, workflowsState.workflowList) ? empty() :
+            return isEqual(workflows, workflowsState.workflowList) && workflows.length ? empty() :
                from([
                   new workflowActions.ListWorkflowCompleteAction(workflows),
                   new workflowActions.ValidateSelectedAction()

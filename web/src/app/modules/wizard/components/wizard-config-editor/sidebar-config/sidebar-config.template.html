@@ -5,54 +5,7 @@
     <div *ngIf="selectedOption === 'data'">
       <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
       <h3 class="egeo-title-giant">{{entityData.name}}</h3>
-      <div *ngIf="nodeData.serverValidation && nodeData.serverValidation.length" class="validation-error">
-        <div class="validation-error-message" *ngFor="let validationError of nodeData.serverValidation">
-          <span class="icon-alert"></span> {{validationError}}
-        </div>
-      </div>
-
-      <div class="debug-result" *ngIf="nodeData.debugResult && nodeData.debugResult.result">
-        <div class="debug-result-message">
-          <span class="title">Debug result</span>
-          <span class="icon-circle-check"></span> Last debug was completed succesfully
-        </div>
-        <div class="debug-result-details">
-          <span class="title">Debug result details</span>
-          <perfect-scrollbar style="max-width: 600px; max-height: 130px;" [config]="config" [scrollIndicators]="false">
-            <span class="values">{{nodeData.debugResult.result | json}}</span>
-          </perfect-scrollbar>
-        </div>
-      </div>
-      <!-- debug errors -->
-      <div class="debug-error" *ngIf="nodeData.debugResult && nodeData.debugResult.error">
-        <div class="debug-error-message">
-          <span class="icon-alert"></span> {{nodeData.debugResult.error.message}}
-        </div>
-        <span class="title">{{'WIZARD.DEBUG_ERROR_DETAILS' | translate}}</span>
-        <div class="errors">
-          <div>
-            <span class="">{{'WIZARD.DEBUG_ERROR_DATE' | translate}}: </span>
-            <span class="val">{{nodeData.debugResult.error.date}}</span>
-          </div>
-          <div>
-            <span class="">{{'WIZARD.DEBUG_ERROR_PHASE' | translate}}: </span>
-            <span class="val">{{nodeData.debugResult.error.phase}}</span>
-          </div>
-          <span class="message">{{nodeData.debugResult.error.message}}</span>
-          <perfect-scrollbar style="max-width: 600px; max-height: 130px;" [config]="config" [scrollIndicators]="false">
-            <span class="original-msg">{{nodeData.debugResult.error.originalMsg}}</span>
-          </perfect-scrollbar>
-        </div>
-      </div>
-      <!-- end debug errors -->
-      <div *ngIf="nodeData.relationData.inputs && nodeData.relationData.inputs.length">
-        <span class="title">{{'WIZARD.INPUT_STEPS' | translate}}</span>
-        <span *ngFor="let input of nodeData.relationData.inputs" class="values">{{input}}</span>
-      </div>
-      <div *ngIf="nodeData.relationData.outputs && nodeData.relationData.outputs.length">
-        <span class="title">{{'WIZARD.OUTPUT_STEPS' | translate}}</span>
-        <span *ngFor="let output of nodeData.relationData.outputs" class="values">{{output}}</span>
-      </div>
+      <node-errors [serverValidationError]="nodeData.serverValidation" [schemas]="nodeData.schemas" [debugResult]="nodeData.debugResult"></node-errors>
     </div>
     <crossdata-catalog *ngIf="selectedOption === 'crossdata'"></crossdata-catalog>
   </sparta-sidebar>

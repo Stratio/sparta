@@ -185,7 +185,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          fixture.detectChanges();
          const runDebugElement = fixture.debugElement.query(By.css('#run-workflow-button'));
          expect(runDebugElement).not.toBeNull();
-         expect(runDebugElement.children[0].nativeElement.className).toBe('icon-stop');
+
          runDebugElement.triggerEventHandler('click', {});
          expect(workflowsManagingStub.stopWorkflow).toHaveBeenCalled();
       });
@@ -204,7 +204,6 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          fixture.detectChanges();
          const runDebugElement = fixture.debugElement.query(By.css('#run-workflow-button'));
          expect(runDebugElement).not.toBeNull();
-         expect(runDebugElement.children[0].nativeElement.className).toBe('icon-play');
          runDebugElement.triggerEventHandler('click', {});
          expect(workflowsManagingStub.runWorkflow).toHaveBeenCalled();
       });

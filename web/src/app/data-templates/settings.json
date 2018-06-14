@@ -7,7 +7,7 @@
       "required": true,
       "qa": "workflow-name",
       "newRow": true,
-      "col": 5
+      "width": 6
     },
     {
       "propertyId": "description",
@@ -16,7 +16,7 @@
       "required": false,
       "newRow": true,
       "qa": "workflow-description",
-      "col": 7
+      "width": 6
     }
   ],
   "advancedSettings": [

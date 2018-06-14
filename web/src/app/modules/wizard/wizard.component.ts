@@ -14,6 +14,7 @@ import * as debugActions from './actions/debug';
 import * as wizardActions from './actions/wizard';
 import { WizardService } from './services/wizard.service';
 import { Engine } from 'app/models/enums';
+import { CreationMode, EditionConfigMode } from './models/node';
 
 @Component({
     selector: 'wizard',
@@ -24,9 +25,9 @@ import { Engine } from 'app/models/enums';
 export class WizardComponent implements OnInit, OnDestroy {
 
     public workflowType = 'Streaming';
-    public editionConfigMode: any = {};
+    public editionConfigMode: EditionConfigMode;
     public showSettings = false;
-    public creationMode: any;
+    public creationMode: CreationMode;
     public isEdit = false;
 
     private _componentDestroyed = new Subject();
@@ -65,7 +66,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._store.select(fromWizard.isCreationMode)
             .takeUntil(this._componentDestroyed)
-            .subscribe(creationMode => {
+            .subscribe((creationMode: CreationMode) => {
                 this.creationMode = creationMode;
                 this._cd.markForCheck();
             });

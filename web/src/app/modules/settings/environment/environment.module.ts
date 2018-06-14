@@ -5,7 +5,8 @@
  */
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StModalModule, StSearchModule, StInputModule } from '@stratio/egeo';
+import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StModalModule,
+    StSearchModule, StInputModule, StModalService } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { EnvironmentComponent } from './environment.component';
@@ -33,6 +34,9 @@ import { EnvironmentRoutingModule } from './environment.routes';
         StTableModule,
         StCheckboxModule,
         StInputModule
-    ]
+    ],
+    providers: [
+      StModalService
+   ]
 })
 export class EnvironmentModule { }

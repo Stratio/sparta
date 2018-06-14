@@ -18,7 +18,7 @@ export class ExecuteBackup implements OnInit {
 
     ngOnInit(): void {}
 
-    onChangeValue(value: any){
+    onChangeValue(value: any) {
         this.removeData = value;
     }
 

@@ -1,0 +1,11 @@
+<div *ngFor="let n of schema">
+  <div class="node-name" (click)="n.children.length && toggleNode(n)" [ngClass]="{'collapsable' : n.children.length}">
+    <div class="marker">
+      <span *ngIf="n.children.length" [ngClass]="n.open ? 'icon-square-minus' : 'icon-square-plus'"></span>
+    </div>
+    <span>{{n.name}} ({{n.type}})</span>
+  </div>
+  <div class="child-schema" [hidden]="!n.open" *ngIf="n.children.length">
+    <node-schema [schema]="n.children"></node-schema> 
+  </div>
+</div>

@@ -32,7 +32,7 @@
                   qaTag="node-tabs" (changedOption)="changeFormOption($event)">
                </st-horizontal-tabs>
                <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
-                  <div class="col-sm-6" [ngClass]="{'error' : validatedName}">
+                  <div class="col-sm-8" [ngClass]="{'error' : validatedName}">
                      <sp-input name="name" (change)="resetValidation()" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *"
                         fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30"
                         [errors]="errorsService.errors.inputErrors" class="input-field st-form-field"></sp-input>
@@ -40,7 +40,7 @@
                   </div>
                </div>
                <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
-                  <div class="col-sm-6">
+                  <div class="col-sm-8">
                      <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
                         fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="120"
                         [errors]="errorsService.errors.inputErrors" class="input-field st-form-field"></sp-textarea>

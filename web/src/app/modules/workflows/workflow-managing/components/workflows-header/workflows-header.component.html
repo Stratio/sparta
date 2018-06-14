@@ -32,7 +32,7 @@
             spTitle="Run workflow version"
             (click)="runWorkflow(selectedVersionsData[0])"
             *ngIf="selectedVersionsData && selectedVersionsData.length === 1 && !isRunning(selectedVersionsData[0].status.status); else stopTemplate">
-          <i class="icon-play"></i>
+          <i class="icon-play" id="play-button-icon"></i>
         </button>
         <ng-template #stopTemplate>
            <button class="button button-toolbar" 
@@ -40,7 +40,7 @@
               spTitle="Stop workflow version"
               (click)="runWorkflow(selectedVersionsData[0])" 
               *ngIf="selectedVersionsData && selectedVersionsData.length === 1">
-              <i class="icon-stop" *ngIf="isRunning(selectedVersionsData[0].status.status)"></i>
+              <i class="icon-stop" id="stop-button-icon" *ngIf="isRunning(selectedVersionsData[0].status.status)"></i>
            </button>
         </ng-template>
 

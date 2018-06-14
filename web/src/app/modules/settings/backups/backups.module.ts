@@ -6,7 +6,7 @@
 
 import { NgModule } from '@angular/core';
 import { SharedModule } from '@app/shared';
-import { StModalModule, StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
+import { StModalModule, StModalService, StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +21,7 @@ import { TableNotificationModule } from '@app/shared/components/table-notificati
 @NgModule({
    declarations: [
       SpartaBackups,
-      ExecuteBackup,
+      ExecuteBackup
    ],
    imports: [
       BackupsRoutingModule,
@@ -35,6 +35,9 @@ import { TableNotificationModule } from '@app/shared/components/table-notificati
       SharedModule,
       TableNotificationModule,
       StTableModule
+   ],
+   providers: [
+      StModalService
    ]
 })
 

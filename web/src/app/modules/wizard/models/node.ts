@@ -5,39 +5,68 @@
  */
 
 export interface WizardNode {
-    stepType: 'Input' | 'Transformation' | 'Output';
-    name: string;
-    created: boolean;
-    classPrettyName: string;
-    hasErrors: boolean;
-    nodeTemplate: any;
-    configuration: any;
-    debugResult: any;
-    uiConfiguration: {
-        position: WizardNodePosition
-    };
+   stepType: 'Input' | 'Transformation' | 'Output';
+   name: string;
+   created: boolean;
+   classPrettyName: string;
+   hasErrors: boolean;
+   nodeTemplate: any;
+   configuration: any;
+   debugResult: any;
+   uiConfiguration: {
+      position: WizardNodePosition
+   };
 };
 
 
 export interface WizardNodePosition {
-    x: number;
-    y: number;
+   x: number;
+   y: number;
 }
 
 export interface WizardEdge {
-    origin: string;
-    destination: string;
-    dataType?: string;
+   origin: string;
+   destination: string;
+   dataType?: string;
 }
 
 export interface WizardEdgeNodes {
-    origin: WizardNode;
-    destination: WizardNode;
+   origin: WizardNode;
+   destination: WizardNode;
 }
 
 interface EdgePosition {
-    name: string;
-    uiConfiguration: {
-        position: WizardNodePosition
-    };
+   name: string;
+   uiConfiguration: {
+      position: WizardNodePosition
+   };
+}
+
+export interface EdgeOption {
+   active: boolean;
+   supportedDataRelations?: Array<string>;
+   edgeType?: string;
+   clientX?: number;
+   clientY?: number;
+   relation?: {
+      initialEntityName: string;
+      finalEntityName: string;
+   };
+}
+
+export interface CreationMode {
+   active: boolean;
+   data: any;
+}
+
+export interface EditionConfigMode {
+   editionConfig: boolean;
+   isEdition: boolean;
+   editionType: any;
+   relationData: {
+      inputs: Array<string>;
+      output: Array<string>;
+   };
+   serverValidation?: any;
+   debugResult: any;
 }

@@ -1,4 +1,3 @@
-import { SpHighlightTextareaComponent } from '../shared/components/highlight-textarea/highlight-textarea.component';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -8,8 +7,9 @@ import { SpHighlightTextareaComponent } from '../shared/components/highlight-tex
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
-    StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
-    StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService, StForegroundNotificationsModule
+   StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
+   StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService,
+   StTreeModule
 } from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
@@ -18,10 +18,10 @@ import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 
 import {
-    WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
-    WizardEditorComponent, WizardEditorService, WizardNodeComponent,
-    DraggableSvgDirective, WizardEdgeComponent, SelectedEntityComponent,
-    WizardSettingsComponent
+   WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
+   WizardEditorComponent, WizardEditorService, WizardNodeComponent,
+   DraggableSvgDirective, WizardEdgeComponent, SelectedEntityComponent,
+   WizardSettingsComponent
 } from '.';
 import { WizardRoutingModule } from './wizard.router';
 import { SharedModule } from '@app/shared';
@@ -39,58 +39,67 @@ import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-o
 import { MocksConfigComponent } from '@app/wizard/components/wizard-config-editor/mocks-config/mocks-config.component';
 import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
 import { SidebarConfigComponent } from '@app/wizard/components/wizard-config-editor/sidebar-config/sidebar-config.component';
+import { SpForegroundNotificationsModule } from '@app/shared/components/sp-foreground-notifications/sp-foreground-notifications.module';
+import { NodeErrorsComponent } from '@app/wizard/components/node-errors/node-errors.component';
+import { NodeSchemaComponent } from '@app/wizard/components/node-schema/node-schema.component';
+import { WizardConsoleComponent } from '@app/wizard/components/wizard-console/wizard-console.component';
+
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-    suppressScrollX: true
+   suppressScrollX: true
 };
 
 @NgModule({
-    declarations: [
-        WizardComponent,
-        WizardHeaderComponent,
-        WizardEditorContainer,
-        WizardEditorComponent,
-        WizardSettingsComponent,
-        WizardNodeComponent,
-        WizardDetailsComponent,
-        DraggableSvgDirective,
-        WizardEdgeComponent,
-        WizardConfigEditorComponent,
-        SelectedEntityComponent,
-        EdgeOptionsComponent,
-        WizardModalComponent,
-        MocksConfigComponent,
-        SidebarConfigComponent
-    ],
-    imports: [
-        StProgressBarModule,
-        StTagInputModule,
-        StFullscreenLayoutModule,
-        StDropdownMenuModule,
-        StHorizontalTabsModule,
-        StForegroundNotificationsModule,
-        StModalModule.withComponents([WizardModalComponent]),
-        StoreModule.forFeature('wizard', reducers),
-        EffectsModule.forFeature([DebugEffect, WizardEffect]),
-        HighlightTextareaModule,
-        WizardRoutingModule,
-        FormsModule,
-        SharedModule,
-        FormsModule,
-        ReactiveFormsModule,
-        CrossdataModule,
-        PerfectScrollbarModule
-    ],
-    providers: [
-        WizardEditorService,
-        WizardService,
-        ValidateSchemaService,
-        StModalService,
-        EgeoResolveService,
-        {
-            provide: PERFECT_SCROLLBAR_CONFIG,
-            useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
-        }]
+   declarations: [
+      WizardComponent,
+      WizardHeaderComponent,
+      WizardEditorContainer,
+      WizardEditorComponent,
+      WizardSettingsComponent,
+      WizardNodeComponent,
+      WizardDetailsComponent,
+      WizardConsoleComponent,
+      DraggableSvgDirective,
+      WizardEdgeComponent,
+      WizardConfigEditorComponent,
+      SelectedEntityComponent,
+      EdgeOptionsComponent,
+      WizardModalComponent,
+      MocksConfigComponent,
+      NodeErrorsComponent,
+      NodeSchemaComponent,
+      SidebarConfigComponent
+   ],
+   imports: [
+      StProgressBarModule,
+      StTagInputModule,
+      StFullscreenLayoutModule,
+      StDropdownMenuModule,
+      StHorizontalTabsModule,
+      SpForegroundNotificationsModule,
+      StTreeModule,
+      StModalModule.withComponents([WizardModalComponent]),
+      StoreModule.forFeature('wizard', reducers),
+      EffectsModule.forFeature([DebugEffect, WizardEffect]),
+      HighlightTextareaModule,
+      WizardRoutingModule,
+      FormsModule,
+      SharedModule,
+      FormsModule,
+      ReactiveFormsModule,
+      CrossdataModule,
+      PerfectScrollbarModule
+   ],
+   providers: [
+      WizardEditorService,
+      WizardService,
+      ValidateSchemaService,
+      StModalService,
+      EgeoResolveService,
+      {
+         provide: PERFECT_SCROLLBAR_CONFIG,
+         useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+      }]
 })
 
 export class WizardModule { }

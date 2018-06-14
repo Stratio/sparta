@@ -12,6 +12,7 @@ import { Store } from '@ngrx/store';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
+import { EdgeOption } from '@app/wizard/models/node';
 
 @Component({
   selector: 'edge-options',
@@ -22,7 +23,7 @@ import * as wizardActions from './../../actions/wizard';
 
 export class EdgeOptionsComponent implements OnChanges {
 
-  @Input() edgeOptions: any;
+  @Input() edgeOptions: EdgeOption;
 
   public menu: ((StDropDownMenuItem | StDropDownMenuGroup)[]);
   public selectedItem: StDropDownMenuItem = {
@@ -100,5 +101,4 @@ export class EdgeOptionsComponent implements OnChanges {
     private _store: Store<fromWizard.State>) {
 
   }
-
 }

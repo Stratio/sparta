@@ -7,6 +7,7 @@ $egeo-sanitize: true;
 @import '~codemirror/lib/codemirror.css';
 @import '~codemirror/addon/hint/show-hint.css';
 @import '~perfect-scrollbar/css/perfect-scrollbar.css';
+@import 'font';
 
 html {
     font-size: 16px;
@@ -21,6 +22,14 @@ body {
     font-family: 'Nunito Sans';
     min-height: 100%;
 }
+
+
+body.dragging-console {
+  pointer-events: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
 
 button.selected-button {
     background: #f3f6f8!important;

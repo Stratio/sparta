@@ -169,3 +169,15 @@ workflows-manage-header .sth-breadcrumbs__item {
 .st-textarea {
     height: auto;
 }
+
+.button.button-critical, .button.button-primary, .button.button-secondary-gray, .button.button-secondary-line, .button.button-success, .button.button-warning {
+    font-family: Nunito Sans;
+}
+
+.st-label {
+    font-family: Nunito Sans;
+}
+
+.st-form-field .st-label {
+    color: #555;
+}

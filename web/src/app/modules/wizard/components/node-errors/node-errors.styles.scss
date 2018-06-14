@@ -1,0 +1,146 @@
+@import '~@stratio/egeo/theme/constants';
+
+.errors-container {
+  background:rgba(236, 68, 92, 0.05);
+  padding: 8px 12px;
+  margin-top: 17px;
+}
+.debug-error-container {
+  margin-top: 7px;
+}
+.debug-error {
+  .icon-alert {
+    line-height: 22px;
+    /* margin: 4px; */
+    margin-right: 6px;
+  }
+
+  .icon {
+    display: table-cell;
+    span {
+      display: inline-block;
+      float: left;
+      margin-bottom: -3px;
+    }
+    .validation-icon {
+        margin-bottom: -5px;
+    }
+  }
+  .debug-error-message {
+    color: #ff1744;
+    font-size: 15px;
+    display: table;
+    .icon-record {
+      font-size: 18px;
+      margin-top: 1px;
+      margin-right: 3px;  
+    }
+  }
+
+  .message {
+      p:first-letter {
+        text-transform: uppercase;
+      }
+   }
+
+   .error-details{
+      color: #4a90e2;
+      clear: both;
+      cursor: pointer;
+      display: block;
+   }
+}
+
+
+.debug-result {
+    margin: 20px 0;
+    margin-bottom: 10px;
+    background: rgba(12, 170, 112, 0.08);
+    padding: 8px 12px;
+  .icon-circle-check {
+        line-height: 22px;
+    /* margin: 4px; */
+    float: left;
+    margin-right: 6px;
+  }
+  .debug-result-message {
+    font-size: 15px;
+    display: table;
+
+    .icon {
+      display: table-cell;
+      color: #0baa70;
+
+      span {
+        margin-bottom: -6px;
+      }
+    }
+    .message {
+      display: table-cell;
+    }
+  }
+}
+
+.title {
+   color: $action-secondary-06;
+   font-size: 14px;
+   margin-top: 6px;
+   display: block;
+   font-family: $egeo-nunito-sans-semiBold;
+}
+
+
+.schemas{
+  margin-bottom: 20px;
+  .schema-title {
+    border-bottom: 1px solid #cfd8dc;
+    font-family: $egeo-nunito-sans-extraBold;
+    color: $neutral-13;
+    font-size: $egeo-font-size-small;
+    padding-bottom:6px;
+    cursor: pointer;
+  }
+  .icon {
+    font-weight: 600;
+    font-size: 14px;
+    padding-right: 2px;
+  }
+}
+
+.schema-name {
+  color: $neutral-13;
+  font-family: $egeo-nunito-sans-bold;
+}
+
+.schema-section {
+  cursor: pointer;
+  padding-left: 10px;
+  margin-top: 12px;
+}
+
+.schema-arrow {
+  font-size: 20px;
+  float: left;
+  padding-right: 1px;
+  margin-top: 1px;
+
+  &:not(.expanded) {
+    transform: rotate(-90deg);
+  }
+}
+
+node-schema {
+  padding-left: 25px;
+  display: block;
+}
+.schemas-container{
+  margin-top: 15px;
+}
+
+.debug-data-link {
+  color: #4a90e2;
+  font-size: 14px;
+  font-family: $egeo-nunito-sans;
+  float: right;
+  margin-top: 3px;
+}

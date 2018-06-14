@@ -23,6 +23,8 @@ export interface State {
    notification: {
       type: string;
       message: string;
+      templateType?: string;
+      time?: number;
    };
 };
 
@@ -52,7 +54,8 @@ const initialState: State = {
    }],
    notification: {
       type: '',
-      message: ''
+      message: '',
+      templateType: ''
    }
 };
 
@@ -184,21 +187,8 @@ export const getWorkflowType = (state: State) => state.workflowType;
 export const getTemplates = (state: State) => state.templates;
 export const getMenuOptions = (state: State) => {
    if (state.floatingMenuSearch.length) {
-      let menu: any = [];
       const matchString = state.floatingMenuSearch.toLowerCase();
-      state.menuOptions.forEach((option: any) => {
-         const icon = option.icon;
-         const options: any = [];
-         option.subMenus.forEach((type: any) => {
-            if (!type.subMenus && type.name.toLowerCase().indexOf(matchString) !== -1) {
-               options.push(Object.assign({}, type, {
-                  icon: icon
-               }));
-            }
-         });
-         menu = menu.concat(options);
-      });
-      return menu;
+      return getEntitiesSteps(state.menuOptions, matchString);
    } else {
       return state.menuOptions;
    }
@@ -209,3 +199,22 @@ export const isCreationMode: any = (state: State) => {
       data: state.selectedCreationEntity
    };
 };
+
+
+function getEntitiesSteps(category: any, matchString: string, parentIcon?: string) {
+   let menu: any = [];
+   const options: any = [];
+   category.forEach((categoryType: any) => {
+      const icon = parentIcon || categoryType.icon;
+      if (!categoryType.subMenus) {
+         if (categoryType.name.toLowerCase().indexOf(matchString) !== -1) {
+            options.push(Object.assign({}, categoryType, {
+               icon: icon
+            }));
+         }
+      } else {
+         menu = menu.concat(getEntitiesSteps(categoryType.subMenus, matchString, icon));
+      }
+   });
+   return menu.concat(options);
+}

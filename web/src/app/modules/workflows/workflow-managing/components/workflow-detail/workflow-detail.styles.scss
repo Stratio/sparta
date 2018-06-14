@@ -7,8 +7,13 @@
    text-align: center;
    min-height: 230px;
    .workflow-detail-image {
-      width: 170px;
+      width: 140px;
    }
+
+   .workflow-info {
+    font-size: $egeo-font-size-xxsmall;
+    color: $neutral-10;
+  }
 }
 
 .description {
@@ -24,13 +29,8 @@
 }
 
 .title {
-   text-transform: uppercase;
-   font-size: $egeo-font-size-xxsmall;
-   font-weight: 600;
-   line-height: 1.43;
    margin-top: 10px;
    display: block;
-   color: #6c7b8b;
 }
 
 .title2 {
@@ -51,7 +51,8 @@
    font-weight: 600;
    color: #3c3c3c;
    font-size: $egeo-font-size-xsmall;
-   .notstarted {}
+   background: rgba(205, 214, 223, 0.3);
+   padding: 3px 10px;
    display: inline-block;
    margin-bottom: 5px;
    &.started {
@@ -64,12 +65,6 @@
       padding: 3px 10px;
       background: rgba(170, 12, 112, 0.15);
    }
-}
-
-.workflow-info {
-   color: #0f1b27;
-   font-size: 15px;
-   margin-top: 20px;
 }
 
 .execution-info-link {

@@ -175,16 +175,13 @@ export class WizardNodeComponent implements OnInit {
          .attr('x', 20)
          .attr('y', 35)
          .attr('class', 'entity-icon')
-         .style('font-size', '25')
+         .style('font-size', '22')
          .attr('fill', this.createdNew ? '#999' : '#0f1b27')
          .text((d) => icons[this.data.classPrettyName]);
 
 
-      this._errorIconElement = textContainer.append('text')
-         .attr('x', 116)
-         .attr('y', 22)
-         .style('font-size', '16')
-         .text('');
+      this._errorIconElement = textContainer.append('g')
+         .style('font-size', '14');
       this._getIcon(this._errorIconElement);
 
    }
@@ -247,20 +244,34 @@ export class WizardNodeComponent implements OnInit {
    }
 
    private _getIcon(iconElement: any) {
-      let icon = '';
-      let error = true;
+      let icons = 0;
+      iconElement.html('');
       if ((this.data.hasErrors || this._serverStepValidation) && !this.createdNew) {
-         icon = '\uE613';
-      } else if (this.debugResult) {
+         iconElement.append('text')
+            .attr('class', 'error-icon')
+            .attr('x', 116)
+            .attr('y', 22)
+            .text('\uE613');
+         icons++;
+      }
+      if (this.debugResult) {
          if (this.debugResult.error) {
-            icon = '\ue049';
+            iconElement.append('text')
+               .attr('class', 'error-icon')
+               .attr('x', icons > 0 ? 96 : 116)
+               .attr('y', 23)
+               .style('font-size', '16')
+               .text('\ue049');
+            icons++;
+
          } else if (this.debugResult.result) {
-            icon = '\ue048';
-            error = false;
+            iconElement.append('text')
+               .attr('class', 'success-icon')
+               .attr('x', icons > 0 ? 96 : 116)
+               .attr('y', 22)
+               .text('\ue048');
+            icons++;
          }
       }
-      iconElement
-         .attr('class', error ? 'error-icon' : 'success-icon')
-         .text(function (d) { return icon; });
    }
 }

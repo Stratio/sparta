@@ -1,0 +1,39 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+   display: flex;
+   flex-direction: column;
+   opacity: 0;
+   pointer-events: none;
+   transition-duration: 1s;
+   transition-property: opacity;
+   .foreground-notification {
+      font-size: 14px;
+      text-align: center;
+      padding: 11px;
+      position: relative;
+      .close {
+         cursor: pointer;
+         font-size: 18px;
+         position: absolute;
+         top: 11px;
+         right: 11px;
+      }
+      &.critical,
+      &.success,
+      &.warning {
+         border: solid 1px;
+         border-radius: 4px;
+      }
+      &__text {
+         color: $neutral-11;
+         margin: 0 60px;
+      }
+   }
+   &.visible {
+      pointer-events: all;
+      opacity: 1;
+      transition-duration: 1s;
+      transition-property: opacity;
+   }
+}

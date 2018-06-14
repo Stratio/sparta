@@ -84,7 +84,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     }
 
     getClass(width: string): string {
-        return width ? 'col-xs-' + width : 'col-xs-6';
+        return width ? 'col-xs-' + width : 'col-xs-8';
     }
 
     constructor(private _cd: ChangeDetectorRef) {

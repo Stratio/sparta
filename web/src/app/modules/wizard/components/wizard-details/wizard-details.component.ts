@@ -5,10 +5,11 @@
  */
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/Subscription';
-import { WizardService } from '@app/wizard/services/wizard.service';
+import { Subject } from 'rxjs/Rx';
 
+import { WizardService } from '@app/wizard/services/wizard.service';
 import * as fromWizard from './../../reducers';
+import * as debugActions from './../../actions/debug';
 
 @Component({
    selector: 'wizard-details',
@@ -22,14 +23,15 @@ export class WizardDetailsComponent implements OnInit, OnDestroy {
    public templates: any = {};
    public config = {};
    public genericError: any;
+   public validations: any;
 
-   private _workflowTypeSubscription: Subscription;
-   private _debugSubscription: Subscription;
+   private _componentDestroyed = new Subject();
 
-   constructor(private _cd: ChangeDetectorRef, private wizardService: WizardService, private _store: Store<fromWizard.State>, ) { }
+   constructor(private _cd: ChangeDetectorRef, private wizardService: WizardService, private _store: Store<fromWizard.State>) { }
 
    ngOnInit() {
-      this._workflowTypeSubscription = this._store.select(fromWizard.getWorkflowType)
+      this._store.select(fromWizard.getWorkflowType)
+         .takeUntil(this._componentDestroyed)
          .subscribe((workflowType: string) => {
             this.wizardService.workflowType = workflowType;
             this.templates = {
@@ -40,16 +42,27 @@ export class WizardDetailsComponent implements OnInit, OnDestroy {
             this._cd.markForCheck();
          });
 
-      this._debugSubscription = this._store.select(fromWizard.getDebugResult)
-         .subscribe((debugResult: any) => {
+      this._store.select(fromWizard.getDebugResult)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(debugResult => {
             this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
             this._cd.markForCheck();
          });
 
+      this._store.select(fromWizard.getValidationErrors)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(validations => {
+            this.validations = validations;
+            this._cd.markForCheck();
+         });
+   }
+
+   showConsole(tab: string) {
+      this._store.dispatch(new debugActions.ShowDebugConsoleAction(tab));
    }
 
    ngOnDestroy(): void {
-      this._workflowTypeSubscription && this._workflowTypeSubscription.unsubscribe();
-      this._debugSubscription && this._debugSubscription.unsubscribe();
+      this._componentDestroyed.next();
+      this._componentDestroyed.unsubscribe();
    }
 }

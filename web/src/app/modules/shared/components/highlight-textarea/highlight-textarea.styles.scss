@@ -27,11 +27,12 @@
     display: inline-block;
   }
 
-  .st-textarea-error-layout {
-    height: 15px;
-    position: absolute;
-    bottom: 0;
-  }
+  .st-textarea-error-message {
+    font-size: 13px;
+    display: block;
+    color: #ec445c;
+    margin-top: -18px;
+}
 
   .textarea-scroll {
     max-height: 300px;
@@ -44,7 +45,7 @@
 
   .error {
     .textarea-scroll {
-        border-color: #f59ea9;
+        border-color: #f59ea9 !important;
     }
   }
 
@@ -92,7 +93,14 @@
       color: #777;
       font-family: Nunito Sans;
       font-size: 15px;
+      margin-top:-4px;
+      margin-left:-3px;
   }
+
+  .CodeMirror-sizer{
+    min-height: 50px!important;
+  }
+
   .CodeMirror-focused {
       .CodeMirror-cursor {
         height: 19px!important;

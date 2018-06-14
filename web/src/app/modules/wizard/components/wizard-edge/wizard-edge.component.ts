@@ -110,10 +110,11 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
 
    ngOnChanges(changes: SimpleChanges): void {
       this._ngZone.runOutsideAngular(() => {
-         if (!changes.initPosition && !changes.endPosition) {
+         if (this._edgeElement && changes.selectedEdge) {
             this._edgeElement.classed('selected', this.selectedEdge && this.selectedEdge.origin === this.initialEntityName
-               && this.selectedEdge.destination === this.finalEntityName);
-         } else {
+               && this.selectedEdge.destination === this.finalEntityName ? true : false);
+         }
+         if (changes.initPosition || changes.endPosition) {
             this.getPosition(this.initPosition.x, this.initPosition.y, this.endPosition.x, this.endPosition.y);
          }
       });

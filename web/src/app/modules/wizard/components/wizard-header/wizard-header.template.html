@@ -14,8 +14,8 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="header-info" *ngIf="workflowName.length">
-            <span class="icon icon-infinite workflow-type" *ngIf="workflowType === 'Streaming'"></span>
-            <span class="icon icon-channel workflow-type" *ngIf="workflowType === 'Batch'"></span>
+            <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="workflowType === 'Streaming'"/>
+            <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="workflowType === 'Batch'"/>
             <div class="workflow-name-container">
               <span class="title egeo-title-extra-large">{{workflowName}} -</span>
               <span class="title egeo-title-giant">v{{workflowVersion}}</span>
@@ -23,7 +23,7 @@
           </div>
           <div class="header-links">
             <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
-            <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine || !validations.valid">
+            <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine">
               {{'WIZARD.SAVE' | translate}}
             </button>
           </div>
@@ -79,34 +79,11 @@
             </button>
           </div>
           <div class="" style="float:right">
-             <button [disabled]="isWorkflowDebugging" (click)="debugWorkflow()" id="debug-mode" spTitle="Run debug mode" class="button button-toolbar">
-              <i class="icon-input"></i>
+            <button [disabled]="isWorkflowDebugging" (click)="debugWorkflow()" id="debug-mode" spTitle="Run debug mode" class="button button-toolbar">
+              <i class="icon-debug"></i>
             </button>
-            <sp-popover [(active)]="showErrors">
-              <div popover-link>
-                <button menu-action id="show-errors-button" spTitle="Show validation errors" class="button button-toolbar" [ngClass]="{'errors' : !validations.valid, 'selected-button' : showErrors}">
-                  <i class="icon-alert"></i>
-                </button>
-              </div>
-              <div popover-content>
-                <div *ngIf="!validations.valid && validations.messages.length">
-                  <span *ngIf="validations.messages.length > 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_N' | translate:({ number: validations.messages.length})}}</span>
-                  <span *ngIf="validations.messages.length === 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_1' | translate }}</span>
-                  <ul class="errors-list">
-                    <li *ngFor="let message of validations.messages" class="validation-message">
-                      - {{message.message}}
-                    </li>
-                  </ul>
-                </div>
-                <div *ngIf="!validations.valid && !validations.messages.length">
-                   <span class="validation-message">{{'WIZARD.STEP_VALIDATIONS' | translate}}</span>
-                </div>
-                <div *ngIf="validations.valid">
-                  <span>{{'WIZARD.NO_VALIDATION_ERROR' | translate}}</span>
-                </div>
-              </div>
-            </sp-popover>
-            <button spTitle="Show node info" class="button button-toolbar" id="sho-info-button" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
+            <button spTitle="Show node info" [ngClass]="{'selected-button': isShowedEntityDetails$ | async, 'errors' : (!validations.valid && validations.messages && validations.messages.length) || genericError}"
+              class="button button-toolbar" id="show-info-button" (click)="toggleEntityInfo()">
                 <i class="icon-info1"></i>
             </button>
             <button spTitle="Workflow settings" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
@@ -117,6 +94,29 @@
       </div>
     </div>
   </div>
-  <st-foreground-notifications *ngIf="notification.visible" class="notification" [status]="notification.type" [text]="('WIZARD.NOTIFICATION.' + notification.message) | translate" [visible]="notification.visible"></st-foreground-notifications>
+  <sp-foreground-notifications *ngIf="notification.visible" class="notification" [status]="notification.type" [text]="notification.message ? (('WIZARD.NOTIFICATION.' + notification.message) | translate) : ''"
+    [visible]="notification.visible">
+    <div *ngIf="notification.templateType && notification.templateType.length">
+      <div [ngSwitch]="notification.templateType">
+        <div class="message" *ngSwitchCase="'generic'">
+          <span class="icon-alert"></span>
+          <span>{{'WIZARD.GENERIC_ERROR' | translate}}</span>
+          <span class="link" (click)="showGlobalErrors()">View summary</span>
+        </div>
+        <div class="message" *ngSwitchCase="'debugSuccess'">
+          <span class="icon-circle-check"></span>
+          <span>{{'WIZARD.NOTIFICATION.DEBUG_SUCCESS' | translate}}</span>
+        </div>
+        <div class="message" *ngSwitchCase="'debugFail'">
+          <span class="icon-alert"></span>
+          <span>{{'WIZARD.NOTIFICATION.DEBUG_FAIL' | translate}}</span>
+        </div>
+        <div class="message" *ngSwitchCase="'runDebug'">
+          <loading-spinner class="loading"></loading-spinner>
+          <span>{{'WIZARD.NOTIFICATION.DEBUG_RUN' | translate}}</span>
+        </div>
+      </div>
+    </div>
+  </sp-foreground-notifications>
   <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
 </div>

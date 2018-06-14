@@ -15,6 +15,7 @@ export interface State {
   selectedWorkflows: Array<MonitoringWorkflow>;
   selectedWorkflowsIds: Array<string>;
   executionInfo: ExecutionInfo;
+  loading: boolean;
 }
 
 const initialState: State = {
@@ -22,6 +23,7 @@ const initialState: State = {
   selectedWorkflows: [],
   selectedWorkflowsIds: [],
   executionInfo: null,
+  loading: true
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -32,7 +34,8 @@ export function reducer(state: State = initialState, action: any): State {
         workflowList: action.payload,
         selectedWorkflows: state.selectedWorkflowsIds.length ?
         action.payload.filter(workflow => state.selectedWorkflowsIds.indexOf(workflow.id) > -1) : [],
-        selectedWorkflowsIds: [...state.selectedWorkflowsIds]
+        selectedWorkflowsIds: [...state.selectedWorkflowsIds],
+        loading: false
       };
     }
     case workflowActions.REMOVE_WORKFLOW_SELECTION: {
