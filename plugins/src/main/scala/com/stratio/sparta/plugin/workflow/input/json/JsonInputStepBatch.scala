@@ -18,6 +18,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import com.databricks.spark.avro._
 import com.stratio.sparta.plugin.helper.SchemaHelper
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import org.apache.avro.Schema
 
@@ -35,6 +36,12 @@ class JsonInputStepBatch(
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name)
+      )
 
     if (path.isEmpty)
       validation = ErrorValidations(

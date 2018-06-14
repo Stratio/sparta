@@ -18,6 +18,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 
 class FileSystemInputStepBatch(
@@ -36,6 +37,12 @@ class FileSystemInputStepBatch(
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
+    if (!SdkSchemaHelper.isCorrectTableName(name))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name)
+      )
 
     if (path.isEmpty)
       validation = ErrorValidations(
