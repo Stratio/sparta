@@ -72,10 +72,6 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
         <configuration>
           <property>
-            <name>hadoop.security.authorization</name>
-            <value>true</value>
-          </property>
-          <property>
             <name>hadoop.security.authentication</name>
             <value>__<HADOOP_SECURITY_AUTH>__</value>
           </property>
@@ -90,10 +86,6 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
           <property>
             <name>dfs.encrypt.data.transfer</name>
             <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__</value>
-          </property>
-          <property>
-            <name>hadoop.security.token.service.use_ip</name>
-            <value>__<HADOOP_SECURITY_TOKEN_USE_IP>__</value>
           </property>
         </configuration>
 EOF
@@ -114,10 +106,6 @@ sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSF
 && INFO "[HADOOP-CONF] dfs.encrypt.data.transfer in core-site.xml" \
 || ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in core-site.xml"
 
-sed -i "s#__<HADOOP_SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& INFO "[HADOOP-CONF] hadoop.security.token.service.use_ip configured in core-site.xml" \
-|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_SECURITY_TOKEN_USE_IP was configured in core-site.xml"
-
 cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
@@ -137,14 +125,6 @@ cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
           <property>
                <name>dfs.encrypt.data.transfer</name>
                <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__</value>
-          </property>
-          <property>
-               <name>dfs.encrypt.data.transfer.cipher.suites</name>
-               <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__</value>
-          </property>
-          <property>
-               <name>dfs.encrypt.data.transfer.cipher.key.bitlength</name>
-               <value>__<HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH>__</value>
           </property>
           <property>
                <name>hadoop.security.token.service.use_ip</name>
@@ -172,14 +152,6 @@ sed -i "s#__<HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KRB_PRINC
 sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && INFO "[HADOOP-CONF] dfs.encrypt.data.transfer in hdfs-site.xml" \
 || ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in hdfs-site.xml"
-
-sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer.cipher.suites in hdfs-site.xml" \
-|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES was configured in hdfs-site.xml"
-
-sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer.cipher.key.bitlength in hdfs-site.xml" \
-|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH was configured in hdfs-site.xml"
 
 sed -i "s#__<HADOOP_MAP_REDUCE_FRAMEWORK_NAME>__#$HADOOP_MAP_REDUCE_FRAMEWORK_NAME#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && INFO "[HADOOP-CONF] map.reduce.framework.name in hdfs-site.xml" \
