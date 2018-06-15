@@ -23,7 +23,7 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
 
   implicit val system = Option(context.system)
   private val environmentService = new EnvironmentService(curatorFramework)
-  private val ResourceType = "environment"
+  private val ResourceType = "Environment"
 
   //scalastyle:off
   override def receive: Receive = {

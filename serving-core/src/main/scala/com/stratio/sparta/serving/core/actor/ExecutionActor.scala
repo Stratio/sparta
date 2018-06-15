@@ -20,7 +20,7 @@ class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecutio
   extends Actor with ActionUserAuthorize {
 
   private val executionService = new ExecutionService(curatorFramework)
-  private val ResourceType = "execution"
+  private val ResourceType = "Workflows"
 
   override def receive: Receive = {
     case CreateExecution(request, user) => createExecution(request, user)

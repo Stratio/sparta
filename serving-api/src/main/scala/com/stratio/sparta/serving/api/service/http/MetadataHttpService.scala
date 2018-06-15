@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
+import com.stratio.sparta.serving.api.actor.MetadataActor.SpartaFilesResponse
 import com.stratio.sparta.serving.api.actor.MetadataActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig

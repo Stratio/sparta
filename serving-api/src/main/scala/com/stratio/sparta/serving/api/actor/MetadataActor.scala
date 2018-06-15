@@ -13,7 +13,6 @@ import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
 import com.stratio.sparta.serving.api.actor.MetadataActor.{ExecuteBackup, _}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.{BackupRestoreUtils, FileActorUtils}
@@ -24,7 +23,7 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.files.BackupRequest
+import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFile}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import com.stratio.sparta.sdk.constants.SdkConstants._
 
@@ -47,7 +46,7 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
   override val connectionTimeout = Try(zkConfig.getInt("connectionTimeout")).getOrElse(DefaultZKConnectionTimeout)
   override val sessionTimeout = Try(zkConfig.getInt("sessionTimeout")).getOrElse(DefaultZKSessionTimeout)
 
-  val ResourceType = "backup"
+  val ResourceType = "Backup"
 
   override def receive: Receive = {
     case UploadBackups(files, user) => if (files.isEmpty) errorResponse() else uploadBackups(files, user)
@@ -102,7 +101,7 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
     }
 
   def executeBackup(backupRequest: BackupRequest, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Execute)) {
+    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Status)) {
       Try {
         importer("/", s"$targetDir/${backupRequest.fileName}", backupRequest.deleteAllBefore)
         context.system.eventStream.publish(InitNodeListener("emptyMessage"))
@@ -116,6 +115,8 @@ object MetadataActor {
   case class UploadBackups(files: Seq[BodyPart], user: Option[LoggedUser])
 
   type BackupResponse = Try[Unit]
+
+  type SpartaFilesResponse = Try[Seq[SpartaFile]]
 
   case class ExecuteBackup(backupRequest: BackupRequest, user: Option[LoggedUser])
 

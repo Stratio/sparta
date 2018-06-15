@@ -37,8 +37,8 @@ class DebugWorkflowActor(
 
   import DebugWorkflowActor._
 
-  val ResourceWorkflow = "workflow"
-  val ResourceStatus = "status"
+  val ResourceWorkflow = "Workflows"
+  val ResourceStatus = "Workflow Detail"
   val debugService = new DebugWorkflowService(curatorFramework)
 
   val targetDir = "debug"

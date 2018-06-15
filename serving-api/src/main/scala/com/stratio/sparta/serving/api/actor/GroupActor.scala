@@ -24,8 +24,8 @@ class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: Actor
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
   private val groupService = new GroupService(curatorFramework)
-  private val ResourceGroupType = "group"
-  private val ResourceWorkflowType = "workflow"
+  private val ResourceGroupType = "Groups"
+  private val ResourceWorkflowType = "Workflow Group"
 
   override def receive: Receive = {
     case CreateGroup(request, user) => createGroup(request, user)

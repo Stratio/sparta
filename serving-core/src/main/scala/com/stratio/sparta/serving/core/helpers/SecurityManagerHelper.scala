@@ -89,18 +89,33 @@ object SecurityManagerHelper {
 
   implicit def resourceParser(resource: String): Resource = {
     resource match {
-      case "backup" => Resource(BackupResource, resource)
-      case "catalog" => Resource(CatalogResource, resource)
-      case "checkpoint" => Resource(CheckpointResource, resource)
-      case "configuration" => Resource(ConfigurationResource, resource)
-      case "driver" => Resource(DriverResource, resource)
-      case "environment" => Resource(EnvironmentResource, resource)
-      case "execution" => Resource(ExecutionResource, resource)
-      case "group" => Resource(GroupResource, resource)
-      case "plugin" => Resource(PluginResource, resource)
-      case "status" => Resource(StatusResource, resource)
-      case "template" => Resource(TemplateResource, resource)
-      case "workflow" => Resource(WorkflowResource, resource)
+      case "Groups" => Resource(GroupsResource, resource)
+      case "Workflows" => Resource(WorkflowsResource, resource)
+      case "Workflow Group" => Resource(WorkflowGroupResource, resource)
+      case "Workflow Detail" => Resource(WorkflowDetailResource, resource)
+      case "Backup" => Resource(BackupResource, resource)
+      case "Catalog" => Resource(CatalogResource, resource)
+      case "Configuration" => Resource(ConfigurationResource, resource)
+      case "Environment" => Resource(EnvironmentResource, resource)
+      case "Plugin" => Resource(PluginResource, resource)
+      case "Template" => Resource(TemplateResource, resource)
+      case "History" => Resource(HistoryResource, resource)
+    }
+  }
+
+  implicit def resourceTupleParser(resource: (String,String)): Resource = {
+    resource._1 match {
+      case "Groups" => Resource(GroupsResource, resource._2)
+      case "Workflows" => Resource(WorkflowsResource, resource._2)
+      case "Workflow Group" => Resource(WorkflowGroupResource, resource._2)
+      case "Workflow Detail" => Resource(WorkflowDetailResource, resource._2)
+      case "Backup" => Resource(BackupResource, resource._2)
+      case "Catalog" => Resource(CatalogResource, resource._2)
+      case "Configuration" => Resource(ConfigurationResource, resource._2)
+      case "Environment" => Resource(EnvironmentResource, resource._2)
+      case "Plugin" => Resource(PluginResource, resource._2)
+      case "Template" => Resource(TemplateResource, resource._2)
+      case "History" => Resource(HistoryResource, resource._2)
     }
   }
 }

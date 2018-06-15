@@ -30,7 +30,7 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
   val temporalDir = "/tmp/sparta/plugins"
   val apiPath = s"${HttpConstant.PluginsPath}/download"
 
-  val ResourceType = "plugin"
+  val ResourceType = "Plugin"
 
   override def receive: Receive = {
     case UploadPlugins(files, user) => if (files.isEmpty) errorResponse() else uploadPlugins(files, user)

@@ -1,0 +1,22 @@
+{
+  "type": "SpartaTest",
+  "version": "1",
+  "scope": [
+    {
+      "type": "file",
+      "actions": [
+        "view",
+        "create",
+        "delete"
+      ]
+    },
+    {
+      "type": "folder",
+      "actions": [
+        "view",
+        "create",
+        "delete"
+      ]
+    }
+  ]
+}

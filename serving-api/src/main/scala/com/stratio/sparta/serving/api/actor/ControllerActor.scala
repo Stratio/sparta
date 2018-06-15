@@ -61,8 +61,6 @@ class ControllerActor(
     .props(Props(new ExecutionActor(curatorFramework, inMemoryApiActors.executionInMemoryApi))), ExecutionActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new PluginActor())), PluginActorName)
-  val driverActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new DriverActor())), DriverActorName)
   val configActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ConfigActor())), ConfigActorName)
   val environmentActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -87,7 +85,6 @@ class ControllerActor(
     WorkflowActorName -> workflowActor,
     LauncherActorName -> launcherActor,
     PluginActorName -> pluginActor,
-    DriverActorName -> driverActor,
     ExecutionActorName -> executionActor,
     ConfigActorName -> configActor,
     CrossdataActorName -> crossdataActor,
@@ -143,7 +140,7 @@ class ControllerActor(
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {
     serviceRoutes.templateRoute(user) ~ serviceRoutes.workflowContextRoute(user) ~
       serviceRoutes.executionRoute(user) ~ serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
-      serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
+      serviceRoutes.pluginsRoute(user) ~ serviceRoutes.swaggerRoute ~
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
       serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user) ~
       serviceRoutes.debugRoutes(user) ~ serviceRoutes.executionHistoryRoutes(user) ~
@@ -191,8 +188,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def appStatusRoute: Route = appStatusService.routes()
 
   def pluginsRoute(user: Option[LoggedUser]): Route = pluginsService.routes(user)
-
-  def driversRoute(user: Option[LoggedUser]): Route = driversService.routes(user)
 
   def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
 
@@ -248,12 +243,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val pluginsService = new PluginsHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActorName)
-    override val actorRefFactory: ActorRefFactory = context
-  }
-
-  private val driversService = new DriverHttpService {
-    override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.DriverActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

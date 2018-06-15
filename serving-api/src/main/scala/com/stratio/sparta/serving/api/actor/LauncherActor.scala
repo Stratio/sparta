@@ -5,12 +5,11 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import java.util.UUID
 
 import akka.actor.{Props, _}
 import com.stratio.sparta.sdk.enumerators.PhaseEnum
 import com.stratio.sparta.sdk.models.WorkflowError
-import com.stratio.sparta.security.{Edit, Execute, SpartaSecurityManager}
+import com.stratio.sparta.security.{Edit, Status, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
@@ -33,8 +32,8 @@ class LauncherActor(curatorFramework: CuratorFramework,
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val ResourceStatus = "status"
-  private val ResourceWorkflow = "workflow"
+  private val ResourceStatus = "Workflow Detail"
+  private val ResourceWorkflow = "Workflows"
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val executionService = new ExecutionService(curatorFramework)
   private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
@@ -96,7 +95,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
   }
 
   def debug(id: String, user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(user, Map(ResourceWorkflow -> Execute)) {
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> Status)) {
       Try {
         val debugExecution = debugWorkflowService.findByID(id)
           .getOrElse(throw new ServerException(s"No workflow debug execution with id $id"))

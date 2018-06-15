@@ -37,7 +37,7 @@ This software – including all its source code – contains proprietary informa
 
     <dependencies>
         <dependency>
-            <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+            <groupId>com.stratio.sparta</groupId>
             <artifactId>dyplon-sparta</artifactId>
         </dependency>
         <dependency>

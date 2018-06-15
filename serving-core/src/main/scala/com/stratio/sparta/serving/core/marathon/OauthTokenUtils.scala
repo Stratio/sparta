@@ -168,7 +168,8 @@ object OauthTokenUtils extends SLF4JLogging {
       "execution" -> execution,
       "submit" -> "LOGIN",
       "username" -> username,
-      "password" -> password
+      "password" -> password,
+      "tenant" -> "NONE"
     )
 
   private def getCookie(response: HttpResponse[String]): Seq[HttpCookie] = {

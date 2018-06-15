@@ -21,7 +21,7 @@ class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMan
   extends Actor with ActionUserAuthorize {
 
   private val templateService = new TemplateService(curatorFramework)
-  private val ResourceType = "template"
+  private val ResourceType = "Template"
 
   //scalastyle:off
   override def receive: Receive = {

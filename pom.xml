@@ -14,7 +14,7 @@ This software – including all its source code – contains proprietary informa
     <parent>
         <groupId>com.stratio</groupId>
         <artifactId>parent</artifactId>
-        <version>0.10.0</version>
+        <version>0.11.0</version>
     </parent>
 
     <groupId>com.stratio.sparta</groupId>
@@ -25,6 +25,7 @@ This software – including all its source code – contains proprietary informa
     <url>http://www.stratio.com</url>
 
     <modules>
+        <module>dyplon-sparta</module>
         <module>dg-agent</module>
         <module>sdk</module>
         <module>plugins</module>
@@ -95,7 +96,6 @@ This software – including all its source code – contains proprietary informa
         <apache.spark.version>2.2.0</apache.spark.version>
         <stratio.spark.version>1.0.0-e3622dd</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
-        <sparta.dyplon.version>0.15.0-SNAPSHOT</sparta.dyplon.version>
         <crossdata.dyplon.version>0.14.1</crossdata.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
@@ -179,9 +179,9 @@ This software – including all its source code – contains proprietary informa
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+                <groupId>com.stratio.sparta</groupId>
                 <artifactId>dyplon-sparta</artifactId>
-                <version>${sparta.dyplon.version}</version>
+                <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.elasticsearch</groupId>
@@ -230,6 +230,10 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-nop</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

@@ -1,0 +1,104 @@
+{
+  "type": "${service.name}",
+  "version": "${pom.version}",
+  "scope": [
+    {
+      "type": "Groups",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "status"
+      ]
+    },
+    {
+      "type": "Workflows",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "status"
+      ]
+    },
+    {
+      "type": "Workflow Group",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "status"
+      ]
+    },
+    {
+      "type": "Workflow Detail",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "status"
+      ]
+    },
+    {
+      "type": "Catalog",
+      "actions": [
+        "view",
+        "select"
+      ]
+    },
+    {
+      "type": "Environment",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "upload",
+        "download"
+      ]
+    },
+    {
+      "type": "Backup",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "upload",
+        "execute"
+      ]
+    },
+    {
+      "type": "Configuration",
+      "actions": [
+        "view"
+      ]
+    },
+    {
+      "type": "Plugin",
+      "actions": [
+        "view",
+        "delete",
+        "upload",
+        "download"
+      ]
+    },
+    {
+      "type": "Template",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit"
+      ]
+    },
+    {
+      "type": "History",
+      "actions": [
+        "view"
+      ]
+    }
+  ]
+}

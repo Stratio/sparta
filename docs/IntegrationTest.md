@@ -28,7 +28,7 @@ docker run -d -i stratio/hdfs:2.6.0
 ####Posgres
 
 ```bash
-docker run -d -i postgresql:9.3
+docker run -d -i postgresql:9.6
 ```
 
 ####Elasticsearch
@@ -36,9 +36,5 @@ docker run -d -i postgresql:9.3
 ```bash
 docker run -d -i elasticsearch/elasticsearch:5.6.2
 ```
-####Rabbitmq
 
-```bash
-docker run -d -i rabbitmq:3.6.6
-```
 

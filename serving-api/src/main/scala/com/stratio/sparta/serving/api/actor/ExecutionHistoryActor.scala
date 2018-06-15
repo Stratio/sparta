@@ -29,7 +29,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
   import ExecutionHistoryActor._
 
   private lazy val workflowExecutionHistoryService = new WorkflowExecutionHistoryService()
-  private val ResourceType = "workflow"
+  private val ResourceType = "Workflows"
 
   private lazy val enabled = Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)
 

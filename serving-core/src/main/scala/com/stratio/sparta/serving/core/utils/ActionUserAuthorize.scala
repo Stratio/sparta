@@ -28,6 +28,19 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
   import context.dispatcher
 
+
+  def securitySingleActionAuthorizer[T](user: Option[LoggedUser],
+                                        actions: Map[(String,String), Action])
+                                       (implicit secManagerOpt: Option[SpartaSecurityManager]) : Boolean =
+    (secManagerOpt, user) match {
+      case (Some(secManager), Some(userLogged)) =>
+        val rejectedActions = actions filterNot {
+          case ((resource,name), action) => secManager.authorize(userLogged.id, (resource,name), action)
+        }
+        rejectedActions.isEmpty
+      case (_,_)=> true
+    }
+
   def securityActionAuthorizer[T](
                                    user: Option[LoggedUser],
                                    actions: Map[String, Action],

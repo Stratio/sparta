@@ -17,7 +17,6 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[WorkflowHttpService],
     typeOf[WorkflowStatusHttpService],
     typeOf[PluginsHttpService],
-    typeOf[DriverHttpService],
     typeOf[AppStatusHttpService],
     typeOf[ExecutionHttpService],
     typeOf[AppInfoHttpService],

@@ -24,7 +24,7 @@ class StatusActor(
                  )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val ResourceType = "status"
+  private val ResourceType = "Workflows"
   private val statusService = new WorkflowStatusService(curatorFramework)
 
   //scalastyle:off cyclomatic.complexity

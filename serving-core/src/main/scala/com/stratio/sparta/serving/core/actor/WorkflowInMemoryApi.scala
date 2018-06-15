@@ -5,6 +5,8 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import scala.util.Try
+
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
 import com.stratio.sparta.serving.core.actor.GroupPublisherActor.{GroupChange, GroupRemove}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{StatusChange, StatusRemove}
@@ -13,9 +15,8 @@ import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-
-import scala.util.Try
 
 class WorkflowInMemoryApi extends InMemoryServicesStatus {
 
@@ -133,7 +134,7 @@ object WorkflowInMemoryApi {
 
   case object FindAllMemoryWorkflowRaw
 
-  case object FindAllMemoryWorkflowDto
+  case class FindAllMemoryWorkflowDto(f: (Option[LoggedUser],Seq[WorkflowDto]) => Seq[WorkflowDto])
 
   case class FindByGroupMemoryWorkflowDto(group: String)
 

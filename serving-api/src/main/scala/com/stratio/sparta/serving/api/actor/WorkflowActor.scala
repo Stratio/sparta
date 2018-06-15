@@ -3,11 +3,13 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.security._
+import com.stratio.sparta.security.{WorkflowStatus => SpartaWorkflowStatus}
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -32,10 +34,9 @@ class WorkflowActor(
   import WorkflowActor._
   import WorkflowDtoImplicit._
 
-  val ResourceWorkflow = "workflow"
-  val ResourceCP = "checkpoint"
-  val ResourceStatus = "status"
-  val ResourceEnvironment = "environment"
+  val ResourceWorkflow = "Workflows"
+  val ResourceStatus = "Workflow Detail"
+  val ResourceEnvironment = "Environment"
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
@@ -211,37 +212,37 @@ class WorkflowActor(
     }
 
   def delete(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceCP -> Delete)) {
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceStatus -> Status)) {
       workflowService.delete(id)
     }
 
   def deleteWithAllVersion(workflowDelete: WorkflowDelete, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceCP -> Delete)) {
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceStatus -> Status)) {
       workflowService.deleteWithAllVersions(workflowDelete)
     }
 
   def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user,
-      Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceCP -> Delete)) {
+      Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceStatus -> Status)) {
       workflowService.deleteList(workflowIds)
     }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceCP -> Delete)
+    val actions = Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceStatus -> Status)
     securityActionAuthorizer[Response](user, actions) {
       workflowService.deleteAll()
     }
   }
 
   def resetAllStatuses(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceStatus -> Edit)
+    val actions = Map(ResourceStatus -> SpartaWorkflowStatus)
     securityActionAuthorizer[Response](user, actions) {
       workflowService.resetAllStatuses()
     }
   }
 
   def deleteCheckpoint(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourceWorkflow -> View)) {
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceStatus -> View)) {
       Try(deleteCheckpointPath(workflowService.findById(id)))
     }
 
@@ -329,6 +330,5 @@ object WorkflowActor extends SLF4JLogging {
   type ResponseWorkflow = Try[Workflow]
 
   type ResponseWorkflowValidation = Try[WorkflowValidation]
-
 }
 

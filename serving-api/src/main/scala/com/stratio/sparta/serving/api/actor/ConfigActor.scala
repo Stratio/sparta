@@ -5,30 +5,30 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, _}
+import scala.util.Try
+
+import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.security.SpartaSecurityManager
+import com.typesafe.config.Config
+import spray.httpx.Json4sJacksonSupport
+
+import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, NginxUtils}
-import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.LinkHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
-import com.typesafe.config.{Config, ConfigFactory}
-import spray.httpx.Json4sJacksonSupport
-
-import scala.util.{Properties, Try}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer with ActionUserAuthorize {
 
   val apiPath = HttpConstant.ConfigPath
 
-  val ResourceType = "configuration"
+  val ResourceType = "Configuration"
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val emptyField = ""
