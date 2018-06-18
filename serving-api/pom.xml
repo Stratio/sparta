@@ -233,7 +233,7 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick_2.11</artifactId>
+            <artifactId>slick_${scala.binary.version}</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -251,7 +251,7 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick-hikaricp_2.11</artifactId>
+            <artifactId>slick-hikaricp_${scala.binary.version}</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>

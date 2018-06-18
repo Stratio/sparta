@@ -54,9 +54,7 @@ function generate_hdfs-conf-from-uri() {
 
   if [[ $? == 0 ]]; then
     INFO "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
-    echo "" >> ${VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
-    echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
     ERROR "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
@@ -164,9 +162,7 @@ sed -i "s#__<HADOOP_SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${
 
   if [[ $? == 0 ]]; then
     INFO "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
-    echo "" >> ${VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
-    echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
     CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
     CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"

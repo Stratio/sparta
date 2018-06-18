@@ -72,6 +72,7 @@ This software – including all its source code – contains proprietary informa
         <scalatest.version>2.2.5</scalatest.version>
         <spray.version>1.3.4</spray.version>
         <spray.json.test.version>1.3.2</spray.json.test.version>
+        <typesafe.config.version>1.3.0</typesafe.config.version>
         <akka.version>2.4.8</akka.version>
         <akka.persistence.version>2.4.10</akka.persistence.version>
         <akka-persistence-inmemory>2.4.18.2</akka-persistence-inmemory>
@@ -79,6 +80,8 @@ This software – including all its source code – contains proprietary informa
         <json4s.version>3.2.11</json4s.version>
         <jackson.version>2.7.1</jackson.version>
         <play.json.version>2.5.8</play.json.version>
+        <jsonwebtoken.jjwt.version>0.9.0</jsonwebtoken.jjwt.version>
+        <parser.combinator.version>1.0.4</parser.combinator.version>
         <swagger.version>0.5.1</swagger.version>
         <mockito.version>1.10.19</mockito.version>
         <exec.maven.plugin.version>1.4.0</exec.maven.plugin.version>
@@ -97,6 +100,7 @@ This software – including all its source code – contains proprietary informa
         <stratio.spark.version>1.0.0-e3622dd</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata.dyplon.version>0.14.1</crossdata.dyplon.version>
+        <gosec.dyplon.version>0.15.0-3a4fbe7</gosec.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
         <crossdata.version>2.13.0-fa5ad1b</crossdata.version>
@@ -111,6 +115,7 @@ This software – including all its source code – contains proprietary informa
         <leveldb.version>0.7</leveldb.version>
         <leveldbjni.version>1.8</leveldbjni.version>
         <slick.version>3.2.3</slick.version>
+        <junit.version>4.8.1</junit.version>
         <license.header>LICENSE.txt</license.header>
         <sonar.exclusions>
             **/*.js,
@@ -183,6 +188,10 @@ This software – including all its source code – contains proprietary informa
                 <artifactId>dyplon-sparta</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.scala-lang.modules</groupId>
+                        <artifactId>scala-parser-combinators_${scala.binary.version}</artifactId>
+                    </exclusion>
                     <exclusion>
                         <groupId>org.elasticsearch</groupId>
                         <artifactId>elasticsearch</artifactId>
@@ -319,13 +328,11 @@ This software – including all its source code – contains proprietary informa
                 <groupId>org.scalatest</groupId>
                 <artifactId>scalatest_${scala.binary.version}</artifactId>
                 <version>${scalatest.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
@@ -520,6 +527,11 @@ This software – including all its source code – contains proprietary informa
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec.maven.plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>${typesafe.config.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
@@ -867,7 +879,7 @@ This software – including all its source code – contains proprietary informa
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
-                <version>0.9.0</version>
+                <version>${jsonwebtoken.jjwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.romix.akka</groupId>
@@ -876,7 +888,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.typesafe.slick</groupId>
-                <artifactId>slick_2.11</artifactId>
+                <artifactId>slick_${scala.binary.version}</artifactId>
                 <version>${slick.version}</version>
                 <exclusions>
                     <exclusion>
@@ -895,7 +907,7 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.typesafe.slick</groupId>
-                <artifactId>slick-hikaricp_2.11</artifactId>
+                <artifactId>slick-hikaricp_${scala.binary.version}</artifactId>
                 <version>${slick.version}</version>
                 <exclusions>
                     <exclusion>
@@ -909,6 +921,37 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-nop</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang.modules</groupId>
+                <artifactId>scala-parser-combinators_${scala.binary.version}</artifactId>
+                <version>${parser.combinator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest_${scala.binary.version}</artifactId>
+                <version>${scalatest.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-1.2-api</artifactId>
+                <version>${log4j-1.2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -918,12 +961,10 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>${log4j-1.2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>log4j</groupId>
@@ -934,13 +975,11 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
-            <version>${scalatest.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -109,8 +109,8 @@ function initHdfs() {
     if [[ ! -v HADOOP_SECURITY_TOKEN_USE_IP ]]; then
        HADOOP_SECURITY_TOKEN_USE_IP="false"
     fi
-    if [[ ! -v MAP_REDUCE_FRAMEWORK_NAME ]]; then
-       MAP_REDUCE_FRAMEWORK_NAME="mesos"
+    if [[ ! -v HADOOP_MAP_REDUCE_FRAMEWORK_NAME ]]; then
+       HADOOP_MAP_REDUCE_FRAMEWORK_NAME="mesos"
     fi
     if [[ ! -v HADOOP_SECURITY_AUTH ]]; then
        HADOOP_SECURITY_AUTH="kerberos"
