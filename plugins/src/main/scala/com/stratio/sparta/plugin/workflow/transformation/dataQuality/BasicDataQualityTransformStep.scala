@@ -8,12 +8,9 @@ package com.stratio.sparta.plugin.workflow.transformation.dataQuality
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.enumerations.DataZone.DataZone
-import com.stratio.sparta.plugin.enumerations.{DataZone, ProfilingType}
-import com.stratio.sparta.plugin.enumerations.ProfilingType.ProfilingType
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.plugin.helper.SparkStepHelper
-import com.stratio.sparta.plugin.models.{BasicDataQualityAnalysis, PropertyColumn}
+import com.stratio.sparta.plugin.models.BasicDataQualityAnalysis
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
 import com.stratio.sparta.sdk.models._
@@ -41,7 +38,6 @@ abstract class BasicDataQualityTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  lazy val path: Option[String] = properties.getString("path", None).notBlank
   lazy val addExecutionDate: Boolean = Try(properties.getBoolean("addExecutionDate")).getOrElse(true)
   lazy val columns: Seq[BasicDataQualityAnalysis] = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -49,9 +45,6 @@ abstract class BasicDataQualityTransformStep[Underlying[Row]](
 
     read[Seq[BasicDataQualityAnalysis]](cols)
   }
-  lazy val dataZone: DataZone = Try {
-    DataZone.withName(properties.getString("dataZone", "MASTER").toUpperCase())
-  }.getOrElse(DataZone.MASTER)
 
   //scalastyle:off
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
@@ -120,14 +113,12 @@ abstract class BasicDataQualityTransformStep[Underlying[Row]](
           val nullSchema = queryResults.head.schema
           val unionResults = xDSession.sparkContext.union(queryResults.map(_.rdd))
           val dfResults = xDSession.createDataFrame(unionResults, nullSchema)
-            .withColumn("zone", lit(dataZone.toString))
             .withColumn("tableName", lit(inputStep))
             .withColumn("inputData", lit(totalValues))
-          val dfWithPath = path.fold(dfResults) {pathToAdd => dfResults.withColumn("path", lit(pathToAdd))}
           val dfWithDate = {
             if(addExecutionDate)
-              dfWithPath.withColumn("executionDate", current_date())
-            else dfWithPath
+              dfResults.withColumn("executionDate", current_date())
+            else dfResults
           }
 
           (dfWithDate.rdd, Option(dfWithDate.schema), inputSchema)

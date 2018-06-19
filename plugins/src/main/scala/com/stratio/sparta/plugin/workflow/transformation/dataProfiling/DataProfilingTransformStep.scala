@@ -8,9 +8,8 @@ package com.stratio.sparta.plugin.workflow.transformation.dataProfiling
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.ProfilingType
 import com.stratio.sparta.plugin.enumerations.ProfilingType.ProfilingType
-import com.stratio.sparta.plugin.enumerations.{ProfilingType, SelectType}
-import com.stratio.sparta.plugin.enumerations.SelectType.SelectType
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.plugin.helper.SparkStepHelper
 import com.stratio.sparta.plugin.models.PropertyColumn
@@ -20,9 +19,8 @@ import com.stratio.sparta.sdk.models._
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.TransformStep
-import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext

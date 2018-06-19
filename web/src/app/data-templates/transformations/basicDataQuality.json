@@ -48,30 +48,6 @@
          ]
       },
       {
-         "propertyId": "dataZone",
-         "propertyName": "_DATA_ZONE_",
-         "propertyType": "select",
-         "default": "MASTER",
-         "values": [
-            {
-               "label": "Master",
-               "value": "MASTER"
-            },
-            {
-               "label": "Raw",
-               "value": "RAW"
-            }
-         ],
-         "qa": "fragment-details-dataZone"
-      },
-      {
-         "propertyId": "path",
-         "propertyName": "_PATH_",
-         "propertyType": "text",
-         "tooltip": "File input path",
-         "qa": "fragment-details-path"
-      },
-      {
          "propertyId": "addExecutionDate",
          "propertyName": "_EXECUTION_DATE_",
          "propertyType": "boolean",
