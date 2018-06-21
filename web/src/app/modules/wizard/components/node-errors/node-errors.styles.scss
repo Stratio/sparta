@@ -37,17 +37,19 @@
     }
   }
 
-  .message {
-      p:first-letter {
-        text-transform: uppercase;
-      }
-   }
-
    .error-details{
       color: #4a90e2;
       clear: both;
       cursor: pointer;
       display: block;
+   }
+
+   .message {
+     word-break: break-all;
+     word-break: break-word;
+      &::first-letter {
+        text-transform: uppercase;
+      }
    }
 }
 
@@ -77,6 +79,10 @@
     }
     .message {
       display: table-cell;
+
+      &::first-letter {
+        text-transform: uppercase;
+      }
     }
   }
 }

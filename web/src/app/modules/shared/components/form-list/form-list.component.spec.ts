@@ -23,7 +23,6 @@ import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea
 
 let component: FormListComponent;
 let fixture: ComponentFixture<FormListComponent>;
-let input: HTMLInputElement;
 let el: DebugElement;
 
 const model = [
@@ -73,6 +72,7 @@ describe('FormListComponent', () => {
                 TranslateModule.forRoot(),
                 HighlightTextareaModule,
                 SpTextareaModule,
+                SpInputModule,
                 SpSelectModule,
                 EgeoModule
             ],

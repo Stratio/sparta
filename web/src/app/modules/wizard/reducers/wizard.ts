@@ -6,6 +6,7 @@
 
 import { cloneDeep as _cloneDeep } from 'lodash';
 
+import * as debugActions from './../actions/debug';
 import * as wizardActions from './../actions/wizard';
 import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
@@ -41,6 +42,7 @@ export interface State {
   settings: any;
   isShowedCrossdataCatalog: boolean;
   edgeOptions: EdgeOption;
+  debugFile: string;
 };
 
 const initialState: State = {
@@ -80,7 +82,8 @@ const initialState: State = {
     clientX: 0,
     clientY: 0,
     active: false
-  }
+  },
+  debugFile: undefined
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -158,6 +161,7 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SHOW_EDITOR_CONFIG: {
       return {
         ...state,
+        debugFile: undefined,
         editionConfig: true,
         editionConfigType: action.payload,
         editionSaved: false
@@ -229,6 +233,7 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         editionConfig: true,
+        debugFile: undefined,
         editionConfigType: {
           stepType: findEntity.stepType,
           data: findEntity
@@ -427,6 +432,12 @@ export function reducer(state: State = initialState, action: any): State {
         ...state,
         showEntityDetails: true,
         selectedEntity: ''
+      };
+    }
+    case debugActions.UPLOAD_DEBUG_FILE_COMPLETE: {
+      return {
+        ...state,
+        debugFile: action.payload
       };
     }
     default:

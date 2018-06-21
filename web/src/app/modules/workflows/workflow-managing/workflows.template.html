@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<div [hidden]="executionInfo">
+<div>
    <div #newWorkflowModal qaTag="workflow-modal"></div>
    <workflows-manage-header-container [showDetails]="showDetails"
         [selectedWorkflows]="selectedWorkflows$ | async"
@@ -30,7 +30,7 @@
             </div>
             <div class="workflow-detail-container">
                 <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
-                    <workflow-managing-detail class="workflow-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
+                    <workflow-managing-detail class="workflow-detail"
                         [data]="selectedVersion  ? selectedVersion  : (selectedEntity$ | async)"></workflow-managing-detail>
                 </sparta-sidebar>
             </div>

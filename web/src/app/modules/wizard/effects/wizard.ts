@@ -85,14 +85,14 @@ export class WizardEffect {
                description: 'NO_ENTITY_WORKFLOW_MESSAGE'
             }));
          }
-         for (let i = 0; i < wizard.nodes.length; i++) {
+         /*for (let i = 0; i < wizard.nodes.length; i++) {
             if (wizard.nodes[i].hasErrors) { //At least one entity has errors
                return Observable.of(new wizardActions.SaveWorkflowErrorAction({
                   title: 'VALIDATION_ERRORS_TITLE',
                   description: 'VALIDATION_ERRORS_MESSAGE'
                }));
             }
-         };
+         };*/
          const workflow = this._wizardService.getWorkflowModel(state);
 
          if (wizard.workflowId && wizard.workflowId.length) {
@@ -175,7 +175,7 @@ export class WizardEffect {
       }).catch(error => Observable.of(new wizardActions.ValidateWorkflowErrorAction()));
 
    redirectOnSave() {
-      window.history.length > 2 ? this._location.back() : this._route.navigate(['workflow-managing']);
+      window.history.length > 2 ? this._location.back() : this._route.navigate(['repository']);
    }
 
    constructor(

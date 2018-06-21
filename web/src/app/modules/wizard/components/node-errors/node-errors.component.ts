@@ -93,7 +93,7 @@ export class NodeErrorsComponent implements OnChanges {
       icon: '',
       name: nodeSchema.name,
       type: nodeSchema.type.type || nodeSchema.type,
-      children: nodeSchema.type && nodeSchema.type.elementType ?
+      children: nodeSchema.type && nodeSchema.type.elementType && nodeSchema.type.elementType.fields ?
         nodeSchema.type.elementType.fields.map((field) => this._getTreeNodeSchema(field)) : [],
       expanded: false
     };

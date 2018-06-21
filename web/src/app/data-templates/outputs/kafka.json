@@ -29,7 +29,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "default": "{{KAFKA_BROKER_PORT}}",
+            "default": "{{{KAFKA_BROKER_PORT}}}",
             "required": true,
             "tooltip": "Kafka's port.",
              "width": 2,
@@ -63,7 +63,7 @@
         "propertyId": "value.serializer.row.delimiter",
         "propertyName": "_KAFKA_ROW_SEPARATOR_",
         "propertyType": "text",
-        "default": "{{DEFAULT_DELIMITER}}",
+        "default": "{{{DEFAULT_DELIMITER}}}",
         "required": false,
          "visible": [
             [

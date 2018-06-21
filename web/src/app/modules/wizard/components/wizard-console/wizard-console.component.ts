@@ -1,3 +1,4 @@
+import { errorComparator } from 'rxjs-tslint/node_modules/tslint/lib/verify/lintError';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -30,7 +31,22 @@ import * as fromWizard from './../../reducers';
 
 export class WizardConsoleComponent implements OnInit, AfterViewInit {
 
-  @Input() entityData: any;
+  @Input() get entityData() {
+    return this._entityData;
+  };
+  set entityData(value: any) {
+    this.tableFields = [];
+    if (value && value.debugResult && value.debugResult.result && value.debugResult.result.data) {
+      try {
+        const obj = JSON.parse(value.debugResult.result.data);
+        for (const key in obj) {
+          this.tableFields.push(key);
+        }
+      } catch(error) {
+      }
+    }
+    this._entityData = value;
+  }
   @Input() genericError: any;
 
   public options: StHorizontalTab[] = [{
@@ -42,9 +58,11 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
   }];
 
   public selectedOption: StHorizontalTab;
+  public tableFields: Array<string> = [];
   private pos1 = 0;
   private pos2 = 0;
 
+  private _entityData: any;
   private _element: any;
   constructor(private _el: ElementRef,
     private _ngZone: NgZone,
@@ -85,7 +103,7 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
 
   getData(result) {
     try {
-      return JSON.stringify(JSON.parse(result.result.data), null, 4)
+      return JSON.parse(result.result.data)
     } catch(error) {
       return '';
     }

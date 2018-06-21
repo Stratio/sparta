@@ -24,7 +24,7 @@ import { Group } from './../../models/workflows';
     styleUrls: ['./group-selector.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GroupSelectorComponent implements OnInit, OnDestroy {
+export class GroupSelectorComponent implements OnInit {
 
     @Input() groups: Array<Group>;
     @Input() selectedFolder: string;
@@ -42,25 +42,42 @@ export class GroupSelectorComponent implements OnInit, OnDestroy {
     }
 
     getGroupTree(groups: Array<Group>, openFolder: string, currentFolder = ''): GroupTree[] {
-        const acc: any = [];
-        return groups.filter((group: Group) => {
-            const split = group.name.split(currentFolder + FOLDER_SEPARATOR);
-            if (split.length === 2 && split[0] === '' && split[1].indexOf(FOLDER_SEPARATOR) === -1) {
-                group.label = split.length > 1 ? split[split.length - 1] : group.name;
-                return true;
-            } else {
-                acc.push(group);
-                return false;
+       const groupTree = {
+           subGroups: {}
+       };
+       groups.forEach((group: Group) => {
+          const folders = group.name.split(FOLDER_SEPARATOR);
+          const groupTreeAux = groupTree;
+          let level = groupTreeAux;
+          folders.forEach((folderName: string, index: number) => {
+            if (!folderName.length) {
+                return;
             }
-        }).map((group: any) => {
-            group.open = openFolder.indexOf(group.name) === 0;
-            group.subGroups = this.getGroupTree(acc, openFolder, group.name);
-            return group;
-        });
+            let currentLevel = level.subGroups[folderName];
+            if (!currentLevel) {
+                level.subGroups[folderName] = {
+                    name: FOLDER_SEPARATOR + folders.slice(1, index + 1 ).join(FOLDER_SEPARATOR),
+                    label: folderName,
+                    open: false,
+                    selectable: false,
+                    subGroups: {}
+                };
+                currentLevel = level.subGroups[folderName];
+            }
+            if (folders.length  === index + 1) {
+               currentLevel.selectable = true;
+            }
+            currentLevel.open = openFolder.indexOf(currentLevel.name) === 0;
+            level = currentLevel;
+          });
+       });
+       return this._covertHashToArray(groupTree).subGroups;
     }
 
-    ngOnDestroy(): void {
-
+    private _covertHashToArray(data: any) {
+        data.subGroups = Object.keys(data.subGroups).map(key => data.subGroups[key]);
+        data.subGroups.map(group => this._covertHashToArray(group));
+        return data;
     }
 
 }

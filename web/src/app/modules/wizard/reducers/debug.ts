@@ -7,7 +7,6 @@
 import * as wizardActions from './../actions/wizard';
 import * as debugActions from './../actions/debug';
 
-
 export interface State {
   isDebugging: boolean;
   lastDebugResult: any;
@@ -19,7 +18,7 @@ const initialState: State = {
   isDebugging: false,
   lastDebugResult: null,
   showDebugConsole: false,
-  debugConsoleSelectedTab:  'Exceptions'
+  debugConsoleSelectedTab: 'Exceptions',
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -41,14 +40,14 @@ export function reducer(state: State = initialState, action: any): State {
         genericError: null
       };
       if (debug.stepErrors) {
-        for (let nodeError in debug.stepErrors) {
+        for (const nodeError in debug.stepErrors) {
           const step: any = {};
           step.error = debug.stepErrors[nodeError]
           debugResult.steps[nodeError] = step;
         }
       }
       if (debug.stepResults) {
-        for (let nodeResult in debug.stepResults) {
+        for (const nodeResult in debug.stepResults) {
           const step: any = debugResult.steps[nodeResult] || {};
           step.result = debug.stepResults[nodeResult]
           debugResult.steps[nodeResult] = step;

@@ -1,0 +1,37 @@
+:host {
+  font-family: monospace;
+}
+
+node-tree-data {
+  display: block;
+  padding-left: 15px;
+}
+
+.icon {
+  width: 22px;
+  float: left;
+  height: 16px;
+  margin-top: -2px;
+  transform: rotate(-90deg);
+  &.open  {
+    transform: rotate(0deg) translate(2px, 2px);
+  }
+}
+.array {
+  padding-bottom: 5px;
+}
+.key-value{
+  color: #5b22b0;
+}
+
+.string-value {
+  color: #800000;
+}
+
+.number-value {
+  color:#1349a0
+}
+
+.prop-type {
+  font-size: 10px;
+}

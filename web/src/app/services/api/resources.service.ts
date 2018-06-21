@@ -39,7 +39,7 @@ export class ResourcesService extends ApiService {
 
 
     uploadPlugin(file: any): Observable<any> {
-        let fd = new FormData();
+        const fd = new FormData();
         fd.append('file', file);
         const options: any = {
             body: fd

@@ -21,7 +21,7 @@
            / {{workflowData.status.status}}</span>
       </span>
       <h3 class="egeo-title-medium">{{workflowData.name}}</h3>
-      <span *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length" class="date">Last update: {{workflowData.lastUpdate}}</span>
+      <span *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length" class="date">Last status update: {{workflowData.lastUpdate}}</span>
       <span class="description">{{workflowData.description}}</span>
       <div *ngIf="workflowData.tagsAux && workflowData.tagsAux.length">
          <span class="egeo-title-mini title2">{{'DASHBOARD.TAGS' | translate}}</span>
@@ -34,7 +34,7 @@
 
       <div *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode">
          <span class="egeo-title-mini title2">Execution mode</span>
-         <span class="">
+         <span class="values">
            {{execution.genericDataExecution.executionMode}}
            <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})" 
         *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode &&  execution.genericDataExecution.executionMode === 'marathon'">Show execution info</a>
@@ -45,11 +45,11 @@
          <span class="egeo-title-mini title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
          <div class="errors">
             <div>
-               <span class="phase">{{lastError.phase}}</span>
+               <span class="phase">Phase: {{lastError.phase}}</span>
                <span class="val">{{workflowData.lastErrorDate}}</span>
             </div>
-            <span class="message">{{lastError.message}}</span>
-            <span class="original-msg">{{lastError.originalMsg}}</span>
+            <span class="message">{{(lastError.localizedMsg.length>100)? (lastError.localizedMsg | slice:0:100)+'..':(lastError.localizedMsg) }}</span>
+            <span class="original-msg" [attr.title]="lastError.exceptionMsg">{{(lastError.exceptionMsg.length>150)? (lastError.exceptionMsg | slice:0:150)+'..':(lastError.exceptionMsg) }}</span>
          </div>
       </div>
    </div>

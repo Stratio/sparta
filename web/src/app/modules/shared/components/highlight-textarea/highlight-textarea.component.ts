@@ -146,10 +146,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
 
   codemirrorInit(config: any) {
-    let active =  false;
     this.instance = CodeMirror.fromTextArea(this.host.nativeElement, config);
-    //this.instance.setValue(this._value);
-
     this.instance.on('change', () => {
       this.pristine = false;
       const value = this.instance.getValue();
@@ -166,18 +163,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.focus = true;
       this._cd.markForCheck();
     });
-
-    /* const that = this;
-
-    this.instance.on('keyup', function (cm: any, event: any) {
-      if (!cm.state.completionActive && 
-        event.keyCode !== 13) {        
-
-        if (that.instance.getValue().length > 1) {
-          CodeMirror.showHint(cm);
-        }
-      }
-    });*/
 
     this.renderer.setElementStyle(this.elementRef.nativeElement.querySelector('.CodeMirror-scroll'), 'min-height', 22 * this.rows + 'px');
   }
@@ -227,9 +212,9 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   setDisabledState(disable: boolean): void {
     this.isDisabled = disable;
     if (this.isDisabled) {
-      this.instance.setOption("readOnly", true);
+      this.instance.setOption('readOnly', true);
     } else {
-      this.instance.setOption("readOnly", false);
+      this.instance.setOption('readOnly', false);
     }
     this._cd.markForCheck();
   }
@@ -249,7 +234,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
   // When status change call this function to check if have errors
   private checkErrors(control: FormControl): void {
-    let errors: { [key: string]: any } = control.errors;
+    const errors: { [key: string]: any } = control.errors;
     this.errorMessage = this.getErrorMessage(errors);
     this._cd.markForCheck();
   }

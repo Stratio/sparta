@@ -10,61 +10,62 @@ import { URLSearchParams } from '@angular/http';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface ApiRequestOptions {
-      method: string;
-      params?: Object;
-      body?: Object;
+   method: string;
+   params?: Object;
+   body?: Object;
 }
 
 
 @Injectable()
 export class ApiService {
 
-      private requestOptions: any = {};
+   private requestOptions: any = {};
 
-      constructor(private http: HttpClient) { }
+   constructor(private http: HttpClient) { }
 
-      request(url: string, method: string, options: any): Observable<any> {
+   request(url: string, method: string, options: any): Observable<any> {
+      this.requestOptions = {};
+      if (options.params) {
+         this.requestOptions.search = this.generateParams(options.params);
+      }
 
-            if (options.params) {
-                  this.requestOptions.search = this.generateParams(options.params);
+      if (options.body) {
+         this.requestOptions.body = options.body;
+      }
+
+      this.requestOptions.responseType = 'text';
+      this.requestOptions.headers = new HttpHeaders({ timeout: `${20000}` });
+
+      return this.http.request(method, url, this.requestOptions).map((res: any) => {
+         try {
+            return JSON.parse(res);
+         } catch (error) {
+            if (res.indexOf('gosec-sso-ha') > -1) {
+               window.location.href = 'login';
+               throw new Error;
             }
+            return res;
+         }
 
-            if (options.body) {
-                  this.requestOptions.body = options.body;
-            }
+      }).catch(this.handleError);
 
-            this.requestOptions.responseType = 'text';
+   }
 
-            return this.http.request(method, url, this.requestOptions).map((res: any) => {
-                  try {
-                        return JSON.parse(res);
-                  } catch (error) {
-                        if (res.indexOf('gosec-sso-ha') > -1) {
-                              window.location.href = 'login';
-                              throw new Error;
-                        }
-                        return res;
-                  }
+   private generateParams(params: any): URLSearchParams {
+      const object: URLSearchParams = new URLSearchParams();
 
-            }).catch(this.handleError);
+      Object.keys(params).map(function (objectKey: any, index: any): void {
+         const value: any = params[objectKey];
+         object.set(objectKey, value);
+      });
 
-      }
+      return object;
+   }
 
-      private generateParams(params: any): URLSearchParams {
-            const object: URLSearchParams = new URLSearchParams();
-
-            Object.keys(params).map(function (objectKey: any, index: any): void {
-                  const value: any = params[objectKey];
-                  object.set(objectKey, value);
-            });
-
-            return object;
-      }
-
-      private handleError(error: any): Observable<any> {
-            return Observable.throw(error);
-      }
+   private handleError(error: any): Observable<any> {
+      return Observable.throw(error);
+   }
 }

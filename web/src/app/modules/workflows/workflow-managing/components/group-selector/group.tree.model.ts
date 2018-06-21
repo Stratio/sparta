@@ -8,5 +8,6 @@ export class GroupTree {
     name: string;
     label: string;
     open: boolean;
+    selectable: boolean;
     subGroups: GroupTree[];
 }

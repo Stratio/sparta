@@ -23,7 +23,24 @@
 
    st-checkbox {
     pointer-events: none;
+    }
 }
+
+.tag-column {
+   label {
+      display: inline-block;
+      span {
+         max-width: 100px;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+         display: inline-block;
+      }
+   }
+}
+
+.version-table {
+    margin-top: 20px;
 }
 
 .workflow-arrow{
@@ -62,12 +79,23 @@
     float: left;
 }
 
+.icon-title {
+    width: 19px;
+    float: left;
+    margin-top: 8px;
+    margin-right: 12px;
+}
+
+.version-header {
+   margin: 25px 0;
+}
+
 .icon-solid-folder {
     font-size: 19px;
     float: left;
     font-weight: 100;
     margin-top: -2px;
-    color: #777;
+    color: $action-secondary-03;
 }
 
 

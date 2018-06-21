@@ -163,7 +163,7 @@
             }
           ]
         ],
-         "default": "{{CROSSDATA_ZOOKEEPER_CONNECTION}}",
+         "default": "{{{CROSSDATA_ZOOKEEPER_CONNECTION}}}",
         "tooltip": "Initial sentence executed by Crossdata Context",
         "qa": "fragment-details-crossdata-initialSentence"
       },
@@ -179,7 +179,7 @@
                 }
              ]
           ],
-          "default": "{{CROSSDATA_ZOOKEEPER_PATH}}",
+          "default": "{{{CROSSDATA_ZOOKEEPER_PATH}}}",
           "tooltip": "Path in Zookeeper where is allocated the offsets",
           "qa": "fragment-details-crossdata-zookeeperPath"
        },

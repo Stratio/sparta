@@ -15,7 +15,6 @@ import {
     State,
     getWorkflowsOrderedList,
     getSelectedWorkflows,
-    getExecutionInfo,
     getGroupsOrderedList,
     getSelectedGroups,
     getSelectedEntity,
@@ -40,7 +39,7 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     @ViewChild('newWorkflowModal', { read: ViewContainerRef }) target: any;
 
     public workflowList: GroupWorkflow[] = [];
-    public showDetails = false;
+    public showDetails = true;
 
     public groupsList$: Observable<Array<Group>>;
     public workflowStatuses: any = {};
@@ -54,15 +53,12 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     public selectedWorkflowsIds: string[] = [];
     public breadcrumbOptions: string[] = [];
     public menuOptions: any = [];
-    public executionInfo = '';
-    public showExecutionInfo = false;
 
     public groupList: Array<any>;
     public currentLevel: string;
     public selectedVersion: DataDetails;
 
     private _modalOpen$: Subscription;
-    private _executionInfo$: Subscription;
     private _selectedWorkflows$: Subscription;
     private _groupList$: Subscription;
     private _workflowList$: Subscription;
@@ -95,12 +91,6 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
             this._cd.markForCheck();
         });
 
-
-        this._executionInfo$ = this._store.select(getExecutionInfo).subscribe((executionInfo: any) => {
-            this.executionInfo = executionInfo;
-            this._cd.markForCheck();
-        });
-
         this.workflowVersions$ = this._store.select(getVersionsOrderedList);
         this.selectedVersions$ = this._store.select(getSelectedVersions);
         this.groupsList$ = this._store.select(getGroupsOrderedList);
@@ -120,18 +110,9 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
         this.showDetails = !this.showDetails;
     }
 
-    showWorkflowExecutionInfo(workflowEvent: any) {
-        this._store.dispatch(new workflowActions.GetExecutionInfoAction({ id: workflowEvent.id, name: workflowEvent.name }));
-    }
-
-    hideExecutionInfo() {
-        this.showExecutionInfo = false;
-    }
-
     public ngOnDestroy(): void {
         this._workflowList$ && this._workflowList$.unsubscribe();
         this._modalOpen$ && this._modalOpen$.unsubscribe();
-        this._executionInfo$ && this._executionInfo$.unsubscribe();
         this._selectedWorkflows$ && this._selectedWorkflows$.unsubscribe();
         this._groupList$ && this._groupList$.unsubscribe();
         this._selectedVersion && this._selectedVersion.unsubscribe();

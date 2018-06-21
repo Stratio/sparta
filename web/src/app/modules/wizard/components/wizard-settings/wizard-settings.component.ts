@@ -30,6 +30,7 @@ import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 export class WizardSettingsComponent implements OnInit, OnDestroy {
 
    @Input() edition: boolean;
+   @Input() environmentList: Array<any> = [];
    @Input() workflowType: string;
    @ViewChild('entityForm') public entityForm: NgForm;
 

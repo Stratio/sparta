@@ -19,7 +19,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "default": "{{MONGODB_HOST}}",
+            "default": "{{{MONGODB_HOST}}}",
             "required": true,
              "width": 6,
             "qa": "fragment-details-mongoDb-hostName"
@@ -28,7 +28,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "default": "{{MONGODB_PORT}}",
+            "default": "{{{MONGODB_PORT}}}",
             "required": true,
              "width": 2,
             "qa": "fragment-details-mongoDb-port"
@@ -40,7 +40,7 @@
         "propertyName": "_DATEBASE_NAME_",
         "propertyType": "text",
         "regexp": "",
-        "default": "{{MONGODB_DB}}",
+        "default": "{{{MONGODB_DB}}}",
         "required": true,
         "tooltip": "Default value set to sparta.",
         "qa": "fragment-details-mongoDb-dbName"

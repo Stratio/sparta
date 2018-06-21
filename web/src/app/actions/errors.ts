@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { Action } from '@ngrx/store';
 
 export const SERVER_ERROR = '[Errors] Server error';
@@ -22,7 +23,6 @@ export class ServerErrorCompleteAction implements Action {
   readonly type = SERVER_ERROR_COMPLETE;
   constructor(public payload: any) { }
 }
-
 
 export class ForbiddenErrorAction implements Action {
   readonly type = FORBIDDEN_ERROR;

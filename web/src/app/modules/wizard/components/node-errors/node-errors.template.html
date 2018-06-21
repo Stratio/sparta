@@ -14,7 +14,7 @@
       <div class="icon">
         <span class="icon-record"></span>
       </div>
-      <span class="message">{{debugResult.error.message}}</span>
+      <div class="message">{{(debugResult.error.localizedMsg && debugResult.error.localizedMsg.length > 140) ? (debugResult.error.localizedMsg | slice:0:140)+'..':(debugResult.error.localizedMsg) }}</div>
       <span class="error-details" (click)="showConsole('Exceptions')">View details</span>
     </div>
   </div>

@@ -17,47 +17,47 @@ import * as errorsActions from 'actions/errors';
 
 
 @Component({
-    selector: 'layout',
-    styleUrls: ['layout.styles.scss'],
-    templateUrl: 'layout.template.html'
+   selector: 'layout',
+   styleUrls: ['layout.styles.scss'],
+   templateUrl: 'layout.template.html'
 })
 
 export class LayoutComponent implements OnInit, OnDestroy {
 
-    public userName = '';
-    public menu: Array<StHeaderMenuOption>;
-    public showForbiddenError$: Observable<any>;
+   public userName = '';
+   public menu: Array<StHeaderMenuOption>;
+   public showForbiddenError$: Observable<any>;
 
-    private routeSubscription: Subscription;
-    private usernameSubscription: Subscription;
+   private routeSubscription: Subscription;
+   private usernameSubscription: Subscription;
 
-    constructor(private menuService: MenuService, private router: Router, private store: Store<fromRoot.State>) {
-        this.routeSubscription = router.events.subscribe((event) => {
-            if (event instanceof NavigationStart) {
-                this.store.dispatch(new errorsActions.ChangeRouteAction());
-            }
-        });
-    }
+   constructor(private menuService: MenuService, private router: Router, private store: Store<fromRoot.State>) {
+      this.routeSubscription = router.events.subscribe((event) => {
+         if (event instanceof NavigationStart) {
+            this.store.dispatch(new errorsActions.ChangeRouteAction());
+         }
+      });
+   }
 
-    hideAlert() {
-        this.store.dispatch(new errorsActions.ChangeRouteAction());
-    }
+   hideAlert() {
+      this.store.dispatch(new errorsActions.ChangeRouteAction());
+   }
 
-    redirectHome() {
-        this.router.navigate(['']);
-    }
+   redirectHome() {
+      this.router.navigate(['']);
+   }
 
-    ngOnInit(): void {
-        this.menu = this.menuService.getMenu();
-        this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
-        this.usernameSubscription = this.store.select(fromRoot.getUsername).subscribe((userName: string) => {
-            this.userName = userName;
-        });
-    }
+   ngOnInit(): void {
+      this.menu = this.menuService.getMenu();
+      this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
+      this.usernameSubscription = this.store.select(fromRoot.getUsername).subscribe((userName: string) => {
+         this.userName = userName;
+      });
+   }
 
-    ngOnDestroy(): void {
-        this.routeSubscription && this.routeSubscription.unsubscribe();
-        this.usernameSubscription && this.usernameSubscription.unsubscribe();
-    }
+   ngOnDestroy(): void {
+      this.routeSubscription && this.routeSubscription.unsubscribe();
+      this.usernameSubscription && this.usernameSubscription.unsubscribe();
+   }
 
 }

@@ -48,7 +48,7 @@
 }
 
 .status {
-   font-weight: 600;
+   font-family: $egeo-nunito-sans-bold;
    color: #3c3c3c;
    font-size: $egeo-font-size-xsmall;
    background: rgba(205, 214, 223, 0.3);
@@ -65,6 +65,10 @@
       padding: 3px 10px;
       background: rgba(170, 12, 112, 0.15);
    }
+}
+
+.advanced-status{
+   font-family: $egeo-nunito-sans-semiBold;
 }
 
 .execution-info-link {

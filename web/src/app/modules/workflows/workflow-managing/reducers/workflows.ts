@@ -5,7 +5,7 @@
  */
 
  import * as workflowActions from '../actions/workflow-list';
-import { formatDate } from '@utils';
+import { formatDate, getFilterStatus } from '@utils';
 import { homeGroup } from '@app/shared/constants/global';
 import { DataDetails } from './../models/data-details';
 import { Group, GroupWorkflow } from './../models/workflows';
@@ -65,6 +65,8 @@ export function reducer(state: State = initialState, action: any): State {
             const lastUpdateDate = new Date(lastUpdate).getTime();
             version.lastUpdateAux = lastUpdateDate;
             version.lastUpdate = formatDate(lastUpdate);
+            version.tagsAux = version.tags ? version.tags.join(', ') : '';
+            version.formattedStatus = getFilterStatus(version.status.status);
             try {
                const lastErrorDate = version.execution.genericDataExecution.lastError.date;
                version.lastErrorDate = formatDate(lastErrorDate, true, true);

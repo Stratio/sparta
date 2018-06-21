@@ -11,16 +11,18 @@
                   <div class="list-field" [ngClass]="{'last' : last}">
                      <ng-container *ngFor="let field of formListData; let j = index;">
                         <div *ngIf="item.controls[field.propertyId].enabled || isDisabled" [className]="field.classed">
-                           <st-input [name]="field.propertyId" 
+                           <sp-input [name]="field.propertyId" 
                                 [errors]="errorsService.errors.inputErrors" 
                                 [forceValidations]="forceValidations" 
                                 *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                                 label="{{field.propertyName | translate}}" 
-                                fieldType="{{field.propertyType}}" 
+                                fieldType="{{field.propertyType}}"
+                                [variableList]="variableList"
+                                [showVars]="showVars"
                                 [formControl]="item.controls[field.propertyId]" 
                                 qaTag="form-list-input" [required]="field.required"
                                 contextualHelp="{{field.tooltip | translate}}"
-                                class="st-form-field" ></st-input>
+                                class="st-form-field" ></sp-input>
 
                            <st-textarea *ngIf="field.propertyType == 'textarea' && !field.contentType"
                                 [name]="field.propertyId" 

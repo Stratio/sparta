@@ -69,9 +69,9 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       }
       if (event.keyCode === KEYS.ESC_KEYCODE) {
          if (this.selectedNodeName.length) {
-            this.store.dispatch(new wizardActions.UnselectEntityAction());
+            this._store.dispatch(new wizardActions.UnselectEntityAction());
          }
-         this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+         this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
 
       } else if (event.keyCode === KEYS.SUPR_KEYCODE) {
          this.deleteSelection();
@@ -82,18 +82,18 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    clickout(event: any) {
       if (this.editorArea.nativeElement.contains(event.target)) {
          if (this.selectedEdge) {
-            this.store.dispatch(new wizardActions.UnselectSegmentAction());
+            this._store.dispatch(new wizardActions.UnselectSegmentAction());
          }
          if (this.selectedNodeName) {
-            this.store.dispatch(new wizardActions.UnselectEntityAction());
+            this._store.dispatch(new wizardActions.UnselectEntityAction());
          }
       }
    }
 
    constructor(private _modalService: StModalService,
-      private editorService: WizardEditorService,
+      private _editorService: WizardEditorService,
       private _cd: ChangeDetectorRef,
-      private store: Store<fromWizard.State>,
+      private _store: Store<fromWizard.State>,
       private _el: ElementRef) {
       this.isMobile = isMobile;
    }
@@ -103,73 +103,73 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    }
 
    initData() {
-      this.store.select(fromWizard.getWorkflowHeaderData)
+      this._store.select(fromWizard.getWorkflowHeaderData)
          .takeUntil(this._componentDestroyed)
          .subscribe((data: any) => {
             this.workflowName = data.name;
             this.workflowVersion = data.version;
             this._cd.markForCheck();
          });
-      this.creationMode$ = this.store.select(fromWizard.isCreationMode);
-      this.store.select(fromWizard.getSelectedEntityData)
+      this.creationMode$ = this._store.select(fromWizard.isCreationMode);
+      this._store.select(fromWizard.getSelectedEntityData)
          .takeUntil(this._componentDestroyed)
          .subscribe(nodeModel => {
             this.selectedNodeModel = nodeModel;
             this._cd.markForCheck();
          });
-      this.isShowedEntityDetails$ = this.store.select(fromWizard.isShowedEntityDetails);
-      this.store.select(fromWizard.getSelectedEntities)
+      this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails);
+      this._store.select(fromWizard.getSelectedEntities)
          .takeUntil(this._componentDestroyed)
          .subscribe(name => {
             this.selectedNodeName = name;
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.getWorkflowPosition)
+      this._store.select(fromWizard.getWorkflowPosition)
          .takeUntil(this._componentDestroyed)
          .subscribe(position => {
             this.svgPosition = position;
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.getWorkflowNodes)
+      this._store.select(fromWizard.getWorkflowNodes)
          .takeUntil(this._componentDestroyed)
          .subscribe((data: Array<any>) => {
             this.workflowNodes = data;
-            this.store.dispatch(new wizardActions.ValidateWorkflowAction());
+            this._store.dispatch(new wizardActions.ValidateWorkflowAction());
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.getWorkflowEdges)
+      this._store.select(fromWizard.getWorkflowEdges)
          .takeUntil(this._componentDestroyed)
          .subscribe((data: Array<WizardEdgeNodes>) => {
             this.workflowEdges = data;
             this._cd.markForCheck();
-            this.store.dispatch(new wizardActions.ValidateWorkflowAction());
+            this._store.dispatch(new wizardActions.ValidateWorkflowAction());
          });
-      this.store.select(fromWizard.getSelectedRelation)
+      this._store.select(fromWizard.getSelectedRelation)
          .takeUntil(this._componentDestroyed)
          .subscribe((edge: WizardEdge) => {
             this.selectedEdge = edge;
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.getServerStepValidation)
+      this._store.select(fromWizard.getServerStepValidation)
          .takeUntil(this._componentDestroyed)
          .subscribe((serverStepValidations: any) => {
             this.serverStepValidations = serverStepValidations;
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.showDebugConsole)
+      this._store.select(fromWizard.showDebugConsole)
          .takeUntil(this._componentDestroyed)
          .subscribe((showDebugConsole: any) => {
             this.showDebugConsole = showDebugConsole;
             this._cd.markForCheck();
          });
 
-      this.store.select(fromWizard.getDebugResult)
+      this._store.select(fromWizard.getDebugResult)
          .takeUntil(this._componentDestroyed)
          .subscribe(debugResult => {
             this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.getEdgeOptions)
+      this._store.select(fromWizard.getEdgeOptions)
          .takeUntil(this._componentDestroyed)
          .subscribe((edgeOptions: any) => {
             if (this.edgeOptions && !edgeOptions.active && !this.edgeOptions.active) {
@@ -186,14 +186,14 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
             this._cd.markForCheck();
          });
-      this.store.select(fromWizard.isWorkflowDebugging)
+      this._store.select(fromWizard.isWorkflowDebugging)
          .takeUntil(this._componentDestroyed)
          .subscribe((isDebugging => {
             this.isWorkflowDebugging = isDebugging;
             this._cd.markForCheck();
          }));
 
-      this.store.select(fromWizard.getDebugResult)
+      this._store.select(fromWizard.getDebugResult)
          .takeUntil(this._componentDestroyed)
          .subscribe((debugResult => {
             this.debugResult = debugResult && debugResult.steps ? debugResult.steps : {};
@@ -204,20 +204,20 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    deleteSelection() {
       if (this.selectedNodeName && this.selectedNodeName.length) {
          this.deleteConfirmModal('Delete node', 'This node and its relations will be deleted.', () => {
-            this.store.dispatch(new wizardActions.DeleteEntityAction());
+            this._store.dispatch(new wizardActions.DeleteEntityAction());
          });
       }
       if (this.selectedEdge) {
-         this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedEdge));
+         this._store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedEdge));
       }
    }
 
    selectNode(entity: any) {
       if (this.selectedEdge) {
-         this.store.dispatch(new wizardActions.UnselectSegmentAction());
+         this._store.dispatch(new wizardActions.UnselectSegmentAction());
       }
       if (this.selectedNodeName !== entity.name) {
-         this.store.dispatch(new wizardActions.SelectEntityAction(entity.name));
+         this._store.dispatch(new wizardActions.SelectEntityAction(entity.name));
       }
    }
 
@@ -242,21 +242,21 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    }
 
    saveWorkflow(closeOnSave: boolean): void {
-      this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
-      this.store.dispatch(new wizardActions.SaveEditorPosition(this.editor._svgPosition));
-      this.store.dispatch(new wizardActions.SaveWorkflowAction(closeOnSave));
+      this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
+      this._store.dispatch(new wizardActions.SaveEditorPosition(this.editor._svgPosition));
+      this._store.dispatch(new wizardActions.SaveWorkflowAction(closeOnSave));
    }
 
    createNode(event: any) {
-      this.store.dispatch(new wizardActions.CreateEntityAction(event));
+      this._store.dispatch(new wizardActions.CreateEntityAction(event));
    }
 
    createEdge(event: any) {
-      this.store.dispatch(new wizardActions.CreateNodeRelationAction(event));
+      this._store.dispatch(new wizardActions.CreateNodeRelationAction(event));
    }
 
    closeSideBar() {
-      this.store.dispatch(new wizardActions.ToggleDetailSidebarAction());
+      this._store.dispatch(new wizardActions.ToggleDetailSidebarAction());
    }
 
    editButtonEntity() {
@@ -264,8 +264,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    }
 
    editEntity(entity: any) {
-      this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
-      this.store.dispatch(new wizardActions.ShowEditorConfigAction({
+      this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
+      this._store.dispatch(new wizardActions.ShowEditorConfigAction({
          stepType: entity.stepType,
          data: entity
       }));
@@ -274,12 +274,12 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    duplicateNode(): void {
       if (this.selectedNodeName) {
          const data = _cloneDeep(this.workflowNodes.find((node: any) => node.name === this.selectedNodeName));
-         data.name = this.editorService.getNewEntityName(data.name, this.workflowNodes);
+         data.name = this._editorService.getNewEntityName(data.name, this.workflowNodes);
          const newEntity: any = {
             type: 'copy',
             data: data
          };
-         this.store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
+         this._store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
       }
    }
 

@@ -1,18 +1,22 @@
 <div class="form-field">
+
    <!-- input text -->
-   <st-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
+   <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       fieldType="{{field.propertyType}}"
       class="st-form-field"
       [formControl]="stFormControl"
       contextualHelp="{{field.tooltip}}"
+      [placeholder]="field.placeholder ? field.placeholder : ''"
       pattern="{{field.regexp}}"
       [required]="field.required"
       [forceValidations]="forceValidations"
       [errors]="errorsService.errors.inputErrors"
       [qaTag]="field.qa"
+      [variableList]="variableList"
+      [showVars]="showVars"
       [minlength]="field.minlength"
-      [maxlength]="field.maxlength"></st-input>
+      [maxlength]="field.maxlength"></sp-input>
 
     <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
 
@@ -81,6 +85,8 @@
    <form-list *ngIf="field.propertyType == 'list'"
       [formListData]="field.fields"
       [qaTag]="field.qa"
+      [variableList]="variableList"
+      [showVars]="showVars"
       [valueDictionary]="valueDictionary"
       [required]="field.required"
       [complexForm]="field.complexForm"

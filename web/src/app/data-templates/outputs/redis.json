@@ -20,7 +20,7 @@
         "propertyId": "port",
         "propertyName": "_PORT_",
         "propertyType": "text",
-        "default": "{{REDIS_PORT}}",
+        "default": "{{{REDIS_PORT}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-redis-port"

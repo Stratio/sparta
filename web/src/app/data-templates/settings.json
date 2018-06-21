@@ -143,7 +143,7 @@
           "propertyId": "window",
           "propertyName": "SETTINGS._SPARK_STREAMING_WINDOW_",
           "propertyType": "text",
-          "default": "{{SPARK_STREAMING_WINDOW}}",
+          "default": "{{{SPARK_STREAMING_WINDOW}}}",
           "tooltip": "Streaming window assigned to Spark",
           "required": true,
            "width": 4,
@@ -162,7 +162,7 @@
             "propertyName": "SETTINGS._SPARK_BLOCK_INTERVAL_",
             "propertyType": "text",
             "width": 4,
-            "default": "{{SPARK_STREAMING_BLOCK_INTERVAL}}",
+            "default": "{{{SPARK_STREAMING_BLOCK_INTERVAL}}}",
             "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark",
             "qa": "workflow-spark-blockInterval"
          },
@@ -253,7 +253,7 @@
                   "propertyId": "checkpointPath",
                   "propertyName": "SETTINGS._CHECKPOINT_PATH_",
                   "propertyType": "text",
-                  "default": "{{SPARK_STREAMING_CHECKPOINT_PATH}}",
+                  "default": "{{{SPARK_STREAMING_CHECKPOINT_PATH}}}",
                   "required": false,
                   "tooltip": "Used only if the checkpointing feature is activated. When selecting Mesos or Marathon as deploy mode the checkpoint path must be one located in a HDFS node(sparta/checkpoint), when deploying in Local the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint)",
                   "visible": [
@@ -401,7 +401,7 @@
                       "propertyId": "coresMax",
                       "propertyName": "SETTINGS._SPARK_CORES_MAX_",
                       "propertyType": "text",
-                      "default": "{{SPARK_CORES_MAX}}",
+                      "default": "{{{SPARK_CORES_MAX}}}",
                       "width": 4,
                       "float": true,
                       "tooltip": "Maximum amount of CPU cores to request for the application",
@@ -420,7 +420,7 @@
                       "propertyName": "SETTINGS._SPARK_DRIVER_CORES_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "{{SPARK_DRIVER_CORES}}",
+                      "default": "{{{SPARK_DRIVER_CORES}}}",
                       "float": true,
                       "tooltip": "Number of cores assigned to the Spark Driver",
                       "qa": "workflow-spark-driverCores"
@@ -430,7 +430,7 @@
                       "propertyName": "SETTINGS._SPARK_DRIVER_MEMORY_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "{{SPARK_DRIVER_MEMORY}}",
+                      "default": "{{{SPARK_DRIVER_MEMORY}}}",
                       "tooltip": "Memory assigned to the Spark Driver",
                       "qa": "workflow-spark-driverMemory"
                    },
@@ -439,7 +439,7 @@
                       "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "{{SPARK_EXECUTOR_CORES}}",
+                      "default": "{{{SPARK_EXECUTOR_CORES}}}",
                       "float": true,
                       "tooltip": "Number of cores to use on each executor",
                       "qa": "workflow-spark-executorCores"
@@ -448,7 +448,7 @@
                       "propertyId": "executorMemory",
                       "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
                       "propertyType": "text",
-                      "default": "{{SPARK_EXECUTOR_MEMORY}}",
+                      "default": "{{{SPARK_EXECUTOR_MEMORY}}}",
                       "width": 4,
                       "tooltip": "Amount of memory to use per executor process",
                       "qa": "workflow-spark-executorMemory"
@@ -458,7 +458,7 @@
                       "propertyName": "SETTINGS._SPARK_LOCALITY_WAIT_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "{{SPARK_LOCALITY_WAIT}}",
+                      "default": "{{{SPARK_LOCALITY_WAIT}}}",
                       "tooltip": "Period of time to wait to launch a data-local task before giving up and launching it on a less-local node",
                       "qa": "workflow-spark-localityWait"
                    },
@@ -467,7 +467,7 @@
                       "propertyName": "SETTINGS._SPARK_TASK_MAX_FAILURES_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "{{SPARK_TASK_MAX_FAILURES}}",
+                      "default": "{{{SPARK_TASK_MAX_FAILURES}}}",
                       "tooltip": "Number of failures of any particular task before giving up on the job",
                       "qa": "workflow-spark-taskMaxFailures"
                    },
@@ -476,7 +476,7 @@
                       "propertyName": "SETTINGS._SPARK_MEMORY_FRACTION_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "{{SPARK_MEMORY_FRACTION}}",
+                      "default": "{{{SPARK_MEMORY_FRACTION}}}",
                       "tooltip": "Fraction of (heap space - 300MB) used for execution and storage",
                       "qa": "workflow-spark-memory-fraction"
                    },
@@ -537,7 +537,7 @@
                 "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
                 "propertyType": "text",
                 "width": 4,
-                "default": "{{SPARK_EXECUTOR_BASE_IMAGE}}",
+                "default": "{{{SPARK_EXECUTOR_BASE_IMAGE}}}",
                 "tooltip": "Run over Mesos Clusters with Docker containers",
                 "qa": "workflow-spark-executorDockerImage"
              },
@@ -546,7 +546,7 @@
                 "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
                 "propertyType": "text",
                 "width": 4,
-                "default": "{{SPARK_LOCAL_PATH}}",
+                "default": "{{{SPARK_LOCAL_PATH}}}",
                 "tooltip": "Set the spark home in Mesos deployments",
                 "qa": "workflow-spark-home"
              },

@@ -18,108 +18,108 @@ import { CreateTemplateComponent } from './create-template.component';
 
 
 @Component({
-    selector: 'create-input',
-    templateUrl: './create-template.template.html',
-    styleUrls: ['./create-template.styles.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+   selector: 'create-input',
+   templateUrl: './create-template.template.html',
+   styleUrls: ['./create-template.styles.scss'],
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateInputComponent extends CreateTemplateComponent implements OnDestroy {
 
-    @Output() onCloseInputModal = new EventEmitter<string>();
-    @ViewChild('inputForm') public inputForm: NgForm;
+   @Output() onCloseInputModal = new EventEmitter<string>();
+   @ViewChild('inputForm') public inputForm: NgForm;
 
-    public fragmentIndex = 0;
-    public listData: any;
-    public submitted = false;
-    public fragmentName: any;
-    public form: FormGroup;
-    public fragmentTypes: StDropDownMenuItem[] = [];
+   public fragmentIndex = 0;
+   public listData: any;
+   public submitted = false;
+   public fragmentName: any;
+   public form: FormGroup;
+   public fragmentTypes: StDropDownMenuItem[] = [];
 
-    public configuration: FormGroup;
-    public editMode = false;
-    public title = '';
-    public stepType = 'Input';
-    public stepKey = 'INPUT';
-    public editedTemplateName = '';
+   public configuration: FormGroup;
+   public editMode = false;
+   public title = '';
+   public stepType = 'Input';
+   public stepKey = 'INPUT';
+   public editedTemplateName = '';
 
-    private saveSubscription: Subscription;
-    private selectedSubscription: Subscription;
+   private saveSubscription: Subscription;
+   private selectedSubscription: Subscription;
 
-    constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
-        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
-        protected initializeSchemaService: InitializeSchemaService, private _cd: ChangeDetectorRef) {
-        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
-        this.store.dispatch(new inputActions.ResetInputFormAction());
-        this.listData = inputsTemplate.streamingInputs;
+   constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
+      currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
+      protected initializeSchemaService: InitializeSchemaService, private _cd: ChangeDetectorRef) {
+      super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
+      this.store.dispatch(new inputActions.ResetInputFormAction());
+      this.listData = inputsTemplate.streamingInputs;
 
-        this.fragmentTypes = this.listData.map((fragmentData: any) => {
-            return {
-                label: fragmentData.name,
-                value: fragmentData.name
-            };
-        });
+      this.fragmentTypes = this.listData.map((fragmentData: any) => {
+         return {
+            label: fragmentData.name,
+            value: fragmentData.name
+         };
+      });
 
-        this.saveSubscription = this.store.select(fromTemplates.isInputSaved).subscribe((isSaved) => {
-            if (isSaved) {
-                this.route.navigate(['templates', 'inputs']);
-            }
-        });
-    }
+      this.saveSubscription = this.store.select(fromTemplates.isInputSaved).subscribe((isSaved) => {
+         if (isSaved) {
+            this.route.navigate(['templates', 'inputs']);
+         }
+      });
+   }
 
-    cancelCreate() {
-        this.route.navigate(['templates', 'inputs']);
-    }
+   cancelCreate() {
+      this.route.navigate(['templates', 'inputs']);
+   }
 
-    onSubmitInputForm(): void {
-        this.submitted = true;
-        if (this.inputForm.valid) {
-            this.inputFormModel.templateType = 'input';
-            this.inputFormModel.supportedEngines = this.listData[this.fragmentIndex].supportedEngines;
-            if (this.editMode) {
-                this.store.dispatch(new inputActions.UpdateInputAction(this.inputFormModel));
-            } else {
-                this.store.dispatch(new inputActions.CreateInputAction(this.inputFormModel));
-            }
-        }
-    }
+   onSubmitInputForm(): void {
+      this.submitted = true;
+      if (this.inputForm.valid) {
+         this.inputFormModel.templateType = 'input';
+         this.inputFormModel.supportedEngines = this.listData[this.fragmentIndex].supportedEngines;
+         if (this.editMode) {
+            this.store.dispatch(new inputActions.UpdateInputAction(this.inputFormModel));
+         } else {
+            this.store.dispatch(new inputActions.CreateInputAction(this.inputFormModel));
+         }
+      }
+   }
 
-    changeWorkflowType(event: any): void {
-        this.inputFormModel.executionEngine = event.value;
-        this.listData = event.value === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
-        this.changeTemplateType(this.listData[0].name);
-        this.fragmentTypes = this.listData.map((fragmentData: any) => {
-            return {
-                label: fragmentData.name,
-                value: fragmentData.name
-            };
-        });
-    }
+   changeWorkflowType(event: any): void {
+      this.inputFormModel.executionEngine = event.value;
+      this.listData = event.value === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
+      this.changeTemplateType(this.listData[0].name);
+      this.fragmentTypes = this.listData.map((fragmentData: any) => {
+         return {
+            label: fragmentData.name,
+            value: fragmentData.name
+         };
+      });
+   }
 
-    getEditedTemplate(templateId: string) {
-        this.store.dispatch(new inputActions.GetEditedInputAction(templateId));
-        this.selectedSubscription = this.store.select(fromTemplates.getEditedInput).subscribe((editedInput: any) => {
-            if (!editedInput.id) {
-                return;
-            }
-            this.listData = editedInput.executionEngine === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
-            this.setEditedTemplateIndex(editedInput.classPrettyName);
-            this.inputFormModel = editedInput;
-            this.editedTemplateName = editedInput.name;
-            const urlOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
-            this.breadcrumbOptions = urlOptions.filter(option => option !== 'edit');
+   getEditedTemplate(templateId: string) {
+      this.store.dispatch(new inputActions.GetEditedInputAction(templateId));
+      this.selectedSubscription = this.store.select(fromTemplates.getEditedInput).subscribe((editedInput: any) => {
+         if (!editedInput.id) {
+            return;
+         }
+         this.listData = editedInput.executionEngine === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
+         this.setEditedTemplateIndex(editedInput.classPrettyName);
+         this.inputFormModel = editedInput;
+         this.editedTemplateName = editedInput.name;
+         const urlOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
+         this.breadcrumbOptions = urlOptions.filter(option => option !== 'edit');
+         this._cd.markForCheck();
+
+         setTimeout(() => {
+            this.loaded = true;
             this._cd.markForCheck();
+         });
 
-            setTimeout(() => {
-                this.loaded = true;
-                this._cd.markForCheck();
-            });
+      });
+   }
 
-        });
-    }
-
-    ngOnDestroy() {
-        this.saveSubscription && this.saveSubscription.unsubscribe();
-        this.selectedSubscription && this.selectedSubscription.unsubscribe();
-    }
+   ngOnDestroy() {
+      this.saveSubscription && this.saveSubscription.unsubscribe();
+      this.selectedSubscription && this.selectedSubscription.unsubscribe();
+   }
 
 }

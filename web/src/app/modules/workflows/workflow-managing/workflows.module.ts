@@ -23,6 +23,7 @@ import {
 
 import { reducers } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
+import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 ;
 @NgModule({
     exports: [
@@ -49,6 +50,7 @@ import { WorkflowEffect } from './effects/workflow';
         StoreModule.forFeature('workflowsManaging', reducers),
         EffectsModule.forFeature([WorkflowEffect]),
         PerfectScrollbarModule,
+        SpTooltipModule,
         StCheckboxModule,
         StHorizontalTabsModule,
         StProgressBarModule,

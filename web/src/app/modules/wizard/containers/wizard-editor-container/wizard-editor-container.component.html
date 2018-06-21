@@ -24,7 +24,8 @@
       (deleteSelection)="deleteSelection()"></wizard-header>
 
   <div class="editor" #editorArea>
-    <wizard-editor class="editor-component" [ngClass]="{'loaded' : workflowName && workflowName.length}"
+    <wizard-editor class="editor-component" 
+        [ngClass]="{'loaded' : workflowName && workflowName.length}"
         [workflowType]="workflowType"
         [workflowEdges]="workflowEdges"
         [workflowNodes]="workflowNodes"

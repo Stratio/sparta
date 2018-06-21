@@ -14,7 +14,7 @@ export class MenuService {
     private _menuOptions: StHeaderMenuOption[] = [
         {
             icon: 'icon-record',
-            label: 'Workflows',
+            label: 'Repository',
             link: DASHBOARD_ROUTES.WORKFLOWS_MANAGING,
             subMenus: []
         },
@@ -39,7 +39,7 @@ export class MenuService {
         },
         {
             icon: 'icon-record',
-            label: 'Crossdata',
+            label: 'Catalog',
             link: DASHBOARD_ROUTES.CROSSDATA,
             subMenus: []
         },

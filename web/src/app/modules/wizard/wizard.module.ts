@@ -31,6 +31,7 @@ import { WizardService } from './services/wizard.service';
 import { ValidateSchemaService } from './services/validate-schema.service';
 import { WizardEffect } from './effects/wizard';
 import { DebugEffect } from './effects/debug';
+import { ExternalDataEffect } from './effects/externalData';
 
 import { reducers } from './reducers/';
 import { WizardEditorContainer } from './containers/wizard-editor-container/wizard-editor-container.component';
@@ -43,6 +44,7 @@ import { SpForegroundNotificationsModule } from '@app/shared/components/sp-foreg
 import { NodeErrorsComponent } from '@app/wizard/components/node-errors/node-errors.component';
 import { NodeSchemaComponent } from '@app/wizard/components/node-schema/node-schema.component';
 import { WizardConsoleComponent } from '@app/wizard/components/wizard-console/wizard-console.component';
+import { NodeTreeDataComponent } from '@app/wizard/components/wizard-console/data-node-tree/node-tree-data.component';
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -68,6 +70,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
       MocksConfigComponent,
       NodeErrorsComponent,
       NodeSchemaComponent,
+      NodeTreeDataComponent,
       SidebarConfigComponent
    ],
    imports: [
@@ -80,7 +83,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
       StTreeModule,
       StModalModule.withComponents([WizardModalComponent]),
       StoreModule.forFeature('wizard', reducers),
-      EffectsModule.forFeature([DebugEffect, WizardEffect]),
+      EffectsModule.forFeature([DebugEffect, WizardEffect, ExternalDataEffect]),
       HighlightTextareaModule,
       WizardRoutingModule,
       FormsModule,

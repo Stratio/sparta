@@ -680,7 +680,7 @@
         "PASTE": "Paste",
         "PASTE_PLACEHOLDER": "Paste your input data here",
         "UPLOAD": "Upload a file",
-        "UPLOAD_FILE_BUTTON": "Upload file",
+        "UPLOAD_FILE_BUTTON": "Paste text from file",
         "URI": "From URI",
         "URI_PLACEHOLDER": "Paste the URI",
         "SQL": "Query SQL"

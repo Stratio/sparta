@@ -1,3 +1,5 @@
+@import '~@stratio/egeo/theme/constants';
+
 .st-input-container {
    position: relative;
 }
@@ -17,4 +19,95 @@
 .st-input {
    width: 100%;
    padding-bottom: 6px;
+
+   &.catalog {
+     border-radius: 4px 4px 0px 0px;
+   }
+}
+
+.st-input__container {
+  position: relative;
+}
+
+
+
+.var-mode {
+    line-height: 13px!important;
+    .st-input{
+      padding-left: 42px;
+    }
+    &__label {
+        color: $action-secondary-04;
+        font-size: 10px;
+        display: block;
+        position: absolute;
+        font-family: $egeo-nunito-sans-extraBold;
+        top: 15px;
+        left: 17px;
+    }
+
+
+    &__list {
+        list-style: none;
+        border: 1px solid $input-field-onfocus;
+        border-top: 0;
+        position: absolute;
+        width: 100%;
+        background: white;
+        top: 40px;
+        z-index: 100;
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: 200px;
+        left: 0;
+        border-radius: 0px 0px 4px 4px;
+
+        li {
+          position: relative;
+          padding: 8px 0px 8px 45px;
+          cursor: pointer;
+          line-height: 24px;
+
+          &:hover {
+            background-color: #f4f4f4;
+          }
+        }
+
+        &-label {
+          color: $action-secondary-04;
+          font-size: 10px;
+          position: absolute;
+          font-family: $egeo-nunito-sans-extraBold;
+          top: 7px;
+          left: 17px;
+        }
+
+        &-key {
+          font-size: 15px;
+          color: $action-secondary-07;
+        }
+    }
+  }
+.variable-selector {
+  padding:0 11px;
+  border-radius: 11.5px;
+  position: absolute;
+  line-height: 22px;
+  top: 7px;
+  cursor: pointer;
+  right: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  .label {
+    color: $action-secondary-06;
+    font-size: 12px;
+    font-family: $egeo-nunito-sans-extraBold;
+  }
+
+  .icon {
+    color: $action-secondary-04;
+     font-size: 10px;
+  }
+
 }

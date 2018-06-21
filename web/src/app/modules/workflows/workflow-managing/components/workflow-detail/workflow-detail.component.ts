@@ -17,7 +17,6 @@ import { FOLDER_SEPARATOR } from '../../workflow.constants';
 export class WorkflowManagingDetailComponent implements OnInit {
 
     @Input() data: DataDetails;
-    @Output() showWorkflowExecutionInfo = new EventEmitter<any>();
 
     public inputs: Array<string> = [];
     public outputs: Array<string> = [];

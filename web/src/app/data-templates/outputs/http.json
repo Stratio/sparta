@@ -58,7 +58,7 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Only eligible if Output Format is set to Row. Any character is accepted except: \\ \" #",
-        "default": "{{DEFAULT_DELIMITER}}",
+        "default": "{{{DEFAULT_DELIMITER}}}",
         "trim": false,
         "required": false,
         "qa": "fragment-details-http-delimiter"

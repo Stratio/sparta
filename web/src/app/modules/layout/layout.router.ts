@@ -17,7 +17,7 @@ const layoutRoutes: Routes = [
                 loadChildren: '@app/workflows/workflow-monitoring/workflows.module#WorkflowsMonitoringModule'
             },
             {
-                path: 'workflow-managing',
+                path: 'repository',
                 loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
             },
             {
@@ -29,7 +29,7 @@ const layoutRoutes: Routes = [
                 loadChildren: '@app/settings/settings.module#SettingsModule'
             },
             {
-                path: 'crossdata',
+                path: 'catalog',
                 loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
             }
         ]

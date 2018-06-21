@@ -78,21 +78,18 @@
    color: #444;
    font-size: 14px;
 
-   .val {
-      font-family: $egeo-nunito-sans-semiBold;
-   }
    .icon {
       font-size: 13px;
    }
    .message {
       display: block; 
-      font-family: $egeo-nunito-sans;
+      font-family: $egeo-nunito-sans-semiBold;
       color: $status-critical-hover;
 
    }
    .original-msg {
       word-break: break-word;
-      font-size: 13px;
+      color: $status-critical-hover;
    }
 }
 

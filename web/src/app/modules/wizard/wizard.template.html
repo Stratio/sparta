@@ -16,8 +16,11 @@
 </section>
 <wizard-config-editor *ngIf="editionConfigMode.isEdition"
    [workflowType]="workflowType"
+   [environmentList]="environmentList"
    [config]="editionConfigMode"></wizard-config-editor>
 
 <wizard-settings [workflowType]="workflowType"
-   [edition]="isEdit" [workflowType]="workflowType"
+   [edition]="isEdit"
+   [environmentList]="environmentList"
+   [workflowType]="workflowType"
    *ngIf="workflowType.length && showSettings"></wizard-settings>

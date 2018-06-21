@@ -28,8 +28,18 @@
          <div class="container">
             <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
                <div class="col-sm-12">
-                  <form-generator-group (changeGroup)="onChangeGroup($event)" [valueDictionary]="valueDictionary" [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel"
-                     [formData]="advancedSettings" class="advanced-settings" *ngIf="advancedSettings.length">
+                  <form-generator-group 
+                    [variableList]="environmentList" 
+                    [showVars]="true" 
+                    [(ngModel)]="settingsFormModel"
+                    [formData]="advancedSettings" 
+                    [valueDictionary]="valueDictionary" 
+                    [forceValidations]="submitted"
+                    (changeGroup)="onChangeGroup($event)" 
+                    name="entity" 
+   
+                    class="advanced-settings" 
+                    *ngIf="advancedSettings.length">
                      <div>
                         <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>
                         <div class="row">

@@ -1,8 +1,8 @@
 <div class="main">
    <st-header appName="Sparta"
-        [menu]="menu"
-        qaTag="sparta-header">
-        <div class="sth-header-logo">
+      [menu]="menu"
+      qaTag="sparta-header">
+      <div class="sth-header-logo">
          <img src="assets/images/sparta_logo_header.svg" (click)="redirectHome()" alt="Sparta" class="home-link"/>
       </div>
       <div class="sth-header-user-menu">
@@ -10,7 +10,7 @@
       </div>
    </st-header>
    <div class="content">
-        <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
    </div>
    <notification-alert *ngIf="showForbiddenError$ | async" (onClose)="hideAlert()"></notification-alert>
    <!--<st-footer [rightsText]="rightsText" [links]="links" qaTag="st-footer"></st-footer>-->

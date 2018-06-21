@@ -24,6 +24,9 @@ export class WizardService {
 
     constructor() { }
 
+    /**
+     * Return input list form schemas
+     */
     getInputs() {
         return this._workflowType === 'Streaming' ? streamingInputsObject : batchInputsObject;
     }
@@ -62,7 +65,7 @@ export class WizardService {
                 nodes: wizard.nodes,
                 edges: wizard.edges
             },
-            group: wizard.workflowGroup && wizard.workflowGroup.length ?
+            group: wizard.workflowGroup && wizard.workflowGroup.id ?
                 wizard.workflowGroup : state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup,
             settings: wizard.settings.advancedSettings
         }, wizard.settings.basic);

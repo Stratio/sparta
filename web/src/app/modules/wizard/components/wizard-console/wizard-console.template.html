@@ -12,11 +12,11 @@
    <div class="console-content">
       <div *ngIf="selectedOption.id === 'Exceptions'">
          <div class="exceptions" *ngIf="entityData.debugResult && entityData.debugResult.error">
-            <div class="message">{{entityData.debugResult.error.message}}</div>
+            <div class="message" [innerText]="entityData.debugResult.error.localizedMsg"></div>
             <div class="exception">{{entityData.debugResult.error.exceptionMsg}}</div>
          </div>
          <div class="exceptions" *ngIf="!entityData.name && genericError">
-            <div class="message">{{genericError.message}}</div>
+            <div class="message">{{genericError.localizedMsg}}</div>
             <div class="exception">{{genericError.exceptionMsg}}</div>     
          </div>
          <div class="no-exceptions no-data" *ngIf="(entityData.name && (!entityData.debugResult || !entityData.debugResult.error)) || (!entityData.name && !genericError)">
@@ -24,7 +24,21 @@
          </div>
       </div>
       <div *ngIf="selectedOption.id === 'Data'">
-         <pre [innerHTML]="getData(entityData.debugResult)" style="font-size: 12px;"></pre>
+         <node-tree-data *ngIf="entityData.debugResult && entityData.debugResult.result && entityData.debugResult.result.data" [data]="getData(entityData.debugResult)"></node-tree-data>
+
+        <!-- <table *ngIf="tableFields.length"> 
+          <tr>
+            <th *ngFor="let field of tableFields">
+              {{field}}
+            </th>
+          </tr>
+          <tr>
+
+          </tr>
+         </table>-->
+         <!--<div style="font-size: 12px;">
+          {{getData(entityData.debugResult) | json}}
+         </div>-->
 
          <div class="no-exceptions no-data" *ngIf="!entityData.debugResult">
             No data

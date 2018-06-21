@@ -30,6 +30,7 @@ import * as wizardActions from './../actions/wizard';
 import * as debugActions from './../actions/debug';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { WizardApiService } from 'app/services';
+import { getWorkflowId } from './../reducers';
 
 @Injectable()
 export class DebugEffect {
@@ -72,9 +73,9 @@ export class DebugEffect {
                   type: 'default',
                   templateType: 'generic'
                } : {
-                     type: 'default',
-                     templateType: 'debugFail'
-                  })
+                        type: 'default',
+                        templateType: 'debugFail'
+                     })
             ])
             .catch(error => of(new debugActions.GetDebugResultErrorAction()))
          ));
@@ -88,6 +89,33 @@ export class DebugEffect {
          .map(result => new debugActions.GetDebugResultCompleteAction(result))
          .catch(error => of(new debugActions.GetDebugResultErrorAction()))
       );
+
+   @Effect()
+   uploadDebugFile$: Observable<any> = this._actions$
+      .ofType(debugActions.UPLOAD_DEBUG_FILE)
+      .map((action: any) => action.payload)
+      .withLatestFrom(this._store.select(getWorkflowId))
+      .switchMap(([file, workflowId]: [any, string]) => this._wizardApiService.uploadDebugFile(workflowId, file)
+         .map(response => new debugActions.UploadDebugFileCompleteAction(response[0].path))
+         .catch(error => of(new debugActions.UploadDebugFileErrorAction())));
+
+
+   @Effect()
+   deleteDebugFile$: Observable<any> = this._actions$
+      .ofType(debugActions.DELETE_DEBUG_FILE)
+      .map((action: any) => action.fileName)
+      .switchMap((path: string) => this._wizardApiService.deleteDebugFile(path)
+         .map(response => new debugActions.DeleteDebugFileCompleteAction())
+         .catch(error => of(new debugActions.DeleteDebugFileErrorAction())));
+
+
+   @Effect()
+   downloadDebugFile$: Observable<any> = this._actions$
+      .ofType(debugActions.DOWNLOAD_DEBUG_FILE)
+      .map((action: any) => action.fileName)
+      .switchMap((path: string) => this._wizardApiService.downloadDebugFile(path)
+         .map(response => new debugActions.DownloadDebugFileCompleteAction())
+         .catch(error => of(new debugActions.DownloadDebugFileErrorAction())));
 
    constructor(
       private _actions$: Actions,

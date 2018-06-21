@@ -131,7 +131,7 @@ describe('[WorkflowsManagingTableComponent]', () => {
             spyOn(component, 'checkWorkflow');
             let selectedWorkflow: any;
             component.openWorkflow.subscribe((workflow: any) => {
-                selectedWorkflow = workflow
+                selectedWorkflow = workflow;
             });
             const nameSelector = fixture.debugElement.query(By.css('.workflow-table .workflow-name'));
             const event = {
@@ -145,7 +145,7 @@ describe('[WorkflowsManagingTableComponent]', () => {
 
 
         it('the workflow row must show the correct workflow type icon', () => {
-            const iconSelector = fixture.debugElement.query(By.css('.workflow-table .icon-infinite'));
+            const iconSelector = fixture.debugElement.query(By.css('.streaming-icon'));
             expect(iconSelector).toBeDefined();
         });
 
@@ -165,7 +165,7 @@ describe('[WorkflowsManagingTableComponent]', () => {
 
 
         it('the workflow row must show the correct workflow type icon', () => {
-            const iconSelector = fixture.debugElement.query(By.css('.workflow-table .icon-infinite'));
+            const iconSelector = fixture.debugElement.query(By.css('.streaming-icon'));
             expect(iconSelector).toBeDefined();
         });
     });
@@ -220,23 +220,10 @@ describe('[WorkflowsManagingTableComponent]', () => {
             expect(routerStub.navigate).toHaveBeenCalledWith(['wizard/edit', '1']);
         }));
 
-        it('the version row must show the correct workflow type icon', () => {
-            const iconSelector = fixture.debugElement.query(By.css('.version-table .icon-infinite'));
+        it('the version title must show the correct workflow type icon', () => {
+            const iconSelector = fixture.debugElement.query(By.css('.streaming-icon'));
             expect(iconSelector).toBeDefined();
         });
 
-        it('should redirect to workflow edit when the version name is clicked', fakeAsync(() =>  {
-            const labelSelector = fixture.debugElement.query(By.css('.version-table .workflow-link'));
-            const event = {
-                stopPropagation: function () { }
-            };
-            labelSelector.triggerEventHandler('click', event);
-            expect(routerStub.navigate).toHaveBeenCalledWith(['wizard/edit', '1']);
-        }));
-
-        it('the version row must show the correct workflow type icon', () => {
-            const iconSelector = fixture.debugElement.query(By.css('.version-table .icon-infinite'));
-            expect(iconSelector).toBeDefined();
-        });
     });
 });

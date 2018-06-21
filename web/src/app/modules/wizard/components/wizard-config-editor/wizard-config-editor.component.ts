@@ -15,12 +15,14 @@ import { Subject } from 'rxjs/Subject';
 import { cloneDeep as _cloneDeep } from 'lodash';
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
+import { Environment } from '../../../../models/environment';
 
 import { Subscription } from 'rxjs/Subscription';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
 import { writerTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
+import { StepType } from 'app/models/enums';
 
 @Component({
    selector: 'wizard-config-editor',
@@ -33,6 +35,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
    @Input() config: any;
    @Input() workflowType: string;
+   @Input() environmentList: Array<Environment> = [];
    @ViewChild('entityForm') public entityForm: NgForm;
 
    public basicSettings: any = [];
@@ -126,13 +129,13 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    editTemplate(templateId) {
       let routeType = '';
       switch (this.config.editionType.data.stepType) {
-         case 'Input':
+         case StepType.Input:
             routeType = 'inputs';
             break;
-         case 'Output':
+         case StepType.Output:
             routeType = 'outputs';
             break;
-         case 'Transformation':
+         case StepType.Transformation:
             routeType = 'transformations';
             break;
          default:
@@ -159,14 +162,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       this.currentName = this.entityFormModel['name'];
       let template: any;
       switch (this.config.editionType.stepType) {
-         case 'Input':
+         case StepType.Input:
             template = this._wizardService.getInputs()[this.config.editionType.data.classPrettyName];
             this.writerSettings = writerTemplate;
             break;
-         case 'Output':
+         case StepType.Output:
             template = this._wizardService.getOutputs()[this.config.editionType.data.classPrettyName];
             break;
-         case 'Transformation':
+         case StepType.Transformation:
             template = this._wizardService.getTransformations()[this.config.editionType.data.classPrettyName];
             this.writerSettings = writerTemplate;
             break;
@@ -214,15 +217,15 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       }));
    }
 
-   _getMenuTabs() {
+   private _getMenuTabs() {
       switch (this.config.editionType.stepType) {
-         case 'Input':
+         case StepType.Input:
             this.options = this._allOptions;
             break;
-         case 'Transformation':
+         case StepType.Transformation:
             this.options = this._allOptions.slice(0, 2);
             break;
-         case 'Output':
+         case StepType.Output:
             this.options = [];
             break;
       }

@@ -33,7 +33,7 @@ export class WorkflowsManagingTableComponent {
     @Input() workflowVersions: Array<any> = [];
 
     @Output() onChangeOrder = new EventEmitter<Order>();
-    @Output() onChangeOrderVersions = new EventEmitter<any>();
+    @Output() onChangeOrderVersions = new EventEmitter<Order>();
     @Output() selectWorkflow = new EventEmitter<string>();
     @Output() selectGroup = new EventEmitter<string>();
     @Output() selectVersion = new EventEmitter<string>();
@@ -96,7 +96,7 @@ export class WorkflowsManagingTableComponent {
         this.versionFields = [
             { id: 'isChecked', label: '', sortable: false },
             { id: 'version', label: 'Version' },
-            { id: 'status.status', label: 'Advanced Status' },
+            { id: 'tagsAux', label: 'Tag' },
             { id: 'lastUpdateAux', label: 'Last update' }
         ];
     }

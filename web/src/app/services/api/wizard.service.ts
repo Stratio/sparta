@@ -34,4 +34,23 @@ export class WizardApiService extends ApiService {
     const options: any = {};
     return this.request(`debug/resultsById/${workflowId}`, 'get', options);
   }
+
+  uploadDebugFile(workflowId: string, file: any) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const options: any = {
+      body: fd
+    };
+    return this.request('debug/uploadFile/' + workflowId, 'post', options);
+  }
+
+  deleteDebugFile(path: string) {
+    const options: any = {};
+    return this.request('debug/deleteFile/' + path, 'delete', options);
+  }
+
+  downloadDebugFile(path: string) {
+    const options: any = {};
+    return this.request('debug/downloadFile/' + path, 'get', options);
+  }
 }

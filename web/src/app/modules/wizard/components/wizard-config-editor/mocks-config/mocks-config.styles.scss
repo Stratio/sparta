@@ -7,7 +7,7 @@
 
 .mock-options{
   list-style: none;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
 
   li {
     color: $action-primary-default;
@@ -42,4 +42,18 @@
 
 .action-buttons {
   margin-top:20px;
+}
+
+.current-mock-file {
+  padding-bottom: 20px;
+
+  .label {
+    font-family: $egeo-nunito-sans-bold;
+  }
+}
+
+
+.upload-button {
+    display: inline-block;
+    margin-right: 20px;
 }

@@ -48,8 +48,8 @@ export class WorkflowEffect {
                   }
                } catch (error) { }
                   try {
-                        const lastErrorDate = workflow.execution.genericDataExecution.lastError.date;
-                        workflow.lastErrorDate = formatDate(lastErrorDate, true, true);
+                     const lastErrorDate = workflow.execution.genericDataExecution.lastError.date;
+                     workflow.lastErrorDate = formatDate(lastErrorDate, true, true);
                   } catch (error) { }
                try {
                   const sparkURI = workflow.execution.localExecution.sparkURI;

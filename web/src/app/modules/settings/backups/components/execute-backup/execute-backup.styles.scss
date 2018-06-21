@@ -4,7 +4,7 @@
 
 .confirmation {
    display: block;
-       font-family: Nunito Sans Light;
+    font-family: Nunito Sans Light;
     font-size: 1.563rem;
     line-height: 2.125rem;
     text-align: left;
@@ -19,12 +19,11 @@
 }
 
 .execute-info {
-   font-style: italic;
    font-size: 15px;
 }
 
 .action-buttons {
-   margin-top: 100px;
+   margin-top: 40px;
    overflow: hidden;
    .button {
       padding: .925rem 1.875rem;

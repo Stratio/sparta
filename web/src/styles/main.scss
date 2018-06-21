@@ -63,3 +63,13 @@ button.selected-button {
 .complete-edge-menu #edge-dropdown-menu li:last-child h3 span{
     padding: 0;
 }
+
+st-table.custom-table {
+    tbody {
+        background: white;
+    }
+
+    .st-table__header{
+        background: transparent;
+    }
+}

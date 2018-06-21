@@ -92,7 +92,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
    }
 
    moveBox(e) {
-      this._document.body.classList.add('dragging');
+      this._document.body.classList.add('dragging-console');
       this._ngZone.runOutsideAngular(() => {
          this.pos3 = e.clientX;
          this.pos4 = e.clientY;
@@ -126,7 +126,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
    }
 
    private _closeDragElement() {
-      this._document.body.classList.remove('dragging');
+      this._document.body.classList.remove('dragging-console');
       /* stop moving when mouse button is released:*/
       document.onmouseup = null;
       document.onmousemove = null;

@@ -32,4 +32,16 @@
   <sp-input name="path" [(ngModel)]="model.path" class="uri-field" *ngSwitchCase="'path'" [placeholder]="'WIZARD.MOCKS.URI_PLACEHOLDER' | translate"></sp-input>
   <sp-textarea-highlight *ngSwitchCase="'query'" class="st-form-field" [(ngModel)]="model.query" contentType="SQL" placeholder="SQL query"
     qaTag="sql-query-mock"></sp-textarea-highlight>
+
+  <div *ngSwitchCase="'fileUploaded'">
+    <div class="current-mock-file" *ngIf="model.fileUploaded">
+      <div class="label">Current mock file</div>
+      <div>{{model.fileUploaded}}</div>
+    </div>
+    <form-file class="upload-button" (onFileUpload)="uploadMockFile($event)" text="Upload a mock file"></form-file>
+    <ng-container *ngIf="model.fileUploaded">
+      <button type="button" (click)="removeMockFile()" class="button button-critical">Remove file</button>
+      <button type="button" (click)="downloadMockFile()" class="button button-primary">Download file</button>
+    </ng-container>
+  </div>
 </div>

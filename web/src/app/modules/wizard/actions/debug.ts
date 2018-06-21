@@ -15,6 +15,15 @@ export const CANCEL_DEBUG_POLLING = '[Wizard] Cancel debug polling';
 export const SHOW_DEBUG_CONSOLE = '[Wizard] Show debug console';
 export const HIDE_DEBUG_CONSOLE = '[Wizard] Hide debug console';
 export const CHANGE_SELECTED_CONSOLE_TAB = '[Wizard] Change selected console tab';
+export const UPLOAD_DEBUG_FILE = '[Wizard] Upload debug file';
+export const UPLOAD_DEBUG_FILE_COMPLETE = '[Wizard] Upload debug file complete';
+export const UPLOAD_DEBUG_FILE_ERROR = '[Wizard] Upload debug file error';
+export const DELETE_DEBUG_FILE = '[Wizard] Delete debug file';
+export const DELETE_DEBUG_FILE_COMPLETE = '[Wizard] Delete debug file complete';
+export const DELETE_DEBUG_FILE_ERROR = '[Wizard] Delete debug file error';
+export const DOWNLOAD_DEBUG_FILE = '[Wizard] Download debug file';
+export const DOWNLOAD_DEBUG_FILE_COMPLETE = '[Wizard] Download debug file complete';
+export const DOWNLOAD_DEBUG_FILE_ERROR = '[Wizard] Download debug file error';
 
 export class InitDebugWorkflowAction implements Action {
     readonly type = INIT_DEBUG_WORKFLOW;
@@ -61,6 +70,45 @@ export class ChangeSelectedConsoleTab implements Action {
     constructor(public payload: any) { }
 }
 
+export class UploadDebugFileAction implements Action {
+    readonly type = UPLOAD_DEBUG_FILE;
+    constructor(public payload: any) { }
+}
+
+export class UploadDebugFileCompleteAction implements Action {
+    readonly type = UPLOAD_DEBUG_FILE_COMPLETE;
+    constructor(public payload: string) { }
+}
+
+export class UploadDebugFileErrorAction implements Action {
+    readonly type = UPLOAD_DEBUG_FILE_ERROR;
+}
+
+export class DownloadDebugFileAction implements Action {
+    readonly type = DOWNLOAD_DEBUG_FILE;
+    constructor(public fileName: string) { }
+}
+
+export class DownloadDebugFileCompleteAction implements Action {
+    readonly type = DOWNLOAD_DEBUG_FILE_COMPLETE;
+}
+
+export class DownloadDebugFileErrorAction implements Action {
+    readonly type = DOWNLOAD_DEBUG_FILE_ERROR;
+}
+
+export class DeleteDebugFileAction implements Action {
+    readonly type = DELETE_DEBUG_FILE;
+    constructor(public fileName: string) {}
+}
+
+export class DeleteDebugFileCompleteAction implements Action {
+    readonly type = DELETE_DEBUG_FILE_COMPLETE;
+}
+
+export class DeleteDebugFileErrorAction implements Action {
+    readonly type = DELETE_DEBUG_FILE_ERROR;
+}
 
 export type Actions =
     InitDebugWorkflowAction |
@@ -72,4 +120,13 @@ export type Actions =
     CancelDebugPollingAction |
     ShowDebugConsoleAction |
     HideDebugConsoleAction |
-    ChangeSelectedConsoleTab;
+    ChangeSelectedConsoleTab |
+    UploadDebugFileAction |
+    UploadDebugFileCompleteAction |
+    UploadDebugFileErrorAction |
+    DownloadDebugFileAction |
+    DownloadDebugFileCompleteAction |
+    DownloadDebugFileErrorAction |
+    DeleteDebugFileAction |
+    DeleteDebugFileCompleteAction |
+    DeleteDebugFileErrorAction;

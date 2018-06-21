@@ -26,7 +26,6 @@
                 {{genericError.localizedMsg}}
             </div>
             <div class="details" (click)="showConsole('Exceptions')">View details</div>
-
         </div>
     </div>
 
@@ -39,7 +38,6 @@
         <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
         <h3 class="egeo-title-giant">{{entityData.name}}</h3>
         <span>{{entityData.description}}</span>
-
         <node-errors [serverValidationError]="entityData.serverValidationError" [debugResult]="entityData.debugResult" [schemas]="entityData.schemas"
             openedSchema="Output"></node-errors>
     </div>

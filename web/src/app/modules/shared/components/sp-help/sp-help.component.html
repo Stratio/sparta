@@ -1,7 +1,7 @@
 <section class="help">
    <div class="help-search">
       <div class="help-header" (mousedown)="moveBox($event)">
-         <span class="icon-arrow-left return-arrow" (click)="returnList()" *ngIf="definitionShowed"></span>
+         <span class="icon-arrow-left return-arrow" (mousedown)="returnList()" *ngIf="definitionShowed"></span>
          <span class="help-label">{{'GLOBAL.HELP_TITLE' | translate}}</span>
       </div>
       <st-search (search)="search($event)"></st-search>

@@ -49,6 +49,8 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
    @Input() tooltip = '';
    @Input() forceValidations = false;
    @Input() valueDictionary: any;
+   @Input() variableList: Array<any> = [];
+   @Input() showVars: boolean;
 
    @ViewChild('inputForm') public inputForm: NgForm;
 

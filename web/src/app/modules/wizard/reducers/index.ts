@@ -10,6 +10,7 @@ import * as fromRoot from 'reducers';
 import * as fromWizard from './wizard';
 import * as fromEntities from './entities';
 import * as fromDebug from './debug';
+import * as fromExternalData from './externalData';
 
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 
@@ -17,6 +18,7 @@ export interface WizardState {
   wizard: fromWizard.State;
   entities: fromEntities.State;
   debug: fromDebug.State;
+  externalData: fromExternalData.State;
 }
 
 export interface State extends fromRoot.State {
@@ -26,7 +28,8 @@ export interface State extends fromRoot.State {
 export const reducers = {
   wizard: fromWizard.reducer,
   entities: fromEntities.reducer,
-  debug: fromDebug.reducer
+  debug: fromDebug.reducer,
+  externalData: fromExternalData.reducer
 };
 
 export const getWizardFeatureState = createFeatureSelector<WizardState>('wizard');
@@ -44,6 +47,11 @@ export const getDebugState = createSelector(
 export const getEntitiesState = createSelector(
   getWizardFeatureState,
   state => state.entities
+);
+
+export const getExternalDataState = createSelector(
+  getWizardFeatureState,
+  state => state.externalData
 );
 
 export const getEdges = createSelector(
@@ -151,11 +159,13 @@ export const getEditionConfigMode = createSelector(
         serverValidation: stepValidation[editionConfig.editionType.data.name],
         debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
         schemas: schemas,
-      } : editionConfig}
+      } : editionConfig;}
   );
 
 
 // wizard
+export const getDebugFile = createSelector(getWizardState, state => state.debugFile);
+export const getWorkflowId =  createSelector(getWizardState, state => state.workflowId);
 export const isCreationMode = createSelector(getEntitiesState, fromEntities.isCreationMode);
 export const getMenuOptions = createSelector(getEntitiesState, fromEntities.getMenuOptions);
 export const getWorkflowType = createSelector(getEntitiesState, fromEntities.getWorkflowType);
@@ -178,3 +188,4 @@ export const isShowedCrossdataCatalog = createSelector(getWizardState, state => 
 export const isWorkflowDebugging = createSelector(getDebugState, state => state.isDebugging);
 export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
 export const getDebugConsoleSelectedTab = createSelector(getDebugState, state => state.debugConsoleSelectedTab);
+export const getEnvironmentList = createSelector(getExternalDataState, state => state.environmentVariables);

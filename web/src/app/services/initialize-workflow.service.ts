@@ -14,7 +14,6 @@ import { StepType } from '@models/enums';
 export class InitializeWorkflowService {
 
   getInitializedWorkflow(workflow: any) {
-    console.log("init")
     if (!workflow.uiSettings || !workflow.uiSettings.position || !workflow.uiSettings.position.x) {
       workflow.uiSettings = {};
       workflow.uiSettings.position = {

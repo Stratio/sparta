@@ -41,6 +41,9 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
    @Input() public qaTag: string;
    @Input() public stModel: any = {};
    @Input() public valueDictionary: any = {};
+   @Input() variableList: Array<any> = [];
+   @Input() showVars: boolean;
+
 
    @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
    @Output() public changeGroup: EventEmitter<number> = new EventEmitter<number>();

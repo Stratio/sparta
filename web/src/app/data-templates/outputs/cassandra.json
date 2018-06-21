@@ -21,7 +21,7 @@
         "propertyId": "connectionPort",
         "propertyName": "_PORT_",
         "propertyType": "text",
-        "default": "{{CASSANDRA_PORT}}",
+        "default": "{{{CASSANDRA_PORT}}}",
         "required": true,
         "tooltip": "Cassandra port",
         "hidden": false,
@@ -31,7 +31,7 @@
         "propertyId": "keyspace",
         "propertyName": "_KEYSPACE_",
         "propertyType": "text",
-        "default": "{{CASSANDRA_KEYSPACE}}",
+        "default": "{{{CASSANDRA_KEYSPACE}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-cassandra-keyspace"
@@ -40,7 +40,7 @@
         "propertyId": "cluster",
         "propertyName": "_CLUSTER_",
         "propertyType": "text",
-        "default": "{{CASSANDRA_CLUSTER}}",
+        "default": "{{{CASSANDRA_CLUSTER}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-cassandra-cluster"

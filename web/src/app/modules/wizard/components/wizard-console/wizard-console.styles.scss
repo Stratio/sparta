@@ -51,6 +51,10 @@
 
   .message {
     color: $status-critical-default;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
   }
 
   .exception {

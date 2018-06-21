@@ -9,7 +9,9 @@
       <div *ngFor="let category of formData; let i = index;">
          <div [hidden]="activeOption !== category.name">
             <form-generator [valueDictionary]="valueDictionary" 
-                [forceValidations]="forceValidations" 
+                [forceValidations]="forceValidations"
+                [variableList]="variableList" 
+                [showVars]="showVars" 
                 [(ngModel)]="stModel[category.name]" 
                 [name]="category.name" 
                 [formData]="category.properties"></form-generator>

@@ -6,14 +6,14 @@
 
 export const DASHBOARD_ROUTES = {
     WORKFLOWS_MONITORING: '/workflow-monitoring',
-    WORKFLOWS_MANAGING: '/workflow-managing',
+    WORKFLOWS_MANAGING: '/repository',
     TEMPLATES: '/templates',
     SETTINGS: '/settings',
     INPUTS: '/templates/inputs',
     OUTPUTS: '/templates/outputs',
     TRANSFORMATIONS: '/templates/transformations',
     PLUGINS: '/settings/plugins',
-    CROSSDATA: '/crossdata',
+    CROSSDATA: '/catalog',
     BACKUPS: '/settings/backups',
     ENVIRONMENT: '/settings/environment'
 };

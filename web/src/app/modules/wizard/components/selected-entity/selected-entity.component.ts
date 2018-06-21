@@ -23,9 +23,6 @@ import {
 
 export class SelectedEntityComponent implements OnInit, OnDestroy {
 
-   public topPosition: any = '0';
-   public leftPosition: any = '0';
-
    private _nativeElement: HTMLElement;
 
    constructor(private zone: NgZone, private _cd: ChangeDetectorRef, private _el: ElementRef) {

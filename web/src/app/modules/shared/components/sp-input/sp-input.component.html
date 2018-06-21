@@ -1,13 +1,25 @@
-<label sp-label class="st-input__label" [ngClass]="{error: showError(), active: focus, disabled: disabled}" name="name"
-       [attr.id]="labelQaTag" [attr.title]="contextualHelp">
-   {{label}} 
+<label sp-label class="st-input__label" [ngClass]="{error: showError(), active: focus, disabled: disabled}" name="name" [attr.id]="labelQaTag"
+   [attr.title]="contextualHelp">
+   {{label}}
 </label>
-<input #input class="st-input" (focus)="onFocus($event)" (focusout)="onFocusOut($event)" (blur)="onFocusOut($event)"
-       [formControl]="internalControl"
-       [placeholder]="placeholder"
-       [name]="name" [attr.type]="fieldType" [attr.id]="qaTag" [attr.maxlength]="maxLength" [attr.min]="min"
-       [attr.max]="max"
-       [value]="value" [readonly]="readonly" [ngClass]="{error: showError()}">
+<div class="st-input__container" [ngClass]="{'var-mode' :  showVars && (isVarValue || (focus && selectVarMode))}">
+   <div class="var-mode__label" *ngIf="showVars && (isVarValue || (focus && selectVarMode))">env</div>
+   <input #input class="st-input" autocomplete="off" (focus)="onFocus($event)" (focusout)="onFocusOut($event); resetVarValue();" (blur)="onFocusOut($event)" [formControl]="internalControl"
+      [placeholder]="placeholder" [name]="name" [attr.type]="fieldType" [attr.id]="qaTag" [attr.maxlength]="maxLength" [attr.min]="min"
+      [attr.max]="max" [value]="value" [readonly]="readonly" [ngClass]="{'error': showError(), 'catalog': showVars && focus && selectVarMode}">
+   <div class="variable-selector" (mousedown)="showVarCatalog($event)" *ngIf="showVars && focus">
+      <span class="label">var</span>
+      <span class="icon icon-arrow2_down"></span>
+   </div>
+   <div *ngIf="showVars && focus && selectVarMode">
+      <ul class="var-mode__list">
+         <li *ngFor="let variable of filteredVariableList" (mousedown)="selectVar($event, variable.name)">
+            <div class="var-mode__list-label">env</div>
+            <span class="var-mode__list-key">{{variable.name}}: {{variable.value}}</span>
+         </li>
+      </ul>
+   </div>
+</div>
 <div class="st-input-error-layout" *ngIf="showError()">
    <span class="st-input-error-message">{{errorMessage}}</span>
 </div>

@@ -199,7 +199,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     if (window.history.length > 2) {
       this._location.back();
     } else {
-      this.route.navigate(['workflow-managing']);
+      this.route.navigate(['repository']);
     }
   }
 
