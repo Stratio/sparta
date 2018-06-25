@@ -170,7 +170,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       val dialect = JdbcDialects.get(connectionProperties.url)
       Try {
         if (sparkSaveMode == SaveMode.Overwrite)
-          SpartaJdbcUtils.dropTable(connectionProperties, name)
+          SpartaJdbcUtils.truncateTable(connectionProperties, name)
 
         synchronized {
           SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)

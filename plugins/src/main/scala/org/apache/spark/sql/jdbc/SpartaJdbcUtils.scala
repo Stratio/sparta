@@ -83,6 +83,24 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
+  def truncateTable(connectionProperties: JDBCOptions, outputName: String, tableName: Option[String] = None): Unit = {
+    synchronized {
+      val conn = getConnection(connectionProperties, outputName)
+      conn.setAutoCommit(true)
+      val statement = conn.createStatement
+      val tableToTruncate = tableName.getOrElse(connectionProperties.table)
+      Try(statement.executeUpdate(s"TRUNCATE TABLE $tableToTruncate")) match {
+        case Success(_) =>
+          log.debug(s"Table $tableToTruncate has been properly truncated")
+          statement.close()
+        case Failure(e) =>
+          statement.close()
+          log.error(s"Error truncating table $tableToTruncate ${e.getLocalizedMessage} and output $outputName", e)
+          throw e
+      }
+    }
+  }
+
   def createTable(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): (Boolean, Boolean) = {
     if (dataFrame.schema.fields.nonEmpty) {
       synchronized {

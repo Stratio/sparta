@@ -111,6 +111,31 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     xdSession.sql(s"SELECT * FROM $tableName").count() shouldBe 2
   }
 
+  "CopyIn" should "first truncate table and then insert data in table" in new JdbcCommons {
+    val tableName = s"test_overwrite_${System.currentTimeMillis()}"
+    val connectionProperties = new JDBCOptions(host,
+      tableName,
+      properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+    )
+    SpartaJdbcUtils.createTable(connectionProperties, upsertData, "overwriteTable")
+    val connection = SpartaJdbcUtils.getConnection(connectionProperties, "overwriteTable")
+    val dataInsert = Seq(
+      new GenericRowWithSchema(Array(4, "testTruncateRecord"), schema)
+    )
+    dataInsert.foreach(row => {
+      val sql = s"INSERT INTO $tableName(id,text) VALUES (${row.getInt(0)},'${row.getString(1)}')"
+      connection.prepareStatement(sql).execute()
+    })
+    val postgresOutputStep = new PostgresOutputStep("postgresOutSingle", xdSession, properties
+      ++ Map("postgresSaveMode" -> "COPYIN", "failFast" -> "true", "dropTemporalTableSuccess" -> "true", "dropTemporalTableFailure" -> "true"))
+    postgresOutputStep.save(okData, SaveModeEnum.Overwrite, Map("tableName" -> tableName,
+      "auto-commit" -> "true",
+      "isolationLevel" -> "READ-COMMITED"))
+    xdSession.sql(tableCreate(tableName))
+    xdSession.sql(s"SELECT * FROM $tableName").count() shouldBe 2
+  }
+
+
   "CopyIn" should "insert data in table" in new JdbcCommons {
     val tableName = s"test_copy_${System.currentTimeMillis()}"
     val postgresOutputStep = new PostgresOutputStep("postgresOutSingle", xdSession, properties
@@ -245,4 +270,3 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
           "READ-COMMITED"))
     }
 }
-

@@ -22,7 +22,7 @@
         "propertyType": "text",
         "default": "1000",
         "required": false,
-        "tooltip": "Number of insert or upsert statements that are sent to Database on each partition",
+        "tooltip": "Number of insert or upsert statements that are sent to Database on each partition.",
         "qa": "fragment-details-jdbc-batch-size"
       },
       {

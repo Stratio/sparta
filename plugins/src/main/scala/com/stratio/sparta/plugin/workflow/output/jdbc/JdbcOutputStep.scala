@@ -68,7 +68,8 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
 
       Try {
         if (sparkSaveMode == SaveMode.Overwrite)
-          SpartaJdbcUtils.dropTable(connectionProperties, name)
+          SpartaJdbcUtils.truncateTable(connectionProperties, name)
+
 
         synchronized {
           SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
