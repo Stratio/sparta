@@ -29,7 +29,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
   import ExecutionHistoryActor._
 
   private lazy val workflowExecutionHistoryService = new WorkflowExecutionHistoryService()
-  private val ResourceType = "Workflows"
+  private val ResourceType = "History"
 
   private lazy val enabled = Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)
 
@@ -45,7 +45,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
   }
 
   def queryByWorkflowId(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       if (enabled)
         Try {
           validateSlickFuture(workflowExecutionHistoryService.queryByWorkflowId(id))
@@ -57,7 +57,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
     }
 
   def queryByUserId(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       if (enabled)
         Try {
           validateSlickFuture(workflowExecutionHistoryService.queryByUserId(id))

@@ -25,7 +25,6 @@ class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: Actor
 
   private val groupService = new GroupService(curatorFramework)
   private val ResourceGroupType = "Groups"
-  private val ResourceWorkflowType = "Workflow Group"
 
   override def receive: Receive = {
     case CreateGroup(request, user) => createGroup(request, user)
@@ -40,57 +39,48 @@ class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: Actor
   }
 
   def createGroup(request: Group, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> Create)) {
+    authorizeActionsByResourceId(user, Map(ResourceGroupType -> Create), request.authorizationId) {
       groupService.create(request)
     }
 
-
   def updateGroup(request: Group, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> Edit, ResourceWorkflowType -> Edit)) {
+    authorizeActionsByResourceId(user, Map(ResourceGroupType -> Edit), request.authorizationId) {
       groupService.update(request)
     }
 
   def findGroupByName(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceGroupType -> View),
-      Option(inMemoryApiGroup)
-    ) {
+    authorizeResultByResourceId(user, Map(ResourceGroupType -> View), Option(inMemoryApiGroup)) {
       FindMemoryGroupByName(name)
     }
 
   def findGroupByID(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceGroupType -> View),
-      Option(inMemoryApiGroup)
-    ) {
+    authorizeResultByResourceId(user, Map(ResourceGroupType -> View), Option(inMemoryApiGroup)) {
       FindMemoryGroup(id)
     }
 
   def findAllGroups(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceGroupType -> View),
-      Option(inMemoryApiGroup)
-    ) {
+    filterResultsWithAuthorization(user, Map(ResourceGroupType -> View), Option(inMemoryApiGroup)) {
       FindAllMemoryGroup
     }
 
-  def deleteAllGroups(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> Delete, ResourceWorkflowType -> Delete)) {
+  def deleteAllGroups(user: Option[LoggedUser]): Unit = {
+    val resourcesId = groupService.findAll.map(_.authorizationId)
+    authorizeActionsByResourcesIds(user, Map(ResourceGroupType -> Delete), resourcesId) {
       groupService.deleteAll()
     }
+  }
 
   def deleteGroupByName(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> Delete, ResourceWorkflowType -> Delete)) {
+    authorizeActionsByResourceId(user, Map(ResourceGroupType -> Delete), name) {
       groupService.deleteByName(name)
     }
 
-  def deleteGroupByID(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> Delete, ResourceWorkflowType -> Delete)) {
+  def deleteGroupByID(id: String, user: Option[LoggedUser]): Unit = {
+    val resourcesId = groupService.findByID(id).map(_.authorizationId).getOrElse("N/A")
+    authorizeActionsByResourceId(user, Map(ResourceGroupType -> Delete), resourcesId) {
       groupService.deleteById(id)
     }
+  }
 }
 
 object GroupActor {

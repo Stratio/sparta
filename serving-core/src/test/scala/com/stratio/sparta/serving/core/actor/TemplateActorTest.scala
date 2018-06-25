@@ -293,33 +293,6 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
     expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
   }
 
-  // XXX deleteByTypeAndId
-  "deleteByTypeAndId: deletes a template by its type and its id" in new TestData {
-    // scalastyle:off null
-    when(curatorFramework.delete)
-      .thenReturn(deleteBuilder)
-    when(curatorFramework.delete
-      .forPath("/stratio/sparta/templates/input/id"))
-      .thenReturn(null)
-
-    templateActor ! TemplateActor.DeleteByTypeAndId("input", "id", rootUser)
-
-    expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
-    // scalastyle:on null
-  }
-
-  "deleteByTypeAndId: deletes a template but it is impossible because the template does not exists" in new TestData {
-    when(curatorFramework.delete)
-      .thenReturn(deleteBuilder)
-    when(curatorFramework.delete
-      .forPath("/stratio/sparta/templates/input/id"))
-      .thenThrow(new NoNodeException)
-
-    templateActor ! TemplateActor.DeleteByTypeAndId("input", "id", rootUser)
-
-    expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
-  }
-
   "delete: tries to delete a template but the user doesn't have enough permissions" in new TestData {
 
     templateActor ! TemplateActor.DeleteAllTemplates(limitedUser)

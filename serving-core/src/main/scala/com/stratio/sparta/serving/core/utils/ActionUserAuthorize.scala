@@ -3,21 +3,22 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.security.{Action, SpartaSecurityManager}
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
-
-import scala.concurrent.duration._
+import com.stratio.sparta.security.{Action, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
+import com.stratio.sparta.serving.core.models.EntityAuthorization
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 
-import scala.util.Try
+import scala.concurrent.duration._
+import scala.util.{Success, Try}
 
 trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
@@ -28,55 +29,170 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
   import context.dispatcher
 
+  //scalastyle:off
+  type ResourcesAndActions = Map[String, Action]
 
-  def securitySingleActionAuthorizer[T](user: Option[LoggedUser],
-                                        actions: Map[(String,String), Action])
-                                       (implicit secManagerOpt: Option[SpartaSecurityManager]) : Boolean =
+  /* PUBLIC METHODS */
+
+  def authorizeActions[T](
+                                       user: Option[LoggedUser],
+                                       resourcesAndActions: ResourcesAndActions,
+                                       pipeToActor: Option[ActorRef] = None
+                                     )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+    authorizeActionsByResourcesIds(user, resourcesAndActions, Seq.empty, pipeToActor)(actionFunction)
+
+  def authorizeActionsByResourceId[T](
+                                       user: Option[LoggedUser],
+                                       resourcesAndActions: ResourcesAndActions,
+                                       resourceId: String,
+                                       pipeToActor: Option[ActorRef] = None
+                                     )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+    authorizeActionsByResourcesIds(user, resourcesAndActions, Seq(resourceId), pipeToActor)(actionFunction)
+
+  def authorizeActionsByResourcesIds[T](
+                                         user: Option[LoggedUser],
+                                         resourcesAndActions: ResourcesAndActions,
+                                         resourcesId: Seq[String],
+                                         pipeToActor: Option[ActorRef] = None
+                                       )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit = {
     (secManagerOpt, user) match {
       case (Some(secManager), Some(userLogged)) =>
-        val rejectedActions = actions filterNot {
-          case ((resource,name), action) => secManager.authorize(userLogged.id, (resource,name), action)
-        }
-        rejectedActions.isEmpty
-      case (_,_)=> true
-    }
-
-  def securityActionAuthorizer[T](
-                                   user: Option[LoggedUser],
-                                   actions: Map[String, Action],
-                                   pipeToActor: Option[ActorRef] = None
-                                 )(actionFunction: => T)(
-                                   implicit secManagerOpt: Option[SpartaSecurityManager]
-                                 ): Unit =
-    (secManagerOpt, user) match {
-      case (Some(secManager), Some(userLogged)) =>
-        val rejectedActions = actions filterNot {
-          case (resource, action) => secManager.authorize(userLogged.id, resource, action)
-        }
-
+        val rejectedActions = authorizeResourcesAndActions(userLogged, resourcesAndActions, resourcesId, secManager)
         if (rejectedActions.nonEmpty) {
           // There are rejected actions.
-          log.debug(s"Not authorized: Actions: $actions \t Rejected: ${rejectedActions.head}")
-          sender ! Right(errorResponseAuthorization(userLogged.id, actions.head._1))
+          log.debug(s"Not authorized to execute generic actions: $resourcesAndActions\tRejected: $rejectedActions\tResourcesId: ${resourcesId.mkString(",")}")
+          sender ! Right(errorResponseAuthorization(userLogged.id, resourcesAndActions.head._1))
         } else {
           // All actions've been accepted.
-          log.debug(s"Authorized! Actions: $actions")
-          if (pipeToActor.isDefined) {
-            val result = for {
-              response <- pipeToActor.get ? actionFunction
-            } yield Left(response)
-            pipe(result) to sender
-          } else sender ! Left(actionFunction)
+          log.debug(s"Authorized to execute generic actions: $resourcesAndActions\tResourcesId: ${resourcesId.mkString(",")}")
+          commonPipeToActor(pipeToActor, actionFunction)
         }
       case (Some(_), None) =>
-        sender ! Right(errorNoUserFound(actions.values.toSeq))
+        sender ! Right(errorNoUserFound(resourcesAndActions.values.toSeq))
       case (None, _) =>
+        commonPipeToActor(pipeToActor, actionFunction)
+    }
+  }
+
+  def filterResultsWithAuthorization[T](
+                                         user: Option[LoggedUser],
+                                         resourcesAndActions: ResourcesAndActions,
+                                         pipeToActor: Option[ActorRef] = None
+                                       )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+    (secManagerOpt, user) match {
+      case (Some(secManager), Some(userLogged)) =>
         if (pipeToActor.isDefined) {
           val result = for {
             response <- pipeToActor.get ? actionFunction
-          } yield Left(response)
+          } yield {
+            response match {
+              case Success(entityResult: Seq[EntityAuthorization]) =>
+                val idFiltered = entityResult.filter { entity =>
+                  val idToAuthorize = entity.authorizationId
+                  val rejectedActions = getRejectedResourceAndActions(resourcesAndActions, idToAuthorize, userLogged, secManager)
+
+                  if (rejectedActions.nonEmpty)
+                    log.debug(s"Filtered resource with id ($idToAuthorize) by the authorization service with rejected actions: $rejectedActions")
+                  rejectedActions.isEmpty
+                }
+                Left(Try(idFiltered))
+              case _ => Left(response)
+            }
+          }
           pipe(result) to sender
         } else sender ! Left(actionFunction)
+      case (Some(_), None) => sender ! Right(errorNoUserFound(resourcesAndActions.values.toSeq))
+      case (None, _) => commonPipeToActor(pipeToActor, actionFunction)
     }
+
+  def authorizeActionsAndFilterResults[T](
+                                           user: Option[LoggedUser],
+                                           actionsToAuthorize: ResourcesAndActions,
+                                           filterActions: ResourcesAndActions,
+                                           pipeToActor: Option[ActorRef] = None
+                                         )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit = {
+    (secManagerOpt, user) match {
+      case (Some(secManager), Some(userLogged)) =>
+        val rejectedActions = authorizeResourcesAndActions(userLogged, actionsToAuthorize, Seq.empty, secManager)
+        if (rejectedActions.nonEmpty) {
+          // There are rejected actions.
+          log.debug(s"Not authorized to execute generic actions: $actionsToAuthorize\tRejected: $rejectedActions")
+          sender ! Right(errorResponseAuthorization(userLogged.id, actionsToAuthorize.head._1))
+        } else filterResultsWithAuthorization(user, filterActions, pipeToActor)(actionFunction)
+      case (Some(_), None) =>
+        sender ! Right(errorNoUserFound(actionsToAuthorize.values.toSeq ++ filterActions.values.toSeq))
+      case (None, _) =>
+        commonPipeToActor(pipeToActor, actionFunction)
+    }
+  }
+
+
+  def authorizeResultByResourceId[T](
+                                      user: Option[LoggedUser],
+                                      resourcesAndActions: ResourcesAndActions,
+                                      pipeToActor: Option[ActorRef] = None
+                                    )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+    (secManagerOpt, user) match {
+      case (Some(secManager), Some(userLogged)) =>
+        if (pipeToActor.isDefined) {
+          val result = for {
+            response <- pipeToActor.get ? actionFunction
+          } yield {
+            response match {
+              case Success(entityResult: EntityAuthorization) =>
+                val idToAuthorize = entityResult.authorizationId
+                val rejectedActions = getRejectedResourceAndActions(resourcesAndActions, idToAuthorize, userLogged, secManager)
+
+                if (rejectedActions.isEmpty) {
+                  log.debug(s"Authorized to execute actions: $resourcesAndActions \t ResourceId: $idToAuthorize")
+                  Left(Try(entityResult))
+                } else {
+                  log.debug(s"Not authorized to execute generic actions: $resourcesAndActions\tRejected: $rejectedActions\tResourceId: $idToAuthorize")
+                  Right(errorResponseAuthorization(userLogged.id, rejectedActions.head._1))
+                }
+              case _ => Left(response)
+            }
+          }
+          pipe(result) to sender
+        } else sender ! Left(actionFunction)
+      case (Some(_), None) => sender ! Right(errorNoUserFound(resourcesAndActions.values.toSeq))
+      case (None, _) => commonPipeToActor(pipeToActor, actionFunction)
+    }
+
+
+  /* PRIVATE METHODS */
+
+  private def getRejectedResourceAndActions(
+                                             resourcesAndActions: ResourcesAndActions,
+                                             idToAuthorize: String,
+                                             userLogged: LoggedUser,
+                                             secManager: SpartaSecurityManager
+                                           ): ResourcesAndActions =
+    resourcesAndActions.filterNot { case (resource, action) =>
+      secManager.authorize(userLogged.id, (resource, idToAuthorize), action, hierarchy = false)
+    }
+
+  private def authorizeResourcesAndActions(
+                                            userLogged: LoggedUser,
+                                            resourcesAndActions: ResourcesAndActions,
+                                            resourcesId: Seq[String],
+                                            secManager: SpartaSecurityManager
+                                          ): ResourcesAndActions =
+    resourcesAndActions filterNot { case (resource, action) =>
+      if (resourcesId.nonEmpty)
+        resourcesId.forall(resourceId => secManager.authorize(userLogged.id, (resource, resourceId), action, hierarchy = false))
+      else secManager.authorize(userLogged.id, resource, action, hierarchy = false)
+    }
+
+
+  private def commonPipeToActor[T](pipeToActor: Option[ActorRef] = None, actionFunction: => T): Unit = {
+    if (pipeToActor.isDefined) {
+      val result = for {
+        response <- pipeToActor.get ? actionFunction
+      } yield Left(response)
+
+      pipe(result) to sender
+    } else sender ! Left(actionFunction)
+  }
 
 }

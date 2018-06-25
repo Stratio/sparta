@@ -6,21 +6,22 @@
 package com.stratio.gosec.dyplon.plugins.sparta
 
 import java.io.InputStream
-import scala.io.Source
-import scala.util.Try
-
-import com.typesafe.config.ConfigRenderOptions
 
 import com.stratio.gosec.api.Systems._
 import com.stratio.gosec.api.audit.repository.{AuditRepositoryComponentImpl, LogAuditRepositoryComponentImpl}
 import com.stratio.gosec.api.audit.service.AuditServiceComponentImpl
-import com.stratio.gosec.api.auth.acl.DefaultAclPolicy
 import com.stratio.gosec.api.config.{ConfigComponentImpl, PluginConfig}
 import com.stratio.gosec.dyplon.audit.Authorizer
 import com.stratio.gosec.dyplon.core.ZkRegisterCheckerComponentImpl
-import com.stratio.gosec.dyplon.model.PluginInstance
+import com.stratio.gosec.dyplon.facade.ZookeeperFileSystemAclPolicy
+import com.stratio.gosec.dyplon.model
+import com.stratio.gosec.dyplon.model._
 import com.stratio.gosec.dyplon.plugins.sparta.SpartaToGoSecConversions._
 import com.stratio.sparta.security.{Action, AuditEvent, Resource, SpartaSecurityManager}
+import com.typesafe.config.ConfigRenderOptions
+
+import scala.io.Source
+import scala.util.Try
 
 class GoSecSpartaSecurityManager extends ConfigComponentImpl
   with SpartaSecurityManager
@@ -33,12 +34,12 @@ class GoSecSpartaSecurityManager extends ConfigComponentImpl
   with AuditServiceComponentImpl
   with LogAuditRepositoryComponentImpl
   with AuditRepositoryComponentImpl
-  with DefaultAclPolicy
-  with DefaultInstanceService{
+  with SpartaAclPolicy
+  with DefaultInstanceService {
 
   import com.stratio.gosec.dyplon.model.dsl.PluginInstanceDsl._
 
-  logger.debug(s"[DYPLON_SPARTA] Sparta properties: ${config.root().render(ConfigRenderOptions.concise())}")
+  logger.debug(s"Sparta properties: ${config.root().render(ConfigRenderOptions.concise())}")
 
   override lazy val instance = parseSpartaPlugin
 
@@ -52,7 +53,7 @@ class GoSecSpartaSecurityManager extends ConfigComponentImpl
 
   override def start: Unit = {
 
-    logger.info(s"[DYPLON_SPARTA] Starting ${instance.`type`} authorizer")
+    logger.info(s"Starting ${instance.`type`} authorizer")
     auditService.start
     SpartaSystem.SpartaLifeCycleSystem(instance).init
   }
@@ -62,11 +63,14 @@ class GoSecSpartaSecurityManager extends ConfigComponentImpl
     auditService.stop
   }
 
-  override def authorize(userId: String,
-                         resource: Resource,
-                         action: Action): Boolean = {
-    auth(userId, resource, action, EmptyAuditAddresses, hierarchy = false)
-  }
+  override def authorize(
+                          userId: String,
+                          resource: Resource,
+                          action: Action,
+                          hierarchy: Boolean
+                        ): Boolean =
+    auth(userId, resource, action, EmptyAuditAddresses, hierarchy)
 
   override def audit(auditEvent: AuditEvent): Unit = auditService.save(auditEvent)
+
 }

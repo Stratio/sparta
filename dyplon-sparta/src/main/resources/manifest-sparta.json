@@ -8,32 +8,11 @@
         "view",
         "create",
         "delete",
-        "edit",
-        "status"
+        "edit"
       ]
     },
     {
       "type": "Workflows",
-      "actions": [
-        "view",
-        "create",
-        "delete",
-        "edit",
-        "status"
-      ]
-    },
-    {
-      "type": "Workflow Group",
-      "actions": [
-        "view",
-        "create",
-        "delete",
-        "edit",
-        "status"
-      ]
-    },
-    {
-      "type": "Workflow Detail",
       "actions": [
         "view",
         "create",
@@ -77,7 +56,7 @@
       ]
     },
     {
-      "type": "Plugin",
+      "type": "Files",
       "actions": [
         "view",
         "delete",

@@ -5,10 +5,16 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.models.EntityAuthorization
+
 object Group {
   def isValid(group: Group): Boolean = {
     val regexGroups= "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
     group.name.matches(regexGroups)
   }
 }
-case class Group(id: Option[String], name: String)
+case class Group(id: Option[String], name: String) extends EntityAuthorization {
+
+  def authorizationId: String = name
+
+}

@@ -6,10 +6,10 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
+import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import org.joda.time.DateTime
-
 import com.stratio.sparta.serving.core.models.dto.Dto
 
 case class Workflow(
@@ -28,7 +28,11 @@ case class Workflow(
                      status: Option[WorkflowStatus] = None,
                      execution: Option[WorkflowExecution] = None,
                      debugMode: Option[Boolean] = Option(false)
-                   )
+                   ) extends EntityAuthorization {
+
+  def authorizationId: String = s"${group.name}/$name"
+
+}
 
 /**
   * Wrapper class used by the api consumers
@@ -44,4 +48,8 @@ case class WorkflowDto(id: Option[String],
                        group: String,
                        tags: Option[Seq[String]] = None,
                        status: Option[WorkflowStatus],
-                       execution: Option[WorkflowExecutionDto]) extends Dto
+                       execution: Option[WorkflowExecutionDto]) extends Dto with EntityAuthorization {
+
+  def authorizationId: String = s"$group/$name"
+
+}

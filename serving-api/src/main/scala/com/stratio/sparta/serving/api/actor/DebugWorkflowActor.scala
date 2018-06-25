@@ -38,14 +38,14 @@ class DebugWorkflowActor(
   import DebugWorkflowActor._
 
   val ResourceWorkflow = "Workflows"
-  val ResourceStatus = "Workflow Detail"
+  val ResourceFiles = "Files"
   val debugService = new DebugWorkflowService(curatorFramework)
 
   val targetDir = "debug"
   val temporalDir = "/tmp/sparta/debug"
   val apiPath = s"${HttpConstant.DebugWorkflowsPath}/download"
 
-  //scalastyle:off cyclomatic
+  //scalastyle:off
   override def receive: Receive = {
     case CreateDebugWorkflow(workflow, user) => createDebugWorkflow(workflow, user)
     case DeleteById(id, user) => deleteByID(id, user)
@@ -61,43 +61,41 @@ class DebugWorkflowActor(
   //scalastyle:on
 
   def createDebugWorkflow(debugWorkflow: DebugWorkflow, user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer[ResponseDebugWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
+    authorizeActionsByResourceId[ResponseDebugWorkflow](
+      user,
+      Map(ResourceWorkflow -> Create),
+      debugWorkflow.authorizationId
+    ) {
       debugService.createDebugWorkflow(debugWorkflow)
     }
   }
 
-  def deleteByID(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceWorkflow -> Delete)) {
+  def deleteByID(id: String, user: Option[LoggedUser]): Unit = {
+    val authorizationId = debugService.findByID(id).map(_.authorizationId).getOrElse("N/A")
+    authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Delete), authorizationId) {
       debugService.deleteDebugWorkflowByID(id)
     }
+  }
 
-  def deleteAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceWorkflow -> Delete)) {
+  def deleteAll(user: Option[LoggedUser]): Unit = {
+    val resourcesId = debugService.findAll.map(_.authorizationId)
+    authorizeActionsByResourcesIds(user, Map(ResourceWorkflow -> Delete), resourcesId) {
       debugService.deleteAllDebugWorkflows
     }
+  }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceWorkflow -> View, ResourceStatus -> View),
-      Option(inMemoryDebugWorkflowApi)
-    ) {
+    authorizeResultByResourceId(user, Map(ResourceWorkflow -> View), Option(inMemoryDebugWorkflowApi)) {
       FindMemoryDebugWorkflow(id)
     }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceWorkflow -> View, ResourceStatus -> View),
-      Option(inMemoryDebugWorkflowApi)
-    ) {
+    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryDebugWorkflowApi)) {
       FindAllMemoryDebugWorkflows
     }
 
   def getResults(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer( user, Map(ResourceWorkflow -> View, ResourceStatus -> View),
-      Option(inMemoryDebugWorkflowApi)
-    ) {
+    authorizeResultByResourceId( user, Map(ResourceWorkflow -> View), Option(inMemoryDebugWorkflowApi)) {
       FindMemoryDebugResultsWorkflow(id)
     }
 
@@ -106,17 +104,17 @@ class DebugWorkflowActor(
   }
 
   def downloadFile(fileName: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[SpartaFileResponse](user, Map(ResourceWorkflow -> Download)) {
+    authorizeActions[SpartaFileResponse](user, Map(ResourceFiles -> Download)) {
       browseFile(fileName)
     }
 
   def deleteFile(fileName: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete)) {
+    authorizeActions[Response](user, Map(ResourceFiles -> Delete)) {
       deleteFile(fileName)
     }
 
   def uploadFile(files: Seq[BodyPart], id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceWorkflow -> View)) {
+    authorizeActions[SpartaFilesResponse](user, Map(ResourceFiles -> View)) {
       uploadFiles(files, useTemporalDirectory = true, Some(id))
     }
 }

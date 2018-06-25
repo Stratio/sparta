@@ -30,7 +30,7 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
   val temporalDir = "/tmp/sparta/plugins"
   val apiPath = s"${HttpConstant.PluginsPath}/download"
 
-  val ResourceType = "Plugin"
+  val ResourceType = "Files"
 
   override def receive: Receive = {
     case UploadPlugins(files, user) => if (files.isEmpty) errorResponse() else uploadPlugins(files, user)
@@ -45,17 +45,17 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
     sender ! Left(Failure(new Exception(s"At least one file is expected")))
 
   def deletePlugins(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[PluginResponse](user, Map(ResourceType -> Delete)) {
       Try(hdfsFilesService.deletePlugins()).orElse(deleteFiles())
     }
 
   def deletePlugin(fileName: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[PluginResponse](user, Map(ResourceType -> Delete)) {
       Try(hdfsFilesService.deletePlugin(fileName)).orElse(deleteFile(fileName))
     }
 
   def browsePlugins(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
+    authorizeActions[SpartaFilesResponse](user, Map(ResourceType -> View)) {
       Try {
         hdfsFilesService.browsePlugins.flatMap { fileStatus =>
           if (fileStatus.isFile)
@@ -77,14 +77,14 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
     }
 
   def downloadPlugin(fileName: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[SpartaFileResponse](user, Map(ResourceType -> Download)) {
+    authorizeActions[SpartaFileResponse](user, Map(ResourceType -> Download)) {
       Try {
         hdfsFilesService.downloadPluginFile(fileName, temporalDir)
       }.flatMap(localFilePath => browseFile(localFilePath)).orElse(browseFile(fileName))
     }
 
   def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Upload)) {
+    authorizeActions[PluginResponse](user, Map(ResourceType -> Upload)) {
       uploadFiles(files, useTemporalDirectory = true).flatMap { spartaFile =>
         Try {
           spartaFile.foreach { file =>

@@ -14,7 +14,7 @@ import scala.util.Try
 import com.stratio.gosec.api.Systems.UserSystem
 import com.stratio.gosec.api.config.{ConfigComponentImpl, Constant}
 import com.stratio.gosec.dyplon.model._
-import com.stratio.sparta.security.{AuditResult, FailAR, SuccessAR, Select => SpartaSelect, Action => SpartaAction, AuditEvent => SpartaAuditEvent, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Resource => SpartaResource, Status => SpartaStatus, WorkflowStatus => SpartaWorkflowStatus, Upload => SpartaUpload, View => SpartaView}
+import com.stratio.sparta.security.{AuditResult, FailAR, SuccessAR, Select => SpartaSelect, Action => SpartaAction, AuditEvent => SpartaAuditEvent, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Resource => SpartaResource, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView}
 
 object SpartaToGoSecConversions {
 
@@ -37,7 +37,6 @@ object SpartaToGoSecConversions {
     case SpartaDelete => Delete
     case SpartaEdit => Edit
     case SpartaStatus => Status
-    case SpartaWorkflowStatus => Status
     case SpartaDownload => Download
     case SpartaUpload => Upload
     case SpartaDescribe => Describe

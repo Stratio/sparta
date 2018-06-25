@@ -63,19 +63,19 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
     sender ! Left(Failure(new IllegalArgumentException(s"At least one file is expected")))
 
   def uploadBackups(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
+    authorizeActions[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
       uploadFiles(files)
     }
 
   def browseBackups(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
+    authorizeActions[SpartaFilesResponse](user, Map(ResourceType -> View)) {
       browseDirectory()
     }
 
   def buildBackup(user: Option[LoggedUser]): Unit = {
     val format = DateTimeFormat.forPattern("yyyy-MM-dd-hh:mm:ss")
     val appInfo = InfoHelper.getAppInfo
-    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Create)) {
+    authorizeActions[SpartaFilesResponse](user, Map(ResourceType -> Create)) {
       for {
         _ <- Try(dump(BaseZkPath, s"$targetDir/backup-${format.print(DateTime.now)}-${appInfo.pomVersion}.json"))
         browseResult <- browseDirectory()
@@ -85,23 +85,23 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
 
 
   def deleteBackups(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[BackupResponse](user, Map(ResourceType -> Delete)) {
       deleteFiles()
     }
 
   def cleanMetadata(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[BackupResponse](user, Map(ResourceType -> Delete)) {
       Try(cleanZk(BaseZkPath))
     }
 
 
   def deleteBackup(fileName: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[BackupResponse](user, Map(ResourceType -> Delete)) {
       deleteFile(fileName)
     }
 
   def executeBackup(backupRequest: BackupRequest, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Status)) {
+    authorizeActions[BackupResponse](user, Map(ResourceType -> Status)) {
       Try {
         importer("/", s"$targetDir/${backupRequest.fileName}", backupRequest.deleteAllBefore)
         context.system.eventStream.publish(InitNodeListener("emptyMessage"))

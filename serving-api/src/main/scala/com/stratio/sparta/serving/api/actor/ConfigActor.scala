@@ -39,7 +39,7 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
   }
 
   def findFrontendConfig(user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer[Try[FrontendConfiguration]](user, Map(ResourceType -> View)) {
+    authorizeActions[Try[FrontendConfiguration]](user, Map(ResourceType -> View)) {
       retrieveStringConfig(user)
     }
   }

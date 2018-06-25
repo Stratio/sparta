@@ -27,16 +27,12 @@ case object EnvironmentResource extends ResourceType{
   override def name(): String = "Environment"
 }
 
-case object WorkflowGroupResource extends ResourceType{
-  override def name(): String = "Workflow Group"
-}
-
 case object GroupsResource extends ResourceType{
   override def name(): String = "Groups"
 }
 
-case object PluginResource extends ResourceType{
-  override def name(): String = "Plugin"
+case object FilesResource extends ResourceType{
+  override def name(): String = "Files"
 }
 
 case object TemplateResource extends ResourceType{
@@ -45,10 +41,6 @@ case object TemplateResource extends ResourceType{
 
 case object WorkflowsResource extends ResourceType{
   override def name(): String = "Workflows"
-}
-
-case object WorkflowDetailResource extends ResourceType{
-  override def name(): String = "Workflow Detail"
 }
 
 case object HistoryResource extends ResourceType{

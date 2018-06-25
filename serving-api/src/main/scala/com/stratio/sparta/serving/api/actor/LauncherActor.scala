@@ -32,7 +32,6 @@ class LauncherActor(curatorFramework: CuratorFramework,
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val ResourceStatus = "Workflow Detail"
   private val ResourceWorkflow = "Workflows"
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val executionService = new ExecutionService(curatorFramework)
@@ -51,9 +50,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
   }
 
   def launch(id: String, user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(user, Map(ResourceStatus -> Edit)) {
+    val workflow = workflowService.findById(id)
+    authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Status), workflow.authorizationId) {
       Try {
-        val workflow = workflowService.findById(id)
 
         workflowService.validateWorkflow(workflow)
 
@@ -95,10 +94,11 @@ class LauncherActor(curatorFramework: CuratorFramework,
   }
 
   def debug(id: String, user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(user, Map(ResourceWorkflow -> Status)) {
+    val debugExecution = debugWorkflowService.findByID(id)
+      .getOrElse(throw new ServerException(s"No workflow debug execution with id $id"))
+
+    authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Status), debugExecution.authorizationId) {
       Try {
-        val debugExecution = debugWorkflowService.findByID(id)
-          .getOrElse(throw new ServerException(s"No workflow debug execution with id $id"))
         val workflow = debugExecution.workflowDebug
           .getOrElse(throw new ServerException(s"The workflow debug is not created yet"))
 

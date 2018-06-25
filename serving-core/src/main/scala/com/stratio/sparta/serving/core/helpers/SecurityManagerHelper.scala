@@ -28,7 +28,7 @@ object SecurityManagerHelper {
     } else {
       log.debug("Starting Gosec Sparta Dyplon security manager")
       val secManager = new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
-      secManager.start
+      secManager.start()
       Some(secManager)
     }
 
@@ -91,13 +91,11 @@ object SecurityManagerHelper {
     resource match {
       case "Groups" => Resource(GroupsResource, resource)
       case "Workflows" => Resource(WorkflowsResource, resource)
-      case "Workflow Group" => Resource(WorkflowGroupResource, resource)
-      case "Workflow Detail" => Resource(WorkflowDetailResource, resource)
       case "Backup" => Resource(BackupResource, resource)
       case "Catalog" => Resource(CatalogResource, resource)
       case "Configuration" => Resource(ConfigurationResource, resource)
       case "Environment" => Resource(EnvironmentResource, resource)
-      case "Plugin" => Resource(PluginResource, resource)
+      case "Files" => Resource(FilesResource, resource)
       case "Template" => Resource(TemplateResource, resource)
       case "History" => Resource(HistoryResource, resource)
     }
@@ -107,13 +105,11 @@ object SecurityManagerHelper {
     resource._1 match {
       case "Groups" => Resource(GroupsResource, resource._2)
       case "Workflows" => Resource(WorkflowsResource, resource._2)
-      case "Workflow Group" => Resource(WorkflowGroupResource, resource._2)
-      case "Workflow Detail" => Resource(WorkflowDetailResource, resource._2)
       case "Backup" => Resource(BackupResource, resource._2)
       case "Catalog" => Resource(CatalogResource, resource._2)
       case "Configuration" => Resource(ConfigurationResource, resource._2)
       case "Environment" => Resource(EnvironmentResource, resource._2)
-      case "Plugin" => Resource(PluginResource, resource._2)
+      case "Files" => Resource(FilesResource, resource._2)
       case "Template" => Resource(TemplateResource, resource._2)
       case "History" => Resource(HistoryResource, resource._2)
     }

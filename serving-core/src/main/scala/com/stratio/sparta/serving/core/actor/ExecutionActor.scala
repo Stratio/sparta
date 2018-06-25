@@ -23,8 +23,8 @@ class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecutio
   private val ResourceType = "Workflows"
 
   override def receive: Receive = {
-    case CreateExecution(request, user) => createExecution(request, user)
-    case Update(request, user) => updateExecution(request, user)
+    case CreateExecution(workflowExecution, user) => createExecution(workflowExecution, user)
+    case Update(workflowExecution, user) => updateExecution(workflowExecution, user)
     case FindAll(user) => findAllExecutions(user)
     case FindById(id, user) => findExecutionById(id, user)
     case DeleteAll(user) => deleteAllExecutions(user)
@@ -33,52 +33,53 @@ class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecutio
     case _ => log.info("Unrecognized message in Workflow Execution Actor")
   }
 
-  def createExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Create)) {
-      executionService.create(request)
+  def createExecution(workflowExecution: WorkflowExecution, user: Option[LoggedUser]): Unit = {
+    val resourcesId = workflowExecution.authorizationId
+    authorizeActionsByResourceId(user, Map(ResourceType -> Status), resourcesId) {
+      executionService.create(workflowExecution)
     }
+  }
 
-  def updateExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
-      executionService.update(request)
+  def updateExecution(workflowExecution: WorkflowExecution, user: Option[LoggedUser]): Unit = {
+    val resourcesId = workflowExecution.authorizationId
+    authorizeActionsByResourceId(user, Map(ResourceType -> Status), resourcesId) {
+      executionService.update(workflowExecution)
     }
+  }
 
   def findAllExecutions(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceType -> View),
-      Option(inMemoryApiExecution)
-    ) {
+    filterResultsWithAuthorization(user, Map(ResourceType -> Status), Option(inMemoryApiExecution)) {
       FindAllMemoryExecution
     }
 
   def findExecutionById(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceType -> View),
-      Option(inMemoryApiExecution)
-    ) {
+    authorizeResultByResourceId(user, Map(ResourceType -> Status), Option(inMemoryApiExecution)) {
       FindMemoryExecution(id)
     }
 
-  def deleteAllExecutions(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
-      executionService.deleteAll
+  def deleteAllExecutions(user: Option[LoggedUser]): Unit = {
+    val authorizationIds = executionService.findAll()
+      .map(executions => executions.map(_.authorizationId))
+      .getOrElse(Seq.empty)
+    authorizeActionsByResourcesIds(user, Map(ResourceType -> Status), authorizationIds) {
+      executionService.deleteAll()
     }
+  }
 
-
-  def deleteExecution(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
+  def deleteExecution(id: String, user: Option[LoggedUser]): Unit = {
+    val authorizationId = executionService.findById(id).map(_.authorizationId).getOrElse("N/A")
+    authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId) {
       executionService.delete(id)
     }
+  }
 
 }
 
 object ExecutionActor {
 
-  case class Update(request: WorkflowExecution, user: Option[LoggedUser])
+  case class Update(workflowExecution: WorkflowExecution, user: Option[LoggedUser])
 
-  case class CreateExecution(request: WorkflowExecution, user: Option[LoggedUser])
+  case class CreateExecution(workflowExecution: WorkflowExecution, user: Option[LoggedUser])
 
   case class DeleteExecution(id: String, user: Option[LoggedUser])
 

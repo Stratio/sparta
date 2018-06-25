@@ -7,11 +7,12 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{Actor, _}
 import com.stratio.sparta.security._
+import com.stratio.sparta.security.{Status => SpartaStatus}
 import com.stratio.sparta.serving.core.actor.StatusActor._
 import com.stratio.sparta.serving.core.actor.StatusInMemoryApi._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.stratio.sparta.serving.core.services.WorkflowStatusService
+import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
@@ -26,11 +27,12 @@ class StatusActor(
 
   private val ResourceType = "Workflows"
   private val statusService = new WorkflowStatusService(curatorFramework)
+  private val workflowService = new WorkflowService(curatorFramework)
 
   //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
-    case CreateStatus(policyStatus, user) => createStatus(policyStatus, user)
-    case Update(policyStatus, user) => update(policyStatus, user)
+    case CreateStatus(workflowStatus, user) => createStatus(workflowStatus, user)
+    case Update(workflowStatus, user) => update(workflowStatus, user)
     case FindAll(user) => findAll(user)
     case FindById(id, user) => findById(id, user)
     case DeleteAll(user) => deleteAll(user)
@@ -39,52 +41,58 @@ class StatusActor(
   }
 
   //scalastyle:on cyclomatic.complexity
-  def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Create)) {
-      statusService.create(policyStatus)
+  def createStatus(workflowStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowService.findById(workflowStatus.id).authorizationId
+    authorizeActionsByResourceId(user, Map(ResourceType -> SpartaStatus), authorizationId) {
+      statusService.create(workflowStatus)
     }
+  }
 
-  def update(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
-      statusService.update(policyStatus)
+  def update(workflowStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowService.findById(workflowStatus.id).authorizationId
+    authorizeActionsByResourceId(user, Map(ResourceType -> SpartaStatus), authorizationId) {
+      statusService.update(workflowStatus)
     }
+  }
 
   def findAll(user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(
+    val authorizationIds = workflowService.findAll.map(_.authorizationId)
+    authorizeActionsByResourcesIds(
       user,
-      Map(ResourceType -> View),
-      Option(inMemoryStatusApi)
+      Map(ResourceType -> SpartaStatus),
+      authorizationIds, Option(inMemoryStatusApi)
     ) {
       FindAllMemoryStatus
     }
   }
 
-
-  def findById(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(
-      user,
-      Map(ResourceType -> View),
-      Option(inMemoryStatusApi)
-    ) {
+  def findById(id: String, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowService.findById(id).authorizationId
+    authorizeActionsByResourceId(user, Map(ResourceType -> SpartaStatus), authorizationId, Option(inMemoryStatusApi)) {
       FindMemoryStatus(id)
     }
+  }
 
-  def deleteAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceType -> Delete)) {
+  def deleteAll(user: Option[LoggedUser]): Unit = {
+    val authorizationIds = workflowService.findAll.map(_.authorizationId)
+    authorizeActionsByResourcesIds[Response](user, Map(ResourceType -> SpartaStatus), authorizationIds) {
       statusService.deleteAll()
     }
+  }
 
-  def deleteStatus(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceType -> Delete)) {
+  def deleteStatus(id: String, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowService.findById(id).authorizationId
+    authorizeActionsByResourceId[Response](user, Map(ResourceType -> SpartaStatus), authorizationId) {
       statusService.delete(id)
     }
+  }
 }
 
 object StatusActor {
 
-  case class Update(policyStatus: WorkflowStatus, user: Option[LoggedUser])
+  case class Update(workflowStatus: WorkflowStatus, user: Option[LoggedUser])
 
-  case class CreateStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser])
+  case class CreateStatus(workflowStatus: WorkflowStatus, user: Option[LoggedUser])
 
   case class DeleteStatus(id: String, user: Option[LoggedUser])
 

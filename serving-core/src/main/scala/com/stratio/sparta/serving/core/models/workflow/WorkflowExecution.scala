@@ -6,6 +6,7 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import org.joda.time.DateTime
@@ -18,7 +19,13 @@ case class WorkflowExecution(
                               marathonExecution: Option[MarathonExecution] = None,
                               genericDataExecution: Option[GenericDataExecution] = None,
                               localExecution: Option[LocalExecution] = None
-                            )
+                            ) extends EntityAuthorization {
+
+  def authorizationId: String = genericDataExecution.map { executionInfo =>
+    executionInfo.workflow.authorizationId
+  }.getOrElse("N/A")
+
+}
 
 case class GenericDataExecution(
                                  workflow: Workflow,

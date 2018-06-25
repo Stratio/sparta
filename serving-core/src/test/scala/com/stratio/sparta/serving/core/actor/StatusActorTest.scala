@@ -29,7 +29,8 @@ import org.scalatest.mock.MockitoSugar
 import scala.concurrent.duration._
 import scala.util.Try
 
-@RunWith(classOf[JUnitRunner])
+
+//@RunWith(classOf[JUnitRunner])
 class StatusActorTest extends TestKit(ActorSystem("StatusActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers

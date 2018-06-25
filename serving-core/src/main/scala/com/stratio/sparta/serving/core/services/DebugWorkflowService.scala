@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.services
 import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.models.{DebugResults, ResultStep, WorkflowError}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -74,6 +75,13 @@ class DebugWorkflowService(
         }
       }
     }
+  }
+
+  def findAll: List[DebugWorkflow] = {
+    if (CuratorFactoryHolder.existsPath(DebugWorkflowZkPath)) {
+      val children = curatorFramework.getChildren.forPath(DebugWorkflowZkPath)
+      JavaConversions.asScalaBuffer(children).toList.flatMap(id => findByID(id).toOption)
+    } else List.empty[DebugWorkflow]
   }
 
   def findByID(id: String): Try[DebugWorkflow] =

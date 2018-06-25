@@ -43,52 +43,52 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
   //scalastyle:on
 
   def exportData(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Download)) {
+    authorizeActions(user, Map(ResourceType -> Download)) {
       environmentService.exportData()
     }
 
   def importData(data: EnvironmentData, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Upload)) {
+    authorizeActions(user, Map(ResourceType -> Upload)) {
       environmentService.importData(data)
     }
 
   def createEnvironment(request: Environment, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Create)) {
+    authorizeActions(user, Map(ResourceType -> Create)) {
       environmentService.create(request)
     }
 
   def createEnvironmentVariable(request: EnvironmentVariable, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Create)) {
+    authorizeActions(user, Map(ResourceType -> Create)) {
       environmentService.createVariable(request)
     }
 
   def updateEnvironment(request: Environment, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
+    authorizeActions(user, Map(ResourceType -> Edit)) {
       environmentService.update(request)
     }
 
   def updateEnvironmentVariable(request: EnvironmentVariable, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
+    authorizeActions(user, Map(ResourceType -> Edit)) {
       environmentService.updateVariable(request)
     }
 
   def findEnvironment(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       environmentService.find()
     }
 
   def findEnvironmentVariable(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       environmentService.findVariable(name)
     }
 
   def deleteEnvironment(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
+    authorizeActions(user, Map(ResourceType -> Delete)) {
       environmentService.delete()
     }
 
   def deleteEnvironmentVariable(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
+    authorizeActions(user, Map(ResourceType -> Delete)) {
       environmentService.deleteVariable(name)
     }
 }

@@ -10,13 +10,14 @@ import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.enumerators.WhenError
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
+import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}
 
 case class DebugWorkflow(
                           workflowOriginal: Workflow,
                           workflowDebug: Option[Workflow],
                           result: Option[DebugResults]
-                        ) {
+                        ) extends EntityAuthorization {
 
   private val inputClassName = "DummyDebugInputStep"
   private val inputPrettyClassName = "DummyDebug"
@@ -31,6 +32,8 @@ case class DebugWorkflow(
     writer = WriterGraph(),
     configuration = Map.empty
   )
+
+  def authorizationId: String = workflowOriginal.authorizationId
 
   def transformToWorkflowRunnable: Workflow = {
     workflowOriginal.copy(

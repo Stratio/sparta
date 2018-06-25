@@ -11,7 +11,7 @@ trait SpartaSecurityManager {
 
   def stop(): Unit
 
-  def authorize(userId: String, resource: Resource, action: Action): Boolean
+  def authorize(userId: String, resource: Resource, action: Action, hierarchy: Boolean): Boolean
 
   def audit(auditEvent: AuditEvent): Unit
 

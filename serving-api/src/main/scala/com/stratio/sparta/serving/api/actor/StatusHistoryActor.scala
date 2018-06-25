@@ -22,7 +22,7 @@ import scala.util.{Failure, Try}
 class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with ActionUserAuthorize{
 
-  private val ResourceType = "workflow"
+  private val ResourceType = "History"
   private lazy val statusHistoryService = new WorkflowStatusHistoryService()
 
   private lazy val enabled = Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)
@@ -38,7 +38,7 @@ class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityMana
   }
 
   def findByWorkflowId(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       if(enabled)
         Try{
           validateSlickFuture(statusHistoryService.findAllStatusByWorkflowId(id))

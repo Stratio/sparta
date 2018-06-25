@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.security.{SpartaSecurityManager, View}
+import com.stratio.sparta.security.{Select, SpartaSecurityManager, View}
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.services.CrossdataService
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
@@ -33,32 +33,32 @@ class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) 
   }
 
   def findAllDatabases(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       crossdataService.listDatabases(user.map(_.id))
     }
   }
 
   def findAllTables(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       crossdataService.listAllTables(user.map(_.id))
     }
   }
 
   def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary, user.map(_.id))
     }
   }
 
 
   def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> View)) {
       crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName, user.map(_.id))
     }
   }
 
   def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> Select)) {
       crossdataService.executeQuery(queryRequest.query, user.map(_.id))
     }
   }
