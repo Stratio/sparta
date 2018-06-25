@@ -116,7 +116,7 @@ case class DebugWorkflow(
     }
     val outputEdges = newNodes.flatMap { node =>
       node.stepType.toLowerCase match {
-        case OutputStep.StepType | InputStep.StepType => None
+        case OutputStep.StepType => None
         case _ => Option(EdgeGraph(origin = node.name, destination = outputDebugName))
       }
     }
