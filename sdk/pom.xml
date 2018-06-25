@@ -61,11 +61,6 @@ This software – including all its source code – contains proprietary informa
             <artifactId>json4s-jackson_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.binary.version}</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.github.nscala-time</groupId>
             <artifactId>nscala-time_${scala.binary.version}</artifactId>
         </dependency>
