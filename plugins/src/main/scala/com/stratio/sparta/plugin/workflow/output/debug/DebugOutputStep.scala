@@ -46,8 +46,10 @@ class DebugOutputStep(name: String, xDSession: XDSession, properties: Map[String
       data = Option(rowsData)
     )
 
-    if (Option(curatorFramework.checkExists().forPath(path)).isDefined)
-      curatorFramework.setData().forPath(path, write(resultStep).getBytes)
+    if (Option(curatorFramework.checkExists().forPath(path)).isDefined) {
+      if (resultStep.data.isDefined && resultStep.data.get.nonEmpty)
+        curatorFramework.setData().forPath(path, write(resultStep).getBytes)
+    }
     else curatorFramework.create().creatingParentsIfNeeded().forPath(path, write(resultStep).getBytes)
   }
 }
