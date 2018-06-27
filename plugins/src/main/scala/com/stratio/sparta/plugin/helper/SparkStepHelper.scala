@@ -7,10 +7,10 @@
 package com.stratio.sparta.plugin.helper
 
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalView, getSchemaFromSessionOrModelOrRdd}
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper.isCorrectTableName
-import com.stratio.sparta.sdk.models.PropertySchemasInput
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper.isCorrectTableName
+import com.stratio.sparta.core.models.PropertySchemasInput
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession

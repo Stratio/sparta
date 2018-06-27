@@ -15,6 +15,8 @@ import * as kafkaTemplate from './inputs/kafka.json';
 import * as crossdataStreamingTemplate from './inputs/crossdataStreaming.json';
 import * as crossdataBatchTemplate from './inputs/crossdataBatch.json';
 import * as customTemplate from './inputs/custom.json';
+import * as customLiteTemplate from './inputs/customLite.json';
+import * as customLiteXdTemplate from './inputs/customLiteXd.json';
 import * as filesystemStreamingTemplate from './inputs/filesystemStreaming.json';
 import * as filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import * as flumeTemplate from './inputs/flume.json';
@@ -33,6 +35,8 @@ export const inputs = [
     crossdataBatchTemplate,
     csvTemplate,
     customTemplate,
+    customLiteTemplate,
+    customLiteXdTemplate,
     jdbcTemplate,
     jsonTemplate,
     kafkaTemplate,

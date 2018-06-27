@@ -6,7 +6,7 @@
 package com.stratio.sparta.serving.api.services
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema

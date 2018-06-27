@@ -27,7 +27,9 @@ This software – including all its source code – contains proprietary informa
     <modules>
         <module>dyplon-sparta</module>
         <module>dg-agent</module>
-        <module>sdk</module>
+        <module>core</module>
+        <module>sdk-lite</module>
+        <module>sdk-lite-xd</module>
         <module>plugins</module>
         <module>serving-core</module>
         <module>driver</module>
@@ -178,7 +180,17 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
-                <artifactId>sdk</artifactId>
+                <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparta</groupId>
+                <artifactId>sdk-lite</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparta</groupId>
+                <artifactId>sdk-lite-xd</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -419,6 +431,25 @@ This software – including all its source code – contains proprietary informa
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_${scala.binary.version}</artifactId>
+                <version>${apache.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>com.stratio.spark</groupId>
                 <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
@@ -458,9 +489,47 @@ This software – including all its source code – contains proprietary informa
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_${scala.binary.version}</artifactId>
+                <version>${apache.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>com.stratio.spark</groupId>
                 <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                <version>${apache.spark.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.zookeeper</groupId>

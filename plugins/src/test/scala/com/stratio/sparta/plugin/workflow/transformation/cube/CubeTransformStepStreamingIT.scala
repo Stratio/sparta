@@ -9,8 +9,8 @@ import com.stratio.sparta.plugin.workflow.transformation.cube.models.{CubeModel,
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.plugin.{TemporalSparkContext, TestReceiver}
-import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
-import com.stratio.sparta.sdk.enumerators.{SaveModeEnum, WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.enumerators.{SaveModeEnum, WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._

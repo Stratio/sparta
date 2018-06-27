@@ -10,8 +10,8 @@ import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.helpers.AggregationTimeHelper
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.helpers.AggregationTimeHelper
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.services.SparkSubmitService.spartaTenant

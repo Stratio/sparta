@@ -10,8 +10,8 @@ import java.util.Date
 import akka.event.Logging
 import akka.event.Logging.LogLevel
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
-import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}

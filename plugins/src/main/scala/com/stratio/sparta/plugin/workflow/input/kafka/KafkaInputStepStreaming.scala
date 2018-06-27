@@ -11,10 +11,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.InputStep
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.properties.JsoneyStringSerializer
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.InputStep
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
@@ -29,8 +29,8 @@ import org.json4s.{DefaultFormats, Formats}
 import scala.util.Try
 import DistributedMonad.Implicits._
 import com.stratio.sparta.plugin.models.TopicModel
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import org.apache.kafka.clients.consumer.ConsumerConfig._
 
 class KafkaInputStepStreaming(

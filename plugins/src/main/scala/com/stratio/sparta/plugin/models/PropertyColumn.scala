@@ -7,7 +7,7 @@
 
 package com.stratio.sparta.plugin.models
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 case class PropertyColumn(name: String, alias: Option[String] = None) {
 

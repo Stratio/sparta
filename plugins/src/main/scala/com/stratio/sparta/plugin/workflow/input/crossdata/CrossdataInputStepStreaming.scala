@@ -11,13 +11,13 @@ import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.models.OffsetFieldItem
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.InputStep
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.JsoneyStringSerializer
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.InputStep
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext

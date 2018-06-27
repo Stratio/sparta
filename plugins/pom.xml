@@ -46,7 +46,12 @@ This software – including all its source code – contains proprietary informa
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
-            <artifactId>sdk</artifactId>
+            <artifactId>core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparta</groupId>
+            <artifactId>sdk-lite-xd</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

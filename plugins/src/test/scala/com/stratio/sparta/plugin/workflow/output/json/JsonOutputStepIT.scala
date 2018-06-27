@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.json
 import java.io.File
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession

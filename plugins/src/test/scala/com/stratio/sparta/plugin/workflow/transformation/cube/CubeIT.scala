@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.cube
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
-import com.stratio.sparta.sdk.enumerators.{WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.core.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SparkSession}

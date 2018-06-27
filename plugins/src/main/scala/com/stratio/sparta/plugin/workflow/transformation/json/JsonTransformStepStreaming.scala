@@ -8,11 +8,11 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SchemaHelper._
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.helpers.TransformStepHelper.sparkStreamingDiscardFunction
-import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.helpers.TransformStepHelper.sparkStreamingDiscardFunction
+import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext

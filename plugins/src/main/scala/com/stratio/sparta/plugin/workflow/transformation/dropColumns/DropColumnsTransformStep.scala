@@ -15,13 +15,13 @@ import org.apache.spark.sql.{Column, Row}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.plugin.helper.SparkStepHelper
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models._
-import com.stratio.sparta.sdk.workflow.step.TransformStep
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.workflow.step.TransformStep
 
 //scalastyle:off
 abstract class DropColumnsTransformStep[Underlying[Row]](

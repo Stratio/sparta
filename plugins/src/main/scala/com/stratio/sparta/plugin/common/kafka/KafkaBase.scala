@@ -9,8 +9,8 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.models.PropertyHostPort
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.JsoneyStringSerializer
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
 

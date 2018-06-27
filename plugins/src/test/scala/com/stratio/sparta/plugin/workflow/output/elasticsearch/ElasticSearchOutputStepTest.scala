@@ -6,7 +6,7 @@
 package com.stratio.sparta.plugin.workflow.output.elasticsearch
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.ShouldMatchers

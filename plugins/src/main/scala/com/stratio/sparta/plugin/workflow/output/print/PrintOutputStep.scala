@@ -7,9 +7,9 @@ package com.stratio.sparta.plugin.workflow.output.print
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 

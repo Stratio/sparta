@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.actor
 import akka.event.slf4j.SLF4JLogging
 import akka.persistence._
 import akka.serialization.SerializationExtension
-import com.stratio.sparta.sdk.models.{ResultStep, WorkflowError}
+import com.stratio.sparta.core.models.{ResultStep, WorkflowError}
 import com.stratio.sparta.serving.core.actor.DebugStepDataPublisherActor.{DebugStepDataChange, DebugStepDataRemove}
 import com.stratio.sparta.serving.core.actor.DebugStepErrorPublisherActor.{DebugStepErrorChange, DebugStepErrorRemove}
 import com.stratio.sparta.serving.core.actor.DebugWorkflowPublisherActor.{DebugWorkflowChange, DebugWorkflowRemove}

@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import org.joda.time.DateTime
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._

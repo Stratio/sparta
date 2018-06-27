@@ -7,8 +7,8 @@ package com.stratio.sparta.serving.api.actor
 
 
 import akka.actor.{Props, _}
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
-import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.security.{Edit, Status, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, Start}
@@ -82,7 +82,12 @@ class LauncherActor(curatorFramework: CuratorFramework,
         case Failure(exception) =>
           val information = s"Error launching workflow with the selected execution mode"
           log.error(information)
-          val error = WorkflowError(information, PhaseEnum.Launch, exception.toString, exception.getCause.getMessage)
+          val error = WorkflowError(
+            information,
+            PhaseEnum.Launch,
+            exception.toString,
+            Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          )
           statusService.update(WorkflowStatus(
             id = id,
             status = Failed,

@@ -5,10 +5,10 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.sdk.models.{DebugResults, ErrorsManagement}
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep}
+import com.stratio.sparta.core.models.{DebugResults, ErrorsManagement}
+import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.enumerators.WhenError
+import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}

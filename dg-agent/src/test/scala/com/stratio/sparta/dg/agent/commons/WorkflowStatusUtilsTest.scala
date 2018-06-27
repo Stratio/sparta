@@ -7,7 +7,7 @@ package com.stratio.sparta.dg.agent.commons
 
 import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, OperationCommandType, SourceType}
 import com.stratio.governance.commons.agent.model.metadata.lineage.{EventType, WorkflowStatusMetadata}
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._

@@ -22,7 +22,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.api.actor.ExecutionHistoryActor.{QueryByUserId, QueryByWorkflowId}
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, Notification}
 import com.stratio.sparta.serving.core.config.SpartaConfig

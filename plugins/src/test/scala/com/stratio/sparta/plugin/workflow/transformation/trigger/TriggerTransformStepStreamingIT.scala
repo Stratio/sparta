@@ -6,9 +6,9 @@
 package com.stratio.sparta.plugin.workflow.transformation.trigger
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -18,7 +18,7 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 
 @RunWith(classOf[JUnitRunner])
 class TriggerTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {

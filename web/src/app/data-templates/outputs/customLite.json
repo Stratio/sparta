@@ -1,0 +1,54 @@
+{
+   "name": "CustomLite",
+   "icon": "CustomLite",
+   "className": "CustomLiteOutputStep",
+   "category": "Custom",
+   "arity": ["NullaryToNullary", "NaryToNullary"],
+   "supportedEngines": ["Streaming", "Batch"],
+   "classPrettyName": "CustomLite",
+   "description": "Custom output defined by user. User can extend the Sparta SDK-Lite with his own implementation of Output class",
+   "properties": [
+      {
+         "propertyId": "customLiteClassType",
+         "propertyName": "_MODEL_TYPE_",
+         "propertyType": "text",
+         "placeHolder": "CustomLiteOutput",
+         "required": true,
+         "tooltip": "Output class type that implements the input SDK step",
+         "qa": "custom-output-modelType"
+      },
+      {
+         "propertyId": "errorSink",
+         "propertyName": "_ERROR_SINK_",
+         "propertyType": "boolean",
+         "tooltip": "This output can be used for sending errors in the errors management settings",
+         "default": false,
+         "qa": "fragment-details-errorSink"
+      },
+      {
+         "propertyId": "saveOptions",
+         "propertyName": "_OPTION_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "custom-output-properties",
+         "fields": [
+            {
+               "propertyId": "saveOptionsKey",
+               "propertyName": "_OPTION_KEY_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-output-properties-key"
+            },
+            {
+               "propertyId": "saveOptionsValue",
+               "propertyName": "_OPTION_VALUE_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-output-properties-value"
+            }
+         ]
+      }
+   ]
+}

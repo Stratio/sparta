@@ -9,8 +9,8 @@ package com.stratio.sparta.serving.core.services
 import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.GraphStep
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._

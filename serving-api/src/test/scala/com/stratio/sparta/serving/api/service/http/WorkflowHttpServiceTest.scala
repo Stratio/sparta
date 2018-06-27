@@ -15,7 +15,7 @@ import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 
-import com.stratio.sparta.sdk.exception.MockException
+import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.StatusActor

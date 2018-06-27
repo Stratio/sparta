@@ -21,14 +21,14 @@ import org.postgresql.core.BaseConnection
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
-import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum.SpartaSaveMode
-import com.stratio.sparta.sdk.models.ErrorValidations
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.ConstraintType
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.enumerators.SaveModeEnum.SpartaSaveMode
+import com.stratio.sparta.core.models.ErrorValidations
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.enumerators.ConstraintType
+import com.stratio.sparta.core.workflow.step.OutputStep
 
 class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {

@@ -8,15 +8,15 @@ package com.stratio.sparta
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step._
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step._
 import org.apache.spark.sql.{Row, _}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
 import DistributedMonad.Implicits._

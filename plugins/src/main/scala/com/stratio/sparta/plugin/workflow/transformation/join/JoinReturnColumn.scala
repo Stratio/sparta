@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.workflow.transformation.join
 
 import com.stratio.sparta.plugin.enumerations.TableSide
 import com.stratio.sparta.plugin.enumerations.TableSide.TableSide
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 case class JoinReturnColumn(tableSide: TableSide, column: String, alias: Option[String]) {
 

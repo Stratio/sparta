@@ -8,7 +8,7 @@ package org.apache.spark.streaming.datasource.receiver
 import org.apache.spark.partial.{BoundedDouble, CountEvaluator, PartialResult}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.parser.{AbstractSqlParser, AstBuilder, ParserInterface}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.apache.commons.lang.StringUtils
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.streaming.datasource.models.{InputSentences, OffsetConditions, OffsetField, OffsetOperator}

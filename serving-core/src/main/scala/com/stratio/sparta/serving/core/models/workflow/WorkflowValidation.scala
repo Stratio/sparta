@@ -5,14 +5,14 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
-import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.models.WorkflowValidationMessage
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
+import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.models.WorkflowValidationMessage
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.error.ZookeeperErrorImpl
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}

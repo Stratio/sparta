@@ -8,8 +8,8 @@ package com.stratio.sparta.plugin.workflow.input.dummydebug
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.models.OutputOptions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType

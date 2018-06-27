@@ -10,11 +10,11 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.plugin.helper.SparkStepHelper
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.TransformStep
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.TransformStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession

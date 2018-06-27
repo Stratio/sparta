@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils.{expireToken, getToken}
 import com.stratio.tikitakka.common.util.HttpRequestUtils
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
+import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.utils.MarathonApiError._
 import net.minidev.json.JSONArray

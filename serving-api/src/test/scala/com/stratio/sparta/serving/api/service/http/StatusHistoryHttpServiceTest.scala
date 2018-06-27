@@ -10,7 +10,7 @@ import java.util.UUID
 
 import akka.actor.ActorRef
 import akka.testkit.TestProbe
-import com.stratio.sparta.sdk.exception.MockException
+import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.serving.api.actor.StatusHistoryActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant

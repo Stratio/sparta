@@ -8,8 +8,8 @@ package com.stratio.sparta.serving.api.service.http
 import java.util.UUID
 
 import akka.actor.ActorRef
-import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.sdk.models.{DebugResults, ResultStep}
+import com.stratio.sparta.core.exception.MockException
+import com.stratio.sparta.core.models.{DebugResults, ResultStep}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant

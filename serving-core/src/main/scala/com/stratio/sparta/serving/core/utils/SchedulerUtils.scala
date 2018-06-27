@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.{ActorRef, Cancellable}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.helpers.AggregationTimeHelper
+import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 

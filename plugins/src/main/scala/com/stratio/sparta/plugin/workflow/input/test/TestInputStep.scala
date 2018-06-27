@@ -9,12 +9,12 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.enumerations.EventType
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.InputStep
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema

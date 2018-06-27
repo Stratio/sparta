@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.models.DebugResults
+import com.stratio.sparta.core.models.DebugResults
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.FileActorUtils

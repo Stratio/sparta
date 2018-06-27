@@ -10,14 +10,14 @@ import java.io.Serializable
 
 import akka.event.Logging
 import akka.util.Timeout
-import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.helpers.{AggregationTimeHelper, SdkSchemaHelper}
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
-import com.stratio.sparta.sdk.workflow.step._
-import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad, WorkflowContext}
+import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.workflow.step._
+import com.stratio.sparta.core.{ContextBuilder, DistributedMonad, WorkflowContext}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
@@ -34,7 +34,7 @@ import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import com.stratio.sparta.sdk.constants.SdkConstants._
+import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper.getConfigurationsFromObjects
 import com.stratio.sparta.serving.core.services.SparkSubmitService
 
@@ -159,7 +159,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       )
     }
 
-    implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter(_.className.matches("Custom[\\w]*Step")) match {
+    implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter{ node =>
+      node.className.matches("Custom[\\w]*Step") && !node.className.matches("CustomLite[\\w]*Step")
+    } match {
       case Nil => Map[String, String]()
       case x :: xs =>
         (x :: xs).map { node =>

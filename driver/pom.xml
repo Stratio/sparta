@@ -22,7 +22,7 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
-            <artifactId>sdk</artifactId>
+            <artifactId>core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>

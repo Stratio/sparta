@@ -8,16 +8,16 @@ package com.stratio.sparta.plugin.workflow.output.debug
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.OutputStep
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
-import com.stratio.sparta.sdk.constants.SdkConstants._
-import com.stratio.sparta.sdk.models.ResultStep
+import com.stratio.sparta.core.constants.SdkConstants._
+import com.stratio.sparta.core.models.ResultStep
 import org.apache.spark.sql.json.RowJsonHelper
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization.write

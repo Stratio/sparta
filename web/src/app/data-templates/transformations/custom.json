@@ -3,6 +3,7 @@
   "icon": "Custom",
   "className": "CustomTransformStep",
   "classPrettyName": "Custom",
+  "category": "Custom",
   "supportedEngines": [
     "Streaming",
     "Batch"

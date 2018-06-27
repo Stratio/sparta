@@ -9,8 +9,8 @@ import java.io._
 import java.security.PrivilegedExceptionAction
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.helpers.AggregationTimeHelper
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.helpers.AggregationTimeHelper
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.typesafe.config.Config

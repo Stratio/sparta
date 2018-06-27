@@ -19,7 +19,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
-import com.stratio.sparta.sdk.workflow.enumerators.ConstraintType
+import com.stratio.sparta.core.workflow.enumerators.ConstraintType
 
 case class TxSaveMode(txType: TxType, failFast: Boolean)
 

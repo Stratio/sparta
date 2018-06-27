@@ -20,7 +20,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import com.stratio.governance.commons.agent.model.metadata.lineage.{TenantMetadataProperties, WorkflowStatusMetadata}
 import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
 import com.stratio.sparta.dg.agent.commons.LineageUtils
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.{StatusListenerActor, WorkflowListenerActor}
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode, WorkflowStatusEnum}

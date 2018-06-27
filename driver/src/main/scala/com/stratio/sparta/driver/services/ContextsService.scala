@@ -7,10 +7,10 @@ package com.stratio.sparta.driver.services
 
 import java.io.File
 
-import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
-import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
+import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.error.{ErrorManager, ZookeeperDebugErrorImpl, ZookeeperErrorImpl}
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._

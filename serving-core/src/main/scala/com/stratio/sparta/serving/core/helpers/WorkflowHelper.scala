@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.helpers
 import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.utils.ClasspathUtils
+import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
@@ -27,17 +27,19 @@ object WorkflowHelper extends SLF4JLogging {
     workflow.pipelineGraph.nodes.flatMap { node =>
       Try {
         val className = getClassName(node, workflow.executionEngine)
-        val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
-        val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, node.className)
-        val clazz = Class.forName(clazzToInstance)
-        clazz.getMethods.find(p => p.getName == methodName) match {
-          case Some(method) =>
-            method.setAccessible(true)
-            method.invoke(clazz, node.configuration.asInstanceOf[Map[String, Serializable]])
-              .asInstanceOf[Seq[(String, String)]]
-          case None =>
-            Seq.empty[(String, String)]
-        }
+        if (!className.matches("CustomLite[\\w]*Step")) {
+          val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
+          val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, node.className)
+          val clazz = Class.forName(clazzToInstance)
+          clazz.getMethods.find(p => p.getName == methodName) match {
+            case Some(method) =>
+              method.setAccessible(true)
+              method.invoke(clazz, node.configuration.asInstanceOf[Map[String, Serializable]])
+                .asInstanceOf[Seq[(String, String)]]
+            case None =>
+              Seq.empty[(String, String)]
+          }
+        } else Seq.empty[(String, String)]
       } match {
         case Success(configurations) =>
           configurations

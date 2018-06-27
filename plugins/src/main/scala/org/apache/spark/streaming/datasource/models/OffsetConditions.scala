@@ -5,7 +5,7 @@
  */
 package org.apache.spark.streaming.datasource.models
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 import scala.annotation.tailrec
 

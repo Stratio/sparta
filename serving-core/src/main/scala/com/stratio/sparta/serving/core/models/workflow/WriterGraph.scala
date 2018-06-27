@@ -5,8 +5,8 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 
 case class WriterGraph(
                         saveMode: SaveModeEnum.Value = SaveModeEnum.Append,

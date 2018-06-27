@@ -2,6 +2,7 @@
    "name": "Custom",
    "icon": "Custom",
    "className": "CustomOutputStep",
+   "category": "Custom",
    "arity": ["NullaryToNullary", "NaryToNullary"],
    "supportedEngines": ["Streaming", "Batch"],
    "classPrettyName": "Custom",
@@ -11,7 +12,7 @@
          "propertyId": "customClassType",
          "propertyName": "_MODEL_TYPE_",
          "propertyType": "text",
-         "default": "Custom",
+         "placeHolder": "Custom",
          "required": true,
          "tooltip": "Output class type that implements the input SDK step",
          "qa": "custom-output-modelType"

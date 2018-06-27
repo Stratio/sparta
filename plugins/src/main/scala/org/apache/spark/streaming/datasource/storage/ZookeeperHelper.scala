@@ -6,7 +6,7 @@
 package org.apache.spark.streaming.datasource.storage
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
+import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
 import org.apache.curator.utils.CloseableUtils

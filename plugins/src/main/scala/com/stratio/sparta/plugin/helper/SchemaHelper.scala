@@ -11,8 +11,8 @@ import com.databricks.spark.avro.SchemaConverters
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.PropertySchemasInput
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.PropertySchemasInput
 import org.apache.avro.Schema
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema

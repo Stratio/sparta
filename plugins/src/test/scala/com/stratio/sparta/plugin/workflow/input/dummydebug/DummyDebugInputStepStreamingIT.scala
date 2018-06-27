@@ -9,9 +9,9 @@ import java.io.File
 import java.net.URL
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.models.OutputOptions
-import com.stratio.sparta.sdk.workflow.step.DebugOptions
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.workflow.step.DebugOptions
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}

@@ -6,10 +6,10 @@
 package com.stratio.sparta.plugin.workflow.transformation.cube.sdk
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.enumerators.WhenFieldError.WhenFieldError
-import com.stratio.sparta.sdk.enumerators.WhenRowError.WhenRowError
-import com.stratio.sparta.sdk.workflow.step.ErrorCheckingOption
+import com.stratio.sparta.core.enumerators.WhenError.WhenError
+import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.core.workflow.step.ErrorCheckingOption
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.DataType
 

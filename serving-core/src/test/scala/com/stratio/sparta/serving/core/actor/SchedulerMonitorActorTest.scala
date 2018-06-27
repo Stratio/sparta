@@ -9,7 +9,7 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.persistence.inmemory.extension.{InMemoryJournalStorage, InMemorySnapshotStorage, StorageExtension}
 import akka.testkit._
 import akka.util.Timeout
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActor.{RetrieveStatuses, RetrieveWorkflowsEnv, _}
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActorTest._
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange

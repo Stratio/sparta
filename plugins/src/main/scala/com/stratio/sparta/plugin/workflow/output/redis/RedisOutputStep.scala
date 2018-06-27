@@ -8,10 +8,10 @@ package com.stratio.sparta.plugin.workflow.output.redis
 import java.io.Serializable
 
 import com.stratio.sparta.plugin.workflow.output.redis.dao.AbstractRedisDAO
-import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row}

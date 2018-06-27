@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 
 import scala.collection.JavaConversions

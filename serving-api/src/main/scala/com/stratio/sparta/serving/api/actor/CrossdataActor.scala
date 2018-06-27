@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.{Select, SpartaSecurityManager, View}
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.services.CrossdataService

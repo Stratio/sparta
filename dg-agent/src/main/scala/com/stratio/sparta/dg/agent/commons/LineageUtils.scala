@@ -17,7 +17,7 @@ import com.stratio.governance.commons.agent.model.metadata.lineage.{Transformati
 import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
 import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, SourceType}
 import com.stratio.sparta.dg.agent.commons.WorkflowStatusUtils.fromDatetimeToLongWithDefault
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
+import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Failed, Finished, Started}
 import com.stratio.sparta.serving.core.models.workflow._

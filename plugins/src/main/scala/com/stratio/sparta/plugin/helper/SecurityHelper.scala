@@ -8,7 +8,7 @@ package com.stratio.sparta.plugin.helper
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.apache.spark.SparkConf
 import org.apache.spark.security.VaultHelper._
 

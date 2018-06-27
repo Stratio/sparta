@@ -13,10 +13,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep
 import org.apache.kafka.clients.producer.ProducerConfig._
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer

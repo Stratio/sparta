@@ -5,8 +5,8 @@
  */
 package com.stratio.sparta.plugin.workflow.input.crossdata
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.datasource.models.{OffsetConditions, OffsetField, OffsetOperator}
@@ -18,7 +18,7 @@ import com.stratio.sparta.plugin.utils.TestUtils._
 import org.scalactic._
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.core.models.OutputOptions
 
 
 @RunWith(classOf[JUnitRunner])

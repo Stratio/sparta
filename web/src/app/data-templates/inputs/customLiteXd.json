@@ -1,0 +1,46 @@
+{
+   "name": "CustomLiteXD",
+   "icon": "CustomLiteXD",
+   "className": "CustomLiteXDInputStep",
+   "classPrettyName": "CustomLiteXD",
+   "category": "Custom",
+   "supportedEngines": ["Streaming", "Batch"],
+   "supportedDataRelations": ["ValidData"],
+    "description": "Custom input defined by user. User can extend the Sparta SDK-Lite with his own implementation of Input class",
+    "properties": [
+      {
+        "propertyId": "customLiteClassType",
+        "propertyName": "_MODEL_TYPE_",
+        "propertyType": "text",
+        "placeHolder": "CustomLiteXDInput",
+        "required": true,
+        "tooltip": "Input class type that implements the input SDK step",
+        "qa": "custom-input-modelType"
+      },
+      {
+        "propertyId": "inputOptions",
+        "propertyName": "_OPTION_PROPERTIES_",
+        "propertyType": "list",
+        "required": false,
+        "qa": "custom-input-properties",
+        "fields": [
+          {
+            "propertyId": "inputOptionsKey",
+            "propertyName": "_OPTION_KEY_",
+            "propertyType": "text",
+            "required": false,
+             "width": 4,
+            "qa": "custom-input-properties-key"
+          },
+          {
+            "propertyId": "inputOptionsValue",
+            "propertyName": "_OPTION_VALUE_",
+            "propertyType": "text",
+            "required": false,
+             "width": 4,
+            "qa": "custom-input-properties-value"
+          }
+        ]
+      }
+    ]
+  }

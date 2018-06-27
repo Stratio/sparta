@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity

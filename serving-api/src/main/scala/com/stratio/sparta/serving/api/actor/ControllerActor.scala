@@ -17,7 +17,7 @@ import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes._
 import spray.routing._
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}

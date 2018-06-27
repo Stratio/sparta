@@ -14,7 +14,7 @@ import akka.stream.ActorMaterializer
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.utils.NginxUtils._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
+import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global

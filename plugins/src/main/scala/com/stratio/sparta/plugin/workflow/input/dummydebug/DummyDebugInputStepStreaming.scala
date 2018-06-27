@@ -9,12 +9,12 @@ import java.io.{Serializable => JSerializable}
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.models.OutputOptions
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted}
 import org.apache.spark.streaming.test.DebugDStream

@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.ActorSystem
 import akka.testkit._
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode

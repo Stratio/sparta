@@ -11,7 +11,7 @@ import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant.EnvironmentCleanerActorName

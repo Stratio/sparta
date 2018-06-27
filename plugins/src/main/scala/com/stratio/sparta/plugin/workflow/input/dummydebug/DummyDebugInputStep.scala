@@ -14,18 +14,18 @@ import com.stratio.sparta.plugin.workflow.input.csv.CsvInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.filesystem.FileSystemInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.json.JsonInputStepBatch
 import com.stratio.sparta.plugin.workflow.input.parquet.ParquetInputStepBatch
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.models.OutputOptions
-import com.stratio.sparta.sdk.workflow.step._
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.workflow.step._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.enumerators.InputFormatEnum._
+import com.stratio.sparta.core.enumerators.InputFormatEnum._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 abstract class DummyDebugInputStep[Underlying[Row]](
                                                name: String,

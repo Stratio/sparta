@@ -10,11 +10,11 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.enumerations.OutputFieldsFrom
 import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.plugin.helper.SchemaHelper.parserInputSchema
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.helpers.SdkSchemaHelper
-import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, TransformationStepManagement, WorkflowValidationMessage}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step._
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, TransformationStepManagement, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession

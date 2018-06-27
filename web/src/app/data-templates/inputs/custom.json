@@ -3,6 +3,7 @@
    "icon": "Custom",
    "className": "CustomInputStep",
    "classPrettyName": "Custom",
+   "category": "Custom",
    "supportedEngines": ["Streaming", "Batch"],
    "supportedDataRelations": ["ValidData"],
     "description": "Custom input defined by user. User can extend the Sparta SDK with his own implementation of Input class",
@@ -11,7 +12,7 @@
         "propertyId": "customClassType",
         "propertyName": "_MODEL_TYPE_",
         "propertyType": "text",
-        "default": "Custom",
+        "placeHolder": "Custom",
         "required": true,
         "tooltip": "Input class type that implements the input SDK step",
         "qa": "custom-input-modelType"

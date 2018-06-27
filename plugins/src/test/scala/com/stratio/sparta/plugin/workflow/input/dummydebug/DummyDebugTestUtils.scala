@@ -11,8 +11,8 @@ import java.net.URL
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.models.OutputOptions
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputOptions
 
 import scala.io.Source
 

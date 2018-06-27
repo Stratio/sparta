@@ -6,7 +6,7 @@
 package com.stratio.sparta.serving.core.services
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder

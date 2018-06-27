@@ -9,8 +9,8 @@ import java.util.UUID
 
 import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
 import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStepStreaming
-import com.stratio.sparta.sdk.models.OutputOptions
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema

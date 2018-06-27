@@ -8,9 +8,9 @@ package com.stratio.sparta.plugin.workflow.transformation.avro
 import java.nio.charset.StandardCharsets
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.models.{OutputOptions, TransformationStepManagement}
-import com.stratio.sparta.sdk.enumerators.SaveModeEnum
+import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.Schema
 import org.apache.avro.generic.{GenericData, GenericRecord}

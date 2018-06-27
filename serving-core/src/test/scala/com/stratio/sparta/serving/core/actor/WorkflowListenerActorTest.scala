@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.{Notification, WorkflowChange}
 import com.stratio.sparta.serving.core.config.SpartaConfig

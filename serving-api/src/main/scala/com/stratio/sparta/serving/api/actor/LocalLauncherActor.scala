@@ -10,8 +10,8 @@ import java.util.UUID
 import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
-import com.stratio.sparta.sdk.enumerators.PhaseEnum
-import com.stratio.sparta.sdk.models.WorkflowError
+import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}

@@ -13,7 +13,7 @@ import spray.http.StatusCodes
 import spray.httpx.Json4sJacksonSupport
 import spray.routing.{Directives, HttpService, StandardRoute}
 import spray.testkit.ScalatestRouteTest
-import com.stratio.sparta.sdk.exception.MockException
+import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
