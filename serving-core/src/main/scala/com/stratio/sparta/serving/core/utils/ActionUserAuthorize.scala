@@ -34,6 +34,9 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
   /* PUBLIC METHODS */
 
+  /**
+    * Authorize ONLY Resource and Action (e.g. Workflows -> View)
+    */
   def authorizeActions[T](
                                        user: Option[LoggedUser],
                                        resourcesAndActions: ResourcesAndActions,
@@ -41,6 +44,9 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
                                      )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
     authorizeActionsByResourcesIds(user, resourcesAndActions, Seq.empty, pipeToActor)(actionFunction)
 
+  /**
+    * Authorize Resource and Action  by ONE resourceId (e.g. Workflows -> View IN /home/test)
+    */
   def authorizeActionsByResourceId[T](
                                        user: Option[LoggedUser],
                                        resourcesAndActions: ResourcesAndActions,
@@ -49,6 +55,9 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
                                      )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
     authorizeActionsByResourcesIds(user, resourcesAndActions, Seq(resourceId), pipeToActor)(actionFunction)
 
+  /**
+    * Authorize Resource and Action by Seq of resourcesId (e.g. Workflows -> View IN (/home/test AND /home/test2 ....) )
+    */
   def authorizeActionsByResourcesIds[T](
                                          user: Option[LoggedUser],
                                          resourcesAndActions: ResourcesAndActions,
@@ -74,6 +83,9 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
     }
   }
 
+  /**
+    * Filter PipeActor Results One by One by authorizationId (e.g. allWorkflows -> foreach(hasPermissionIn gosec) -> result)
+    */
   def filterResultsWithAuthorization[T](
                                          user: Option[LoggedUser],
                                          resourcesAndActions: ResourcesAndActions,
@@ -105,6 +117,39 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
       case (None, _) => commonPipeToActor(pipeToActor, actionFunction)
     }
 
+  /**
+    * Filter Service Results One by One by authorizationId (e.g. allWorkflows -> foreach(hasPermissionIn gosec) -> result)
+    */
+  def filterServiceResultsWithAuthorization[T](
+                                                user: Option[LoggedUser],
+                                                resourcesAndActions: ResourcesAndActions
+                                              )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+    (secManagerOpt, user) match {
+      case (Some(secManager), Some(userLogged)) =>
+        val response = actionFunction
+        val result = actionFunction match {
+          case Success(entityResult: Seq[EntityAuthorization]) =>
+            val idFiltered = entityResult.filter { entity =>
+              val idToAuthorize = entity.authorizationId
+              val rejectedActions = getRejectedResourceAndActions(resourcesAndActions, idToAuthorize, userLogged, secManager)
+
+              if (rejectedActions.nonEmpty)
+                log.debug(s"Filtered resource with id ($idToAuthorize) by the authorization service with rejected actions: $rejectedActions")
+              rejectedActions.isEmpty
+            }
+            Left(Try(idFiltered))
+          case _ => Left(response)
+        }
+        sender ! result
+      case (Some(_), None) => sender ! Right(errorNoUserFound(resourcesAndActions.values.toSeq))
+      case (None, _) => commonPipeToActor(None, actionFunction)
+    }
+
+
+  /**
+     * First = Authorize Resource and Action (e.g. Workflows -> View )
+    *  Second = Filter PipeActor Results One by One by authorizationId (e.g. allWorkflows -> foreach(hasPermissionInGosec) -> result)
+    */
   def authorizeActionsAndFilterResults[T](
                                            user: Option[LoggedUser],
                                            actionsToAuthorize: ResourcesAndActions,
@@ -126,7 +171,9 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
     }
   }
 
-
+  /**
+    * Authorize PipeActor singleResult by resourceId (e.g. WorkFlow-A -> hasPermissionInGosec -> Workflow-A)
+    */
   def authorizeResultByResourceId[T](
                                       user: Option[LoggedUser],
                                       resourcesAndActions: ResourcesAndActions,
@@ -159,6 +206,35 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
       case (None, _) => commonPipeToActor(pipeToActor, actionFunction)
     }
 
+  /**
+    * Authorize Service singleResult by resourceId (e.g. WorkFlow-A -> hasPermissionInGosec -> Workflow-A)
+    */
+  def authorizeServiceResultByResourceId[T](
+                                             user: Option[LoggedUser],
+                                             resourcesAndActions: ResourcesAndActions,
+                                             pipeToActor: Option[ActorRef] = None
+                                           )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+    (secManagerOpt, user) match {
+      case (Some(secManager), Some(userLogged)) =>
+        val response = actionFunction
+        val result = response match {
+          case Success(entityResult: EntityAuthorization) =>
+            val idToAuthorize = entityResult.authorizationId
+            val rejectedActions = getRejectedResourceAndActions(resourcesAndActions, idToAuthorize, userLogged, secManager)
+
+            if (rejectedActions.isEmpty) {
+              log.debug(s"Authorized to execute actions: $resourcesAndActions \t ResourceId: $idToAuthorize")
+              Left(Try(entityResult))
+            } else {
+              log.debug(s"Not authorized to execute generic actions: $resourcesAndActions\tRejected: $rejectedActions\tResourceId: $idToAuthorize")
+              Right(errorResponseAuthorization(userLogged.id, rejectedActions.head._1))
+            }
+          case _ => Left(response)
+        }
+        sender ! result
+      case (Some(_), None) => sender ! Right(errorNoUserFound(resourcesAndActions.values.toSeq))
+      case (None, _) => commonPipeToActor(None, actionFunction)
+    }
 
   /* PRIVATE METHODS */
 

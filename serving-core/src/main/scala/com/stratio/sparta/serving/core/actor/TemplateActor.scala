@@ -5,17 +5,17 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import scala.util.Try
+
 import akka.actor.Actor
+import org.apache.curator.framework.CuratorFramework
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.TemplateActor._
-import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.stratio.sparta.serving.core.services.TemplateService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import org.apache.curator.framework.CuratorFramework
-
-import scala.util.Try
 
 class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
@@ -41,22 +41,22 @@ class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMan
   //scalastyle:on
 
   def findAll(user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization[ResponseTemplates](user, Map(ResourceType -> View)) {
+    filterServiceResultsWithAuthorization[ResponseTemplates](user, Map(ResourceType -> View)) {
       Try(templateService.findAll)
     }
 
   def findByType(fragmentType: String, user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization[ResponseTemplates](user, Map(ResourceType -> View)) {
+    filterServiceResultsWithAuthorization[ResponseTemplates](user, Map(ResourceType -> View)) {
       Try(templateService.findByType(fragmentType))
     }
 
   def findByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId[ResponseTemplate](user, Map(ResourceType -> View)) {
+    authorizeServiceResultByResourceId[ResponseTemplate](user, Map(ResourceType -> View)) {
       Try(templateService.findByTypeAndId(fragmentType, id))
     }
 
   def findByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId[ResponseTemplate](user, Map(ResourceType -> View)) {
+    authorizeServiceResultByResourceId[ResponseTemplate](user, Map(ResourceType -> View)) {
       Try(templateService.findByTypeAndName(fragmentType, name))
     }
 

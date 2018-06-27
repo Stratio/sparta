@@ -13,8 +13,6 @@ import com.stratio.gosec.api.audit.service.AuditServiceComponentImpl
 import com.stratio.gosec.api.config.{ConfigComponentImpl, PluginConfig}
 import com.stratio.gosec.dyplon.audit.Authorizer
 import com.stratio.gosec.dyplon.core.ZkRegisterCheckerComponentImpl
-import com.stratio.gosec.dyplon.facade.ZookeeperFileSystemAclPolicy
-import com.stratio.gosec.dyplon.model
 import com.stratio.gosec.dyplon.model._
 import com.stratio.gosec.dyplon.plugins.sparta.SpartaToGoSecConversions._
 import com.stratio.sparta.security.{Action, AuditEvent, Resource, SpartaSecurityManager}
