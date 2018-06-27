@@ -40,7 +40,9 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
     try {
       const res = value.debugResult.result.data;
       // sometimes its an Object literal, and other times an Array of object literals.
-      this.data = Array.isArray(res) ? res.map(item => JSON.parse(item)) : JSON.parse(res);
+      this.data = {
+        data: Array.isArray(res) ? res.map(item => JSON.parse(item)) : JSON.parse(res)
+      };
     } catch (error) {
       this.data = null;
     }

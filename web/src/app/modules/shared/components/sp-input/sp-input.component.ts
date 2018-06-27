@@ -155,7 +155,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       event.stopPropagation();   //stop bubbling
       this.isVarValue = true;
       this.internalControl.setValue(value);
-      this.onChange(value);
+      this.onChange(`{{{${this.internalControl.value}}}}`);
       this.focusPristine = true;
       this.vc.first.nativeElement.blur();
    }
@@ -187,7 +187,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
          }
       }
       if (this.forceValidations) {
-         this.onChange(value);
+         this.onChange(this.isVarValue ? `{{{${value}}}}` : value);
       }
       this.internalInputModel = value;
       this._value = value;

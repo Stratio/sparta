@@ -9,7 +9,7 @@
       <span class="key-value">{{prop.key}}</span>
       <span *ngIf="prop.type === 'string'">: "<span class="string-value">{{prop.value}}</span>"</span>
       <span *ngIf="prop.type === 'number'">: <span class="number-value">{{prop.value}}</span></span>
-      <span class="prop-type" *ngIf="prop.type === 'object' && isArray(prop.value)">[...]</span>
+      <span class="prop-type" *ngIf="prop.type === 'object' && isArray(prop.value)">[...] ({{prop.value.length}})</span>
       <span class="prop-type" *ngIf="prop.type === 'object' && !isArray(prop.value)">{{'{...}'}}</span>
     </span>
     <node-tree-data *ngIf="prop.open && prop.type === 'object'" [data]="prop.value"></node-tree-data>
