@@ -13,7 +13,7 @@
            "propertyName": "_PATH_",
            "propertyType": "text",
            "required": true,
-           "tooltip": "Parquet path in the filesystem(HDFS, S3, Azure, etc)",
+           "tooltip": "Path to an parquet file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
            "qa": "fragment-details-parquet-path"
         },
         {

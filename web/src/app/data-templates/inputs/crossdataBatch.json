@@ -7,7 +7,7 @@
    "crossdataCatalog": true,
    "supportedEngines": ["Batch"],
    "supportedDataRelations": ["ValidData"],
-   "description": "Allows you to load data from external Datasources using Crossdata",
+   "description": "Allows you to load data from external Data Sources using Crossdata",
    "properties": [
       {
          "propertyId": "query",
@@ -16,14 +16,15 @@
          "contentType": "SQL",
          "width": 8,
          "required": true,
-         "tooltip": "Query to read data from. Example: select * from tableName",
+         "tooltip": "Query to retrieve data from any temporal table available in the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
+         "placeholder": "select * from tableName",
          "qa": "fragment-details-crossdata-query"
       },
       {
          "propertyId": "tlsEnabled",
          "propertyName": "_TLS_ENABLE_",
          "propertyType": "boolean",
-         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+         "tooltip": "Enable TLS protocol in order to connect to a secured Crossdata catalog using certificates",
          "default": false,
          "qa": "fragment-details-postgres-tls"
       }

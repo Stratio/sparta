@@ -7,7 +7,7 @@
     "arity": ["NullaryToNary"],
     "supportedEngines": ["Streaming"],
     "supportedDataRelations": ["ValidData"],
-    "description": "Allows you to load data from external Datasources using Crossdata and monitoring tables migrating data in streaming processes with finite or infinite duration",
+    "description": "Allows you to load data from external Data Sources using Crossdata and to monitor tables migrating data in streaming processes with finite or infinite duration",
     "properties": [
       {
         "propertyId": "query",
@@ -16,7 +16,8 @@
         "contentType": "SQL",
         "width": 8,
         "required": true,
-        "tooltip": "Query to read data from. Example: select * from tableName",
+        "tooltip": "Query to retrieve data from any temporal table available in the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
+        "placeholder": "select * from tableName",
         "qa": "fragment-details-crossdata-query"
       },
       {
@@ -25,7 +26,7 @@
         "propertyType": "select",
         "required": true,
         "default": "MEMORY_ONLY_SER",
-        "tooltip": "Default Storage Level assigned to Spark Streaming batches",
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches. Refer to the Spark documentation for further information on this matter.",
         "qa": "policy-storage-level",
         "values": [
           {
@@ -74,7 +75,7 @@
         "propertyId": "limitRecords",
         "propertyName": "_LIMIT_RECORDS_",
         "propertyType": "text",
-         "tooltip": "Limit the records obtained on each batch",
+         "tooltip": "Limit the records processed on each streaming window.",
          "qa": "fragment-details-crossdata-limitRecords"
       },
        {
@@ -82,7 +83,7 @@
           "propertyName": "_OFFSET_FIELDS_",
           "propertyType": "list",
           "required": false,
-          "tooltip": " Specify a list of fields to format into Datetime",
+          "tooltip": "List of fields used as offsets in the source table.",
           "qa": "fragment-details-datetime-fields",
           "fields": [
              {
@@ -164,7 +165,7 @@
           ]
         ],
          "default": "{{{CROSSDATA_ZOOKEEPER_CONNECTION}}}",
-        "tooltip": "Initial sentence executed by Crossdata Context",
+         "tooltip": "Zookeeper connection string",
         "qa": "fragment-details-crossdata-initialSentence"
       },
        {
@@ -180,7 +181,7 @@
              ]
           ],
           "default": "{{{CROSSDATA_ZOOKEEPER_PATH}}}",
-          "tooltip": "Path in Zookeeper where is allocated the offsets",
+          "tooltip": "Path in Zookeeper where the offsets are allocated.",
           "qa": "fragment-details-crossdata-zookeeperPath"
        },
        {
@@ -196,7 +197,7 @@
                 }
              ]
           ],
-          "tooltip": "Reset the offsets on start process",
+          "tooltip": "If checked, the application will reset any stored offsets when starting the streaming process.",
           "qa": "fragment-details-crossdata-resetOffsetOnStart"
        },
        {
@@ -216,7 +217,7 @@
                 }
              ]
           ],
-          "tooltip": "Reset the offsets ignoring the status, if not checked, the offsets will be restarted only when the status is not started",
+          "tooltip": "Force the offsets reset ignoring the workflow status. If not checked, the offsets will be restarted only when the workflow status is set to 'Not started'.",
           "qa": "fragment-details-crossdata-ignoreStartedStatus"
        },
       {
@@ -226,7 +227,7 @@
         "default": false,
          "float": "true",
          "width": 4,
-        "tooltip": "Stop the Spark contexts on shutdown receiver",
+        "tooltip": "Allows the application to stop the Spark contexts after waiting for the processing of all received data to be completed",
         "qa": "fragment-details-crossdata-stopContextsWhenEmpty"
       },
        {
@@ -235,14 +236,14 @@
           "propertyType": "boolean",
           "default": false,
           "width": 4,
-          "tooltip": "Stop the streaming context when the resulted query don't have data If enable simulate finite processes and disable infinite processes",
+          "tooltip": "If checked the application will shut down itself when no more data if left to be processed. It simulates a finite batch.",
           "qa": "fragment-details-crossdata-stopWhenEmpty"
        },
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "boolean",
-        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+        "tooltip": "Enable TLS protocol in order to connect to a secured Crossdata catalog using certificates",
         "default": false,
         "qa": "fragment-details-postgres-tls"
       }

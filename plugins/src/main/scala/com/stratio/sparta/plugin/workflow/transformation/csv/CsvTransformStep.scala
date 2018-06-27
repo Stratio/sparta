@@ -143,38 +143,37 @@ abstract class CsvTransformStep[Underlying[Row]](
     if (!SdkSchemaHelper.isCorrectTableName(name))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the step name $name is not valid", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name))
 
     if (inputField.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the input field cannot be empty", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The input field cannot be empty", name))
 
     if (Try(fieldsModel.fields.nonEmpty).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the input fields are not valid", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The input fields are not valid.", name))
     }
 
     if (Try(providedSchema).isFailure) {
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the output Spark schema cannot be generated. See more info in logs", name))
+        messages = validation.messages :+ WorkflowValidationMessage(s"The output Spark schema cannot be generated. See more info in logs.", name))
     }
 
-    //If contains schemas, validate if it can be parsed
     if (inputsModel.inputSchemas.nonEmpty) {
       inputsModel.inputSchemas.foreach { input =>
         if (parserInputSchema(input.schema).isFailure)
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ WorkflowValidationMessage(s"the input schema from step ${input.stepName} is not valid", name))
+            messages = validation.messages :+ WorkflowValidationMessage(s"The input schema from step ${input.stepName} is not valid.", name))
       }
 
       inputsModel.inputSchemas.filterNot(is => SdkSchemaHelper.isCorrectTableName(is.stepName)).foreach { is =>
         validation = ErrorValidations(
           valid = false,
-          messages = validation.messages :+ WorkflowValidationMessage(s"the input table name ${is.stepName} is not valid", name))
+          messages = validation.messages :+ WorkflowValidationMessage(s"The input table name ${is.stepName} is not valid.", name))
       }
     }
 

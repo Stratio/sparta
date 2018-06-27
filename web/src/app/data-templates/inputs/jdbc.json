@@ -6,7 +6,7 @@
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
      "supportedDataRelations": ["ValidData"],
-     "description": "Allows you to load data from jdbc databases",
+     "description": "Allows you to load data from JDBC databases.",
      "properties": [
         {
            "propertyId": "url",
@@ -14,7 +14,7 @@
            "propertyType": "text",
            "default": "{{{JDBC_URL}}}",
            "required": true,
-           "tooltip": "Url to connect to one relational Database with jdbc",
+           "tooltip": "Url to connect to one relational database with JDBC.",
            "qa": "fragment-details-jdbc-url"
         },
         {
@@ -22,7 +22,7 @@
            "propertyName": "_TABLE_",
            "propertyType": "text",
            "required": true,
-           "tooltip": "Table to connect",
+           "tooltip": "Table name to connect to.",
            "qa": "fragment-details-jdbc-table"
         },
         {
@@ -31,7 +31,7 @@
            "propertyType": "text",
            "default": "{{{JDBC_DRIVER}}}",
            "required": false,
-           "tooltip": "Driver class, this property has priority to URL",
+           "tooltip": "Driver class. This property has priority over the URL.",
            "qa": "fragment-details-jdbc-driver"
         },
         {
@@ -62,14 +62,14 @@
            ],
            "default": "READ_UNCOMMITTED",
            "required": true,
-           "tooltip": "Sets the isolation level when save data in the database",
+           "tooltip": "Sets the isolation level when persisting data in the database. This feature follows the standard used in JDBC transactions.",
            "qa": "fragment-postgres-isolation-level"
         },
         {
            "propertyId": "tlsEnabled",
            "propertyName": "_TLS_ENABLE_",
            "propertyType": "boolean",
-           "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+           "tooltip": "Enable TLS protocol in order to connect to a secured JDBC database using certificates",
            "default": false,
            "qa": "fragment-details-jdbc-tls"
         },

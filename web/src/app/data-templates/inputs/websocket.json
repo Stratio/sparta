@@ -23,7 +23,7 @@
           "propertyType": "text",
           "default": "{{{DEFAULT_OUTPUT_FIELD}}}",
           "required": true,
-          "tooltip": "Name assigned to the output field generated",
+          "tooltip": "Name assigned to the output field generated.",
           "qa": "fragment-details-websocket-outputField"
        },
        {

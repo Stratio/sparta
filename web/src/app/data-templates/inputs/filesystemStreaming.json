@@ -13,7 +13,7 @@
         "propertyName": "_PATH_",
         "propertyType": "text",
         "required": true,
-        "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",
+        "tooltip": "Directory path to be monitored (HDFS, S3, Azure, etc).If the directory is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
         "qa": "fragment-details-filesystem-url"
       },
       {

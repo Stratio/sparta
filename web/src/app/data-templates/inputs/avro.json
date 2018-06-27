@@ -13,7 +13,8 @@
            "propertyName": "_PATH_",
            "propertyType": "text",
            "required": true,
-           "tooltip": "Avro path in the filesystem(HDFS, S3, Azure, etc)",
+           "tooltip": "Path to an Avro file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
+           "placeholder": "/user/avro/example.avro",
            "qa": "fragment-details-avro-path"
         },
         {
@@ -22,7 +23,7 @@
            "propertyType": "textarea",
            "contentType": "JSON",
            "width": 8,
-           "tooltip": "Avro Schema in json format",
+           "tooltip": "Avro Schema expressed in JSON format.",
            "required": false,
            "qa": "workflow-input-avro-schema-provided"
         },

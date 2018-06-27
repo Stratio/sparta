@@ -108,7 +108,7 @@ class CrossdataInputStepStreaming(
   }
 
   def init(): DistributedMonad[DStream] = {
-    require(query.nonEmpty, "The input query can not be empty")
+    require(query.nonEmpty, "The input query cannot be empty")
     require(validateSql, "The input query is invalid")
     require(offsetItems.isEmpty || offsetItems.forall(offsetField => offsetField.name.nonEmpty),
       "There are offset items with an incorrect definition")

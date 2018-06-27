@@ -14,7 +14,7 @@
         "propertyType": "list",
         "default": "",
         "required": true,
-        "tooltip": "",
+        "tooltip": "List of host/port pairs to use for establishing the initial connection to the Kafka cluster",
         "qa": "fragment-details-stratio-kafkadirect-bootstrap-servers",
         "fields": [
           {
@@ -24,7 +24,7 @@
             "default": "{{{KAFKA_BROKER_HOST}}}",
             "required": true,
             "width": 6,
-            "tooltip": "Server address.",
+            "tooltip": "Server address. Default value set to localhost",
             "hidden": false,
             "qa": "fragment-details-stratio-kafkadirect-broker"
           },
@@ -35,7 +35,7 @@
             "default": "{{{KAFKA_BROKER_PORT}}}",
             "required": true,
             "width": 4,
-            "tooltip": "Server port.",
+            "tooltip": "Server port. Default value set to 9092",
             "hidden": false,
             "qa": "fragment-details-stratio-kafkadirect-port"
           }
@@ -46,7 +46,7 @@
         "propertyName": "_TOPICS_",
         "propertyType": "list",
         "required": true,
-        "tooltip": "Kafka topic name. At least one is required.",
+        "tooltip": "List of Kafka topic names. Where messages will be published. At least one is required.",
         "qa": "fragment-details-stratio-kafkadirect-topics",
         "fields": [
           {
@@ -56,6 +56,7 @@
              "width": 6,
             "required": true,
             "tooltip": "Topic to connect.",
+            "placeholder": "topicName",
             "hidden": false,
             "qa": "fragment-details-stratio-kafkadirect-topic"
           }
@@ -90,6 +91,7 @@
           ],
           "default": "STRING",
           "required": true,
+          "tooltip": "Deserializer format given to all the incoming messages.",
           "qa": "fragment-details-kafka-deserializer-input-format"
        },
       {
@@ -123,7 +125,7 @@
              ]
           ],
           "default": true,
-          "tooltip": "If checked, each row schema will be inferred from its contents",
+          "tooltip": "If checked, each row schema will be inferred from its content. Feature only available choosing JSON as deserializer format.",
           "qa": "workflow-transformation-kafka-schema-fromRow"
        },
       {
@@ -154,6 +156,7 @@
           ],
           "default": "SPARKFORMAT",
           "required": true,
+          "tooltip": "Option that allows you to paste a valid schema or an event example where to retrieve the schema from. If Spark format is chosen then the user is able to pick between pasting a JSON schem or a Spark schema. Only available with JSON as deserializer format.",
           "qa": "workflow-transformation-kafka-schema-mode"
        },
       {
@@ -185,7 +188,7 @@
           "propertyType": "textarea",
           "contentType": "JSON",
           "width": 10,
-          "tooltip": "Avro schema",
+          "tooltip": "Parses an Apache Avro schema.",
           "default": "",
           "visible": [
              [
@@ -213,6 +216,7 @@
           }
         ],
         "default": "range",
+        "tooltip": "The class name of the partition assignment strategy that the client will use to distribute partition ownership amongst consumer instances when group management is used.",
         "required": true,
         "qa": "fragment-details-stratiokafkadirect-partition-assignment-strategy"
       },
@@ -231,7 +235,7 @@
           }
         ],
         "default": "preferconsistent",
-        "tooltip": "PreferConsistent will distribute partitions evenly across available executors. If your executors are on the same hosts as your Kafka brokers, use PreferBrokers",
+        "tooltip": "Prefer Consistent will distribute partitions evenly across available executors. If your executors are on the same hosts as your Kafka brokers, use PreferBrokers",
         "required": true,
         "qa": "fragment-details-stratiokafkadirect-locationStrategy"
       },
@@ -251,7 +255,7 @@
         ],
         "default": "latest",
         "required": true,
-        "tooltip": "earliest : automatically reset the offset to the earliest offset. latest : automatically reset the offset to the latest offset",
+        "tooltip": "Earliest : automatically reset the offset to the earliest offset. Latest: automatically reset the offset to the latest offset",
         "qa": "fragment-details-stratiokafkadirect-auto-offset"
       },
        {
@@ -260,7 +264,7 @@
           "propertyType": "text",
           "default": "{{{KAFKA_MAX_POLL_TIMEOUT}}}",
           "required": true,
-          "tooltip": "if the timeout is too low and the Kafka brokers need more time to answer there will be many “TASK FAILED”s, which causes a delay in the preparation of the assigned tasks into the Executors. However, if this timeout is too high the Spark executor wastes a lot of time doing nothing and produces large delays (pollTimeout + task scheduling in the new executor)",
+          "tooltip": "If the timeout is too low and the Kafka brokers need more time to answer there the user will encounter many “TASK FAILED”s messages, which causes a delay in the preparation of the assigned tasks into the executors. However, if this timeout is too high the Spark executor wastes a lot of time doing nothing and produces large delays (pollTimeout + task scheduling in the new executor).",
           "qa": "fragment-details-kafka-maxPollTimeout"
        },
        {
@@ -269,7 +273,7 @@
           "propertyType": "text",
           "default": "{{{KAFKA_MAX_RATE_PER_PARTITION}}}",
           "required": false,
-          "tooltip": "Limit the rate per partition when backpressure is enabled",
+          "tooltip": "Limit the rate per partition when backpressure is enabled.",
           "qa": "fragment-details-kafka-maxRatePerPartition"
        },
        {
@@ -278,14 +282,14 @@
           "propertyType": "boolean",
           "default": false,
           "required": true,
-          "tooltip": "Disable the caching for Kafka consumers. Disabling the cache may be needed to workaround the problem described in SPARK-19185",
+          "tooltip": "Disable the caching for Kafka consumers. Disabling the cache may be needed to workaround the problem described in SPARK-19185.",
           "qa": "fragment-details-kafka-cacheConsumer"
        },
       {
         "propertyId": "enable.auto.commit",
         "propertyName": "_KAFKA_ENABLE_AUTOCOMMIT_",
         "propertyType": "boolean",
-        "tooltip": "If true the consumer's offset will be periodically committed in the background",
+        "tooltip": "If true the consumer's offset will be periodically committed in the background.",
         "default": false,
         "qa": "fragment-details-kafka-enable-autocommit"
       },
@@ -293,7 +297,7 @@
         "propertyId": "storeOffsetInKafka",
         "propertyName": "_KAFKA_STORE_OFFSET_ITSELF_",
         "propertyType": "boolean",
-        "tooltip": "It's mandatory to disable the auto commit when is activated",
+        "tooltip": "It's mandatory to disable the auto commit when checked.",
         "default": true,
         "visible": [
           [

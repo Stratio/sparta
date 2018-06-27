@@ -6,14 +6,14 @@
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
      "supportedDataRelations": ["ValidData"],
-     "description": "Allows you to load data from json files",
+     "description": "Allows you to load data from JSON files",
      "properties": [
         {
            "propertyId": "path",
            "propertyName": "_PATH_",
            "propertyType": "text",
            "required": true,
-           "tooltip": "Json path in the filesystem(HDFS, S3, Azure, etc)",
+           "tooltip": "Path to an JSON file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
            "qa": "fragment-details-json-path"
         },
         {

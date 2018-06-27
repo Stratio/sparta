@@ -15,7 +15,6 @@ import com.stratio.sparta.sdk.models.{ErrorValidations, OutputOptions, WorkflowV
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
@@ -44,7 +43,7 @@ class CsvInputStepBatch(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the input path cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The input path cannot be empty.", name)
       )
 
     if(debugOptions.isDefined && !validDebuggingOptions)
@@ -69,10 +68,9 @@ class CsvInputStepBatch(
         Option(key -> value.toString)
       else None
     }
+
     val df = xDSession.read.options(userOptions).csv(path.get)
 
     (df.rdd, Option(df.schema))
   }
 }
-
-

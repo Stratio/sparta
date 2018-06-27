@@ -24,7 +24,7 @@
                "value": "RANDOM_NUMBER"
             }
          ],
-         "tooltip": "Type of events generated: random number using the max integer specified or one string event",
+         "tooltip": "Type of events generated: random number using the max integer specified or one string event.",
          "qa": "fragment-details-test-eventType"
       },
       {
@@ -41,7 +41,7 @@
             ]
          ],
          "required": true,
-         "tooltip": "Event that will be generated on each window",
+         "tooltip": "Event that will be generated on each window. The user may specify a simple string or a JSON later to be transformed and parsed.",
          "qa": "fragment-details-test-event"
       },
       {
@@ -57,7 +57,7 @@
                }
             ]
          ],
-         "tooltip": "Max Number for the random events generated",
+         "tooltip": "Max number for the random events generated.",
          "qa": "fragment-details-test-maxNumber"
       },
       {
@@ -75,7 +75,7 @@
          "propertyType": "text",
          "default": "{{{DEFAULT_OUTPUT_FIELD}}}",
          "required": true,
-         "tooltip": "Name assigned to the output field generated",
+         "tooltip": "Name assigned to the output field generated.",
          "qa": "fragment-details-test-outputField"
       }
    ]

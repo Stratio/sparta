@@ -30,7 +30,7 @@
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
         "required": false,
-        "tooltip": "Driver class, this property has priority to URL",
+        "tooltip": "Driver class. This property has priority over the URL.",
         "qa": "fragment-details-jdbc-driver"
       },
       {

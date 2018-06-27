@@ -6,14 +6,14 @@
      "arity": ["NullaryToNary"],
      "supportedEngines": ["Batch"],
      "supportedDataRelations": ["ValidData"],
-     "description": "Allows you to load data from csv files",
+     "description": "Allows you to load data from CSV files",
      "properties": [
         {
            "propertyId": "path",
            "propertyName": "_PATH_",
            "propertyType": "text",
            "required": true,
-           "tooltip": "Csv path in the filesystem(HDFS, S3, Azure, etc)",
+           "tooltip": "Path to an CSV file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
            "qa": "fragment-details-csv-path"
         },
         {
@@ -22,14 +22,14 @@
            "propertyType": "boolean",
            "required": true,
            "default": false,
-           "tooltip": "If checked, the first row contains the header and the future schema has this columns names",
+           "tooltip": "If checked, the first row must contain the header which will be used later to construct the data schema.",
            "qa": "workflow-transformation-csv-header"
         },
         {
            "propertyId": "delimiter",
            "propertyName": "_DELIMITER_",
            "propertyType": "text",
-           "tooltip": "Delimiter character for input rows",
+           "tooltip": "Delimiter character for input rows.",
            "default": "{{{DEFAULT_DELIMITER}}}",
            "required": false,
            "qa": "fragment-details-csv-delimiter"
