@@ -21,7 +21,6 @@
                                 [showVars]="showVars"
                                 [formControl]="item.controls[field.propertyId]" 
                                 qaTag="form-list-input" [required]="field.required"
-                                contextualHelp="{{field.tooltip | translate}}"
                                 class="st-form-field" ></sp-input>
 
                            <st-textarea *ngIf="field.propertyType == 'textarea' && !field.contentType"
@@ -34,7 +33,6 @@
                                 [rows]="field.rows"
                                 qaTag="form-list-textarea" 
                                 [required]="field.required"
-                                [contextualHelp]="field.tooltip | translate" 
                                 class="st-form-field" ></st-textarea>
 
                             <!-- highlight textarea -->
@@ -48,7 +46,6 @@
                                 [rows]="field.rows" 
                                 qaTag="form-list-textarea" 
                                 [required]="field.required"
-                                [contextualHelp]="field.tooltip | translate" 
                                 class="st-form-field" ></sp-textarea-highlight>
 
                            <sp-select [forceValidations]="forceValidations" 

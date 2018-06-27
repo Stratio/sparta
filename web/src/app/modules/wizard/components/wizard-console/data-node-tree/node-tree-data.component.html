@@ -1,5 +1,5 @@
 <div class="value" *ngIf="dataType === 'value'">
-  {{data}}
+  {{nodeData}}
 </div>
 
 <div *ngIf="dataType === 'object'" class="object">
@@ -17,7 +17,7 @@
 </div>
 
 <div *ngIf="dataType === 'array'" class="array">
-  <div *ngFor="let item of data; let i = index;">
+  <div *ngFor="let item of nodeData; let i = index;">
     <span (click)="toggleProp(item)">
       <span class="icon icon-arrow4_down" [ngClass]="{'open': item.open}"></span>
       <span class="key-value">{{i}}</span> 

@@ -4,7 +4,7 @@
 </label>
 <div class="st-input__container" [ngClass]="{'var-mode' :  showVars && (isVarValue || (focus && selectVarMode))}">
    <div class="var-mode__label" *ngIf="showVars && (isVarValue || (focus && selectVarMode))">env</div>
-   <input #input class="st-input" autocomplete="off" (focus)="onFocus($event)" (focusout)="onFocusOut($event); resetVarValue();" (blur)="onFocusOut($event)" [formControl]="internalControl"
+   <input #input class="st-input" autocomplete="off" (input)="valuechange($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event); resetVarValue();" (blur)="onFocusOut($event)" [formControl]="internalControl"
       [placeholder]="placeholder" [name]="name" [attr.type]="fieldType" [attr.id]="qaTag" [attr.maxlength]="maxLength" [attr.min]="min"
       [attr.max]="max" [value]="value" [readonly]="readonly" [ngClass]="{'error': showError(), 'catalog': showVars && focus && selectVarMode}">
    <div class="variable-selector" (mousedown)="showVarCatalog($event)" *ngIf="showVars && focus">
@@ -15,7 +15,8 @@
       <ul class="var-mode__list">
          <li *ngFor="let variable of filteredVariableList" (mousedown)="selectVar($event, variable.name)">
             <div class="var-mode__list-label">env</div>
-            <span class="var-mode__list-key">{{variable.name}}: {{variable.value}}</span>
+            <span class="var-mode__list-key">{{variable.name}}</span>
+            <span class="var-mode__list-value">{{variable.value}}</span>
          </li>
       </ul>
    </div>

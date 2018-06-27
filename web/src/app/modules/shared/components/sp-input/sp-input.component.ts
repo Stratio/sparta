@@ -70,6 +70,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    public errorMessage: string = undefined;
    public selectVarMode = false;
    public filteredVariableList: Array<any>;
+   public pristine = true;
 
    private sub: Subscription;
    private _value: any;
@@ -108,8 +109,8 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
          if (this.selectVarMode) {
             this.filterVarListValue(value);
          }
-         this.onChange(this.isVarValue ? `{{{${value}}}}` : value);
       });
+
       this.filteredVariableList = this.variableList;
    }
 
@@ -122,6 +123,9 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       if (this.isFocused) {
          this.focus = true;
          this.vc.first.nativeElement.focus();
+      }
+      if (this.forceValidations) {
+         this.onChange(this.internalControl.value);
       }
    }
 
@@ -138,10 +142,12 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       event.preventDefault();  //prevent default DOM action
       event.stopPropagation();   //stop bubbling
       this.vc.first.nativeElement.focus();
-      this.selectVarMode = !this.selectVarMode;
-      if (this.selectVarMode) {
-         this.filterVarListValue(this.internalControl.value);
-      }
+      this.selectVarMode = true;
+   }
+
+   valuechange(event) {
+      this.pristine = false;
+      this.onChange(this.isVarValue ? `{{{${this.internalControl.value}}}}` : this.internalControl.value);
    }
 
    selectVar(event: any, value: string) {
@@ -149,6 +155,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       event.stopPropagation();   //stop bubbling
       this.isVarValue = true;
       this.internalControl.setValue(value);
+      this.onChange(value);
       this.focusPristine = true;
       this.vc.first.nativeElement.blur();
    }
@@ -160,6 +167,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       }
       this.focusPristine = true;
       this.selectVarMode = false;
+      this.filterVarListValue(this.internalControl.value);
    }
 
    // When value is received from outside
@@ -178,9 +186,13 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
             this.isVarValue = true;
          }
       }
+      if (this.forceValidations) {
+         this.onChange(value);
+      }
       this.internalInputModel = value;
       this._value = value;
       this.internalControl.setValue(value);
+      this.focusPristine = true;
    }
 
    // Registry the change function to propagate internal model changes
@@ -205,7 +217,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
 
    showError(): boolean {
       return this.errorMessage !== undefined &&
-         (!this.internalControl.pristine || this.forceValidations) && !this.focus && !this.disabled;
+         (!this.pristine || this.forceValidations) && !this.focus && !this.disabled;
    }
 
    get labelQaTag(): string {
@@ -215,6 +227,10 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    /** Style functions */
    onFocus(event: Event): void {
       this.focus = true;
+      if (this.isVarValue) {
+         this.selectVarMode = true;
+         this.filterVarListValue(this.internalControl.value);
+      }
    }
 
    onFocusOut(event: Event): void {

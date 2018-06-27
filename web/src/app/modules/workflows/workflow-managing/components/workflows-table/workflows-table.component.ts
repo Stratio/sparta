@@ -87,14 +87,12 @@ export class WorkflowsManagingTableComponent {
     constructor(private route: Router, private _cd: ChangeDetectorRef) {
 
         this.fields = [
-            { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
             { id: 'executionEngine', label: 'type' },
             { id: 'lastUpdateAux', label: 'Last update' }
         ];
 
         this.versionFields = [
-            { id: 'isChecked', label: '', sortable: false },
             { id: 'version', label: 'Version' },
             { id: 'tagsAux', label: 'Tag' },
             { id: 'lastUpdateAux', label: 'Last update' }

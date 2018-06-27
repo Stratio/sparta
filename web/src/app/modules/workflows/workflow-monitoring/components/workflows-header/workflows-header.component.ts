@@ -74,10 +74,8 @@ export class WorkflowsHeaderComponent {
    constructor(private _modalService: StModalService,
       public breadcrumbMenuService: BreadcrumbMenuService,
       private route: Router) {
-
       this.breadcrumbOptions = ['Home'];
    }
-
 
    public runWorkflow(workflow: any): void {
       const policyStatus = workflow.status.status;
@@ -88,14 +86,6 @@ export class WorkflowsHeaderComponent {
       }
    }
 
-
-
-   /* Launched, Starting, Started,  Stopping, Stopped, Finished, Killed,  NotStarted,  Uploaded, Created, Failed */
-   /*
-       Run: Stopped, Finished, Created, Failed, Killed, Stopping,
-   
-       Stop: Starting, Started, Uploaded, Launched, NotStarted
-   */
    public editWorkflow(): void {
       this.route.navigate(['wizard', 'edit', this.selectedWorkflows[0].id]);
    }
@@ -104,8 +94,8 @@ export class WorkflowsHeaderComponent {
       this.onSelectFilter.emit(filter);
    }
 
-   public searchWorkflow($event: any): void {
-      this.onSearch.emit($event.text);
+   public searchWorkflow(event: any): void {
+      this.onSearch.emit(event.text);
    }
 
 }

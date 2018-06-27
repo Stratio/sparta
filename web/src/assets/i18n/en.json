@@ -669,7 +669,9 @@
       "STEP_VALIDATIONS": "There are validation errors in one or more steps",
       "OUTPUT_STEPS": "Output steps",
       "INPUT_STEPS": "Input steps",
+      "VIEW_DEBUG_DATA": "View debug data",
       "DEBUG_DATA_FLOWING": "Data succesfully flowing",
+      "VIEW_ERROR_DETAILS": "View details",
       "GENERIC_ERROR": "Oops!. Data not flowing correctly. There are one or more generic errors",
       "RELATIONS": {
         "DEFAULT": "Default relation",

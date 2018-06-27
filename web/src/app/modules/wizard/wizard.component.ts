@@ -38,16 +38,15 @@ export class WizardComponent implements OnInit, OnDestroy {
       private _store: Store<fromWizard.State>,
       private _route: ActivatedRoute,
       private _cd: ChangeDetectorRef,
-      private _wizardService: WizardService) {
-      const id = this._route.snapshot.params.id;
+      private _wizardService: WizardService) { }
 
-      if (id && id.length) {
-         this.isEdit = true;
-      }
+
+   ngOnInit(): void {
+      const id = this._route.snapshot.params.id;
+      this.isEdit = id && id.length ? true :  false;
       this._store.dispatch(new externalDataActions.GetEnvironmentListAction());
       this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings
       const type = this._route.snapshot.params.type === 'streaming' ? Engine.Streaming : Engine.Batch;
-
       if (this.isEdit) {
          this._store.dispatch(new wizardActions.ModifyWorkflowAction(id));    // Get workflow data from API and then get the menu templates
          this._store.dispatch(new debugActions.GetDebugResultAction(id));     // Get the last debug result
@@ -63,9 +62,6 @@ export class WizardComponent implements OnInit, OnDestroy {
             this._wizardService.workflowType = workflowType;
             this.workflowType = workflowType;
          });
-   }
-
-   ngOnInit(): void {
       // show create node pointer icon
       this._store.select(fromWizard.isCreationMode)
          .takeUntil(this._componentDestroyed)

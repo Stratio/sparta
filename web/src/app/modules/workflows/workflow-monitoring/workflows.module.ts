@@ -24,6 +24,7 @@ import { WorkflowEffect } from './effects/workflow';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 import { WorkflowsManageModule } from '@app/workflows/workflow-managing/workflows.module'; // import json modal from this module
 import { WorkflowJsonModal } from '@app/workflows/workflow-managing';
+import { WorkflowsService } from '@app/workflows/workflow-monitoring/workflows.service';
 
 @NgModule({
     declarations: [
@@ -53,7 +54,7 @@ import { WorkflowJsonModal } from '@app/workflows/workflow-managing';
         SharedModule,
         WorkflowsManageModule
     ],
-    providers: [reducerProvider]
+    providers: [reducerProvider, WorkflowsService]
 })
 
 export class WorkflowsMonitoringModule {

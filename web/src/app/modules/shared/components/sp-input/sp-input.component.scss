@@ -86,8 +86,16 @@
           font-size: 15px;
           color: $action-secondary-07;
         }
+
+        &-value {
+          font-size: 13px;
+          color: $action-secondary-05;
+          line-height: 16px;
+          display: block;
+        }
     }
-  }
+}
+
 .variable-selector {
   padding:0 11px;
   border-radius: 11.5px;

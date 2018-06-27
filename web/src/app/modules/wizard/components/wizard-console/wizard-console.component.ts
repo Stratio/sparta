@@ -36,27 +36,26 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
   };
   set entityData(value: any) {
     this.tableFields = [];
-    if (value && value.debugResult && value.debugResult.result && value.debugResult.result.data) {
-      try {
-        const obj = JSON.parse(value.debugResult.result.data);
-        for (const key in obj) {
-          this.tableFields.push(key);
-        }
-      } catch(error) {
-      }
-    }
     this._entityData = value;
+    try {
+      const res = value.debugResult.result.data;
+      // sometimes its an Object literal, and other times an Array of object literals.
+      this.data = Array.isArray(res) ? res.map(item => JSON.parse(item)) : JSON.parse(res);
+    } catch (error) {
+      this.data = null;
+    }
   }
   @Input() genericError: any;
 
-  public options: StHorizontalTab[] = [{
-    id: 'Exceptions',
-    text: 'Exceptions'
-  }, {
-    id: 'Data',
-    text: 'Debug Data'
-  }];
-
+  public options: StHorizontalTab[] = [
+    {
+      id: 'Data',
+      text: 'Debug Data'
+    }, {
+      id: 'Exceptions',
+      text: 'Exceptions'
+    }];
+  public data: any;
   public selectedOption: StHorizontalTab;
   public tableFields: Array<string> = [];
   private pos1 = 0;
@@ -80,7 +79,7 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this._element.style.top = window.innerHeight - 200 + 'px';
     setTimeout(() => {
-        this._element.style.transform = 'translateY(0)';
+      this._element.style.transform = 'translateY(0)';
     });
   }
 
@@ -101,22 +100,13 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
     this._store.dispatch(new debugActions.HideDebugConsoleAction());
   }
 
-  getData(result) {
-    try {
-      return JSON.parse(result.result.data)
-    } catch(error) {
-      return '';
-    }
-  }
-
   private _elementDrag(e) {
     // calculate the new cursor position:
     this.pos1 = this.pos2 - e.clientY;
     this.pos2 = e.clientY;
     // set the element's new position:
     const top = this._element.offsetTop - this.pos1;
-    const maxH = window.innerHeight - 50;
-    this._element.style.top = top > maxH ? maxH : top + 'px';
+    this._element.style.top = top < 131 ? 131 : top + 'px';
   }
 
   private _closeDragElement() {

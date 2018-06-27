@@ -25,7 +25,7 @@ import { MonitoringWorkflow } from './../../models/workflow';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class WorkflowsTableComponent implements OnInit {
+export class WorkflowsTableComponent {
 
     @Input() workflowList: Array<MonitoringWorkflow> = [];
     @Input() selectedWorkflowsIds: Array<string> = [];
@@ -71,10 +71,6 @@ export class WorkflowsTableComponent implements OnInit {
     editSelectedWorkflow($event: Event, workflowId: string) {
         $event.stopPropagation();
         this.route.navigate(['wizard', 'edit', workflowId]);
-    }
-
-    ngOnInit(): void {
-
     }
 
     constructor(private route: Router, private _cd: ChangeDetectorRef) {

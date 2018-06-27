@@ -96,6 +96,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   private sub: Subscription;
   private pristine = true;
   private valueChangeSub: Subscription;
+  private isPristine = true;
 
   constructor(private _cd: ChangeDetectorRef, private elementRef: ElementRef, private renderer: Renderer) { }
 
@@ -110,7 +111,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
 
   ngOnChanges(change: any): void {
-    if (this.forceValidations && this.internalControl) {
+    if (this.internalControl && this.forceValidations) {
       this.writeValue(this.internalControl.value);
     }
     this._cd.markForCheck();
@@ -150,7 +151,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     this.instance.on('change', () => {
       this.pristine = false;
       const value = this.instance.getValue();
-      this.internalControl.setValue(value);
       this.onChange(value);
     });
 
@@ -173,7 +173,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.vc.first.nativeElement.focus();
     }
     this.codemirrorInit(this.config);
-
     this.instance.setValue(this.internalControl.value ? this.internalControl.value : '');
   }
 
@@ -194,8 +193,12 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     if (typeof value === 'object') {
       value = JSON.stringify(value, null, 4);
     }
+    if (this.forceValidations) {
+      this.onChange(value);
+    }
     this.internalControl.setValue(value);
     this.instance && this.instance.setValue(value ? value : '');
+    this.internalTextareaModel = value;
 
   }
 

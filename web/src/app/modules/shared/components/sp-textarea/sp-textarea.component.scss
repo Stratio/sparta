@@ -2,8 +2,9 @@
     position: relative;
     display: inline-block;
     padding-bottom: 20px;
+    width: 100%;
  }
- 
+
  .st-textarea-title {
     padding: 0;
     position: relative;
@@ -13,7 +14,7 @@
  }
  
  .st-textarea {
-    min-width: 100%;
+    min-height: 70px;
     display: inline-block;
  }
  

@@ -24,7 +24,7 @@
          </div>
       </div>
       <div *ngIf="selectedOption.id === 'Data'">
-         <node-tree-data *ngIf="entityData.debugResult && entityData.debugResult.result && entityData.debugResult.result.data" [data]="getData(entityData.debugResult)"></node-tree-data>
+         <node-tree-data *ngIf="data" [data]="data"></node-tree-data>
 
         <!-- <table *ngIf="tableFields.length"> 
           <tr>

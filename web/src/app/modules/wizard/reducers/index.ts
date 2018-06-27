@@ -159,7 +159,7 @@ export const getEditionConfigMode = createSelector(
         serverValidation: stepValidation[editionConfig.editionType.data.name],
         debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
         schemas: schemas,
-      } : editionConfig;}
+      } : editionConfig; }
   );
 
 

@@ -25,8 +25,10 @@ import { isEqual } from 'underscore';
 import * as errorActions from 'actions/errors';
 import * as workflowActions from './../actions/workflows';
 import * as fromRoot from './../reducers';
+import { WorkflowsService } from '.././workflows.service';
+
 import { WorkflowService } from 'services/workflow.service';
-import { generateJsonFile, formatDate, getFilterStatus } from '@utils';
+import { generateJsonFile } from '@utils';
 
 
 @Injectable()
@@ -35,42 +37,19 @@ export class WorkflowEffect {
    @Effect()
    getWorkflowList$: Observable<any> = this.actions$
       .ofType(workflowActions.LIST_WORKFLOW)
-      .withLatestFrom(this.store.select(state => state.workflows.workflows))
-      .switchMap(([payload, workflowsState]: [any, any]) =>
+      .withLatestFrom(this.store.select(fromRoot.getWorkflows))
+      .switchMap(([payload, workflowList]: [any, any]) =>
          this.workflowService.findAllMonitoring().mergeMap((workflows: any) => {
-            workflows.map((workflow: any) => {
-               workflow.filterStatus = getFilterStatus(workflow.status.status);
-               workflow.tagsAux = workflow.tags ? workflow.tags.join(', ') : '';
-               try {
-                  const sparkURI = workflow.execution.marathonExecution.sparkURI;
-                  if (sparkURI.length) {
-                     workflow.sparkURI = sparkURI;
-                  }
-               } catch (error) { }
-                  try {
-                     const lastErrorDate = workflow.execution.genericDataExecution.lastError.date;
-                     workflow.lastErrorDate = formatDate(lastErrorDate, true, true);
-                  } catch (error) { }
-               try {
-                  const sparkURI = workflow.execution.localExecution.sparkURI;
-                  if (sparkURI.length) {
-                     workflow.sparkURI = sparkURI;
-                  }
-               } catch (error) { }
-               try {
-                  workflow.lastUpdate = workflow.status.lastUpdateDate ? formatDate(workflow.status.lastUpdateDate) : '';
-                  workflow.lastUpdateOrder = workflow.status.lastUpdateDate ? new Date(workflow.status.lastUpdateDate).getTime() : 0;
-               } catch (error) { }
-            });
-            return isEqual(workflows, workflowsState.workflowList) && workflows.length ? empty() :
+            workflows.map((workflow: any) => WorkflowsService.normalizeWorkflow(workflow));
+            return isEqual(workflows, workflowList) && workflows.length ? empty() :
                from([
                   new workflowActions.ListWorkflowCompleteAction(workflows),
                   new workflowActions.ValidateSelectedAction()
                ]);
          })
             .catch(error => error.statusText === 'Unknown Error' ?
-               from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
-               Observable.of(new errorActions.ServerErrorAction(error))));
+                  from([new workflowActions.ListWorkflowFailAction(), new errorActions.ServerErrorAction(error)]) :
+                  Observable.of(new errorActions.ServerErrorAction(error))));
 
    @Effect()
    deleteWorkflow$: Observable<Action> = this.actions$

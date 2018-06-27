@@ -5,7 +5,14 @@
  */
 
 import {
-   Component, OnInit, OnDestroy, ChangeDetectionStrategy, Input, ViewChild, ChangeDetectorRef
+   AfterViewInit,
+   ChangeDetectionStrategy,
+   ChangeDetectorRef,
+   Component,
+   Input,
+   OnDestroy,
+   OnInit,
+   ViewChild
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';

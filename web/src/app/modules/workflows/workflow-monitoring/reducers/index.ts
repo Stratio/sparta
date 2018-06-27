@@ -51,10 +51,12 @@ export const getFiltersState = createSelector(
    state => state.filters
 );
 
+export const getWorkflows = createSelector(getWorkflowsState, state => state.workflowList);
+
 export const getWorkflowsQueryResults = createSelector(
-   getWorkflowsState,
+   getWorkflows,
    getFiltersState,
-   (workflows, filters) => WorkflowUtils.searchWorkflows(workflows.workflowList, filters.searchQuery)
+   (workflows, filters) => WorkflowUtils.searchWorkflows(workflows, filters.searchQuery)
 );
 
 export const getWorkflowList = createSelector(

@@ -18,7 +18,6 @@ export function reducer(state: State = initialState, action: any): State {
   switch (action.type) {
 
     case externalDataActions.GET_ENVIRONMENT_LIST_COMPLETE: {
-      console.log(action.payload)
       return {
         ...state,
         environmentVariables: action.payload

@@ -9,6 +9,8 @@ import { SharedModule } from '@app/shared';
 import { TranslateModule } from '@ngx-translate/core';
 import { StoreModule } from '@ngrx/store';
 import { TRANSLATE_CONFIG } from '@app/core';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+
 import { reducers } from './reducers';
 
 import { BrowserModule } from '@angular/platform-browser';
@@ -16,6 +18,7 @@ import { EffectsModule } from '@ngrx/effects';
 
 import { GlobalEffect } from './effects/global';
 import { HttpClientModule } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 
 export const APP_IMPORTS: Array<any> = [
@@ -26,6 +29,9 @@ export const APP_IMPORTS: Array<any> = [
    SharedModule,
    TranslateModule.forRoot(TRANSLATE_CONFIG),
    StoreModule.forRoot(reducers),
+    !environment.production
+      ? StoreDevtoolsModule.instrument({ maxAge: 50 })
+      : [],
    EffectsModule.forRoot([
       GlobalEffect
    ])

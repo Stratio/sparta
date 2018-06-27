@@ -6,7 +6,7 @@
 
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule,
     StModalService, StProgressBarModule, StTextareaModule } from '@stratio/egeo';
@@ -47,6 +47,7 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
     ],
     imports: [
         FormsModule,
+        ReactiveFormsModule,
         StoreModule.forFeature('workflowsManaging', reducers),
         EffectsModule.forFeature([WorkflowEffect]),
         PerfectScrollbarModule,

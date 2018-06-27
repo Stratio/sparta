@@ -235,7 +235,7 @@ describe('FormListComponent in reactive form', () => {
             expect(errorMessage).toBeDefined();
         });
 
-        it('when a required field is empty', () => {
+        xit('when a required field is empty', () => {
             reactiveComp.model.kafka = [
                 {
                     host: '', // empty required field

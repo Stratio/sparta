@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -21,20 +21,23 @@ import { ErrorMessagesService } from 'app/services';
 export class WorkflowGroupModal implements OnInit, OnDestroy {
 
     @Output() onCloseGroupModal = new EventEmitter<string>();
-    @ViewChild('groupForm') public groupForm: NgForm;
 
+    public groupForm: FormGroup;
     public forceValidations = false;
     public name = '';
 
     private openModal$: Subscription;
 
-    constructor(private _store: Store<fromRoot.State>, public errorsService: ErrorMessagesService) {
+    constructor(private _store: Store<fromRoot.State>, public errorsService: ErrorMessagesService, private _fb: FormBuilder) {
         _store.dispatch(new workflowActions.InitCreateGroupAction());
+        this.groupForm = _fb.group({
+            name: new FormControl('', [Validators.required])
+        });
     }
 
     createGroup() {
         if (this.groupForm.valid) {
-            this._store.dispatch(new workflowActions.CreateGroupAction(this.name));
+            this._store.dispatch(new workflowActions.CreateGroupAction(this.groupForm.controls.name.value));
         } else {
             this.forceValidations = true;
         }

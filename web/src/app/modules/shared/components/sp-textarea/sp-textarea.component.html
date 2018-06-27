@@ -2,7 +2,7 @@
 [ngClass]="{error: showError(), active: focus, disabled: isDisabled}" [attr.for]="name">
 {{label}}
 </label>
-<textarea class="st-textarea" #textarea (focus)="onFocus($event)" (focusout)="onFocusOut($event)"
+<textarea class="st-textarea" #textarea (input)="valuechange($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event)"
    (blur)="onFocusOut($event)" [formControl]="internalControl"
    [ngClass]="{error: showError(), disabled: isDisabled}"
    [placeholder]="placeholder" [name]="name" [cols]="cols" [rows]="rows" [wrap]="wrap"

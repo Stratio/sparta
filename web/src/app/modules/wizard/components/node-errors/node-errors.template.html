@@ -15,7 +15,7 @@
         <span class="icon-record"></span>
       </div>
       <div class="message">{{(debugResult.error.localizedMsg && debugResult.error.localizedMsg.length > 140) ? (debugResult.error.localizedMsg | slice:0:140)+'..':(debugResult.error.localizedMsg) }}</div>
-      <span class="error-details" (click)="showConsole('Exceptions')">View details</span>
+      <span class="error-details" (click)="showConsole('Exceptions')">{{'WIZARD.VIEW_ERROR_DETAILS' | translate}}</span>
     </div>
   </div>
 </div>
@@ -36,7 +36,7 @@
         <span class="icon" [ngClass]="inputSchemasOpened ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
         <span>Input schemas</span>
       </span>
-      <span class="debug-data-link" (click)="showConsole('Data')">View Debug Data</span>
+      <span class="debug-data-link" (click)="showConsole('Data')">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
     </div>
     <div *ngIf="inputSchemasOpened">
       <div *ngFor="let schema of inputSchemas">
@@ -54,7 +54,7 @@
         <span class="icon" [ngClass]="outputSchemasOpened ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
         <span>Output schemas</span>
       </span>
-      <span class="debug-data-link" (click)="showConsole('Data')">View Debug Data</span>
+      <span class="debug-data-link" (click)="showConsole('Data')">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
     </div>
     <div *ngIf="outputSchemasOpened">
       <div (click)="toggleSchema(outputSchema)" class="schema-section">

@@ -40,12 +40,10 @@
         <div class="col-sm-6">
             <div class="global-actions">
                 <div *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1" class="selection-tools">
-
                     <button spTitle="Run selected workflow" class="button button-toolbar" id="run-button" (click)="runWorkflow(selectedWorkflows[0])"
                         *ngIf="!isRunning(selectedWorkflows[0].status.status); else stopTemplate">
                         <i class="icon-play"></i>
                     </button>
-
                     <ng-template #stopTemplate>
                         <button spTitle="Stop selected workflow" class="button button-toolbar" id="run-button" (click)="runWorkflow(selectedWorkflows[0])">
                            <i class="icon-stop"></i>
@@ -56,8 +54,12 @@
                     </button>
                     <div class="separator"></div>
                 </div>
-                <button spTitle="Show info sidebar" class="button button-toolbar" id="info-button" (click)="showWorkflowInfo.emit()" [ngClass]="{'selected-button': showDetails}">
-                    <i class="icon-info1"></i>
+                <button spTitle="Show info sidebar" 
+                    class="button button-toolbar" 
+                    id="info-button" 
+                    (click)="showWorkflowInfo.emit()" 
+                    [ngClass]="{'selected-button': showDetails}">
+                        <i class="icon-info1"></i>
                 </button>
             </div>
         </div>

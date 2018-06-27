@@ -5,6 +5,7 @@
  */
 
 import { Action } from '@ngrx/store';
+import { MonitoringWorkflow } from '../models/workflow';
 
 export const LIST_WORKFLOW = '[Workflow] List workflows';
 export const LIST_WORKFLOW_COMPLETE = '[Workflow] List workflows complete';
@@ -57,7 +58,7 @@ export class SelectWorkflowAction implements Action {
 export class DeselectWorkflowAction implements Action {
   readonly type = DESELECT_WORKFLOW;
 
-  constructor(public payload: any) { }
+  constructor(public payload: MonitoringWorkflow) { }
 }
 
 export class RemoveWorkflowSelectionAction implements Action {

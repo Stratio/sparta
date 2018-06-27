@@ -7,10 +7,13 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-
-<form #groupForm="ngForm" novalidate autocomplete="off">
-   <sp-input label="Group name" [isFocused]="true" [(ngModel)]="name" [errors]="errorsService.errors.inputErrors" 
-   pattern="^[a-z0-9-]*$" qaTag="group-name" class="st-form-field" required="true" name="name"></sp-input>
+<form [formGroup]="groupForm" novalidate autocomplete="off">
+   <sp-input label="Group name" 
+        [isFocused]="true"
+        [forceValidations]="forceValidations"
+        formControlName="name"
+        [errors]="errorsService.errors.inputErrors" 
+        pattern="^[a-z0-9-]*$" qaTag="group-name" class="st-form-field" required="true" name="name"></sp-input>
 </form>
 <div class="footer">
    <button class="button button-primary save-button" (click)="createGroup()">Save</button>

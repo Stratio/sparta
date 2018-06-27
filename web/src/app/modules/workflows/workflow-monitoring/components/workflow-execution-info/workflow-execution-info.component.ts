@@ -4,8 +4,8 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import {
-    Component, OnInit, ViewChild, ChangeDetectionStrategy,
-    Input, OnDestroy, ChangeDetectorRef
+    Component, ViewChild, ChangeDetectionStrategy,
+    Input, ChangeDetectorRef
 } from '@angular/core';
 import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
 import { NgForm } from '@angular/forms';
@@ -40,7 +40,6 @@ export class WorkflowExecutionInfoComponent {
     }];
 
     public selectedOption = 'spark';
-
     public fields: StTableHeader[] = [
         { id: 'key', label: 'Key' },
         { id: 'value', label: 'Value' }
@@ -51,18 +50,18 @@ export class WorkflowExecutionInfoComponent {
     constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
 
 
-    changeOrderArguments($event: any): void {
-        this.orderByArguments = $event.orderBy;
-        this.sortOrderArguments = $event.type;
+    changeOrderArguments(event: any): void {
+        this.orderByArguments = event.orderBy;
+        this.sortOrderArguments = event.type;
     }
 
-    changeOrderConfig($event: any): void {
-        this.orderByConfig = $event.orderBy;
-        this.sortOrderConfig = $event.type;
+    changeOrderConfig(event: any): void {
+        this.orderByConfig = event.orderBy;
+        this.sortOrderConfig = event.type;
     }
 
-    changeTableInfo($event: any): void {
-        this.selectedOption = $event.id;
+    changeTableInfo(event: any): void {
+        this.selectedOption = event.id;
     }
 
     closeWorkflowExecutinInfo() {

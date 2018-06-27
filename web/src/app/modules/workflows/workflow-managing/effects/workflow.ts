@@ -24,8 +24,9 @@ import * as errorActions from 'actions/errors';
 import * as fromRoot from './../reducers';
 import { WorkflowService } from 'services/workflow.service';
 import { generateJsonFile } from '@utils';
-import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../workflow.constants';
+import { FOLDER_SEPARATOR } from './../workflow.constants';
 import { Group, GroupWorkflow } from '../models/workflows';
+import { homeGroup } from '@app/shared/constants/global';
 
 @Injectable()
 export class WorkflowEffect {
@@ -33,10 +34,9 @@ export class WorkflowEffect {
     @Effect()
     getWorkflowListAndStatus$: Observable<Action> = this.actions$
         .ofType(workflowActions.LIST_GROUP_WORKFLOWS)
-        .withLatestFrom(this.store.select(state => state.workflowsManaging))
-        .switchMap(([payload, workflow]) => {
-            const currentLevel = workflow.workflowsManaging.currentLevel;
-            const groupId = currentLevel.name === DEFAULT_FOLDER ? '940800b2-6d81-44a8-84d9-26913a2faea4' : currentLevel.id;
+        .withLatestFrom(this.store.select(fromRoot.getCurrentLevel))
+        .switchMap(([payload, currentLevel]) => {
+            const groupId = currentLevel.name === homeGroup.name ? homeGroup.id : currentLevel.id;
             return this.workflowService.getWorkflowsByGroup(groupId)
                 .map((result) => new workflowActions.ListGroupWorkflowsCompleteAction(result))
                 .catch(error => Observable.from([
@@ -52,7 +52,8 @@ export class WorkflowEffect {
         .ofType(workflowActions.LIST_GROUPS)
         .switchMap((data: any) =>
             this.workflowService.getGroups()
-            .switchMap(groups => [new workflowActions.ListGroupsCompleteAction(groups), new workflowActions.ListGroupWorkflowsAction()])
+            .switchMap(groups => [new workflowActions.ListGroupsCompleteAction(groups.find(group => group.name === '/home') ?
+                groups : [...groups, homeGroup]), new workflowActions.ListGroupWorkflowsAction()])
             .catch(error => Observable.from([new workflowActions.ListGroupsErrorAction(), new errorActions.ServerErrorAction(error)])));
 
     @Effect()
@@ -98,8 +99,8 @@ export class WorkflowEffect {
     deleteVersions$: Observable<Action> = this.actions$
        .ofType(workflowActions.DELETE_VERSION)
        .map((action: any) => action.payload)
-       .withLatestFrom(this.store.select(state => state.workflowsManaging))
-       .switchMap(([data, workflow]) => this.workflowService.deleteWorkflowList(workflow.workflowsManaging.selectedVersions))
+       .withLatestFrom(fromRoot.getSelectedVersions)
+       .switchMap(([data, selectedVersions]) => this.workflowService.deleteWorkflowList(selectedVersions))
        .mergeMap(() => [new workflowActions.DeleteVersionCompleteAction(''), new workflowActions.ListGroupsAction()])
        .catch(error => Observable.from([new workflowActions.DeleteVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
 
@@ -187,10 +188,10 @@ export class WorkflowEffect {
     @Effect()
     createGroup$: Observable<Action> = this.actions$
         .ofType<workflowActions.CreateGroupAction>(workflowActions.CREATE_GROUP)
-        .mergeMap((data: any) => this.store.select(fromRoot.getCurrentGroupLevel)
-        .take(1)
-        .mergeMap((groupLevel) => this.workflowService.createGroup(groupLevel.group.name + FOLDER_SEPARATOR + data.payload)
-        .mergeMap(() => [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.ListGroupsAction()]))
+        .map((action: any) => action.payload)
+        .withLatestFrom(this.store.select(fromRoot.getCurrentGroupLevel))
+        .switchMap(([data, groupLevel]) => this.workflowService.createGroup(groupLevel.group.name + FOLDER_SEPARATOR + data)
+        .switchMap(() => [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.ListGroupsAction()])
         .catch(error => Observable.from([new workflowActions.CreateGroupErrorAction(''), new errorActions.ServerErrorAction(error)])));
 
     @Effect()

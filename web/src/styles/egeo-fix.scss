@@ -1,14 +1,5 @@
 
-
-sp-textarea {
-   width: 100%;
-   textarea {
-       min-height: 70px;
-   }
-
-}
-
-//************** end custom sth-alert ****************//
+//************** init custom sth-alert ****************//
 
 .sth-alert-box {
    background-color: #fff!important;
@@ -82,11 +73,6 @@ wizard .st-fullscreen-layout {
    }
 }   
 
-// z-index lower than st-alert
-.sth-header {
-   z-index: 999!important;
-}
-
 .st-dropdown-menu-item {
    cursor: pointer;
 }
@@ -142,25 +128,4 @@ workflows-manage-header .sth-breadcrumbs__item {
 
 .st-form-field .st-label {
     color: #555;
-}
-/* Fix inputs initial validation */
-.st-form-field {
-   .error {
-      &.st-label {
-         color: #ec445c!important;
-      }
-      input,
-      text-area {
-         border-color: #ec445c;
-      }
-   }
-   &.error {
-      .st-label {
-         color: #ec445c!important;
-      }
-      input,
-      textarea {
-         border-color: #ec445c!important;
-      }
-   }
 }
