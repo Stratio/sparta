@@ -22,6 +22,7 @@ import { FormListModule } from '@app/shared/components/form-list/form-list.modul
 import { FormFieldModule } from '@app/shared/components/form-field/form-field.module';
 import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
 import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
+import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
 
 @NgModule({
    exports: [
@@ -36,7 +37,8 @@ import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
       FormGeneratorModule,
       FormFieldModule,
       FormListModule,
-      TableNotificationModule
+      TableNotificationModule,
+      ConsoleBoxModule
    ],
    imports: [
       CommonModule,
@@ -52,7 +54,8 @@ import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
       SpSelectModule,
       TranslateModule,
       TableNotificationModule,
-      EgeoModule
+      EgeoModule,
+      ConsoleBoxModule
    ],
    declarations: [
       ...shareComponents

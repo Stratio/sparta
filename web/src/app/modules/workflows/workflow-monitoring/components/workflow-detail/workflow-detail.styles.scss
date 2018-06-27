@@ -82,7 +82,7 @@
       font-size: 13px;
    }
    .message {
-      display: block; 
+      display: block;
       font-family: $egeo-nunito-sans-semiBold;
       color: $status-critical-hover;
 
@@ -91,6 +91,12 @@
       word-break: break-word;
       color: $status-critical-hover;
    }
+
+   .details {
+      color: #4a90e2;
+      font-size: 15px;
+      cursor: pointer;
+    }
 }
 
 .phase {

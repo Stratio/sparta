@@ -6,17 +6,14 @@ import { errorComparator } from 'rxjs-tslint/node_modules/tslint/lib/verify/lint
  */
 
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  Inject,
   Input,
   NgZone,
   OnInit
 } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
-import { DOCUMENT } from '@angular/common';
 import { Store } from '@ngrx/store';
 
 import * as debugActions from './../../actions/debug';
@@ -29,13 +26,22 @@ import * as fromWizard from './../../reducers';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class WizardConsoleComponent implements OnInit, AfterViewInit {
+export class WizardConsoleComponent implements OnInit {
 
-  @Input() get entityData() {
+   @Input() get entityData() {
     return this._entityData;
-  };
+  }
+
   set entityData(value: any) {
     this.tableFields = [];
+    if (value && value.debugResult && value.debugResult.result && value.debugResult.result.data) {
+      try {
+        const obj = JSON.parse(value.debugResult.result.data);
+        for (const key in obj) {
+          this.tableFields.push(key);
+         }
+      } catch (error) { }
+    }
     this._entityData = value;
     try {
       const res = value.debugResult.result.data;
@@ -60,61 +66,30 @@ export class WizardConsoleComponent implements OnInit, AfterViewInit {
   public data: any;
   public selectedOption: StHorizontalTab;
   public tableFields: Array<string> = [];
-  private pos1 = 0;
-  private pos2 = 0;
 
   private _entityData: any;
-  private _element: any;
   constructor(private _el: ElementRef,
     private _ngZone: NgZone,
-    private _store: Store<fromWizard.State>,
-    @Inject(DOCUMENT) private _document: Document) {
-    this._element = _el.nativeElement;
-    this._element.style.transform = 'translateY(100%)';
-  }
+    private _store: Store<fromWizard.State>) { }
 
   ngOnInit(): void {
     this._store.select(fromWizard.getDebugConsoleSelectedTab).subscribe(selectedTab =>
       this.selectedOption = this.options.find(option => option.id === selectedTab));
   }
 
-  ngAfterViewInit(): void {
-    this._element.style.top = window.innerHeight - 200 + 'px';
-    setTimeout(() => {
-      this._element.style.transform = 'translateY(0)';
-    });
-  }
-
   changeFormOption(event: any) {
     this._store.dispatch(new debugActions.ChangeSelectedConsoleTab(event.id));
-  }
-
-  moveBox(e) {
-    this._document.body.classList.add('dragging-console');
-    this._ngZone.runOutsideAngular(() => {
-      this.pos2 = e.clientY;
-      document.onmouseup = this._closeDragElement.bind(this);
-      document.onmousemove = this._elementDrag.bind(this);
-    });
   }
 
   closeConsole() {
     this._store.dispatch(new debugActions.HideDebugConsoleAction());
   }
 
-  private _elementDrag(e) {
-    // calculate the new cursor position:
-    this.pos1 = this.pos2 - e.clientY;
-    this.pos2 = e.clientY;
-    // set the element's new position:
-    const top = this._element.offsetTop - this.pos1;
-    this._element.style.top = top < 131 ? 131 : top + 'px';
-  }
-
-  private _closeDragElement() {
-    this._document.body.classList.remove('dragging-console');
-    /* stop moving when mouse button is released:*/
-    document.onmouseup = null;
-    document.onmousemove = null;
+  getData(result) {
+    try {
+      return JSON.parse(result.result.data);
+    } catch (error) {
+      return '';
+    }
   }
 }
