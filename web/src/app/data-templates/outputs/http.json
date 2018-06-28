@@ -50,14 +50,14 @@
         ],
         "default": "json",
         "required": true,
-        "tooltip": "Sets whether the output should be given as Json or as a row of String values",
+        "tooltip": "Sets whether the output should be written as a Json or as a row of String values.",
         "qa": "fragment-details-http-output-format"
       },
       {
         "propertyId": "delimiter",
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
-        "tooltip": "Only eligible if Output Format is set to Row. Any character is accepted except: \\ \" #",
+        "tooltip": "Please note that any character belonging to the following set is not allowed: [ \\ , \" , # ]. (Note that the square brackets [ ] only delimit the set).",
         "default": "{{{DEFAULT_DELIMITER}}}",
         "trim": false,
         "required": false,
@@ -80,7 +80,7 @@
         ],
         "default": "body",
         "required": true,
-        "tooltip": "Sets whether the data should be send in the body or as a named parameter in a form",
+        "tooltip": "Sets whether the data should be sent in the body or as a named parameter in a form.",
         "qa": "fragment-details-http-post-type"
       },
       {
@@ -95,7 +95,7 @@
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
           "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "tooltip": "This output can be used for sending errors in the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
        }

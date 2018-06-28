@@ -5,7 +5,7 @@
     "classPrettyName": "Print",
      "arity": ["NullaryToNullary", "NaryToNullary"],
      "supportedEngines": ["Streaming", "Batch"],
-    "description": "Print the number of elements, schemas and data",
+    "description": "Prints the number of test elements, schemas and data.",
     "properties": [
       {
         "propertyId": "printMetadata",
@@ -55,14 +55,14 @@
         ],
         "default": "warn",
         "required": true,
-        "tooltip": "Sets the log level when printing the data",
+        "tooltip": "Sets the log level when printing the data.",
         "qa": "fragment-details-output-print-logLevel"
       },
        {
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
           "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
        }

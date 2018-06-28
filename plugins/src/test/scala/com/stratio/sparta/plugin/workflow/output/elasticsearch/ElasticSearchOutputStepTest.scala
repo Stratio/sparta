@@ -37,8 +37,7 @@ class ElasticSearchOutputStepTest extends TemporalSparkContext
            |  "httpPort":"9201",
            |  "tcpPort":"9301"
            |}]
-         """.stripMargin),
-        "clusterName" -> "elastic2"
+         """.stripMargin)
       ))
 
     def getInstance(host: String, httpPort: Int, tcpPort: Int) : ElasticSearchOutputStep =
@@ -52,8 +51,7 @@ class ElasticSearchOutputStepTest extends TemporalSparkContext
              |  "httpPort":"$httpPort",
              |  "tcpPort":"$tcpPort"
              |}]
-           """.stripMargin),
-          "clusterName" -> "elasticSearch"
+           """.stripMargin)
         ))
   }
 
@@ -77,8 +75,7 @@ class ElasticSearchOutputStepTest extends TemporalSparkContext
         |"httpPort":"9200",
         |"tcpPort":"9300"}
         |]
-        |""".stripMargin),
-      "clusterName" -> "elasticSearch")
+        |""".stripMargin))
     override val output = new ElasticSearchOutputStep("ES-out", sparkSession, properties)
 
     val dateField = StructField("timestamp", TimestampType, nullable = false)
@@ -89,10 +86,7 @@ class ElasticSearchOutputStepTest extends TemporalSparkContext
 
   "ElasticSearchOutputStep" should "format the properties" in new NodeValues {
     assertResult(output.httpNodes)(Seq(("localhost",9200)))
-    output.clusterName should be("elasticSearch")
-
     assertResult(outputMultipleNodes.httpNodes)(Seq(("host-a",9200),("host-b",9201)))
-    outputMultipleNodes.clusterName should be("elastic2")
   }
 
   it should "properly parse the index name type" in new TestingValues{

@@ -12,14 +12,14 @@
         "propertyName": "_PATH_",
         "propertyType": "text",
         "required": true,
-        "tooltip": "",
+        "tooltip": "Path to store the data in a compatible filesystem (HDFS, S3, Azure, etc). Please note that, in order to write to the HDFS specified in the tenant configuration, also relative paths can be used (e.g. /user/sparta-server/) without the namenode details (e.g. hdfs:///addressNamenode:8020/user/sparta-server/).",
         "qa": "fragment-details-parquet-path"
       },
-       {
+      {
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
           "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
        },

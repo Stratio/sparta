@@ -5,7 +5,7 @@
     "classPrettyName": "Jdbc",
      "arity": ["NullaryToNullary", "NaryToNullary"],
      "supportedEngines": ["Streaming", "Batch"],
-    "description": "With one jdbc connection it's possible to write data into relational SQL Databases.",
+    "description": "With one JDBC connection it's possible to write data into relational SQL Databases.",
     "properties": [
       {
         "propertyId": "url",
@@ -13,7 +13,7 @@
         "propertyType": "text",
         "default": "{{{JDBC_URL}}}",
         "required": true,
-        "tooltip": "Url to connect to one relational Database with jdbc",
+        "tooltip": "Url to connect to a JDBC database.",
         "qa": "fragment-details-jdbc-url"
       },
       {
@@ -22,7 +22,7 @@
         "propertyType": "text",
         "default": "1000",
         "required": false,
-        "tooltip": "Number of insert or upsert statements that are sent to Database on each partition.",
+        "tooltip": "Number of insert or upsert statements that are sent as a batch to the database from each partition.",
         "qa": "fragment-details-jdbc-batch-size"
       },
       {
@@ -30,7 +30,7 @@
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
         "required": false,
-        "tooltip": "Driver class. This property has priority over the URL.",
+        "tooltip": "Driver class which tells Spark the kind of JDBC database used in this output.",
         "qa": "fragment-details-jdbc-driver"
       },
       {
@@ -61,14 +61,14 @@
         ],
         "default": "READ_UNCOMMITTED",
         "required": true,
-        "tooltip": "Sets the isolation level when save data in the database",
+        "tooltip": "Sets the isolation level when persisting the data in the database.",
         "qa": "fragment-postgres-isolation-level"
       },
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "boolean",
-        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+        "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and the JDBC database.",
         "default": false,
         "qa": "fragment-details-postgres-tls"
       },
@@ -76,7 +76,7 @@
           "propertyId": "schemaFromDatabase",
           "propertyName": "_SCHEMA_FROM_DATABASE_",
           "propertyType": "boolean",
-          "tooltip": "Extract schema from output database",
+          "tooltip": "Tells the workflow to extract the schema from the output database.",
           "default": false,
           "qa": "fragment-details-jdbc-schema-database"
        },
@@ -84,7 +84,7 @@
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
           "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
        },
@@ -94,17 +94,17 @@
           "propertyType": "select",
           "values": [
              {
-                "label": "Batch Statement",
+                "label": "Batch statement",
                 "value": "STATEMENT"
              },
              {
-                "label": "Single Statement",
+                "label": "Single statement",
                 "value": "SINGLE_STATEMENT"
              }
           ],
           "default": "STATEMENT",
           "required": true,
-          "tooltip": "Sets whether the output should be written as batch statememt, or row by row statement implementation",
+          "tooltip": "Sets whether the output should be written as a batch statement or by using a row-by-row statement",
           "qa": "fragment-jdbc-save-mode"
        },
        {
@@ -123,7 +123,7 @@
           ],
           "default": false,
           "required": true,
-          "tooltip": "When is enabled, if transaction fail, a exception is thrown",
+          "tooltip": "When enabled, if a transaction fails a exception is thrown and the application is stopped abruptly.",
           "qa": "fragment-details-jdbc-failfast"
        },
       {

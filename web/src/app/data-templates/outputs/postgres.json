@@ -5,7 +5,7 @@
     "classPrettyName": "Postgres",
      "arity": ["NullaryToNullary", "NaryToNullary"],
      "supportedEngines": ["Streaming", "Batch"],
-    "description": "With one Postgres connection it's possible to write data into Postgres Databases. Optimize Jdbc write times, use function COPY IN available in Postgres library",
+    "description": "Given a URL to a Postgres Database, it is possible to write data into multiple tables whose names will be retrieved from the connected previous steps configuration. In order to improve the JDBC writing performance it would be better to use the Postgres native function COPY IN.",
     "properties": [
       {
         "propertyId": "url",
@@ -13,7 +13,7 @@
         "propertyType": "text",
         "default": "{{{POSTGRES_URL}}}",
         "required": true,
-        "tooltip": "Url to connect to one Postgres Database",
+        "tooltip": "Url to connect to a Postgres Database.",
         "qa": "fragment-details-postgres-url"
       },
       {
@@ -21,7 +21,7 @@
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
         "required": false,
-        "tooltip": "Driver class, this property has priority to URL",
+        "tooltip": "Driver class sent to the Spark configuration. Default value set to 'org.postgresql.Driver'.",
         "qa": "fragment-details-jdbc-driver"
       },
       {
@@ -52,7 +52,7 @@
         ],
         "default": "READ_UNCOMMITTED",
         "required": true,
-        "tooltip": "Sets the isolation level when save data in the database",
+        "tooltip": "Sets the isolation level when saving the data in the database.",
         "qa": "fragment-postgres-isolation-level"
       },
       {
@@ -61,25 +61,25 @@
         "propertyType": "select",
         "values": [
           {
-            "label": "Batch Statement",
+            "label": "Batch statement",
             "value": "STATEMENT"
           },
            {
-              "label": "Single Statement",
+              "label": "Single statement",
               "value": "SINGLE_STATEMENT"
            },
            {
-              "label": "One Transaction",
+              "label": "One transaction",
               "value": "ONE_TRANSACTION"
            },
           {
-            "label": "Copy In",
+            "label": "CopyIn",
             "value": "COPYIN"
           }
         ],
         "default": "STATEMENT",
         "required": true,
-        "tooltip": "Sets whether the output should be written with copy in, batch statement, row by row, or all in a single transaction implementation",
+        "tooltip": "Sets the save mode used by Postgres to persist the resulting transformed data. 'Batch statement' groups and saves the data in n batches defined by the user. 'Single statement': one transaction will be used per every row of data to be saved. 'One transaction': All the data will be saved with only one transaction. 'Copy in': the data will be grouped in bulks and sent into the PostgreSQL via the native COPY IN function.",
         "qa": "fragment-postgres-save-mode"
       },
        {
@@ -96,7 +96,7 @@
           ],
           "default": "1000",
           "required": false,
-          "tooltip": "Number of upsert statements that are sent to Database on each partition",
+          "tooltip": "Number of upsert statements that are sent to the database on each partition.",
           "qa": "fragment-details-jdbc-batch-size"
        },
        {
@@ -113,7 +113,7 @@
           ],
           "default": "\t",
           "required": false,
-          "tooltip": "Delimiter character used when transform to CSV, it's necessary that the events not contains the character",
+          "tooltip": "Delimiter character used when transforming to CSV. It is mandatory that this character is not contained in the events being saved.",
           "qa": "fragment-details-postgres-delimiter"
        },
       {
@@ -130,7 +130,7 @@
           ]
         ],
         "required": false,
-        "tooltip": "Character used to substitute the new line character in the events",
+        "tooltip": "Character used to substitute the Linefeed (new line) character in the events. Default value set to a whitespace.",
         "qa": "fragment-details-postgres-new-line-substitution"
       },
        {
@@ -147,7 +147,7 @@
              ]
           ],
           "required": false,
-          "tooltip": "Character used to substitute the quoting character in the events",
+          "tooltip": "Character used to substitute the quoting character in the events. Default value set to ASCII Backspace.",
           "qa": "fragment-details-postgres-new-quote-substitution"
        },
       {
@@ -164,7 +164,7 @@
           ]
         ],
         "required": false,
-        "tooltip": "Charset encoding to use during saving",
+        "tooltip": "Charset encoding to use during saving.",
         "qa": "fragment-details-postgres-encoding"
       },
        {
@@ -185,7 +185,7 @@
           ],
           "default": true,
           "required": true,
-          "tooltip": "Is enabled, on first error the workflow fails, if it is not enabled, errors are ignored",
+          "tooltip": "If enabled, the workflow will fail once it encounters its first error. If it is not enabled, errors are ignored.",
           "qa": "fragment-details-postgres-failfast"
        },
        {
@@ -203,7 +203,7 @@
           "default": true,
           "float": true,
           "required": true,
-          "tooltip": "Is checked, temporal table used for one transaction type backup intermediate records, is deleted. Ends with _tmp_{Timestamp}",
+          "tooltip": "If checked, the temporal table used when choosing the 'One transaction' save mode to persist intermediate records is deleted. These table are always named with the suffix _tmp_{Timestamp}.",
           "qa": "fragment-details-postgres-droptemptable-success"
        },
        {
@@ -220,14 +220,14 @@
           ],
           "default": false,
           "required": true,
-          "tooltip": "Is checked, temporal table used for one transaction type backup intermediate records, is deleted on failures. Ends with _tmp_{Timestamp}",
+          "tooltip": "If checked, the temporal table used when choosing the 'One transaction' save mode to persist intermediate records is deleted. These table are always named with the suffix _tmp_{Timestamp}.",
           "qa": "fragment-details-postgres-droptemptable-failure"
        },
        {
           "propertyId": "tlsEnabled",
           "propertyName": "_TLS_ENABLE_",
           "propertyType": "boolean",
-          "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+          "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and PostgresSQL.",
           "default": false,
           "qa": "fragment-details-postgres-tls"
        },
@@ -235,7 +235,7 @@
           "propertyId": "schemaFromDatabase",
           "propertyName": "_SCHEMA_FROM_DATABASE_",
           "propertyType": "boolean",
-          "tooltip": "Extract schema from output database",
+          "tooltip": "Tells the workflow to extract the schema from the output database.",
           "default": false,
           "qa": "fragment-details-postgres-schema-database"
        },
@@ -243,7 +243,7 @@
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
           "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
        },

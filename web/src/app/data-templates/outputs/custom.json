@@ -6,7 +6,7 @@
    "arity": ["NullaryToNullary", "NaryToNullary"],
    "supportedEngines": ["Streaming", "Batch"],
    "classPrettyName": "Custom",
-   "description": "Custom output defined by user. User can extend the Sparta SDK with his own implementation of Output class",
+   "description": "Users can extend the Sparta SDK with their own implementation of the Output class.",
    "properties": [
       {
          "propertyId": "customClassType",
@@ -14,14 +14,14 @@
          "propertyType": "text",
          "placeHolder": "Custom",
          "required": true,
-         "tooltip": "Output class type that implements the input SDK step",
+         "tooltip": "Output class type that implements the output SDK step",
          "qa": "custom-output-modelType"
       },
       {
          "propertyId": "errorSink",
          "propertyName": "_ERROR_SINK_",
          "propertyType": "boolean",
-         "tooltip": "This output can be used for sending errors in the errors management settings",
+         "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
          "default": false,
          "qa": "fragment-details-errorSink"
       },

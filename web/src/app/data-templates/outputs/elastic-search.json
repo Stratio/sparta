@@ -15,7 +15,7 @@
          "required": true,
          "hidden": false,
          "limit": 0,
-         "tooltip": "",
+         "tooltip": "Configures the 'es.nodes' and 'es.port' properties.",
          "qa": "fragment-details-elasticSearch-nodes",
          "fields": [
             {
@@ -39,14 +39,6 @@
          ]
       },
       {
-         "propertyId": "clusterName",
-         "propertyName": "_CLUSTER_NAME_",
-         "propertyType": "text",
-         "default": "{{{ES_CLUSTER}}}",
-         "required": true,
-         "qa": "fragment-details-elasticSearch-clusterName"
-      },
-      {
          "propertyId": "indexMapping",
          "propertyName": "_INDEX_MAPPING_",
          "propertyType": "text",
@@ -59,7 +51,7 @@
          "propertyId": "enableAutoCreateIndex",
          "propertyName": "_ENABLE_INDEX_AUTO_CREATE_",
          "propertyType": "boolean",
-         "tooltip": "Enable index auto creation",
+         "tooltip": "Enables whether ElasticSearch should create an index (if it is missing) when writing data or fail.",
          "default": true,
          "qa": "fragment-details-elasticSearch-index-auto-create"
       },
@@ -67,7 +59,7 @@
          "propertyId": "tlsEnabled",
          "propertyName": "_TLS_ENABLE_",
          "propertyType": "boolean",
-         "tooltip": "Enable TLS connection to ElasticSearch getting certificates from vault in Spark job",
+         "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and ElasticSearch.",
          "default": false,
          "qa": "fragment-details-elasticSearch-tls"
       },
@@ -75,7 +67,7 @@
          "propertyId": "timeStampMapperFormat",
          "propertyName": "_TIME_STAMP_MAPPING_",
          "propertyType": "text",
-         "tooltip": "Specify the format the timestamp will have",
+         "tooltip": "Specifies a format for the document timestamp.",
          "required": false,
          "qa": "fragment-details-elasticSearch-ts-mapper-format"
       },
@@ -83,7 +75,7 @@
          "propertyId": "errorSink",
          "propertyName": "_ERROR_SINK_",
          "propertyType": "boolean",
-         "tooltip": "This output can be used for sending errors in the errors management settings",
+         "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
          "default": false,
          "qa": "fragment-details-errorSink"
       },

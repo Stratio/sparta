@@ -5,13 +5,13 @@
     "classPrettyName": "Crossdata",
      "arity": ["NullaryToNullary", "NaryToNullary"],
      "supportedEngines": ["Streaming", "Batch"],
-    "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
+    "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in corresponding Crossdata catalog.",
     "properties": [
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "switch",
-        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+        "tooltip": "Enable TLS protocol in order to connect to a secured filesystem using certificates.",
         "default": false,
         "qa": "fragment-details-postgres-tls"
       },
@@ -19,7 +19,7 @@
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",
           "propertyType": "boolean",
-          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
        }

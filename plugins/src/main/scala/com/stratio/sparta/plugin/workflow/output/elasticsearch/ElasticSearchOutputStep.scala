@@ -30,7 +30,6 @@ class ElasticSearchOutputStep(
   val NodeName = "node"
   val NodesName = "nodes"
   val HttpPortName = "httpPort"
-  val DefaultCluster = "elasticsearch"
   val ElasticSearchClass = "org.elasticsearch.spark.sql"
   val sparkConf = xDSession.conf.getAll
 
@@ -39,7 +38,6 @@ class ElasticSearchOutputStep(
   val timeStampMapper = properties.getString("timeStampMapperFormat", None).notBlank
   val autoCreateIndex = Try(properties.getString("enableAutoCreateIndex", "true").toBoolean).getOrElse(true)
   val mappingType = properties.getString("indexMapping", DefaultIndexType)
-  val clusterName = properties.getString("clusterName", DefaultCluster)
   val httpNodes = getHostPortConf(NodesName, DefaultNode, DefaultHttpPort, NodeName, HttpPortName)
 
   val securityOpts =

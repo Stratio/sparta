@@ -4,7 +4,7 @@
       "propertyName": "_TABLE_NAME_",
       "propertyType": "text",
       "required": false,
-      "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name. If is not assigned then the output name is the step name",
+      "tooltip": "Name used to persist the resulting data in a table, topic or queue. If this field is left blank Sparta will use the transformation name instead.",
       "qa": "table-name-writer-tableName"
    },
    {
@@ -12,7 +12,7 @@
       "propertyName": "_ERROR_TABLE_NAME_",
       "propertyType": "text",
       "required": false,
-      "tooltip": "If is assigned the errors data is saved in one table, topic or similar with this name. If is not assigned then the output name is the step name",
+      "tooltip": "Name used to save the error data in a table, topic or similar. If this field is left blank Sparta will use the transformation name instead.",
       "qa": "table-name-writer-errorTableName"
    },
    {
@@ -21,7 +21,7 @@
       "propertyType": "select",
       "required": true,
       "default": "Append",
-      "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
+      "tooltip": "Specifies a Save mode. According to the desired output step (e.g. Postgres), it is possible to select not only the native Spark save modes but also an Upsert save mode that requires the setting of the primary key fields property.",
       "qa": "save-mode-writer",
       "values": [
          {
@@ -56,7 +56,7 @@
       "propertyType": "select",
       "required": true,
       "default": "primaryKey",
-      "tooltip": "The constraint type used for upsert, primaryKey or unique constraint, mandatory only one",
+      "tooltip": "The constraint type used for upserting data. The user may choose between 'Primary Key' or 'Unique constraint fields'.",
       "qa": "constraint-type-writer",
       "visibleOR": [
          [
@@ -94,7 +94,7 @@
             }
          ]
       ],
-      "tooltip": "Set the fields that indicates the where clause in upsert save mode",
+      "tooltip": "Sets the fields which indicates the 'WHERE' clause in the 'Upsert' save mode.",
       "qa": "primaryKey-by-writer"
    },
    {
@@ -110,7 +110,7 @@
             }
          ]
       ],
-      "tooltip": "The Unique Constraint used in upsert operation. If exists it will be used on upsert sentence. If it doesn't exist or table is created for the first time, it will be created using the Unique Constraint Fields property values separated by ','.",
+      "tooltip": "Unique Constraint used in the 'Upsert' operation. If it doesn't exist or the table is created for the first time, it will be also created using the values on the 'Unique Constraint Fields' property which must be separated by ','.",
       "qa": "constraint-by-writer"
    },
    {
@@ -126,7 +126,7 @@
             }
          ]
       ],
-      "tooltip": "When the table is created for the first time, the unique constraint will be created with the value inside this property. During the upsert, if this field is empty, the above Unique Constraint Name property will be used",
+      "tooltip": "If a table is created for the first time, the value inside this field will be used to compose its 'UNIQUE constraint' property. During the upsert, if this field is empty, the above Unique Constraint Name property will be used instead.",
       "qa": "constraint-by-writer"
    },
    {

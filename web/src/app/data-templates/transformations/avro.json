@@ -15,7 +15,7 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Parsing input field in text format to row",
+   "description": "Parsing input field in text format to row.",
    "properties": [
       {
          "propertyId": "inputField",
