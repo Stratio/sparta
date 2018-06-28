@@ -60,8 +60,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 8,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -69,7 +68,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -80,7 +79,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

@@ -17,7 +17,7 @@
       "UnaryToNary",
       "NaryToNary"
    ],
-   "description": "Execute one trigger with one SQL query",
+   "description": "Execute a trigger following the SparkSQL syntax.",
    "properties": [
       {
          "propertyId": "sql",
@@ -26,7 +26,7 @@
          "contentType": "SQL",
          "width": 12,
          "required": true,
-         "tooltip": "Query in SQL language",
+         "tooltip": "Query in SQL language. Refer to the SparkSQL documentation for more information on supported operations.",
          "qa": "fragment-details-trigger-sql"
       },
       {
@@ -35,7 +35,7 @@
          "propertyType": "list",
          "required": false,
          "width": 12,
-         "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+         "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result.",
          "qa": "fragment-details-discard-conditions",
          "fields": [
             {
@@ -44,14 +44,14 @@
                "propertyType": "text",
                "required": true,
                "width": 4,
-               "tooltip": "Field to compare in the previous data",
+               "tooltip": "Field to compare with the previous step data.",
                "qa": "fragment-details-previousField"
             },
             {
                "propertyId": "transformedField",
                "propertyName": "_TRANSFORMED_FIELD_",
                "propertyType": "text",
-               "tooltip": "Field to compare in the generated data",
+               "tooltip": "Field to compare with the generated data.",
                "required": true,
                "width": 4,
                "qa": "fragment-details-transformedField"
@@ -64,8 +64,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 8,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -73,8 +72,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 4,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -83,8 +82,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -97,7 +96,7 @@
          "default": true,
          "required": true,
          "width": 12,
-         "tooltip": "Execute the query when any, or both, of the steps are empty and no schema is provided. This is a useful feature when the query contains joins",
+         "tooltip": "Execute the query when any, or both, of the steps are empty and no schema is provided. This is a useful feature when the query contains joins.",
          "qa": "fragment-trigger-executeSqlWhenEmpty"
       }
    ]

@@ -15,14 +15,14 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Parsing input field in text format to row",
+   "description": "Parses an input field in text format to row",
    "properties": [
       {
          "propertyId": "inputField",
          "propertyName": "_INPUT_FIELD_",
          "propertyType": "text",
          "required": true,
-         "tooltip": "Filed that contains the json string",
+         "tooltip": "Field containing the JSON string",
          "qa": "fragment-details-casting-fieldsString"
       },
       {
@@ -45,6 +45,7 @@
                "value": "JUST_EXTRACTED"
             }
          ],
+         "tooltip": "The user might choose between 3 modes. If 'Replacing input field' is chosen the resulting data will be saved in the position occupied by the input field. 'Appending extracted' will add the data at the end of the row and lastly 'Keeping just extracted' will only keep the transformed data discarding the received.",
          "qa": "workflow-transformation-json-fieldsPreservationPolicy"
       },
       {
@@ -53,7 +54,7 @@
          "propertyType": "boolean",
          "required": true,
          "default": true,
-         "tooltip": "If checked, each row schema will be inferred from its contents",
+         "tooltip": "If checked, the row schema will be automatically inferred from its content.",
          "qa": "workflow-transformation-json-schema-fromRow"
       },
       {
@@ -88,7 +89,7 @@
          "propertyType": "textarea",
          "contentType": "JSON",
          "width": 8,
-         "tooltip": "Schema in json/Spark format or from example",
+         "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input data being transformed.",
          "default": "",
          "visible": [
             [
@@ -107,8 +108,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -116,8 +116,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 8,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -126,8 +126,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -147,7 +147,25 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
+      },
+      {
+         "propertyId": "whenFieldError",
+         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "FieldError"
+            },
+            {
+               "label": "Null",
+               "value": "Null"
+            }
+         ],
+         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
+         "qa": "workflow-transformation-whenFieldError"
       }
    ]
 }

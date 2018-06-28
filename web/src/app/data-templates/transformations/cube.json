@@ -13,7 +13,7 @@
    "supportedDataRelations": [
       "ValidData"
    ],
-   "description": "Create cubes in order to make real time aggregations based in the OLAP concept",
+   "description": "Create cubes in order to make real time aggregations based in the OLAP concept.",
    "properties": [
       {
          "propertyId": "dimensions",
@@ -27,11 +27,11 @@
                "propertyType": "text",
                "required": true,
                "width": 6,
-               "tooltip": "Dimension name. This name must be present in the fields that contains the input rows",
+               "tooltip": "Dimension name, the field we want to group by. This name must be present in the input row fields. A dimension is a structure that categorizes facts and apply measures onto them generating an aggregation. Dimensions may be identified with the fields in a GROUP BY operation.",
                "qa": "fragment-details-cube-dimension-name"
             }
          ],
-         "tooltip": "List of dimensions assigned to the cube, in one sql query will be the fields into the Group By sentence",
+         "tooltip": "List of defined dimensions assigned to the cube.",
          "qa": "fragment-details-cube-dimensions"
       },
       {
@@ -46,7 +46,7 @@
                "propertyType": "text",
                "required": true,
                "width": 3,
-               "tooltip": "Name assigned to the new field that contains the aggregated value for this operator",
+               "tooltip": "Name assigned to the new field containing the aggregated value for this operator.",
                "qa": "fragment-details-measure-name"
             },
             {
@@ -93,7 +93,7 @@
                   }
                ],
                "width": 3,
-               "tooltip": "Type of aggregation operator used",
+               "tooltip": "Type of aggregation operator used.",
                "qa": "fragment-details-cube-operator-classType"
             },
             {
@@ -101,11 +101,11 @@
                "propertyName": "_INPUT_FIELD_",
                "propertyType": "text",
                "width": 3,
-               "tooltip": "Certain operators need one input field contained into the rows in order to make the aggregation",
+               "tooltip": "Field belonging to an incoming input connected to the Cube transformation. In order to make the aggregation this field must be defined in the Dimensions section too.",
                "qa": "fragment-details-cube-operator-inputField"
             }
          ],
-         "tooltip": "List of operators assigned to the cube, in one sql query will be the fields into the select aggregation functions",
+         "tooltip": "List of operators assigned to the cube.",
          "qa": "fragment-details-cube-measures"
       },
       {
@@ -114,7 +114,7 @@
          "propertyType": "text",
          "float": true,
          "width": 3,
-         "tooltip": "Is possible to indicates one water mark, this is useful to aggregate the data. Needs one input field, then is possible to remove the in-memory data states according to his value",
+         "tooltip": "Watermarking allows the user to indicate a timestamp for the aggregation operation. The user may indicate an input field to be used as a restraint in order to purge the in-memory data states that exceeds this threshold.",
          "qa": "fragment-details-cube-waterMark"
       },
       {
@@ -123,7 +123,7 @@
          "propertyType": "text",
          "default": "1m",
          "width": 3,
-         "tooltip": "When one water mark is defined it's necessary to indicates the availability of the data, the input data is discarded if it's less than (current date - availability). The value indicates one duration",
+         "tooltip": "When a watermark is defined, it's necessary to indicate the availability of the data. The input data is discarded if it's less than the current date minus the availability. The value indicates a span of time.",
          "qa": "fragment-details-cube-availability"
       },
       {
@@ -131,7 +131,7 @@
          "propertyName": "_TIMEOUT_KEY_",
          "propertyType": "text",
          "required": false,
-         "tooltip": "When no data is received in the selected time frame related to one dimension values group, the aggregation state is removed",
+         "tooltip": "Set the duration after which the state of an idle dimension will be removed. A dimension and its state is considered idle if it has not received any data for at least the given duration.",
          "qa": "workflow-transformation-cube-timeoutKey"
       },
       {
@@ -149,7 +149,7 @@
          "required": false,
          "complexForm": true,
          "width": 8,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -157,7 +157,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -168,7 +168,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input being defined.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -204,6 +204,7 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Sets the policy followed by the transformation when encountering an error in a row. If 'Error' is chosen the application will stop and an error trace will be prompted in logs. Conversely, if 'Discard' is chosen no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
       },
       {
@@ -224,6 +225,7 @@
                "value": "Null"
             }
          ],
+         "tooltip": "Sets the policy followed by the transformation when encountering an error in a field. If 'Error' is chosen the application will stop and an error trace will be prompted in logs. Conversely, if 'Null' is chosen no error will be prompted and the field value will be set to null.",
          "qa": "workflow-transformation-whenFieldError"
       }
    ]

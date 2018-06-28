@@ -13,7 +13,7 @@
    "supportedDataRelations": [
       "ValidData"
    ],
-   "description": "Executes basic data quality analysis",
+   "description": "Executes basic data quality analysis.",
    "properties": [
       {
          "propertyId": "columns",
@@ -27,14 +27,14 @@
                "propertyName": "_COLUMN_NAME_PROFILING_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Name of the column",
+               "tooltip": "Name of the column.",
                "qa": "fragment-details-columns-name"
             },
             {
                "propertyId": "characters",
                "propertyName": "_CHARACTERS_ANALYSIS_",
                "propertyType": "text",
-               "tooltip": "List of characters to analyze over the selected column. The characters must be separated by commas",
+               "tooltip": "List of characters to look for in the selected column. The characters must be separated by commas",
                "qa": "fragment-details-characters"
             },
             {
@@ -60,7 +60,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -68,7 +68,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -79,7 +79,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

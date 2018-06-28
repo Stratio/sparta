@@ -82,7 +82,7 @@ abstract class OrderByTransformStep[Underlying[Row]](
     if (orderExpression.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"It is mandatory to specify at least one order expression, such as colA, colB.", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It is mandatory to specify at least one ORDER BY expression such as colA, colB.", name)
       )
 
     if (orderExpression.nonEmpty && !validateSql)

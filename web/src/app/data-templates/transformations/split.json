@@ -15,14 +15,14 @@
    "arity": [
       "UnaryToNary"
    ],
-   "description": "Split values according to a selected method",
+   "description": "Split values according to the method chosen by the user.",
    "properties": [
       {
          "propertyId": "inputField",
          "propertyName": "_INPUT_FIELD_",
          "propertyType": "text",
          "required": true,
-         "tooltip": "Field that contains the string to be split",
+         "tooltip": "Field that contains the string to be split.",
          "qa": "fragment-details-split-fieldString"
       },
       {
@@ -45,6 +45,7 @@
                "value": "JUST_EXTRACTED"
             }
          ],
+         "tooltip": "The user might choose between 3 modes. If 'Replacing input field' is chosen the resulting data will be saved in the position occupied by the input field. 'Appending extracted' will add the data at the end of the row and lastly 'Keeping just extracted' will only keep the transformed data discarding the received.",
          "qa": "workflow-transformation-csv-fieldsPreservationPolicy"
       },
       {
@@ -76,7 +77,7 @@
          "propertyType": "text",
          "width": 6,
          "required": false,
-         "tooltip": "Insert the regular expression that should be used to split the field (e.g. [.])",
+         "tooltip": "Regular expression that should be used to split the field (e.g. [.]).",
          "visible": [
             [
                {
@@ -93,7 +94,7 @@
          "propertyType": "text",
          "width": 6,
          "required": false,
-         "tooltip": "Insert the character that should be used to split the field (e.g. \\t, |, $)",
+         "tooltip": "Character that should be used to split the field (e.g. \\t, |, $).",
          "visible": [
             [
                {
@@ -110,7 +111,7 @@
          "propertyType": "text",
          "width": 6,
          "required": false,
-         "tooltip": "Insert the comma-separated indices that should be used to split the field (e.g. 1,3,7)[NOTE: indexes start at 0]",
+         "tooltip": "Comma-separated indices that should be used to split the field (e.g. 1,3,7)[NOTE: indexes start at 0]",
          "visible": [
             [
                {
@@ -127,7 +128,7 @@
          "propertyType": "boolean",
          "width": 6,
          "default": false,
-         "tooltip": "If checked, the chars found at the positions specified for the splitting will be discarded",
+         "tooltip": "If checked, the chars found at the positions specified for the splitting will be discarded.",
          "visible": [
             [
                {
@@ -171,7 +172,7 @@
             ]
          ],
          "required": true,
-         "tooltip": "Schema definition from list of fields",
+         "tooltip": "Schema definition from a list of fields defined as <field name, field type> tuples.",
          "qa": "fragment-details-split-fields",
          "fields": [
             {
@@ -291,7 +292,7 @@
             ]
          ],
          "required": true,
-         "tooltip": "Spark schema for the fields split",
+         "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input being defined.",
          "qa": "fragment-details-split-spark-schema"
       },
       {
@@ -300,8 +301,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -309,8 +309,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 6,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -319,8 +319,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -340,6 +340,7 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
       },
       {
@@ -356,6 +357,7 @@
                "value": "Null"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
          "qa": "workflow-transformation-whenFieldError"
       }
    ]

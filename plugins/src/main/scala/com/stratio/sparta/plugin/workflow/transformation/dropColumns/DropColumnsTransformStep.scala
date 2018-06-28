@@ -70,7 +70,7 @@ abstract class DropColumnsTransformStep[Underlying[Row]](
     if (fields.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory at least one column to drop.", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify at least one column to be dropped.", name)
       )
 
     validation

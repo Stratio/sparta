@@ -13,14 +13,14 @@
    "arity": [
       "UnaryToNary"
    ],
-   "description": "Execute the window operation supported in Spark Streaming in order to generate DStreams with more than one batch window",
+   "description": "Return a new DStream in which each RDD contains all the elements in seen in a sliding window of time over this DStream.",
    "properties": [
       {
          "propertyId": "overLast",
          "propertyName": "_OVER_LAST_",
          "propertyType": "text",
          "required": false,
-         "tooltip": "Execute the window operation over last time, must be multiplier of the batch window",
+         "tooltip": "Width of the window; must be a multiple of this DStream's batching interval",
          "qa": "fragment-details-window-overLast"
       },
       {
@@ -28,7 +28,7 @@
          "propertyName": "_COMPUTE_EVERY_",
          "propertyType": "text",
          "required": false,
-         "tooltip": "Execute the window operation with sliding window, must be multiplier of the batch window",
+         "tooltip": "Sliding interval of the window (i.e., the interval after which the new DStream will generate RDDs); must be a multiple of this DStream's batching interval",
          "qa": "fragment-details-window-computeEvery"
       },
       {
@@ -37,7 +37,7 @@
          "propertyType": "list",
          "required": false,
          "width": 8,
-         "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
+         "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result.",
          "qa": "fragment-details-discard-conditions",
          "fields": [
             {
@@ -46,14 +46,14 @@
                "propertyType": "text",
                "required": true,
                "width": 3,
-               "tooltip": "Field to compare in the previous data",
+               "tooltip": "Field to compare with in the previous step data.",
                "qa": "fragment-details-previousField"
             },
             {
                "propertyId": "transformedField",
                "propertyName": "_TRANSFORMED_FIELD_",
                "propertyType": "text",
-               "tooltip": "Field to compare in the generated data",
+               "tooltip": "Field to compare with in the generated data.",
                "required": true,
                "width": 3,
                "qa": "fragment-details-transformedField"
@@ -66,8 +66,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 8,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -75,8 +74,9 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 2,
+               "tooltip": "Incoming step name.",
+               "width": 3,
+               "float": false,
                "qa": "fragment-details-field-name"
             },
             {
@@ -85,7 +85,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

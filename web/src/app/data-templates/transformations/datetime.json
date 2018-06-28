@@ -15,7 +15,7 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Parses or creates a list of input field according to a given time format and returns all the obtained new fields or the selected ones",
+   "description": "It can either parse a list of input fields or create fields according to a given time format. Depending on the fieldsPreservationPolicy chosen by the user, either all the obtained new fields or just the selected ones will be returned.",
    "properties": [
       {
          "propertyId": "fieldsDatetime",
@@ -55,6 +55,7 @@
                "propertyType": "text",
                "width": 4,
                "required": true,
+               "tooltip": "Field belonging to a previous incoming transformation from which the value will be extracted",
                "qa": "fragment-details-datetime-field-name",
                "visibleOR": [
                   [
@@ -83,6 +84,7 @@
                      }
                   ]
                ],
+               "tooltip": "Custom datetime format that will be applied to the input field specified previously.",
                "qa": "fragment-details-datetime-field-userFormat"
             },
             {
@@ -91,6 +93,7 @@
                "propertyType": "select",
                "float": false,
                "width": 4,
+               "tooltip": "Standard date time format used to parse the input field.",
                "qa": "fragment-details-datetime-field-standardFormat",
                "values": [
                   {
@@ -204,6 +207,7 @@
                "required": true,
                "float": false,
                "default": "ENGLISH",
+               "tooltip": "Apply a Locale (e.g. EN, ES, IT, etc) to the specified format.",
                "qa": "fragment-details-datetime-field-localeTime",
                "values": [
                   {
@@ -261,6 +265,7 @@
                "required": false,
                "regexp": "^[0-9]*$",
                "validateValue": "true",
+               "tooltip": "Specify a value for the granularity time unit (when the time unit ends with (s)).",
                "qa": "fragment-details-datetime-field-granularityNumber"
             },
             {
@@ -329,6 +334,7 @@
                      "value": "year"
                   }
                ],
+               "tooltip": "Allows the user to specify the time unit granularity: if it ends with (s) it is required for the user to specify a value. E.g. for each minute select Minute and not Minute(s).",
                "default": "millisecond"
             },
             {
@@ -349,6 +355,7 @@
                      "value": "APPEND"
                   }
                ],
+               "tooltip": "The user might choose between 2 modes. If 'Replacing input field' is chosen the resulting data will be saved in the position occupied by the input field. 'Appending extracted' will add the data at the end of the row.",
                "qa": "fragment-details-datetime-field-fieldsPreservationPolicy"
             },
             {
@@ -357,6 +364,7 @@
                "propertyType": "text",
                "required": true,
                "width": 4,
+               "tooltip": "Name given to the resulting datetime transformation.",
                "qa": "fragment-details-datetime-field-outputFieldName"
             },
             {
@@ -385,6 +393,7 @@
                   }
                ],
                "default": "string",
+               "tooltip": "Type given to the resulting datetime transformation.",
                "qa": "fragment-details-datetime-field-type"
             },
             {
@@ -394,6 +403,7 @@
                "default": true,
                "required": true,
                "float": false,
+               "tooltip": "Indicates if values of this field can be `null` values.",
                "qa": "fragment-details-datetime-field-nullable"
             },
             {
@@ -416,6 +426,7 @@
                      "value": "USER"
                   }
                ],
+               "tooltip": "Format given to the resulting datetime transformation.",
                "default": "DEFAULT",
                "required": true
             },
@@ -433,6 +444,7 @@
                      }
                   ]
                ],
+               "tooltip": "User specified format given to the resulting datetime transformation.",
                "qa": "fragment-details-datetime-field-outputUserFormat"
             },
             {
@@ -537,8 +549,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -546,8 +557,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 4,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -556,8 +567,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -567,7 +578,6 @@
          "propertyId": "whenRowError",
          "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
          "propertyType": "select",
-         "width": "4",
          "values": [
             {
                "label": "Error",
@@ -578,13 +588,13 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
       },
       {
          "propertyId": "whenFieldError",
          "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
          "propertyType": "select",
-         "width": "4",
          "values": [
             {
                "label": "Error",
@@ -595,6 +605,7 @@
                "value": "Null"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
          "qa": "workflow-transformation-whenFieldError"
       }
    ]

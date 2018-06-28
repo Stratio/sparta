@@ -33,7 +33,7 @@
                "value": "ALL"
             }
          ],
-         "tooltip": "If select any, then drop rows containing any null or NaN values. If select all, then drop rows only if every column is null or NaN for that row",
+         "tooltip": "If 'Any' is selected, the transformation will drop rows containing null or NaN value in at least one column. If 'All' is chosen, only the rows containing  null or NaN values for all the specified columns will be dropped.",
          "qa": "fragment-details-cleanNulls-cleanMode"
       },
       {
@@ -42,7 +42,7 @@
          "width": 12,
          "propertyType": "list",
          "required": false,
-         "tooltip": "Columns to check null values",
+         "tooltip": "Columns to be checked. If this section is left blank, the transformation will check for null values in all the fields composing the input data.",
          "qa": "fragment-details-cleanNulls-columns",
          "fields": [
             {
@@ -62,8 +62,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -71,8 +70,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 6,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -81,8 +80,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -102,6 +101,7 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
       },
       {
@@ -118,6 +118,7 @@
                "value": "Null"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
          "qa": "workflow-transformation-whenFieldError"
       }
    ]

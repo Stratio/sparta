@@ -12,7 +12,7 @@
     "ValidData",
     "DiscardedData"
   ],
-  "description": "Custom transform defined by user. User can extend the Sparta SDK-Lite with his own implementation of Output class",
+  "description": "Custom transformation defined by user. User can extend the Sparta SDK-Lite with his own implementation of Transformation class",
   "properties": [
     {
       "propertyId": "customLiteClassType",
@@ -20,7 +20,7 @@
       "propertyType": "text",
       "default": "Custom",
       "required": true,
-      "tooltip": "Transformation class type that implements the input SDK step",
+      "tooltip": "Transformation class type that implements the SDK transformation step",
       "qa": "custom-transform-modelType"
     },
     {

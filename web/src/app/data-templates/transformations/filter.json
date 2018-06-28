@@ -15,7 +15,7 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Filter the events in the input DStream",
+   "description": "Filter the events in the input DStream.",
    "properties": [
       {
          "propertyId": "filterExp",
@@ -24,7 +24,7 @@
          "contentType": "JSON",
          "width": 12,
          "required": false,
-         "tooltip": "Filter the events based in one expression, support UDFs, logical operators, etc ...",
+         "tooltip": "Filter the events through an expression. It supports UDFs, logical operators, etc ...",
          "qa": "fragment-details-filter-expression"
       },
       {
@@ -33,8 +33,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -42,8 +41,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 4,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -52,8 +51,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

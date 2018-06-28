@@ -14,14 +14,14 @@
    "arity": [
       "BinaryToNary"
    ],
-   "description": "Join two steps",
+   "description": "Executes a join between two steps.",
    "properties": [
       {
          "propertyId": "leftTable",
          "propertyName": "_JOIN_LEFT_TABLE_",
          "propertyType": "text",
          "required": true,
-         "tooltip": "Select the left table in the join sentence",
+         "tooltip": "Select the left table in the join sentence.",
          "qa": "fragment-details-join-leftTable"
       },
       {
@@ -29,7 +29,7 @@
          "propertyName": "_JOIN_RIGHT_TABLE_",
          "propertyType": "text",
          "required": true,
-         "tooltip": "Select the left table in the join sentence",
+         "tooltip": "Select the right table in the join sentence.",
          "qa": "fragment-details-join-leftTable"
       },
       {
@@ -37,7 +37,7 @@
          "propertyName": "_JOIN_TYPE_",
          "required": true,
          "propertyType": "select",
-         "tooltip": "Select the join type to execute",
+         "tooltip": "Join type to be executed. This list represents every kind of join supported by SparkSQL.",
          "default": "INNER",
          "values": [
             {
@@ -99,6 +99,7 @@
                "value": "COLUMNS"
             }
          ],
+         "tooltip": "Determines which columns of the join will be returned: the user can either select all columns, all the columns from the left or the right table or just a customized set of columns.",
          "qa": "workflow-transformation-join-return"
       },
       {
@@ -107,7 +108,7 @@
          "propertyType": "list",
          "required": false,
          "width": 8,
-         "tooltip": "List of columns to return after the join execution",
+         "tooltip": "List of columns to be returned after the join.",
          "qa": "fragment-details-join-return-columns",
          "fields": [
             {
@@ -135,7 +136,7 @@
                "propertyType": "text",
                "required": true,
                "width": 3,
-               "tooltip": "Column name on input table",
+               "tooltip": "Column name on input table.",
                "qa": "fragment-details-join-return-column"
             },
             {
@@ -143,7 +144,7 @@
                "propertyName": "_JOIN_RETURN_ALIAS_",
                "propertyType": "text",
                "width": 3,
-               "tooltip": "Alias/new name assigned to the input column ",
+               "tooltip": "Alias/new name assigned to the declared column. This field is not mandatory.",
                "required": false,
                "qa": "fragment-details-join-return-column"
             }
@@ -163,7 +164,7 @@
          "propertyType": "list",
          "required": true,
          "width": 8,
-         "tooltip": "Left and right fields to relate the steps in a join sentence",
+         "tooltip": "Field(s) used as join condition(s). The selected field(s) must exist in both tables and have matching types.",
          "qa": "fragment-details-join-conditions",
          "fields": [
             {
@@ -172,7 +173,7 @@
                "propertyType": "text",
                "required": true,
                "width": 4,
-               "tooltip": "Left table field to construct the condition 'leftFieldID = rightFieldID'",
+               "tooltip": "Left table field (leftFieldID) used in the join condition 'leftFieldID = rightFieldID'",
                "qa": "fragment-details-join-conditions-left"
             },
             {
@@ -180,7 +181,7 @@
                "propertyName": "_JOIN_CONDITION_RIGHT_",
                "propertyType": "text",
                "width": 4,
-               "tooltip": "Left table field to construct the condition 'leftFieldID = rightFieldID'",
+               "tooltip": "Right table field (rightFieldID) used in the join condition 'leftFieldID = rightFieldID'",
                "required": true,
                "qa": "fragment-details-join-conditions-right"
             }
@@ -224,8 +225,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 8,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -233,7 +233,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -244,7 +244,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

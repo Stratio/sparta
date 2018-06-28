@@ -15,14 +15,14 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Parsing input field in text format to row.",
+   "description": "Allows you to convert the current dataset according to the AVRO binary format.",
    "properties": [
       {
          "propertyId": "inputField",
          "propertyName": "_INPUT_FIELD_",
          "propertyType": "text",
          "required": true,
-         "tooltip": "Filed that contains the avro string",
+         "tooltip": "Field that contains the AVRO string",
          "qa": "fragment-details-casting-fieldsString"
       },
       {
@@ -45,6 +45,7 @@
                "value": "JUST_EXTRACTED"
             }
          ],
+         "tooltip": "The user might choose between 3 modes. If 'Replacing input field' is chosen the resulting data will be saved in the position occupied by the input field. 'Appending extracted' will add the data at the end of the row and lastly 'Keeping just extracted' will only keep the transformed data discarding the received.",
          "qa": "workflow-transformation-avro-fieldsPreservationPolicy"
       },
       {
@@ -53,7 +54,7 @@
          "propertyType": "textarea",
          "contentType": "JSON",
          "width": 8,
-         "tooltip": "Avro Schema in json format",
+         "tooltip": "Avro schema in JSON format.",
          "required": false,
          "qa": "workflow-transformation-avro-schema-provided"
       },
@@ -64,7 +65,7 @@
          "required": false,
          "complexForm": true,
          "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -72,7 +73,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 6,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -83,7 +84,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input being defined.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

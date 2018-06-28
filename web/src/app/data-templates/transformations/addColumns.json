@@ -21,7 +21,7 @@
          "propertyName": "_COLUMNS_TO_ADD_",
          "propertyType": "list",
          "required": true,
-         "tooltip": "Schema definition from list of fields",
+         "tooltip": "Schema definition for a new column or columns based on list of fields.",
          "qa": "fragment-details-addcolumn-fields",
          "fields": [
             {
@@ -97,7 +97,7 @@
          "required": false,
          "complexForm": true,
          "width": 12,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -106,7 +106,7 @@
                "propertyType": "text",
                "required": true,
                "float": false,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "qa": "fragment-details-field-name"
             },
@@ -116,7 +116,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input being defined.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

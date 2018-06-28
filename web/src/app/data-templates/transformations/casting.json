@@ -15,7 +15,7 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Casts input fields to other types, support advanced Spark types conversions",
+   "description": "Casts input fields to other types. Advanced Spark types conversions are supported.",
    "properties": [
       {
          "propertyId": "outputFieldsFrom",
@@ -33,7 +33,7 @@
                "value": "FIELDS"
             }
          ],
-         "tooltip": "Type of output fields definition, string in json or spark format or a fields model.",
+         "tooltip": "Output fields definition. The user may choose between providing a string in JSON or Spark format or using the field model definition.",
          "qa": "fragment-details-casting-outputFieldsFrom"
       },
       {
@@ -51,7 +51,7 @@
             ]
          ],
          "required": true,
-         "tooltip": "Schema definition in json format or spark format",
+         "tooltip": "Schema definition in JSON or Spark format.",
          "qa": "fragment-details-casting-fieldsString"
       },
       {
@@ -59,7 +59,7 @@
          "propertyName": "_FIELDS_DEFINITION_",
          "propertyType": "list",
          "required": true,
-         "tooltip": "Schema definition from list of fields",
+         "tooltip": "Schema definition from list of fields.",
          "qa": "fragment-details-casting-fields",
          "visible": [
             [
@@ -176,10 +176,9 @@
          "propertyId": "inputSchemas",
          "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
          "propertyType": "list",
-         "complexForm": true,
          "required": false,
-         "width": 12,
-         "tooltip": "Schema definition for steps",
+         "complexForm": true,
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -187,8 +186,8 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
-               "width": 4,
+               "tooltip": "Incoming step name.",
+               "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -197,8 +196,8 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 12,
-               "tooltip": "Schema in json/Spark format or from example",
+               "width": 8,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -218,6 +217,7 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
       },
       {
@@ -234,6 +234,7 @@
                "value": "Null"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
          "qa": "workflow-transformation-whenFieldError"
       }
    ]

@@ -74,13 +74,13 @@ abstract class RenameColumnTransformStep[Underlying[Row]](
     if (columnsToRename.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify at least one column to be renamed", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify at least one column to be renamed.", name)
       )
 
     columnsToRename.filter(c => c.name.trim.isEmpty || c.alias.get.trim.isEmpty).foreach(c =>
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"Column name $c has an invalid format", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"Column name $c has an invalid format.", name)
       )
     )
 

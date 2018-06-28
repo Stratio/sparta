@@ -15,14 +15,14 @@
       "ValidData",
       "DiscardedData"
    ],
-   "description": "Initialize nulls to default values",
+   "description": "Initialize nulls to default values.",
    "properties": [
       {
          "propertyId": "defaultValueToColumn",
          "propertyName": "_DEFAULT_COLUMN_VALUES_",
          "propertyType": "list",
          "required": false,
-         "tooltip": "Default values assigned to columns",
+         "tooltip": "Default values assigned to the specified columns.",
          "qa": "fragment-details-initNulls-defaultValueToColumn",
          "fields": [
             {
@@ -31,7 +31,7 @@
                "propertyType": "text",
                "width": 3,
                "required": true,
-               "tooltip": "Name of the column",
+               "tooltip": "Name of the column.",
                "qa": "fragment-details-cleanNulls-columns-name"
             },
             {
@@ -40,7 +40,7 @@
                "propertyType": "text",
                "width": 3,
                "required": true,
-               "tooltip": "Value of the column",
+               "tooltip": "Value given to the column.",
                "qa": "fragment-details-cleanNulls-columns-name"
             }
          ]
@@ -50,7 +50,7 @@
          "propertyName": "_DEFAULT_TYPE_VALUES_",
          "propertyType": "list",
          "required": false,
-         "tooltip": "Default values assigned to types",
+         "tooltip": "Default values assigned to any of the columns whose types matches the specified type",
          "qa": "fragment-details-initNulls-defaultValueToType",
          "fields": [
             {
@@ -117,7 +117,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -125,7 +125,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -136,7 +136,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }
@@ -156,6 +156,7 @@
                "value": "RowDiscard"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
          "qa": "workflow-transformation-whenRowError"
       },
       {
@@ -172,6 +173,7 @@
                "value": "Null"
             }
          ],
+         "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
          "qa": "workflow-transformation-whenFieldError"
       }
    ]

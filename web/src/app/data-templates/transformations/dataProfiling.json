@@ -13,7 +13,7 @@
    "supportedDataRelations": [
       "ValidData"
    ],
-   "description": "Creates the statistical analysis of data values for the entire dataSet",
+   "description": "Creates the statistical analysis of data values for the entire dataSet.",
    "properties": [
       {
          "propertyId": "analysisType",
@@ -57,7 +57,7 @@
                "propertyName": "_COLUMN_NAME_PROFILING_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Name of the column",
+               "tooltip": "Name of the column.",
                "qa": "fragment-details-columns-name"
             }
          ]
@@ -84,7 +84,7 @@
          "propertyType": "text",
          "required": false,
          "default": "10",
-         "tooltip": "Limit the top values",
+         "tooltip": "Sets a limit for the top values to be shown.",
          "visible": [
             [
                {
@@ -101,7 +101,7 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "tooltip": "Schema definition for steps",
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
          "qa": "fragment-details-schema-fields",
          "fields": [
             {
@@ -109,7 +109,7 @@
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
                "required": true,
-               "tooltip": "Step name",
+               "tooltip": "Incoming step name.",
                "width": 3,
                "float": false,
                "qa": "fragment-details-field-name"
@@ -120,7 +120,7 @@
                "propertyType": "textarea",
                "contentType": "JSON",
                "width": 8,
-               "tooltip": "Schema in json/Spark format or from example",
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"
             }

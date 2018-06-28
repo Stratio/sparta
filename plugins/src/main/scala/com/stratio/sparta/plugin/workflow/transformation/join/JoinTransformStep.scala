@@ -164,13 +164,13 @@ abstract class JoinTransformStep[Underlying[Row]](
     if (joinType != JoinTypes.CROSS && joinConditions.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify join conditions.", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify a join condition.", name)
       )
 
     if (joinReturn == JoinReturn.COLUMNS && joinReturnColumns.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify join columns to return.", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify the resulting columns to be returned.", name)
       )
 
     if (leftTable.nonEmpty && rightTable.nonEmpty && !validateSql)
