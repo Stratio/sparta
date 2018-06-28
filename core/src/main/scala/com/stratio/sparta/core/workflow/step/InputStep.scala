@@ -40,46 +40,28 @@ abstract class InputStep[Underlying[Row]](
   lazy val StorageDefaultValue = "MEMORY_ONLY"
   lazy val DefaultRawDataField = "raw"
   lazy val DefaultRawDataType = "string"
+  lazy val errorDebugValidation = "Either an input path or an uploaded file path or a user-defined example " +
+    "or a valid query to execute must be provided inside the debugging options"
   lazy val DefaultSchema: StructType = StructType(Seq(StructField(DefaultRawDataField, StringType)))
   lazy val storageLevel: StorageLevel = {
     val storageLevel = properties.getString("storageLevel", StorageDefaultValue)
     StorageLevel.fromString(storageLevel)
   }
-
-
   lazy val debugOptions: Option[DebugOptions] = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
     properties.getString("debugOptions", None).map{ debug =>
       read[DebugOptions](debug)
     }
   }
-
   lazy val (debugPath, debugQuery, debugUserProvidedExample, debugFileUploaded):
     (Option[String], Option[String],Option[String], Option[String]) =
     debugOptions.map(debugOpt =>
       (debugOpt.path.notBlank, debugOpt.query.notBlank,
         debugOpt.userProvidedExample.notBlank, debugOpt.fileUploaded.notBlank))
       .getOrElse((None, None, None, None))
-
-  def getFileExtension(path: Option[String]): Option[String] = path.map(Files.getFileExtension)
-
-  def getSerializerForInput(path: Option[String]): Option[InputFormatEnum.Value] =
-    getFileExtension(path) match{
-      case Some(extension) =>  Try(InputFormatEnum.withName(extension.toUpperCase)).map(Some(_)).getOrElse(None)
-      case _ => None
-    }
-
   lazy val validDebuggingOptions = debugPath.isDefined || debugQuery.isDefined ||
     debugUserProvidedExample.isDefined || debugFileUploaded.isDefined
 
-  val errorDebugValidation = "Either an input path or an uploaded file path or a user-defined example " +
-    "or a valid query to execute must be provided inside the debugging options"
-
-  def initWithSchema(): (DistributedMonad[Underlying], Option[StructType]) = {
-    val monad = init()
-
-    (monad, None)
-  }
 
   /* METHODS TO IMPLEMENT */
 
@@ -90,6 +72,25 @@ abstract class InputStep[Underlying[Row]](
     */
   def init(): DistributedMonad[Underlying]
 
+
+  /* PUBLIC METHODS */
+
+  def initWithSchema(): (DistributedMonad[Underlying], Option[StructType]) = {
+    val monad = init()
+
+    (monad, None)
+  }
+
+  protected def getSerializerForInput(path: Option[String]): Option[InputFormatEnum.Value] =
+    getFileExtension(path) match{
+      case Some(extension) =>  Try(InputFormatEnum.withName(extension.toUpperCase)).map(Some(_)).getOrElse(None)
+      case _ => None
+    }
+
+
+  /* PRIVATE METHODS */
+
+  private def getFileExtension(path: Option[String]): Option[String] = path.map(Files.getFileExtension)
 }
 
 object InputStep {

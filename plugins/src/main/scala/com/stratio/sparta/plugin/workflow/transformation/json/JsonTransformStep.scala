@@ -87,7 +87,8 @@ abstract class JsonTransformStep[Underlying[Row]](
     val inputSchema = row.schema
     val inputFieldName = inputField.get
     val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
-    assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
+
+    assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row with schema: $inputSchema")
 
     val value = row(inputFieldIdx).asInstanceOf[String]
 

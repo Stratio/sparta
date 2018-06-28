@@ -70,7 +70,10 @@ case class DebugWorkflow(
       blockInterval = Option(JsoneyString(sparkWindow)),
       stopGracefully = Option(true),
       stopGracefulTimeout = Option(JsoneyString(AppConstant.maxDebugTimeout.toString)),
-      checkpointSettings = streamingSettings.checkpointSettings.copy(enableCheckpointing = false)
+      checkpointSettings = streamingSettings.checkpointSettings.copy(
+        checkpointPath = JsoneyString("/tmp/debug-checkpoint"),
+        autoDeleteCheckpoint = true
+      )
     )
   }
 

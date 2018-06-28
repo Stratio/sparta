@@ -202,7 +202,7 @@ abstract class DateTimeTransformStep[Underlying[Row]](
         case Some(valueParsed) => valueParsed
         case _ =>
           Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenFieldError(
-            new Exception(s"Impossible to parse outputField: $outputField in the schema")))
+            new Exception(s"Impossible to parse outputField: $outputField in the schema: $inputSchema")))
       }
     }
     new GenericRowWithSchema(newValues.toArray, outputSchema)

@@ -51,7 +51,7 @@ abstract class AvroTransformStep[Underlying[Row]](
     val inputSchema = inputRow.schema
     val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
 
-    assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
+    assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row with schema: $inputSchema")
 
     val converter = RowAvroHelper.getAvroConverter(avroSchema, expectedSchema)
     val inputDataField = inputRow(inputFieldIdx)
