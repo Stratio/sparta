@@ -228,10 +228,15 @@ class DebugWorkflowService(
   private def writeDebugWorkflowInZk(debugWorkflow: DebugWorkflow): DebugWorkflow = {
     val updatedOriginalWorkflow = debugWorkflow.copy(workflowOriginal =
       addCreationDate(addId(debugWorkflow.workflowOriginal)))
+    val updatedDebugWorkflow = updatedOriginalWorkflow.copy(
+      workflowDebug = debugWorkflow.workflowDebug.map { workflow =>
+        workflow.copy(id = updatedOriginalWorkflow.workflowOriginal.id)
+      }
+    )
     curatorFramework.create.creatingParentsIfNeeded.forPath(
-      s"$DebugWorkflowZkPath/${updatedOriginalWorkflow.workflowOriginal.id.get}",
-      write(updatedOriginalWorkflow).getBytes)
-    updatedOriginalWorkflow
+      s"$DebugWorkflowZkPath/${updatedDebugWorkflow.workflowOriginal.id.get}",
+      write(updatedDebugWorkflow).getBytes)
+    updatedDebugWorkflow
   }
 
   private def updateDebugWorkflowInZk(debugWorkflow: DebugWorkflow, oldDebugWorkflow: DebugWorkflow): DebugWorkflow = {

@@ -104,8 +104,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
 
     authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Status), debugExecution.authorizationId) {
       Try {
-        val workflow = debugExecution.workflowDebug
+        val workflowDebug = debugExecution.workflowDebug
           .getOrElse(throw new ServerException(s"The workflow debug is not created yet"))
+        val workflow = workflowDebug.copy(id = workflowDebug.id.orElse(debugExecution.workflowOriginal.id))
 
         workflowService.validateDebugWorkflow(workflow)
 
