@@ -10,8 +10,12 @@
 
 <st-fullscreen-layout [title]="editMode ? (('DASHBOARD.EDIT' | translate) + editedTemplateName) : (('DASHBOARD.CREATE_' + stepKey) | translate)">
    <div class="st-fullscreen-layout-buttons">
+      <button class="button button-toolbar help-button" [ngClass]="{'selected-button' : isShowedHelp}" (click)="isShowedHelp = !isShowedHelp">
+         <i class="icon-help2"></i>
+      </button>
       <button id="cancel-edit-button" class="button button-secondary-gray cancel-button" (click)="cancelCreate()">{{'DASHBOARD.CANCEL' | translate}}</button>
       <button id="save-edit-button" class="button button-primary" (click)="onSubmitInputForm()">{{'DASHBOARD.SAVE' | translate}}</button>
+      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" [xPos]="-346" [yPos]="10" [helpOptions]="helpOptions"></sp-help>
    </div>
    <div class="st-fullscreen-layout-content">
       <section class="template-creation-page">

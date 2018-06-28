@@ -8,6 +8,8 @@ import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StDropDownMenuItem } from '@stratio/egeo';
+import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
+
 
 import * as fromTemplates from './../../reducers';
 import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
@@ -33,6 +35,9 @@ export abstract class CreateTemplateComponent implements OnInit {
     public configuration: FormGroup;
     public editMode = false;
     public loaded = false;
+    public isShowedHelp = false;
+
+   public helpOptions: Array<HelpOptions> = [];
 
     constructor(protected store: Store<fromTemplates.State>,
         protected route: Router,
@@ -66,9 +71,14 @@ export abstract class CreateTemplateComponent implements OnInit {
     changeFragment($event: any) {
     }
 
+    closeHelp() {
+      this.isShowedHelp = false;
+   }
+
     ngOnInit() {
         //edition-mode
         if (this.route.url.indexOf('edit') > -1) {
+           console.log('++++++++++');
             this.editMode = true;
             this.getEditedTemplate(this.currentActivatedRoute.snapshot.params.id);
         } else {
@@ -81,6 +91,7 @@ export abstract class CreateTemplateComponent implements OnInit {
             this.inputFormModel.className = this.listData[this.fragmentIndex].className;
             this.loaded = true;
         }
+        this.helpOptions = this.initializeSchemaService.getHelpOptions(this.listData[this.fragmentIndex].properties);
     }
 
     setEditedTemplateIndex(type: string) {
