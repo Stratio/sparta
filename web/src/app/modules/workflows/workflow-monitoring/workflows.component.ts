@@ -51,6 +51,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
    public executionInfo: ExecutionInfo;
    public showExecutionInfo = false;
    public showInitialMode: Observable<boolean>;
+   public showDebugConsole = false;
 
    private _modalOpen: Subscription;
    private _executionInfo: Subscription;
@@ -118,6 +119,14 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
             this._showCreateJsonModal();
             break;
       }
+   }
+
+   showConsole() {
+      this.showDebugConsole = true;
+   }
+
+   onCloseConsole() {
+      this.showDebugConsole = false;
    }
 
    private _showCreateJsonModal(): void {

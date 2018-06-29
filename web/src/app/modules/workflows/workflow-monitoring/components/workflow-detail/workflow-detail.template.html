@@ -36,7 +36,7 @@
          <span class="egeo-title-mini title2">Execution mode</span>
          <span class="values">
            {{execution.genericDataExecution.executionMode}}
-           <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})" 
+           <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})"
         *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode &&  execution.genericDataExecution.executionMode === 'marathon'">Show execution info</a>
 
           </span>
@@ -49,7 +49,7 @@
                <span class="val">{{workflowData.lastErrorDate}}</span>
             </div>
             <span class="message">{{(lastError.localizedMsg.length>100)? (lastError.localizedMsg | slice:0:100)+'..':(lastError.localizedMsg) }}</span>
-            <span class="original-msg" [attr.title]="lastError.exceptionMsg">{{(lastError.exceptionMsg.length>150)? (lastError.exceptionMsg | slice:0:150)+'..':(lastError.exceptionMsg) }}</span>
+            <div class="details" (click)="onShowConsole()" >View details</div>
          </div>
       </div>
    </div>

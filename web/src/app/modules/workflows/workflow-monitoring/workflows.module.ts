@@ -25,6 +25,8 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
 import { WorkflowsManageModule } from '@app/workflows/workflow-managing/workflows.module'; // import json modal from this module
 import { WorkflowJsonModal } from '@app/workflows/workflow-managing';
 import { WorkflowsService } from '@app/workflows/workflow-monitoring/workflows.service';
+import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
+import { WorkflowConsoleComponent } from '@app/workflows/workflow-monitoring/components/workflow-console/workflow-console.component';
 
 @NgModule({
     declarations: [
@@ -34,7 +36,8 @@ import { WorkflowsService } from '@app/workflows/workflow-monitoring/workflows.s
         WorkflowsHeaderContainer,
         WorkflowsHeaderComponent,
         WorkflowsTableComponent,
-        WorkflowsTableContainer
+        WorkflowsTableContainer,
+        WorkflowConsoleComponent
     ],
     imports: [
         FormsModule,
@@ -52,7 +55,8 @@ import { WorkflowsService } from '@app/workflows/workflow-monitoring/workflows.s
         WorkflowRouterModule,
         StPaginationModule,
         SharedModule,
-        WorkflowsManageModule
+        WorkflowsManageModule,
+        ConsoleBoxModule
     ],
     providers: [reducerProvider, WorkflowsService]
 })
