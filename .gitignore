@@ -81,3 +81,5 @@ nexus
 \.directory
 
 web/npm.tar.gz
+
+application.conf

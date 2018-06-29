@@ -15,9 +15,9 @@ import com.typesafe.config.{Config, ConfigFactory}
 import org.json4s.jackson.Serialization.write
 import slick.jdbc.JdbcProfile
 
-import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.ExecutionChange
-import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.api.dao.ExecutionHistoryDaoImpl
+import com.stratio.sparta.serving.api.utils.JdbcSlickHelper
+import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.ExecutionChange
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.history.WorkflowExecutionHistory
@@ -63,9 +63,10 @@ class ExecutionHistoryListenerActor(val profileHistory: JdbcProfile, val config:
 }
 
 //scalastyle:off
-object ExecutionHistoryListenerActor extends SpartaSerializer {
+object ExecutionHistoryListenerActor extends SpartaSerializer with JdbcSlickHelper {
 
-  def props(profile: JdbcProfile, config: Config = SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load())) = Props(new ExecutionHistoryListenerActor(profile, config))
+  def props(profile: JdbcProfile, config: Config) =
+    Props(new ExecutionHistoryListenerActor(profile, config.withFallback(ConfigFactory.parseProperties(slickConnectionProperties(config)))))
 
   implicit def executionToDb(workflowExecution: WorkflowExecution): WorkflowExecutionHistory = {
     WorkflowExecutionHistory(

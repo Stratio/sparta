@@ -58,7 +58,9 @@ class DummyInstance(userId: String, manifestType: String, manifestVersion: Strin
       Acl(resourcePolicy, Status, isAllowed, recursive),
       Acl(resourcePolicy, Upload, isAllowed, recursive),
       Acl(resourcePolicy, Download, isAllowed, recursive),
-      Acl(resourcePolicy, Execute, isAllowed, recursive)
+      Acl(resourcePolicy, Execute, isAllowed, recursive),
+      Acl(resourcePolicy, Status, isAllowed, recursive),
+      Acl(resourcePolicy, Create, isAllowed, recursive)
     )
     val policy = Policy(s"policy-random-${LocalDateTime.now().getSecond}", "Policy created by dummyPlugin",
       Option(Identities(Seq(userId))), Seq(dummyPlugin.`type`), instanceArg, acls)

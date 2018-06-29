@@ -6,17 +6,18 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import akka.actor.{Actor, PoisonPill}
+import scala.util.{Failure, Success, Try}
+
+import akka.actor.{Actor, PoisonPill, Props}
 import akka.event.slf4j.SLF4JLogging
+import com.typesafe.config.{Config, ConfigFactory}
 import slick.jdbc.JdbcProfile
+
 import com.stratio.sparta.serving.api.dao.StatusHistoryDaoImpl
+import com.stratio.sparta.serving.api.utils.JdbcSlickHelper
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
 import com.stratio.sparta.serving.core.models.history.WorkflowStatusHistory
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.stratio.sparta.serving.api.actor.StatusHistoryListenerActor._
-import com.typesafe.config.Config
-
-import scala.util.{Failure, Success, Try}
 
 class StatusHistoryListenerActor(val profileHistory: JdbcProfile, val config: Config) extends Actor
   with StatusHistoryDaoImpl
@@ -27,6 +28,8 @@ class StatusHistoryListenerActor(val profileHistory: JdbcProfile, val config: Co
   import profile.api._
 
   override val db: profile.api.Database = Database.forConfig("", config)
+
+  import StatusHistoryListenerActor._
 
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[StatusChange])
@@ -54,7 +57,13 @@ class StatusHistoryListenerActor(val profileHistory: JdbcProfile, val config: Co
   }
 }
 
-object StatusHistoryListenerActor {
+//scalastyle:off
+object StatusHistoryListenerActor extends JdbcSlickHelper{
+
+  def props(profile: JdbcProfile, config: Config) =
+    Props(new StatusHistoryListenerActor(profile, config.withFallback(ConfigFactory.parseProperties(slickConnectionProperties(config)))))
+
+
   implicit def statusToDb(workflowStatus: WorkflowStatus): WorkflowStatusHistory = {
     WorkflowStatusHistory(
       workflowId = workflowStatus.id,
