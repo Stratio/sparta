@@ -105,7 +105,7 @@ This software – including all its source code – contains proprietary informa
         <stratio.spark.version>1.0.0-e3622dd</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata.dyplon.version>0.15.0-0c99abd</crossdata.dyplon.version>
-        <gosec.dyplon.version>0.15.0-0a5b317</gosec.dyplon.version>
+        <gosec.dyplon.version>0.15.0-ce8cfd1</gosec.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
         <crossdata.version>2.13.0-4b88b27</crossdata.version>
