@@ -30,10 +30,44 @@ object LineageUtils {
 
   val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
 
-  def lineageProperties(metadataPath: MetadataPath, node: NodeGraph) = {
-    node.configuration.filter(p => node.lineageProperties.contains(p)).map {
-      case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
+  implicit def writerToMap(writer: WriterGraph): Map[String, String] = {
+    writer.tableName match {
+      case Some(t) if t.toString.nonEmpty => {
+        val m = Map("tableName" -> writer.tableName.map(_.toString),
+          "saveMode" -> Option(writer.saveMode.toString),
+          "uniqueConstraintFields" -> writer.uniqueConstraintFields.map(_.toString),
+          "uniqueConstraintName" -> writer.uniqueConstraintName.map(_.toString),
+          "constraintType" -> writer.constraintType.map(_.toString),
+          "partitionBy" -> writer.partitionBy.map(_.toString),
+          "primaryKey" -> writer.primaryKey.map(_.toString),
+          "errorTableName" -> writer.errorTableName.map(_.toString)
+        )
+        m.filter(p => p._2.isDefined && p._2.get.nonEmpty).map(p => (p._1, p._2.get))
+      }
+      case _ =>  Map.empty[String, String]
     }
+  }
+
+  def lineageProperties(metadataPath: MetadataPath, node: NodeGraph) = {
+    if (node.lineageProperties.nonEmpty)
+      node.configuration.filter(p => node.lineageProperties.contains(p._1)).map {
+        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
+      }
+    else
+      node.configuration.map {
+        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
+      }
+  }
+
+  def lineageWriterProperties(metadataPath: MetadataPath, node: NodeGraph) = {
+    if (node.lineageProperties.nonEmpty)
+      node.writer.filter(p => node.lineageProperties.contains(p._1)).map {
+        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
+      }
+    else
+      node.writer.map {
+        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
+      }
   }
 
   def workflowMetadataPathString(workflow: Workflow, extraPath: String*): MetadataPath = {
@@ -63,6 +97,7 @@ object LineageUtils {
           modificationTime = workflow.lastUpdateDate.map(_.getMillis),
           customType = SpartaType.INPUT)
         input.properties ++= lineageProperties(metadataPath, n)
+        input.properties ++= lineageWriterProperties(metadataPath, n)
         input
       }
     ).toList
@@ -109,6 +144,7 @@ object LineageUtils {
           modificationTime = workflow.lastUpdateDate.map(_.getMillis),
           customType = SpartaType.TRANSFORMATION)
         transformation.properties ++= lineageProperties(metadataPath, n)
+        transformation.properties ++= lineageWriterProperties(metadataPath, n)
         transformation
       }
     ).toList

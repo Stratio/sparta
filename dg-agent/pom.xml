@@ -17,7 +17,7 @@ This software – including all its source code – contains proprietary informa
     <artifactId>dg-agent</artifactId>
 
     <properties>
-        <dg.commons.version>0.7.0-M3</dg.commons.version>
+        <dg.commons.version>0.7.0-M5</dg.commons.version>
     </properties>
 
     <dependencies>
@@ -25,11 +25,39 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.stratio.governance</groupId>
             <artifactId>sender</artifactId>
             <version>${dg.commons.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scalatest</groupId>
+                    <artifactId>scalatest_${scala.binary.version}</artifactId>
+                </exclusion>
+            <exclusion>
+                    <groupId>org.scalacheck</groupId>
+                    <artifactId>scalacheck_${scala.binary.version}</artifactId>
+            </exclusion>
+                <exclusion>
+                <groupId>org.scalactic</groupId>
+                <artifactId>scalactic_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.stratio.governance</groupId>
             <artifactId>model</artifactId>
             <version>${dg.commons.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scalatest</groupId>
+                    <artifactId>scalatest_${scala.binary.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scalacheck</groupId>
+                    <artifactId>scalacheck_${scala.binary.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.scalactic</groupId>
+                    <artifactId>scalactic_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -53,6 +81,12 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>com.stratio.sparta</groupId>
             <artifactId>serving-core</artifactId>
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>com.typesafe.play</groupId>-->
+                    <!--<artifactId>play-json_${scala.binary.version}</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.scala-graph</groupId>

@@ -16,6 +16,7 @@ import akka.event.slf4j.SLF4JLogging
 
 import com.stratio.governance.commons.agent.actors.PostgresSender
 import com.stratio.governance.commons.agent.actors.PostgresSender.PostgresEvent
+import com.stratio.governance.commons.agent.model.metadata.Metadata
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.serving.core.actor.StatusListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
@@ -55,7 +56,7 @@ class LineageService(statusListenerActor: ActorRef,
 
     Try(LineageUtils.tenantMetadataLineage()) match {
       case Success(tenantMetadataList) =>
-        senderPostgres ! PostgresEvent(tenantMetadataList)
+        senderPostgres ! PostgresEvent(tenantMetadataList, List.empty[Metadata])
         log.debug("Tenant metadata sent to Kafka")
       case Failure(ex) =>
         log.warn(s"The tenant event couldn't be sent to Postgres. Error was: ${ex.getMessage}")
@@ -71,7 +72,7 @@ class LineageService(statusListenerActor: ActorRef,
           LineageUtils.transformationMetadataLineage(workflow, graph) :::
           LineageUtils.outputMetadataLineage(workflow, graph)) match {
         case Success(listSteps) =>
-          senderPostgres ! PostgresEvent(listSteps)
+          senderPostgres ! PostgresEvent(listSteps, List.empty[Metadata])
           log.debug(s"Sending workflow lineage for workflow: ${workflow.id.get}")
         case Failure(exception) =>
           log.warn(s"Error while generating the metadata related to the workflow steps:${exception.getMessage}")
@@ -83,7 +84,7 @@ class LineageService(statusListenerActor: ActorRef,
       Try(LineageUtils.statusMetadataLineage(workflowStatusStream)) match {
         case Success(maybeList) =>
           maybeList.fold() { listMetadata =>
-            senderPostgres ! PostgresEvent(listMetadata)
+            senderPostgres ! PostgresEvent(listMetadata, List.empty[Metadata])
             log.debug(s"Sending workflow status lineage for workflowStatus: " +
               s"${workflowStatusStream.workflow.get.name}")
           }

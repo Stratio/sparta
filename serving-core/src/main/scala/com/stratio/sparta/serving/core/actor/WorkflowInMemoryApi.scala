@@ -15,7 +15,6 @@ import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 
 class WorkflowInMemoryApi extends InMemoryServicesStatus {
@@ -134,7 +133,7 @@ object WorkflowInMemoryApi {
 
   case object FindAllMemoryWorkflowRaw
 
-  case class FindAllMemoryWorkflowDto(f: (Option[LoggedUser],Seq[WorkflowDto]) => Seq[WorkflowDto])
+  case object FindAllMemoryWorkflowDto
 
   case class FindByGroupMemoryWorkflowDto(group: String)
 

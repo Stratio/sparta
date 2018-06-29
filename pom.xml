@@ -83,7 +83,7 @@ This software – including all its source code – contains proprietary informa
         <thoughtworks.paranamer.version>2.6</thoughtworks.paranamer.version>
         <json4s.version>3.2.11</json4s.version>
         <jackson.version>2.7.1</jackson.version>
-        <play.json.version>2.5.8</play.json.version>
+        <play.json.version>2.6.9</play.json.version>
         <jsonwebtoken.jjwt.version>0.9.0</jsonwebtoken.jjwt.version>
         <parser.combinator.version>1.0.4</parser.combinator.version>
         <swagger.version>0.5.1</swagger.version>
