@@ -3,6 +3,10 @@
    display: block;
 }
 
+.workflow-detail {
+  margin-top: -28px;
+}
+
 .not-selected {
    text-align: center;
    min-height: 230px;
@@ -17,11 +21,9 @@
 }
 
 .description {
-   font-size: $egeo-font-size-xsmall;
-   color:$neutral-10;
-   margin-bottom: 15px;
    display: block;
-   padding-top: 10px;
+   font-size: $egeo-font-size-xxsmall;
+   display: block;
 }
 
 .date {
@@ -35,8 +37,9 @@
 
 .title2 {
    display: block;
-   margin-top: 10px;
+   margin-top: 15px;
 }
+
 
 .values {
    display: block;
@@ -74,8 +77,11 @@
    display: block;
 }
 
+.selected {
+    margin-top: 16px;
+}
+
 .errors {
-   color: #444;
    font-size: 14px;
 
    .icon {
@@ -85,7 +91,7 @@
       display: block;
       font-family: $egeo-nunito-sans-semiBold;
       color: $status-critical-hover;
-
+      word-wrap: break-word;
    }
    .original-msg {
       word-break: break-word;
@@ -99,7 +105,6 @@
     }
 }
 
-.phase {
-  font-family: $egeo-nunito-sans-bold;
+.phase, .step {
   display: block;
 }

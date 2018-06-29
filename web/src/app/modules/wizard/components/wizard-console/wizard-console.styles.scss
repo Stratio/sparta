@@ -22,6 +22,16 @@
   }
 }
 
+.entity-label {
+      float: right;
+    background: $neutral-05;
+    padding: 10px 25px;
+    margin-top: -16px;
+    margin-right: 24px;
+
+    font-size: 14px;
+}
+
 .no-data {
   color: $action-secondary-04;
 }

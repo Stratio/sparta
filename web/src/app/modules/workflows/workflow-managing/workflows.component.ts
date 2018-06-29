@@ -97,9 +97,8 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
         this.selectedGroupsList$ = this._store.select(getSelectedGroups);
         this.selectedWorkflows$ = this._store.select(getSelectedWorkflows);
         this.selectedEntity$ = this._store.select(getSelectedEntity);
-        this.updateWorkflowsStatus();
-
-
+        // this.updateWorkflowsStatus();
+        this._store.dispatch(new workflowActions.ListGroupWorkflowsAction());
     }
 
     updateWorkflowsStatus(): void {
@@ -117,7 +116,7 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
         this._groupList$ && this._groupList$.unsubscribe();
         this._selectedVersion && this._selectedVersion.unsubscribe();
 
-        clearInterval(this.timer); // stop status requests
+        //clearInterval(this.timer); // stop status requests
         this._store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
     }
 }

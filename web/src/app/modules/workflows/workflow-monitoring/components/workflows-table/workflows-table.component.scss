@@ -1,5 +1,6 @@
 @import '~@stratio/egeo/theme/constants';
 .workflow-link {
+   display: inline-block;
    cursor: pointer;
    &:hover {
       color: $action-secondary-07;
@@ -16,6 +17,10 @@
    display: block;
    tr:hover {
       cursor: pointer;
+   }
+
+   td {
+    padding:16px 20px;
    }
    st-checkbox{
        pointer-events: none;
@@ -83,4 +88,13 @@ hr {
 .workflow-group {
    font-size: 12px;
    color: $neutral-09;
+}
+
+.workflow-group-label {
+    font-size: 12px;
+    color: $neutral-10;
+    margin-top: 4px;
+    /* display: none; */
+    line-height: 8px;
+    margin-left: 30px;
 }

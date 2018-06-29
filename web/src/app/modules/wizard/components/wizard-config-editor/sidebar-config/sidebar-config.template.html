@@ -3,8 +3,8 @@
     <st-horizontal-tabs class="entity-categories" *ngIf="showCrossdataCatalog" [options]="sideBarOptions" qaTag="node-tabs" (changedOption)="changeFormOption($event)">
     </st-horizontal-tabs>
     <div *ngIf="selectedOption === 'data'">
+      <h3 class="egeo-title-medium">{{entityData.name}}</h3>
       <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
-      <h3 class="egeo-title-giant">{{entityData.name}}</h3>
       <node-errors [serverValidationError]="nodeData.serverValidation" [schemas]="nodeData.schemas" [debugResult]="nodeData.debugResult"></node-errors>
     </div>
     <crossdata-catalog *ngIf="selectedOption === 'crossdata'"></crossdata-catalog>

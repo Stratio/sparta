@@ -3,15 +3,16 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { Component, DebugElement, OnInit } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 
 import { SpInputComponent } from './sp-input.component';
-import { SpInputError } from './sp-input.error.model';
 import { SpInputModule } from './sp-input.module';
 import { StLabelModule } from '@stratio/egeo';
+import { SpInputError } from '@app/shared/components/sp-input/sp-input.models';
 
 
 let component: SpInputComponent;

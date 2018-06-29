@@ -26,8 +26,6 @@ export class NodeTreeDataComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.data) {
-
-
       this.nodeData = _cloneDeep(this.data);
       if (typeof this.data === 'string') {
         try {

@@ -2,6 +2,13 @@
 :host {
    display: block;
 }
+.selected {
+   margin-top: -10px;
+}
+
+.version-title {
+  padding-right: 33px;
+}
 
 .not-selected {
    text-align: center;
@@ -42,9 +49,28 @@
    color: #6c7b8b;
 }
 
+.order-icon{
+  margin-right: 2px;
+  font-size: 14px;
+  transform: rotate(-90deg);
+  display:inline-block;
+  &.active {
+   transform: rotate(0deg);   
+  }
+}
+
 .values {
    display: block;
    font-size: $egeo-font-size-xxsmall;
+}
+
+.value-list{
+  padding-left: 4px;
+}
+
+.accordion {
+  cursor: pointer;
+  display: inline-block;
 }
 
 .status {

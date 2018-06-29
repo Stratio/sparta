@@ -153,15 +153,51 @@ export const getEditionConfigMode = createSelector(
   getDebugResult,
   getServerStepValidation,
   getSelectedNodeSchemas,
-  (editionConfig: any, debugResult: any, stepValidation, schemas: any) => {
+  getEdges,
+  (editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
     return editionConfig && editionConfig.isEdition ?
       {...editionConfig,
         serverValidation: stepValidation[editionConfig.editionType.data.name],
+        inputSteps: edges.filter(edge => edge.destination === editionConfig.editionType.data.name)
+          .map(edge => edge.origin),
         debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
         schemas: schemas,
       } : editionConfig; }
   );
 
+
+export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
+
+export const getConsoleDebugEntity = createSelector(
+  getDebugState,
+  state => state.showedDebugDataEntity
+);
+
+
+export const getConsoleDebugEntityData  = createSelector(
+  showDebugConsole,
+  getConsoleDebugEntity,
+  getSelectedNodeData,
+  getDebugResult,
+  (showConsole, debugEntity, selectedNode, debugResult) => {
+    if (!showConsole || !debugResult.steps) {
+      return null;
+    } else {
+      if (selectedNode && debugEntity && debugEntity.length) {
+        return {
+          ...debugResult.steps[debugEntity],
+          debugEntityName: debugEntity
+        };
+      } else if (selectedNode) {
+        return {
+          ...debugResult.steps[selectedNode.name],
+          debugEntityName: selectedNode.name
+        };
+      } else {
+        return null;
+      }
+    }
+  });
 
 // wizard
 export const getDebugFile = createSelector(getWizardState, state => state.debugFile);
@@ -186,6 +222,5 @@ export const getWorkflowHeaderData = createSelector(getWizardState, fromWizard.g
 export const getValidatedEntityName = createSelector(getWizardState, state => state.entityNameValidation);
 export const isShowedCrossdataCatalog = createSelector(getWizardState, state => state.isShowedCrossdataCatalog);
 export const isWorkflowDebugging = createSelector(getDebugState, state => state.isDebugging);
-export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
 export const getDebugConsoleSelectedTab = createSelector(getDebugState, state => state.debugConsoleSelectedTab);
 export const getEnvironmentList = createSelector(getExternalDataState, state => state.environmentVariables);

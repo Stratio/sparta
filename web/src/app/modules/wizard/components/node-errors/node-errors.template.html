@@ -36,13 +36,15 @@
         <span class="icon" [ngClass]="inputSchemasOpened ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
         <span>Input schemas</span>
       </span>
-      <span class="debug-data-link" (click)="showConsole('Data')">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
     </div>
     <div *ngIf="inputSchemasOpened">
       <div *ngFor="let schema of inputSchemas">
-        <div (click)="toggleSchema(schema)" class="schema-section">
-          <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : schema.expanded}"></span>
-          <span class="schema-name">{{schema.name}}</span>
+        <div>
+          <div (click)="toggleSchema(schema)" class="schema-section">
+            <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : schema.expanded}"></span>
+            <span class="schema-name">{{schema.name}}</span>
+          </div>
+          <span class="debug-data-link" (click)="showConsole('Data', schema.name)">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
         </div>
         <node-schema *ngIf="schema.expanded" [schema]="schema.tree"></node-schema>
       </div>
@@ -52,14 +54,16 @@
     <div class="schema-title">
       <span (click)="outputSchemasOpened = !outputSchemasOpened">
         <span class="icon" [ngClass]="outputSchemasOpened ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
-        <span>Output schemas</span>
+        <span>Output schema</span>
       </span>
-      <span class="debug-data-link" (click)="showConsole('Data')">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
     </div>
     <div *ngIf="outputSchemasOpened">
-      <div (click)="toggleSchema(outputSchema)" class="schema-section">
-        <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : outputSchema.expanded}"></span>
-        <span class="schema-name">{{outputSchema.name}}</span>
+      <div>
+        <div (click)="toggleSchema(outputSchema)" class="schema-section">
+          <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : outputSchema.expanded}"></span>
+          <span class="schema-name">{{outputSchema.name}}</span>
+        </div>
+        <span class="debug-data-link" (click)="showConsole('Data', outputSchema.name)">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
       </div>
       <node-schema *ngIf="outputSchema.expanded" [schema]="outputSchema.tree"></node-schema>
     </div>

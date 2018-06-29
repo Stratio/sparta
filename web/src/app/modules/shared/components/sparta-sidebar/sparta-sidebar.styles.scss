@@ -24,6 +24,7 @@
    padding: 29px;
    width: 387px;
    height: 100%;
+   position: relative;
    box-shadow: 0 6px 10px 2px #dedede;
    min-height: 100%;
 
@@ -35,11 +36,12 @@
 }
 
 .sidebar-header {
-    overflow: hidden;
     padding-bottom:10px;
     .close-button{
-        font-size:18px;
-        float: right;
+        font-size: 18px;
         cursor: pointer;
+        right: 28px;
+        position: absolute;
+        z-index: 100;
     }
 }

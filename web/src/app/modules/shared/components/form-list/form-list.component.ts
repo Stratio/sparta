@@ -163,6 +163,16 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
       enable && !this.isDisabled ? group.controls[propertyId].enable() : group.controls[propertyId].disable();
    }
 
+   getVariableList(field: any) {
+      if (this.valueDictionary && field.showSchemaFields && this.valueDictionary.formFieldsVariables) {
+        return this.valueDictionary.formFieldsVariables;
+      }
+      if (this.valueDictionary && field.showInputSteps && this.valueDictionary.inputStepsVariables) {
+        return this.valueDictionary.inputStepsVariables;
+      }
+      return this.variableList;
+   }
+
    showError(): boolean {
       return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.isDisabled;
    }

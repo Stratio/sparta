@@ -75,7 +75,7 @@
                "propertyName": "_NAME_",
                "propertyType": "text",
                "required": true,
-               "width": 3,
+               "width": 4,
                "qa": "fragment-details-field-name"
             },
             {
@@ -83,7 +83,7 @@
                "propertyName": "_TYPE_",
                "propertyType": "select",
                "custom": true,
-               "width": 3,
+               "width": 4,
                "required": true,
                "values": [
                   {
@@ -187,7 +187,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 6,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -196,7 +196,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"

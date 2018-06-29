@@ -7,6 +7,11 @@
    }
 }
 
+.description {
+  font-size: $egeo-font-size-xxsmall;
+  color: black;
+}
+
 .type {
    display: block;
    color: $neutral-11;
@@ -25,7 +30,8 @@
 .selected {
   position: absolute;
     width: 375px;
-    height: calc(100% - 90px);
+    margin-top: -15px;
+    height: calc(100% - 25px);
     overflow-y: scroll;
     padding-right: 35px;
 }
@@ -60,28 +66,30 @@
 .validation-errors {
   padding-bottom: 20px;
   .validation-error-message{
-      font-size: $egeo-font-size-xsmall;
+      font-size: $egeo-font-size-xxsmall;
       color: $status-critical-hover;
       margin: 5px 0;
   }
 }
 
 .debug-generic-errors{
+   font-size: $egeo-font-size-xxsmall;
 
   .debug-global-error-message {
-    font-size: $egeo-font-size-xsmall;
     color: $status-critical-hover;
+    word-wrap: break-word;
   }
 
-  .last-updated{
-    font-size: 13px;
+  .value{
     color:#000;
-    margin-bottom: 10px;
   }
 
   .details {
     color: #4a90e2;
-    font-size: 15px;
     cursor: pointer;
   }
+}
+
+.node-title {
+    padding-right: 20px;
 }

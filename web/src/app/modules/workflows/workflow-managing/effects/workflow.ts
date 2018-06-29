@@ -45,8 +45,6 @@ export class WorkflowEffect {
                 ]));
             });
 
-
-
     @Effect()
     getWorkflowGroups$: Observable<Action> = this.actions$
         .ofType(workflowActions.LIST_GROUPS)
@@ -99,7 +97,7 @@ export class WorkflowEffect {
     deleteVersions$: Observable<Action> = this.actions$
        .ofType(workflowActions.DELETE_VERSION)
        .map((action: any) => action.payload)
-       .withLatestFrom(fromRoot.getSelectedVersions)
+       .withLatestFrom(this.store.select(fromRoot.getSelectedVersions))
        .switchMap(([data, selectedVersions]) => this.workflowService.deleteWorkflowList(selectedVersions))
        .mergeMap(() => [new workflowActions.DeleteVersionCompleteAction(''), new workflowActions.ListGroupsAction()])
        .catch(error => Observable.from([new workflowActions.DeleteVersionErrorAction(), new errorActions.ServerErrorAction(error)]));

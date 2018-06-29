@@ -1,5 +1,4 @@
 <div class="form-field">
-
    <!-- input text -->
    <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
@@ -12,7 +11,7 @@
       [forceValidations]="forceValidations"
       [errors]="errorsService.errors.inputErrors"
       [qaTag]="field.qa"
-      [variableList]="variableList"
+      [variableList]="getVariableList()"
       [showVars]="showVars"
       [minlength]="field.minlength"
       [maxlength]="field.maxlength"></sp-input>

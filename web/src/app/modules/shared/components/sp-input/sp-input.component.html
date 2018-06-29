@@ -13,8 +13,8 @@
    </div>
    <div *ngIf="showVars && focus && selectVarMode">
       <ul class="var-mode__list">
-         <li *ngFor="let variable of filteredVariableList" (mousedown)="selectVar($event, variable.name)">
-            <div class="var-mode__list-label">env</div>
+         <li *ngFor="let variable of filteredVariableList" (mousedown)="selectVar($event, variable)">
+            <div class="var-mode__list-label">{{variable.valueType}}</div>
             <span class="var-mode__list-key">{{variable.name}}</span>
             <span class="var-mode__list-value">{{variable.value}}</span>
          </li>

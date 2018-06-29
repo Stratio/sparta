@@ -24,6 +24,7 @@ export const DELETE_DEBUG_FILE_ERROR = '[Wizard] Delete debug file error';
 export const DOWNLOAD_DEBUG_FILE = '[Wizard] Download debug file';
 export const DOWNLOAD_DEBUG_FILE_COMPLETE = '[Wizard] Download debug file complete';
 export const DOWNLOAD_DEBUG_FILE_ERROR = '[Wizard] Download debug file error';
+export const SHOW_ENTITY_DEBUG_SCHEMA = '[Wizard] Show entity debug schema';
 
 export class InitDebugWorkflowAction implements Action {
     readonly type = INIT_DEBUG_WORKFLOW;
@@ -110,6 +111,11 @@ export class DeleteDebugFileErrorAction implements Action {
     readonly type = DELETE_DEBUG_FILE_ERROR;
 }
 
+export class ShowEntityDebugSchema implements Action {
+    readonly type = SHOW_ENTITY_DEBUG_SCHEMA;
+     constructor(public entityName: string) {}
+}
+
 export type Actions =
     InitDebugWorkflowAction |
     InitDebugWorkflowCompleteAction |
@@ -129,4 +135,5 @@ export type Actions =
     DownloadDebugFileErrorAction |
     DeleteDebugFileAction |
     DeleteDebugFileCompleteAction |
-    DeleteDebugFileErrorAction;
+    DeleteDebugFileErrorAction |
+    ShowEntityDebugSchema;

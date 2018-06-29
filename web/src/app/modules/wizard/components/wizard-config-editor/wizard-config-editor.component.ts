@@ -5,7 +5,6 @@
  */
 
 import {
-   AfterViewInit,
    ChangeDetectionStrategy,
    ChangeDetectorRef,
    Component,
@@ -23,6 +22,7 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { Environment } from '../../../../models/environment';
+import { SpInputVariable } from '@app/shared/components/sp-input/sp-input.models';
 
 import { Subscription } from 'rxjs/Subscription';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
@@ -51,6 +51,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    public currentName = '';
    public arity: any;
    public isShowedHelp = false;
+   public valueDictionary: any = {};
 
    public isTemplate = false;
    public templateData: any;
@@ -66,6 +67,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    public options: StHorizontalTab[] = [];
    public debugOptions: any = {};
    public helpOptions: Array<HelpOptions> = [];
+   public formVariables: Array<SpInputVariable> = [];
 
    private _componentDestroyed = new Subject();
    private _allOptions: StHorizontalTab[] = [{
@@ -86,6 +88,24 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       setTimeout(() => {
          this.fadeActive = true;
       });
+      this.formVariables = this.environmentList.map(env => Object.assign(env, {
+         valueType: 'env'
+      }));
+      if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
+         let attrs = [];
+         this.config.schemas.inputs.forEach(input => attrs = attrs.concat(this._getInputSchema(input)));
+         this.valueDictionary.formFieldsVariables = [...this.formVariables, ...attrs];
+         this.valueDictionary.formFieldsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
+      }
+
+      if (this.config.inputSteps && this.config.inputSteps.length) {
+          this.valueDictionary.inputStepsVariables = [...this.formVariables, ...this.config.inputSteps.map(step => ({
+            name: step,
+            value: step,
+            valueType: 'step'
+          }))];
+          this.valueDictionary.inputStepsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
+      }
       this._getMenuTabs();
       this.validatedNameSubcription = this._store.select(fromWizard.getValidatedEntityName)
          .takeUntil(this._componentDestroyed)
@@ -162,7 +182,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       if (this.config.editionType.data.createdNew) {
          this.submitted = false;
       }
-
       this.entityFormModel = _cloneDeep(this.config.editionType.data);
       const debugOptions = this.entityFormModel.configuration.debugOptions || {};
       this.debugOptions = typeof debugOptions === 'string' ? JSON.parse(debugOptions) : debugOptions;
@@ -235,6 +254,18 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
          case StepType.Output:
             this.options = [];
             break;
+      }
+   }
+
+   private _getInputSchema(input: any) {
+      if (input.result && input.result.schema && input.result.schema.fields) {
+         return input.result.schema.fields.map(field => ({
+            name: field.name,
+            value: field.name,
+            valueType: 'field'
+         }));
+      } else {
+         return [];
       }
    }
 

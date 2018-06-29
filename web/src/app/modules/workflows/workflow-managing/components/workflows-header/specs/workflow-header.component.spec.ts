@@ -181,7 +181,8 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          component.selectedVersions = [fakeVersion.id]; // versions ids
       });
 
-      it('should show the run button with the stop icon if the version status is Running', () => {
+      /* start and stop buttons were disabled */
+      xit('should show the run button with the stop icon if the version status is Running', () => {
          fixture.detectChanges();
          const runDebugElement = fixture.debugElement.query(By.css('#run-workflow-button'));
          expect(runDebugElement).not.toBeNull();
@@ -190,7 +191,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          expect(workflowsManagingStub.stopWorkflow).toHaveBeenCalled();
       });
 
-      it('should show the run button with the play icon if the version status is Stopped', () => {
+      xit('should show the run button with the play icon if the version status is Stopped', () => {
          const fakeVersion = {
             id: 'id',
             name: 'workflow-version-name',

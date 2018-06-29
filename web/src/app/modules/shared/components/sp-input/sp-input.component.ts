@@ -20,7 +20,7 @@ import {
    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
-import { SpInputError } from './sp-input.error.model';
+import { SpInputError, SpInputVariable } from './sp-input.models';
 
 @Component({
    selector: 'sp-input',
@@ -48,7 +48,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    @Input() max: number;
    @Input() isFocused = false;
    @Input() readonly = false;
-   @Input() variableList: Array<any> = [];
+   @Input() variableList: Array<SpInputVariable> = [];
    @Input() showVars = false;
 
    @Input()
@@ -115,8 +115,9 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    }
 
    filterVarListValue(value: string): void {
-      this.filteredVariableList = this.variableList.filter((variable: any) =>
-         variable.name.toUpperCase().indexOf(value.toUpperCase()) > -1);
+      const compval = value.toUpperCase();
+      this.filteredVariableList = this.variableList.filter((variable: SpInputVariable) =>
+         variable.name.toUpperCase().indexOf(compval) > -1 || (variable.valueType && variable.valueType.toUpperCase().indexOf(compval) > -1));
    }
 
    ngAfterViewInit(): void {
@@ -150,12 +151,19 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       this.onChange(this.isVarValue ? `{{{${this.internalControl.value}}}}` : this.internalControl.value);
    }
 
-   selectVar(event: any, value: string) {
+   selectVar(event: any, variable: SpInputVariable) {
       event.preventDefault();  //prevent default DOM action
       event.stopPropagation();   //stop bubbling
-      this.isVarValue = true;
-      this.internalControl.setValue(value);
-      this.onChange(`{{{${this.internalControl.value}}}}`);
+      if (variable.valueType === 'env') {
+         this.isVarValue = true;
+         this.internalControl.setValue(variable.name);
+         this.onChange(`{{{${this.internalControl.value}}}}`);
+      } else {
+         this.isVarValue = false;
+         this.internalControl.setValue(variable.name);
+         this.onChange(this.internalControl.value);
+      }
+
       this.focusPristine = true;
       this.vc.first.nativeElement.blur();
    }

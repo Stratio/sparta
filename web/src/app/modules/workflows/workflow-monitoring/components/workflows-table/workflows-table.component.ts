@@ -4,13 +4,11 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import {
-    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     EventEmitter,
     Input,
-    OnInit,
     Output
 } from '@angular/core';
 import { StTableHeader, PaginateOptions, Order } from '@stratio/egeo';
@@ -79,10 +77,9 @@ export class WorkflowsTableComponent {
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
             { id: 'filterStatus', label: 'Status' },
-            { id: 'tagsAux', label: 'Tags' },
-            { id: 'lastUpdateOrder', label: 'Last status update' },
+            { id: 'startDate', label: 'Start Date' },
+            { id: 'endDate', label: 'End Date' },
             { id: 'spark', label: '', sortable: false }
         ];
     }
-
 }

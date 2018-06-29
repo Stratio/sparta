@@ -39,8 +39,9 @@ export class NodeErrorsComponent implements OnChanges {
     schema.expanded = !schema.expanded;
   }
 
-  public showConsole(tab: string) {
+  public showConsole(tab: string, schemaName: string) {
     this._store.dispatch(new debugActions.ShowDebugConsoleAction(tab));
+    this._store.dispatch(new debugActions.ShowEntityDebugSchema(schemaName));
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -54,7 +55,7 @@ export class NodeErrorsComponent implements OnChanges {
     if (value && value.inputs && value.inputs.length) {
       this.inputSchemas = value.inputs.filter(input => input.result).map(input => ({
         name: input.result.step,
-        tree: this._getTreeSchema(JSON.parse(input.result.schema)),
+        tree: this._getTreeSchema(input.result.schema),
         expanded: false
       }));
     } else {
@@ -63,7 +64,7 @@ export class NodeErrorsComponent implements OnChanges {
     if (value && value.output && value.output.result) {
       this.outputSchema = {
         name: value.output.result.step,
-        tree: this._getTreeSchema(JSON.parse(value.output.result.schema)),
+        tree: this._getTreeSchema(value.output.result.schema),
         expanded: false
       };
     } else {
@@ -89,12 +90,19 @@ export class NodeErrorsComponent implements OnChanges {
   }
 
   private _getTreeNodeSchema(nodeSchema: any): StTreeNode {
+    let children = [];
+    if(typeof nodeSchema.type === 'object') {
+      if(nodeSchema.type.type === 'array') {
+        children = nodeSchema.type.elementType.fields.map((field) => this._getTreeNodeSchema(field));
+      } else if( nodeSchema.type.type === 'struct') {
+        children = nodeSchema.type.fields.map((field) => this._getTreeNodeSchema(field));
+      }
+    }
     return {
       icon: '',
       name: nodeSchema.name,
       type: nodeSchema.type.type || nodeSchema.type,
-      children: nodeSchema.type && nodeSchema.type.elementType && nodeSchema.type.elementType.fields ?
-        nodeSchema.type.elementType.fields.map((field) => this._getTreeNodeSchema(field)) : [],
+      children: children,
       expanded: false
     };
   }

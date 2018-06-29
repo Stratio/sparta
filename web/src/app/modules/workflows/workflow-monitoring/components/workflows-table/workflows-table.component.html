@@ -20,42 +20,24 @@
          <st-checkbox [value]="workflow" [checked]="selectedWorkflowsIds.indexOf(workflow.id) > -1"></st-checkbox>
       </td>
       <td st-table-cell st-table-row-content>
-         <label class="workflow-link" [attr.id]="workflow.id + '-link'" (click)="editSelectedWorkflow($event, workflow.id)">
-             <sp-tooltip>
-                 <div tooltip>
-                    <div class="workflow-name">{{workflow.name}} - v{{workflow.version}}</div>
-                    <div class="workflow-group">{{workflow.group}}</div>
-                 </div>
-                 <div content>
-                    <img src="assets/images/iconStreaming.svg" class="icon-row" [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Streaming'"/>
-                    <img src="assets/images/iconBatch.svg" class="icon-row" [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Batch'"/>
-
-                    {{workflow.name}}
-                    <span> - v{{workflow.version}}</span>
-                 </div>
-             </sp-tooltip>
+         <label [attr.id]="workflow.id + '-link'" >
+             <div class="workflow-link" (click)="editSelectedWorkflow($event, workflow.id)">
+                <img src="assets/images/iconStreaming.svg" class="icon-row" [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Streaming'"/>
+                <img src="assets/images/iconBatch.svg" class="icon-row" [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Batch'"/>
+                {{workflow.name}}
+                <span> - v{{workflow.version}}</span>
+             </div>
+             <div class="workflow-group-label">{{workflow.group}}</div>
          </label>
       </td>
       <td st-table-cell st-table-row-content>
          <label class="status-field" [ngClass]="workflow.filterStatus">{{(workflow.filterStatus) ? (('DASHBOARD.' + (workflow.filterStatus | uppercase)) | translate) : '-'}}</label>
       </td>
-      <td st-table-cell st-table-row-content class="tag-column">
-         <label>
-            <sp-tooltip *ngIf="workflow.tagsAux.length">
-                <div tooltip>
-                    <div class="workflow-group">
-                    {{workflow.tagsAux}}
-                    </div>
-                </div>
-                <div content>
-                    <span>{{workflow.tagsAux}}</span>
-                </div>
-            </sp-tooltip>
-            <span *ngIf="!workflow.tagsAux.length">-</span>
-         </label>
+      <td st-table-cell st-table-row-content>
+        <label>{{workflow.startDate ? workflow.startDate : '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label>{{workflow.lastUpdate ? workflow.lastUpdate : '-'}}</label>
+         <label>{{workflow.endDate ? workflow.endDate : '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content class="spark-link">
          <i class="icon-globe" (click)="showSparkUI(workflow.sparkURI)" 

@@ -1,5 +1,8 @@
+@import '~@stratio/egeo/theme/constants';
+
 :host {
   padding-bottom: 30px;
+  font-size: $egeo-font-size-xxsmall;
 }
 
 .marker {

@@ -1,19 +1,22 @@
 <console-box>
-   <st-horizontal-tabs tabs [activeOption]="selectedOption" class="console-tabs" *ngIf="options.length" [options]="options" qaTag="console-tabs">
-   </st-horizontal-tabs>
+  <div header>
+    <st-horizontal-tabs [activeOption]="selectedOption" class="console-tabs" *ngIf="options.length" [options]="options"
+      qaTag="console-tabs">
+    </st-horizontal-tabs>
     <!-- Buttons -->
-    <div buttons class="buttons">
+    <div class="buttons">
       <span class="close-console icon-cross" (click)="onCloseConsole()"></span>
-   </div>
-   <div content>
-      <div *ngIf="selectedOption.id === 'Exceptions'">
-         <div class="exceptions" *ngIf="workflow && workflow.execution && workflow.execution.genericDataExecution.lastError">
-            <div class="message">{{workflow.execution.genericDataExecution.lastError.localizedMsg}}</div>
-            <div class="exception">{{workflow.execution.genericDataExecution.lastError.exceptionMsg}}</div>
-         </div>
-         <div class="no-exceptions no-data" *ngIf="!workflow">
-            No exceptions
-         </div>
+    </div>
+  </div>
+  <div content>
+    <div *ngIf="selectedOption.id === 'Exceptions'">
+      <div class="exceptions" *ngIf="workflow && workflow.execution && workflow.execution.genericDataExecution.lastError">
+        <div class="message">{{workflow.execution.genericDataExecution.lastError.localizedMsg}}</div>
+        <div class="exception">{{workflow.execution.genericDataExecution.lastError.exceptionMsg}}</div>
       </div>
-   </div>
+      <div class="no-exceptions no-data" *ngIf="!workflow">
+        No exceptions
+      </div>
+    </div>
+  </div>
 </console-box>

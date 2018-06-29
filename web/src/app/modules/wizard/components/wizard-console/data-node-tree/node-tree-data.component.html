@@ -1,7 +1,6 @@
 <div class="value" *ngIf="dataType === 'value'">
   {{nodeData}}
 </div>
-
 <div *ngIf="dataType === 'object'" class="object">
   <div *ngFor="let prop of objectProperties">
     <span (click)="toggleProp(prop)">
@@ -15,7 +14,6 @@
     <node-tree-data *ngIf="prop.open && prop.type === 'object'" [data]="prop.value"></node-tree-data>
   </div>
 </div>
-
 <div *ngIf="dataType === 'array'" class="array">
   <div *ngFor="let item of nodeData; let i = index;">
     <span (click)="toggleProp(item)">

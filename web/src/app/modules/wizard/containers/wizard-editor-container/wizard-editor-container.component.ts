@@ -60,6 +60,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public serverStepValidations: any;
    public showDebugConsole: boolean;
    public genericError: any;
+   public consoleDebugData: any;
    private _componentDestroyed = new Subject();
 
    @ViewChild('editorArea') editorArea: ElementRef;
@@ -122,6 +123,12 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          .takeUntil(this._componentDestroyed)
          .subscribe(name => {
             this.selectedNodeName = name;
+            this._cd.markForCheck();
+         });
+      this._store.select(fromWizard.getConsoleDebugEntityData)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(debugData => {
+            this.consoleDebugData = debugData;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getWorkflowPosition)

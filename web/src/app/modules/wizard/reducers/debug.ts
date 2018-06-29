@@ -12,6 +12,7 @@ export interface State {
   lastDebugResult: any;
   showDebugConsole: boolean;
   debugConsoleSelectedTab: string;
+  showedDebugDataEntity: string;
 };
 
 const initialState: State = {
@@ -19,6 +20,7 @@ const initialState: State = {
   lastDebugResult: null,
   showDebugConsole: false,
   debugConsoleSelectedTab: 'Exceptions',
+  showedDebugDataEntity: ''
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -50,6 +52,14 @@ export function reducer(state: State = initialState, action: any): State {
         for (const nodeResult in debug.stepResults) {
           const step: any = debugResult.steps[nodeResult] || {};
           step.result = debug.stepResults[nodeResult]
+          if(step.result.schema) {
+            const schema = step.result.schema;
+            try {
+               step.result.schema = JSON.parse(schema);
+            } catch (error) {
+              step.result.schema = {};
+            }
+          }
           debugResult.steps[nodeResult] = step;
         }
       }
@@ -60,6 +70,18 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         lastDebugResult: debugResult
+      };
+    }
+    case debugActions.SHOW_ENTITY_DEBUG_SCHEMA: {
+      return {
+        ...state,
+        showedDebugDataEntity: action.entityName
+      };
+    }
+    case wizardActions.SELECT_ENTITY: {
+      return {
+        ...state,
+        showedDebugDataEntity: ''
       };
     }
     case debugActions.CANCEL_DEBUG_POLLING: {

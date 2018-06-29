@@ -44,5 +44,5 @@
     <wizard-details [entityData]="selectedNodeModel"></wizard-details>
   </sparta-sidebar>
 </section>
-<wizard-console *ngIf="showDebugConsole" [genericError]="genericError" [entityData]="selectedNodeModel"></wizard-console>
+<wizard-console *ngIf="showDebugConsole" [genericError]="genericError" [debugData]="consoleDebugData"></wizard-console>
 <edge-options *ngIf="edgeOptions.active" [edgeOptions]="edgeOptions"></edge-options>

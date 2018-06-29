@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Input } from '@angular/core';
 
 import { DataDetails } from './../../models/data-details';
 import { FOLDER_SEPARATOR } from '../../workflow.constants';
@@ -27,7 +27,14 @@ export class WorkflowManagingDetailComponent implements OnInit {
     public lastError: any;
     public execution: any;
 
+    public showInputs = false;
+    public showOutputs = false;
+    public showTransformations = false;
+
     ngOnChanges() {
+        this.showInputs = false;
+        this.showOutputs = false;
+        this.showTransformations = false;
         if (this.data) {
             this.workflowData = this.data.data;
             if (this.data.type === 'version') {
@@ -36,7 +43,6 @@ export class WorkflowManagingDetailComponent implements OnInit {
                 const split = this.data.data.name.split(FOLDER_SEPARATOR);
                 this.groupLabel = split[split.length - 1];
             }
-
             this._cd.detectChanges();
         }
     }

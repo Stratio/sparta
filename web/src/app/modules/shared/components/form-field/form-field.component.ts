@@ -137,6 +137,16 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
       };
    }
 
+   getVariableList() {
+      if (this.valueDictionary && this.field.showSchemaFields && this.valueDictionary.formFieldsVariables) {
+        return this.valueDictionary.formFieldsVariables;
+      }
+      if (this.valueDictionary && this.field.showInputSteps && this.valueDictionary.inputStepsVariables) {
+        return this.valueDictionary.inputStepsVariables;
+      }
+      return this.variableList;
+   }
+
    ngOnDestroy(): void {
       this.stFormControlSubcription.unsubscribe();
       this.disableSubscription.map((subcription: Subscription) => {

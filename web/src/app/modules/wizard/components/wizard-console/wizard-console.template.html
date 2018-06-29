@@ -1,48 +1,32 @@
 <console-box>
-   <!-- Tabs -->
-   <st-horizontal-tabs tabs [activeOption]="selectedOption" class="console-tabs" *ngIf="options.length" [options]="options" qaTag="console-tabs"
-         (changedOption)="changeFormOption($event)">
-   </st-horizontal-tabs>
+   <div header>
+      <st-horizontal-tabs [activeOption]="selectedOption" class="console-tabs" *ngIf="options.length" [options]="options" qaTag="console-tabs"
+          (changedOption)="changeFormOption($event)">
+    </st-horizontal-tabs>
+      <div class="entity-label" *ngIf="debugData">{{debugData.debugEntityName}}</div>
 
-   <!-- Buttons -->
-   <div buttons class="buttons">
-      <span class="close-console icon-cross" (click)="closeConsole()"></span>
-   </div>
+    <!-- Buttons -->
+    <div buttons class="buttons">
+        <span class="close-console icon-cross" (click)="closeConsole()"></span>
+    </div>
+  </div>
    <!-- Console content -->
    <div content>
       <div *ngIf="selectedOption.id === 'Exceptions'">
-         <div class="exceptions" *ngIf="entityData.debugResult && entityData.debugResult.error">
-            <div class="message" [innerText]="entityData.debugResult.error.localizedMsg"></div>
-            <div class="exception">{{entityData.debugResult.error.exceptionMsg}}</div>
+         <div class="exceptions" *ngIf="debugData && debugData.error">
+            <div class="message" [innerText]="debugData.error.localizedMsg"></div>
+            <div class="exception">{{debugData.error.exceptionMsg}}</div>
          </div>
-         <div class="exceptions" *ngIf="!entityData.name && genericError">
+         <div class="exceptions" *ngIf="!debugData && genericError">
             <div class="message">{{genericError.localizedMsg}}</div>
             <div class="exception">{{genericError.exceptionMsg}}</div>
          </div>
-         <div class="no-exceptions no-data" *ngIf="(entityData.name && (!entityData.debugResult || !entityData.debugResult.error)) || (!entityData.name && !genericError)">
+         <div class="no-exceptions no-data" *ngIf="(debugData && !debugData.error) || (!debugData && !genericError)">
             No exceptions
          </div>
       </div>
       <div *ngIf="selectedOption.id === 'Data'">
          <node-tree-data *ngIf="data" [data]="data"></node-tree-data>
-
-         <!-- <table *ngIf="tableFields.length">
-          <tr>
-            <th *ngFor="let field of tableFields">
-              {{field}}
-            </th>
-          </tr>
-          <tr>
-
-          </tr>
-         </table>-->
-         <!--<div style="font-size: 12px;">
-          {{getData(entityData.debugResult) | json}}
-         </div>
-
-         <div class="no-exceptions no-data" *ngIf="!entityData.debugResult">
-            No data
-         </div> -->
       </div>
    </div>
 </console-box>

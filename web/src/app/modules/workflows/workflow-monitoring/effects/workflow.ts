@@ -40,7 +40,7 @@ export class WorkflowEffect {
       .withLatestFrom(this.store.select(fromRoot.getWorkflows))
       .switchMap(([payload, workflowList]: [any, any]) =>
          this.workflowService.findAllMonitoring().mergeMap((workflows: any) => {
-            workflows.map((workflow: any) => WorkflowsService.normalizeWorkflow(workflow));
+            workflows.map((workflow: any) => this._workflowsService.normalizeWorkflow(workflow));
             return isEqual(workflows, workflowList) && workflows.length ? empty() :
                from([
                   new workflowActions.ListWorkflowCompleteAction(workflows),
@@ -101,6 +101,7 @@ export class WorkflowEffect {
    constructor(
       private actions$: Actions,
       private store: Store<fromRoot.State>,
-      private workflowService: WorkflowService
+      private workflowService: WorkflowService,
+      private _workflowsService: WorkflowsService
    ) { }
 }

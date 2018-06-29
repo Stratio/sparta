@@ -19,38 +19,44 @@
           {{('DASHBOARD.' + (workflowData.formattedStatus | uppercase)) | translate}} 
           <span class="advanced-status" *ngIf="workflowData.status.status.toUpperCase() !== workflowData.formattedStatus.toUpperCase()"> / {{('DASHBOARD.' + (workflowData.status.status | uppercase)) | translate}}</span>
       </span>-->
-      <h3 class="egeo-title-medium">v{{workflowData.version}} - {{workflowData.name}}</h3>
+      <h3 class="egeo-title-medium version-title">{{workflowData.name}} - v{{workflowData.version}}</h3>
       <span class="description">{{workflowData.description}}</span>
-      <div *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode">
+      <div *ngIf="workflowData.settings && workflowData.settings.executionMode">
          <span class="title egeo-title-mini">Execution mode</span>
-         <span class="">{{execution.genericDataExecution.executionMode}}</span>
+         <span class="values">{{workflowData.settings.executionMode}}</span>
       </div>
       <div *ngIf="inputs && inputs.length">
-         <span class="title egeo-title-mini">{{'GLOBAL.INPUTS' | translate}}</span>
-         <span class="values" *ngFor="let input of inputs">{{input}}</span>
+         <span class="title egeo-title-mini">
+             <div class="accordion" (click)="showInputs = !showInputs">
+                <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showInputs}"></span>
+                {{'GLOBAL.INPUTS' | translate}}
+             </div>
+        </span>
+         <div *ngIf="showInputs">
+             <span class="values value-list" *ngFor="let input of inputs">{{input}}</span>
+         </div>
       </div>
       <div *ngIf="transformations && transformations.length">
-         <span class="title egeo-title-mini">{{'GLOBAL.TRANSFORMATIONS' | translate}}</span>
-         <span class="values" *ngFor="let transformation of transformations">{{transformation}}</span>
+         <span class="title egeo-title-mini">
+            <div class="accordion" (click)="showTransformations = !showTransformations">
+                <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showTransformations}"></span>
+                {{'GLOBAL.TRANSFORMATIONS' | translate}}
+            </div>
+        </span>
+         <div *ngIf="showTransformations">
+             <span class="values value-list" *ngFor="let transformation of transformations">{{transformation}}</span>
+         </div>
       </div>
       <div *ngIf="outputs && outputs.length">
-         <span class="title egeo-title-mini">{{'GLOBAL.OUTPUTS' | translate}}</span>
-         <span class="values" *ngFor="let output of outputs">{{output}}</span>
-      </div>
-      <div class="last-error" *ngIf="lastError">
-         <span class="title egeo-title-mini">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
-         <div class="errors">
-            <div>
-               <span class=""><!--<i class="icon icon-calendar"></i>--> Date: </span>
-               <span class="val">{{workflowData.lastErrorDate}}</span>
+         <span class="title egeo-title-mini">
+            <div class="accordion" (click)="showOutputs = !showOutputs">
+                <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showOutputs}"></span>
+                {{'GLOBAL.OUTPUTS' | translate}}
             </div>
-            <div>
-               <span class=""><!--<i class="icon icon-evolution"></i>--> Phase: </span>
-               <span class="val">{{lastError.phase}}</span>
-            </div>
-            <span class="message">{{lastError.message}}</span>
-            <span class="original-msg">{{lastError.originalMsg}}</span>
-         </div>
+        </span>
+         <div *ngIf="showOutputs">
+             <span class="values value-list" *ngFor="let output of outputs">{{output}}</span>
+        </div>
       </div>
    </div>
 

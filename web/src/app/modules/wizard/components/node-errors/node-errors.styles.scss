@@ -28,7 +28,7 @@
   }
   .debug-error-message {
     color: #ff1744;
-    font-size: 15px;
+    font-size: $egeo-font-size-xxsmall;
     display: table;
     .icon-record {
       font-size: 18px;
@@ -66,7 +66,6 @@
     margin-right: 6px;
   }
   .debug-result-message {
-    font-size: 15px;
     display: table;
 
     .icon {
@@ -79,6 +78,7 @@
     }
     .message {
       display: table-cell;
+      font-size: $egeo-font-size-xxsmall;
 
       &::first-letter {
         text-transform: uppercase;
@@ -121,6 +121,7 @@
 .schema-section {
   cursor: pointer;
   padding-left: 10px;
+  display: inline-block;
   margin-top: 12px;
 }
 
@@ -145,8 +146,9 @@ node-schema {
 
 .debug-data-link {
   color: #4a90e2;
-  font-size: 14px;
+  font-size: $egeo-font-size-xxsmall;
+  cursor: pointer;
   font-family: $egeo-nunito-sans;
   float: right;
-  margin-top: 3px;
+  margin-top: 13px;
 }

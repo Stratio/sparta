@@ -28,28 +28,23 @@ import * as fromWizard from './../../reducers';
 
 export class WizardConsoleComponent implements OnInit {
 
-   @Input() get entityData() {
-    return this._entityData;
-  }
-
-  set entityData(value: any) {
+  @Input() get debugData() {
+    return this._debugData;
+  };
+  set debugData(value: any) {
     this.tableFields = [];
-    if (value && value.debugResult && value.debugResult.result && value.debugResult.result.data) {
+    this._debugData = value;
+    if (value && value.result) {
       try {
-        const obj = JSON.parse(value.debugResult.result.data);
-        for (const key in obj) {
-          this.tableFields.push(key);
-         }
-      } catch (error) { }
-    }
-    this._entityData = value;
-    try {
-      const res = value.debugResult.result.data;
-      // sometimes its an Object literal, and other times an Array of object literals.
-      this.data = {
-        data: Array.isArray(res) ? res.map(item => JSON.parse(item)) : JSON.parse(res)
-      };
-    } catch (error) {
+        const res = value.result.data;
+        // sometimes its an Object literal, and other times an Array of object literals.
+        this.data = {
+          data: Array.isArray(res) ? res.map(item => JSON.parse(item)) : JSON.parse(res)
+        };
+      } catch (error) {
+        this.data = null;
+      }
+    } else {
       this.data = null;
     }
   }
@@ -67,7 +62,9 @@ export class WizardConsoleComponent implements OnInit {
   public selectedOption: StHorizontalTab;
   public tableFields: Array<string> = [];
 
-  private _entityData: any;
+  private _debugData: any;
+  private _element: any;
+
   constructor(private _el: ElementRef,
     private _ngZone: NgZone,
     private _store: Store<fromWizard.State>) { }

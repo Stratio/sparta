@@ -2,8 +2,7 @@
    <div class="wizard-console-header">
       <div class="move" (mousedown)="moveBox($event)"></div>
       <div class="drag-header"></div>
-      <ng-content select="[tabs]"></ng-content>
-      <ng-content select="[buttons]"></ng-content>
+      <ng-content select="[header]"></ng-content>
    </div>
    <div class="console-content">
       <ng-content select="[content]"></ng-content>

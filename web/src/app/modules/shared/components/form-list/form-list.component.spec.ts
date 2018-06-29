@@ -1,4 +1,3 @@
-import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textarea.module';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -18,8 +17,9 @@ import { ErrorMessagesService } from '../../../../services';
 import { FormGroup, FormArray, Validators } from '@angular/forms';
 import { DebugElement, Component, OnInit } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { SpInputError } from '@app/shared/components/sp-input/sp-input.error.model';
 import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
+import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textarea.module';
+import { SpInputError } from '@app/shared/components/sp-input/sp-input.models';
 
 let component: FormListComponent;
 let fixture: ComponentFixture<FormListComponent>;
