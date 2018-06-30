@@ -26,6 +26,7 @@
                "propertyId": "name",
                "propertyName": "_COLUMN_NAME_PROFILING_",
                "propertyType": "text",
+               "showSchemaFields": true,
                "required": true,
                "tooltip": "Name of the column.",
                "qa": "fragment-details-columns-name"
@@ -67,6 +68,7 @@
                "propertyId": "stepName",
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
+               "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
                "width": 3,

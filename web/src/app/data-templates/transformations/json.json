@@ -21,6 +21,7 @@
          "propertyId": "inputField",
          "propertyName": "_INPUT_FIELD_",
          "propertyType": "text",
+         "showSchemaFields": true,
          "required": true,
          "tooltip": "Field containing the JSON string",
          "qa": "fragment-details-casting-fieldsString"
@@ -115,6 +116,7 @@
                "propertyId": "stepName",
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
+               "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
                "width": 3,

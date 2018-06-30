@@ -28,6 +28,7 @@
                "propertyId": "name",
                "propertyName": "_NAME_",
                "propertyType": "text",
+               "showSchemaFields": true,
                "required": true,
                "width": 4,
                "qa": "fragment-details-field-name"
@@ -55,6 +56,7 @@
                "propertyId": "stepName",
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
+               "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
                "width": 3,

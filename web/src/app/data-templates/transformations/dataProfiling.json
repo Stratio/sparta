@@ -41,6 +41,7 @@
          "propertyId": "columns",
          "propertyName": "_COLUMNS_TO_ANALYZE_",
          "propertyType": "list",
+         "showSchemaFields": true,
          "required": false,
          "visible": [
             [
@@ -99,6 +100,7 @@
          "propertyId": "inputSchemas",
          "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
          "propertyType": "list",
+         "showInputSteps": true,
          "required": false,
          "complexForm": true,
          "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",

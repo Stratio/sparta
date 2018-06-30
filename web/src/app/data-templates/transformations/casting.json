@@ -74,6 +74,7 @@
                "propertyId": "name",
                "propertyName": "_NAME_",
                "propertyType": "text",
+               "showSchemaFields": true,
                "required": true,
                "width": 4,
                "qa": "fragment-details-field-name"
@@ -176,6 +177,7 @@
          "propertyId": "inputSchemas",
          "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
          "propertyType": "list",
+         "showInputSteps": true,
          "required": false,
          "complexForm": true,
          "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",

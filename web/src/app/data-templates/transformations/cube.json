@@ -25,6 +25,7 @@
                "propertyId": "name",
                "propertyName": "_INPUT_FIELD_",
                "propertyType": "text",
+               "showSchemaFields": true,
                "required": true,
                "width": 6,
                "tooltip": "Dimension name, the field we want to group by. This name must be present in the input row fields. A dimension is a structure that categorizes facts and apply measures onto them generating an aggregation. Dimensions may be identified with the fields in a GROUP BY operation.",
@@ -100,6 +101,7 @@
                "propertyId": "inputField",
                "propertyName": "_INPUT_FIELD_",
                "propertyType": "text",
+               "showSchemaFields": true,
                "width": 3,
                "tooltip": "Field belonging to an incoming input connected to the Cube transformation. In order to make the aggregation this field must be defined in the Dimensions section too.",
                "qa": "fragment-details-cube-operator-inputField"
@@ -130,6 +132,7 @@
          "propertyId": "timeoutKey",
          "propertyName": "_TIMEOUT_KEY_",
          "propertyType": "text",
+         "showSchemaFields": true,
          "required": false,
          "tooltip": "Set the duration after which the state of an idle dimension will be removed. A dimension and its state is considered idle if it has not received any data for at least the given duration.",
          "qa": "workflow-transformation-cube-timeoutKey"
@@ -156,6 +159,7 @@
                "propertyId": "stepName",
                "propertyName": "_INPUT_STEP_NAME_",
                "propertyType": "text",
+               "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
                "width": 3,
