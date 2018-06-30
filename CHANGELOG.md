@@ -2,6 +2,14 @@
 
 ## 2.1.0 (upcoming)
 
+* Debug mode with schema and data discovery
+
+* Save the history of executions and statuses into Postgres database
+
+* Rights by group and workflow
+
+* Postgres "one transaction" save mode
+
 * New transformations:
     - Join
     - Drop nulls and NaN
@@ -10,6 +18,8 @@
     - Rename columns
     - Init nulls with default values
     - Add column with default values
+    - Data cleaning
+    - Data profiling
 
 * New batch inputs:
     - Avro
@@ -34,6 +44,9 @@
 * Other features:
     - Clean empty DC/OS groups triggered by the stopping of a workflow
     - Optimized DAG with less actions in Spark
+    - Environment variables usage modified in editors
+    - Usability refactor added in repository and monitoring view
+    - Added more monitoring fields with execution dates
 
 ## 2.0.0 (April 03, 2018)
 
