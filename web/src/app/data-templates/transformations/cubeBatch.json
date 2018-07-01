@@ -1,0 +1,131 @@
+{
+   "name": "Cube",
+   "icon": "Cube",
+   "category": "SQL",
+   "className": "CubeTransformStep",
+   "classPrettyName": "Cube",
+   "arity": [
+      "UnaryToNary"
+   ],
+   "supportedEngines": [
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "description": "Create cubes in order to make aggregations based in the OLAP concept.",
+   "properties": [
+      {
+         "propertyId": "dimensions",
+         "propertyName": "_DIMENSIONS_",
+         "propertyType": "list",
+         "required": true,
+         "fields": [
+            {
+               "propertyId": "name",
+               "propertyName": "_INPUT_FIELD_",
+               "propertyType": "text",
+               "showSchemaFields": true,
+               "required": true,
+               "width": 6,
+               "tooltip": "Dimension name, the field we want to group by. This name must be present in the input row fields. A dimension is a structure that categorizes facts and apply measures onto them generating an aggregation. Dimensions may be identified with the fields in a GROUP BY operation.",
+               "qa": "fragment-details-cube-dimension-name"
+            }
+         ],
+         "tooltip": "List of defined dimensions assigned to the cube.",
+         "qa": "fragment-details-cube-dimensions"
+      },
+      {
+         "propertyId": "operators",
+         "propertyName": "_OPERATORS_",
+         "propertyType": "list",
+         "required": true,
+         "fields": [
+            {
+               "propertyId": "name",
+               "propertyName": "_NAME_",
+               "propertyType": "text",
+               "required": true,
+               "width": 3,
+               "tooltip": "Name assigned to the new field containing the aggregated value for this operator.",
+               "qa": "fragment-details-measure-name"
+            },
+            {
+               "propertyId": "classType",
+               "propertyName": "_CLASS_TYPE_",
+               "propertyType": "select",
+               "required": true,
+               "values": [
+                  {
+                     "label": "Avg",
+                     "value": "Avg"
+                  },
+                  {
+                     "label": "Count",
+                     "value": "Count"
+                  },
+                  {
+                     "label": "Max",
+                     "value": "Max"
+                  },
+                  {
+                     "label": "Min",
+                     "value": "Min"
+                  },
+                  {
+                     "label": "Sum",
+                     "value": "Sum"
+                  }
+               ],
+               "width": 3,
+               "tooltip": "Type of aggregation operator used.",
+               "qa": "fragment-details-cube-operator-classType"
+            },
+            {
+               "propertyId": "inputField",
+               "propertyName": "_INPUT_FIELD_",
+               "propertyType": "text",
+               "showSchemaFields": true,
+               "width": 3,
+               "tooltip": "Field belonging to an incoming input connected to the Cube transformation. In order to make the aggregation this field must be defined in the Dimensions section too.",
+               "qa": "fragment-details-cube-operator-inputField"
+            }
+         ],
+         "tooltip": "List of operators assigned to the cube.",
+         "qa": "fragment-details-cube-measures"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "width": 8,
+         "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "showInputSteps": true,
+               "required": true,
+               "tooltip": "Incoming step name.",
+               "width": 3,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 8,
+               "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input being defined.",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

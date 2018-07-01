@@ -56,18 +56,7 @@ class CubeTransformStepStreaming(
   }
 
   lazy val cubeModel: CubeModel = {
-    Try {
-      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
-
-      read[CubeModel](
-        s"""{
-           |"dimensions":${properties.getString("dimensions")},
-           |"operators":${properties.getString("operators")}
-           |}"""".stripMargin)
-    } match {
-      case Success(model) => model
-      case Failure(e) => throw new Exception("Impossible to get cube model from properties", e)
-    }
+    CubeModel.getCubeModel(properties.getString("dimensions"), properties.getString("operators"))
   }
 
   lazy val cube: Cube = createCube

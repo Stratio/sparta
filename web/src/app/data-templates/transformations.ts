@@ -13,6 +13,7 @@ import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
+import * as cubeBatchTemplate from './transformations/cubeBatch.json';
 import * as customTemplate from './transformations/custom.json';
 import * as customLiteTemplate from './transformations/customLite.json';
 import * as customLiteXdTemplate from './transformations/customLiteXd.json';
@@ -48,6 +49,7 @@ export const transformations: any = [
     checkpointTemplate,
     csvTemplate,
     cubeTemplate,
+    cubeBatchTemplate,
     customTemplate,
     customLiteTemplate,
     customLiteXdTemplate,
