@@ -164,10 +164,10 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
    }
 
    getVariableList(field: any) {
-      if (this.valueDictionary && field.showSchemaFields && this.valueDictionary.formFieldsVariables) {
+      if (this.valueDictionary && (this.formListData.showSchemaFields || field.showSchemaFields) && this.valueDictionary.formFieldsVariables) {
         return this.valueDictionary.formFieldsVariables;
       }
-      if (this.valueDictionary && field.showInputSteps && this.valueDictionary.inputStepsVariables) {
+      if (this.valueDictionary && (this.formListData.showInputSteps || field.showInputSteps) && this.valueDictionary.inputStepsVariables) {
         return this.valueDictionary.inputStepsVariables;
       }
       return this.variableList;

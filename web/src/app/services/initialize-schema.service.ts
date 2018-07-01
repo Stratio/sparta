@@ -43,14 +43,14 @@ export class InitializeSchemaService {
       model.configuration = {};
       model.supportedEngines = value.supportedEngines;
       model.supportedDataRelations = value.supportedDataRelations;
-
       model.executionEngine = workflowtype;
+
       value.properties.map((prop: any) => {
          model.configuration[prop.propertyId] = prop.default ? prop.default : null;
       });
       model.classPrettyName = value.classPrettyName;
       model.className = value.className;
-      //model.description = value.description;
+      // model.description = value.description;
       // arity property for workflow validation
       if (value.arity) {
          model.arity = value.arity;
