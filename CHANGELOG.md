@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.1.0 (upcoming)
+## 2.2.0 (upcoming)
+
+* Pending changelog
+
+## 2.1.0-54d5caa (Built: July 02, 2018 | Pre-release)
 
 * Debug mode with schema and data discovery
 
