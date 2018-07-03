@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorRef, Cancellable, Props}
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.actor.ExecutionPublisherActor.{ExecutionChange, ExecutionRemove}
@@ -224,14 +225,14 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
               error,
               PhaseEnum.Stop,
               e.toString,
-              Try(e.getCause.getMessage).toOption.getOrElse(e.getMessage)
+              ExceptionHelper.toPrintableException(e)
             )
+            executionService.setLastError(workflowStatus.id, wError)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
               statusInfo = Some(error)
             ))
-            executionService.setLastError(workflowStatus.id, wError)
           }
       }
     }
@@ -282,14 +283,14 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
               error,
               PhaseEnum.Stop,
               e.toString,
-              Try(e.getCause.getMessage).toOption.getOrElse(e.getMessage)
+              ExceptionHelper.toPrintableException(e)
             )
+            executionService.setLastError(workflowStatus.id, wError)
             statusService.update(WorkflowStatus(
               id = workflowStatus.id,
               status = Failed,
               statusInfo = Some(error)
             ))
-            executionService.setLastError(workflowStatus.id, wError)
           }
       }
       Try(executionService.setEndDate(execution.id, new DateTime()))
@@ -329,12 +330,12 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
           val information = s"Error while stopping task"
           log.info(information)
           val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error, error))
+          wError.foreach(error => executionService.setLastError(workflowStatus.id, error))
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
             statusInfo = Some(information)
           ))
-          wError.foreach(error => executionService.setLastError(workflowStatus.id, error))
         case Failure(e) =>
           val error = "Impossible to parse submission killing response"
           log.error(error, e)
@@ -342,14 +343,14 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             error,
             PhaseEnum.Stop,
             e.toString,
-            Try(e.getCause.getMessage).toOption.getOrElse(e.getMessage)
+            ExceptionHelper.toPrintableException(e)
           )
+          executionService.setLastError(workflowStatus.id, wError)
           statusService.update(WorkflowStatus(
             id = workflowStatus.id,
             status = Failed,
             statusInfo = Some(error)
           ))
-          executionService.setLastError(workflowStatus.id, wError)
       }
       Try(executionService.setEndDate(execution.id, new DateTime()))
         .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${execution.id}"))

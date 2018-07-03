@@ -10,6 +10,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.SparkConstant
@@ -89,14 +90,14 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           information,
           PhaseEnum.Launch,
           exception.toString,
-          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          ExceptionHelper.toPrintableException(exception)
         )
+        executionService.setLastError(workflow.id.get, error)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information)
         ))
-        executionService.setLastError(workflow.id.get, error)
       case Success(Failure(exception)) =>
         val information = s"An error was encountered while creating an execution submit in the persistence"
         log.error(information, exception)
@@ -104,14 +105,14 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           information,
           PhaseEnum.Launch,
           exception.toString,
-          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          ExceptionHelper.toPrintableException(exception)
         )
+        executionService.setLastError(workflow.id.get, error)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information)
         ))
-        executionService.setLastError(workflow.id.get, error)
       case Success(Success(submitRequestCreated)) =>
         val information = "Submit options initialized correctly"
         log.info(information)
@@ -168,14 +169,14 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           information,
           PhaseEnum.Execution,
           exception.toString,
-          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          ExceptionHelper.toPrintableException(exception)
         )
+        executionService.setLastError(workflow.id.get, error)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information)
         ))
-        executionService.setLastError(workflow.id.get, error)
       case Success(sparkHandler) =>
         val information = "Workflow launched correctly"
         log.info(information)

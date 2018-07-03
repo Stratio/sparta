@@ -11,6 +11,7 @@ import akka.event.Logging
 import akka.event.Logging.LogLevel
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
@@ -58,11 +59,13 @@ trait ErrorManager extends SLF4JLogging {
                               step: Option[String] = None
                             ): Throwable = {
     val workflowError = WorkflowError(
-      message,
-      code,
-      exception.toString,
-      Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage),
-      new Date, step)
+      message = message,
+      phase = code,
+      exceptionMsg = exception.toString,
+      localizedMsg = ExceptionHelper.toPrintableException(exception),
+      date = new Date,
+      step = step
+    )
     log.error("An error was detected : {}", workflowError)
     Try {
       traceError(workflowError)

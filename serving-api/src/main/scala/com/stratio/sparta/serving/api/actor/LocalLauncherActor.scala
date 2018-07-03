@@ -11,6 +11,7 @@ import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
@@ -92,14 +93,14 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
           information,
           PhaseEnum.Execution,
           exception.toString,
-          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          ExceptionHelper.toPrintableException(exception)
         )
+        executionService.setLastError(workflow.id.get, error)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information)
         ))
-        executionService.setLastError(workflow.id.get, error)
         self ! PoisonPill
     }
   }

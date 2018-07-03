@@ -14,13 +14,17 @@ import {
    OnDestroy,
    OnInit,
    Output,
-   ViewChildren
+   ViewChildren,
+   ElementRef,
+   AfterViewInit
 } from '@angular/core';
 import {
    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 import { SpInputError, SpInputVariable } from './sp-input.models';
+
+const navigates = ['ArrowDown', 'ArrowUp', 'Enter'];
 
 @Component({
    selector: 'sp-input',
@@ -33,7 +37,7 @@ import { SpInputError, SpInputVariable } from './sp-input.models';
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit, OnDestroy {
+export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit, OnDestroy, AfterViewInit {
 
    @Input() placeholder = '';
    @Input() name = '';
@@ -64,6 +68,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
 
    @ViewChildren('input') vc: any;
 
+
    public disabled = false; // To check disable
    public focus = false;
    public internalControl: FormControl;
@@ -71,16 +76,22 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    public selectVarMode = false;
    public filteredVariableList: Array<any>;
    public pristine = true;
+   public selectedIndex = 0;
 
+   private scrollList: any;
    private sub: Subscription;
    private _value: any;
    private valueChangeSub: Subscription;
    private internalInputModel: any = '';
    public isVarValue = false;
 
+   private _element: any;
+
    private focusPristine = true;
 
-   constructor(private _cd: ChangeDetectorRef) { }
+   constructor(private _cd: ChangeDetectorRef, private _elementRef: ElementRef) {
+      this._element = _elementRef.nativeElement;
+   }
 
    onChange = (_: any) => { };
    onTouched = () => { };
@@ -166,6 +177,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
 
       this.focusPristine = true;
       this.vc.first.nativeElement.blur();
+      this.selectedIndex = 0;
    }
 
    resetVarValue() {
@@ -239,6 +251,53 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
          this.selectVarMode = true;
          this.filterVarListValue(this.internalControl.value);
       }
+   }
+
+   onKeydown(event) {
+      if (event.key === 'Backspace' && !this.internalControl.value.length) {
+         this.selectVarMode = false;
+         this.isVarValue = false;
+         this.selectedIndex = 0;
+      } else if (navigates.includes(event.key) && this.filteredVariableList.length ) {
+         this.scrollList = this._element.querySelector('ul');
+         switch (event.key) {
+            case 'ArrowUp':
+               if (this.selectedIndex > 0) {
+                  this.selectedIndex--;
+               }
+               break;
+            case 'ArrowDown':
+               if (this.selectedIndex < this.filteredVariableList.length - 1) {
+                  if (!this.selectVarMode) {
+                     this.selectVarMode = true;
+                     this.filterVarListValue(this.internalControl.value);
+                  } else {
+                     this.selectedIndex++;
+                  }
+               }
+               break;
+               case 'Enter':
+               this.selectVar(event, this.filteredVariableList[this.selectedIndex]);
+                  break;
+            default:
+               break;
+         }
+         if (this.scrollList) {
+            this.scrollList.scrollTop = this.getScroll(this.scrollList);
+         }
+      }
+    }
+
+   private getScroll(list: any): any {
+      if (list && list.children.length) {
+         const elementsHeight = list.children.length && Array.from(list.children)
+            .filter((element, index) => index <= this.selectedIndex)
+            .reduce((prev: number, next: any, i, elements) => prev + next.offsetHeight, 0);
+         return (list.scrollHeight !== list.offsetHeight && elementsHeight > list.offsetHeight)
+            ? elementsHeight - list.offsetHeight
+            : 0;
+      }
+     return 0;
    }
 
    onFocusOut(event: Event): void {

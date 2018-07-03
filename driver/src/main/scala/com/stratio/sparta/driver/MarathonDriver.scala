@@ -11,6 +11,7 @@ import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -65,14 +66,14 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
             information,
             PhaseEnum.Launch,
             exception.toString,
-            Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+            ExceptionHelper.toPrintableException(exception)
           )
+          executionService.setLastError(workflowId, error)
           statusService.update(WorkflowStatus(
             id = workflowId,
             status = Failed,
             statusInfo = Option(information)
           ))
-          executionService.setLastError(workflowId, error)
           throw DriverException(information, exception)
       }
     } match {

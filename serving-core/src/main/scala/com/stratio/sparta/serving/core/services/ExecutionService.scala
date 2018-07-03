@@ -125,6 +125,7 @@ class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSeriali
   def setLastError(executionId: String, error: WorkflowError): Try[WorkflowExecution] = {
     findById(executionId) match {
       case Success(execution) =>
+        log.debug(s"Updating execution id $executionId with error: $error")
         update(execution.copy(
           genericDataExecution = execution.genericDataExecution.map(_.copy(lastError = Option(error)))
         ))

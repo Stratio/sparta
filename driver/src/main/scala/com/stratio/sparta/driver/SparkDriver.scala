@@ -8,14 +8,14 @@ package com.stratio.sparta.driver
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
-import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
+import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.exception.{DriverException, ErrorManagerException}
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
@@ -102,14 +102,14 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
             information,
             PhaseEnum.Launch,
             exception.toString,
-            Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+            ExceptionHelper.toPrintableException(exception)
           )
+          executionService.setLastError(workflowId, error)
           statusService.update(WorkflowStatus(
             id = workflow.id.get,
             status = Failed,
             statusInfo = Option(information)
           ))
-          executionService.setLastError(workflowId, error)
           throw DriverException(information, exception)
       }
     } match {

@@ -10,6 +10,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorRef, PoisonPill}
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.SparkConstant
@@ -91,14 +92,14 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           information,
           PhaseEnum.Launch,
           exception.toString,
-          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          ExceptionHelper.toPrintableException(exception)
         )
+        executionService.setLastError(workflow.id.get, error)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information)
         ))
-        executionService.setLastError(workflow.id.get, error)
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized successfully"
@@ -124,14 +125,14 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
               information,
               PhaseEnum.Launch,
               exception.toString,
-              Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+              ExceptionHelper.toPrintableException(exception)
             )
+            executionService.setLastError(workflow.id.get, error)
             statusService.update(WorkflowStatus(
               id = workflow.id.get,
               status = Failed,
               statusInfo = Option(information)
             ))
-            executionService.setLastError(workflow.id.get, error)
         }
     }
   }

@@ -29,7 +29,7 @@
             <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
                <div class="col-sm-12">
                   <form-generator-group 
-                    [variableList]="environmentList" 
+                    [variableList]="formVariables" 
                     [showVars]="true" 
                     [(ngModel)]="settingsFormModel"
                     [formData]="advancedSettings" 

@@ -5,7 +5,6 @@
  */
 package com.stratio.sparta.driver.services
 
-import java.io.File
 
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
@@ -26,6 +25,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
+
 
 case class ContextsService(curatorFramework: CuratorFramework)
 

@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.services
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -64,14 +65,14 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                     error,
                     PhaseEnum.Stop,
                     exception.toString,
-                    Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+                    ExceptionHelper.toPrintableException(exception)
                   )
+                  executionService.setLastError(workflowId, wError)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
                     status = Failed,
                     statusInfo = Some(error)
                   ))
-                  executionService.setLastError(workflowId, wError)
               }
           }
         } finally {

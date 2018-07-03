@@ -9,6 +9,7 @@ import akka.actor.{Actor, ActorRef, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
@@ -82,14 +83,14 @@ class MarathonAppActor(
           information,
           PhaseEnum.Launch,
           exception.toString,
-          Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+          ExceptionHelper.toPrintableException(exception)
         )
+        executionService.setLastError(workflow.id.get, error)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information)
         ))
-        executionService.setLastError(workflow.id.get, error)
     }
   }
 

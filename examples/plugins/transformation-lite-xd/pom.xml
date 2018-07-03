@@ -14,7 +14,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <scala.binary.version>2.11</scala.binary.version>
         <apache.spark.version>2.2.0</apache.spark.version>
-        <crossdata.version>2.13.0-3daddd1</crossdata.version>
+        <crossdata.version>2.13.0-73dd295</crossdata.version>
     </properties>
 
     <dependencies>

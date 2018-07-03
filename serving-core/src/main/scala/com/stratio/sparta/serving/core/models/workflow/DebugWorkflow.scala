@@ -71,7 +71,7 @@ case class DebugWorkflow(
       stopGracefully = Option(true),
       stopGracefulTimeout = Option(JsoneyString(AppConstant.maxDebugTimeout.toString)),
       checkpointSettings = streamingSettings.checkpointSettings.copy(
-        checkpointPath = JsoneyString("/tmp/debug-checkpoint"),
+        checkpointPath = JsoneyString("file://tmp/debug-checkpoint"),
         autoDeleteCheckpoint = true
       )
     )

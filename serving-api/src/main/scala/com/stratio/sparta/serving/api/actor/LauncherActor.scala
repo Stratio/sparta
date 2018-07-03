@@ -8,8 +8,9 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Props, _}
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
-import com.stratio.sparta.security.{Edit, Status, SpartaSecurityManager}
+import com.stratio.sparta.security.{Edit, SpartaSecurityManager, Status}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
@@ -86,14 +87,14 @@ class LauncherActor(curatorFramework: CuratorFramework,
             information,
             PhaseEnum.Launch,
             exception.toString,
-            Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
+            ExceptionHelper.toPrintableException(exception)
           )
+          executionService.setLastError(id, error)
           statusService.update(WorkflowStatus(
             id = id,
             status = Failed,
             statusInfo = Option(information)
           ))
-          executionService.setLastError(id, error)
       }
     }
   }
