@@ -3,7 +3,9 @@
 
 ####  2.2.0 (upcoming)
 
-#### 2.1.0-54d5caa (Built: July 02, 2018 | Pre-release)
+####  2.2.0 (upcoming)
+
+#### 2.1.0-a5c4de8 (Built: July 03, 2018 | Pre-release)
 
 #### 2.0.0 (April 03, 2018)
 
