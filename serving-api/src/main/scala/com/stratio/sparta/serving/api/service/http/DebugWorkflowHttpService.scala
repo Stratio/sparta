@@ -18,8 +18,7 @@ import com.stratio.sparta.serving.core.models.files.SpartaFile
 import javax.ws.rs.Path
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
-import spray.http.HttpHeaders.`Content-Disposition`
-import spray.http.Uri.Path.Segment
+import spray.http.HttpHeaders.{`Content-Disposition`, `Content-Type`}
 import spray.http.{StatusCodes, _}
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
@@ -311,8 +310,8 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
       case Left(Failure(e)) =>
         throw new ServerException(ErrorModel.toString(ErrorModel(
           StatusCodes.InternalServerError.intValue,
-          PluginsServiceDownload,
-          ErrorCodesMessages.getOrElse(PluginsServiceDownload, UnknownError),
+          ErrorModel.DebugWorkflowServiceDownload,
+          ErrorCodesMessages.getOrElse(ErrorModel.DebugWorkflowServiceDownload, UnknownError),
           None,
           Option(e.getLocalizedMessage)
         )))
@@ -345,7 +344,8 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
       get {
         onComplete(debugTempFile(file, user)) {
           case Success(tempFile: SpartaFile) =>
-            respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> tempFile.fileName))) {
+            respondWithHeaders(`Content-Disposition`("attachment", Map("filename" -> tempFile.fileName)),
+              `Content-Type`(MediaTypes.`text/plain`)) {
               getFromFile(tempFile.path)
             }
           case Failure(ex) => throw ex

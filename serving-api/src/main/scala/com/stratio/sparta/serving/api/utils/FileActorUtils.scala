@@ -60,7 +60,7 @@ trait FileActorUtils extends SLF4JLogging {
       val file = new File(filePath)
       if (file.exists && file.isFile) {
         SpartaFile(file.getName, s"$url/${file.getName}", file.getAbsolutePath)
-      } else throw new Exception(s"The file $filePath is corrupted")
+      } else throw new Exception(s"The file $filePath does not exist or is corrupted")
     }
 
   def uploadFiles(files: Seq[BodyPart], useTemporalDirectory: Boolean = false,
@@ -68,7 +68,7 @@ trait FileActorUtils extends SLF4JLogging {
     Try {
       files.flatMap { file =>
         val fileNameOption = file.filename.orElse(file.name.orElse {
-          log.warn(s"It is necessary a name to upload the file")
+          log.warn(s"It is necessary to specify a name in order to upload the file")
           None
         })
         fileNameOption.flatMap { fileName =>
