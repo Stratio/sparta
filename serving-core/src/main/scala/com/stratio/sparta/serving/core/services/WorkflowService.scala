@@ -104,7 +104,7 @@ class WorkflowService(
 
     mandatoryValidationsWorkflow(workflow)
 
-    val workflowWithFields = addCreationDate(addId(workflow))
+    val workflowWithFields = addCreationDate(addId(addSpartaVersion(workflow)))
 
     existsById(workflowWithFields.id.get).foreach(searchWorkflow => throw new ServerException(
       s"Workflow with id ${workflowWithFields.id.get} exists." +
@@ -482,6 +482,12 @@ object WorkflowService{
   private[sparta] def addCreationDate(workflow: Workflow): Workflow =
     workflow.creationDate match {
       case None => workflow.copy(creationDate = Some(new DateTime()))
+      case Some(_) => workflow
+    }
+
+  private[sparta] def addSpartaVersion(workflow: Workflow): Workflow =
+    workflow.versionSparta match {
+      case None => workflow.copy(versionSparta = Some(AppConstant.version))
       case Some(_) => workflow
     }
 

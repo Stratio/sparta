@@ -227,7 +227,7 @@ class DebugWorkflowService(
 
   private def writeDebugWorkflowInZk(debugWorkflow: DebugWorkflow): DebugWorkflow = {
     val updatedOriginalWorkflow = debugWorkflow.copy(workflowOriginal =
-      addCreationDate(addId(debugWorkflow.workflowOriginal)))
+      addCreationDate(addId(addSpartaVersion(debugWorkflow.workflowOriginal))))
     val updatedDebugWorkflow = updatedOriginalWorkflow.copy(
       workflowDebug = debugWorkflow.workflowDebug.map { workflow =>
         workflow.copy(id = updatedOriginalWorkflow.workflowOriginal.id)

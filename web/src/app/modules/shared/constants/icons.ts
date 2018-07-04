@@ -44,5 +44,9 @@ export const icons: any = {
     AddColumns: '\ue104',
     RenameColumns: '\ue91D',
     DataProfiling: '\uE091',
-    BasicDataQuality: '\uE94D'
+    BasicDataQuality: '\uE94D',
+    DropDuplicates: '\ue908',
+    InitNulls: '\ue919',
+    Join: '\ue98B',
+    DropNulls: '\ue084'
 };

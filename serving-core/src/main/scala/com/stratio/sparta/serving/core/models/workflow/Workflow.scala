@@ -27,7 +27,8 @@ case class Workflow(
                      tags: Option[Seq[String]] = None,
                      status: Option[WorkflowStatus] = None,
                      execution: Option[WorkflowExecution] = None,
-                     debugMode: Option[Boolean] = Option(false)
+                     debugMode: Option[Boolean] = Option(false),
+                     versionSparta: Option[String] = None
                    ) extends EntityAuthorization {
 
   def authorizationId: String = s"${group.name}/$name"

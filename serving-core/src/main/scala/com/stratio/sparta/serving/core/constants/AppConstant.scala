@@ -11,15 +11,16 @@ import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.env.EnvironmentVariable
 import com.stratio.sparta.serving.core.models.workflow.{Group, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.ZookeeperUtils
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
-import scala.util.Properties
+
+import scala.util.{Properties, Try}
 
 /**
  * Global constants of the application.
  */
 object AppConstant extends ZookeeperUtils {
 
-  val version = "2.0.0-SNAPSHOT"
   val ConfigAppName = "sparta"
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
@@ -56,6 +57,9 @@ object AppConstant extends ZookeeperUtils {
   val DefaultSerializationTimeout = 5000
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
+  val DefaultVersion = "2.1.0-SNAPSHOT"
+  lazy val version = Try(SpartaConfig.getDetailConfig.get.getString("version"))
+    .toOption.notBlank.getOrElse(DefaultVersion)
 
 
   //Debug Options
