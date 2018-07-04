@@ -48,6 +48,14 @@
          "qa": "fragment-details-elasticSearch-indexMapping"
       },
       {
+         "propertyId": "timeStampMapperFormat",
+         "propertyName": "_TIME_STAMP_MAPPING_",
+         "propertyType": "text",
+         "tooltip": "Specifies a format for the document timestamp.",
+         "required": false,
+         "qa": "fragment-details-elasticSearch-ts-mapper-format"
+      },
+      {
          "propertyId": "enableAutoCreateIndex",
          "propertyName": "_ENABLE_INDEX_AUTO_CREATE_",
          "propertyType": "boolean",
@@ -62,14 +70,6 @@
          "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and ElasticSearch.",
          "default": false,
          "qa": "fragment-details-elasticSearch-tls"
-      },
-      {
-         "propertyId": "timeStampMapperFormat",
-         "propertyName": "_TIME_STAMP_MAPPING_",
-         "propertyType": "text",
-         "tooltip": "Specifies a format for the document timestamp.",
-         "required": false,
-         "qa": "fragment-details-elasticSearch-ts-mapper-format"
       },
       {
          "propertyId": "errorSink",

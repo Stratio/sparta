@@ -64,30 +64,6 @@
         "tooltip": "Sets the isolation level when persisting the data in the database.",
         "qa": "fragment-postgres-isolation-level"
       },
-      {
-        "propertyId": "tlsEnabled",
-        "propertyName": "_TLS_ENABLE_",
-        "propertyType": "boolean",
-        "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and the JDBC database.",
-        "default": false,
-        "qa": "fragment-details-postgres-tls"
-      },
-       {
-          "propertyId": "schemaFromDatabase",
-          "propertyName": "_SCHEMA_FROM_DATABASE_",
-          "propertyType": "boolean",
-          "tooltip": "Tells the workflow to extract the schema from the output database.",
-          "default": false,
-          "qa": "fragment-details-jdbc-schema-database"
-       },
-       {
-          "propertyId": "errorSink",
-          "propertyName": "_ERROR_SINK_",
-          "propertyType": "boolean",
-          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
-          "default": false,
-          "qa": "fragment-details-errorSink"
-       },
        {
           "propertyId": "jdbcSaveMode",
           "propertyName": "_JDBC_SAVE_MODE_",
@@ -125,6 +101,30 @@
           "required": true,
           "tooltip": "When enabled, if a transaction fails a exception is thrown and the application is stopped abruptly.",
           "qa": "fragment-details-jdbc-failfast"
+       },
+      {
+        "propertyId": "tlsEnabled",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and the JDBC database.",
+        "default": false,
+        "qa": "fragment-details-postgres-tls"
+      },
+       {
+          "propertyId": "schemaFromDatabase",
+          "propertyName": "_SCHEMA_FROM_DATABASE_",
+          "propertyType": "boolean",
+          "tooltip": "Tells the workflow to extract the schema from the output database.",
+          "default": false,
+          "qa": "fragment-details-jdbc-schema-database"
+       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
+          "default": false,
+          "qa": "fragment-details-errorSink"
        },
       {
         "propertyId": "saveOptions",

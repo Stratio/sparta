@@ -10,7 +10,6 @@
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
-        "propertyType": "switch",
         "tooltip": "Enable TLS protocol in order to connect to a secured filesystem using certificates.",
         "default": false,
         "qa": "fragment-details-postgres-tls"

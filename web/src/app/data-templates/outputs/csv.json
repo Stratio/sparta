@@ -15,6 +15,16 @@
         "qa": "fragment-details-csv-path",
         "tooltip": "Path to store the data in a compatible filesystem (HDFS, S3, Azure, etc). Please note that, in order to write to the HDFS specified in the tenant configuration, also relative paths can be used (e.g. /user/sparta-server/) without the namenode details (e.g. hdfs:///addressNamenode:8020/user/sparta-server/)"
       },
+       {
+          "propertyId": "delimiter",
+          "propertyName": "_DELIMITER_",
+          "propertyType": "text",
+          "tooltip": "Any character is accepted except: \\ \" #",
+          "default": "{{{DEFAULT_DELIMITER}}}",
+          "trim": false,
+          "required": true,
+          "qa": "fragment-details-csv-delimiter"
+       },
       {
         "propertyId": "header",
         "propertyName": "_HEADER_",
@@ -34,16 +44,6 @@
         "required": true,
         "tooltip": "If checked, the data schema will be attached to the output file.",
         "qa": "fragment-details-csv-inferSchema"
-      },
-      {
-        "propertyId": "delimiter",
-        "propertyName": "_DELIMITER_",
-        "propertyType": "text",
-        "tooltip": "Any character is accepted except: \\ \" #",
-        "default": "{{{DEFAULT_DELIMITER}}}",
-        "trim": false,
-        "required": true,
-        "qa": "fragment-details-csv-delimiter"
       },
        {
           "propertyId": "errorSink",

@@ -442,7 +442,7 @@
    "_TIME_STAMP_MAPPING_": "Timestamp data format",
    "_KAFKA_PROPERTY_VALUE_": "Value",
    "_BOOTSTRAP_SERVERS_": "Bootstrap servers list",
-   "_TLS_ENABLE_": "TLS enable",
+   "_TLS_ENABLE_": "TLS enabled",
    "_OUTPUT_FORMAT_": "Output format",
    "_LIMIT_RECORDS_": "Limit records",
    "_KAFKA_PROPERTIES_": "Kafka properties",
