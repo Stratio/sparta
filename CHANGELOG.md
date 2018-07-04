@@ -2,7 +2,7 @@
 
 ## 2.2.0 (upcoming)
 
-* Pending changelog
+* Visual query builder transformation
 
 ## 2.1.0-a5c4de8 (Built: July 03, 2018 | Pre-release)
 
