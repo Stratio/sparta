@@ -212,13 +212,15 @@ class DummyDebugInputStepStreamingIT extends TemporalSparkContext with TimeLimit
     ))
     val tableName = "tableName"
     val totalRegisters = 1000
-    val registers: Seq[Row] = for (a <- 1 to totalRegisters) yield Row(a,a)
-    val distributedStream = sc.parallelize(registers)
+    val registers = for (a <- 1 to totalRegisters) yield new GenericRowWithSchema(Array(a,a), schema)
+    val registersRow = registers.map(_.asInstanceOf[Row])
+    val distributedStream = sc.parallelize(registersRow)
 
     sparkSession.createDataFrame(distributedStream, schema).createOrReplaceTempView(tableName)
+    sparkSession.sql("CREATE TABLE tableName3 USING org.apache.spark.sql.parquet AS select * FROM tableName")
 
     val datasourceParams = Map("dummyInputSource" -> "SQL",
-      "debugOptions" -> TestJsonUtil.toJson(DebugOptions(None, Some(s"select * from $tableName"), None)))
+      "debugOptions" -> TestJsonUtil.toJson(DebugOptions(None, Some(s"select * from tableName3"), None)))
     val debugInput = new DummyDebugInputStepStreaming(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
 
@@ -245,8 +247,10 @@ class DummyDebugInputStepStreamingIT extends TemporalSparkContext with TimeLimit
 
     log.debug("Finished Streaming")
 
+    sparkSession.sql("DROP TABLE tableName3")
+
     totalEvents.value should ===(registers.size)
-    assert(eventsRegistered === registers)
+    eventsRegistered.foreach(row => assert(registers.contains(row)))
   }
 
   "A DummyDebugInputStepStreaming" should "read a plain text as fake input" in {

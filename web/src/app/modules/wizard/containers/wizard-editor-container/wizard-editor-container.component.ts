@@ -24,6 +24,10 @@ import { Subject } from 'rxjs/Subject';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
+import * as fromRoot from 'reducers';
+import * as errorsActions from 'actions/errors';
+
+
 import * as wizardActions from './../../actions/wizard';
 import { isMobile } from 'constants/global';
 import { WizardNode, WizardEdge, WizardEdgeNodes, EdgeOption } from '@app/wizard/models/node';
@@ -61,6 +65,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    public showDebugConsole: boolean;
    public genericError: any;
    public consoleDebugData: any;
+
+   public showForbiddenError$: Observable<any>;
    private _componentDestroyed = new Subject();
 
    @ViewChild('editorArea') editorArea: ElementRef;
@@ -95,7 +101,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       private _editorService: WizardEditorService,
       private _cd: ChangeDetectorRef,
       private _store: Store<fromWizard.State>,
-      private _el: ElementRef) {
+      private _el: ElementRef,
+      private store: Store<fromRoot.State>) {
       this.isMobile = isMobile;
    }
 
@@ -206,6 +213,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
             this.debugResult = debugResult && debugResult.steps ? debugResult.steps : {};
             this._cd.markForCheck();
          }));
+      this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
    }
 
    deleteSelection() {
@@ -290,7 +298,12 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       }
    }
 
+   hideAlert() {
+      this.store.dispatch(new errorsActions.ChangeRouteAction());
+   }
+
    ngOnDestroy(): void {
+      this.hideAlert();
       this._componentDestroyed.next();
       this._componentDestroyed.unsubscribe();
    }

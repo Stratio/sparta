@@ -1,4 +1,4 @@
-.notification {
+:host {
    background: #EC7E13;
    display: inline-block;
    color: white;
@@ -26,10 +26,10 @@
 @keyframes NotificationAnimation {
    0% {
       opacity: 0;
-      top: -20px;
+      transform:  translateY(-40px);
    }
    100% {
       opacity: 1;
-      top: 70px;
+      transform: translateY(0px);
    }
 }

@@ -3,9 +3,10 @@ $cloudy-black: #cdd6df;
 
 .wizard-header {
     position:relative;
+    z-index:7000;
     .loading-bar{
         position:absolute;
-        z-index:1;
+        z-index:7001;
         bottom:0;
     }
 }
