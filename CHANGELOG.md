@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.2.0 (upcoming)
+## 2.3.0 (upcoming)
+
+* Pending changelog
+
+## 2.2.0-3ee546d (Built: July 05, 2018 | Pre-release)
 
 * Visual query builder transformation
 
