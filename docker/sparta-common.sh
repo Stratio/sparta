@@ -208,6 +208,13 @@ function logLevelOptions() {
   sed -i "s|log4j.logger.org.apache.http.*|log4j.logger.org.apache.http= ${HTTP_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   echo "export HTTP_LOG_LEVEL=${HTTP_LOG_LEVEL}" >> ${VARIABLES}
   echo "export HTTP_LOG_LEVEL=${HTTP_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
+
+  if [[ ! -v SLICK_LOG_LEVEL ]]; then
+    SLICK_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|com.typesafe.slick.*|com.typesafe.slick= ${SLICK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export SLICK_LOG_LEVEL=${SLICK_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export SLICK_LOG_LEVEL=${SLICK_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 }
 
 function logLevelAppender() {
