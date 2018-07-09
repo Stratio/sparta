@@ -27,6 +27,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbMenuService } from 'app/services';
 import { FormFileComponent } from '@app/shared/components/form-file/form-file.component';
+import { take } from 'rxjs/operator/take';
 
 @Component({
    selector: 'sparta-plugins',
@@ -96,7 +97,7 @@ export class PluginsComponent implements OnInit, OnDestroy {
          maxWidth: 500,
          message: this.deletePluginModalMessage,
          messageTitle: this.deletePluginModalMessageTitle
-      }).subscribe((response: any) => {
+      }).take(1).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
          } else if (response === 0) {

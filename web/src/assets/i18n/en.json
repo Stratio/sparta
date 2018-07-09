@@ -654,7 +654,7 @@
       "CHECKPOINTSETTINGS": "Checkpoint",
       "INPUTSTEPSMANAGEMENT": "Input Steps",
       "GENERICERRORMANAGEMENT": "Application-wide policy",
-      "TRANSFORMATIONSTEPSMANAGEMENT": "Transformation-side policy",
+      "TRANSFORMATIONSTEPSMANAGEMENT": "Transformation-wide policy",
       "TRANSACTIONSMANAGEMENT": "Error sinks",
       "SAVEACTIONMANAGEMENT": "Save Steps",
       "SETTINGS": "Workflow Settings",

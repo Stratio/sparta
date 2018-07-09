@@ -83,9 +83,6 @@ abstract class DummyDebugInputStep[Underlying[Row]](
     require( debugPath.nonEmpty || debugUserProvidedExample.nonEmpty || debugQuery.nonEmpty ||
       debugFileUploaded.nonEmpty, errorDebugValidation)
 
-    xDSession.catalog.clearCache()
-    xDSession.sessionState.catalog.clearTempTables()
-
     (debugPath, debugQuery, debugUserProvidedExample, debugFileUploaded) match {
       case (Some(path), _ , _,_) => createDebugFromPath(Some(path))
       case (None, Some(debQuery), _, _) =>

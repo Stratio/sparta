@@ -46,8 +46,6 @@ object SparkContextFactory extends SLF4JLogging {
       case (Some(principal), Some(keyTabPath)) =>
         KerberosUser.securize(principal, keyTabPath)
         Seq(
-          ("spark.mesos.kerberos.keytabBase64", DatatypeConverter.printBase64Binary(
-            Files.readAllBytes(Paths.get(keyTabPath)))),
           ("spark.yarn.principal", principal),
           ("spark.hadoop.yarn.resourcemanager.principal", principal)
         )

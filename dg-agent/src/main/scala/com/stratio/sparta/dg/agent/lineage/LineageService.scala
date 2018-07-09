@@ -9,14 +9,12 @@ package com.stratio.sparta.dg.agent.lineage
 import scala.util.{Failure, Success, Try}
 import scalax.collection.Graph
 import scalax.collection.edge.LDiEdge
-
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, ActorRef, ActorSystem, AllForOneStrategy, Props}
 import akka.event.slf4j.SLF4JLogging
-
 import com.stratio.governance.commons.agent.actors.PostgresSender
 import com.stratio.governance.commons.agent.actors.PostgresSender.PostgresEvent
-import com.stratio.governance.commons.agent.model.metadata.Metadata
+import com.stratio.governance.commons.agent.model.metadata.{Metadata, OperationCommandType}
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.serving.core.actor.StatusListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
@@ -63,7 +61,7 @@ class LineageService(statusListenerActor: ActorRef,
     }
   }
 
-  def extractWorkflowChanges(): Unit =
+  def extractWorkflowChanges(): Unit = {
     workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow =>
       val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
       Try(
@@ -78,6 +76,22 @@ class LineageService(statusListenerActor: ActorRef,
           log.warn(s"Error while generating the metadata related to the workflow steps:${exception.getMessage}")
       }
     }
+
+    workflowListenerActor ! OnWorkflowsDeleteDo(WorkflowLineageKey) { workflow =>
+      val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
+      Try(
+        LineageUtils.workflowMetadataLineage(workflow, OperationCommandType.DELETE) :::
+          LineageUtils.inputMetadataLineage(workflow, graph, OperationCommandType.DELETE) :::
+          LineageUtils.transformationMetadataLineage(workflow, graph, OperationCommandType.DELETE) :::
+          LineageUtils.outputMetadataLineage(workflow, graph, OperationCommandType.DELETE)) match {
+        case Success(listSteps) =>
+          senderPostgres ! PostgresEvent(listSteps, List.empty[Metadata])
+          log.debug(s"Sending workflow lineage for workflow: ${workflow.id.get}")
+        case Failure(exception) =>
+          log.warn(s"Error while generating the metadata related to the workflow steps:${exception.getMessage}")
+      }
+    }
+  }
 
   def extractStatusChanges(): Unit =
     statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>

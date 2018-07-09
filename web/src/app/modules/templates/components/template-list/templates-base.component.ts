@@ -13,6 +13,7 @@ import { icons } from '@app/shared/constants/icons';
 
 import * as fromRoot from 'reducers';
 import { BreadcrumbMenuService } from 'services';
+import { take } from 'rxjs/operator/take';
 
 export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
 
@@ -72,7 +73,7 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
             maxWidth: 500,
             message: this.deleteTemplateModalMessage,
             messageTitle: this.deleteTemplateModalMessageTitle
-        }).subscribe((response: any) => {
+        }).take(1).subscribe((response: any) => {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {

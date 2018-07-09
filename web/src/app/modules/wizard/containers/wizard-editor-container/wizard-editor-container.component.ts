@@ -34,6 +34,7 @@ import { WizardNode, WizardEdge, WizardEdgeNodes, EdgeOption } from '@app/wizard
 import { KEYS } from '@app/wizard/wizard.constants';
 import { ZoomTransform } from '@app/wizard/models/drag';
 import { WizardEditorService, WizardEditorComponent } from '@app/wizard';
+import { take } from 'rxjs/operator/take';
 
 @Component({
    selector: 'wizard-editor-container',
@@ -247,7 +248,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          maxWidth: 500,
          messageTitle: 'Are you sure?',
          message: modalMessage,
-      }).subscribe((response: any) => {
+      }).take(1).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
          } else if (response === 0) {

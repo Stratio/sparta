@@ -142,7 +142,8 @@ export class WizardNodeComponent implements OnInit {
          .attr('rx', 6)
          .attr('ry', 6)
          .attr('stroke-linecap', 'round')
-         .attr('class', 'entity ' + this.data.stepType.toLowerCase() + '-step');
+         .attr('class', 'entity ' + this.data.stepType.toLowerCase() + '-step')
+         .classed('active', this.selected);
       if (this._selectedNode) {
          this._nodeRectElement.classed('selected', true);
       }

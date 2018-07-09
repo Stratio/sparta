@@ -113,22 +113,17 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     if (execute) errorManager.clearError()
 
+    val userId = Properties.envOrNone(UserNameEnv)
     val phaseEnum = PhaseEnum.Context
     val errorMessage = s"An error was encountered while initializing Spark Session"
     val okMessage = s"Spark Session initialized successfully"
     val xDSession = errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
-      val isLocal = !execute || workflow.settings.global.executionMode == local// || workflow.debugMode.forall(mode => mode)
-      val initSqlSentences = {
-        if (execute)
-          workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
-        else Seq.empty[String]
-      }
+      val isLocal = !execute || workflow.settings.global.executionMode == local // || workflow.debugMode.forall(mode => mode)
       val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
       val sparkLocalConfig = if (isLocal) {
         val sparkSubmitService = new SparkSubmitService(workflow)
         sparkSubmitService.getSparkLocalWorkflowConfig
       } else Map.empty[String, String]
-      val userId = Properties.envOrNone(UserNameEnv)
       val xDSession = getOrCreateXDSession(
         isLocal,
         userId,
@@ -138,9 +133,26 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
       JarsHelper.addJarsToClassPath(files)
       addFilesToSparkContext(files)
-      executeSentences(initSqlSentences, userId)
 
       xDSession
+    }
+
+    if(workflow.debugMode.isDefined && workflow.debugMode.get){
+      val errorMessage = s"An error was encountered while clearing cached tables"
+      val okMessage = s"Cached tables cleared successfully"
+      errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+        xDSession.catalog.clearCache()
+        xDSession.sessionState.catalog.clearTempTables()
+      }
+    }
+
+    if (execute) {
+      val errorMessage = s"An error was encountered while executing sql sentences"
+      val okMessage = s"Sql sentences executed successfully"
+      errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+        val initSqlSentences = workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
+        executeSentences(initSqlSentences, userId)
+      }
     }
 
     implicit val workflowContext = implicitly[ContextBuilder[Underlying]].buildContext(classpathUtils, xDSession) {
@@ -150,23 +162,27 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       NOTE that his block will only run when the context builder for the concrete Underlying entity requires it,
       thus, DStreams won't cause the execution of this block.
       */
-      val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
-        .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
-      val window = AggregationTimeHelper.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
-      getOrCreateStreamingContext(Duration(window),
-        workflowCheckpointPath.notBlank,
-        workflow.settings.streamingSettings.remember.notBlank
-      )
+      val errorMessage = s"An error was encountered while creating workflow context"
+      val okMessage = s"Workflow context created successfully"
+      errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+        val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
+          .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
+        val window = AggregationTimeHelper.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
+        getOrCreateStreamingContext(Duration(window),
+          workflowCheckpointPath.notBlank,
+          workflow.settings.streamingSettings.remember.notBlank
+        )
+      }
     }
 
-    implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter{ node =>
+    implicit val customClasspathClasses = workflow.pipelineGraph.nodes.filter { node =>
       node.className.matches("Custom[\\w]*Step") && !node.className.matches("CustomLite[\\w]*Step")
     } match {
       case Nil => Map[String, String]()
       case x :: xs =>
         (x :: xs).map { node =>
           val customClassType = node.configuration.getString("customClassType")
-          if(customClassType.contains(".")){
+          if (customClassType.contains(".")) {
             (customClassType.substring(customClassType.lastIndexOf(".")), customClassType)
           } else (customClassType, s"com.stratio.sparta.$customClassType")
         }.toMap

@@ -199,20 +199,18 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod) ++ getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
+    sparkConfs ++
+      getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod) ++
+      getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
 
   //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    (workflow.settings.sparkSettings.sparkKerberos,
-      HdfsService.getPrincipalName(hdfsConfig).notBlank,
-      HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
-      case (true, Some(principalName), Some(keyTabPath)) =>
-        val keyTabBase64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(Paths.get(keyTabPath)))
-        log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab configurations")
+    (workflow.settings.sparkSettings.sparkKerberos, HdfsService.getPrincipalName(hdfsConfig).notBlank) match {
+      case (true, Some(principalName)) =>
+        log.info(s"Launching Spark Submit with Kerberos security, adding principal configurations")
         sparkConfs ++ Map(
           "spark.hadoop.yarn.resourcemanager.principal" -> principalName,
-          "spark.yarn.principal" -> principalName,
-          "spark.mesos.kerberos.keytabBase64" -> keyTabBase64
+          "spark.yarn.principal" -> principalName
         )
       case _ =>
         sparkConfs

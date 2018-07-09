@@ -9,13 +9,11 @@ package com.stratio.sparta.dg.agent.commons
 import scala.util.{Properties, Try}
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
-
 import org.joda.time.DateTime
-
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.EventType
 import com.stratio.governance.commons.agent.model.metadata.lineage.{TransformationMetadataProperties, _}
 import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
-import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, SourceType}
+import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, OperationCommandType, SourceType}
 import com.stratio.sparta.dg.agent.commons.WorkflowStatusUtils.fromDatetimeToLongWithDefault
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
@@ -80,7 +78,11 @@ object LineageUtils {
     path
   }
 
-  def inputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): List[InputMetadata] = {
+  def inputMetadataLineage(
+                            workflow: Workflow,
+                            graph: Graph[NodeGraph, LDiEdge],
+                            operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
+                          ): List[InputMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(InputStep.StepType)).map(
       n => {
         val metadataPath = workflowMetadataPathString(workflow, n.name)
@@ -95,7 +97,9 @@ object LineageUtils {
           tags = workflow.tags.getOrElse(Seq.empty).toList,
           sourceType = SourceType.SPARTA,
           modificationTime = workflow.lastUpdateDate.map(_.getMillis),
-          customType = SpartaType.INPUT)
+          customType = SpartaType.INPUT,
+          operationCommandType = operationCommandType
+        )
         input.properties ++= lineageProperties(metadataPath, n)
         input.properties ++= lineageWriterProperties(metadataPath, n)
         input
@@ -103,7 +107,11 @@ object LineageUtils {
     ).toList
   }
 
-  def outputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): List[OutputMetadata] = {
+  def outputMetadataLineage(
+                             workflow: Workflow,
+                             graph: Graph[NodeGraph, LDiEdge],
+                             operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
+                           ): List[OutputMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(OutputStep.StepType)).map(
       n => {
         val metadataPath = workflowMetadataPathString(workflow, n.name)
@@ -118,14 +126,20 @@ object LineageUtils {
           tags = workflow.tags.getOrElse(Seq.empty).toList,
           sourceType = SourceType.SPARTA,
           modificationTime = workflow.lastUpdateDate.map(_.getMillis),
-          customType = SpartaType.OUTPUT)
+          customType = SpartaType.OUTPUT,
+          operationCommandType = operationCommandType
+        )
         output.properties ++= lineageProperties(metadataPath, n)
         output
       }
     ).toList
   }
 
-  def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): List[TransformationMetadata] = {
+  def transformationMetadataLineage(
+                                     workflow: Workflow,
+                                     graph: Graph[NodeGraph, LDiEdge],
+                                     operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
+                                   ): List[TransformationMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
       n => {
         val metadataPath = workflowMetadataPathString(workflow, n.name)
@@ -142,7 +156,9 @@ object LineageUtils {
           tags = workflow.tags.getOrElse(Seq.empty).toList,
           sourceType = SourceType.SPARTA,
           modificationTime = workflow.lastUpdateDate.map(_.getMillis),
-          customType = SpartaType.TRANSFORMATION)
+          customType = SpartaType.TRANSFORMATION,
+          operationCommandType = operationCommandType
+        )
         transformation.properties ++= lineageProperties(metadataPath, n)
         transformation.properties ++= lineageWriterProperties(metadataPath, n)
         transformation
@@ -203,7 +219,10 @@ object LineageUtils {
     else None
   }
 
-  def workflowMetadataLineage(workflow: Workflow): List[WorkflowMetadata] = {
+  def workflowMetadataLineage(
+                               workflow: Workflow,
+                               operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
+                             ): List[WorkflowMetadata] = {
 
     val workflowMetadata = WorkflowMetadata(
       name = workflow.name,
@@ -215,7 +234,8 @@ object LineageUtils {
       tags = workflow.tags.getOrElse(Seq.empty).toList,
       sourceType = SourceType.SPARTA,
       modificationTime = fromDatetimeToLongWithDefault(workflow.lastUpdateDate),
-      customType = SpartaType.WORKFLOW
+      customType = SpartaType.WORKFLOW,
+      operationCommandType = operationCommandType
     )
     val props = Map[String, String](
       "executionMode" -> workflow.executionEngine.toString,

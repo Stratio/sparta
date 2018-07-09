@@ -26,6 +26,7 @@ import { WorkflowRenameModal } from './../workflow-rename-modal/workflow-rename.
 import { MoveGroupModal } from './../move-group-modal/move-group.component';
 import { DuplicateWorkflowComponent } from './../duplicate-workflow-modal/duplicate-workflow.component';
 import { isWorkflowRunning } from '@utils';
+import { take } from 'rxjs/operator/take';
 
 @Component({
    selector: 'workflows-manage-header',
@@ -218,7 +219,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
          buttons: buttons,
          maxWidth: 500,
          message: this.messageDeleteTitle,
-      }).subscribe((response: any) => {
+      }).take(1).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
             this._modalSubscription.unsubscribe();
