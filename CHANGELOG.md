@@ -8,7 +8,7 @@
 
 * Visual query builder transformation
 
-## 2.1.0-a5c4de8 (Built: July 03, 2018 | Pre-release)
+## 2.1.0-d660415 (Built: July 09, 2018 | Pre-release)
 
 * Debug mode with schema and data discovery
 

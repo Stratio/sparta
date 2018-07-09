@@ -1,15 +1,9 @@
 # Version History
 
 
-####  2.3.0 (upcoming)
-
-####  2.2.0 (upcoming)
-
-####  2.2.0 (upcoming)
-
 #### 2.2.0-3ee546d (Built: July 05, 2018 | Pre-release)
 
-#### 2.1.0-a5c4de8 (Built: July 03, 2018 | Pre-release)
+#### 2.1.0-d660415 (Built: July 09, 2018 | Pre-release)
 
 #### 2.0.1-4a90757 (Built: July 05, 2018 | Released: July 05, 2018)
 
