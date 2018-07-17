@@ -260,6 +260,13 @@ export function reducer(state: State = initialState, action: any): State {
             showModal: false
          };
       }
+      case workflowActions.ADD_GROUP: {
+         return {
+            ...state,
+            groups: [...state.groups, action.payload]
+         };
+      }
+
       case workflowActions.DUPLICATE_WORKFLOW_COMPLETE: {
          return {
             ...state,
@@ -295,10 +302,26 @@ export function reducer(state: State = initialState, action: any): State {
             modalError: action.payload
          };
       }
+      case workflowActions.GENERATE_NEW_VERSION_COMPLETE: {
+         const newWorkflow = {
+            ...action.payload,
+            group: action.payload.group.name,
+            nodes: action.payload.pipelineGraph.nodes
+         };
+
+         return {
+            ...state,
+            workflowList: [...state.workflowList, newWorkflow]
+
+         };
+
+      }
       default:
          return state;
    }
 }
+
+
 
 export const getSelectedWorkflows: any = (state: State) => state.selectedWorkflows;
 export const getSelectedVersion: any = (state: State) => state.selectedVersions.length ?

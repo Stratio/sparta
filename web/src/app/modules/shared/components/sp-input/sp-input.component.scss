@@ -19,6 +19,7 @@
 .st-input {
    width: 100%;
    padding-bottom: 6px;
+   padding-right: 45px;
 
    &.catalog {
      border-radius: 4px 4px 0px 0px;
@@ -33,8 +34,10 @@
 
 .var-mode {
     line-height: 13px!important;
+
     .st-input{
       padding-left: 42px;
+      padding-right: 45px;
     }
     &__label {
         color: $action-secondary-04;
@@ -46,8 +49,11 @@
         left: 17px;
     }
 
-
+    .height-size {
+      min-height: 200px;
+    }
     &__list {
+
         list-style: none;
         border: 1px solid $input-field-onfocus;
         border-top: 0;
@@ -61,7 +67,38 @@
         max-height: 200px;
         left: 0;
         border-radius: 0px 0px 4px 4px;
-
+        .empty-vars {
+           padding: 20px 0px 0px 40px;
+           span {
+            font-family: $egeo-nunito-sans;
+            font-size: 13px;
+            color: $neutral-09;
+           }
+           .not-found{
+              color:  #4a90e2;
+              cursor: pointer;
+           }
+        }
+        .navigation {
+            padding: 8px 0px 7px 17px;
+            font-size: 13px;
+            border-bottom: 1px solid $action-secondary-03;
+            color: $neutral-09;
+            span {
+               margin-right: 5px;
+            }
+            .icon {
+               display: inline-block;
+                font-size: 10px;
+                transform: rotate(-90deg);
+                -moz-transition: all 0.2s linear;
+               -webkit-transition: all 0.2s linear;
+               transition: all 0.2s linear;
+             }
+             .right-icon {
+                transform: rotate(0deg);
+             }
+         }
         li {
           position: relative;
           padding: 8px 0px 8px 45px;
@@ -76,6 +113,11 @@
         li.hover {
          background-color: #b3d4fc;
         }
+        .filterSelect {
+            width: 50%;
+            padding: 0px 0px 0px 10px;
+            margin-bottom: 5px;
+         }
 
         &-label {
           color: $action-secondary-04;
@@ -101,25 +143,18 @@
 }
 
 .variable-selector {
-  padding:0 11px;
-  border-radius: 11.5px;
-  position: absolute;
-  line-height: 22px;
-  top: 7px;
-  cursor: pointer;
-  right: 8px;
-  background-color: #ffffff;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  .label {
-    color: $action-secondary-06;
-    font-size: 12px;
-    font-family: $egeo-nunito-sans-extraBold;
-  }
-
+   width: 40px;
+   height: 39px;
+   position: absolute;
+   top: 1px;
+   cursor: pointer;
+   right: 1px;
+   background-color: $brand;
+   display: flex;
+   align-items: center;
+   justify-content: center;
   .icon {
-    color: $action-secondary-04;
+    color: $neutral-00;
      font-size: 10px;
   }
-
 }

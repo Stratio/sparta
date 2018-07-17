@@ -34,7 +34,6 @@
          "propertyName": "_DISCARD_CONDITIONS_",
          "propertyType": "list",
          "required": false,
-         "width": 12,
          "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result.",
          "qa": "fragment-details-discard-conditions",
          "fields": [
@@ -75,7 +74,7 @@
                "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -84,7 +83,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"

@@ -67,11 +67,13 @@ export class WorkflowsManagingTableComponent {
 
     openWorkflowClick(event: Event, workflow: any) {
         event.stopPropagation();
+        this.scrollToTop();
         this.openWorkflow.emit(workflow);
     }
 
     openGroup(event: Event, group: Group) {
        event.stopPropagation();
+       this.scrollToTop();
        this.changeFolder.emit(group);
     }
 
@@ -82,6 +84,11 @@ export class WorkflowsManagingTableComponent {
     editVersion(event: Event, versionId: string) {
         event.stopPropagation();
         this.route.navigate(['wizard/edit', versionId]);
+    }
+    private scrollToTop() {
+      if (window.pageYOffset > 0) {
+          window.scrollTo(0, 0);
+      }
     }
 
     constructor(private route: Router, private _cd: ChangeDetectorRef) {

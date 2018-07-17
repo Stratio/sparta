@@ -57,6 +57,8 @@
                "propertyId": "name",
                "propertyName": "_COLUMN_NAME_PROFILING_",
                "propertyType": "text",
+               "showSchemaFields": true,
+               "width": 8,
                "required": true,
                "tooltip": "Name of the column.",
                "qa": "fragment-details-columns-name"
@@ -67,6 +69,7 @@
          "propertyId": "columnName",
          "propertyName": "_COLUMN_NAME_PROFILING_",
          "propertyType": "text",
+         "showSchemaFields": true,
          "required": false,
          "tooltip": "Name of the column",
          "visible": [
@@ -112,7 +115,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -121,7 +124,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"

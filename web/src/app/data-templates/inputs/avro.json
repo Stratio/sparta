@@ -22,7 +22,7 @@
            "propertyName": "_DESERIALIZER_SCHEMA_",
            "propertyType": "textarea",
            "contentType": "JSON",
-           "width": 8,
+           "width": 12,
            "tooltip": "Avro Schema expressed in JSON format.",
            "required": false,
            "qa": "workflow-input-avro-schema-provided"

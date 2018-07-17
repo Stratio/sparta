@@ -71,18 +71,18 @@ abstract class TestInputStep[Underlying[Row]](
     if(eventType.equals(EventType.STRING) && event.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the event field cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The event field cannot be empty", name)
       )
     else if (eventType.equals(EventType.RANDOM_NUMBER) && maxNumber.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the max number field cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The max number field cannot be empty", name)
       )
 
     if (properties.getString("numEvents", None).isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the number of events field cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The number of events field cannot be empty", name)
       )
 
     if(debugOptions.isDefined && !validDebuggingOptions)

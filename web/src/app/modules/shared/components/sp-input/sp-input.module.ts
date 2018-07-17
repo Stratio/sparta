@@ -9,9 +9,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { SpInputComponent } from './sp-input.component';
 import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
+import { SpSelectModule } from '@app/shared/components/sp-select/sp-select.module';
 
 @NgModule({
-   imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
+   imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule, SpSelectModule],
    declarations: [SpInputComponent],
    exports: [SpInputComponent]
 })

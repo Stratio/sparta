@@ -32,7 +32,7 @@
                "propertyName": "_HTTP_PORT_",
                "propertyType": "text",
                "default": "{{{ES_PORT}}}",
-               "width": 3,
+               "width": 5,
                "required": true,
                "qa": "fragment-details-elasticSearch-httpPort"
             }

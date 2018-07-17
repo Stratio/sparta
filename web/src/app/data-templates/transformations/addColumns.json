@@ -33,6 +33,14 @@
                "qa": "fragment-details-field-name"
             },
             {
+               "propertyId": "query",
+               "propertyName": "_VALUE_",
+               "propertyType": "text",
+               "width": 4,
+               "required": true,
+               "qa": "fragment-details-field-query"
+            },
+            {
                "propertyId": "type",
                "propertyName": "_TYPE_",
                "propertyType": "select",
@@ -79,14 +87,6 @@
                "default": "string",
                "width": 3,
                "qa": "fragment-details-field-type"
-            },
-            {
-               "propertyId": "query",
-               "propertyName": "_VALUE_",
-               "propertyType": "text",
-               "width": 4,
-               "required": true,
-               "qa": "fragment-details-field-query"
             }
          ]
       },
@@ -96,7 +96,6 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
          "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
          "qa": "fragment-details-schema-fields",
          "fields": [
@@ -108,7 +107,7 @@
                "required": true,
                "float": false,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "qa": "fragment-details-field-name"
             },
             {

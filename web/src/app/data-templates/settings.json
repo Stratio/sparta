@@ -516,9 +516,10 @@
                    "position": "right",
                    "propertyType": "text",
                    "regexp": "",
-                   "default": "Property value.",
+                   "default": "",
                     "width": 4,
                    "required": false,
+                    "tooltip": "Property value.",
                    "qa": "workflow-sparkConfValue"
                  }
               ]

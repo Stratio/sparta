@@ -62,7 +62,7 @@
                "propertyName": "_FIELD_",
                "propertyType": "text",
                "required": true,
-               "width": 2,
+               "width": 4,
                "tooltip": "Field name given to the parsed field. It's not a requirement to match the name found in the input string.",
                "qa": "fragment-details-field-name"
             },
@@ -70,7 +70,7 @@
                "propertyId": "query",
                "propertyName": "_QUERY_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "required": true,
                "tooltip": "Query used to search in the input string. The syntax used is as follows: '$.field / $.field.object[*].field'. For further information, please refer to the Jayway JsonPath documentation.",
                "qa": "fragment-details-field-query"
@@ -167,7 +167,6 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 8,
          "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
          "qa": "fragment-details-schema-fields",
          "fields": [
@@ -178,7 +177,7 @@
                "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -187,7 +186,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Schema expressed in JSON/Spark format or from a valid sample from the input being defined.",
                "required": true,
                "qa": "fragment-details-field-query"

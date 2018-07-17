@@ -115,7 +115,7 @@ export class WorkflowEffect {
                 tag: version.tag,
                 group: version.group
             })})
-        .mergeMap(() => [new workflowActions.GenerateNewVersionCompleteAction(), new workflowActions.ListGroupWorkflowsAction()])
+        .mergeMap(workflow => [new workflowActions.GenerateNewVersionCompleteAction(workflow)])
         .catch(error => Observable.from([new workflowActions.GenerateNewVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
 
     @Effect()
@@ -189,7 +189,7 @@ export class WorkflowEffect {
         .map((action: any) => action.payload)
         .withLatestFrom(this.store.select(fromRoot.getCurrentGroupLevel))
         .switchMap(([data, groupLevel]) => this.workflowService.createGroup(groupLevel.group.name + FOLDER_SEPARATOR + data)
-        .switchMap(() => [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.ListGroupsAction()])
+        .switchMap(group => [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.AddGroupAction(group)])
         .catch(error => Observable.from([new workflowActions.CreateGroupErrorAction(''), new errorActions.ServerErrorAction(error)])));
 
     @Effect()

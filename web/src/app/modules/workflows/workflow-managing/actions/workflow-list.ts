@@ -10,6 +10,7 @@ export const LIST_GROUPS_COMPLETE = '[Workflow-Managing] List groups complete';
 export const LIST_GROUPS_ERROR = '[Workflow-Managing] List groups error';
 export const INIT_CREATE_GROUP = '[Workflow-Managing] Init create group';
 export const CREATE_GROUP = '[Workflow-Managing] Create group';
+export const ADD_GROUP = '[Workflow-Managing] Add group';
 export const CREATE_GROUP_COMPLETE = '[Workflow-Managing] Create group complete';
 export const CREATE_GROUP_ERROR = '[Workflow-Managing] Create group error';
 export const CHANGE_GROUP_LEVEL = '[Workflow-Managing] Change group level';
@@ -101,6 +102,11 @@ export class CreateGroupAction implements Action {
   readonly type = CREATE_GROUP;
   constructor(public payload: any) { }
 }
+
+export class AddGroupAction implements Action {
+   readonly type = ADD_GROUP;
+   constructor(public payload: any) { }
+ }
 
 export class CreateGroupCompleteAction implements Action {
   readonly type = CREATE_GROUP_COMPLETE;
@@ -194,6 +200,7 @@ export class GenerateNewVersionAction implements Action {
 }
 
 export class GenerateNewVersionCompleteAction implements Action {
+   constructor(public payload: any) {}
   readonly type = GENERATE_NEW_VERSION_COMPLETE;
 }
 
@@ -400,6 +407,7 @@ export type Actions =
   ChangeGroupLevelCompleteAction |
   InitCreateGroupAction |
   CreateGroupAction |
+  AddGroupAction |
   CreateGroupCompleteAction |
   CreateGroupErrorAction |
   SelectWorkflowAction |

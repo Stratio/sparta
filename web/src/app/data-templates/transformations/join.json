@@ -109,7 +109,6 @@
          "propertyName": "_JOIN_RETURN_COLUMNS_",
          "propertyType": "list",
          "required": false,
-         "width": 8,
          "tooltip": "List of columns to be returned after the join.",
          "qa": "fragment-details-join-return-columns",
          "fields": [
@@ -138,7 +137,7 @@
                "propertyType": "text",
                "showSchemaFields": true,
                "required": true,
-               "width": 3,
+               "width": 4,
                "tooltip": "Column name on input table.",
                "qa": "fragment-details-join-return-column"
             },
@@ -146,7 +145,7 @@
                "propertyId": "alias",
                "propertyName": "_JOIN_RETURN_ALIAS_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "tooltip": "Alias/new name assigned to the declared column. This field is not mandatory.",
                "required": false,
                "qa": "fragment-details-join-return-column"
@@ -166,7 +165,6 @@
          "propertyName": "_JOIN_CONDITIONS_",
          "propertyType": "list",
          "required": true,
-         "width": 8,
          "tooltip": "Field(s) used as join condition(s). The selected field(s) must exist in both tables and have matching types.",
          "qa": "fragment-details-join-conditions",
          "fields": [
@@ -240,7 +238,7 @@
                "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -249,7 +247,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"

@@ -14,7 +14,7 @@
          "propertyName": "_QUERY_",
          "propertyType": "textarea",
          "contentType": "SQL",
-         "width": 8,
+         "width": 12,
          "required": true,
          "tooltip": "Query to retrieve data from any temporal table available in the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
          "placeholder": "select * from tableName",

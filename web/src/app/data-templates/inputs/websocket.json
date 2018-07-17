@@ -32,7 +32,6 @@
           "propertyType": "select",
           "position": "left",
           "custom": false,
-          "width": 6,
           "required": true,
           "values": [
              {
@@ -53,7 +52,6 @@
         "propertyType": "select",
         "required": true,
         "default": "MEMORY_ONLY_SER",
-        "width": 6,
         "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
         "qa": "policy-storage-level",
         "values": [{

@@ -30,7 +30,7 @@
             "propertyType": "text",
             "default": "{{{MONGODB_PORT}}}",
             "required": true,
-             "width": 2,
+             "width": 5,
             "qa": "fragment-details-mongoDb-port"
           }
         ]

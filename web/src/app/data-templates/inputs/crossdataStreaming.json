@@ -14,7 +14,7 @@
         "propertyName": "_QUERY_",
         "propertyType": "textarea",
         "contentType": "SQL",
-        "width": 8,
+        "width": 12,
         "required": true,
         "tooltip": "Query to retrieve data from any temporal table available in the Crossdata catalog. The result will be stored in another temporal table named after the input step.",
         "placeholder": "select * from tableName",
@@ -96,11 +96,19 @@
                 "qa": "fragment-details-crossdata-offsetField"
              },
              {
+                "propertyId": "offsetValue",
+                "propertyName": "_OFFSET_VALUE_",
+                "propertyType": "text",
+                "width": 4,
+                "tooltip": "Initial offset value",
+                "qa": "fragment-details-crossdata-offsetValue"
+             },
+             {
                 "propertyId": "offsetOperator",
                 "propertyName": "_OFFSET_OPERATOR_",
                 "propertyType": "select",
                 "required": true,
-                "width": 2,
+                "width": 3,
                 "values": [
                    {
                       "label": ">",
@@ -122,14 +130,6 @@
                 "default": ">=",
                 "tooltip": "Offset operator to generate incremental or decremental queries in the source table",
                 "qa": "fragment-details-crossdata-offsetOperator"
-             },
-             {
-                "propertyId": "offsetValue",
-                "propertyName": "_OFFSET_VALUE_",
-                "propertyType": "text",
-                "width": 4,
-                "tooltip": "Initial offset value",
-                "qa": "fragment-details-crossdata-offsetValue"
              }
           ]
        },

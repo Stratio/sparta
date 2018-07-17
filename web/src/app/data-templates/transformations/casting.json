@@ -189,7 +189,7 @@
                "propertyType": "text",
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 6,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },

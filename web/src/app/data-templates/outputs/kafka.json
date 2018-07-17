@@ -32,7 +32,7 @@
             "default": "{{{KAFKA_BROKER_PORT}}}",
             "required": true,
             "tooltip": "Kafka's port.",
-             "width": 2,
+             "width": 5,
             "qa": "fragment-details-kafka-port"
           }
         ]
@@ -131,7 +131,7 @@
           "propertyName": "_DESERIALIZER_AVRO_SCHEMA_",
           "propertyType": "textarea",
           "contentType": "JSON",
-          "width": 8,
+          "width": 12,
           "tooltip": "Avro schema expressed in JSON format.",
           "visible": [
              [

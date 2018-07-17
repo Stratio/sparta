@@ -74,3 +74,16 @@ st-table.custom-table {
         background: transparent;
     }
 }
+
+
+.filterSelect {
+   #database-selection {
+      padding: 6px 4px 4px 15px;
+      height: 30px;
+   }
+   .st-input.arrow {
+      right: 12px;
+      top: 8px;
+   }
+
+}

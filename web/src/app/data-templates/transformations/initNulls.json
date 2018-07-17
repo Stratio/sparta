@@ -30,7 +30,7 @@
                "propertyName": "_COLUMN_NAME_",
                "propertyType": "text",
                "showSchemaFields": true,
-               "width": 3,
+               "width": 4,
                "required": true,
                "tooltip": "Name of the column.",
                "qa": "fragment-details-cleanNulls-columns-name"
@@ -39,7 +39,7 @@
                "propertyId": "value",
                "propertyName": "_COLUMN_VALUE_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "required": true,
                "tooltip": "Value given to the column.",
                "qa": "fragment-details-cleanNulls-columns-name"
@@ -58,7 +58,7 @@
                "propertyId": "value",
                "propertyName": "_COLUMN_VALUE_",
                "propertyType": "text",
-               "width": 3,
+               "width": 4,
                "required": true,
                "tooltip": "Value of the column",
                "qa": "fragment-details-cleanNulls-columns-name"
@@ -67,7 +67,7 @@
                "propertyId": "type",
                "propertyName": "_TYPE_",
                "propertyType": "select",
-               "width": 3,
+               "width": 4,
                "required": true,
                "default": "string",
                "values": [
@@ -128,7 +128,7 @@
                "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -137,7 +137,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"

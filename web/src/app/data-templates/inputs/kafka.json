@@ -34,7 +34,7 @@
             "propertyType": "text",
             "default": "{{{KAFKA_BROKER_PORT}}}",
             "required": true,
-            "width": 4,
+            "width": 5,
             "tooltip": "Server port. Default value set to 9092",
             "hidden": false,
             "qa": "fragment-details-stratio-kafkadirect-port"
@@ -53,7 +53,7 @@
             "propertyId": "topic",
             "propertyName": "_TOPIC_",
             "propertyType": "text",
-             "width": 6,
+             "width": 8,
             "required": true,
             "tooltip": "Topic to connect.",
             "placeholder": "topicName",
@@ -164,7 +164,7 @@
           "propertyName": "_DESERIALIZER_JSON_SCHEMA_",
           "propertyType": "textarea",
           "contentType": "JSON",
-          "width": 10,
+          "width": 12,
           "tooltip": "Schema in json/Spark format or from example",
           "default": "",
           "visible": [
@@ -187,7 +187,7 @@
           "propertyName": "_DESERIALIZER_AVRO_SCHEMA_",
           "propertyType": "textarea",
           "contentType": "JSON",
-          "width": 10,
+          "width": 12,
           "tooltip": "Parses an Apache Avro schema.",
           "default": "",
           "visible": [

@@ -21,7 +21,6 @@
          "propertyName": "_SELECT_TYPE_",
          "required": true,
          "propertyType": "select",
-         "width": 4,
          "default": "EXPRESSION",
          "values": [
             {
@@ -59,7 +58,6 @@
          "propertyType": "list",
          "showSchemaFields": true,
          "required": false,
-         "width": 12,
          "tooltip": "List of selected columns to be returned.",
          "qa": "fragment-details-select-columns",
          "fields": [
@@ -107,7 +105,7 @@
                "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 3,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
@@ -116,7 +114,7 @@
                "propertyName": "_DESERIALIZER_SCHEMA_",
                "propertyType": "textarea",
                "contentType": "JSON",
-               "width": 8,
+               "width": 12,
                "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
                "required": true,
                "qa": "fragment-details-field-query"

@@ -20,7 +20,6 @@
     {
       "propertyId": "columns",
       "propertyName": "_COLUMNS_",
-      "width": 8,
       "propertyType": "list",
       "required": false,
       "tooltip": "Column(s) that indicates the primary key(s) to be used for detecting and dropping duplicates.",
@@ -31,7 +30,7 @@
           "propertyName": "_COLUMN_NAME_",
           "propertyType": "text",
            "showSchemaFields": true,
-          "width": 4,
+          "width": 8,
           "required": true,
           "tooltip": "Name of the column",
           "hidden": false,
@@ -44,7 +43,6 @@
       "propertyName": "_DISCARD_CONDITIONS_",
       "propertyType": "list",
       "required": false,
-      "width": 8,
       "tooltip": "Conditions to compare the previous data with the generated data in order to extract the previous data that is not present in the result",
       "qa": "fragment-details-discard-conditions",
       "fields": [
@@ -54,7 +52,7 @@
           "propertyType": "text",
            "showSchemaFields": true,
           "required": true,
-          "width": 3,
+          "width": 4,
           "tooltip": "Field to compare in the previous data",
           "qa": "fragment-details-previousField"
         },
@@ -65,7 +63,7 @@
            "showSchemaFields": true,
           "tooltip": "Field to compare in the generated data",
           "required": true,
-          "width": 3,
+          "width": 4,
           "qa": "fragment-details-transformedField"
         }
       ]
@@ -86,7 +84,7 @@
               "showInputSteps": true,
               "required": true,
               "tooltip": "Incoming step name.",
-              "width": 3,
+              "width": 8,
               "float": false,
               "qa": "fragment-details-field-name"
            },
@@ -95,7 +93,7 @@
               "propertyName": "_DESERIALIZER_SCHEMA_",
               "propertyType": "textarea",
               "contentType": "JSON",
-              "width": 8,
+              "width": 12,
               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
               "required": true,
               "qa": "fragment-details-field-query"

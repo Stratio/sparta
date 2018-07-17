@@ -54,7 +54,7 @@
          "propertyName": "_DESERIALIZER_SCHEMA_",
          "propertyType": "textarea",
          "contentType": "JSON",
-         "width": 8,
+         "width": 12,
          "tooltip": "Avro schema in JSON format.",
          "required": false,
          "qa": "workflow-transformation-avro-schema-provided"
@@ -65,7 +65,6 @@
          "propertyType": "list",
          "required": false,
          "complexForm": true,
-         "width": 12,
          "tooltip": "Section that allows the user to define incoming steps schemas. If defined properly this would result in avoiding doing the schema calculation for all defined incoming inputs.",
          "qa": "fragment-details-schema-fields",
          "fields": [
@@ -76,7 +75,7 @@
                "showInputSteps": true,
                "required": true,
                "tooltip": "Incoming step name.",
-               "width": 6,
+               "width": 8,
                "float": false,
                "qa": "fragment-details-field-name"
             },
