@@ -91,16 +91,15 @@ hose {
         ],
         ['DCOSCLI': [
                 'image': 'stratio/dcos-cli:0.6.1-SNAPSHOT',
-                'volumes': ['stratio/paasintegrationpem:0.1.0'],
                 'env': [
                     'DCOS_IP=10.200.0.205',
                     'SSL=true',
                     'SSH=true',
                     'TOKEN_AUTHENTICATION=true',
-                    'DCOS_USER=admin@demo.stratio.com',
+                    'DCOS_USER=admin',
                     'DCOS_PASSWORD=stratiotest',
-                    'BOOTSTRAP_USER=operador',
-                    'PEM_FILE_PATH=/paascerts/PaasIntegration.pem'
+                    'CLI_BOOTSTRAP_USER=root',
+                    'CLI_BOOTSTRAP_PASSWORD=stratio'
                     ],
                 'sleep':  20
                 ]
