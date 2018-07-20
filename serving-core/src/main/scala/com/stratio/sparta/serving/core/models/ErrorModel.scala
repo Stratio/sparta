@@ -74,6 +74,7 @@ object ErrorModel extends SpartaSerializer {
   val TemplateServiceDeleteByTypeName = "658"
   val TemplateServiceDeleteByType = "659"
   val TemplateServiceDeleteAll = "660"
+  val TemplateMigration = "661"
 
   /* Driver Service 675-684 */
   val DriverServiceUnexpected = "675"
@@ -119,6 +120,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceRename = "725"
   val WorkflowServiceDeleteWithAllVersions = "726"
   val WorkflowServiceMove = "727"
+  val WorkflowServiceMigration = "728"
 
   /* Environment Service 750-760 */
   val EnvironmentServiceUnexpected = "750"

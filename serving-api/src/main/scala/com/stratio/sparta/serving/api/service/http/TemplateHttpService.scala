@@ -32,7 +32,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   override def routes(user: Option[LoggedUser] = None): Route =
     findAll(user) ~ findByTypeAndId(user) ~ findByTypeAndName(user) ~
       findAllByType(user) ~ create(user) ~ update(user) ~ deleteByTypeAndId(user) ~
-      deleteByType(user) ~ deleteByTypeAndName(user) ~ deleteAll(user)
+      deleteByType(user) ~ deleteByTypeAndName(user) ~ deleteAll(user) ~ migrate(user)
 
   @Path("/{templateType}/id/{templateId}")
   @ApiOperation(value = "Finds a template depending on its type and id.",
@@ -303,6 +303,34 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             response <- (supervisor ? DeleteAllTemplates(user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
           } yield deletePostPutResponse(TemplateServiceDeleteAll, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  @Path("/cassiopeiaMigration")
+  @ApiOperation(value = "Migrate template from sparta cassiopeia to andromeda.",
+    notes = "Migrate template from sparta cassiopeia to andromeda.",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "template",
+      value = "template json",
+      dataType = "TemplateElementModel",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def migrate(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.TemplatePath / "cassiopeiaMigration") {
+      put {
+        entity(as[TemplateElement]) { template =>
+          context =>
+            for {
+              response <- (supervisor ? Migrate(template, user))
+                .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
+            } yield getResponse(context, TemplateMigration, response, genericError)
         }
       }
     }

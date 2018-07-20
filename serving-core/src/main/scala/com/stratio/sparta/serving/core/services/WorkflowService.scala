@@ -3,27 +3,28 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.services
 
 import java.util.UUID
+import scala.collection.JavaConversions
+import scala.util._
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
-import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 
-import scala.collection.JavaConversions
-import scala.util._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.workflow._
 
 //scalastyle:off
 class WorkflowService(
@@ -66,7 +67,7 @@ class WorkflowService(
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.filter { workflow =>
-          workflow.pipelineGraph.nodes.exists{ node : NodeGraph =>
+          workflow.pipelineGraph.nodes.exists { node: NodeGraph =>
             node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateId
           }
         }
@@ -469,15 +470,16 @@ class WorkflowService(
         Seq()
     }
   }.nonEmpty
+
+
 }
 
-object WorkflowService{
+object WorkflowService {
 
   private[sparta] def addId(workflow: Workflow, force: Boolean = false): Workflow =
     if (workflow.id.notBlank.isEmpty || (workflow.id.notBlank.isDefined && force))
       workflow.copy(id = Some(UUID.randomUUID.toString))
     else workflow
-
 
   private[sparta] def addCreationDate(workflow: Workflow): Workflow =
     workflow.creationDate match {

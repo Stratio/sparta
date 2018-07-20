@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
@@ -15,12 +16,13 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{GroupService, WorkflowService, WorkflowValidatorService}
+import com.stratio.sparta.serving.core.services.{GroupService, CassiopeiaMigrationService, WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-
 import scala.util.Try
+
+import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
 
 class WorkflowActor(
                      val curatorFramework: CuratorFramework,
@@ -40,6 +42,7 @@ class WorkflowActor(
   private val groupService = new GroupService(curatorFramework)
   private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
   private val workflowValidatorService = new WorkflowValidatorService(Option(curatorFramework))
+  private val migrationService = new CassiopeiaMigrationService(curatorFramework)
 
   //scalastyle:off
   override def receive: Receive = {
@@ -68,6 +71,7 @@ class WorkflowActor(
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
     case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
+    case MigrateFromCassiopeia(workflowCassiopeia, user) => migrateWorkflowFromCassiopeia(workflowCassiopeia, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -285,6 +289,14 @@ class WorkflowActor(
       }
     }
   }
+
+  def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser]): Unit = {
+    authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceWorkflow -> Edit)) {
+      Try {
+        migrationService.migrateWorkflowFromCassiopeia(workflowCassiopeia)
+      }
+    }
+  }
 }
 
 object WorkflowActor extends SLF4JLogging {
@@ -339,6 +351,8 @@ object WorkflowActor extends SLF4JLogging {
 
   case class MoveWorkflow(query: WorkflowMove, user: Option[LoggedUser])
 
+  case class MigrateFromCassiopeia(workflowCassiopeia:WorkflowCassiopeia, user: Option[LoggedUser])
+
   type Response = Try[Unit]
 
   type ResponseAny = Try[Any]
@@ -350,5 +364,7 @@ object WorkflowActor extends SLF4JLogging {
   type ResponseWorkflow = Try[Workflow]
 
   type ResponseWorkflowValidation = Try[WorkflowValidation]
+
+  type ResponseWorkflowAndromeda = Try[WorkflowAndromeda]
 }
 

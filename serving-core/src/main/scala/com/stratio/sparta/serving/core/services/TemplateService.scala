@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.services
 import java.util.UUID
 
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -16,9 +17,10 @@ import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, Workflo
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
-
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
+
+import com.stratio.sparta.serving.core.constants.AppConstant
 
 class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLogging with SpartaSerializer {
 
@@ -52,10 +54,11 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
     } else List.empty[TemplateElement]
   }
 
+
   def create(template: TemplateElement): TemplateElement =
     Try(findByTypeAndName(template.templateType, template.name)).toOption
       .getOrElse {
-        val newTemplate = addCreationDate(addId(template))
+        val newTemplate = addSpartaVersion(addCreationDate(addId(template)))
         curatorFramework.create().creatingParentsIfNeeded().forPath(
           s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}", write(newTemplate).getBytes())
         newTemplate
@@ -65,7 +68,7 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
     templates.map(create)
 
   def update(template: TemplateElement): TemplateElement = {
-    val newTemplate = addUpdateDate(addId(template))
+    val newTemplate = addSpartaVersion(addUpdateDate(addId(template)))
     val workflowsToUpdate = workflowService.findByTemplateId(template.id.get)
 
     Try {
@@ -176,4 +179,11 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
 
   private[sparta] def addUpdateDate(template: TemplateElement): TemplateElement =
     template.copy(lastUpdateDate = Some(new DateTime()))
+
+  private[sparta] def addSpartaVersion(template: TemplateElement): TemplateElement =
+    template.versionSparta match {
+      case None => template.copy(versionSparta = Some(AppConstant.version))
+      case Some(_) => template
+    }
+
 }

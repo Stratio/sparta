@@ -21,7 +21,8 @@ case class TemplateElement(
                             creationDate: Option[DateTime] = None,
                             lastUpdateDate: Option[DateTime] = None,
                             supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
-                            executionEngine: Option[ExecutionEngine] = Option(Streaming)
+                            executionEngine: Option[ExecutionEngine] = Option(Streaming),
+                            versionSparta: Option[String] = None
                           ) extends EntityAuthorization {
 
   def authorizationId: String = name

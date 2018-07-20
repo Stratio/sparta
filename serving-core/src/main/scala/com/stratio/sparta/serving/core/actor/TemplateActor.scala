@@ -14,13 +14,15 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.TemplateActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
-import com.stratio.sparta.serving.core.services.TemplateService
+import com.stratio.sparta.serving.core.services.{CassiopeiaMigrationService, TemplateService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   private val templateService = new TemplateService(curatorFramework)
+  private val migrationService = new CassiopeiaMigrationService(curatorFramework)
+
   private val ResourceType = "Template"
 
   //scalastyle:off
@@ -35,6 +37,7 @@ class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMan
     case DeleteByTypeAndName(fragmentType, name, user) => deleteByTypeAndName(fragmentType, name, user)
     case CreateTemplate(fragment, user) => create(fragment, user)
     case Update(fragment, user) => update(fragment, user)
+    case Migrate(fragment, user) => migrateTemplateFromCassiopeia(fragment, user)
     case _ => log.info("Unrecognized message in Template Actor")
   }
 
@@ -106,6 +109,11 @@ class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMan
       Try(templateService.deleteByTypeAndName(fragmentType, name))
     }
   }
+
+  def migrateTemplateFromCassiopeia(fragment: TemplateElement, user: Option[LoggedUser]): Unit =
+    authorizeServiceResultByResourceId[ResponseTemplate](user, Map(ResourceType -> Edit)) {
+      Try(migrationService.migrateTemplateFromCassiopeia(fragment))
+    }
 }
 
 object TemplateActor {
@@ -129,6 +137,8 @@ object TemplateActor {
   case class DeleteByTypeAndId(templateType: String, id: String, user: Option[LoggedUser])
 
   case class DeleteByTypeAndName(templateType: String, name: String, user: Option[LoggedUser])
+
+  case class Migrate(template: TemplateElement, user: Option[LoggedUser])
 
   type ResponseTemplate = Try[TemplateElement]
 

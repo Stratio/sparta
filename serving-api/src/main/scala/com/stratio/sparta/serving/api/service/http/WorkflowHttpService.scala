@@ -3,20 +3,22 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import java.io.{File, PrintWriter}
 import java.util.UUID
 import javax.ws.rs.Path
-
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+
 import akka.pattern.ask
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.StatusCodes
 import spray.routing._
+
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -25,6 +27,7 @@ import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.models.workflow.migration.WorkflowCassiopeia
 
 @Api(value = HttpConstant.WorkflowsPath, description = "Operations over workflows")
 trait WorkflowHttpService extends BaseHttpService {
@@ -40,7 +43,7 @@ trait WorkflowHttpService extends BaseHttpService {
       update(user) ~ updateList(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
       resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
-      findAllMonitoring(user) ~ rename(user) ~ move(user)
+      findAllMonitoring(user) ~ rename(user) ~ move(user) ~ migrate(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -488,7 +491,6 @@ trait WorkflowHttpService extends BaseHttpService {
     }
   }
 
-
   // scalastyle:off cyclomatic.complexity
   @Path("/checkpoint/{id}")
   @ApiOperation(value = "Delete checkpoint associated to a workflow by its id.",
@@ -788,6 +790,38 @@ trait WorkflowHttpService extends BaseHttpService {
     }
   }
 
+  @Path("/cassiopeiaMigration")
+  @ApiOperation(value = "Migrate workflow between sparta versions.",
+    notes = "Migrate workflow between sparta versions.",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "workflow cassiopeia",
+      defaultValue = "",
+      value = "workflow json",
+      dataType = "WorkflowCassiopeia",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def migrate(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "cassiopeiaMigration") {
+      pathEndOrSingleSlash {
+        put {
+          entity(as[WorkflowCassiopeia]) { workflow =>
+            complete {
+              for {
+                response <- (supervisor ? MigrateFromCassiopeia(workflow, user))
+                  .mapTo[Either[ResponseWorkflowAndromeda, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceMigration, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
   private def workflowTempFile(id: UUID, user: Option[LoggedUser]): Future[(Workflow, File)] = {
     for {
       response <- (supervisor ? Find(id.toString, user))
@@ -811,5 +845,4 @@ trait WorkflowHttpService extends BaseHttpService {
         throw new ServerException(ErrorModel.toString(genericError))
     }
   }
-
 }
