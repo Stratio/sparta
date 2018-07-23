@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 2.2.0-f1d150d (Built: July 17, 2018 | Pre-release)
+## 2.2.0-804decd (Built: July 23, 2018 | Pre-release)
 
 * Visual query builder transformation
 * Automatic worflows migration process from previous versions
