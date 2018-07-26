@@ -1,7 +1,7 @@
 # Version History
 
 
-#### 2.2.0-804decd (Built: July 23, 2018 | Pre-release)
+#### 2.2.0-4f04a35 (Built: July 26, 2018 | Pre-release)
 
 #### 2.1.0-68094b6 (Built: July 10, 2018 | Released: July 12, 2018)
 
