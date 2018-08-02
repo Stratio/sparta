@@ -1,0 +1,79 @@
+<div class="query-builder-container">
+   <div class="svg-container" [ngClass]="{'hide-paths' : !pathsVisible}">
+     <svg class="svg-path-container" id="">
+      <svg:g node-schema-path
+         [pathData]="path"
+         [totalPath]="paths.length"
+         [pathNumber]="i"
+         [containerPosition]="containerPositions[path.initData.tableName]"
+         [selectedFieldNames]="selectedInputFieldsNames"
+         *ngFor="let path of paths; let i = index;"></g>
+         <svg:defs>
+           <marker id="box-connection" markerHeight="10" markerUnits="userSpaceOnUse" markerWidth="10" refX="7" refY="5" viewBox="0 0 10 10">
+               <rect fill="white" height="10" stroke="#aab7c4" stroke-width="2" width="10"></rect>
+           </marker>
+           <marker id="arrow-schemas" markerHeight="20" markerUnits="userSpaceOnUse" markerWidth="100" refX="15" refY="8">
+             <path d="M15 8L4.5 14.06L4.5 1.94z" fill="#aab7c4"></path>
+           </marker>
+           <marker id="arrow-schemas-active" markerHeight="20" markerUnits="userSpaceOnUse" markerWidth="100" refX="15" refY="8">
+             <path d="M15 8L4.5 14.06L4.5 1.94z" fill="#37b5e4"></path>
+           </marker>
+         </svg:defs>
+      <svg:g node-join-path
+         [pathData]="path"
+         [totalPath]="joinPaths.length"
+         [pathNumber]="i"
+         [containerPosition]="containerPositions[path.initData.tableName]"
+         [selectedFieldNames]="selectedInputFieldsNames"
+         *ngFor="let path of joinPaths; let i = index;"></g>
+         <svg:defs>
+           <marker id="box-connection" markerHeight="10" markerUnits="userSpaceOnUse" markerWidth="10" refX="7" refY="5" viewBox="0 0 10 10">
+               <rect fill="white" height="10" stroke="#aab7c4" stroke-width="2" width="10"></rect>
+           </marker>
+           <marker id="arrow-schemas" markerHeight="20" markerUnits="userSpaceOnUse" markerWidth="100" refX="15" refY="8">
+             <path d="M15 8L4.5 14.06L4.5 1.94z" fill="#aab7c4"></path>
+           </marker>
+           <marker id="arrow-schemas-active" markerHeight="20" markerUnits="userSpaceOnUse" markerWidth="100" refX="15" refY="8">
+             <path d="M15 8L4.5 14.06L4.5 1.94z" fill="#37b5e4"></path>
+           </marker>
+         </svg:defs>
+     </svg>
+
+   </div>
+   <div *ngIf="inputSchemas.length" class="input-schemas">
+     <node-schema-input-box
+       *ngFor="let schema of inputSchemas; let i = index;"
+       [schema]="schema"
+       [disableDrag]="isDisableDrag(i)"
+       [selectedFieldsNames]="selectedInputFieldsNames[schema.name] ? selectedInputFieldsNames[schema.name] : []"
+       [selectedFields]="selectedInputFields[schema.name] ? selectedInputFields[schema.name] : []"
+       [positionSubject]="inputSchemasPositionSubjects[i]"
+       [containerElement]="containerElement"
+       (changeContainersPosition)="setContainerPosition($event)"></node-schema-input-box>
+   </div>
+   <node-schema-output-box *ngIf="inputSchemas.length" class="output-schema"
+     [positionSubject]="outputSchemaPositionSubject"
+     [containerElement]="containerElement"
+     [schemaFields]="outputSchemaFields"
+     (schemaFieldsChange)="onChangeOutputFields($event)"
+     [filter]="filter"></node-schema-output-box>
+ </div>
+
+ <div *ngIf="join.joins.length && inputSchemas.length" class="join-container">
+      <div class="join-box">
+         <img [src]="getJoinIcon()" class="icon-join" />
+         <span class="icon icon-arrow2_down arrow" (click)="onToggleJoinsItems()" ></span>
+      </div>
+      <st-dropdown-menu
+         [items]="joinsItems"
+         [attr.id]="'joinDropdown'"
+         [active]="showJoinDropDown"
+         [offset]="{ x: 0, y: 10 }"
+         (change)="onChangeJoin($event)"></st-dropdown-menu>
+  </div>
+  <div *ngIf="!inputSchemas.length" class="no-inputs">
+      <span class="text">
+         {{'WIZARD.QUERY_BUILDER.NO_INPUT_SCHEMAS' | translate}}
+      </span>
+
+   </div>

@@ -4,10 +4,11 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs/Subject';
+import { DOCUMENT } from '@angular/common';
 
 import * as fromWizard from './reducers';
 import * as debugActions from './actions/debug';
@@ -38,12 +39,15 @@ export class WizardComponent implements OnInit, OnDestroy {
       private _store: Store<fromWizard.State>,
       private _route: ActivatedRoute,
       private _cd: ChangeDetectorRef,
-      private _wizardService: WizardService) { }
+      @Inject(DOCUMENT) private _document: any,
+      private _wizardService: WizardService) {
+      this._document.body.classList.add('disable-scroll');
+   }
 
 
    ngOnInit(): void {
       const id = this._route.snapshot.params.id;
-      this.isEdit = id && id.length ? true :  false;
+      this.isEdit = id && id.length ? true : false;
       this._store.dispatch(new externalDataActions.GetEnvironmentListAction());
       this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings
       const type = this._route.snapshot.params.type === 'streaming' ? Engine.Streaming : Engine.Batch;
@@ -95,5 +99,6 @@ export class WizardComponent implements OnInit, OnDestroy {
    ngOnDestroy(): void {
       this._componentDestroyed.next();
       this._componentDestroyed.unsubscribe();
+      this._document.body.classList.remove('disable-scroll');
    }
 }

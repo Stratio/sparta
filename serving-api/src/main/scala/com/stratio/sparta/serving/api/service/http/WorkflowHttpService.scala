@@ -43,7 +43,7 @@ trait WorkflowHttpService extends BaseHttpService {
       update(user) ~ updateList(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
       resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
-      findAllMonitoring(user) ~ rename(user) ~ move(user) ~ migrate(user)
+      findAllMonitoring(user) ~ rename(user) ~ move(user) ~ runWithVariables(user) ~ migrate(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -594,6 +594,38 @@ trait WorkflowHttpService extends BaseHttpService {
             response <- (supervisor ? Run(id.toString, user))
               .mapTo[Either[ResponseAny, UnauthorizedResponse]]
           } yield deletePostPutResponse(WorkflowServiceRun, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  @Path("/runWithVariables")
+  @ApiOperation(value = "Runs a workflow with extra variables.",
+    notes = "Runs a workflow by its id and providing execution variables.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "WorkflowExecutionVariables",
+      defaultValue = "",
+      value = "Workflow id and list of execution variables.",
+      dataType = "WorkflowExecutionVariables",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def runWithVariables(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "runWithVariables") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[WorkflowExecutionVariables]) { executionWithVariables =>
+            complete {
+              for {
+                response <- (supervisor ? RunWithVariables(executionWithVariables, user))
+                  .mapTo[Either[ResponseAny, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceRun, response, genericError)
+            }
+          }
         }
       }
     }

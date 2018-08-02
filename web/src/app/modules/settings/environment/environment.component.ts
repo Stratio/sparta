@@ -9,18 +9,18 @@ import {
    OnDestroy,
    OnInit,
    ViewChild,
-   ViewContainerRef
+   ViewContainerRef,
+   ElementRef
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { StModalService } from '@stratio/egeo';
-import { TranslateService } from '@ngx-translate/core';
 
 import * as fromRoot from './reducers';
 import * as environmentActions from './actions/environment';
-import { generateJsonFile } from '@utils';
+import { generateJsonFile, mergeNoDuplicatedArrays } from '@utils';
 import { ImportEnvironmentModalComponent } from './components/import-environment-modal/import-environment-modal.component';
 import { BreadcrumbMenuService } from 'services';
 import { ErrorMessagesService } from 'app/services/error-messages.service';
@@ -72,7 +72,6 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
    public duplicated: Array<string> = [];
 
    ngOnInit() {
-
       this.items = this.formBuilder.array([]);
       this.internalControl = new FormGroup({
          variables: this.items
@@ -84,6 +83,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
 
       this._modalService.container = this.target;
       this._store.dispatch(new environmentActions.ListEnvironmentAction());
+      this.model = [];
       this.environmentList = this._store.select(fromRoot.getEnvironmentList).subscribe((envList: EnvironmentListResponse) => {
          this.model = envList.variables;
          this.initForm(this.model);
@@ -123,19 +123,27 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
    }
 
    downloadVariables() {
-      generateJsonFile(new Date().getTime().toString(), this.internalControl.value.variables);
+      generateJsonFile(new Date().getTime().toString(), this.internalControl.value);
    }
 
-   uploadVariables(event: any) {
-      const reader = new FileReader();
-      reader.readAsText(event[0]);
-      reader.onload = (loadEvent: any) => {
-         try {
-            this.initForm([...this.internalControl.value.variables].concat(JSON.parse(loadEvent.target.result)));
-         } catch (error) {
-            console.log('Parse error');
-         }
-      };
+   uploadVariables(event: any): Promise<any> {
+     return new Promise((resolve, reject) => {
+         const reader = new FileReader();
+         reader.readAsText(event[0]);
+         reader.onload = (loadEvent: any) => {
+            try {
+               this.initForm(mergeNoDuplicatedArrays(JSON.parse(loadEvent.target.result).variables, this.internalControl.value.variables, 'name', 'value'));
+               this.internalControl.markAsDirty();
+               this._cd.detectChanges();
+               resolve();
+            } catch (error) {
+               console.log('Parse error');
+               reject();
+            }
+         };
+      });
+
+
    }
 
    getDuplicated() {
@@ -147,6 +155,13 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
       this.internalControl.markAsDirty();
       this.items.push(this.formBuilder.group(this.item));
       this.filter = '';
+      this._cd.markForCheck();
+      setTimeout(() => {
+         const addElementNameInput = this.elementRef.nativeElement.querySelector('#form-list-input-' + (this.items.controls.length - 1) + '-0');
+         if (addElementNameInput) {
+            this.elementRef.nativeElement.querySelector('#form-list-input-' + (this.items.controls.length - 1) + '-0').focus();
+         }
+      })
    }
 
    deleteItem(i: number) {
@@ -196,7 +211,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
    }
 
    constructor(private _store: Store<fromRoot.State>, private _cd: ChangeDetectorRef,
-      private _modalService: StModalService, private translate: TranslateService, private formBuilder: FormBuilder,
+      private _modalService: StModalService, private formBuilder: FormBuilder, private elementRef: ElementRef,
       public breadcrumbMenuService: BreadcrumbMenuService, public errorsService: ErrorMessagesService) {
       this.breadcrumbOptions = breadcrumbMenuService.getOptions();
    }

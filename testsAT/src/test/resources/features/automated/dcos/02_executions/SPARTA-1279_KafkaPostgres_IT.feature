@@ -1,18 +1,25 @@
 @rest
 Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   Background: : conect to navigator
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And I wait '3' seconds
   #********************
   # ADD SPARTA POLICY *
   #********************
-  Scenario:[SPARTA-1279][01] Add sparta policy to write in kafka
+  Scenario:[SPARTA-1279][01] Add kafka policy to write in kafka
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy_fr.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
       |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}        | n/a |
+    Then the service response status must be '201'
+
+  Scenario: [SPARTA-1162][02]Add postgres policy to write in postgres
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
+      |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
 
   #******************************

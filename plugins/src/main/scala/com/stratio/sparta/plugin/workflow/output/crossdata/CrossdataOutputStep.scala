@@ -7,10 +7,9 @@ package com.stratio.sparta.plugin.workflow.output.crossdata
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.core.workflow.step.OutputStep._
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
@@ -23,8 +22,8 @@ class CrossdataOutputStep(name: String, xDSession: XDSession, properties: Map[St
     validateSaveMode(saveMode)
 
     val tableName = getTableNameFromOptions(options)
-    val tempTableName = tableName + "Temp"
-    val saveModeCondition = if (saveMode == SaveModeEnum.Overwrite) "OVERWRITE" else ""
+    val tempTableName = tableName.replace(".","_") + "Temp"
+    val saveModeCondition = if (saveMode == SaveModeEnum.Overwrite) "OVERWRITE" else "INTO"
 
     if (xDSession.catalog.tableExists(tableName)) {
       val tempFields = dataFrame.schema.fields.map(field => (field.name, field.dataType.catalogString))
@@ -34,7 +33,7 @@ class CrossdataOutputStep(name: String, xDSession: XDSession, properties: Map[St
       if ((tempFields.length == catalogFields.length) &&
         catalogFields.forall(col => tempFields.contains(col))) {
         dataFrame.createOrReplaceTempView(tempTableName)
-        xDSession.sql(s"INSERT $saveModeCondition INTO TABLE $tableName SELECT * FROM $tempTableName")
+        xDSession.sql(s"INSERT $saveModeCondition TABLE $tableName SELECT * FROM $tempTableName")
       } else throw new RuntimeException(s"Incorrect schemas in the catalog table and the temporal table." +
         s"\tCatalog Schema: ${catalogFields.map(fields => s"${fields._1}-${fields._2}").mkString(",")}" +
         s"\tTemporal fields: ${tempFields.map(fields => s"${fields._1}-${fields._2}").mkString(",")}")

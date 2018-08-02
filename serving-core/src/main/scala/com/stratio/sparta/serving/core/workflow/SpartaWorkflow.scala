@@ -38,10 +38,12 @@ import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper.getConfigurationsFromObjects
 import com.stratio.sparta.serving.core.services.SparkSubmitService
 
+import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
 import scalax.collection.Graph
-import scalax.collection.GraphTraversal.{Parameters, Predecessors}
+import scalax.collection.GraphTraversal.{DepthFirst, Parameters, Predecessors}
 import scalax.collection.edge.LDiEdge
 
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
@@ -245,6 +247,28 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
+    @tailrec
+    def reOrderNodes(nodesList: List[NodeGraph], nextNodeIndex: Int): List[NodeGraph] = {
+      if(nextNodeIndex < nodesList.size) {
+        val nodeToAnalyze = nodesList(nextNodeIndex)
+        val nodeGraph = graph.get(nodeToAnalyze)
+        val fullNodePredecessors = nodeGraph.diPredecessors.toList.flatMap { predecessor =>
+          predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList
+        }.distinct
+        val nextNodes = nodesList.slice(nextNodeIndex, nodesList.size)
+        val nodesToReorder = nextNodes.filter { node => fullNodePredecessors.contains(node) }
+        val nodeToReorder = nodesToReorder.lastOption
+        val nextNodesWithoutReordered = nodeToReorder match {
+          case Some(reOrderNode) => nextNodes.filter(node => node != reOrderNode)
+          case None => nextNodes
+        }
+        val newPreviousNodes = nodesList.slice(0, nextNodeIndex) ++ nodesToReorder.takeRight(1)
+        val nextNodeToAnalyze = if(nodesToReorder.isEmpty) nextNodeIndex + 1 else nextNodeIndex
+
+        reOrderNodes(newPreviousNodes ++ nextNodesWithoutReordered, nextNodeToAnalyze)
+      } else nodesList
+    }
+
     nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType)
       .sortBy(node => node.name)
       .foreach { outputNode =>
@@ -253,9 +277,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         val outputPredecessors = outNodeGraph.diPredecessors.toList
 
         outputPredecessors.sortBy(node => node.name).foreach { predecessor =>
-          predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse.foreach { node =>
-            createStep(node)
-          }
+          val nodesToReOrder  = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
+          log.debug(s"List of steps to order: ${nodesToReOrder.map(_.name).mkString(",")}")
+          val nodesOrdered = reOrderNodes(nodesToReOrder, 0)
+          log.debug(s"List of steps ordered: ${nodesOrdered.map(_.name).mkString(",")}")
+
+          nodesOrdered.foreach(node => createStep(node))
         }
 
         val outputPredecessorsOrdered = outputPredecessors.sortBy { node =>

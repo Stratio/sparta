@@ -85,31 +85,34 @@ class CassiopeiaMigrationService(val curatorFramework: CuratorFramework) extends
   /** WORKFLOWS **/
   def migrateCassiopeiaWorkflows(): Unit = {
     log.info(s"Migrating workflows from cassiopeia")
-    val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
-    val cassiopeiaWorkflows: List[Option[WorkflowCassiopeia]] = JavaConversions.asScalaBuffer(children).toList.map(id => cassiopieaWorkflowExistsById(id))
-    cassiopeiaWorkflows.filter(_.isDefined).foreach(cassiopeiaWorkFlow => {
-      Try {
-        var workflowAndromeda = cassiopieaWorkflowToAndromeda(cassiopeiaWorkFlow.get)
-        val workflowAndromedaStatus = workflowAndromeda.status
-        val workFlowAndromedaExecution = cassiopeiaExecutionToAndromeda(workflowAndromeda, cassiopeiaWorkFlow.get)
+    Option(curatorFramework.checkExists().forPath(AppConstant.WorkflowsZkPath))
+      .fold(log.info("There are no workflows to migrate")) { _ =>
+        val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
+        val cassiopeiaWorkflows: List[Option[WorkflowCassiopeia]] = JavaConversions.asScalaBuffer(children).toList.map(id => cassiopieaWorkflowExistsById(id))
+        cassiopeiaWorkflows.filter(_.isDefined).foreach(cassiopeiaWorkFlow => {
+          Try {
+            var workflowAndromeda = cassiopieaWorkflowToAndromeda(cassiopeiaWorkFlow.get)
+            val workflowAndromedaStatus = workflowAndromeda.status
+            val workFlowAndromedaExecution = cassiopeiaExecutionToAndromeda(workflowAndromeda, cassiopeiaWorkFlow.get)
 
-        if (workFlowAndromedaExecution.isDefined) {
-          val workFlowExecution = write(workFlowAndromedaExecution.get)
-          executionService.update(read[WorkflowExecution](workFlowExecution))
-          workflowAndromeda = workflowAndromeda.copy(execution = workFlowAndromedaExecution)
+            if (workFlowAndromedaExecution.isDefined) {
+              val workFlowExecution = write(workFlowAndromedaExecution.get)
+              executionService.update(read[WorkflowExecution](workFlowExecution))
+              workflowAndromeda = workflowAndromeda.copy(execution = workFlowAndromedaExecution)
+            }
+            if (workflowAndromedaStatus.isDefined) {
+              val workFlowStatus = write(workflowAndromedaStatus.get)
+              statusService.update(read[WorkflowStatus](workFlowStatus))
+            }
+            val workflowtoUpdate = write(workflowAndromeda)
+            workflowService.update(read[Workflow](workflowtoUpdate))
+          } match {
+            case Success(_) => log.info(s"Workflow ${cassiopeiaWorkFlow.get.name} migrated")
+            case Failure(f) => log.error(s"Workflow ${cassiopeiaWorkFlow.get.name} migration error", f)
+          }
         }
-        if (workflowAndromedaStatus.isDefined) {
-          val workFlowStatus = write(workflowAndromedaStatus.get)
-          statusService.update(read[WorkflowStatus](workFlowStatus))
-        }
-        val workflowtoUpdate = write(workflowAndromeda)
-        workflowService.update(read[Workflow](workflowtoUpdate))
-      } match {
-        case Success(_) => log.info(s"Workflow ${cassiopeiaWorkFlow.get.name} migrated")
-        case Failure(f) => log.error(s"Workflow ${cassiopeiaWorkFlow.get.name} migration error", f)
+        )
       }
-    }
-    )
   }
 
   def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia): WorkflowAndromeda = {
@@ -152,34 +155,34 @@ class CassiopeiaMigrationService(val curatorFramework: CuratorFramework) extends
   }
 
   private[sparta] def cassiopeiaExecutionToAndromeda(workflowAndromeda: WorkflowAndromeda, workflowCassiopeia: WorkflowCassiopeia): Option[WorkflowExecutionAndromeda] = {
-    Try {
-      val id = workflowCassiopeia.id.get
-      val executionPath = s"${AppConstant.WorkflowExecutionsZkPath}/$id"
-      read[WorkflowExecutionCassiopeia](new String(curatorFramework.getData.forPath(executionPath)))
-    } match {
-      case Success(cassiopeiaExecution) => Option(WorkflowExecutionAndromeda(id = cassiopeiaExecution.id,
-        sparkSubmitExecution = Option(SparkSubmitExecutionAndromeda(driverClass = cassiopeiaExecution.sparkSubmitExecution.driverClass,
-          driverFile = cassiopeiaExecution.sparkSubmitExecution.driverFile,
-          pluginFiles = cassiopeiaExecution.sparkSubmitExecution.pluginFiles,
-          master = cassiopeiaExecution.sparkSubmitExecution.master,
-          submitArguments = cassiopeiaExecution.sparkSubmitExecution.submitArguments,
-          sparkConfigurations = cassiopeiaExecution.sparkSubmitExecution.sparkConfigurations,
-          driverArguments = cassiopeiaExecution.sparkSubmitExecution.driverArguments,
-          sparkHome = cassiopeiaExecution.sparkSubmitExecution.sparkHome)),
-        sparkExecution = cassiopeiaExecution.sparkExecution.map(sparkExecution => SparkExecutionAndromeda(applicationId = sparkExecution.applicationId)),
-        sparkDispatcherExecution = cassiopeiaExecution.sparkDispatcherExecution,
-        marathonExecution = cassiopeiaExecution.marathonExecution.map(me => MarathonExecutionAndromeda(marathonId = me.marathonId)),
-        localExecution = None,
-        genericDataExecution = Option(GenericDataExecutionAndromeda(
-          workflow = workflowAndromeda,
-          executionMode = workflowCassiopeia.settings.global.executionMode,
-          executionId = cassiopeiaExecution.id))
-      ))
-      case Failure(f) => {
-        log.error(s"Error on migration workflowExecution ${workflowCassiopeia.id.get}", f)
-        None
+    val id = workflowCassiopeia.id.get
+    val executionPath = s"${AppConstant.WorkflowExecutionsZkPath}/$id"
+    if (Option(curatorFramework.checkExists().forPath(executionPath)).isEmpty) None
+    else
+      Try(read[WorkflowExecutionCassiopeia](new String(curatorFramework.getData.forPath(executionPath)))) match {
+        case Success(cassiopeiaExecution) => Option(WorkflowExecutionAndromeda(id = cassiopeiaExecution.id,
+          sparkSubmitExecution = Option(SparkSubmitExecutionAndromeda(driverClass = cassiopeiaExecution.sparkSubmitExecution.driverClass,
+            driverFile = cassiopeiaExecution.sparkSubmitExecution.driverFile,
+            pluginFiles = cassiopeiaExecution.sparkSubmitExecution.pluginFiles,
+            master = cassiopeiaExecution.sparkSubmitExecution.master,
+            submitArguments = cassiopeiaExecution.sparkSubmitExecution.submitArguments,
+            sparkConfigurations = cassiopeiaExecution.sparkSubmitExecution.sparkConfigurations,
+            driverArguments = cassiopeiaExecution.sparkSubmitExecution.driverArguments,
+            sparkHome = cassiopeiaExecution.sparkSubmitExecution.sparkHome)),
+          sparkExecution = cassiopeiaExecution.sparkExecution.map(sparkExecution => SparkExecutionAndromeda(applicationId = sparkExecution.applicationId)),
+          sparkDispatcherExecution = cassiopeiaExecution.sparkDispatcherExecution,
+          marathonExecution = cassiopeiaExecution.marathonExecution.map(me => MarathonExecutionAndromeda(marathonId = me.marathonId)),
+          localExecution = None,
+          genericDataExecution = Option(GenericDataExecutionAndromeda(
+            workflow = workflowAndromeda,
+            executionMode = workflowCassiopeia.settings.global.executionMode,
+            executionId = cassiopeiaExecution.id))
+        ))
+        case Failure(f) => {
+          log.error(s"Error on migration workflowExecution ${workflowCassiopeia.id.get}", f)
+          None
+        }
       }
-    }
   }
 
   private[sparta] def cassiopieaWorkflowExistsById(id: String): Option[WorkflowCassiopeia] =

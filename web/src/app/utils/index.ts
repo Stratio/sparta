@@ -142,3 +142,21 @@ export function reduceReducers(...reducers) {
             previous
         );
 }
+
+export function mergeNoDuplicatedArrays(array1: any[], array2: any[], keyName: string, valueName: string): any[] {
+   let result = [];
+   if (array1 && array2) {
+      result = [...array1];
+      let currentPropertyNames = result.map(item => item[keyName]);
+      array2.forEach(item => {
+         const propertyPosition = currentPropertyNames.indexOf(item[keyName]);
+         if (propertyPosition === -1) {
+            result.push(item);
+            currentPropertyNames.push(item[keyName]);
+         } else if (!result[propertyPosition][valueName]) {
+            result[propertyPosition] = item;
+         }
+      });
+   }
+   return result;
+}

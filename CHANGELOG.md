@@ -10,6 +10,7 @@
 * Automatic workflows migration process from previous versions
 * Bug fixing
 
+
 ## 2.1.0-68094b6 (Built: July 10, 2018 | Released: July 12, 2018)
 
 * Debug mode with schema and data discovery
@@ -28,8 +29,9 @@
     - Rename columns
     - Init nulls with default values
     - Add column with default values
-    - Data cleaning
-    - Data profiling
+    - Data cleaning (batch)
+    - Data profiling (batch)
+    - Cube (batch)
 
 * New batch inputs:
     - Avro

@@ -69,6 +69,14 @@ export const MOVE_WORKFLOW = '[Workflow-Managing] Move workflow';
 export const MOVE_WORKFLOW_COMPLETE = '[Workflow-Managing] Move workflow complete';
 export const MOVE_WORKFLOW_ERROR = '[Workflow-Managing] Move workflow error';
 export const RESET_MODAL = '[Workflow-Managing] Reset modal';
+export const MOVE_WORKFLOW_GROUP = '[Workflow-Managing] Move workflow group';
+export const SAVE_WORKFLOW_GROUP = '[Workflow-Managing] Save workflow group';
+export const DELETE_WORKFLOW_GROUP = '[Workflow-Managing] Delete workflow group';
+export const DELETE_GROUP = '[Workflow-Managing] Delete group';
+
+
+
+
 
 export class ListGroupWorkflowsAction implements Action {
   readonly type = LIST_GROUP_WORKFLOWS;
@@ -108,6 +116,7 @@ export class AddGroupAction implements Action {
    constructor(public payload: any) { }
  }
 
+
 export class CreateGroupCompleteAction implements Action {
   readonly type = CREATE_GROUP_COMPLETE;
   constructor(public payload: any) { }
@@ -122,6 +131,8 @@ export class ListGroupsAction implements Action {
   readonly type = LIST_GROUPS;
   constructor() { }
 }
+
+
 
 export class ListGroupsCompleteAction implements Action {
   readonly type = LIST_GROUPS_COMPLETE;
@@ -335,7 +346,7 @@ export class GetExecutionInfoErrorAction implements Action {
 export class CloseWorkflowExecutionInfoAction implements Action {
   readonly type = CLOSE_WORKFLOW_EXECUTION_INFO;
 
-  constructor() { };
+  constructor() { }
 }
 
 export class ChangeOrderAction implements Action {
@@ -383,8 +394,31 @@ export class MoveWorkflowAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class MoveWorkflowGroup implements Action {
+   readonly type = MOVE_WORKFLOW_GROUP;
+   constructor(public payload: any) { }
+ }
+
+ export class SaveWorkflowGroup implements Action {
+   readonly type = SAVE_WORKFLOW_GROUP;
+   constructor(public payload: any) { }
+ }
+
+ export class DeleteWorkflowGroup implements Action {
+   readonly type = DELETE_WORKFLOW_GROUP;
+   constructor(public payload: any) { }
+ }
+
+ export class DeleteGroup implements Action {
+   readonly type = DELETE_GROUP;
+   constructor(public payload: any) { }
+ }
+
+
+
 export class MoveWorkflowCompleteAction implements Action {
   readonly type = MOVE_WORKFLOW_COMPLETE;
+  constructor(public payload: any) { }
 }
 
 export class MoveWorkflowErrorAction implements Action {
@@ -454,4 +488,8 @@ export type Actions =
   ResetModalAction |
   MoveWorkflowAction |
   MoveWorkflowCompleteAction |
-  MoveWorkflowErrorAction;
+  MoveWorkflowErrorAction |
+  MoveWorkflowGroup |
+  SaveWorkflowGroup |
+  DeleteWorkflowGroup |
+  DeleteGroup;

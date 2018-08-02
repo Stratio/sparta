@@ -23,7 +23,7 @@ trait CheckpointUtils extends SLF4JLogging {
   /* PUBLIC METHODS */
 
   def deleteFromLocal(workflow: Workflow): Unit = {
-    val checkpointDirectory = checkpointPathFromWorkflow(workflow, checkTime = false)
+    val checkpointDirectory = cleanLocalCheckpointPath(checkpointPathFromWorkflow(workflow, checkTime = false))
     log.debug(s"Deleting checkpoint: $checkpointDirectory")
     try {
       FileUtils.deleteDirectory(new File(checkpointDirectory))
@@ -71,6 +71,8 @@ trait CheckpointUtils extends SLF4JLogging {
   }
 
   /* PRIVATE METHODS */
+  private def cleanLocalCheckpointPath(path: String): String =
+    path.replace("file://", "")
 
   private def cleanCheckpointPath(path: String): String = {
     val hdfsPrefix = "hdfs://"
@@ -81,7 +83,7 @@ trait CheckpointUtils extends SLF4JLogging {
   }
 
   private def createFromLocal(workflow: Workflow): Unit = {
-    val checkpointDirectory = checkpointPathFromWorkflow(workflow)
+    val checkpointDirectory = cleanLocalCheckpointPath(checkpointPathFromWorkflow(workflow))
     log.debug(s"Creating checkpoint: $checkpointDirectory")
     try {
       FileUtils.forceMkdir(new File(checkpointDirectory))

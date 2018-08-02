@@ -16,7 +16,6 @@ import { StoreModule } from '@ngrx/store';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
-
 import {
    WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
    WizardEditorComponent, WizardEditorService, WizardNodeComponent,
@@ -45,6 +44,7 @@ import { NodeErrorsComponent } from '@app/wizard/components/node-errors/node-err
 import { NodeSchemaComponent } from '@app/wizard/components/node-schema/node-schema.component';
 import { WizardConsoleComponent } from '@app/wizard/components/wizard-console/wizard-console.component';
 import { NodeTreeDataComponent } from '@app/wizard/components/wizard-console/data-node-tree/node-tree-data.component';
+import { QueryBuilderModule } from '@app/wizard/components/query-builder/query-builder.module';
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -85,6 +85,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
       StoreModule.forFeature('wizard', reducers),
       EffectsModule.forFeature([DebugEffect, WizardEffect, ExternalDataEffect]),
       HighlightTextareaModule,
+      QueryBuilderModule,
       WizardRoutingModule,
       FormsModule,
       SharedModule,

@@ -42,7 +42,37 @@ export class DebugEffect {
       // Retrieve part of the current state
       .withLatestFrom(this._store.select(state => state))
       .switchMap(([redirectOnSave, state]: [any, any]) => {
-         const workflow = this._wizardService.getWorkflowModel(state);
+         let workflow = this._wizardService.getWorkflowModel(state);
+         console.log(workflow);
+         const nodes = workflow.pipelineGraph.nodes.map(node => {
+            const actualNode = workflow.pipelineGraph.nodes.filter(n => n.name === node.name)[0];
+            if (node.classPrettyName === 'QueryBuilder' && actualNode && actualNode.configuration.visualQuery.joinClause  && actualNode.configuration.visualQuery.joinClause.joinConditions.length  && workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name).length === 1) {
+               const fromClause = {
+                  tableName: workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name)[0].origin,
+                  alias: 't1'
+               }
+               return {
+                  ...node,
+                  configuration: {
+                     visualQuery: {
+                        ...node.configuration.visualQuery,
+                        joinClause: {},
+                        fromClause,
+                        selectClauses: []
+                     }
+                  }
+               };
+            } else {
+               return node;
+            }
+         });
+         workflow = {
+            ...workflow,
+            pipelineGraph: {
+               ...workflow.pipelineGraph,
+               nodes
+            }
+         };
          return this._wizardApiService.debug(workflow)
             .flatMap((response) => this._wizardApiService.runDebug(response.workflowDebug.id || response.workflowOriginal.id)
                .mergeMap(res => [

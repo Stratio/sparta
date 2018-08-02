@@ -148,7 +148,8 @@
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -172,10 +173,10 @@
           }
         },
         "configuration": {
-          "outputFieldsFrom": "STRING",
           "fieldsString": "StructType((\nStructField(TYPE,StringType,true),\nStructField(SERNO,LongType,true),\nStructField(LTIMESTAMP,StringType,true),\nStructField(PROCESSTIMEMS,LongType,true),\nStructField(GROUPFROMSERIAL,LongType,true),\nStructField(GROUPTOSERIAL,LongType,true),\nStructField(EXTSERNO,LongType,true),\nStructField(CARDSERNO,LongType,true),\nStructField(TRUECARDNO,StringType,true),\nStructField(CARDCURRENCY,StringType,true),\nStructField(EODSERNO,LongType,true),\nStructField(ORIGSERNO,LongType,true),\nStructField(ISOLOGSERNO,LongType,true),\nStructField(SOURCE,StringType,true),\nStructField(FORMAT,StringType,true),\nStructField(REASONCODE,IntegerType,true),\nStructField(OTB_AMT_CENTER,DoubleType,true),\nStructField(OTB_AMT_CARD,DoubleType,true),\nStructField(AMT_CENTER,DoubleType,true),\nStructField(AMT_CARD,DoubleType,true),\nStructField(ORIG_AMT_CENTER,DoubleType,true),\nStructField(ORIG_AMT_CARD,DoubleType,true),\nStructField(FEE_AMT_CARD,DoubleType,true),\nStructField(FEE_AMT_CENTER,DoubleType,true),\nStructField(SAFFLAG,StringType,true),\nStructField(DEBITPORT,IntegerType,true),\nStructField(SAFTIMESTAMP,StringType,true),\nStructField(SAFRETRYCOUNT,LongType,true),\nStructField(BATCHNO,LongType,true),\nStructField(MSGFLAGS,LongType,true),\nStructField(ADDITIONAFLAGS,StringType,true),\nStructField(AFFECTEDOTBS,LongType,true),\nStructField(EXTERNALLOGSERNO,LongType,true),\nStructField(INSTITUIONID,IntegerType,true),\nStructField(TRXNSERNO,LongType,true),\nStructField(ISSUER_FEESERNO,LongType,true),\nStructField(AUTH_FEESERNO,LongType,true),\nStructField(MATCHTIME,StringType,true),\nStructField(DROPDATE,StringType,true),\nStructField(ACTION_RESCODE,StringType,true),\nStructField(WORKERID,IntegerType,true),\nStructField(MSGTRXNTYPE,IntegerType,true),\nStructField(I000_MSG_TYPE,StringType,true),\nStructField(I002_NUMBER,StringType,true),\nStructField(I003_PROC_CODE,StringType,true),\nStructField(I004_AMT_TRXN,DoubleType,true),\nStructField(I005_AMT_SETTLE,DoubleType,true),\nStructField(I006_AMT_BILL,DoubleType,true),\nStructField(I007_TRANS_DT,StringType,true),\nStructField(I009_SETL_CONV,StringType,true),\nStructField(I011_TRACE_NUM,StringType,true),\nStructField(I012_LCL_TIME,StringType,true),\nStructField(I013_LCL_DT,StringType,true),\nStructField(I014_EXP_DATE,StringType,true),\nStructField(I016_CONV_DT,StringType,true),\nStructField(I018_MERCH_TYPE,StringType,true),\nStructField(I019_ACQ_COUNTRY,StringType,true),\nStructField(I021_FWD_CNTRY,StringType,true),\nStructField(I022_POS_ENTRY,StringType,true),\nStructField(I023_CARD_SEQ_NUM,StringType,true),\nStructField(I024_INT_NETWK_ID,StringType,true),\nStructField(I025_POS_COND,StringType,true),\nStructField(I026_ACCPTR_BUSCD,StringType,true),\nStructField(I028_TRANSFER_FEE,StringType,true),\nStructField(I029_SETL_FEE,StringType,true),\nStructField(I030_TRSF_PRC_FEE,StringType,true),\nStructField(I031_SETL_PROC_FEE,StringType,true),\nStructField(I032_ACQUIRER_ID,StringType,true),\nStructField(I033_FORWARDER_ID,StringType,true),\nStructField(I035_TRK_2,StringType,true),\nStructField(I037_RET_REF_NUM,StringType,true),\nStructField(I038_AUTH_ID,StringType,true),\nStructField(I039_RSP_CD,StringType,true),\nStructField(I041_POS_ID,StringType,true),\nStructField(I042_MERCH_ID,StringType,true),\nStructField(I043A_MERCH_NAME,StringType,true),\nStructField(I043B_MERCH_CITY,StringType,true),\nStructField(I043C_MERCH_CNT,StringType,true),\nStructField(I044_ADDTNL_RSP,StringType,true),\nStructField(I045_TRK_1,StringType,true),\nStructField(I047_NAT_ADDTNL_DT,StringType,true),\nStructField(I048_TEXT_DATA,StringType,true),\nStructField(I049_CUR_TRXN,StringType,true),\nStructField(I050_CUR_SETTLE,StringType,true),\nStructField(I051_CUR_BILL,StringType,true),\nStructField(I053_SEC_CNTRL,StringType,true),\nStructField(I054_ADDTNL_AMT,StringType,true),\nStructField(I055_ICC_DATA,StringType,true),\nStructField(I056_ORG_DATA,StringType,true),\nStructField(I058_AUTH_AGENT,StringType,true),\nStructField(I059_POS_GEO_DATA,StringType,true),\nStructField(I060_POS_CAP,StringType,true),\nStructField(I061V1_OTH_AMT_TXN,DoubleType,true),\nStructField(I061V2_OTH_AMT_BILL,DoubleType,true),\nStructField(I061V3_REP_AMT_BILL,DoubleType,true),\nStructField(I061M_POS_DATA,StringType,true),\nStructField(I062V1_AUTH_CHAR,StringType,true),\nStructField(I062V2_TRANS_ID,StringType,true),\nStructField(I062V3_VALIDAT_CD,StringType,true),\nStructField(I062V4_MRKT_DATA,StringType,true),\nStructField(I062V5_DURANTION,StringType,true),\nStructField(I062V6_PRSTG_PROP,StringType,true),\nStructField(I063_BANKNET_DATA,StringType,true),\nStructField(I063V1_NETWORK_ID,StringType,true),\nStructField(I063V2_TIM3_LIMIT,StringType,true),\nStructField(I063V3_MIS_CAS_RD,StringType,true),\nStructField(I063V4_STIP_RS,StringType,true),\nStructField(I063V5_PMC_ID,StringType,true),\nStructField(I068_RCV_CNTRY,StringType,true),\nStructField(I072_MSG_NUM_LST,StringType,true),\nStructField(I090_ORIG_DATA,StringType,true),\nStructField(I093_RSP_IND,StringType,true),\nStructField(I094_SVC_IND,StringType,true),\nStructField(I095_ACT_TRAN_AMT,DoubleType,true),\nStructField(I100_RCV_INST,StringType,true),\nStructField(I101_FILE_NAME,StringType,true),\nStructField(I102_ACCT_ID1,StringType,true),\nStructField(I103_ACCT_ID2,StringType,true),\nStructField(I104_TRAN_DESC,StringType,true),\nStructField(I118_INTRA_COUNTRY,StringType,true),\nStructField(I120_ORIG_MSG_TYP,StringType,true),\nStructField(I123_ADR_VER,StringType,true),\nStructField(I125_SUPP_INFO,StringType,true),\nStructField(I126V6_CH_CSERIAL,StringType,true),\nStructField(I126V7_ME_CSERIAL,StringType,true),\nStructField(I126V8_TRXN_ID,StringType,true),\nStructField(I126V9_STAIN,StringType,true),\nStructField(I126V10_CVV2,StringType,true),\nStructField(I130_TERM_CAPA,StringType,true),\nStructField(I131_TVR,StringType,true),\nStructField(I132_UNPREDICT,StringType,true),\nStructField(I133_TERM_SERIAL,StringType,true),\nStructField(I134_VISA_DISCR,StringType,true),\nStructField(I135A_PREAUTHTRACE,IntegerType,true),\nStructField(I135B_PURCHTRACE,IntegerType,true),\nStructField(I135C_CRYPTTRACE,IntegerType,true),\nStructField(I135D_KEYVERSION,IntegerType,true),\nStructField(I136_CRYPTOGRAM,StringType,true),\nStructField(I137_ATC,StringType,true),\nStructField(I138_APL,StringType,true),\nStructField(I139_1_ARPC,StringType,true),\nStructField(I139_2_ARPC_RESCD,StringType,true),\nStructField(I142_SCRIPTSEND,LongType,true),\nStructField(I143_SCRIPTS_RES,StringType,true),\nStructField(I144_CRYP_TR,StringType,true),\nStructField(I145_TRM_CNTRY,StringType,true),\nStructField(I146_TRM_DATE,StringType,true),\nStructField(I147_CRYPT_AMT,StringType,true),\nStructField(I148_CRYPT_CURR,StringType,true),\nStructField(I149_CRYPT_CSBK,StringType,true),\nStructField(TRXNSERNO_B,LongType,true),\nStructField(MATCHTIME_B,StringType,true),\nStructField(GROUP0SERIAL,LongType,true),\nStructField(GROUP0CURRENCY,StringType,true),\nStructField(GROUP0OTBAMOUNT,DoubleType,true),\nStructField(GROUP0AMOUNT,DoubleType,true),\nStructField(GROUP0ORIGAMOUNT,DoubleType,true),\nStructField(GROUP0FEEAMOUNT,DoubleType,true),\nStructField(GROUP1SERIAL,LongType,true),\nStructField(GROUP1CURRENCY,StringType,true),\nStructField(GROUP1OTBAMOUNT,DoubleType,true),\nStructField(GROUP1AMOUNT,DoubleType,true),\nStructField(GROUP1ORIGAMOUNT,DoubleType,true),\nStructField(GROUP1FEEAMOUNT,DoubleType,true),\nStructField(GROUP2SERIAL,LongType,true),\nStructField(GROUP2CURRENCY,StringType,true),\nStructField(GROUP2OTBAMOUNT,DoubleType,true),\nStructField(GROUP2AMOUNT,DoubleType,true),\nStructField(GROUP2ORIGAMOUNT,DoubleType,true),\nStructField(GROUP2FEEAMOUNT,DoubleType,true),\nStructField(GROUP3SERIAL,LongType,true),\nStructField(GROUP3CURRENCY,StringType,true),\nStructField(GROUP3OTBAMOUNT,DoubleType,true),\nStructField(GROUP3AMOUNT,DoubleType,true),\nStructField(GROUP3ORIGAMOUNT,DoubleType,true),\nStructField(GROUP3FEEAMOUNT,DoubleType,true),\nStructField(GROUP4SERIAL,LongType,true),\nStructField(GROUP4CURRENCY,StringType,true),\nStructField(GROUP4OTBAMOUNT,DoubleType,true),\nStructField(GROUP4AMOUNT,DoubleType,true),\nStructField(GROUP4ORIGAMOUNT,DoubleType,true),\nStructField(GROUP4FEEAMOUNT,DoubleType,true),\nStructField(GROUP5SERIAL,LongType,true),\nStructField(GROUP5CURRENCY,StringType,true),\nStructField(GROUP5OTBAMOUNT,DoubleType,true),\nStructField(GROUP5AMOUNT,DoubleType,true),\nStructField(GROUP5ORIGAMOUNT,DoubleType,true),\nStructField(GROUP5FEEAMOUNT,DoubleType,true),\nStructField(GROUP6SERIAL,LongType,true),\nStructField(GROUP6CURRENCY,StringType,true),\nStructField(GROUP6OTBAMOUNT,DoubleType,true),\nStructField(GROUP6AMOUNT,DoubleType,true),\nStructField(GROUP6ORIGAMOUNT,DoubleType,true),\nStructField(GROUP6FEEAMOUNT,DoubleType,true),\nStructField(GROUP7SERIAL,LongType,true),\nStructField(GROUP7CURRENCY,StringType,true),\nStructField(GROUP7OTBAMOUNT,DoubleType,true),\nStructField(GROUP7AMOUNT,DoubleType,true),\nStructField(GROUP7ORIGAMOUNT,DoubleType,true),\nStructField(GROUP7FEEAMOUNT,DoubleType,true),\nStructField(GROUP8SERIAL,LongType,true),\nStructField(GROUP8CURRENCY,StringType,true),\nStructField(GROUP8OTBAMOUNT,DoubleType,true),\nStructField(GROUP8AMOUNT,DoubleType,true),\nStructField(GROUP8ORIGAMOUNT,DoubleType,true),\nStructField(GROUP8FEEAMOUNT,DoubleType,true),\nStructField(GROUP9SERIAL,LongType,true),\nStructField(GROUP9CURRENCY,StringType,true),\nStructField(GROUP9OTBAMOUNT,DoubleType,true),\nStructField(GROUP9AMOUNT,DoubleType,true),\nStructField(GROUP9ORIGAMOUNT,DoubleType,true),\nStructField(GROUP9FEEAMOUNT,DoubleType,true),\nStructField(INSTALLMENT,IntegerType,true),\nStructField(MONTHLYAMOUNT,DoubleType,true),\nStructField(FULLAMOUNT,DoubleType,true),\nStructField(INSTALLTYPE,StringType,true),\nStructField(FILLER,StringType,true),\nStructField(INTERESTRATE,DoubleType,true),\nStructField(OFFSET,IntegerType,true),\nStructField(OFFSET_TYPE,StringType,true),\nStructField(ADJUSTEDAMOUNT,DoubleType,true),\nStructField(APR,DoubleType,true),\nStructField(FEES,DoubleType,true),\nStructField(TAX,DoubleType,true),\nStructField(PLANSERNO,StringType,true),\nStructField(PRIMECARDSERNO,LongType,true),\nStructField(I062V21_RISK_SCORE_RS,StringType,true),\nStructField(I062V22_RISK_COND_CD,StringType,true),\nStructField(CARDPRODUCTSERNO,LongType,true),\nStructField(FGPROCESSTIMEMS,LongType,true),\nStructField(SMPROCESSTIMEMES,DoubleType,true),\nStructField(GPCREDITAFFECTOTB,StringType,true),\nStructField(I124_GOODS_CODE,StringType,true),\nStructField(I127_FILL_RCD,StringType,true),\nStructField(PANTYPE,IntegerType,true),\nStructField(TOKENSERNO,LongType,true),\nStructField(OTP,StringType,true),\nStructField(V1,StringType,true),\nStructField(V2,StringType,true),\nStructField(REFDATE,TimestampType,true),\nStructField(TEST_FIELD,TimestampType,true),\nStructField(DT_LANDING,IntegerType,true)))",
-          "whenRowError": "",
-          "whenFieldError": ""
+          "outputFieldsFrom": "STRING",
+          "whenFieldError": "",
+          "whenRowError": ""
         },
         "supportedEngines": [
           "Streaming",
@@ -183,7 +184,8 @@
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -204,21 +206,22 @@
         },
         "uiConfiguration": {
           "position": {
-            "x": 1353.8453369140625,
-            "y": 57.27845001220703
+            "x": 1351.8453369140625,
+            "y": 56.27845001220703
           }
         },
         "configuration": {
-          "sql": "select c.* from Casting c left join tablaVolcado d on c.SERNO = d.SERNO  where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select c.* from Casting c left join tablaVolcado d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -244,21 +247,21 @@
         "configuration": {
           "fieldsDatetime": [
             {
-              "formatFrom": "STANDARD",
               "inputField": "REFDATE",
-              "standardFormat": "basicDate",
-              "localeTime": "ENGLISH",
               "granularityNumber": "",
-              "granularityTime": "millisecond",
-              "fieldsPreservationPolicy": "REPLACE",
-              "outputFieldName": "REFDATE",
+              "outputFormatFrom": "DEFAULT",
               "outputFieldType": "timestamp",
               "nullable": true,
-              "outputFormatFrom": "DEFAULT"
+              "formatFrom": "STANDARD",
+              "granularityTime": "millisecond",
+              "standardFormat": "basicDate",
+              "outputFieldName": "REFDATE",
+              "localeTime": "ENGLISH",
+              "fieldsPreservationPolicy": "REPLACE"
             }
           ],
-          "whenRowError": "",
-          "whenFieldError": ""
+          "whenFieldError": "",
+          "whenRowError": ""
         },
         "supportedEngines": [
           "Streaming",
@@ -266,7 +269,8 @@
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -288,9 +292,9 @@
           }
         },
         "configuration": {
+          "saveOptions": "[]",
           "path": "/tmp",
-          "errorSink": false,
-          "saveOptions": "[]"
+          "errorSink": false
         },
         "supportedEngines": [
           "Streaming",
@@ -317,23 +321,19 @@
           "partitionBy": "",
           "errorTableName": ""
         },
-        "uiConfiguration": {
-          "position": {
-            "x": 967.205049259217,
-            "y": -119.82544210633012
-          }
-        },
+        "uiConfiguration": {},
         "configuration": {
-          "sql": "select  \"fallo_casting\" as TableName, \"TYPE_MISMATCH\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom Datetime c left join Casting d on c.SERNO = d.SERNO  where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select  \"fallo_casting\" as TableName, \"TYPE_MISMATCH\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom Datetime c left join Casting d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -359,16 +359,17 @@
           }
         },
         "configuration": {
-          "sql": "select \"fallo_rango\" as TableName, \"FORMAT_MISMATCH\" as Error, current_timestamp as RawDate , c.rawData\nfrom no_duplicados c left join rango_msgflags d on c.SERNO = d.SERNO  where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select \"fallo_rango\" as TableName, \"FORMAT_MISMATCH\" as Error, current_timestamp as RawDate , c.rawData\nfrom no_duplicados c left join rango_msgflags d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -388,23 +389,19 @@
           "errorTableName": ""
         },
         "description": "Hay que ver si mandamos la fila del parquet o la del Casting",
-        "uiConfiguration": {
-          "position": {
-            "x": 1256.0863519305024,
-            "y": -128.69240579745252
-          }
-        },
+        "uiConfiguration": {},
         "configuration": {
-          "sql": "select  \"fallo_duplicados\" as TableName, \"DUPLICATED_KEY\" as Error, current_timestamp as RawDate, c.rawData\n\tfrom Casting c inner join tablaVolcado d on c.SERNO = d.SERNO",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select  \"fallo_duplicados\" as TableName, \"DUPLICATED_KEY\" as Error, current_timestamp as RawDate, c.rawData\n\tfrom Casting c inner join tablaVolcado d on c.SERNO = d.SERNO"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -430,15 +427,16 @@
           }
         },
         "configuration": {
-          "sql": "SELECT *,\n  (CASE \n     WHEN CARDPRODUCTSERNO IN (726,730,736,740) THEN 2  \n     ELSE 1\n   END) AS ID_EMPRS\nFROM rango_msgflags",
-          "inputSchemas": "[]"
+          "inputSchemas": "[]",
+          "sql": "SELECT *,\n  (CASE \n     WHEN CARDPRODUCTSERNO IN (726,730,736,740) THEN 2  \n     ELSE 1\n   END) AS ID_EMPRS\nFROM rango_msgflags"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -457,23 +455,19 @@
           "partitionBy": "",
           "errorTableName": ""
         },
-        "uiConfiguration": {
-          "position": {
-            "x": 662.0323668649262,
-            "y": -106.95130246303472
-          }
-        },
+        "uiConfiguration": {},
         "configuration": {
-          "sql": "select  \"fallo-refdate\" as TableName, \"DATE_ERROR\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom Csv c left join Datetime d on c.SERNO = d.SERNO where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select  \"fallo-refdate\" as TableName, \"DATE_ERROR\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom Csv c left join Datetime d on c.SERNO = d.SERNO where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -499,16 +493,17 @@
           }
         },
         "configuration": {
-          "sql": "select * from no_duplicados where MSGFLAGS in (0, 1, 2, 4, 8, 16, 32, 64, 128, 16384)\n",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select * from no_duplicados where MSGFLAGS in (0, 1, 2, 4, 8, 16, 32, 64, 128, 16384)\n"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -534,16 +529,17 @@
           }
         },
         "configuration": {
-          "sql": "select  \"fallo_id_emprs\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom rango_msgflags c left join new_field_id_emprs d on c.SERNO = d.SERNO  where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select  \"fallo_id_emprs\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom rango_msgflags c left join new_field_id_emprs d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -569,19 +565,19 @@
         "configuration": {
           "fieldsDatetime": [
             {
-              "formatFrom": "AUTOGENERATED",
-              "localeTime": "ENGLISH",
               "granularityNumber": "",
-              "granularityTime": "millisecond",
-              "fieldsPreservationPolicy": "APPEND",
-              "outputFieldName": "TM_TRUSTED",
+              "outputFormatFrom": "DEFAULT",
               "outputFieldType": "timestamp",
               "nullable": true,
-              "outputFormatFrom": "DEFAULT"
+              "formatFrom": "AUTOGENERATED",
+              "granularityTime": "millisecond",
+              "outputFieldName": "TM_TRUSTED",
+              "localeTime": "ENGLISH",
+              "fieldsPreservationPolicy": "APPEND"
             }
           ],
-          "whenRowError": "",
-          "whenFieldError": ""
+          "whenFieldError": "",
+          "whenRowError": ""
         },
         "supportedEngines": [
           "Streaming",
@@ -589,7 +585,8 @@
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -615,20 +612,20 @@
         "configuration": {
           "fieldsDatetime": [
             {
-              "formatFrom": "AUTOGENERATED",
-              "localeTime": "ENGLISH",
               "granularityNumber": "",
-              "granularityTime": "millisecond",
-              "fieldsPreservationPolicy": "APPEND",
-              "outputFieldName": "DT_TRUSTED",
+              "outputFormatFrom": "STANDARD",
               "outputFieldType": "string",
               "nullable": true,
-              "outputFormatFrom": "STANDARD",
-              "outputStandardFormat": "yyyyMMdd"
+              "outputStandardFormat": "yyyyMMdd",
+              "formatFrom": "AUTOGENERATED",
+              "granularityTime": "millisecond",
+              "outputFieldName": "DT_TRUSTED",
+              "localeTime": "ENGLISH",
+              "fieldsPreservationPolicy": "APPEND"
             }
           ],
-          "whenRowError": "",
-          "whenFieldError": ""
+          "whenFieldError": "",
+          "whenRowError": ""
         },
         "supportedEngines": [
           "Streaming",
@@ -636,7 +633,8 @@
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -662,16 +660,17 @@
           }
         },
         "configuration": {
-          "sql": "select  \"error_tm_trusted\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom new_field_id_emprs c left join tm_trusted_field d on c.SERNO = d.SERNO  where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select  \"error_tm_trusted\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom new_field_id_emprs c left join tm_trusted_field d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -697,16 +696,17 @@
           }
         },
         "configuration": {
-          "sql": "select  \"fallo_dt_trusted\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom tm_trusted_field c left join dt_trusted_field d on c.SERNO = d.SERNO  where d.SERNO IS NULL",
+          "executeSqlWhenEmpty": false,
           "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
+          "sql": "select  \"fallo_dt_trusted\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom tm_trusted_field c left join dt_trusted_field d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
         },
         "supportedEngines": [
           "Batch"
         ],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
         ]
       },
       {
@@ -944,12 +944,12 @@
   "executionEngine": "Batch",
   "uiSettings": {
     "position": {
-      "x": 173.566925990183,
-      "y": 207.0813491040215,
-      "k": 0.559527909353835
+      "x": -316,
+      "y": 81,
+      "k": 1
     }
   },
-  "lastUpdateDate": "2018-05-03T13:41:47Z",
+  "lastUpdateDate": "2018-05-30T13:19:23Z",
   "version": 0,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
@@ -957,10 +957,1059 @@
   },
   "status": {
     "id": "caa13be6-ea1d-417b-9743-b341cf486aa9",
-    "status": "Finished",
-    "statusInfo": "Workflow correctly finished in Marathon API",
-    "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-05-03T13:42:59Z",
+    "status": "Failed",
+    "statusId": "7a528105-8625-4d36-aad6-cbcb1c1f9852",
+    "statusInfo": "Workflow killed with Spark Handler",
+    "lastUpdateDate": "2018-05-30T13:15:33Z",
     "lastUpdateDateWorkflow": "2018-05-03T13:41:47Z"
-  }
+  },
+  "execution": {
+    "id": "caa13be6-ea1d-417b-9743-b341cf486aa9",
+    "sparkSubmitExecution": {
+      "driverClass": "com.stratio.sparta.driver.SparkDriver",
+      "driverFile": "/opt/sds/sparta/driver/sparta-driver.jar",
+      "pluginFiles": [
+        "/jdbc-drivers/mysql-connector-java-5.1.43.jar",
+        "/jdbc-drivers/ojdbc7.jar",
+        "/jdbc-drivers/postgresql-42.1.1.jar"
+      ],
+      "master": "mesos://leader.mesos:5050",
+      "submitArguments": {
+        "--deploy-mode": "client",
+        "--driver-java-options": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml",
+        "--principal": "sparta-server@DEMO.STRATIO.COM",
+        "--keytab": "/etc/sds/sparta/security/sparta-server.keytab"
+      },
+      "sparkConfigurations": {
+        "spark.mesos.driverEnv.VAULT_HOST": "vault.service.paas.labs.stratio.com",
+        "spark.mesos.driverEnv.VAULT_PORT": "8200",
+        "spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY": "/opt/mesosphere/lib/libmesos.so",
+        "spark.mesos.kerberos.keytabBase64": "BQIAAABUAAEAEERFTU8uU1RSQVRJTy5DT00ADXNwYXJ0YS1zZXJ2ZXIAAAABWfMb0gIAEgAgHeUKRcklVDjy/F+JyVb5fJDwtjYQMg3EF8zNN8JGtLQAAAACAAAARAABABBERU1PLlNUUkFUSU8uQ09NAA1zcGFydGEtc2VydmVyAAAAAVnzG9ICABEAEDKHUgwijhMLJw6sLdo+aIgAAAACAAAARAABABBERU1PLlNUUkFUSU8uQ09NAA1zcGFydGEtc2VydmVyAAAAAVnzG9ICABcAEJFnXEbmVuART90uRw/HuWkAAAAC",
+        "spark.executor.extraJavaOptions": "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC",
+        "spark.hadoop.yarn.resourcemanager.principal": "sparta-server@DEMO.STRATIO.COM",
+        "spark.mesos.executor.docker.network.name": "stratio",
+        "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH": "/v1/userland/certificates/sparta-server",
+        "spark.sql.caseSensitive": "true",
+        "spark.hadoop.fs.hdfs.impl.disable.cache": "true",
+        "spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE": "true",
+        "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH": "/v1/userland/passwords/sparta-server/keystore",
+        "spark.jars": "/jdbc-drivers/mysql-connector-java-5.1.43.jar,/jdbc-drivers/ojdbc7.jar,/jdbc-drivers/postgresql-42.1.1.jar",
+        "spark.mesos.executor.docker.volumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
+        "spark.mesos.driver.docker.network.name": "stratio",
+        "spark.app.name": "batch-carrefour-workflow",
+        "spark.cores.max": "2",
+        "spark.executorEnv.SPARK_LOG_LEVEL": "ERROR",
+        "spark.yarn.principal": "sparta-server@DEMO.STRATIO.COM",
+        "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_ENABLE": "true",
+        "spark.locality.wait": "100",
+        "spark.driver.memory": "4G",
+        "spark.ui.showConsoleProgress": "false",
+        "spark.executorEnv.SPARK_DRIVER_SECRET_FOLDER": "/tmp/secrets",
+        "spark.mesos.role": "sparta-server",
+        "spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE": "true",
+        "spark.mesos.executor.docker.image": "qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0",
+        "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_VAULT_PATH": "v1/userland/passwords/sparta-server/mesos",
+        "spark.driver.cores": "1",
+        "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH": "/v1/ca-trust/passwords/default/keystore",
+        "spark.mesos.coarse": "true",
+        "spark.mesos.driverEnv.SPARK_DRIVER_SECRET_FOLDER": "/tmp/secrets",
+        "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH": "/v1/userland/passwords/sparta-server/keystore",
+        "spark.streaming.blockInterval": "100ms",
+        "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH": "/v1/ca-trust/certificates/ca",
+        "spark.executor.memory": "6G",
+        "spark.driver.extraClassPath": "/jdbc-drivers/mysql-connector-java-5.1.43.jar:/jdbc-drivers/ojdbc7.jar:/jdbc-drivers/postgresql-42.1.1.jar",
+        "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH": "/v1/ca-trust/certificates/ca",
+        "spark.local.dir": "/opt/spark/dist",
+        "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH": "/v1/userland/passwords/sparta-server/keystore",
+        "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH": "/v1/ca-trust/passwords/default/keystore",
+        "spark.executor.extraClassPath": "/jdbc-drivers/mysql-connector-java-5.1.43.jar:/jdbc-drivers/ojdbc7.jar:/jdbc-drivers/postgresql-42.1.1.jar",
+        "spark.executor.cores": "1",
+        "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH": "/v1/userland/certificates/sparta-server",
+        "spark.memory.fraction": "0.6",
+        "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_ENABLE": "true",
+        "spark.mesos.driverEnv.VAULT_PROTOCOL": "https",
+        "spark.mesos.driverEnv.VAULT_HOSTS": "vault.service.paas.labs.stratio.com",
+        "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH": "/v1/userland/passwords/sparta-server/keystore",
+        "spark.task.maxFailures": "8",
+        "spark.mesos.executor.home": "/opt/spark/dist"
+      },
+      "driverArguments": {
+        "plugins": "ICwvamRiYy1kcml2ZXJzL215c3FsLWNvbm5lY3Rvci1qYXZhLTUuMS40My5qYXIsL2pkYmMtZHJpdmVycy9vamRiYzcuamFyLC9qZGJjLWRyaXZlcnMvcG9zdGdyZXNxbC00Mi4xLjEuamFy",
+        "detailConfig": "eyJjb25maWciOnsiYXdhaXRFbnZJbml0IjoiNTAwMCIsImF3YWl0UmVjb3ZlcnkiOiI1MDAwIiwiYXdhaXRXb3JrZmxvd0NoYW5nZVN0YXR1cyI6IjM2MHMiLCJiYWNrdXBzTG9jYXRpb24iOiIvb3B0L3Nkcy9zcGFydGEvYmFja3VwcyIsImNyb3NzZGF0YSI6eyJyZWZlcmVuY2UiOiIvZXRjL3Nkcy9zcGFydGEvcmVmZXJlbmNlLmNvbmYifSwiZHJpdmVyTG9jYXRpb24iOiIvb3B0L3Nkcy9zcGFydGEvZHJpdmVyL3NwYXJ0YS1kcml2ZXIuamFyIiwiZHJpdmVyUGFja2FnZUxvY2F0aW9uIjoiL29wdC9zZHMvc3BhcnRhL2RyaXZlciIsImxpbmVhZ2UiOnsiZW5hYmxlIjoidHJ1ZSJ9LCJtYXJhdGhvbiI6eyJjaGVja0ludGVydmFsIjoiMW0ifSwicGx1Z2luc0xvY2F0aW9uIjoicGx1Z2lucyIsInNlcmlhbGl6YXRpb25UaW1lb3V0IjoiNTAwMCIsInRpbWVvdXQiOiIyMCJ9fQ==",
+        "zookeeperConfig": "eyJ6b29rZWVwZXIiOnsiY29ubmVjdGlvblN0cmluZyI6InprLTAwMDEuemt1c2VybGFuZC5tZXNvczoyMTgxLHprLTAwMDIuemt1c2VybGFuZC5tZXNvczoyMTgxLHprLTAwMDMuemt1c2VybGFuZC5tZXNvczoyMTgxIiwiY29ubmVjdGlvblRpbWVvdXQiOiIxNTAwMCIsInJldHJ5QXR0ZW1wdHMiOiI1IiwicmV0cnlJbnRlcnZhbCI6IjEwMDAwIiwic2Vzc2lvblRpbWVvdXQiOiI2MDAwMCIsInN0b3JhZ2VQYXRoIjoiL3N0cmF0aW8vc3BhcnRhL3NwYXJ0YSJ9fQ==",
+        "hdfsConfig": "eyJoZGZzIjp7ImhkZnNNYXN0ZXIiOiJoZGZzLW5hbWVub2RlMS5sYWJzLnN0cmF0aW8uY29tIiwia2V5dGFiUGF0aCI6Ii9ldGMvc2RzL3NwYXJ0YS9zZWN1cml0eS9zcGFydGEtc2VydmVyLmtleXRhYiIsInByaW5jaXBhbE5hbWUiOiJzcGFydGEtc2VydmVyQERFTU8uU1RSQVRJTy5DT00iLCJyZWxvYWRLZXlUYWIiOiJ0cnVlIiwicmVsb2FkS2V5VGFiVGltZSI6IjIzaCJ9fQ==",
+        "workflowId": "caa13be6-ea1d-417b-9743-b341cf486aa9"
+      },
+      "sparkHome": "/opt/spark/dist"
+    },
+    "marathonExecution": {
+      "marathonId": "sparta/sparta-server/workflows/home/batch-carrefour-workflow/batch-carrefour-workflow-v0"
+    },
+    "genericDataExecution": {
+      "workflow": {
+        "id": "caa13be6-ea1d-417b-9743-b341cf486aa9",
+        "name": "batch-carrefour-workflow",
+        "description": "",
+        "settings": {
+          "global": {
+            "executionMode": "marathon",
+            "userPluginsJars": [],
+            "initSqlSentences": [
+              {
+                "sentence": "CREATE TABLE IF NOT EXISTS tablaVolcado USING com.databricks.spark.csv OPTIONS (path '/user/dg-agent/csv/batch-carrefour/resultsduplicates3.csv', header 'true', inferSchema 'true', delimiter '|')"
+              }
+            ],
+            "addAllUploadedPlugins": true,
+            "mesosConstraint": "",
+            "mesosConstraintOperator": "CLUSTER"
+          },
+          "streamingSettings": {
+            "window": "2s",
+            "blockInterval": "100ms",
+            "checkpointSettings": {
+              "checkpointPath": "sparta/checkpoint",
+              "enableCheckpointing": true,
+              "autoDeleteCheckpoint": true,
+              "addTimeToCheckpointPath": false
+            }
+          },
+          "sparkSettings": {
+            "master": "mesos://leader.mesos:5050",
+            "sparkKerberos": true,
+            "sparkDataStoreTls": true,
+            "sparkMesosSecurity": true,
+            "submitArguments": {
+              "userArguments": [],
+              "deployMode": "client",
+              "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
+            },
+            "sparkConf": {
+              "sparkResourcesConf": {
+                "coresMax": "2",
+                "executorMemory": "6G",
+                "executorCores": "1",
+                "driverCores": "1",
+                "driverMemory": "4G",
+                "mesosExtraCores": "",
+                "localityWait": "100",
+                "taskMaxFailures": "8",
+                "sparkMemoryFraction": "0.6",
+                "sparkParallelism": ""
+              },
+              "userSparkConf": [],
+              "coarse": true,
+              "sparkUser": "",
+              "sparkLocalDir": "/opt/spark/dist",
+              "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0",
+              "sparkKryoSerialization": false,
+              "sparkSqlCaseSensitive": true,
+              "logStagesProgress": false,
+              "hdfsTokenCache": true,
+              "executorExtraJavaOptions": "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"
+            }
+          },
+          "errorsManagement": {
+            "genericErrorManagement": {
+              "whenError": "Error"
+            },
+            "transformationStepsManagement": {
+              "whenError": "Error",
+              "whenRowError": "RowError",
+              "whenFieldError": "FieldError"
+            },
+            "transactionsManagement": {
+              "sendToOutputs": [],
+              "sendStepData": false,
+              "sendPredecessorsData": true,
+              "sendInputData": true
+            }
+          }
+        },
+        "pipelineGraph": {
+          "nodes": [
+            {
+              "name": "FileSystem",
+              "stepType": "Input",
+              "className": "FileSystemInputStep",
+              "classPrettyName": "FileSystem",
+              "arity": [
+                "NullaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 330.60650634765625,
+                  "y": 61.393455505371094
+                }
+              },
+              "configuration": {
+                "path": "/user/dg-agent/csv/batch-carrefour/RealSample2.csv",
+                "outputField": "rawData"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "Csv",
+              "stepType": "Transformation",
+              "className": "CsvTransformStep",
+              "classPrettyName": "Csv",
+              "arity": [
+                "UnaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 549,
+                  "y": 59.21302795410156
+                }
+              },
+              "configuration": {
+                "schema.inputMode": "HEADER",
+                "schema.header": "TYPE|SERNO|LTIMESTAMP|PROCESSTIMEMS|GROUPFROMSERIAL|GROUPTOSERIAL|EXTSERNO|CARDSERNO|TRUECARDNO|CARDCURRENCY|EODSERNO|ORIGSERNO|ISOLOGSERNO|SOURCE|FORMAT|REASONCODE|OTB_AMT_CENTER|OTB_AMT_CARD|AMT_CENTER|AMT_CARD|ORIG_AMT_CENTER|ORIG_AMT_CARD|FEE_AMT_CARD|FEE_AMT_CENTER|SAFFLAG|DEBITPORT|SAFTIMESTAMP|SAFRETRYCOUNT|BATCHNO|MSGFLAGS|ADDITIONAFLAGS|AFFECTEDOTBS|EXTERNALLOGSERNO|INSTITUIONID|TRXNSERNO|ISSUER_FEESERNO|AUTH_FEESERNO|MATCHTIME|DROPDATE|ACTION_RESCODE|WORKERID|MSGTRXNTYPE|I000_MSG_TYPE|I002_NUMBER|I003_PROC_CODE|I004_AMT_TRXN|I005_AMT_SETTLE|I006_AMT_BILL|I007_TRANS_DT|I009_SETL_CONV|I011_TRACE_NUM|I012_LCL_TIME|I013_LCL_DT|I014_EXP_DATE|I016_CONV_DT|I018_MERCH_TYPE|I019_ACQ_COUNTRY|I021_FWD_CNTRY|I022_POS_ENTRY|I023_CARD_SEQ_NUM|I024_INT_NETWK_ID|I025_POS_COND|I026_ACCPTR_BUSCD|I028_TRANSFER_FEE|I029_SETL_FEE|I030_TRSF_PRC_FEE|I031_SETL_PROC_FEE|I032_ACQUIRER_ID|I033_FORWARDER_ID|I035_TRK_2|I037_RET_REF_NUM|I038_AUTH_ID|I039_RSP_CD|I041_POS_ID|I042_MERCH_ID|I043A_MERCH_NAME|I043B_MERCH_CITY|I043C_MERCH_CNT|I044_ADDTNL_RSP|I045_TRK_1|I047_NAT_ADDTNL_DT|I048_TEXT_DATA|I049_CUR_TRXN|I050_CUR_SETTLE|I051_CUR_BILL|I053_SEC_CNTRL|I054_ADDTNL_AMT|I055_ICC_DATA|I056_ORG_DATA|I058_AUTH_AGENT|I059_POS_GEO_DATA|I060_POS_CAP|I061V1_OTH_AMT_TXN|I061V2_OTH_AMT_BILL|I061V3_REP_AMT_BILL|I061M_POS_DATA|I062V1_AUTH_CHAR|I062V2_TRANS_ID|I062V3_VALIDAT_CD|I062V4_MRKT_DATA|I062V5_DURANTION|I062V6_PRSTG_PROP|I063_BANKNET_DATA|I063V1_NETWORK_ID|I063V2_TIM3_LIMIT|I063V3_MIS_CAS_RD|I063V4_STIP_RS|I063V5_PMC_ID|I068_RCV_CNTRY|I072_MSG_NUM_LST|I090_ORIG_DATA|I093_RSP_IND|I094_SVC_IND|I095_ACT_TRAN_AMT|I100_RCV_INST|I101_FILE_NAME|I102_ACCT_ID1|I103_ACCT_ID2|I104_TRAN_DESC|I118_INTRA_COUNTRY|I120_ORIG_MSG_TYP|I123_ADR_VER|I125_SUPP_INFO|I126V6_CH_CSERIAL|I126V7_ME_CSERIAL|I126V8_TRXN_ID|I126V9_STAIN|I126V10_CVV2|I130_TERM_CAPA|I131_TVR|I132_UNPREDICT|I133_TERM_SERIAL|I134_VISA_DISCR|I135A_PREAUTHTRACE|I135B_PURCHTRACE|I135C_CRYPTTRACE|I135D_KEYVERSION|I136_CRYPTOGRAM|I137_ATC|I138_APL|I139_1_ARPC|I139_2_ARPC_RESCD|I142_SCRIPTSEND|I143_SCRIPTS_RES|I144_CRYP_TR|I145_TRM_CNTRY|I146_TRM_DATE|I147_CRYPT_AMT|I148_CRYPT_CURR|I149_CRYPT_CSBK|TRXNSERNO_B|MATCHTIME_B|GROUP0SERIAL|GROUP0CURRENCY|GROUP0OTBAMOUNT|GROUP0AMOUNT|GROUP0ORIGAMOUNT|GROUP0FEEAMOUNT|GROUP1SERIAL|GROUP1CURRENCY|GROUP1OTBAMOUNT|GROUP1AMOUNT|GROUP1ORIGAMOUNT|GROUP1FEEAMOUNT|GROUP2SERIAL|GROUP2CURRENCY|GROUP2OTBAMOUNT|GROUP2AMOUNT|GROUP2ORIGAMOUNT|GROUP2FEEAMOUNT|GROUP3SERIAL|GROUP3CURRENCY|GROUP3OTBAMOUNT|GROUP3AMOUNT|GROUP3ORIGAMOUNT|GROUP3FEEAMOUNT|GROUP4SERIAL|GROUP4CURRENCY|GROUP4OTBAMOUNT|GROUP4AMOUNT|GROUP4ORIGAMOUNT|GROUP4FEEAMOUNT|GROUP5SERIAL|GROUP5CURRENCY|GROUP5OTBAMOUNT|GROUP5AMOUNT|GROUP5ORIGAMOUNT|GROUP5FEEAMOUNT|GROUP6SERIAL|GROUP6CURRENCY|GROUP6OTBAMOUNT|GROUP6AMOUNT|GROUP6ORIGAMOUNT|GROUP6FEEAMOUNT|GROUP7SERIAL|GROUP7CURRENCY|GROUP7OTBAMOUNT|GROUP7AMOUNT|GROUP7ORIGAMOUNT|GROUP7FEEAMOUNT|GROUP8SERIAL|GROUP8CURRENCY|GROUP8OTBAMOUNT|GROUP8AMOUNT|GROUP8ORIGAMOUNT|GROUP8FEEAMOUNT|GROUP9SERIAL|GROUP9CURRENCY|GROUP9OTBAMOUNT|GROUP9AMOUNT|GROUP9ORIGAMOUNT|GROUP9FEEAMOUNT|INSTALLMENT|MONTHLYAMOUNT|FULLAMOUNT|INSTALLTYPE|FILLER|INTERESTRATE|OFFSET|OFFSET_TYPE|ADJUSTEDAMOUNT|APR|FEES|TAX|PLANSERNO|PRIMECARDSERNO|I062V21_RISK_SCORE_RS|I062V22_RISK_COND_CD|CARDPRODUCTSERNO|FGPROCESSTIMEMS|SMPROCESSTIMEMES|GPCREDITAFFECTOTB|I124_GOODS_CODE|I127_FILL_RCD|PANTYPE|TOKENSERNO|OTP|V1|V2|REFDATE|TEST_FIELD|DT_LANDING",
+                "delimiterType": "CHARACTER",
+                "splitLimit": "-1",
+                "whenFieldError": "Null",
+                "whenRowError": "RowDiscard",
+                "fieldsPreservationPolicy": "APPEND",
+                "inputField": "rawData",
+                "delimiter": "|"
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "Casting",
+              "stepType": "Transformation",
+              "className": "CastingTransformStep",
+              "classPrettyName": "Casting",
+              "arity": [
+                "UnaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1087.1229248046875,
+                  "y": 56.819549560546875
+                }
+              },
+              "configuration": {
+                "fieldsString": "StructType((\nStructField(TYPE,StringType,true),\nStructField(SERNO,LongType,true),\nStructField(LTIMESTAMP,StringType,true),\nStructField(PROCESSTIMEMS,LongType,true),\nStructField(GROUPFROMSERIAL,LongType,true),\nStructField(GROUPTOSERIAL,LongType,true),\nStructField(EXTSERNO,LongType,true),\nStructField(CARDSERNO,LongType,true),\nStructField(TRUECARDNO,StringType,true),\nStructField(CARDCURRENCY,StringType,true),\nStructField(EODSERNO,LongType,true),\nStructField(ORIGSERNO,LongType,true),\nStructField(ISOLOGSERNO,LongType,true),\nStructField(SOURCE,StringType,true),\nStructField(FORMAT,StringType,true),\nStructField(REASONCODE,IntegerType,true),\nStructField(OTB_AMT_CENTER,DoubleType,true),\nStructField(OTB_AMT_CARD,DoubleType,true),\nStructField(AMT_CENTER,DoubleType,true),\nStructField(AMT_CARD,DoubleType,true),\nStructField(ORIG_AMT_CENTER,DoubleType,true),\nStructField(ORIG_AMT_CARD,DoubleType,true),\nStructField(FEE_AMT_CARD,DoubleType,true),\nStructField(FEE_AMT_CENTER,DoubleType,true),\nStructField(SAFFLAG,StringType,true),\nStructField(DEBITPORT,IntegerType,true),\nStructField(SAFTIMESTAMP,StringType,true),\nStructField(SAFRETRYCOUNT,LongType,true),\nStructField(BATCHNO,LongType,true),\nStructField(MSGFLAGS,LongType,true),\nStructField(ADDITIONAFLAGS,StringType,true),\nStructField(AFFECTEDOTBS,LongType,true),\nStructField(EXTERNALLOGSERNO,LongType,true),\nStructField(INSTITUIONID,IntegerType,true),\nStructField(TRXNSERNO,LongType,true),\nStructField(ISSUER_FEESERNO,LongType,true),\nStructField(AUTH_FEESERNO,LongType,true),\nStructField(MATCHTIME,StringType,true),\nStructField(DROPDATE,StringType,true),\nStructField(ACTION_RESCODE,StringType,true),\nStructField(WORKERID,IntegerType,true),\nStructField(MSGTRXNTYPE,IntegerType,true),\nStructField(I000_MSG_TYPE,StringType,true),\nStructField(I002_NUMBER,StringType,true),\nStructField(I003_PROC_CODE,StringType,true),\nStructField(I004_AMT_TRXN,DoubleType,true),\nStructField(I005_AMT_SETTLE,DoubleType,true),\nStructField(I006_AMT_BILL,DoubleType,true),\nStructField(I007_TRANS_DT,StringType,true),\nStructField(I009_SETL_CONV,StringType,true),\nStructField(I011_TRACE_NUM,StringType,true),\nStructField(I012_LCL_TIME,StringType,true),\nStructField(I013_LCL_DT,StringType,true),\nStructField(I014_EXP_DATE,StringType,true),\nStructField(I016_CONV_DT,StringType,true),\nStructField(I018_MERCH_TYPE,StringType,true),\nStructField(I019_ACQ_COUNTRY,StringType,true),\nStructField(I021_FWD_CNTRY,StringType,true),\nStructField(I022_POS_ENTRY,StringType,true),\nStructField(I023_CARD_SEQ_NUM,StringType,true),\nStructField(I024_INT_NETWK_ID,StringType,true),\nStructField(I025_POS_COND,StringType,true),\nStructField(I026_ACCPTR_BUSCD,StringType,true),\nStructField(I028_TRANSFER_FEE,StringType,true),\nStructField(I029_SETL_FEE,StringType,true),\nStructField(I030_TRSF_PRC_FEE,StringType,true),\nStructField(I031_SETL_PROC_FEE,StringType,true),\nStructField(I032_ACQUIRER_ID,StringType,true),\nStructField(I033_FORWARDER_ID,StringType,true),\nStructField(I035_TRK_2,StringType,true),\nStructField(I037_RET_REF_NUM,StringType,true),\nStructField(I038_AUTH_ID,StringType,true),\nStructField(I039_RSP_CD,StringType,true),\nStructField(I041_POS_ID,StringType,true),\nStructField(I042_MERCH_ID,StringType,true),\nStructField(I043A_MERCH_NAME,StringType,true),\nStructField(I043B_MERCH_CITY,StringType,true),\nStructField(I043C_MERCH_CNT,StringType,true),\nStructField(I044_ADDTNL_RSP,StringType,true),\nStructField(I045_TRK_1,StringType,true),\nStructField(I047_NAT_ADDTNL_DT,StringType,true),\nStructField(I048_TEXT_DATA,StringType,true),\nStructField(I049_CUR_TRXN,StringType,true),\nStructField(I050_CUR_SETTLE,StringType,true),\nStructField(I051_CUR_BILL,StringType,true),\nStructField(I053_SEC_CNTRL,StringType,true),\nStructField(I054_ADDTNL_AMT,StringType,true),\nStructField(I055_ICC_DATA,StringType,true),\nStructField(I056_ORG_DATA,StringType,true),\nStructField(I058_AUTH_AGENT,StringType,true),\nStructField(I059_POS_GEO_DATA,StringType,true),\nStructField(I060_POS_CAP,StringType,true),\nStructField(I061V1_OTH_AMT_TXN,DoubleType,true),\nStructField(I061V2_OTH_AMT_BILL,DoubleType,true),\nStructField(I061V3_REP_AMT_BILL,DoubleType,true),\nStructField(I061M_POS_DATA,StringType,true),\nStructField(I062V1_AUTH_CHAR,StringType,true),\nStructField(I062V2_TRANS_ID,StringType,true),\nStructField(I062V3_VALIDAT_CD,StringType,true),\nStructField(I062V4_MRKT_DATA,StringType,true),\nStructField(I062V5_DURANTION,StringType,true),\nStructField(I062V6_PRSTG_PROP,StringType,true),\nStructField(I063_BANKNET_DATA,StringType,true),\nStructField(I063V1_NETWORK_ID,StringType,true),\nStructField(I063V2_TIM3_LIMIT,StringType,true),\nStructField(I063V3_MIS_CAS_RD,StringType,true),\nStructField(I063V4_STIP_RS,StringType,true),\nStructField(I063V5_PMC_ID,StringType,true),\nStructField(I068_RCV_CNTRY,StringType,true),\nStructField(I072_MSG_NUM_LST,StringType,true),\nStructField(I090_ORIG_DATA,StringType,true),\nStructField(I093_RSP_IND,StringType,true),\nStructField(I094_SVC_IND,StringType,true),\nStructField(I095_ACT_TRAN_AMT,DoubleType,true),\nStructField(I100_RCV_INST,StringType,true),\nStructField(I101_FILE_NAME,StringType,true),\nStructField(I102_ACCT_ID1,StringType,true),\nStructField(I103_ACCT_ID2,StringType,true),\nStructField(I104_TRAN_DESC,StringType,true),\nStructField(I118_INTRA_COUNTRY,StringType,true),\nStructField(I120_ORIG_MSG_TYP,StringType,true),\nStructField(I123_ADR_VER,StringType,true),\nStructField(I125_SUPP_INFO,StringType,true),\nStructField(I126V6_CH_CSERIAL,StringType,true),\nStructField(I126V7_ME_CSERIAL,StringType,true),\nStructField(I126V8_TRXN_ID,StringType,true),\nStructField(I126V9_STAIN,StringType,true),\nStructField(I126V10_CVV2,StringType,true),\nStructField(I130_TERM_CAPA,StringType,true),\nStructField(I131_TVR,StringType,true),\nStructField(I132_UNPREDICT,StringType,true),\nStructField(I133_TERM_SERIAL,StringType,true),\nStructField(I134_VISA_DISCR,StringType,true),\nStructField(I135A_PREAUTHTRACE,IntegerType,true),\nStructField(I135B_PURCHTRACE,IntegerType,true),\nStructField(I135C_CRYPTTRACE,IntegerType,true),\nStructField(I135D_KEYVERSION,IntegerType,true),\nStructField(I136_CRYPTOGRAM,StringType,true),\nStructField(I137_ATC,StringType,true),\nStructField(I138_APL,StringType,true),\nStructField(I139_1_ARPC,StringType,true),\nStructField(I139_2_ARPC_RESCD,StringType,true),\nStructField(I142_SCRIPTSEND,LongType,true),\nStructField(I143_SCRIPTS_RES,StringType,true),\nStructField(I144_CRYP_TR,StringType,true),\nStructField(I145_TRM_CNTRY,StringType,true),\nStructField(I146_TRM_DATE,StringType,true),\nStructField(I147_CRYPT_AMT,StringType,true),\nStructField(I148_CRYPT_CURR,StringType,true),\nStructField(I149_CRYPT_CSBK,StringType,true),\nStructField(TRXNSERNO_B,LongType,true),\nStructField(MATCHTIME_B,StringType,true),\nStructField(GROUP0SERIAL,LongType,true),\nStructField(GROUP0CURRENCY,StringType,true),\nStructField(GROUP0OTBAMOUNT,DoubleType,true),\nStructField(GROUP0AMOUNT,DoubleType,true),\nStructField(GROUP0ORIGAMOUNT,DoubleType,true),\nStructField(GROUP0FEEAMOUNT,DoubleType,true),\nStructField(GROUP1SERIAL,LongType,true),\nStructField(GROUP1CURRENCY,StringType,true),\nStructField(GROUP1OTBAMOUNT,DoubleType,true),\nStructField(GROUP1AMOUNT,DoubleType,true),\nStructField(GROUP1ORIGAMOUNT,DoubleType,true),\nStructField(GROUP1FEEAMOUNT,DoubleType,true),\nStructField(GROUP2SERIAL,LongType,true),\nStructField(GROUP2CURRENCY,StringType,true),\nStructField(GROUP2OTBAMOUNT,DoubleType,true),\nStructField(GROUP2AMOUNT,DoubleType,true),\nStructField(GROUP2ORIGAMOUNT,DoubleType,true),\nStructField(GROUP2FEEAMOUNT,DoubleType,true),\nStructField(GROUP3SERIAL,LongType,true),\nStructField(GROUP3CURRENCY,StringType,true),\nStructField(GROUP3OTBAMOUNT,DoubleType,true),\nStructField(GROUP3AMOUNT,DoubleType,true),\nStructField(GROUP3ORIGAMOUNT,DoubleType,true),\nStructField(GROUP3FEEAMOUNT,DoubleType,true),\nStructField(GROUP4SERIAL,LongType,true),\nStructField(GROUP4CURRENCY,StringType,true),\nStructField(GROUP4OTBAMOUNT,DoubleType,true),\nStructField(GROUP4AMOUNT,DoubleType,true),\nStructField(GROUP4ORIGAMOUNT,DoubleType,true),\nStructField(GROUP4FEEAMOUNT,DoubleType,true),\nStructField(GROUP5SERIAL,LongType,true),\nStructField(GROUP5CURRENCY,StringType,true),\nStructField(GROUP5OTBAMOUNT,DoubleType,true),\nStructField(GROUP5AMOUNT,DoubleType,true),\nStructField(GROUP5ORIGAMOUNT,DoubleType,true),\nStructField(GROUP5FEEAMOUNT,DoubleType,true),\nStructField(GROUP6SERIAL,LongType,true),\nStructField(GROUP6CURRENCY,StringType,true),\nStructField(GROUP6OTBAMOUNT,DoubleType,true),\nStructField(GROUP6AMOUNT,DoubleType,true),\nStructField(GROUP6ORIGAMOUNT,DoubleType,true),\nStructField(GROUP6FEEAMOUNT,DoubleType,true),\nStructField(GROUP7SERIAL,LongType,true),\nStructField(GROUP7CURRENCY,StringType,true),\nStructField(GROUP7OTBAMOUNT,DoubleType,true),\nStructField(GROUP7AMOUNT,DoubleType,true),\nStructField(GROUP7ORIGAMOUNT,DoubleType,true),\nStructField(GROUP7FEEAMOUNT,DoubleType,true),\nStructField(GROUP8SERIAL,LongType,true),\nStructField(GROUP8CURRENCY,StringType,true),\nStructField(GROUP8OTBAMOUNT,DoubleType,true),\nStructField(GROUP8AMOUNT,DoubleType,true),\nStructField(GROUP8ORIGAMOUNT,DoubleType,true),\nStructField(GROUP8FEEAMOUNT,DoubleType,true),\nStructField(GROUP9SERIAL,LongType,true),\nStructField(GROUP9CURRENCY,StringType,true),\nStructField(GROUP9OTBAMOUNT,DoubleType,true),\nStructField(GROUP9AMOUNT,DoubleType,true),\nStructField(GROUP9ORIGAMOUNT,DoubleType,true),\nStructField(GROUP9FEEAMOUNT,DoubleType,true),\nStructField(INSTALLMENT,IntegerType,true),\nStructField(MONTHLYAMOUNT,DoubleType,true),\nStructField(FULLAMOUNT,DoubleType,true),\nStructField(INSTALLTYPE,StringType,true),\nStructField(FILLER,StringType,true),\nStructField(INTERESTRATE,DoubleType,true),\nStructField(OFFSET,IntegerType,true),\nStructField(OFFSET_TYPE,StringType,true),\nStructField(ADJUSTEDAMOUNT,DoubleType,true),\nStructField(APR,DoubleType,true),\nStructField(FEES,DoubleType,true),\nStructField(TAX,DoubleType,true),\nStructField(PLANSERNO,StringType,true),\nStructField(PRIMECARDSERNO,LongType,true),\nStructField(I062V21_RISK_SCORE_RS,StringType,true),\nStructField(I062V22_RISK_COND_CD,StringType,true),\nStructField(CARDPRODUCTSERNO,LongType,true),\nStructField(FGPROCESSTIMEMS,LongType,true),\nStructField(SMPROCESSTIMEMES,DoubleType,true),\nStructField(GPCREDITAFFECTOTB,StringType,true),\nStructField(I124_GOODS_CODE,StringType,true),\nStructField(I127_FILL_RCD,StringType,true),\nStructField(PANTYPE,IntegerType,true),\nStructField(TOKENSERNO,LongType,true),\nStructField(OTP,StringType,true),\nStructField(V1,StringType,true),\nStructField(V2,StringType,true),\nStructField(REFDATE,TimestampType,true),\nStructField(TEST_FIELD,TimestampType,true),\nStructField(DT_LANDING,IntegerType,true)))",
+                "outputFieldsFrom": "STRING",
+                "whenFieldError": "",
+                "whenRowError": ""
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "no_duplicados",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1353.8453369140625,
+                  "y": 57.27845001220703
+                }
+              },
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select c.* from Casting c left join tablaVolcado d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "Datetime",
+              "stepType": "Transformation",
+              "className": "DateTimeTransformStep",
+              "classPrettyName": "Datetime",
+              "arity": [
+                "UnaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 766.761962890625,
+                  "y": 57.60649871826172
+                }
+              },
+              "configuration": {
+                "fieldsDatetime": [
+                  {
+                    "inputField": "REFDATE",
+                    "granularityNumber": "",
+                    "outputFormatFrom": "DEFAULT",
+                    "outputFieldType": "timestamp",
+                    "nullable": true,
+                    "formatFrom": "STANDARD",
+                    "granularityTime": "millisecond",
+                    "standardFormat": "basicDate",
+                    "outputFieldName": "REFDATE",
+                    "localeTime": "ENGLISH",
+                    "fieldsPreservationPolicy": "REPLACE"
+                  }
+                ],
+                "whenFieldError": "",
+                "whenRowError": ""
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "Parquet",
+              "stepType": "Output",
+              "className": "ParquetOutputStep",
+              "classPrettyName": "Parquet",
+              "arity": [
+                "NullaryToNullary",
+                "NaryToNullary"
+              ],
+              "writer": {
+                "saveMode": "Append"
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 2626.065185546875,
+                  "y": 58.40686798095703
+                }
+              },
+              "configuration": {
+                "saveOptions": "[]",
+                "path": "/tmp",
+                "errorSink": false
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "fallo_casting",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {},
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select  \"fallo_casting\" as TableName, \"TYPE_MISMATCH\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom Datetime c left join Casting d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "fallo_rango",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1454.9247628184876,
+                  "y": 221.91081140266658
+                }
+              },
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select \"fallo_rango\" as TableName, \"FORMAT_MISMATCH\" as Error, current_timestamp as RawDate , c.rawData\nfrom no_duplicados c left join rango_msgflags d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "fallo_duplicados",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "description": "Hay que ver si mandamos la fila del parquet o la del Casting",
+              "uiConfiguration": {},
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select  \"fallo_duplicados\" as TableName, \"DUPLICATED_KEY\" as Error, current_timestamp as RawDate, c.rawData\n\tfrom Casting c inner join tablaVolcado d on c.SERNO = d.SERNO"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "new_field_id_emprs",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1936.7081601765497,
+                  "y": 56.327263217108
+                }
+              },
+              "configuration": {
+                "inputSchemas": "[]",
+                "sql": "SELECT *,\n  (CASE \n     WHEN CARDPRODUCTSERNO IN (726,730,736,740) THEN 2  \n     ELSE 1\n   END) AS ID_EMPRS\nFROM rango_msgflags"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "fallo_refdate",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {},
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select  \"fallo-refdate\" as TableName, \"DATE_ERROR\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom Csv c left join Datetime d on c.SERNO = d.SERNO where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "rango_msgflags",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1625.7205516032416,
+                  "y": 57.961881604072744
+                }
+              },
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select * from no_duplicados where MSGFLAGS in (0, 1, 2, 4, 8, 16, 32, 64, 128, 16384)\n"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "fallo_id_emprs",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1781.052387678573,
+                  "y": 226.6939041390542
+                }
+              },
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select  \"fallo_id_emprs\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom rango_msgflags c left join new_field_id_emprs d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "tm_trusted_field",
+              "stepType": "Transformation",
+              "className": "DateTimeTransformStep",
+              "classPrettyName": "Datetime",
+              "arity": [
+                "UnaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 2171.8452302510445,
+                  "y": 56.688870471672374
+                }
+              },
+              "configuration": {
+                "fieldsDatetime": [
+                  {
+                    "granularityNumber": "",
+                    "outputFormatFrom": "DEFAULT",
+                    "outputFieldType": "timestamp",
+                    "nullable": true,
+                    "formatFrom": "AUTOGENERATED",
+                    "granularityTime": "millisecond",
+                    "outputFieldName": "TM_TRUSTED",
+                    "localeTime": "ENGLISH",
+                    "fieldsPreservationPolicy": "APPEND"
+                  }
+                ],
+                "whenFieldError": "",
+                "whenRowError": ""
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "dt_trusted_field",
+              "stepType": "Transformation",
+              "className": "DateTimeTransformStep",
+              "classPrettyName": "Datetime",
+              "arity": [
+                "UnaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "tablaVolcado",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 2404.1394832018714,
+                  "y": 57.54109700359426
+                }
+              },
+              "configuration": {
+                "fieldsDatetime": [
+                  {
+                    "granularityNumber": "",
+                    "outputFormatFrom": "STANDARD",
+                    "outputFieldType": "string",
+                    "nullable": true,
+                    "outputStandardFormat": "yyyyMMdd",
+                    "formatFrom": "AUTOGENERATED",
+                    "granularityTime": "millisecond",
+                    "outputFieldName": "DT_TRUSTED",
+                    "localeTime": "ENGLISH",
+                    "fieldsPreservationPolicy": "APPEND"
+                  }
+                ],
+                "whenFieldError": "",
+                "whenRowError": ""
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "error_tm_trusted",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 2058.034936122605,
+                  "y": 219.83347644827228
+                }
+              },
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select  \"error_tm_trusted\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom new_field_id_emprs c left join tm_trusted_field d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "fallo_dt_trusted",
+              "stepType": "Transformation",
+              "className": "TriggerTransformStep",
+              "classPrettyName": "Trigger",
+              "arity": [
+                "BinaryToNary",
+                "UnaryToNary",
+                "NaryToNary"
+              ],
+              "writer": {
+                "saveMode": "Append",
+                "tableName": "",
+                "partitionBy": "",
+                "errorTableName": ""
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 2291.6209612598677,
+                  "y": 216.80550201452354
+                }
+              },
+              "configuration": {
+                "executeSqlWhenEmpty": false,
+                "inputSchemas": "[]",
+                "sql": "select  \"fallo_dt_trusted\" as TableName, \"FAILED_FIELD_CREATION\" as Error, current_timestamp as RawDate, c.rawData \n\tfrom tm_trusted_field c left join dt_trusted_field d on c.SERNO = d.SERNO  where d.SERNO IS NULL"
+              },
+              "supportedEngines": [
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "Postgres",
+              "stepType": "Output",
+              "className": "PostgresOutputStep",
+              "classPrettyName": "Postgres",
+              "arity": [
+                "NullaryToNullary",
+                "NaryToNullary"
+              ],
+              "writer": {
+                "saveMode": "Append"
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 2622.914892791544,
+                  "y": 195.7184660582094
+                }
+              },
+              "configuration": {
+                "errorSink": false,
+                "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
+                "postgresSaveMode": "STATEMENT",
+                "batchsize": "1000",
+                "isolationLevel": "READ_UNCOMMITTED",
+                "failFast": true,
+                "tlsEnabled": true,
+                "driver": "",
+                "schemaFromDatabase": false,
+                "saveOptions": "[]"
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            },
+            {
+              "name": "Postgres_1",
+              "stepType": "Output",
+              "className": "PostgresOutputStep",
+              "classPrettyName": "Postgres",
+              "arity": [
+                "NullaryToNullary",
+                "NaryToNullary"
+              ],
+              "writer": {
+                "saveMode": "Append"
+              },
+              "uiConfiguration": {
+                "position": {
+                  "x": 1455.1070761487083,
+                  "y": 735.3683597690222
+                }
+              },
+              "configuration": {
+                "errorSink": false,
+                "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
+                "postgresSaveMode": "STATEMENT",
+                "batchsize": "1000",
+                "isolationLevel": "READ_UNCOMMITTED",
+                "failFast": true,
+                "tlsEnabled": true,
+                "driver": "",
+                "schemaFromDatabase": false,
+                "saveOptions": "[]"
+              },
+              "supportedEngines": [
+                "Streaming",
+                "Batch"
+              ],
+              "executionEngine": "Batch",
+              "supportedDataRelations": [
+                "ValidData"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "origin": "FileSystem",
+              "destination": "Csv",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Csv",
+              "destination": "Datetime",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Datetime",
+              "destination": "Casting",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Casting",
+              "destination": "fallo_casting",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Casting",
+              "destination": "no_duplicados",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Datetime",
+              "destination": "fallo_refdate",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Csv",
+              "destination": "fallo_refdate",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Datetime",
+              "destination": "fallo_casting",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "Casting",
+              "destination": "fallo_duplicados",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "no_duplicados",
+              "destination": "rango_msgflags",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "rango_msgflags",
+              "destination": "fallo_rango",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "no_duplicados",
+              "destination": "fallo_rango",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "rango_msgflags",
+              "destination": "new_field_id_emprs",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "new_field_id_emprs",
+              "destination": "fallo_id_emprs",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "rango_msgflags",
+              "destination": "fallo_id_emprs",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "new_field_id_emprs",
+              "destination": "tm_trusted_field",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "tm_trusted_field",
+              "destination": "error_tm_trusted",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "new_field_id_emprs",
+              "destination": "error_tm_trusted",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "dt_trusted_field",
+              "destination": "fallo_dt_trusted",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "tm_trusted_field",
+              "destination": "fallo_dt_trusted",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "tm_trusted_field",
+              "destination": "dt_trusted_field",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "dt_trusted_field",
+              "destination": "Parquet",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "dt_trusted_field",
+              "destination": "Postgres",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "fallo_refdate",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "fallo_casting",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "fallo_duplicados",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "fallo_rango",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "fallo_id_emprs",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "error_tm_trusted",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            },
+            {
+              "origin": "fallo_dt_trusted",
+              "destination": "Postgres_1",
+              "dataType": "ValidData"
+            }
+          ]
+        },
+        "executionEngine": "Batch",
+        "uiSettings": {
+          "position": {
+            "x": 173.566925990183,
+            "y": 207.0813491040215,
+            "k": 0.559527909353835
+          }
+        },
+        "creationDate": "2018-05-30T13:13:26Z",
+        "lastUpdateDate": "2018-05-03T13:41:47Z",
+        "version": 0,
+        "group": {
+          "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+          "name": "/home"
+        },
+        "status": {
+          "id": "caa13be6-ea1d-417b-9743-b341cf486aa9",
+          "status": "Created",
+          "statusId": "00eb5b2e-a284-40ba-828d-def776fcdaf3",
+          "creationDate": "2018-05-30T13:13:26Z"
+        },
+        "debugMode": false
+      },
+      "executionMode": "marathon",
+      "executionId": "7d5b07e1-88cd-4f95-942f-1eed93e44e75",
+      "launchDate": "2018-05-30T13:13:40Z",
+      "startDate": "2018-05-30T13:13:47Z",
+      "endDate": "2018-05-30T13:15:33Z",
+      "lastError": {
+        "message": "An error was encountered while writing transform step error_tm_trusted",
+        "phase": "Write",
+        "originalMsg": "org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 3.0 failed 8 times, most recent failure: Lost task 0.7 in stage 3.0 (TID 12, 172.69.0.7, executor 1): org.apache.spark.sql.AnalysisException: cannot resolve '`c.rawData`' given input columns: [GROUP5SERIAL, I135C_CRYPTTRACE, I126V10_CVV2, I011_TRACE_NUM, I041_POS_ID, GROUP1ORIGAMOUNT, I061V3_REP_AMT_BILL, I095_ACT_TRAN_AMT, I062V4_MRKT_DATA, I042_MERCH_ID, I059_POS_GEO_DATA, GROUP9CURRENCY, SAFRETRYCOUNT, AMT_CARD, I094_SVC_IND, I049_CUR_TRXN, I051_CUR_BILL, GROUP8ORIGAMOUNT, GROUP4CURRENCY, I135C_CRYPTTRACE, GROUP9AMOUNT, I049_CUR_TRXN, ORIGSERNO, GROUP1AMOUNT, REASONCODE, GROUP7AMOUNT, SAFTIMESTAMP, I126V7_ME_CSERIAL, GROUP7FEEAMOUNT, GROUP9FEEAMOUNT, ISSUER_FEESERNO, I063V3_MIS_CAS_RD, REFDATE, GROUP8SERIAL, MATCHTIME, GROUP0CURRENCY, SOURCE, I100_RCV_INST, I130_TERM_CAPA, I148_CRYPT_CURR, DROPDATE, GROUP7FEEAMOUNT, I104_TRAN_DESC, GROUP5SERIAL, ORIG_AMT_CARD, MATCHTIME_B, I003_PROC_CODE, GROUP2OTBAMOUNT, I142_SCRIPTSEND, I061V2_OTH_AMT_BILL, I124_GOODS_CODE, ORIGSERNO, I012_LCL_TIME, I030_TRSF_PRC_FEE, I014_EXP_DATE, GROUP6CURRENCY, ADDITIONAFLAGS, INSTALLTYPE, I000_MSG_TYPE, I019_ACQ_COUNTRY, I011_TRACE_NUM, ADJUSTEDAMOUNT, I102_ACCT_ID1, GROUP0OTBAMOUNT, GROUP8OTBAMOUNT, GROUP1SERIAL, I126V9_STAIN, FORMAT, GROUP0FEEAMOUNT, GROUP4SERIAL, GROUP1ORIGAMOUNT, EXTSERNO, I135B_PURCHTRACE, I023_CARD_SEQ_NUM, INSTALLTYPE, I054_ADDTNL_AMT, I044_ADDTNL_RSP, I125_SUPP_INFO, GROUP0ORIGAMOUNT, I061V1_OTH_AMT_TXN, I061V3_REP_AMT_BILL, I039_RSP_CD, MONTHLYAMOUNT, I146_TRM_DATE, I013_LCL_DT, I093_RSP_IND, I135D_KEYVERSION, GROUP7CURRENCY, AMT_CENTER, MONTHLYAMOUNT, GROUP4OTBAMOUNT, GROUP5CURRENCY, I043C_MERCH_CNT, GROUP5FEEAMOUNT, MATCHTIME_B, I014_EXP_DATE, I004_AMT_TRXN, I143_SCRIPTS_RES, I063V5_PMC_ID, GROUP9ORIGAMOUNT, GROUP7SERIAL, GROUP6FEEAMOUNT, I072_MSG_NUM_LST, GROUP6FEEAMOUNT, EXTSERNO, I030_TRSF_PRC_FEE, GROUP4ORIGAMOUNT, I132_UNPREDICT, GROUP4CURRENCY, I136_CRYPTOGRAM, GROUP2ORIGAMOUNT, FEE_AMT_CENTER, I050_CUR_SETTLE, GROUP1OTBAMOUNT, I002_NUMBER, OFFSET, APR, I028_TRANSFER_FEE, GROUP4FEEAMOUNT, I063V3_MIS_CAS_RD, CARDPRODUCTSERNO, I012_LCL_TIME, I100_RCV_INST, GROUP9ORIGAMOUNT, I000_MSG_TYPE, GROUP3ORIGAMOUNT, I016_CONV_DT, AUTH_FEESERNO, I044_ADDTNL_RSP, ISSUER_FEESERNO, I120_ORIG_MSG_TYP, ORIG_AMT_CARD, OFFSET_TYPE, I058_AUTH_AGENT, GROUP8AMOUNT, TYPE, GROUP9FEEAMOUNT, GROUP1AMOUNT, GROUP2CURRENCY, I063V1_NETWORK_ID, TEST_FIELD, I147_CRYPT_AMT, GROUP2ORIGAMOUNT, INTERESTRATE, I038_AUTH_ID, SAFFLAG, I118_INTRA_COUNTRY, ADDITIONAFLAGS, GROUP1CURRENCY, SERNO, CARDSERNO, I043B_MERCH_CITY, I126V7_ME_CSERIAL, I126V8_TRXN_ID, I007_TRANS_DT, CARDCURRENCY, GROUPFROMSERIAL, I062V21_RISK_SCORE_RS, GROUP9SERIAL, GROUPTOSERIAL, GROUP8OTBAMOUNT, I123_ADR_VER, I126V8_TRXN_ID, I022_POS_ENTRY, GROUP0AMOUNT, I132_UNPREDICT, GPCREDITAFFECTOTB, I063_BANKNET_DATA, I021_FWD_CNTRY, I135D_KEYVERSION, GROUP5ORIGAMOUNT, I018_MERCH_TYPE, I062V2_TRANS_ID, DROPDATE, I061M_POS_DATA, I054_ADDTNL_AMT, GROUP8CURRENCY, TRXNSERNO, I013_LCL_DT, I139_1_ARPC, GROUP2CURRENCY, REASONCODE, PROCESSTIMEMS, GROUP2OTBAMOUNT, I063V4_STIP_RS, OTB_AMT_CARD, V1, GROUP5FEEAMOUNT, I068_RCV_CNTRY, GROUP3FEEAMOUNT, I028_TRANSFER_FEE, DEBITPORT, I045_TRK_1, MSGFLAGS, GROUP6AMOUNT, I118_INTRA_COUNTRY, OTP, GROUP0AMOUNT, I137_ATC, ISOLOGSERNO, I133_TERM_SERIAL, I061M_POS_DATA, I055_ICC_DATA, I042_MERCH_ID, I043A_MERCH_NAME, CARDCURRENCY, I062V22_RISK_COND_CD, I035_TRK_2, I021_FWD_CNTRY, V2, SMPROCESSTIMEMES, GROUP3CURRENCY, I062V5_DURANTION, I026_ACCPTR_BUSCD, I143_SCRIPTS_RES, I063V4_STIP_RS, GROUP2FEEAMOUNT, FEES, APR, I103_ACCT_ID2, GROUP9CURRENCY, GROUP0FEEAMOUNT, I062V6_PRSTG_PROP, I062V5_DURANTION, GROUP8FEEAMOUNT, I018_MERCH_TYPE, I053_SEC_CNTRL, I043C_MERCH_CNT, I062V1_AUTH_CHAR, GROUP7OTBAMOUNT, CARDPRODUCTSERNO, GROUP7SERIAL, I048_TEXT_DATA, I145_TRM_CNTRY, I009_SETL_CONV, GROUP6ORIGAMOUNT, PLANSERNO, GROUPFROMSERIAL, GROUP5OTBAMOUNT, GROUP5OTBAMOUNT, GROUP6OTBAMOUNT, I007_TRANS_DT, GROUP4SERIAL, WORKERID, WORKERID, REFDATE, I047_NAT_ADDTNL_DT, SAFTIMESTAMP, I136_CRYPTOGRAM, INSTITUIONID, I145_TRM_CNTRY, GROUP7CURRENCY, TRUECARDNO, I031_SETL_PROC_FEE, TRUECARDNO, I062V21_RISK_SCORE_RS, OFFSET, GROUP4OTBAMOUNT, I138_APL, ACTION_RESCODE, I033_FORWARDER_ID, I006_AMT_BILL, I148_CRYPT_CURR, GROUP3AMOUNT, I037_RET_REF_NUM, GROUP6AMOUNT, FEE_AMT_CENTER, I149_CRYPT_CSBK, I048_TEXT_DATA, I063V5_PMC_ID, GROUP5AMOUNT, I025_POS_COND, ORIG_AMT_CENTER, TYPE, GROUP6SERIAL, I147_CRYPT_AMT, I094_SVC_IND, I050_CUR_SETTLE, FGPROCESSTIMEMS, I032_ACQUIRER_ID, GROUP4AMOUNT, I053_SEC_CNTRL, I009_SETL_CONV, GROUP3SERIAL, I063_BANKNET_DATA, GROUP3OTBAMOUNT, I006_AMT_BILL, GROUP9AMOUNT, INTERESTRATE, EXTERNALLOGSERNO, I019_ACQ_COUNTRY, I133_TERM_SERIAL, GROUP5AMOUNT, I002_NUMBER, GROUP3CURRENCY, ORIG_AMT_CENTER, GROUP3AMOUNT, EXTERNALLOGSERNO, AFFECTEDOTBS, I126V9_STAIN, FULLAMOUNT, I062V2_TRANS_ID, I045_TRK_1, I016_CONV_DT, PRIMECARDSERNO, I093_RSP_IND, I051_CUR_BILL, I142_SCRIPTSEND, TEST_FIELD, I126V10_CVV2, SAFRETRYCOUNT, GROUP4FEEAMOUNT, FULLAMOUNT, FEE_AMT_CARD, MSGTRXNTYPE, PRIMECARDSERNO, TRXNSERNO, I003_PROC_CODE, FILLER, PANTYPE, I123_ADR_VER, I139_1_ARPC, AMT_CARD, GROUP2SERIAL, I101_FILE_NAME, I038_AUTH_ID, I005_AMT_SETTLE, I102_ACCT_ID1, GROUP1FEEAMOUNT, I024_INT_NETWK_ID, GROUP0SERIAL, LTIMESTAMP, GROUP5CURRENCY, GROUP6CURRENCY, GROUP7AMOUNT, I062V3_VALIDAT_CD, GROUP6SERIAL, CARDSERNO, I090_ORIG_DATA, GROUP2FEEAMOUNT, GROUP3SERIAL, ADJUSTEDAMOUNT, TRXNSERNO_B, FEE_AMT_CARD, I056_ORG_DATA, INSTALLMENT, TAX, LTIMESTAMP, I058_AUTH_AGENT, I061V1_OTH_AMT_TXN, I127_FILL_RCD, GROUP6OTBAMOUNT, TRXNSERNO_B, I037_RET_REF_NUM, I059_POS_GEO_DATA, I072_MSG_NUM_LST, I120_ORIG_MSG_TYP, I024_INT_NETWK_ID, I063V2_TIM3_LIMIT, GROUP3ORIGAMOUNT, I137_ATC, I062V1_AUTH_CHAR, I061V2_OTH_AMT_BILL, I060_POS_CAP, I063V1_NETWORK_ID, GROUP1FEEAMOUNT, I126V6_CH_CSERIAL, BATCHNO, ID_EMPRS, GROUP0ORIGAMOUNT, GROUP0SERIAL, GROUP8SERIAL, GROUP2SERIAL, I039_RSP_CD, I041_POS_ID, I127_FILL_RCD, GROUP7ORIGAMOUNT, GROUP2AMOUNT, GROUP9OTBAMOUNT, I031_SETL_PROC_FEE, I101_FILE_NAME, I124_GOODS_CODE, GROUP4ORIGAMOUNT, I090_ORIG_DATA, I131_TVR, GROUP0OTBAMOUNT, I029_SETL_FEE, GROUP9SERIAL, I043A_MERCH_NAME, I062V6_PRSTG_PROP, DT_LANDING, GROUP7OTBAMOUNT, GROUP1OTBAMOUNT, I056_ORG_DATA, MATCHTIME, I104_TRAN_DESC, I068_RCV_CNTRY, TOKENSERNO, GROUP4AMOUNT, EODSERNO, I023_CARD_SEQ_NUM, ID_EMPRS, GPCREDITAFFECTOTB, MSGTRXNTYPE, GROUPTOSERIAL, I062V3_VALIDAT_CD, GROUP0CURRENCY, I135A_PREAUTHTRACE, I149_CRYPT_CSBK, OTB_AMT_CENTER, GROUP8CURRENCY, I063V2_TIM3_LIMIT, GROUP2AMOUNT, I135A_PREAUTHTRACE, TM_TRUSTED, I134_VISA_DISCR, GROUP1SERIAL, I055_ICC_DATA, FEES, I146_TRM_DATE, GROUP9OTBAMOUNT, DT_LANDING, I103_ACCT_ID2, I060_POS_CAP, V1, OTB_AMT_CENTER, I138_APL, V2, GROUP3FEEAMOUNT, INSTALLMENT, SAFFLAG, GROUP3OTBAMOUNT, I125_SUPP_INFO, I130_TERM_CAPA, AFFECTEDOTBS, I062V4_MRKT_DATA, EODSERNO, GROUP1CURRENCY, I029_SETL_FEE, PLANSERNO, I062V22_RISK_COND_CD, OTP, TOKENSERNO, ISOLOGSERNO, I126V6_CH_CSERIAL, I095_ACT_TRAN_AMT, SMPROCESSTIMEMES, AMT_CENTER, DEBITPORT, I005_AMT_SETTLE, I043B_MERCH_CITY, PANTYPE, SERNO, FGPROCESSTIMEMS, I033_FORWARDER_ID, FORMAT, ACTION_RESCODE, FILLER, I022_POS_ENTRY, I134_VISA_DISCR, OTB_AMT_CARD, I032_ACQUIRER_ID, GROUP8ORIGAMOUNT, I139_2_ARPC_RESCD, MSGFLAGS, BATCHNO, I047_NAT_ADDTNL_DT, I144_CRYP_TR, GROUP6ORIGAMOUNT, I035_TRK_2, PROCESSTIMEMS, I025_POS_COND, AUTH_FEESERNO, I004_AMT_TRXN, GROUP8AMOUNT, I026_ACCPTR_BUSCD, I139_2_ARPC_RESCD, INSTITUIONID, GROUP5ORIGAMOUNT, GROUP7ORIGAMOUNT, OFFSET_TYPE, SOURCE, I144_CRYP_TR, GROUP8FEEAMOUNT, I131_TVR, TAX, I135B_PURCHTRACE]; line 1 pos 105\n\tat org.apache.spark.sql.catalyst.analysis.package$AnalysisErrorAt.failAnalysis(package.scala:42)\n\tat org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1$$anonfun$apply$2.applyOrElse(CheckAnalysis.scala:88)\n\tat org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1$$anonfun$apply$2.applyOrElse(CheckAnalysis.scala:85)\n\tat org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$transformUp$1.apply(TreeNode.scala:289)\n\tat org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$transformUp$1.apply(TreeNode.scala:289)\n\tat org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:70)\n\tat org.apache.spark.sql.catalyst.trees.TreeNode.transformUp(TreeNode.scala:288)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$transformExpressionsUp$1.apply(QueryPlan.scala:268)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$transformExpressionsUp$1.apply(QueryPlan.scala:268)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan.transformExpression$1(QueryPlan.scala:279)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan.org$apache$spark$sql$catalyst$plans$QueryPlan$$recursiveTransform$1(QueryPlan.scala:289)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$org$apache$spark$sql$catalyst$plans$QueryPlan$$recursiveTransform$1$1.apply(QueryPlan.scala:293)\n\tat scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)\n\tat scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)\n\tat scala.collection.immutable.List.foreach(List.scala:381)\n\tat scala.collection.TraversableLike$class.map(TraversableLike.scala:234)\n\tat scala.collection.immutable.List.map(List.scala:285)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan.org$apache$spark$sql$catalyst$plans$QueryPlan$$recursiveTransform$1(QueryPlan.scala:293)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$6.apply(QueryPlan.scala:298)\n\tat org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator(TreeNode.scala:187)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan.mapExpressions(QueryPlan.scala:298)\n\tat org.apache.spark.sql.catalyst.plans.QueryPlan.transformExpressionsUp(QueryPlan.scala:268)\n\tat org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1.apply(CheckAnalysis.scala:85)\n\tat org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1.apply(CheckAnalysis.scala:78)\n\tat org.apache.spark.sql.catalyst.trees.TreeNode.foreachUp(TreeNode.scala:127)\n\tat org.apache.spark.sql.catalyst.analysis.CheckAnalysis$class.checkAnalysis(CheckAnalysis.scala:78)\n\tat org.apache.spark.sql.catalyst.analysis.Analyzer.checkAnalysis(Analyzer.scala:91)\n\tat org.apache.spark.sql.execution.QueryExecution.assertAnalyzed(QueryExecution.scala:52)\n\tat org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:66)\n\tat org.apache.spark.sql.SparkSession.sql(SparkSession.scala:631)\n\tat com.stratio.sparta.plugin.helper.SparkStepHelper$$anonfun$1.apply(SparkStepHelper.scala:44)\n\tat com.stratio.sparta.plugin.helper.SparkStepHelper$$anonfun$1.apply(SparkStepHelper.scala:32)\n\tat scala.util.Try$.apply(Try.scala:192)\n\tat com.stratio.sparta.plugin.helper.SparkStepHelper$.executeSqlFromSteps(SparkStepHelper.scala:32)\n\tat com.stratio.sparta.plugin.workflow.transformation.trigger.TriggerTransformStepBatch.transformWithDiscards(TriggerTransformStepBatch.scala:42)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$createStep$1.apply$mcV$sp(SpartaWorkflow.scala:302)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$createStep$1.apply(SpartaWorkflow.scala:298)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$createStep$1.apply(SpartaWorkflow.scala:298)\n\tat scala.util.Try$.apply(Try.scala:192)\n\tat com.stratio.sparta.serving.core.error.ErrorManager$class.traceFunction(ErrorManager.scala:34)\n\tat com.stratio.sparta.serving.core.error.ZookeeperErrorImpl.traceFunction(ErrorManager.scala:102)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow.createStep(SpartaWorkflow.scala:298)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$executeWorkflow$3$$anonfun$apply$7$$anonfun$apply$8.apply(SpartaWorkflow.scala:210)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$executeWorkflow$3$$anonfun$apply$7$$anonfun$apply$8.apply(SpartaWorkflow.scala:209)\n\tat scala.collection.immutable.List.foreach(List.scala:381)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$executeWorkflow$3$$anonfun$apply$7.apply(SpartaWorkflow.scala:209)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$executeWorkflow$3$$anonfun$apply$7.apply(SpartaWorkflow.scala:207)\n\tat scala.collection.immutable.List.foreach(List.scala:381)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$executeWorkflow$3.apply(SpartaWorkflow.scala:207)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow$$anonfun$executeWorkflow$3.apply(SpartaWorkflow.scala:204)\n\tat scala.collection.immutable.List.foreach(List.scala:381)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow.executeWorkflow(SpartaWorkflow.scala:204)\n\tat com.stratio.sparta.serving.core.workflow.SpartaWorkflow.stages(SpartaWorkflow.scala:157)\n\tat com.stratio.sparta.driver.services.ContextsService.clusterContext(ContextsService.scala:153)\n\tat com.stratio.sparta.driver.SparkDriver$$anonfun$2$$anonfun$1.apply$mcV$sp(SparkDriver.scala:82)\n\tat com.stratio.sparta.driver.SparkDriver$$anonfun$2$$anonfun$1.apply(SparkDriver.scala:66)\n\tat com.stratio.sparta.driver.SparkDriver$$anonfun$2$$anonfun$1.apply(SparkDriver.scala:66)\n\tat scala.util.Try$.apply(Try.scala:192)\n\tat com.stratio.sparta.driver.SparkDriver$$anonfun$2.apply(SparkDriver.scala:66)\n\tat com.stratio.sparta.driver.SparkDriver$$anonfun$2.apply(SparkDriver.scala:40)\n\tat scala.util.Try$.apply(Try.scala:192)\n\tat com.stratio.sparta.driver.SparkDriver$.main(SparkDriver.scala:40)\n\tat com.stratio.sparta.driver.SparkDriver.main(SparkDriver.scala)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat org.apache.spark.deploy.SparkSubmit$.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:823)\n\tat org.apache.spark.deploy.SparkSubmit$.doRunMain$1(SparkSubmit.scala:188)\n\tat org.apache.spark.deploy.SparkSubmit$.submit(SparkSubmit.scala:218)\n\tat org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:120)\n\tat org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)\n\nDriver stacktrace:",
+        "date": "2018-05-30T13:15:33Z",
+        "step": "error_tm_trusted"
+      }
+    }
+  },
+  "debugMode": false
 }

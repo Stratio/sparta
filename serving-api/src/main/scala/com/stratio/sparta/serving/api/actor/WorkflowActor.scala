@@ -10,7 +10,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
+import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, LaunchWithVariables}
 import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
@@ -37,6 +37,7 @@ class WorkflowActor(
 
   val ResourceWorkflow = "Workflows"
   val ResourceEnvironment = "Environment"
+  val ResourceBackup = "Backup"
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val groupService = new GroupService(curatorFramework)
@@ -49,6 +50,7 @@ class WorkflowActor(
     case Stop(id, user) => stop(id, user)
     case Reset(id, user) => reset(id, user)
     case Run(id, user) => run(id, user)
+    case RunWithVariables(executionVariables, user) => runWithVariables(executionVariables, user)
     case CreateWorkflow(workflow, user) => create(workflow, user)
     case CreateWorkflows(workflows, user) => createList(workflows, user)
     case Update(workflow, user) => update(workflow, user)
@@ -83,6 +85,16 @@ class WorkflowActor(
     authorizeActionsByResourceId[Response](user, actions, authorizationId) {
       Try {
         launcherActor.forward(Launch(id.toString, user))
+      }
+    }
+  }
+
+  def runWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceWorkflow -> Status)
+    val authorizationId = workflowService.findById(executionVariables.workflowId).authorizationId
+    authorizeActionsByResourceId[Response](user, actions, authorizationId) {
+      Try {
+        launcherActor.forward(LaunchWithVariables(executionVariables, user))
       }
     }
   }
@@ -291,7 +303,7 @@ class WorkflowActor(
   }
 
   def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser]): Unit = {
-    authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceWorkflow -> Edit)) {
+    authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceBackup -> View)) {
       Try {
         migrationService.migrateWorkflowFromCassiopeia(workflowCassiopeia)
       }
@@ -302,6 +314,8 @@ class WorkflowActor(
 object WorkflowActor extends SLF4JLogging {
 
   case class Run(id: String, user: Option[LoggedUser])
+
+  case class RunWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser])
 
   case class Stop(id: String, user: Option[LoggedUser])
 

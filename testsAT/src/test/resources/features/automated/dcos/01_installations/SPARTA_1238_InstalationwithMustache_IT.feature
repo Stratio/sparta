@@ -4,21 +4,32 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     #And  I securely send requests to '${DCOS_IP}:443'
-  Scenario: [SPARTA_1238][01] Sparta Installation with Mustache in DCOS
+
+  Scenario: [SPARTA-1161][01] Take Marathon-lb IP
+    When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
+    Then I run 'dcos task ${MARATHON_LB_TASK:-marathon-lb} | awk '{print $2}'| tail -n 1' in the ssh connection and save the value in environment variable 'marathonIP'
+    Then I wait '1' seconds
+    And I open a ssh connection to '!{marathonIP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
+    And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
+
+  Scenario: [SPARTA_1238][02] Sparta Installation with Mustache in DCOS
     #Modify json to install specific configuration forSparta
     Given I create file 'spartamustache.json' based on 'schemas/dcosFiles/${SPARTA_JSON}' as 'json' with:
       |   $.Framework.name                                    |  UPDATE     | ${DCOS_SERVICE_NAME}                                                    |n/a |
       |   $.Framework.environment_uri                         |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com                                  |n/a |
       |   $.Zookeeper.address                                 |  UPDATE     | ${ZK_URL}                                                               |n/a |
       |   $.Marathon-LB.nginx_proxy                           |  REPLACE    | ${NGINX_ACTIVE}                                                         |boolean |
-      |   $.Marathon-LB.haproxy_host                          |  UPDATE     | sparta.${CLUSTER_ID}.labs.stratio.com                                   |n/a |
+      |   $.Marathon-LB.haproxy_host                          |  UPDATE     | !{MarathonLbDns}.labs.stratio.com                                       |n/a |
       |   $.Marathon.sparta_docker_image                      |  UPDATE     | ${DOCKER_URL}:${STRATIO_SPARTA_VERSION}                                 |n/a |
       |   $.Calico.enabled                                    |  REPLACE    | ${CALICOENABLED}                                                        |boolean |
       |   $.Hdfs.conf_uri                                     |  UPDATE     | ${CONF_HDFS_URI:-http://10.200.0.74:8085/}                              |n/a |
       |   $.Security.Components.oauth2_enabled                |  REPLACE    | ${AUTH_ENABLED}                                                         |boolean |
       |   $.Security.Components.gosec_enabled                 |  REPLACE    | ${AUTH_ENABLED}                                                         |boolean |
       |   $.Security.Components.crossdata_security_enabled    |  REPLACE    | ${AUTH_ENABLED}                                                         |boolean |
-      |   $.Security.Components.marathon_enabled              |  REPLACE    | true                                                                    |boolean |
+      |   $.Security.Components.marathon_enabled              |  REPLACE    | ${AUTH_ENABLED:-true}                                                   |boolean |
+      |   $.Data-Governance.dg_enabled                        |  REPLACE    | ${GOV_ENABLED:-true}                                                    |boolean |
+      |   $.Sparta-History.history_enabled                    |  REPLACE    | ${HISTORY_ENABLED:-true}                                                |boolean |
+
     #Copy DEPLOY JSON to DCOS-CLI
     When I outbound copy 'target/test-classes/spartamustache.json' through a ssh connection to '/dcos'
     #Erase previous images for sparta

@@ -4,7 +4,7 @@ Feature: [SPARTA-1678][Centralized Logging - Stdout & Stderr] Sparta installatio
   Background: Setup Paas rest client
     # Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
   @ignore @tillfixed(SPARTA-1705)
   Scenario:[SPARTA-1279][01] Force sparta error installing workflow without policy

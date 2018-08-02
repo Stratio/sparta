@@ -11,7 +11,18 @@ These tests will be executed as part of the continuous integration flow as follo
 
 mvn verify [-D\<ENV_VAR>=\<VALUE>] [-Dit.test=\<TEST_TO_EXECUTE>|-Dgroups=\<GROUP_TO_EXECUTE>]
 
-Example:
+Examples:
+
+Sparta Instalations:
+mvn verify -DCLUSTER_ID=intbootstrap -DDCOS_SERVICE_NAME=sparta-server -Dgroups=dcos_instalation -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-aceptacion.demo.stratio.com -DDOCKER_URL=qa.stratio.com/stratio/sparta -DCALICOENABLED=true -DHDFS_IP=10.200.0.74 -DROLE_SPARTA=open -DAUTH_ENABLED=true -DSTRATIO_SPARTA_VERSION=2.2.0-3ee546d -DZK_URL=zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181  -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0 -DSPARTA_JSON=spartamustache-2.1.json -DHDFS_REALM=DEMO.STRATIO.COM -DNGINX_ACTIVE=true -DMASTERS_LIST=10.200.0.242,10.200.1.64,10.200.1.41 -DPRIVATE_AGENTS_LIST=10.200.1.88,10.200.1.86,10.200.1.87,10.200.1.63,10.200.0.221 -DCLIENTSECRET=cr7gDH6hX2-C3SBZYWj8F -DID_POLICY_ZK=sparta_zk
+mvn verify -DCLUSTER_ID=intbootstrap -DDCOS_SERVICE_NAME=sparta-dg -Dgroups=dcos_instalation -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-aceptacion.demo.stratio.com -DDOCKER_URL=qa.stratio.com/stratio/sparta -DCALICOENABLED=true -DHDFS_IP=10.200.0.74 -DROLE_SPARTA=open -DAUTH_ENABLED=true -DSTRATIO_SPARTA_VERSION=2.2.0-3ee546d -DZK_URL=zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181  -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0 -DSPARTA_JSON=spartamustache-2.1.json -DHDFS_REALM=DEMO.STRATIO.COM -DNGINX_ACTIVE=true -DMASTERS_LIST=10.200.0.242,10.200.1.64,10.200.1.41 -DPRIVATE_AGENTS_LIST=10.200.1.88,10.200.1.86,10.200.1.87,10.200.1.63,10.200.0.221 -DCLIENTSECRET=LBNuJVgfsb-WHEkP83zt -DID_POLICY_ZK=sparta_zk2
+
+Add Sparta-Policy:
+mvn verify -DCLUSTER_ID=intbootstrap  -DDCOS_SERVICE_NAME=sparta-server -DID_SPARTA_POLICY=sparta -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.SPARTA_1162_Gosec_AddzookeperPolicy_IT -DlogLevel=DEBUG
+
+Uninstall Sparta:
+mvn verify -DCLUSTER_ID=intbootstrap -DDCOS_SERVICE_NAME=sparta-server -Dgroups=dcos_uninstall -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-aceptacion.demo.stratio.com -DDOCKER_URL=qa.stratio.com/stratio/sparta -DCALICOENABLED=true -DHDFS_IP=10.200.0.74 -DROLE_SPARTA=open -DAUTH_ENABLED=true -DSTRATIO_SPARTA_VERSION=2.2.0-3ee546d -DZK_URL=zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181  -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0 -DSPARTA_JSON=spartamustache-2.1.json -DHDFS_REALM=DEMO.STRATIO.COM -DNGINX_ACTIVE=true -DMASTERS_LIST=10.200.0.242,10.200.1.64,10.200.1.41 -DPRIVATE_AGENTS_LIST=10.200.1.88,10.200.1.86,10.200.1.87,10.200.1.63,10.200.0.221 -DIDNODE=525 -DCLIENTSECRET=cr7gDH6hX2-C3SBZYWj8F -DID_POLICY_ZK=sparta_zk
+
 
 mvn verify -DSPARTA_HOST=localhost -DSPARTA_PORT=9090 -DSPARTA_API_PORT=9090 -Dit.test=com.stratio.sparta.testsAT.automated.gui.inputs.AddNewSocket
 

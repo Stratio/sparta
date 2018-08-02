@@ -17,7 +17,7 @@ let el: DebugElement;
 describe('ConsoleBoxComponent', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [EgeoModule],
+            imports: [],
             schemas: [NO_ERRORS_SCHEMA],
             declarations: [ConsoleBoxComponent]
         }).compileComponents();  // compile template and css

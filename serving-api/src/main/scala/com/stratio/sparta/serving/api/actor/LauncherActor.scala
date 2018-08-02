@@ -10,16 +10,16 @@ import akka.actor.{Props, _}
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
-import com.stratio.sparta.security.{Edit, SpartaSecurityManager, Status}
+import com.stratio.sparta.security.{SpartaSecurityManager, Status}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
-import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, Start}
+import com.stratio.sparta.serving.core.actor.LauncherActor.{Debug, Launch, LaunchWithVariables, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Failed
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecutionVariables, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{DebugWorkflowService, ExecutionService, WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
@@ -45,13 +45,22 @@ class LauncherActor(curatorFramework: CuratorFramework,
     new ClusterLauncherActor(curatorFramework, statusListenerActor)), ClusterLauncherActorName)
 
   override def receive: Receive = {
-    case Launch(id, user) => launch(id, user)
+    case Launch(id, user) => launchWithoutExtraVariables(id, user)
+    case LaunchWithVariables(executionVariables, user) => launchWithVariables(executionVariables, user)
     case Debug(id, user) => debug(id, user)
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 
-  def launch(id: String, user: Option[LoggedUser]): Unit = {
-    val workflow = workflowService.findById(id)
+  def launchWithoutExtraVariables(id: String, user: Option[LoggedUser]): Unit =
+    launch(workflowService.findById(id), user)
+
+  def launchWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser]): Unit = {
+    val workflow = workflowService.findByIdWithVariables(executionVariables)
+
+    launch(workflow, user)
+  }
+
+  def launch(workflow: Workflow, user: Option[LoggedUser]): Unit = {
     authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Status), workflow.authorizationId) {
       Try {
 
@@ -64,7 +73,7 @@ class LauncherActor(curatorFramework: CuratorFramework,
           case WorkflowExecutionMode.dispatcher =>
             log.info(s"Launching workflow: ${workflow.name} in cluster mode")
             clusterLauncherActor
-          case WorkflowExecutionMode.local if !workflowService .anyLocalWorkflowRunning =>
+          case WorkflowExecutionMode.local if !workflowService.anyLocalWorkflowRunning =>
             val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
             val childLauncherActor = context.children.find(children => children.path.name == actorName)
             log.info(s"Launching workflow: ${workflow.name} in local mode")
@@ -76,9 +85,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
         }
 
         workflowLauncherActor ! Start(workflow, user.map(_.id))
-        (workflow, workflowLauncherActor)
+        workflowLauncherActor
       } match {
-        case Success((workflow, launcherActor)) =>
+        case Success(launcherActor) =>
           log.debug(s"Workflow ${workflow.name} launched to: ${launcherActor.toString()}")
         case Failure(exception) =>
           val information = s"Error launching workflow with the selected execution mode"
@@ -89,9 +98,9 @@ class LauncherActor(curatorFramework: CuratorFramework,
             exception.toString,
             ExceptionHelper.toPrintableException(exception)
           )
-          executionService.setLastError(id, error)
+          executionService.setLastError(workflow.id.get, error)
           statusService.update(WorkflowStatus(
-            id = id,
+            id = workflow.id.get,
             status = Failed,
             statusInfo = Option(information)
           ))

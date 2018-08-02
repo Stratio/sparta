@@ -1,0 +1,162 @@
+/*
+ * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+ *
+ * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
+ */
+
+import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output, ChangeDetectorRef, ElementRef, HostListener } from '@angular/core';
+import { InputSchema, InputSchemaField, SchemaFieldPosition, Join } from '@app/wizard/components/query-builder/models/SchemaFields';
+
+import 'rxjs/add/operator/delay';
+import { Subject } from 'rxjs/Subject';
+import { Store } from '@ngrx/store';
+import * as fromQueryBuilder from './../../reducers';
+import * as queryBuilderActions from './../../actions/queryBuilder';
+import { INPUT_SCHEMAS_MAX_HEIGHT } from '@app/wizard/components/query-builder/query-builder.constants';
+
+@Component({
+  selector: 'node-schema-input-box',
+  styleUrls: ['node-schema-input-box.component.scss'],
+  templateUrl: 'node-schema-input-box.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
+
+  @Input() schema: InputSchema;
+  @Input() containerElement: HTMLElement;
+  @Input() selectedFieldsNames: Array<string> = [];
+  @Input() selectedFields: Array<InputSchemaField> = [];
+  @Input() positionSubject: Subject<any>;
+
+  @Input() disableDrag = false;
+
+  @Output() changeFieldsPosition = new EventEmitter<any>();
+  @Output() changeContainersPosition = new EventEmitter<any>();
+  @Output() addJoin = new EventEmitter<Join>();
+
+
+  public fieldPositions = {};
+  public recalcPositionSubject = new Subject();
+  public containerPositionSubject = new Subject();
+  public listMaxHeight = INPUT_SCHEMAS_MAX_HEIGHT;
+
+  public img: HTMLImageElement;
+  public isDragging = false;
+  public headerMenu = false;
+
+  public config = {
+    wheelSpeed: 0.4
+  };
+
+  public inputOptions = [
+   { label: 'Add all fields', value: 'addFields' }
+];
+
+  constructor(private _store: Store<fromQueryBuilder.State>, private _cd: ChangeDetectorRef, private elementRef: ElementRef) { }
+
+  @HostListener('document:click', ['$event'])
+   public onDocumentClick(event: MouseEvent): void {
+      const targetElement = event.target as HTMLElement;
+      if (targetElement && !this.elementRef.nativeElement.contains(targetElement) ) {
+         this.headerMenu = false;
+      }
+   }
+  ngOnInit(): void {
+    this.img = new Image();
+    this.img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAn0lEQVRIS72UQRLAIAgD9aG+zoe2w4EOtWJCR/QsWSSRWpJPTdYvIUBr7ZKGeu90HX1RxfXFLIQCjOIRCAR44iwEAmwIUj0Q0DaACM1MXAG8ms+IkIgXU6/uBbCG/nnBzPgHgNIS/fHa4DmATUl0zqvasybrnFNjujJz20fzICkAFF+0tqlll7qurfF2dKhzvUu9YISw4lIXAkTXxRHADcdvgBmCVnF5AAAAAElFTkSuQmCC';
+
+   }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.recalcPositionSubject.next();
+      this.containerPositionSubject.next();
+    });
+  }
+
+  public selectColumn(field: InputSchemaField) {
+    this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction(field));
+  }
+
+  public onChangeElementPosition(column: string, position: SchemaFieldPosition) {
+      this.fieldPositions[column] = position;
+      if (this.positionSubject) {
+         this.positionSubject.next(this.fieldPositions);
+      }
+  }
+
+  public getSelectedItemsIncluding(item: InputSchemaField) {
+    return this.selectedFields;
+
+    /* si quieres seleccionar el propio elemento del que haces drag, hay que buscar si ya esta en la lista de seleccionados
+      y sino esta añadirlo al array de seleccionados */
+
+    // return this.selectedFields.find(selectedItem => item.column === selectedItem.column) ? this.selectedFields : [...this.selectedFields, item];
+  }
+
+  public onDragstart(event: DragEvent) {
+   this.isDragging = true;
+    if (event.dataTransfer['setDragImage']) {
+      event.dataTransfer['setDragImage'](this.img, -10, 30);
+    }
+  }
+
+  public onChangeContainerPosition(position: SchemaFieldPosition) {
+    this.changeContainersPosition.emit({
+      name: this.schema.name,
+      position
+    });
+  }
+
+  public onScroll($event) {
+    this.recalcPositionSubject.next();
+    this._cd.markForCheck();
+  }
+
+  public onMoved() {
+    this.selectedFields = [];
+    this.selectedFieldsNames = [];
+  }
+  onHeaderMenu() {
+   this.headerMenu = !this.headerMenu;
+}
+onChangeOption(ev) {
+   switch (ev.value) {
+      case 'addFields':
+         if (this.schema.fields && this.schema.fields.length) {
+            const field = {
+               fieldType: '*',
+               table: this.schema.fields[0].table,
+               expression: this.schema.fields[0].alias + '.*',
+               originFields: []
+            };
+            this._store.dispatch(new queryBuilderActions.AddOutputSchemaFieldsAction({
+               index: 0,
+               items: [field]
+            }));
+         }
+         break;
+
+      default:
+         break;
+   }
+   this.headerMenu = false;
+}
+
+  onDrop(event) {
+      this.isDragging = false;
+      if (event.item.length === 1 && event.item[0].fieldType !== '*' && event.item[0].alias !== this.schema.fields[event.index].alias) {
+         const join: Join = {
+            origin: event.item[0],
+            destination: this.schema.fields[event.index],
+            initData: {
+               tableName: event.item[0].table,
+               fieldName: event.item[0].column
+            },
+            fieldPositions: this.fieldPositions
+         };
+         this._store.dispatch(new queryBuilderActions.AddJoin(join));
+      }
+   }
+}

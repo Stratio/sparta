@@ -32,11 +32,16 @@ trait SpartaSerializer {
   val serializerSystem: Option[ActorSystem] = None
   val environmentStateActor: Option[ActorRef] = None
 
-  implicit def json4sJacksonFormats: Formats = {
+  implicit def json4sJacksonFormats: Formats = json4sFormats(Map.empty)
+
+  def json4sFormats(extraParams: Map[String, String]) : Formats = {
     val environmentContext = (serializerSystem, environmentStateActor) match {
       case (Some(system), Some(envStateActor)) =>
-        SpartaSerializer.getEnvironmentContext(system, envStateActor)
-      case _ => None
+        SpartaSerializer.getEnvironmentContext(system, envStateActor, extraParams)
+      case _ =>
+        if(extraParams.nonEmpty)
+          Option(EnvironmentContext(extraParams))
+        else None
     }
 
     DefaultFormats + DateTimeSerializer +
@@ -62,7 +67,11 @@ object SpartaSerializer extends SLF4JLogging {
 
   private var environmentContext: Option[EnvironmentContext] = None
 
-  def getEnvironmentContext(actorSystem: ActorSystem, envStateActor: ActorRef): Option[EnvironmentContext] = {
+  def getEnvironmentContext(
+                             actorSystem: ActorSystem,
+                             envStateActor: ActorRef,
+                             extraParams: Map[String, String]
+                           ): Option[EnvironmentContext] = {
     implicit val system: ActorSystem = actorSystem
     implicit val timeout: Timeout = Timeout(Try(SpartaConfig.getDetailConfig.get.getInt("serializationTimeout"))
         .getOrElse(DefaultSerializationTimeout).milliseconds)
@@ -72,11 +81,11 @@ object SpartaSerializer extends SLF4JLogging {
       Await.result(future, timeout.duration).asInstanceOf[Map[String, String]]
     } match {
       case Success(newEnvironment) =>
-        environmentContext = Option(EnvironmentContext(newEnvironment))
+        environmentContext = Option(EnvironmentContext(newEnvironment ++ extraParams))
         environmentContext
       case Failure(e) =>
         log.warn(s"No environment result, returning the last value. ${e.getLocalizedMessage}")
-        environmentContext
+        environmentContext.map(env => env.copy(environmentVariables = env.environmentVariables ++ extraParams))
     }
   }
 

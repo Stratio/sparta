@@ -1,7 +1,7 @@
 @rest
 Feature: [SPARTA-1196] Generate and Execute Workflow
   Background: conect to navigator
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     And I wait '10' seconds
 

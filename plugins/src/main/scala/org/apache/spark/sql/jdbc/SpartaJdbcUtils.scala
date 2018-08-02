@@ -17,9 +17,9 @@ import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 
+import com.stratio.sparta.core.workflow.enumerators.ConstraintType
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
-import com.stratio.sparta.core.workflow.enumerators.ConstraintType
 
 case class TxSaveMode(txType: TxType, failFast: Boolean)
 
@@ -57,8 +57,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
       statement.executeQuery()
       exists = true
     } catch {
-      case e: SQLException =>
-        log.warn(s"Error in table ${options.table} validation, does not exist, will be created. ${e.getMessage}")
+      case e: SQLException if e.getSQLState.equals("42501") => throw e
+      case e: SQLException => log.warn(s"Error in table ${options.table} validation, does not exist, will be created. ${e.getMessage}")
     } finally {
       statement.close()
     }

@@ -108,3 +108,4 @@ export const getCurrentGroupLevel: any = createSelector(getWorkflowsEntityState,
 });
 export const getAllGroups: any = createSelector(getWorkflowsEntityState, (state) => state.groups);
 export const getLoadingState: any = createSelector(getWorkflowsEntityState, (state) => state.loading);
+export const getSavingState: any = createSelector(getWorkflowsEntityState, (state) => state.saving);

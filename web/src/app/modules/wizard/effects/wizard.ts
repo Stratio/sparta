@@ -59,6 +59,7 @@ export class WizardEffect {
       .withLatestFrom(this._store.select(state => state.wizard.wizard))
       .map(([payload, wizard]: [any, any]) => {
          if (payload.oldName === payload.data.name) {
+
             return new wizardActions.SaveEntityCompleteAction(payload);
          } else {
             for (let i = 0; i < wizard.nodes.length; i++) {
@@ -154,13 +155,15 @@ export class WizardEffect {
    getEditedWorkflow$: Observable<Action> = this.actions$
       .ofType(wizardActions.MODIFY_WORKFLOW)
       .map((action: any) => action.payload)
-      .switchMap((id: any) =>
-         this._workflowService.getWorkflowById(id)
+      .switchMap((id: any) =>  this._workflowService.getWorkflowById(id)
             .switchMap(workflow => [
                new wizardActions.SetWorkflowTypeAction(workflow.executionEngine),
                new wizardActions.GetMenuTemplatesAction(),
                new wizardActions.ModifyWorkflowCompleteAction(this._initializeWorkflowService.getInitializedWorkflow(workflow))
-            ]).catch(error => Observable.of(new wizardActions.ModifyWorkflowErrorAction(''))));
+            ]).catch(error => {
+                  console.log(error);
+                  return Observable.of(new wizardActions.ModifyWorkflowErrorAction(''));
+            }));
 
    @Effect()
    validateWorkflow$: Observable<Action> = this.actions$

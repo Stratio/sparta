@@ -31,6 +31,7 @@ export interface State {
    executionInfo: any;
    showModal: boolean;
    modalError: string;
+   saving: boolean;
 }
 
 const initialState: State = {
@@ -54,6 +55,7 @@ const initialState: State = {
    reload: false,
    showModal: true,
    modalError: '',
+   saving: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -273,11 +275,18 @@ export function reducer(state: State = initialState, action: any): State {
             showModal: false
          };
       }
+      case workflowActions.SAVE_JSON_WORKFLOW: {
+         return {
+            ...state,
+            saving: true
+         };
+      }
       case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
          return {
             ...state,
             showModal: false,
-            reload: true
+            reload: true,
+            saving: false
          };
       }
       case workflowActions.RENAME_WORKFLOW_COMPLETE: {
@@ -299,7 +308,8 @@ export function reducer(state: State = initialState, action: any): State {
       case workflowActions.SAVE_JSON_WORKFLOW_ERROR: {
          return {
             ...state,
-            modalError: action.payload
+            modalError: action.payload,
+            saving: false
          };
       }
       case workflowActions.GENERATE_NEW_VERSION_COMPLETE: {
@@ -316,6 +326,53 @@ export function reducer(state: State = initialState, action: any): State {
          };
 
       }
+      case workflowActions.MOVE_WORKFLOW_GROUP: {
+         const workflowList = state.workflowList.filter(workflow => workflow.name !== action.payload);
+         const workflowsVersionsList = state.workflowsVersionsList.filter(workflow => workflow.name !== action.payload);
+         return {
+            ...state,
+            workflowList,
+            workflowsVersionsList
+         };
+      }
+
+      case workflowActions.SAVE_WORKFLOW_GROUP: {
+         const newWorkflow = {
+            ...action.payload,
+            group: action.payload.group.name,
+            nodes: action.payload.pipelineGraph.nodes,
+            type: action.payload.executionEngine
+         };
+         const workflowList = [...state.workflowList, newWorkflow];
+         const workflowsVersionsList = [...state.workflowsVersionsList, newWorkflow];
+
+         return {
+            ...state,
+            workflowList,
+            workflowsVersionsList
+         };
+      }
+
+
+
+      case workflowActions.DELETE_WORKFLOW_GROUP: {
+         const workflowList = state.workflowList.filter(workflow => action.payload.indexOf(workflow.name) === -1);
+         const workflowsVersionsList = state.workflowsVersionsList.filter(workflow =>  action.payload.indexOf(workflow.name) === -1);
+         return {
+            ...state,
+            workflowList,
+            workflowsVersionsList
+         };
+      }
+
+      case workflowActions.DELETE_GROUP: {
+         const groups = state.groups.filter(group => action.payload.indexOf(group.name) === -1);
+         return {
+            ...state,
+            groups
+         };
+      }
+
       default:
          return state;
    }

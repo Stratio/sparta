@@ -1,0 +1,97 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+   display: block;
+   min-width: 1260px;
+   position: relative;
+
+   #joinDropdown-menu {
+      max-height: 350px;
+   }
+ }
+
+ .query-builder-container{
+   position: relative;
+   overflow: hidden;
+ }
+
+ .output-schema{
+   float: right;
+ }
+
+ .svg-path-container{
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   z-index: 1;
+   pointer-events: none;
+ }
+
+ .input-schemas{
+   float: left;
+   width: 380px;
+   margin-left: 60px;
+ }
+
+ .svg-container {
+   opacity: 1;
+
+   &.hide-paths{
+     opacity: 0;
+   }
+ }
+
+ .join-container {
+    width: 220px;
+   .join-box {
+      background-color: $action-secondary-04;
+      width: 70px;
+      position: absolute;
+      top: 350px;
+      left: -30px;
+      border-radius: 4px;
+      display: flex;
+      flex-flow: row wrap;
+      padding: 10px 0px 7px 0px;
+      span {
+        width: 50%;
+        text-align: center;
+        font-size: $egeo-font-size-xxxsmall;
+        color: $neutral-00;
+        margin-top: 2px;
+      }
+      span.arrow {
+         cursor: pointer;
+      }
+      .icon-join {
+         width: 25px;
+         padding-left: 2px;
+         margin-left: 4px;
+         height: 14px;
+         margin-top: 3px;
+      }
+   }
+   st-dropdown-menu {
+     position: absolute;
+     top: 385px;
+     left: -30px;
+     width: 220px;
+     z-index: 10;
+   }
+
+ }
+
+
+.no-inputs {
+   width: 100%;
+   display: block;
+   text-align: center;
+   font-size: 0.938rem;
+   margin: 40px 0;
+   .text {
+      color: #777777;
+      font-family: "Nunito Sans SemiBold";
+   }
+}

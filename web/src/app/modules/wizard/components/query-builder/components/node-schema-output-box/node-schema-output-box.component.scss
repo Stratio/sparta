@@ -1,0 +1,239 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+  display: inline-block;
+}
+
+.box-schema {
+  border-radius: 8px;
+  border: 2px solid $misc-lavender;
+  background: #fff;
+  width: 380px;
+  .box-schema-header {
+     position: relative;
+     .icon-waiting {
+         color: $neutral-07;
+         font-size: $egeo-font-size-large;
+         position: absolute;
+         right: 15px;
+         cursor: pointer;
+         st-dropdown-menu {
+            position: absolute;
+            right: 0px;
+         }
+      }
+   }
+  .filters {
+    padding: 5px;
+    .filters-input {
+      background: white;
+      height: 100px;
+      width:100%;
+      border: 1px solid $neutral-07;
+      overflow: auto;
+      resize: none;
+      padding: 10px 20px;
+      display: block;
+      color: $neutral-11;
+      font-size: 16px;
+      outline: none;
+      box-shadow: none;
+      border-radius: 4px;
+    }
+    .filters-empty, .filter-text {
+      min-height: 100px;
+      font-size: $egeo-font-size-small;
+      color: $neutral-11;
+      padding: 10px;
+    }
+    .filter-text {
+      padding-right: 35px;
+      position: relative;
+
+      span.icon {
+         cursor: pointer;
+         position: absolute;
+         right: 15px;
+         top: 15px;
+         color: $action-secondary-04;
+         cursor: pointer;
+      }
+      span {
+         cursor: pointer;
+      }
+    }
+    .filters-empty {
+      font-size: $egeo-font-size-xxsmall;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .filter-add {
+         color: $action-primary-default;
+      }
+    }
+
+  }
+
+  .body-container {
+      border-top: 2px solid $misc-lavender;
+  }
+
+  &-header{
+    padding: 23px 23px 15px 23px;
+    &__title {
+      font-family: $egeo-nunito-sans-light;
+      font-size: $egeo-font-size-medium;
+    }
+
+    .icon {
+      font-size: 20px;
+      float: left;
+      margin-top: 2px;
+      margin-right: 10px;
+    }
+  }
+
+  &-filter {
+    background: $neutral-02;
+    cursor: pointer;
+    padding: 12px 23px;
+    margin-left: 1px;
+    .icon {
+      float: left;
+      margin-top: 4px;
+      margin-right: 5px;
+      font-size: 15px;
+      transform: rotate(-90deg);
+
+      &.active {
+        transform: rotate(0deg);
+      }
+    }
+  }
+
+  &-body {
+    width: 100%;
+    border-collapse: collapse;
+
+    &__header {
+
+      &-field {
+        color: #757575;
+        border-bottom: 1px solid #dce8f2;
+        font-size: $egeo-font-size-xxxsmall;
+        padding: 10px 0;
+      }
+    }
+
+    .expression {
+      padding-left: 23px;
+      position: relative;
+      span {
+         cursor: pointer;
+      }
+      .icon {
+         position: absolute;
+         left: 5px;
+         top: 12px;
+         color: $action-secondary-04;
+      }
+    }
+
+    .column {
+      padding-right: 23px;
+      input {
+         padding: 5px 10px 5px 10px;
+         border: 1px solid $neutral-07;
+         width: 180px;
+         margin-top: -8px;
+      }
+      span {
+         cursor: pointer;
+      }
+      span.repeat {
+         color: $status-critical-default;
+      }
+    }
+
+    .column, .expression {
+      display: inline-block;
+      width: 50%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      vertical-align: top;
+      padding-right: 10px;
+    }
+
+    &__row {
+      border-collapse: collapse;
+    }
+
+    &__row-container {
+      border-collapse: collapse;
+
+      textarea {
+         background: white;
+         height: 60px;
+         width: 360px;
+         border: 1px solid $neutral-07;
+         overflow: auto;
+         resize: none;
+         padding: 10px 20px;
+         margin: 10px 10px 10px 10px;
+         display: block;
+         color: #3c3c3c;
+         font-size: 16px;
+         border-radius: 4px;
+      }
+    }
+
+    &__field {
+      color: $action-secondary-07;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+  }
+  .no-fields-placeholder{
+    padding: 60px 87px;
+    color: $neutral-08;
+    font-size: 14px;
+
+    .dndPlaceholder{
+       display: none;
+    }
+  }
+}
+
+
+.dndPlaceholder{
+   width: 100%;
+   background-color: #ddd;
+   height: 42px;
+   list-style: none;
+   position:relative;
+   display: block;
+}
+
+.dndDraggingSource {
+   display: none;
+ }
+
+#dropdown-orderAsc {
+   color:  #f98e19;
+   #dropdown-orderAsc-option-orderAsc {
+      color:  #f98e19;
+      li {
+         color: #f98e19;
+      }
+   }
+}
+
+span.icon.icon-check.nuevo.orderAsc {
+   position: absolute;
+   right: 6px;
+   top: 15px;
+   font-size: 12px;
+}
+
+

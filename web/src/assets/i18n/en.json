@@ -238,7 +238,7 @@
       "_SPARK_COARSE_": "Coarse",
       "_SPARK_PARQUET_BINARY_STRING_": "Parquet binary as string",
       "_SPARK_LOG_STAGES_PROGRESS_": "Show stages progress in logs",
-      "_SPARK_HDFS_DISABLE_CACHE_": "Hdfs cache",
+      "_SPARK_HDFS_DISABLE_CACHE_": "Disable HDFS cache",
       "_SPARK_STOP_GRACEFULLY_": "Stop gracefully",
       "_SPARK_CORES_MAX_": "Cores max",
       "_SPARK_EXECUTOR_MEMORY_": "Executor memory",
@@ -673,6 +673,9 @@
       "DEBUG_DATA_FLOWING": "Data succesfully flowing",
       "VIEW_ERROR_DETAILS": "View details",
       "GENERIC_ERROR": "Oops!. Data not flowing correctly. There are one or more generic errors",
+      "QUERY_BUILDER": {
+        "NO_INPUT_SCHEMAS": "You must either add at least one input or run a debug execution to use this query builder."
+      },
       "RELATIONS": {
         "DEFAULT": "Default relation",
         "VALIDDATA": "Valid data",

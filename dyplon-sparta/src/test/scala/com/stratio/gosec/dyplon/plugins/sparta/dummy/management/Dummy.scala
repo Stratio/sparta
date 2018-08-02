@@ -16,7 +16,7 @@ object Dummy extends App {
   }
 
   val userId = "admin"
-  val ver = "2.1.0-SNAPSHOT"
+  val ver = "2.2.0"
   val dummyPlugin: DummyInstance = new DummyInstance(userId = userId, manifestType = "sparta",
     manifestVersion = ver, instanceArg = Seq("sparta"))
 

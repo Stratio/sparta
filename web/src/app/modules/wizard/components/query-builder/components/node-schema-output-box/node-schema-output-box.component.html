@@ -1,0 +1,86 @@
+<section class="box-schema" [ngClass]="{'ordering-list': isOrdering}">
+   <div class="box-schema-header">
+     <span class="icon icon-login"></span>
+     <span class="box-schema-header__title">Output</span>
+     <span class="icon icon-waiting" (click)="onHeaderMenu()">
+         <st-dropdown-menu
+            [items]="outputOptions"
+            [attr.id]="'outputOptions'"
+            [active]="headerMenu"
+            [offset]="{ x: 0, y: 10 }"
+            (change)="onChangeOption($event, undefined, undefined)">
+         </st-dropdown-menu>
+     </span>
+   </div>
+   <div class="box-schema-filter" (click)="toggleFilters()">
+     <span class="icon icon-arrow4_down" [ngClass]="{'active' : showFilters}"></span>
+     <span>Filters</span><span *ngIf="filter.length && !showFilters"> (1)</span>
+   </div>
+   <div class="filters" *ngIf="showFilters">
+      <div *ngIf="!editFilter && !filter" class="filters-empty">
+        <div>You have not created any filter yet. <span (click)="onEditFilter()" class="filter-add">Add one</span></div>
+      </div>
+      <div *ngIf="filter && !editFilter" class="filter-text"><span (click)="onEditFilter()" class="filter-add">{{filter}}</span><span class="icon icon-cross" (click)="deleteFilter()"></span></div>
+      <textarea
+         placeholder="Type your filter and press enter to apply."
+         *ngIf="editFilter" class="filters-input"
+         (keydown.enter)="saveFilter($event)"
+         (focusout)="onFocusOut($event)"
+         >{{filter}}</textarea>
+   </div>
+   <div class="body-container">
+     <div class="box-schema-body">
+       <div class="box-schema-body__header"><!--
+      --><div class="box-schema-body__header-field expression">
+           Expression
+         </div><!--
+      --><div class="box-schema-body__header-field column">
+           Column
+         </div><!--
+    --></div>
+       <div class="box-schema-body__row" [dndList]="schemaFields" (dndDrop)="onDrop($event)" >
+         <div class="box-schema-body__row-container"
+           *ngFor="let field of schemaFields; let i = index;"
+           [dndDraggable]="{index: i}"
+           (dndDragstart)="onReorder($event)"
+           (dndDragend)="onEndReorder()"
+           [containerElement]="containerElement"
+           field-position
+           [(position)]="field.position"
+           [recalcPositionSubject]="positionSubject"
+           (positionChange)="changePosition()"
+           (contextmenu)="contextMenu($event, field, i)"
+           >
+           <div *ngIf="editExpression !== i">
+               <st-dropdown-menu
+               [style.top.px]="dropDownCoords.y + 5"
+               [style.left.px]="dropDownCoords.x + 5"
+               style="position:fixed; z-index:999; min-width: 280px;"
+               [items]="items"
+               [attr.id]="'dropdownMenu-' + i"
+               [active]="showDropDown === i"
+               [offset]="{ x: 0, y: 10 }"
+               (change)="onChangeOption($event, field, i)">
+         </st-dropdown-menu><!--
+
+         --><div class="box-schema-body__field expression" (click)="onEditExpression(field, i)">
+               <i *ngIf="field.order" class="icon" [ngClass]="field.order === 'orderAsc'? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+               <span>{{field.expression}}</span>
+             </div><!--
+         --><div class="box-schema-body__field column" >
+
+               <span *ngIf="editColumn !== i" (click)="onEditColumn(field, i)" [ngClass]="{ repeat: isRepeat(field.column)}" >{{field.column}}</span>
+               <input *ngIf="editColumn === i" type="text" (keydown.enter)="saveColumn($event,field, i)" [(ngModel)]="schemaFields[i].column"/>
+             </div><!--
+       --></div>
+          <div>
+            <textarea *ngIf="editExpression === i" (keydown.enter)="saveExpression($event,field, i)"  [(ngModel)]="schemaFields[i].expression"></textarea>
+          </div>
+        </div>
+       </div>
+     <div class="no-fields-placeholder" *ngIf="!schemaFields.length" dndList (dndDrop)="onDrop($event)">
+       Drag and drop here a column of the input boxes at the left.
+     </div>
+   </div>
+   </div>
+ </section>

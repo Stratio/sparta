@@ -292,19 +292,6 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
         expectMsg(Left(Success(environmentTwoElementModel)))
       }
 
-    "UpdateEnvironment: tries to create a environment but throw exception because the environment not exists" in
-      new TestData {
-        when(curatorFramework.checkExists())
-          .thenReturn(existsBuilder)
-        when(curatorFramework.checkExists()
-          .forPath("/stratio/sparta/sparta/environment"))
-          .thenReturn(null)
-
-        environmentActor ! EnvironmentActor.UpdateEnvironment(environmentElementModel, rootUser)
-
-        expectMsg(Left(Failure(new ServerException("Unable to create environment"))))
-      }
-
     "UpdateEnvironmentVariable: update a environment variable and return the exception" in new TestData {
 
       when(curatorFramework.checkExists())

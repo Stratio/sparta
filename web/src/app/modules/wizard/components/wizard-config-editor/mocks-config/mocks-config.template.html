@@ -6,15 +6,15 @@
 <div [ngSwitch]="model.selectedMock">
   <div *ngSwitchCase="'userProvidedExample'">
     <sp-textarea *ngIf="!model.userProvidedExample || (model.userProvidedExample && model.userProvidedExample.length < 100000)"
-      [(ngModel)]="model.userProvidedExample" 
-      name="description" 
+      [(ngModel)]="model.userProvidedExample"
+      name="description"
       fieldType="text"
       rows="6"
       [placeholder]="'WIZARD.MOCKS.PASTE_PLACEHOLDER' | translate"
-      qaTag="paste" 
+      qaTag="paste"
       class="mock-text-field"></sp-textarea>
     <div>
-      <span *ngIf="model.userProvidedExample && model.userProvidedExample.length > 100000">Mock data content is too long to be showed: 
+      <span *ngIf="model.userProvidedExample && model.userProvidedExample.length > 100000">Mock data content is too long to be showed:
         <b>{{model.userProvidedExample.length}}</b> characters</span>
       <p [ngClass]="{'line-label' : !model.userProvidedExample || (model.userProvidedExample && model.userProvidedExample.length < 100000)}">
         {{model.userProvidedExample ? model.userProvidedExample.split("\n").length : '0'}} lines
@@ -41,7 +41,7 @@
     <form-file class="upload-button" (onFileUpload)="uploadMockFile($event)" text="Upload a mock file"></form-file>
     <ng-container *ngIf="model.fileUploaded">
       <button type="button" (click)="removeMockFile()" class="button button-critical">Remove file</button>
-      <button type="button" (click)="downloadMockFile()" class="button button-primary">Download file</button>
+      <!--<button type="button" (click)="downloadMockFile()" class="button button-primary">Download file</button>-->
     </ng-container>
   </div>
 </div>

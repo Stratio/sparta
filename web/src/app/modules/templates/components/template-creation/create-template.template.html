@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<st-fullscreen-layout [title]="editMode ? (('DASHBOARD.EDIT' | translate) + editedTemplateName) : (('DASHBOARD.CREATE_' + stepKey) | translate)">
+<st-fullscreen-layout [title]="editMode ? (('DASHBOARD.EDIT' | translate) + ' ' + editedTemplateName) : (('DASHBOARD.CREATE_' + stepKey) | translate)">
    <div class="st-fullscreen-layout-buttons">
       <button class="button button-toolbar help-button" [ngClass]="{'selected-button' : isShowedHelp}" (click)="isShowedHelp = !isShowedHelp">
          <i class="icon-help2"></i>

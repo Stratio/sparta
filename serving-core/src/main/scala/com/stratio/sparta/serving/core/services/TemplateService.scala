@@ -56,18 +56,27 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
 
 
   def create(template: TemplateElement): TemplateElement =
-    Try(findByTypeAndName(template.templateType, template.name)).toOption
-      .getOrElse {
-        val newTemplate = addSpartaVersion(addCreationDate(addId(template)))
+    Try(findByTypeAndName(template.templateType, template.name)) match {
+      case Success(existingTemplate) =>
+        throw new ServerException(s"Cannot create template because a template of type: " +
+        s"${existingTemplate.templateType} and name: ${existingTemplate.name} already exists")
+      case Failure(_) => val newTemplate = addSpartaVersion(addCreationDate(addId(template)))
         curatorFramework.create().creatingParentsIfNeeded().forPath(
-          s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}", write(newTemplate).getBytes())
+          s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}",
+          write(newTemplate).getBytes())
         newTemplate
-      }
+    }
 
   def createList(templates: Seq[TemplateElement]): Seq[TemplateElement] =
     templates.map(create)
 
   def update(template: TemplateElement): TemplateElement = {
+    val sameNameTypeTemplate = Try(findByTypeAndName(template.templateType, template.name)).toOption
+    if (sameNameTypeTemplate.isDefined && sameNameTypeTemplate.get.id.get != template.id.get)
+      throw new ServerException(s"Cannot update template with id ${template.id.get}" +
+        s" because a template of the same type " +
+        s" and name ${template.name} already exists")
+
     val newTemplate = addSpartaVersion(addUpdateDate(addId(template)))
     val workflowsToUpdate = workflowService.findByTemplateId(template.id.get)
 

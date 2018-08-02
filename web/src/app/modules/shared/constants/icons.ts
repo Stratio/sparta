@@ -41,12 +41,13 @@ export const icons: any = {
     Custom: '\ue60a',
     ElasticSearch: '\ue624',
     DropColumns: '\ue123',
+    DropDuplicates: '\ue908',
     AddColumns: '\ue104',
     RenameColumns: '\ue91D',
     DataProfiling: '\uE091',
     BasicDataQuality: '\uE94D',
-    DropDuplicates: '\ue908',
     InitNulls: '\ue919',
     Join: '\ue98B',
-    DropNulls: '\ue084'
+    DropNulls: '\ue084',
+    QueryBuilder: '\uE932'
 };

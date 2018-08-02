@@ -6,11 +6,10 @@
 
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { StBreadcrumbsModule, StModalService, StModalResponse } from '@stratio/egeo';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { By } from '@angular/platform-browser';
+import { NO_ERRORS_SCHEMA, ChangeDetectionStrategy } from '@angular/core';
 import { of } from 'rxjs/observable/of';
 
-import { TranslateMockModule } from '@test/translate-stub';
+import { TranslateMockModule, initTranslate } from '@test/translate-stub';
 import { Router } from '@angular/router';
 import { WorkflowsManagingHeaderComponent } from './../workflows-header.component';
 import { WorkflowsManagingService } from './../../../workflows.service';
@@ -45,14 +44,21 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          ],
          declarations: [WorkflowsManagingHeaderComponent],
          schemas: [NO_ERRORS_SCHEMA]
-      }).compileComponents();  // compile template and css
+      })
+      // remove this block when the issue #12313 of Angular is fixed
+         .overrideComponent(WorkflowsManagingHeaderComponent, {
+            set: { changeDetection: ChangeDetectionStrategy.Default }
+         })
+         .compileComponents();  // compile template and css
    }));
 
 
    beforeEach(() => {
+      initTranslate();
       fixture = TestBed.createComponent(WorkflowsManagingHeaderComponent);
       component = fixture.componentInstance;
       component.levelOptions = ['home'];
+      fixture.detectChanges();
    });
 
    describe('if no entity has been selected, ', () => {
@@ -67,38 +73,40 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       });
 
       it('the edit button should not be displayed', () => {
-         expect(fixture.debugElement.query(By.css('#edit-workflow-group-button'))).toBeNull();
+         expect(fixture.nativeElement.querySelector('#edit-workflow-group-button')).toBeNull();
       });
 
       it('the run workflow button should not be displayed', () => {
-         expect(fixture.debugElement.query(By.css('#run-workflow-button'))).toBeNull();
+         expect(fixture.nativeElement.querySelector('#run-workflow-button')).toBeNull();
       });
 
       it('the download button should not be displayed', () => {
-         expect(fixture.debugElement.query(By.css('#download-button'))).toBeNull();
+         expect(fixture.nativeElement.querySelector('#download-button')).toBeNull();
       });
 
       it('the edit version button should not be displayed', () => {
-         expect(fixture.debugElement.query(By.css('#edit-version-button'))).toBeNull();
+         expect(fixture.nativeElement.querySelector('#edit-version-button')).toBeNull();
       });
 
       it('the move group button should not be displayed', () => {
-         expect(fixture.debugElement.query(By.css('#move-group-button'))).toBeNull();
+         expect(fixture.nativeElement.querySelector('#move-group-button')).toBeNull();
       });
 
       it('the delete button should not be displayed', () => {
-         expect(fixture.debugElement.query(By.css('#delete-button'))).toBeNull();
+         expect(fixture.nativeElement.querySelector('#delete-button')).toBeNull();
       });
    });
 
    describe('if a group is selected, ', () => {
       beforeEach(() => {
          component.selectedGroupsListInner = ['/home/group'];
+         component.selectedWorkflowsInner = [];
+
+         fixture.detectChanges();
       });
 
       it('should can edit group name', () => {
-         fixture.detectChanges();
-         fixture.debugElement.query(By.css('#edit-workflow-group-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#edit-workflow-group-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.renameFolderTitle);
          expect(callParams.inputs).toEqual({
@@ -109,7 +117,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
 
       it('should can move a group', () => {
          fixture.detectChanges();
-         fixture.debugElement.query(By.css('#move-group-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#move-group-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.moveGroupTitle);
          expect(callParams.inputs).toEqual({
@@ -121,22 +129,21 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
 
       it('should can remove a group', () => {
          fixture.detectChanges();
-         fixture.debugElement.query(By.css('#delete-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#delete-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.deleteModalTitle);
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
       });
    });
 
-
    describe('if a workflow is selected, ', () => {
       beforeEach(() => {
          component.selectedWorkflowsInner = ['workflow1'];
+         fixture.detectChanges();
       });
 
       it('should can edit workflow name', () => {
-         fixture.detectChanges();
-         fixture.debugElement.query(By.css('#edit-workflow-group-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#edit-workflow-group-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.renameWorkflowTitle);
          expect(callParams.inputs).toEqual({
@@ -146,8 +153,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       });
 
       it('should can move a workflow', () => {
-         fixture.detectChanges();
-         fixture.debugElement.query(By.css('#move-group-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#move-group-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.moveGroupTitle);
          expect(callParams.inputs).toEqual({
@@ -157,8 +163,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       });
 
       it('should can remove a workflow', () => {
-         fixture.detectChanges();
-         fixture.debugElement.query(By.css('#delete-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#delete-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.deleteModalTitle);
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
@@ -166,16 +171,16 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
    });
 
    describe('if a version is selected', () => {
+      const fakeVersion = {
+         id: 'id',
+         name: 'workflow-version-name',
+         version: 1,
+         group: '/home',
+         status: {
+            status: 'Started'
+         }
+      };
       beforeEach(() => {
-         const fakeVersion = {
-            id: 'id',
-            name: 'workflow-version-name',
-            version: 1,
-            group: '/home',
-            status: {
-               status: 'Started'
-            }
-         };
          component.selectedVersionsData = [fakeVersion];
          component.selectedVersionsInner = [fakeVersion.id]; // versions ids
          component.selectedVersions = [fakeVersion.id]; // versions ids
@@ -184,10 +189,10 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       /* start and stop buttons were disabled */
       xit('should show the run button with the stop icon if the version status is Running', () => {
          fixture.detectChanges();
-         const runDebugElement = fixture.debugElement.query(By.css('#run-workflow-button'));
+         const runDebugElement: HTMLButtonElement = fixture.nativeElement.querySelector('#run-workflow-button');
          expect(runDebugElement).not.toBeNull();
 
-         runDebugElement.triggerEventHandler('click', {});
+         runDebugElement.click();
          expect(workflowsManagingStub.stopWorkflow).toHaveBeenCalled();
       });
 
@@ -203,34 +208,34 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          };
          component.selectedVersionsData = [fakeVersion];
          fixture.detectChanges();
-         const runDebugElement = fixture.debugElement.query(By.css('#run-workflow-button'));
+         const runDebugElement: HTMLButtonElement = fixture.nativeElement.querySelector('#run-workflow-button');
          expect(runDebugElement).not.toBeNull();
-         runDebugElement.triggerEventHandler('click', {});
+         runDebugElement.click();
          expect(workflowsManagingStub.runWorkflow).toHaveBeenCalled();
       });
 
       it('should can download the selected version', () => {
          fixture.detectChanges();
          spyOn(component.downloadWorkflows, 'emit');
-         const runDebugElement = fixture.debugElement.query(By.css('#download-button'));
+         const runDebugElement: HTMLButtonElement = fixture.nativeElement.querySelector('#download-button');
          expect(runDebugElement).not.toBeNull();
-         runDebugElement.triggerEventHandler('click', {});
+         runDebugElement.click();
          expect(component.downloadWorkflows.emit).toHaveBeenCalled();
       });
 
       it('should can edit the selected version', () => {
          fixture.detectChanges();
          spyOn(component.onEditVersion, 'emit');
-         const runDebugElement = fixture.debugElement.query(By.css('#edit-version-button'));
+         const runDebugElement: HTMLButtonElement = fixture.nativeElement.querySelector('#edit-version-button');
          expect(runDebugElement).not.toBeNull();
-         runDebugElement.triggerEventHandler('click', {});
+         runDebugElement.click();
          expect(component.onEditVersion.emit).toHaveBeenCalled();
       });
 
 
       it('should can remove a version', () => {
          fixture.detectChanges();
-         fixture.debugElement.query(By.css('#delete-button')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#delete-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.deleteModalTitle);
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
@@ -239,13 +244,13 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       it('should can create a new version', () => {
          fixture.detectChanges();
          spyOn(component.generateVersion, 'emit');
-         fixture.debugElement.query(By.css('#version-option')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#version-option').click();
          expect(component.generateVersion.emit).toHaveBeenCalled();
       });
 
       it('should can create a workflow from a version', () => {
          fixture.detectChanges();
-         fixture.debugElement.query(By.css('#workflow-option')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#workflow-option').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.duplicateWorkflowTitle);
       });
@@ -256,22 +261,22 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       beforeEach(() => fixture.detectChanges());
 
       it('should can create a folder', () => {
-         fixture.debugElement.query(By.css('#group-option')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#group-option').click();
          expect(workflowsManagingStub.createWorkflowGroup).toHaveBeenCalled();
       });
 
       it('should can create a workflow from json file', () => {
-         fixture.debugElement.query(By.css('#file-option')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#file-option').click();
          expect(workflowsManagingStub.showCreateJsonModal).toHaveBeenCalled();
       });
 
       it('should can create an emty batch workflow', () => {
-         fixture.debugElement.query(By.css('#batch-option')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#batch-option').click();
          expect(routeMock.navigate).toHaveBeenCalledWith(['wizard/batch']);
       });
 
       it('should can create an empty streaming workflow', () => {
-         fixture.debugElement.query(By.css('#streaming-option')).triggerEventHandler('click', {});
+         fixture.nativeElement.querySelector('#streaming-option').click();
          expect(routeMock.navigate).toHaveBeenCalledWith(['wizard/streaming']);
       });
    });
@@ -280,25 +285,26 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       let infoButton;
 
       beforeEach(() => {
-         infoButton = fixture.debugElement.query(By.css('#info-button'));
+         infoButton = fixture.nativeElement.querySelector('#info-button');
       });
 
       it('should be active when the info bar is opened', () => {
          component.showDetails = true;
          fixture.detectChanges();
-         expect(infoButton.nativeElement.className.indexOf('selected-button') > -1).toBeTruthy();
+
+         expect(infoButton.classList).toContain('selected-button');
       });
 
       it('should be inactive when the info bar is closed', () => {
          component.showDetails = false;
          fixture.detectChanges();
-         expect(infoButton.nativeElement.className.indexOf('selected-button') > -1).toBeFalsy();
+
+         expect(infoButton.classList).not.toContain('selected-button');
       });
 
       it('should change info bar status when is clicked', () => {
-         fixture.detectChanges();
          spyOn(component.showWorkflowInfo, 'emit');
-         infoButton.triggerEventHandler('click', {});
+         infoButton.click();
          expect(component.showWorkflowInfo.emit).toHaveBeenCalled();
       });
    });

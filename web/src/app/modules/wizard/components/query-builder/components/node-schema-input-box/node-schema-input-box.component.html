@@ -1,0 +1,53 @@
+<section class="box-schema">
+   <div class="box-schema-header">
+     <span class="icon icon-grid4"></span>
+     <span class="box-schema-header__title">{{schema.name}} as {{schema.alias}}</span>
+     <span *ngIf="!disableDrag" class="icon icon-waiting" (click)="onHeaderMenu()">
+         <st-dropdown-menu
+            [items]="inputOptions"
+            [attr.id]="'inputOptions'"
+            [active]="headerMenu"
+            [offset]="{ x: 0, y: 10 }"
+            (change)="onChangeOption($event)">
+         </st-dropdown-menu>
+     </span>
+   </div>
+   <div class="table-container" [ngClass]="{'no-drop': isDragging} ">
+     <div class="box-schema-body">
+       <div class="box-schema-body__header"><!--
+       --><div class="box-schema-body__header-field column">
+           Column
+         </div><!--
+       --><div class="box-schema-body__header-field type">
+           Type
+         </div><!--
+    --></div>
+      <div field-position [recalcPositionSubject]="containerPositionSubject" [containerElement]="containerElement"  (positionChange)="onChangeContainerPosition($event)">
+       <perfect-scrollbar [config]="config" (psScrollY)="onScroll($event)"
+         class="scroll-bar-sql-builder" [style.maxHeight.px]="listMaxHeight" [scrollIndicators]="false">
+         <div class="box-schema-body__row-group" [dndList]=" isDragging ? schema.fields : false" (dndDrop)="onDrop($event)">
+           <div class="box-schema-body__row"
+             *ngFor="let field of schema.fields"
+             [ngClass]="{'selected' :  selectedFieldsNames.indexOf(field.column) > -1, 'no-drag': disableDrag }"
+             [dndDraggable]="getSelectedItemsIncluding(field)"
+             (dndDragstart)="onDragstart($event)"
+             (dndMoved)="onMoved()"
+             [dndDisable]="disableDrag"
+             field-position
+             (positionChange)="onChangeElementPosition(field.column, $event)"
+             [containerElement]="containerElement"
+             [recalcPositionSubject]="recalcPositionSubject"
+             (click)="selectColumn(field)"><!--
+         --><div class="box-schema-body__field column">
+               {{field.column}}
+             </div><!--
+           --><div class="box-schema-body__field type">
+             {{field.fieldType.length ? field.fieldType : field.fieldType.type}}
+             </div><!--
+         --></div>
+         </div>
+       </perfect-scrollbar>
+       </div>
+     </div>
+   </div>
+ </section>

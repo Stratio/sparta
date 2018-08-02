@@ -607,7 +607,7 @@
                 "required": true,
                 "width": "auto",
                 "default": true,
-                "tooltip": "Enables the HDFS cache for token delegation.",
+                "tooltip": "If selected, it disables the HDFS cache for token delegation.",
                 "qa": "workflow-spark-hdfsDisableCache"
              }
           ]

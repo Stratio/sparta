@@ -179,13 +179,21 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       sparkConfs ++ Map(SubmitExecutorLogLevelConf -> sys.env.get("SPARK_LOG_LEVEL").notBlank.get)
     } else sparkConfs
 
-  private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
-    Properties.envOrNone(CalicoNetworkEnv).notBlank.fold(sparkConfs) { calicoNetwork =>
-      sparkConfs ++ Map(
-        SubmitDriverCalicoNetworkConf -> calicoNetwork,
-        SubmitExecutorCalicoNetworkConf -> calicoNetwork
+  private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] = {
+    val calicoNetworkFromEnv = for {
+      calicoEnable <- Properties.envOrNone(CalicoEnableEnv)
+      if Try(calicoEnable.toBoolean).getOrElse(false)
+      calicoNetwork <- Properties.envOrNone(CalicoNetworkEnv)
+    } yield calicoNetwork
+    
+    calicoNetworkFromEnv match {
+      case Some(someNetwork) => sparkConfs ++ Map(
+        SubmitDriverCalicoNetworkConf -> someNetwork,
+        SubmitExecutorCalicoNetworkConf -> someNetwork
       )
+      case _ => sparkConfs
     }
+  }
 
   private[core] def addNginxPrefixConf(sparkConfs: Map[String, String]): Map[String, String] = {
     for {

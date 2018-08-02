@@ -7,7 +7,7 @@
 import { Location } from '@angular/common';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 
 import 'rxjs/add/operator/takeUntil';
@@ -23,7 +23,6 @@ import * as debugActions from './../../actions/debug';
 
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
-import { workflowNamePattern } from './../../wizard.constants';
 
 @Component({
   selector: 'wizard-header',
@@ -51,11 +50,9 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
   @ViewChild('nameForm') public nameForm: NgForm;
   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
-  public workflowNamePattern = workflowNamePattern;
   public isShowedEntityDetails$: Observable<boolean>;
   public menuOptions$: Observable<Array<FloatingMenuModel>>;
   public isLoading$: Observable<boolean>;
-  public showErrors = false;
   public workflowType = '';
 
   public notification: any;
@@ -69,7 +66,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
   private _componentDestroyed = new Subject();
 
   constructor(private route: Router,
-    private currentActivatedRoute: ActivatedRoute,
     private _store: Store<fromWizard.State>,
     private _cd: ChangeDetectorRef,
     private _modalService: StModalService,

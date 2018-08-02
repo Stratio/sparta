@@ -50,7 +50,7 @@
           "sparkMemoryFraction": "0.6"
         },
         "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
+          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0",
           "executorDockerVolumes": " /opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
           "executorForcePullImage": false
         },

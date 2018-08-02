@@ -60,20 +60,20 @@ export class InitializeWorkflowService {
     if (workflowType === 'Streaming') {
       switch (nodeElement.stepType) {
         case StepType.Input:
-          return streamingInputsObject[nodeElement.classPrettyName]
+          return streamingInputsObject[nodeElement.classPrettyName];
         case StepType.Output:
-          return streamingOutputsObject[nodeElement.classPrettyName]
+          return streamingOutputsObject[nodeElement.classPrettyName];
         case StepType.Transformation:
-          return streamingTransformationsObject[nodeElement.classPrettyName]
+          return streamingTransformationsObject[nodeElement.classPrettyName];
       }
     } else {
       switch (nodeElement.stepType) {
         case StepType.Input:
-          return batchInputsObject[nodeElement.classPrettyName]
+          return batchInputsObject[nodeElement.classPrettyName];
         case StepType.Output:
-          return batchOutputsObject[nodeElement.classPrettyName]
+          return batchOutputsObject[nodeElement.classPrettyName];
         case StepType.Transformation:
-          return batchTransformationsObject[nodeElement.classPrettyName]
+          return batchTransformationsObject[nodeElement.classPrettyName];
       }
     }
   }

@@ -1,0 +1,102 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+  display: inline-block;
+}
+
+.box-schema {
+   .box-schema-header {
+      position: relative;
+      .icon-waiting {
+          color: $neutral-07;
+          font-size: $egeo-font-size-large;
+          position: absolute;
+          right: 15px;
+          cursor: pointer;
+          st-dropdown-menu {
+             position: absolute;
+             right: 0px;
+          }
+       }
+    }
+  border-radius: 8px;
+  border: 2px solid #78c7dd;
+  background: #fff;
+  margin-bottom: 50px;
+  width:380px;
+  &-header{
+    padding: 23px;
+    border-bottom: 1px solid #78c7dd;
+    &__title {
+      font-family: $egeo-nunito-sans-light;
+      font-size: $egeo-font-size-medium;
+    }
+
+    .icon {
+      font-size: 20px;
+      float: left;
+      margin-top: 2px;
+      margin-right: 10px;
+    }
+  }
+
+  &-body {
+    width: 100%;
+    .no-drag {
+      cursor: no-drop;
+   }
+
+    &__header {
+      &-field {
+        color: #757575;
+        border-bottom: 1px solid #dce8f2;
+        font-size: 14px;
+        padding: 10px 0;
+      }
+    }
+
+    .column {
+      padding-left: 23px;
+      display: inline-block;
+      width: 60%
+    }
+
+    .type {
+      padding-right: 23px;
+      display: inline-block;
+      width: 40%
+    }
+
+    &__row {
+      &.selected {
+        background: $action-primary-light;
+      }
+
+    }
+
+    &__field {
+      color: $action-secondary-07;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+  }
+}
+
+.table-container {
+   .dndPlaceholder {
+      width: 100%;
+      background-color: #ddd;
+      height: 42px;
+      list-style: none;
+      position: absolute;
+      display: block;
+      opacity: 0.5;
+   }
+   &.no-drop {
+      .dndPlaceholder {
+         display: none;
+      }
+   }
+}
+
+

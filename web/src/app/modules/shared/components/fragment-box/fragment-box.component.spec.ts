@@ -17,7 +17,7 @@ let el: DebugElement;
 describe('FragmentBoxComponent', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [EgeoModule],
+            imports: [],
             schemas: [NO_ERRORS_SCHEMA],
             declarations: [FragmentBoxComponent]
         }).compileComponents();  // compile template and css

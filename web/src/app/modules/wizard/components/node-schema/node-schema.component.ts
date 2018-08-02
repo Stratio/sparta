@@ -5,7 +5,7 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { StTreeEvent, StTreeNode } from '@stratio/egeo';
+import { StTreeNode } from '@stratio/egeo';
 
 @Component({
   selector: 'node-schema',

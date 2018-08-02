@@ -1,0 +1,20 @@
+{
+   "name": "SQLBuilder",
+   "icon": "SQLBuilder",
+   "category": "SQL",
+   "className": "SQLBuilderStep",
+   "classPrettyName": "SQLBuilder",
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "arity": [
+      "UnaryToNary"
+   ],
+   "description": "SQL Builder",
+   "properties": [
+   ]
+}

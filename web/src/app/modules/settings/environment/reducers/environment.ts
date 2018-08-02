@@ -24,6 +24,12 @@ export function reducer(state: State = initialState, action: any): State {
                 environmentList: action.payload
             };
         }
+       case environmentActions.LIST_ENVIRONMENT_ERROR: {
+          return {
+             ...state,
+             environmentList: []
+          };
+       }
         default:
             return state;
     }

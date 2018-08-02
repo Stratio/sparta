@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { StepType, Engine } from "@models/enums";
+import { StepType, Engine } from '@models/enums';
 
 import * as addColumnTemplate from './transformations/addColumns.json';
 import * as avroTemplate from './transformations/avro.json';
@@ -40,6 +40,7 @@ import * as triggerStreamingTemplate from './transformations/triggerStreaming.js
 import * as triggerBatchTemplate from './transformations/triggerBatch.json';
 import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
+import * as queryBuilderTemplate from './transformations/queryBuilder.json';
 
 export const transformations: any = [
     addColumnTemplate,
@@ -75,6 +76,7 @@ export const transformations: any = [
     triggerStreamingTemplate,
     triggerBatchTemplate,
     unionTemplate,
+    queryBuilderTemplate,
     windowTemplate
 ];
 

@@ -31,6 +31,10 @@ import { WizardService } from '@app/wizard/services/wizard.service';
 import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 import { StepType } from 'app/models/enums';
 
+import * as fromQueryBuilder from '../query-builder/reducers';
+import { join } from 'path';
+
+
 @Component({
    selector: 'wizard-config-editor',
    styleUrls: ['wizard-config-editor.styles.scss'],
@@ -68,6 +72,9 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    public debugOptions: any = {};
    public helpOptions: Array<HelpOptions> = [];
    public formVariables: Array<SpInputVariable> = [];
+   public editTitle = false;
+   public queryBuilder: any;
+   public visualQueryBuilder = false;
 
    private _componentDestroyed = new Subject();
    private _allOptions: StHorizontalTab[] = [{
@@ -128,7 +135,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             this._cd.markForCheck();
          });
 
+      this._store.select(fromQueryBuilder.getQueryBuilderInnerState)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((queryBuilder: any) => {
+            this.queryBuilder = queryBuilder;
+         });
+
       this.getFormTemplate();
+      this.visualQueryBuilder = true;
    }
 
    resetValidation() {
@@ -147,6 +161,13 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       } else if (event.id === 'Writer') {
          this.helpOptions = this._initializeSchemaService.getHelpOptions(this.writerSettings);
       }
+   }
+   onEditTitle() {
+      this.editTitle = true;
+   }
+
+   onSaveName(event) {
+      this.editTitle = false;
    }
 
    toggleInfo() {
@@ -237,10 +258,103 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       }
       this.entityFormModel.relationType = this.config.editionType.data.relationType;
       this.entityFormModel.createdNew = false;
-      this._store.dispatch(new wizardActions.SaveEntityAction({
-         oldName: this.config.editionType.data.name,
-         data: this.entityFormModel
-      }));
+      if (this.entityFormModel.classPrettyName === 'QueryBuilder') {
+         const queryConfiguration = this.normalizeQueryConfiguration();
+         this.queryBuilder.outputSchemaFields = this.queryBuilder.outputSchemaFields.map(output => ({
+            ...output,
+            position: { ...output.position, y: output.position.y > 200 ? output.position.y - 110 : output.position.y }
+         }));
+
+         const queryEntityFormModel = {
+            ...this.entityFormModel,
+            configuration: { ...this.entityFormModel.configuration, visualQuery: queryConfiguration, backup: this.queryBuilder },
+            uiConfiguration: { ...this.entityFormModel.uiConfiguration, backup: this.queryBuilder }
+         };
+         this._store.dispatch(new wizardActions.SaveEntityAction({
+            oldName: this.config.editionType.data.name,
+            data: queryEntityFormModel
+         }));
+
+      } else {
+         this._store.dispatch(new wizardActions.SaveEntityAction({
+            oldName: this.config.editionType.data.name,
+            data: this.entityFormModel
+         }));
+      }
+
+   }
+
+   normalizeQueryConfiguration() {
+      const inputs = this.queryBuilder.inputSchemaFields.length;
+console.log('*******');
+      const usedInputs = [].concat.apply([], this.queryBuilder.outputSchemaFields
+         .map(output => output.originFields.map(field => `${field.alias}.${field.table}`)))
+         .filter((elem, index, self) => index === self.indexOf(elem));
+      let joinClause = null;
+      let fromClause = null;
+      if (usedInputs.length > 1 ||  this.queryBuilder.join.type.includes('RIGHT_ONLY') ||  this.queryBuilder.join.type.includes('LEFT_ONLY')) {
+         // JOIN
+         if (this.queryBuilder.join.joins.length) {
+            if (this.queryBuilder.join.joins.length) {
+               const origin = this.queryBuilder.join.joins[0].origin;
+               const destination = this.queryBuilder.join.joins[0].destination;
+               const leftTable = { tableName: origin.table, alias: origin.alias };
+               const rightTable = { tableName: destination.table, alias: destination.alias };
+               const joinTypes = this.queryBuilder.join.type;
+               const joinConditions = this.queryBuilder.join.joins.map(join => ({ leftField: join.origin.column, rightField: join.destination.column }));
+               joinClause = { leftTable, rightTable, joinTypes, joinConditions };
+            }
+         } else {
+            joinClause = {
+               leftTable: { tableName: usedInputs[0].split('.')[1], alias:  usedInputs[0].split('.')[0] },
+               rightTable: { tableName: usedInputs[1].split('.')[1], alias:  usedInputs[1].split('.')[0] },
+               joinTypes: 'CROSS'
+            };
+         }
+      } else {
+         // FROM
+         if (this.queryBuilder.inputSchemaFields.length) {
+            const table = this.queryBuilder.inputSchemaFields[0];
+            fromClause = { tableName: table.name, alias: table.alias };
+         }
+      }
+
+
+
+      // SELECT
+      const selectClauses = this.queryBuilder.outputSchemaFields
+         .map(output => {
+            if (output.column) {
+               return  {
+                  expression: output.expression,
+                  alias: output.column
+               };
+            } else {
+               return  {
+                  expression: output.expression
+               };
+            }
+         });
+
+      // WHERE
+      const whereClause = this.queryBuilder.filter;
+
+
+
+      // ORDERBY
+      const orderByClauses = this.queryBuilder.outputSchemaFields
+         .map((output, position) => {
+            const order = !output.order ? output.order : output.order === 'orderAsc' ? 'ASC' : 'DESC';
+            return { field: output.expression , order , position };
+         })
+         .filter(output => !!output.order);
+
+
+      const result = { selectClauses, whereClause, joinClause, orderByClauses, fromClause };
+      // Delete null references
+      Object.keys(result).forEach((key) => (result[key] === null) && delete result[key]);
+
+      return result;
    }
 
    private _getMenuTabs() {

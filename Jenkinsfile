@@ -119,7 +119,7 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache-2.0.json
+            | -DSPARTA_JSON=spartamustache-2.1.json
             | -DWORKFLOW=testinput-to-print
             | -DAUTH_ENABLED=false
             | -DCALICOENABLED=false

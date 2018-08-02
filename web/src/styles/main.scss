@@ -7,7 +7,6 @@ $egeo-sanitize: true;
 @import '~codemirror/lib/codemirror.css';
 @import '~codemirror/addon/hint/show-hint.css';
 @import '~perfect-scrollbar/css/perfect-scrollbar.css';
-@import 'font';
 
 html {
     font-size: 16px;
@@ -30,6 +29,9 @@ body.dragging-console {
   user-select: none;
 }
 
+body.disable-scroll {
+    overflow: hidden!important;
+}
 
 button.selected-button {
     background: #f3f6f8!important;
@@ -86,4 +88,14 @@ st-table.custom-table {
       top: 8px;
    }
 
+}
+
+perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
+    right: 4px!important;
+    background-color: transparent!important;
+    transition: width .2s linear,opacity .2s linear,background-color .2s linear;
+}
+
+*[class*="icon-"] {
+   font-family: ico_stratio !important;
 }

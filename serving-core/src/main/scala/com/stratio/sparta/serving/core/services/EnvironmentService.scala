@@ -73,7 +73,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
       if (CuratorFactoryHolder.existsPath(EnvironmentZkPath)) {
         curatorFramework.setData().forPath(EnvironmentZkPath, write(environmentSorted).getBytes)
         environmentSorted
-      } else throw new ServerException(s"Unable to create environment")
+      } else create(environment) match {
+        case Success(env) => env
+        case Failure(e) => throw e
+      }
     }
   }
 

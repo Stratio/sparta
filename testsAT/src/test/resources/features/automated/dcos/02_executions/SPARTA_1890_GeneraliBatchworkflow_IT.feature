@@ -1,12 +1,18 @@
 @rest
 Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
   Background: : conect to navigator
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And I wait '3' seconds
 
-  Scenario:[SPARTA-1890][01] Obtain postgres docker
+  Scenario:[SPARTA-1890][01]Add postgres policy to write in postgres
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
+      |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+
+  Scenario:[SPARTA-1890][02] Obtain postgres docker
     When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
     Then I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME}%2Fplan-v2-json&_='
     And I save element '$.str' in environment variable 'exhibitor_answer'
@@ -28,7 +34,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
   #******************************
 
   @runOnEnv(SINGLE_EXECUTION)
-  Scenario:[SPARTA-1890][02] Create sparta user in postgres
+  Scenario:[SPARTA-1890][03] Create sparta user in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "create user \"${DCOS_SERVICE_NAME}\" with password ''"' in the ssh connection
     Then the command output contains 'CREATE ROLE'
@@ -36,7 +42,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
   #***********************************************************
   # INSTALL AND EXECUTE Generali- Batch Mode                 *
   #***********************************************************
-  Scenario:[SPARTA-1890][03] Install Generali workflow - Crossdata(csv)-Postgres
+  Scenario:[SPARTA-1890][04] Install Generali workflow - Crossdata(csv)-Postgres
     #include workflow
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/batch-generali-workflow.json' as 'json' with:
       |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_INSTANCE}?user=${DCOS_SERVICE_NAME}   | n/a |
@@ -45,7 +51,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     And I save element '$.name' in environment variable 'nameWorkflow'
     And I wait '10' seconds
 
-  Scenario:[SPARTA-1279][04] Execute batch-generali-workflow workflow
+  Scenario:[SPARTA-1279][05] Execute batch-generali-workflow workflow
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text 'OK'
 
@@ -53,7 +59,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
   # VERIFY batch-generali-workflow WORKFLOW*
   #********************************
 
-  Scenario:[SPARTA-1890][05] Test Runing batch-generali-workflow in Dcos
+  Scenario:[SPARTA-1890][06] Test Runing batch-generali-workflow in Dcos
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w batch-generali-workflow' contains 'batch-generali-workflow'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/batch-generali-workflow/batch-generali-workflow-v0  | awk '{print $5}' | grep batch-generali-workflow ' in the ssh connection and save the value in environment variable 'workflowTaskId'
@@ -66,14 +72,14 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     #Its necesary to wait to execute another workflow
     And I wait '30' seconds
 
-  Scenario:[SPARTA-1890][06] Test stop batch workflow at the end of batch
+  Scenario:[SPARTA-1890][07] Test stop batch workflow at the end of batch
     # Wait for stop Batch mode process when finish task
     Given in less than '800' seconds, checking each '10' seconds, the command output 'dcos task | grep !{workflowTaskId} | wc -l' contains '0'
 
   #**************************
   # TEST RESULT IN POSTGRES *
   #**************************
-  Scenario:[SPARTA-1890][07] Generali batch Result in postgres
+  Scenario:[SPARTA-1890][08] Generali batch Result in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster1"' contains '${CLUSTER1_NUMBER:-8824}'
     When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster2"' contains '${CLUSTER2_NUMBER:-15888}'
@@ -82,7 +88,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
 
 
   @runOnEnv(DELETE_POSTGRES_INFO)
-  Scenario:[SPARTA-1279][08] delete user and table in postgres
+  Scenario:[SPARTA-1279][09] delete user and table in postgres
     #Delete postgres table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table cluster1"' in the ssh connection
@@ -91,7 +97,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table variables_calc"' in the ssh connection
     Then I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop role \"${DCOS_SERVICE_NAME}\" "' in the ssh connection
 
-  Scenario: [SPARTA-1277][09] Remove workflow
+  Scenario: [SPARTA-1277][10] Remove workflow
     Given I send a 'DELETE' request to '/service/${DCOS_SERVICE_NAME}/workflows/!{previousWorkflowID}'
     Then the service response status must be '200'
 

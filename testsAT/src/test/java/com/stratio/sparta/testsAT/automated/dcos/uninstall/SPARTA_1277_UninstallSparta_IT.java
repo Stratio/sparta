@@ -28,7 +28,7 @@ public class SPARTA_1277_UninstallSparta_IT extends BaseTest {
     public SPARTA_1277_UninstallSparta_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    @Test(enabled = true, groups = {"dcos_uninstall"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

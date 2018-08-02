@@ -28,7 +28,7 @@ public class SPARTA_1273_AddConfigurationForSparta_IT extends BaseTest {
     public SPARTA_1273_AddConfigurationForSparta_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    @Test(enabled = true, groups = {"dcos_Addconfig"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

@@ -16,6 +16,12 @@
    margin-right: 20px;
 }
 
+.visualQuery {
+   color: neutral-09;
+   font-size: $egeo-font-size-xxsmall;
+   margin-right: 30px;
+}
+
 .input-field {
    margin: 15px 0;
    display: block;
@@ -76,4 +82,28 @@
 
 .mocks-tab {
   width: 100%;
+}
+
+.edit-title {
+   position: relative;
+   div.edit-text {
+      position: absolute;
+      left: -870px;
+      background-color: $neutral-00;
+      min-width: 600px;
+      height: 30px;
+      padding-top: 7px;
+      font-family: $egeo-nunito-sans-extraBold;
+      font-size: $egeo-font-size-medium;
+   }
+   span.icon {
+      margin-left: 5px;
+      cursor: pointer;
+   }
+   .input-edit {
+      padding: 5px 10px 5px 10px;
+      border: 1px solid $neutral-07;
+      width: 100%;
+      margin-top: -8px;
+   }
 }

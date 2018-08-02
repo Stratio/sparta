@@ -7,15 +7,9 @@
 package com.stratio.sparta.serving.core.services
 
 import java.util.UUID
-import scala.collection.JavaConversions
-import scala.util._
 
 import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
-import org.apache.curator.framework.CuratorFramework
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization._
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -25,6 +19,13 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow._
+import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
+import org.json4s.Formats
+import org.json4s.jackson.Serialization._
+
+import scala.collection.JavaConversions
+import scala.util._
 
 //scalastyle:off
 class WorkflowService(
@@ -44,6 +45,13 @@ class WorkflowService(
   def findById(id: String): Workflow = {
     log.debug(s"Finding workflow by id $id")
     existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
+  }
+
+  def findByIdWithVariables(executionVariables: WorkflowExecutionVariables): Workflow = {
+    log.debug(s"Finding workflow by id ${executionVariables.workflowId}")
+
+    existsById(executionVariables.workflowId, Option(json4sFormats(executionVariables.toVariablesMap)))
+      .getOrElse(throw new ServerException(s"No workflow with id ${executionVariables.workflowId}"))
   }
 
   def find(query: WorkflowQuery): Workflow = {
@@ -416,11 +424,16 @@ class WorkflowService(
         Seq.empty[Workflow]
     }
 
-  private[sparta] def existsById(id: String): Option[Workflow] =
+  private[sparta] def existsById(id: String, formats: Option[Formats] = None): Option[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(s"${AppConstant.WorkflowsZkPath}/$id")) {
-        val workFlow = read[Workflow](
-          new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowsZkPath}/$id")))
+        val workflowStr = new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowsZkPath}/$id"))
+        val workFlow = {
+          formats.fold(read[Workflow](workflowStr)) { providedFormat =>
+            implicit val json4sJacksonFormats: Formats = providedFormat
+            read[Workflow](workflowStr)
+          }
+        }
         Option(workFlow.copy(status =
           statusService.findById(id) recoverWith {
             case e =>

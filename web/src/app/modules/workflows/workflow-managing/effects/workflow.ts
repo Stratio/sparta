@@ -74,20 +74,22 @@ export class WorkflowEffect {
             }
             if (selectedWorkflows.length) {
                 const list: Array<string> = [];
-                workflows.forEach((workflow: any) => {
-                    if (selectedWorkflows.indexOf(workflow.name) > -1) {
-                        list.push(workflow.id);
+                workflows.forEach((workflowf: any) => {
+                    if (selectedWorkflows.indexOf(workflowf.name) > -1) {
+                        list.push(workflowf.id);
                     }
                 });
                 observables.push(this.workflowService.deleteWorkflowList(list));
             }
             return Observable.forkJoin(observables).mergeMap((results: any) => {
-                const actions: Array<Action> = [new workflowActions.ListGroupsAction()];
+                const actions: Array<Action> = [];
                 if (selectedGroups.length) {
                     actions.push(new workflowActions.DeleteGroupCompleteAction());
+                    actions.push(new workflowActions.DeleteGroup(selectedGroups));
                 }
                 if (selectedWorkflows.length) {
                     actions.push(new workflowActions.DeleteWorkflowCompleteAction(''));
+                    actions.push(new workflowActions.DeleteWorkflowGroup(selectedWorkflows));
                 }
                 return actions;
             });
@@ -114,7 +116,8 @@ export class WorkflowEffect {
                 id: version.id,
                 tag: version.tag,
                 group: version.group
-            })})
+            });
+         })
         .mergeMap(workflow => [new workflowActions.GenerateNewVersionCompleteAction(workflow)])
         .catch(error => Observable.from([new workflowActions.GenerateNewVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
 
@@ -168,7 +171,7 @@ export class WorkflowEffect {
             return this.workflowService.saveWorkflow(data.payload)
                 .mergeMap((response: any) => [
                     new workflowActions.SaveJsonWorkflowActionComplete(),
-                    new workflowActions.ListGroupWorkflowsAction()
+                    new workflowActions.SaveWorkflowGroup(response)
                 ])
                 .catch(error => Observable.from([
                     new workflowActions.SaveJsonWorkflowActionError(error),
@@ -232,7 +235,9 @@ export class WorkflowEffect {
             workflowName: data.payload.workflowName,
             groupSourceId: data.payload.groupSourceId,
             groupTargetId: workflow.workflowsManaging.groups.find((group: any) => group.name === data.payload.groupTarget).id
-        }).mergeMap(() => [new workflowActions.MoveWorkflowCompleteAction(), new workflowActions.ListGroupsAction()]))
+        }).mergeMap(workflowF => {
+         return [new workflowActions.MoveWorkflowCompleteAction(''), new workflowActions.MoveWorkflowGroup(data.payload.workflowName)];
+        } ))
         .catch(error => Observable.from([new workflowActions.MoveWorkflowErrorAction(), new errorActions.ServerErrorAction(error)]));
 
     constructor(

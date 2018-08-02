@@ -1,0 +1,500 @@
+{
+  "id": "53a0e36d-f268-4987-8d19-c2cf7e2aebb0",
+  "name": "kafka-postgres-pnf",
+  "description": "",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER"
+    },
+    "streamingSettings": {
+      "window": "{{{SPARK_STREAMING_WINDOW}}}",
+      "remember": "",
+      "backpressure": true,
+      "backpressureInitialRate": "",
+      "backpressureMaxRate": "",
+      "blockInterval": "{{{SPARK_STREAMING_BLOCK_INTERVAL}}}",
+      "stopGracefully": true,
+      "stopGracefulTimeout": "",
+      "checkpointSettings": {
+        "checkpointPath": "{{{SPARK_STREAMING_CHECKPOINT_PATH}}}",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "SPARK_DRIVER_JAVA_OPTIONS"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "2",
+          "executorMemory": "2G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "2G",
+          "mesosExtraCores": "",
+          "localityWait": "{{SPARK_LOCALITY_WAIT}}",
+          "taskMaxFailures": "{{SPARK_TASK_MAX_FAILURES}}",
+          "sparkMemoryFraction": "{{SPARK_MEMORY_FRACTION}}",
+          "sparkParallelism": ""
+        },
+        "userSparkConf": [
+          {
+            "sparkConfKey": "spark.streaming.kafka.consumer.cache.enabled",
+            "sparkConfValue": false
+          },
+          {
+            "sparkConfKey": "spark.streaming.backpressure.enabled",
+            "sparkConfValue": true
+          }
+        ],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "{{SPARK_LOCAL_PATH}}",
+        "executorDockerImage": "{{{SPARK_EXECUTOR_BASE_IMAGE}}}",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": true,
+        "logStagesProgress": false,
+        "hdfsTokenCache": false,
+        "executorExtraJavaOptions": "{{{SPARK_STREAMING_CHECKPOINT_PATH}}}"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "Error"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": false,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "transfor",
+        "stepType": "Transformation",
+        "className": "JsonTransformStepStreaming",
+        "classPrettyName": "Json",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 527.07958984375,
+            "y": 218
+          }
+        },
+        "configuration": {
+          "inputSchemas": "[]",
+          "schema.fromRow": true,
+          "whenFieldError": "",
+          "whenRowError": "RowDiscard",
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Explode",
+        "stepType": "Transformation",
+        "className": "ExplodeTransformStepStreaming",
+        "classPrettyName": "Explode",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 713,
+            "y": 218
+          }
+        },
+        "configuration": {
+          "explodedField": "line",
+          "inputSchemas": "[]",
+          "whenFieldError": "Null",
+          "whenRowError": "RowDiscard",
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "lines"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Datetime",
+        "stepType": "Transformation",
+        "className": "DateTimeTransformStepStreaming",
+        "classPrettyName": "Datetime",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 918,
+            "y": 217
+          }
+        },
+        "configuration": {
+          "fieldsDatetime": [
+            {
+              "formatFrom": "AUTOGENERATED",
+              "localeTime": "ENGLISH",
+              "granularityNumber": "",
+              "granularityTime": "minute",
+              "fieldsPreservationPolicy": "APPEND",
+              "outputFieldName": "dateparsed",
+              "outputFieldType": "string",
+              "nullable": true,
+              "outputFormatFrom": "DEFAULT"
+            }
+          ],
+          "whenRowError": "",
+          "whenFieldError": ""
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "triggercf1",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStreaming",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1155,
+            "y": 99
+          }
+        },
+        "configuration": {
+          "sql": "SELECT id, dateparsed, clientId, storeId, totalSale, itemId, itemName, groupId as sectionid, totalLine FROM Datetime WHERE totalLine > 30",
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "triggerinfocf1",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStreaming",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1150,
+            "y": 215
+          }
+        },
+        "configuration": {
+          "sql": "SELECT id, dateparsed, clientId, storeId, totalSale, itemId, itemName, groupId as sectionid, totalLine FROM Datetime",
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "cubecf1",
+        "stepType": "Transformation",
+        "className": "CubeTransformStep",
+        "classPrettyName": "Cube",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1153.63916015625,
+            "y": 332.2600402832031
+          }
+        },
+        "configuration": {
+          "waterMark": "dateparsed",
+          "whenError": "Error",
+          "availability": "2m",
+          "whenFieldError": "FieldError",
+          "dimensions": [
+            {
+              "name": "dateparsed"
+            },
+            {
+              "name": "groupId"
+            }
+          ],
+          "whenRowError": "RowError",
+          "partitions": "",
+          "timeoutKey": "",
+          "operators": [
+            {
+              "name": "totalSection",
+              "classType": "Sum",
+              "inputField": "groupId"
+            }
+          ]
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Postgres4",
+        "stepType": "Output",
+        "className": "PostgresOutputStep",
+        "classPrettyName": "Postgres",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1421,
+            "y": 215
+          }
+        },
+        "configuration": {
+          "newQuotesSubstitution": "",
+          "errorSink": false,
+          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
+          "postgresSaveMode": "COPYIN",
+          "isolationLevel": "READ_COMMITTED",
+          "encoding": "UTF8",
+          "tlsEnabled": true,
+          "driver": "",
+          "schemaFromDatabase": false,
+          "newLineSubstitution": " ",
+          "saveOptions": "[]",
+          "delimiter": "\t"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
+      },
+      {
+        "name": "Kafka",
+        "stepType": "Input",
+        "className": "KafkaInputStep",
+        "classPrettyName": "Kafka",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 305.4579772949219,
+            "y": 219
+          }
+        },
+        "configuration": {
+          "spark.streaming.kafka.consumer.poll.ms": "1000",
+          "locationStrategy": "preferconsistent",
+          "inputOptions": [
+            {
+              "inputOptionsKey": "session.timeout.ms",
+              "inputOptionsValue": "60000"
+            },
+            {
+              "inputOptionsKey": "heartbeat.interval.ms",
+              "inputOptionsValue": "20000"
+            },
+            {
+              "inputOptionsKey": "request.timeout.ms",
+              "inputOptionsValue": "62000"
+            }
+          ],
+          "topics": [
+            {
+              "topic": "ticket1"
+            }
+          ],
+          "auto.offset.reset": "latest",
+          "partition.assignment.strategy": "range",
+          "outputField": "raw",
+          "value.deserializer.inputFormat": "STRING",
+          "spark.streaming.kafka.maxRatePerPartition": "",
+          "tlsEnabled": true,
+          "spark.streaming.kafka.consumer.cache.enabled": false,
+          "group.id": "khermes_pnf",
+          "bootstrap.servers": [
+            {
+              "host": "kafka-0-broker.eos-kafka-framework.mesos",
+              "port": "9092"
+            }
+          ],
+          "enable.auto.commit": false,
+          "storeOffsetInKafka": false
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      }
+    ],
+    "edges": [
+      {
+        "origin": "transfor",
+        "destination": "Explode",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Explode",
+        "destination": "Datetime",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Datetime",
+        "destination": "triggercf1",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Datetime",
+        "destination": "triggerinfocf1",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Datetime",
+        "destination": "cubecf1",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "triggercf1",
+        "destination": "Postgres4",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "triggerinfocf1",
+        "destination": "Postgres4",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "cubecf1",
+        "destination": "Postgres4",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Kafka",
+        "destination": "transfor",
+        "dataType": "ValidData"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": -106.0640432239187,
+      "y": -1.3717339769784473,
+      "k": 0.8471280701163431
+    }
+  },
+  "creationDate": "2018-07-10T13:33:15Z",
+  "lastUpdateDate": "2018-07-09T14:44:21Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "53a0e36d-f268-4987-8d19-c2cf7e2aebb0",
+    "status": "Created",
+    "statusId": "85daab8e-76a0-4279-8457-2f53fcbfcc44",
+    "creationDate": "2018-07-10T13:33:15Z"
+  },
+  "debugMode": false,
+  "versionSparta": "2.2.0-3ee546d"
+}

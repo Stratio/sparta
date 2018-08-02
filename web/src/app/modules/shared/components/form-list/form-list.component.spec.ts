@@ -10,7 +10,7 @@ import { FormListComponent } from '@app/shared/components/form-list/form-list.co
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
-import { EgeoModule } from '@stratio/egeo';
+import { EgeoModule, StCheckboxModule, StTextareaModule } from '@stratio/egeo';
 
 import { SpSelectModule } from '../sp-select/sp-select.module';
 import { ErrorMessagesService } from '../../../../services';
@@ -74,7 +74,8 @@ describe('FormListComponent', () => {
                 SpTextareaModule,
                 SpInputModule,
                 SpSelectModule,
-                EgeoModule
+                StCheckboxModule,
+                StTextareaModule
             ],
             declarations: [FormListComponent],
             providers: [ErrorMessagesService]
@@ -210,7 +211,7 @@ let reactiveComp: FormReactiveComponent;
 describe('FormListComponent in reactive form', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule, ReactiveFormsModule, SharedModule, TranslateModule.forRoot(), SpInputModule, SpSelectModule, EgeoModule],
+            imports: [FormsModule, ReactiveFormsModule, SharedModule, TranslateModule.forRoot(), SpInputModule, SpSelectModule],
             declarations: [FormReactiveComponent],
             providers: [ErrorMessagesService]
         })

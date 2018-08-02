@@ -16,6 +16,7 @@ import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.TransformStep
+import com.stratio.sparta.plugin.models.JoinCondition
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext

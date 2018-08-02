@@ -57,7 +57,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultSerializationTimeout = 5000
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
-  val DefaultVersion = "2.1.0-SNAPSHOT"
+  val DefaultVersion = "2.2.0"
   lazy val version = Try(SpartaConfig.getDetailConfig.get.getString("version"))
     .toOption.notBlank.getOrElse(DefaultVersion)
 

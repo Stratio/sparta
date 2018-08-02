@@ -77,9 +77,11 @@ describe('[WorkflowsRenameModalComponent]', () => {
       component = fixture.componentInstance;
       debugElement = fixture.debugElement;
    });
+
    afterEach(() => {
       fixture.destroy();
    });
+
    describe('if the renamed entity type is a group', () => {
       beforeEach(() => {
          component.entityType = 'Group';

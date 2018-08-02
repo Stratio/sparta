@@ -5,13 +5,13 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.core.enumerators.WhenError
 import com.stratio.sparta.core.models.{DebugResults, ErrorsManagement}
 import com.stratio.sparta.core.properties.JsoneyString
-import com.stratio.sparta.core.enumerators.WhenError
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
-import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.EntityAuthorization
-import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode}
+import com.stratio.sparta.serving.core.models.enumerators.{DataType, NodeArityEnum, WorkflowExecutionMode}
 
 case class DebugWorkflow(
                           workflowOriginal: Workflow,
@@ -22,9 +22,19 @@ case class DebugWorkflow(
   private val inputClassName = "DummyDebugInputStep"
   private val inputPrettyClassName = "DummyDebug"
   private val outputDebugName = "output_debug"
+  private val outputDebugNameDiscards = "output_debug_discards"
   private val sparkWindow = s"${AppConstant.DebugSparkWindow}ms"
   private val debugOutputNode = NodeGraph(
     name = outputDebugName,
+    stepType = OutputStep.StepType,
+    className = "DebugOutputStep",
+    classPrettyName = "Debug",
+    arity = Seq(NodeArityEnum.NullaryToNullary, NodeArityEnum.NaryToNullary),
+    writer = WriterGraph(),
+    configuration = Map.empty
+  )
+  private val debugOutputNodeDiscard = NodeGraph(
+    name = outputDebugNameDiscards,
     stepType = OutputStep.StepType,
     className = "DebugOutputStep",
     classPrettyName = "Debug",
@@ -71,7 +81,7 @@ case class DebugWorkflow(
       stopGracefully = Option(true),
       stopGracefulTimeout = Option(JsoneyString(AppConstant.maxDebugTimeout.toString)),
       checkpointSettings = streamingSettings.checkpointSettings.copy(
-        checkpointPath = JsoneyString("file://tmp/debug-checkpoint"),
+        checkpointPath = JsoneyString("file:///tmp/debug-checkpoint"),
         autoDeleteCheckpoint = true
       )
     )
@@ -103,6 +113,7 @@ case class DebugWorkflow(
     )
   }
 
+  //scalastyle:off
   private[workflow] def pipelineGraphDebug(): PipelineGraph = {
     import workflowOriginal.pipelineGraph
 
@@ -115,15 +126,23 @@ case class DebugWorkflow(
         case OutputStep.StepType => None
         case _ => Option(node)
       }
-    } :+ debugOutputNode
+    } :+ debugOutputNode :+ debugOutputNodeDiscard
     val outputs = pipelineGraph.nodes.flatMap { node =>
       if (node.stepType.equalsIgnoreCase(OutputStep.StepType)) Option(node.name)
       else None
     }
     val outputEdges = newNodes.flatMap { node =>
       node.stepType.toLowerCase match {
-        case OutputStep.StepType => None
-        case _ => Option(EdgeGraph(origin = node.name, destination = outputDebugName))
+        case OutputStep.StepType => Seq.empty
+        case _ =>
+          node.supportedDataRelations match {
+            case Some(relations) => relations.map { dataType =>
+              if (dataType == DataType.ValidData)
+                EdgeGraph(origin = node.name, destination = outputDebugName, dataType = Option(dataType))
+              else EdgeGraph(origin = node.name, destination = outputDebugNameDiscards, dataType = Option(dataType))
+            }
+            case None => Seq(EdgeGraph(origin = node.name, destination = outputDebugName))
+          }
       }
     }
     val newEdges = pipelineGraph.edges.filter(edge =>

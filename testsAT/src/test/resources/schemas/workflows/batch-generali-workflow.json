@@ -1,22 +1,12 @@
 {
-  "id": "c3bebc13-3e1c-402f-91f6-9eb25369276e",
+  "id": "5e93c015-e350-4bd6-bbfc-43692e2704bf",
   "name": "batch-generali-workflow",
   "description": "Ensurance example for ingestion and data cleaning",
   "settings": {
     "global": {
       "executionMode": "marathon",
       "userPluginsJars": [],
-      "initSqlSentences": [
-        {
-          "sentence": "CREATE TABLE IF NOT EXISTS sie_stat_corporativas USING com.databricks.spark.csv OPTIONS (path 'hdfs://10.200.0.74:8020/user/dg-agent/csv/generali/sie_stat_corporativas.csv', sep '\\t', header 'true',  inferSchema 'true')"
-        },
-        {
-          "sentence": "CREATE TABLE IF NOT EXISTS dim_comercial USING com.databricks.spark.csv OPTIONS(path 'hdfs://10.200.0.74:8020/user/dg-agent/csv/generali/sie_estructura_comercial.csv', header 'true', inferSchema 'true', delimiter '\\t')"
-        },
-        {
-          "sentence": "CREATE TABLE IF NOT EXISTS sie_rem_preguntas USING com.databricks.spark.csv OPTIONS(path 'hdfs://10.200.0.74:8020/user/dg-agent/csv/generali/sie_rem_preguntas.csv', header 'true', inferSchema 'true', delimiter '\\t')"
-        }
-      ],
+      "initSqlSentences": [],
       "addAllUploadedPlugins": true,
       "mesosConstraint": "",
       "mesosConstraintOperator": "CLUSTER"
@@ -32,7 +22,7 @@
       }
     },
     "sparkSettings": {
-      "master": "{{SPARK_MASTER}}",
+      "master": "mesos://leader.mesos:5050",
       "sparkKerberos": true,
       "sparkDataStoreTls": true,
       "sparkMesosSecurity": true,
@@ -43,15 +33,15 @@
       },
       "sparkConf": {
         "sparkResourcesConf": {
-          "coresMax": "{{SPARK_CORES_MAX}}",
-          "executorMemory": "{{SPARK_EXECUTOR_MEMORY}}",
-          "executorCores": "{{SPARK_EXECUTOR_CORES}}",
-          "driverCores": "{{SPARK_DRIVER_CORES}}",
-          "driverMemory": "{{SPARK_DRIVER_MEMORY}}",
+          "coresMax": "{{{SPARK_CORES_MAX}}}",
+          "executorMemory": "{{{SPARK_EXECUTOR_MEMORY}}}",
+          "executorCores": "{{{SPARK_EXECUTOR_CORES}}}",
+          "driverCores": "{{{SPARK_DRIVER_CORES}}}",
+          "driverMemory": "{{{SPARK_DRIVER_MEMORY}}}",
           "mesosExtraCores": "",
-          "localityWait": "{{SPARK_LOCALITY_WAIT}}",
-          "taskMaxFailures": "{{SPARK_TASK_MAX_FAILURES}}",
-          "sparkMemoryFraction": "{{SPARK_MEMORY_FRACTION}}",
+          "localityWait": "{{{SPARK_LOCALITY_WAIT}}}",
+          "taskMaxFailures": "{{{SPARK_TASK_MAX_FAILURES}}}",
+          "sparkMemoryFraction": "{{{SPARK_MEMORY_FRACTION}}}",
           "sparkParallelism": ""
         },
         "userSparkConf": [
@@ -62,10 +52,10 @@
         ],
         "coarse": true,
         "sparkUser": "",
-        "sparkLocalDir": "{{SPARK_LOCAL_PATH}}",
-        "executorDockerImage": "{{SPARK_EXECUTOR_BASE_IMAGE}}",
+        "sparkLocalDir": "{{{SPARK_LOCAL_PATH}}}",
+        "executorDockerImage": "{{{SPARK_EXECUTOR_BASE_IMAGE}}}",
         "sparkKryoSerialization": false,
-        "sparkSqlCaseSensitive": true,
+        "sparkSqlCaseSensitive": false,
         "logStagesProgress": false,
         "hdfsTokenCache": false,
         "executorExtraJavaOptions": "{{{SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
@@ -91,37 +81,304 @@
   "pipelineGraph": {
     "nodes": [
       {
-        "name": "Crossdata",
-        "stepType": "Input",
-        "className": "CrossdataInputStepBatch",
-        "classPrettyName": "Crossdata",
+        "name": "Select_Indi",
+        "stepType": "Transformation",
+        "className": "SelectTransformStepBatch",
+        "classPrettyName": "Select",
         "arity": [
-          "NullaryToNary"
+          "UnaryToNary"
         ],
         "writer": {
           "saveMode": "Append",
           "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
+          "partitionBy": ""
         },
-        "description": "Read a table insisting on a HDFS file",
         "uiConfiguration": {
           "position": {
-            "x": 470.3435974121094,
-            "y": 457.2228698730469
+            "x": 1174.7200359658036,
+            "y": 556.1570361849004
           }
         },
         "configuration": {
-          "query": "select * from sie_stat_corporativas",
-          "tlsEnabled": true
+          "delimiter": ",",
+          "selectExp": "ejercicio,agente,num_polizas,siniestralidad"
         },
-        "supportedEngines": [
-          "Batch"
-        ],
+        "supportedEngines": [],
         "executionEngine": "Batch",
         "supportedDataRelations": [
           "ValidData"
-        ]
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "2016_cluster1",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster1",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 547.2245525673661,
+            "y": 813.662041067713
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad < 0.70 AND num_polizas >= 50 AND ejercicio = '2016'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "2016_cluster3",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster3",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 682.5286907509599,
+            "y": 1015.6620410677128
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad >= 0.70 AND ejercicio = '2016'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "2016_cluster2",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster2",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 600.0623821572099,
+            "y": 915.103966116541
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad < 0.70 AND num_polizas < 50 AND ejercicio = '2016'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "2015_cluster1",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster1",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1024.1842693642411,
+            "y": 847.1930469270878
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad < 0.75 AND num_polizas >= 45 AND ejercicio = '2015'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "2015_cluster2",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster2",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1142.5814861611161,
+            "y": 949.1929858919317
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad < 0.75 AND num_polizas < 45 AND ejercicio = '2015'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "2015_cluster3",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster3",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1262.7199138954911,
+            "y": 847.3184741731817
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad >= 0.75 AND ejercicio = '2015'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "resto_cluster1",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster1",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1695.2126183182922,
+            "y": 805.2334308409925
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad < 0.65 AND num_polizas >= 40 AND ejercicio != '2016' AND ejercicio != '2015'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "resto_cluster3",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster3",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1581.8057056335058,
+            "y": 1007.020187209991
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad >= 0.65 AND ejercicio != '2016' AND ejercicio != '2015'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "resto_cluster2",
+        "stepType": "Transformation",
+        "className": "FilterTransformStepBatch",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "cluster2",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1640.2997617141216,
+            "y": 904.8635506337298
+          }
+        },
+        "configuration": {
+          "filterExp": "siniestralidad < 0.65 AND num_polizas < 40 AND ejercicio != '2016' AND ejercicio != '2015'"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
       },
       {
         "name": "Casting",
@@ -146,6 +403,7 @@
         },
         "configuration": {
           "outputFieldsFrom": "FIELDS",
+          "inputSchemas": "[]",
           "fields": [
             {
               "name": "PERIODO",
@@ -308,14 +566,16 @@
               "nullable": true
             }
           ],
-          "whenRowError": "RowDiscard",
-          "whenFieldError": "Null"
+          "whenFieldError": "Null",
+          "whenRowError": "RowDiscard"
         },
         "supportedEngines": [],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
-        ]
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
       },
       {
         "name": "variables_calc",
@@ -324,308 +584,34 @@
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",
-          "UnaryToNary"
+          "UnaryToNary",
+          "NaryToNary"
         ],
         "writer": {
           "saveMode": "Append",
           "tableName": "",
-          "partitionBy": ""
+          "partitionBy": "",
+          "errorTableName": ""
         },
         "uiConfiguration": {
           "position": {
-            "x": 1142.0732464150224,
-            "y": 458.3450855013067
+            "x": 1166.2324261025224,
+            "y": 409.94182622396295
           }
         },
         "configuration": {
-          "sql": "SELECT \n\tPERIODO,\n\tAGENTE,\n\tsubstring(periodo,0,4) as ejercicio,\n\tcount(*) as num_polizas,\n\tround(sum(PR_ANUAL) / count(*), 2) as prima_media,\n\tround(sum(NUM_SIN_ACT) / sum(EXPUESTOS), 2) as frecuencia,\n\tround(sum(STRAD_NUM_ACT) / sum(NUM_SIN_ACT), 2) as coste_medio,\n\tround(sum(STRAD_NUM_ACT) / sum(STRAD_DEN_ACT), 2) as siniestralidad\nFROM sie_stat_corporativas\nWHERE PERIODO is not null AND AGENTE is not null\nGROUP BY PERIODO, AGENTE"
+          "sql": "SELECT \n\tPERIODO as periodo,\n\tAGENTE as agente,\n\tsubstring(PERIODO,0,4) as ejercicio,\n\tcount(*) as num_polizas,\n\tround(sum(PR_ANUAL) / count(*), 2) as prima_media,\n\tround(sum(NUM_SIN_ACT) / sum(EXPUESTOS), 2) as frecuencia,\n\tround(sum(STRAD_NUM_ACT) / sum(NUM_SIN_ACT), 2) as coste_medio,\n\tround(sum(STRAD_NUM_ACT) / sum(STRAD_DEN_ACT), 2) as siniestralidad\nFROM sie_stat_corporativas\nWHERE PERIODO is not null AND AGENTE is not null\nGROUP BY PERIODO, AGENTE",
+          "discardConditions": "[]",
+          "inputSchemas": "[]",
+          "executeSqlWhenEmpty": false
         },
         "supportedEngines": [],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "Select_Indi",
-        "stepType": "Transformation",
-        "className": "SelectTransformStepBatch",
-        "classPrettyName": "Select",
-        "arity": [
-          "UnaryToNary"
+          "ValidData",
+          "DiscardedData"
         ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1142.3648113564286,
-            "y": 634.9821704622442
-          }
-        },
-        "configuration": {
-          "delimiter": ",",
-          "selectExp": "ejercicio,agente,num_polizas,siniestralidad"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "2016_cluster1",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster1",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 547.2245525673661,
-            "y": 813.662041067713
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad < 0.70 AND num_polizas >= 50 AND ejercicio = '2016'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "2016_cluster3",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster3",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 682.5286907509599,
-            "y": 1015.6620410677128
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad >= 0.70 AND ejercicio = '2016'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "2016_cluster2",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster2",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 600.0623821572099,
-            "y": 915.103966116541
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad < 0.70 AND num_polizas < 50 AND ejercicio = '2016'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "2015_cluster1",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster1",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1024.1842693642411,
-            "y": 847.1930469270878
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad < 0.75 AND num_polizas >= 45 AND ejercicio = '2015'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "2015_cluster2",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster2",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1142.5814861611161,
-            "y": 949.1929858919317
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad < 0.75 AND num_polizas < 45 AND ejercicio = '2015'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "2015_cluster3",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster3",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1262.7199138954911,
-            "y": 847.3184741731817
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad >= 0.75 AND ejercicio = '2015'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "resto_cluster1",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster1",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1695.2126183182922,
-            "y": 805.2334308409925
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad < 0.65 AND num_polizas >= 40 AND ejercicio != '2016' AND ejercicio != '2015'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "resto_cluster3",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster3",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1581.8057056335058,
-            "y": 1007.020187209991
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad >= 0.65 AND ejercicio != '2016' AND ejercicio != '2015'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
-      },
-      {
-        "name": "resto_cluster2",
-        "stepType": "Transformation",
-        "className": "FilterTransformStepBatch",
-        "classPrettyName": "Filter",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "cluster2",
-          "partitionBy": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1640.2997617141216,
-            "y": 904.8635506337298
-          }
-        },
-        "configuration": {
-          "filterExp": "siniestralidad < 0.65 AND num_polizas < 40 AND ejercicio != '2016' AND ejercicio != '2015'"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
+        "lineageProperties": []
       },
       {
         "name": "Mix_dim_com",
@@ -634,27 +620,34 @@
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",
-          "UnaryToNary"
+          "UnaryToNary",
+          "NaryToNary"
         ],
         "writer": {
           "saveMode": "Append",
           "tableName": "variables_calc",
-          "partitionBy": ""
+          "partitionBy": "",
+          "errorTableName": ""
         },
         "uiConfiguration": {
           "position": {
-            "x": 1449.5458076919615,
-            "y": 460.20270613977016
+            "x": 1479.3093574966488,
+            "y": 306.88040999719203
           }
         },
         "configuration": {
-          "sql": "SELECT \n\tp.periodo, p.agente, p.prima_media, p.frecuencia, p.coste_medio, p.siniestralidad,\n\tdc.nom_agente, dc.nom_region, dc.nom_sucursal, dc.canaln, dc.dimension, dc.atributo, dc.prov_agente\nFROM variables_calc p\nJOIN dim_comercial dc ON p.periodo = dc.periodo AND p.agente = dc.agente\n"
+          "sql": "SELECT \n\tp.periodo, p.agente, p.prima_media, p.frecuencia, p.coste_medio, p.siniestralidad,\n\tdc.nom_agente, dc.nom_region, dc.nom_sucursal, dc.canaln, dc.dimension, dc.atributo, dc.prov_agente\nFROM variables_calc p\nJOIN dim_comercial dc ON p.periodo = dc.periodo AND p.agente = dc.agente\n",
+          "discardConditions": "[]",
+          "inputSchemas": "[]",
+          "executeSqlWhenEmpty": false
         },
         "supportedEngines": [],
         "executionEngine": "Batch",
         "supportedDataRelations": [
-          "ValidData"
-        ]
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
       },
       {
         "name": "Postgres(1)",
@@ -670,8 +663,8 @@
         },
         "uiConfiguration": {
           "position": {
-            "x": 1735.8668388931821,
-            "y": 459.02304729385935
+            "x": 1143.1350273697444,
+            "y": 1406.8982914344842
           }
         },
         "configuration": {
@@ -695,48 +688,8 @@
         "executionEngine": "Batch",
         "supportedDataRelations": [
           "ValidData"
-        ]
-      },
-      {
-        "name": "Postgres(1)(1)",
-        "stepType": "Output",
-        "className": "PostgresOutputStep",
-        "classPrettyName": "Postgres",
-        "arity": [
-          "NullaryToNullary",
-          "NaryToNullary"
         ],
-        "writer": {
-          "saveMode": "Append"
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1148.9662544295506,
-            "y": 1297.184964479952
-          }
-        },
-        "configuration": {
-          "newQuotesSubstitution": "",
-          "errorSink": false,
-          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
-          "postgresSaveMode": "COPYIN",
-          "isolationLevel": "READ_UNCOMMITTED",
-          "encoding": "UTF8",
-          "tlsEnabled": true,
-          "driver": "",
-          "schemaFromDatabase": false,
-          "newLineSubstitution": " ",
-          "saveOptions": "[]",
-          "delimiter": "{{CSV_DELIMITER}}"
-        },
-        "supportedEngines": [
-          "Streaming",
-          "Batch"
-        ],
-        "executionEngine": "Batch",
-        "supportedDataRelations": [
-          "ValidData"
-        ]
+        "lineageProperties": []
       },
       {
         "name": "Repartition",
@@ -752,8 +705,8 @@
         },
         "uiConfiguration": {
           "position": {
-            "x": 641.7590001155764,
-            "y": 461.31347552523516
+            "x": 563.1871617366702,
+            "y": 445.9052113650789
           }
         },
         "configuration": {
@@ -767,7 +720,307 @@
         "executionEngine": "Batch",
         "supportedDataRelations": [
           "ValidData"
-        ]
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "sie_stat_corporativas",
+        "stepType": "Input",
+        "className": "CsvInputStep",
+        "classPrettyName": "Csv",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 328.47117348660123,
+            "y": 450.7191575569495
+          }
+        },
+        "configuration": {
+          "inputOptions": "[]",
+          "path": "/user/sparta-server/generali/sie_stat_corporativas.csv",
+          "debugOptions": "{\"path\":\"/user/sparta-server/generali/sie_stat_corporativas_TEST.csv\"}",
+          "header": true,
+          "delimiter": "\\t"
+        },
+        "supportedEngines": [
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "dim_comercial_csv",
+        "stepType": "Input",
+        "className": "CsvInputStep",
+        "classPrettyName": "Csv",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 381.08757810155225,
+            "y": 207.03423843317546
+          }
+        },
+        "configuration": {
+          "inputOptions": "[]",
+          "path": "/user/sparta-server/generali/sie_estructura_comercial.csv",
+          "debugOptions": "{\"path\":\"/user/sparta-server/generali/sie_estructura_comercial_TEST.csv\"}",
+          "header": true,
+          "delimiter": "\\t"
+        },
+        "supportedEngines": [
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "dim_comercial_casting",
+        "stepType": "Transformation",
+        "className": "CastingTransformStepBatch",
+        "classPrettyName": "Casting",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "description": "Mapping fields to their actual types",
+        "uiConfiguration": {
+          "position": {
+            "x": 755.341991756661,
+            "y": 246.70074245801817
+          }
+        },
+        "configuration": {
+          "outputFieldsFrom": "FIELDS",
+          "inputSchemas": "[]",
+          "fields": [
+            {
+              "name": "PERIODO",
+              "type": "integer",
+              "nullable": true
+            },
+            {
+              "name": "AGENTE",
+              "type": "integer",
+              "nullable": true
+            },
+            {
+              "name": "NOM_AGENTE",
+              "type": "string",
+              "nullable": true
+            },
+            {
+              "name": "NOM_REGION",
+              "type": "string",
+              "nullable": true
+            },
+            {
+              "name": " NOM_SUCURSAL",
+              "type": "string",
+              "nullable": true
+            },
+            {
+              "name": "CANALN",
+              "type": "string",
+              "nullable": true
+            },
+            {
+              "name": " DIMENSION",
+              "type": "string",
+              "nullable": true
+            },
+            {
+              "name": " ATRIBUTO",
+              "type": "string",
+              "nullable": true
+            },
+            {
+              "name": " PROV_AGENTE ",
+              "type": "string",
+              "nullable": true
+            }
+          ],
+          "whenFieldError": "Null",
+          "whenRowError": "RowDiscard"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "dim_comercial",
+        "stepType": "Transformation",
+        "className": "RenameColumnTransformStep",
+        "classPrettyName": "RenameColumns",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1160.9691528566573,
+            "y": 240.61252481638775
+          }
+        },
+        "configuration": {
+          "columns": [
+            {
+              "name": "PERIODO",
+              "alias": "periodo"
+            },
+            {
+              "name": "AGENTE",
+              "alias": "agente"
+            },
+            {
+              "name": "NOM_AGENTE",
+              "alias": "nom_agente"
+            },
+            {
+              "name": "NOM_REGION",
+              "alias": "nom_region"
+            },
+            {
+              "name": "CANALN",
+              "alias": "canaln"
+            },
+            {
+              "name": " DIMENSION",
+              "alias": "dimension"
+            },
+            {
+              "name": " ATRIBUTO",
+              "alias": "atributo"
+            },
+            {
+              "name": " PROV_AGENTE ",
+              "alias": "prov_agente"
+            },
+            {
+              "name": " NOM_SUCURSAL",
+              "alias": "nom_sucursal"
+            }
+          ],
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Postgres(1)_1",
+        "stepType": "Output",
+        "className": "PostgresOutputStep",
+        "classPrettyName": "Postgres",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1816.8028224591503,
+            "y": 301.85166286055517
+          }
+        },
+        "configuration": {
+          "newQuotesSubstitution": "",
+          "errorSink": false,
+          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
+          "postgresSaveMode": "COPYIN",
+          "isolationLevel": "READ_UNCOMMITTED",
+          "encoding": "UTF8",
+          "tlsEnabled": true,
+          "driver": "",
+          "schemaFromDatabase": false,
+          "newLineSubstitution": " ",
+          "saveOptions": "[]",
+          "delimiter": "{{CSV_DELIMITER}}"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Print_diego",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1781.2475778434432,
+            "y": 513.404703336751
+          }
+        },
+        "configuration": {
+          "printData": false,
+          "printSchema": false,
+          "errorSink": false,
+          "printMetadata": true,
+          "logLevel": "warn"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "lineageProperties": []
       }
     ],
     "edges": [
@@ -777,18 +1030,88 @@
         "dataType": "ValidData"
       },
       {
-        "origin": "Select_Indi",
-        "destination": "2016_cluster1",
+        "origin": "variables_calc",
+        "destination": "Mix_dim_com",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "variables_calc",
+        "destination": "Select_Indi",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Repartition",
+        "destination": "Casting",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "sie_stat_corporativas",
+        "destination": "Repartition",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "dim_comercial_csv",
+        "destination": "dim_comercial_casting",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "dim_comercial_casting",
+        "destination": "dim_comercial",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "dim_comercial",
+        "destination": "Mix_dim_com",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "2015_cluster3",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "2015_cluster2",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "2015_cluster1",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "2016_cluster3",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "2016_cluster2",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "2016_cluster1",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "resto_cluster1",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "resto_cluster2",
+        "destination": "Postgres(1)",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "resto_cluster3",
+        "destination": "Postgres(1)",
         "dataType": "ValidData"
       },
       {
         "origin": "Select_Indi",
-        "destination": "2016_cluster3",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Select_Indi",
-        "destination": "2016_cluster2",
+        "destination": "2015_cluster3",
         "dataType": "ValidData"
       },
       {
@@ -799,11 +1122,6 @@
       {
         "origin": "Select_Indi",
         "destination": "2015_cluster2",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Select_Indi",
-        "destination": "2015_cluster3",
         "dataType": "ValidData"
       },
       {
@@ -822,73 +1140,28 @@
         "dataType": "ValidData"
       },
       {
-        "origin": "variables_calc",
-        "destination": "Mix_dim_com",
+        "origin": "Select_Indi",
+        "destination": "2016_cluster1",
         "dataType": "ValidData"
       },
       {
-        "origin": "variables_calc",
-        "destination": "Select_Indi",
+        "origin": "Select_Indi",
+        "destination": "2016_cluster2",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Select_Indi",
+        "destination": "2016_cluster3",
         "dataType": "ValidData"
       },
       {
         "origin": "Mix_dim_com",
-        "destination": "Postgres(1)",
+        "destination": "Postgres(1)_1",
         "dataType": "ValidData"
       },
       {
-        "origin": "2015_cluster3",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "2015_cluster2",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "2015_cluster1",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "2016_cluster3",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "2016_cluster2",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "2016_cluster1",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "resto_cluster1",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "resto_cluster2",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "resto_cluster3",
-        "destination": "Postgres(1)(1)",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Crossdata",
-        "destination": "Repartition",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Repartition",
-        "destination": "Casting",
+        "origin": "Mix_dim_com",
+        "destination": "Print_diego",
         "dataType": "ValidData"
       }
     ]
@@ -896,12 +1169,13 @@
   "executionEngine": "Batch",
   "uiSettings": {
     "position": {
-      "x": -156.03214472629224,
-      "y": -230.80559351196496,
-      "k": 0.660734233650795
+      "x": -305.9635681054698,
+      "y": -53.79354831753426,
+      "k": 0.5625066276966099
     }
   },
-  "lastUpdateDate": "2018-04-30T09:35:55Z",
+  "creationDate": "2018-07-04T13:36:33Z",
+  "lastUpdateDate": "2018-07-04T09:14:50Z",
   "version": 0,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
@@ -914,11 +1188,10 @@
     "generali"
   ],
   "status": {
-    "id": "c3bebc13-3e1c-402f-91f6-9eb25369276e",
-    "status": "Uploaded",
-    "statusInfo": "Workflow App configuration initialized correctly",
-    "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-04-30T09:35:59Z",
-    "lastUpdateDateWorkflow": "2018-04-30T09:35:55Z"
-  }
+    "id": "5e93c015-e350-4bd6-bbfc-43692e2704bf",
+    "status": "Created",
+    "statusId": "8680e8a2-2194-4ded-a9be-bfe47b6c3c54",
+    "creationDate": "2018-07-04T13:36:34Z"
+  },
+  "debugMode": false
 }

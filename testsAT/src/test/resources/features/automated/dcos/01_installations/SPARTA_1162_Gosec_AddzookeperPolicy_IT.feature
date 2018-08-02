@@ -3,7 +3,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
 
   Background: Setup token to gosec
     #Generate token to conect to gosec
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
   @runOnEnv(ID_POLICY_ZK)
   Scenario: [SPARTA-1162][01]Add zookeper-sparta policy to write in zookeper
@@ -12,13 +12,21 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
     Then the service response status must be '201'
-  @runOnEnv(ID_SPARTA_POLICY)
+  @runOnEnv(ID_SPARTA_POLICY_OLD)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
-      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}         | n/a |
+      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
+  @runOnEnv(ID_SPARTA_POLICY)
+  Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_2.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+    Then the service response status must be '201'
+
   @runOnEnv(ID_KAFKA_POLICY)
   Scenario: [SPARTA-1162][03]Add sparta policy to write in kafka
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
@@ -27,29 +35,38 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_KAFKA_FR_POLICY)
-  Scenario: [SPARTA-1162][03]Add sparta policy to write in kafka
+  Scenario: [SPARTA-1162][04]Add sparta policy to write in kafka
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy_fr.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}         | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_ELASTIC_POLICY)
-  Scenario: [SPARTA-1162][03]Add Elastic policy to write in Elastic
+  Scenario: [SPARTA-1162][05]Add Elastic policy to write in Elastic
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/elastic_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_ELASTIC_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_ELASTIC_POLICY}        | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}        | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_XD_POLICY)
-  Scenario: [SPARTA-1162][03]Add Elastic policy to write in Elastic
+  Scenario: [SPARTA-1162][06]Add Elastic policy to write in Elastic
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/xd_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_XD_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_XD_POLICY}        | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}   | n/a |
     Then the service response status must be '201'
 
+  @runOnEnv(ID_SPARTA_POSTGRES)
+  Scenario: [SPARTA-1162][08]Add postgres policy for authorization in sparta
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
+      |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+    Then the service response status must be '201'
+    And the service response must contain the text '"id":"spartapostgres"'
+
   @runOnEnv(RESTART_SPARTA)
-  Scenario: [SPARTA-1162] [04] Restart Sparta Application after gosec
+  Scenario: [SPARTA-1162] [08] Restart Sparta Application after gosec
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     When I run 'echo $(dcos marathon app restart  /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME})' in the ssh connection
     And in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME}' contains '${DCOS_SERVICE_NAME}'

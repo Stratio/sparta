@@ -24,7 +24,6 @@
             <p>
          </div>
          <div class="workflow-json st-form-field" [ngClass]="{'error' : workflowValidationError || serverErrors.length}">
-            
             <st-textarea [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
                required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </st-textarea>
                <!-- {{serverErrors | async | json}} -->
@@ -38,7 +37,7 @@
                 <button class="button button-secondary-gray cancel-button" (click)="onCloseJsonModal.emit('0')">
                     <span>{{'DASHBOARD.CANCEL' | translate}}</span>
                 </button>
-                <button class="button button-primary" (click)="onSubmitWorkflow()">
+                <button class="button button-primary" id="save-button" (click)="onSubmitWorkflow()" [disabled]="isSaving$ | async">
                     <span>{{'DASHBOARD.CREATE' | translate}}</span>
                 </button>
             </div>

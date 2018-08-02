@@ -7,10 +7,11 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
 import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from './../../reducers';
-import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'workflow-json-modal',
@@ -28,6 +29,8 @@ export class WorkflowJsonModal implements OnInit {
     public forceValidations = false;
     public serverErrorsSubscription: Subscription;
     public serverErrors = '';
+    public isSaving$: Observable<boolean>;
+
     private openModal: Subscription;
 
     public model: any = {
@@ -77,7 +80,7 @@ export class WorkflowJsonModal implements OnInit {
     }
 
     ngOnInit() {
-
+       this.isSaving$ = this.store.select(fromRoot.getSavingState);
         this.serverErrorsSubscription = this.store.select(fromRoot.getModalError).subscribe((error: any) => {
             if (error.error && error.error.length) {
                 try {

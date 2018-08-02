@@ -19,6 +19,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.core.helpers.AggregationTimeHelper.parseValueToMilliSeconds
 import com.stratio.sparta.core.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -44,7 +45,8 @@ class CubeTransformStepStreaming(
 
   lazy val partitions: Option[Int] = properties.getInt("partitions", None)
 
-  lazy val timeoutKey: Option[Int] = properties.getInt("timeoutKey", None)
+  lazy val timeoutKey: Option[Int] = properties.getString("timeoutKey", None)
+    .flatMap(timeout => Try((parseValueToMilliSeconds(timeout) / 1000).toInt).toOption)
 
   lazy val waterMarkField: Option[String] = properties.getString("waterMark", None).notBlank
 
