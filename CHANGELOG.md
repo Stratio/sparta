@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.3.0 (upcoming)
+## 2.4.0 (upcoming)
+
+* Pending changelog
+
+## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
 * N executions by workflow
 * Parametrized executions
