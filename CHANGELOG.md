@@ -2,7 +2,8 @@
 
 ## 2.3.0 (upcoming)
 
-* Pending changelog
+* N executions by workflow
+* Parametrized executions
 
 ## 2.2.0-8b6b349 (Built: July 26, 2018 | Released: July 26, 2018)
 
