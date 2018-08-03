@@ -26,6 +26,7 @@ import com.stratio.sparta.core.enumerators.InputFormatEnum._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.plugin.workflow.input.xml.XMLInputStepBatch
 
 abstract class DummyDebugInputStep[Underlying[Row]](
                                                name: String,
@@ -49,6 +50,9 @@ abstract class DummyDebugInputStep[Underlying[Row]](
         override lazy val path: Option[String] = parsedPath
       }.initWithSchema()
       case Some(PARQUET) => new ParquetInputStepBatch(name, outputOptions, ssc, xDSession, properties) {
+        override lazy val path: Option[String] = parsedPath
+      }.initWithSchema()
+      case Some(XML) => new XMLInputStepBatch(name, outputOptions, ssc, xDSession, properties){
         override lazy val path: Option[String] = parsedPath
       }.initWithSchema()
       case _ =>

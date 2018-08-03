@@ -25,6 +25,7 @@ This software – including all its source code – contains proprietary informa
         <mongodb.spark.version>0.12.0</mongodb.spark.version>
         <elastic.spark.version>6.1.1</elastic.spark.version>
         <avro.spark.version>4.0.0</avro.spark.version>
+        <xml.spark.version>0.4.1</xml.spark.version>
         <redis.version>2.15</redis.version>
         <async.http.version>1.8.17</async.http.version>
     </properties>
@@ -157,6 +158,11 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.databricks</groupId>
             <artifactId>spark-avro_${scala.binary.version}</artifactId>
             <version>${avro.spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>spark-xml_${scala.binary.version}</artifactId>
+            <version>${xml.spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>

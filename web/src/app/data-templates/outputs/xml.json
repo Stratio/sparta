@@ -1,0 +1,70 @@
+  {
+     "name": "Xml",
+     "icon": "Xml",
+     "className": "XMLOutputStep",
+     "classPrettyName": "Xml",
+     "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
+     "description": "Allows you to store data into XML files",
+     "properties": [
+        {
+           "propertyId": "path",
+           "propertyName": "_PATH_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Path to store the XML file(s) in a compatible filesystem (HDFS, S3, Azure, etc). Please note that, in order to write to the HDFS specified in the tenant configuration, also relative paths can be used (e.g. /user/sparta-server/) without the namenode details (e.g. hdfs:///addressNamenode:8020/user/sparta-server/)",
+           "qa": "fragment-details-xml-path"
+        },
+        {
+           "propertyId": "rowTag",
+           "propertyName": "_ROWTAG_",
+           "propertyType": "text",
+           "required": true,
+           "default": false,
+           "tooltip": "The row tag of your xml files to treat as a row.",
+           "qa": "workflow-transformation-csv-rowtag"
+        },
+        {
+           "propertyId": "rootTag",
+           "propertyName": "_ROOT_TAG_",
+           "propertyType": "text",
+           "required": true,
+           "default": false,
+           "tooltip": "The root tag of your xml files to treat as the root. Default is ROWS",
+           "qa": "workflow-transformation-csv-roottag"
+        },
+        {
+           "propertyId": "errorSink",
+           "propertyName": "_ERROR_SINK_",
+           "propertyType": "boolean",
+           "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
+           "default": false,
+           "qa": "fragment-details-errorSink"
+        },
+        {
+           "propertyId": "saveOptions",
+           "propertyName": "_XML_SAVE_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "fragment-details-xml-save-properties",
+           "fields": [
+              {
+                 "propertyId": "saveOptionsKey",
+                 "propertyName": "_SAVE_OPTIONS_KEY_",
+                 "propertyType": "text",
+                 "width": 4,
+                 "required": false,
+                 "qa": "fragment-details-xml-saveOptionsKey"
+              },
+              {
+                 "propertyId": "saveOptionsValue",
+                 "propertyName": "_SAVE_OPTIONS_VALUE_",
+                 "propertyType": "text",
+                 "width": 4,
+                 "required": false,
+                 "qa": "fragment-details-xml-saveOptionsValue"
+              }
+           ]
+        }
+     ]
+  }

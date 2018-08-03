@@ -49,5 +49,6 @@ export const icons: any = {
     InitNulls: '\ue919',
     Join: '\ue98B',
     DropNulls: '\ue084',
-    QueryBuilder: '\uE932'
+    QueryBuilder: '\uE932',
+    Xml: '\ue969'
 };

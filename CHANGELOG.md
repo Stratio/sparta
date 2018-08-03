@@ -2,7 +2,7 @@
 
 ## 2.4.0 (upcoming)
 
-* Pending changelog
+* Added XML Input and Output step
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 

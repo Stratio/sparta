@@ -1,0 +1,77 @@
+  {
+     "name": "Xml",
+     "icon": "Xml",
+     "className": "XMLInputStep",
+     "classPrettyName": "Xml",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Batch"],
+     "supportedDataRelations": ["ValidData"],
+     "description": "Allows you to load data from XML files",
+     "properties": [
+        {
+           "propertyId": "path",
+           "propertyName": "_PATH_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Path to an XML file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
+           "qa": "fragment-details-xml-path"
+        },
+        {
+           "propertyId": "rowTag",
+           "propertyName": "_ROWTAG_",
+           "propertyType": "text",
+           "required": true,
+           "default": false,
+           "tooltip": "The row tag of your xml files to treat as a row.",
+           "qa": "workflow-transformation-csv-rowtag"
+        },
+        {
+           "propertyId": "mode",
+           "propertyName": "_XML_MODE_",
+           "propertyType": "select",
+           "tooltip": "Policy for dealing with corrupt records during parsing. Default is PERMISSIVE. PERMISSIVE : sets other fields to null when it meets a corrupted record, and puts the malformed string into a new field configured by columnNameOfCorruptRecord. When a schema is set by user, it sets null for extra fields. DROPMALFORMED : ignores the whole corrupted records. FAILFAST : throws an exception when it meets corrupted records.",
+           "values": [
+              {
+                 "label": "Permissive",
+                 "value": "PERMISSIVE"
+              },
+              {
+                 "label": "Drop malformed",
+                 "value": "DROPMALFORMED"
+              },
+              {
+                 "label": "Fail fast",
+                 "value": "FAILFAST"
+              }
+           ],
+           "default": "PERMISSIVE",
+           "required": false,
+           "qa": "fragment-details-xml-mode"
+        },
+        {
+           "propertyId": "inputOptions",
+           "propertyName": "_OPTION_PROPERTIES_",
+           "propertyType": "list",
+           "required": false,
+           "qa": "custom-input-properties",
+           "fields": [
+              {
+                 "propertyId": "inputOptionsKey",
+                 "propertyName": "_OPTION_KEY_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-key"
+              },
+              {
+                 "propertyId": "inputOptionsValue",
+                 "propertyName": "_OPTION_VALUE_",
+                 "propertyType": "text",
+                 "required": false,
+                 "width": 4,
+                 "qa": "custom-input-properties-value"
+              }
+           ]
+        }
+     ]
+  }

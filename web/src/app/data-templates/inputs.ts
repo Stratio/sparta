@@ -26,6 +26,7 @@ import * as filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import * as twitterJsonTemplate from './inputs/twitter-json.json';
 import * as testStreamingTemplate from './inputs/testStreaming.json';
 import * as testBatchTemplate from './inputs/testBatch.json';
+import * as xmlBatchTemplate from './inputs/xml.json';
 import * as websocketTemplate from './inputs/websocket.json';
 
 
@@ -50,6 +51,7 @@ export const inputs = [
     parquetTemplate,
     testBatchTemplate,
     testStreamingTemplate,
+    xmlBatchTemplate,
     websocketTemplate
 ];
 
