@@ -50,8 +50,9 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
   };
 
   public inputOptions = [
-   { label: 'Add all fields', value: 'addFields' }
-];
+    { label: 'Add all fields', value: 'addFields' }
+  ];
+  private _unselectFnRef: any;
 
   constructor(private _store: Store<fromQueryBuilder.State>, private _cd: ChangeDetectorRef, private elementRef: ElementRef) { }
 
@@ -64,7 +65,7 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
    }
   ngOnInit(): void {
     this.img = new Image();
-    this.img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAn0lEQVRIS72UQRLAIAgD9aG+zoe2w4EOtWJCR/QsWSSRWpJPTdYvIUBr7ZKGeu90HX1RxfXFLIQCjOIRCAR44iwEAmwIUj0Q0DaACM1MXAG8ms+IkIgXU6/uBbCG/nnBzPgHgNIS/fHa4DmATUl0zqvasybrnFNjujJz20fzICkAFF+0tqlll7qurfF2dKhzvUu9YISw4lIXAkTXxRHADcdvgBmCVnF5AAAAAElFTkSuQmCC';
+    this.img.src = '/assets/images/move.png';
 
    }
 
@@ -76,7 +77,15 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
   }
 
   public selectColumn(field: InputSchemaField) {
-    this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction(field));
+    document.removeEventListener('mouseup', this._unselectFnRef);
+    if (this.selectedFieldsNames.indexOf(field.column) > -1) {
+      this._unselectFnRef = function() {
+        this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction(field));
+      }.bind(this);
+      document.addEventListener('mouseup', this._unselectFnRef);
+    } else {
+      this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction(field));
+    }
   }
 
   public onChangeElementPosition(column: string, position: SchemaFieldPosition) {
@@ -86,18 +95,13 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
       }
   }
 
-  public getSelectedItemsIncluding(item: InputSchemaField) {
-    return this.selectedFields;
-
-    /* si quieres seleccionar el propio elemento del que haces drag, hay que buscar si ya esta en la lista de seleccionados
-      y sino esta añadirlo al array de seleccionados */
-
-    // return this.selectedFields.find(selectedItem => item.column === selectedItem.column) ? this.selectedFields : [...this.selectedFields, item];
-  }
-
   public onDragstart(event: DragEvent) {
+    document.removeEventListener('mouseup', this._unselectFnRef);
+    if (this.selectedFieldsNames.length < 1)  {
+      event.preventDefault();
+    }
    this.isDragging = true;
-    if (event.dataTransfer['setDragImage']) {
+    if (event.dataTransfer['setDragImage'] && this.selectedFieldsNames.length > 1 ) {
       event.dataTransfer['setDragImage'](this.img, -10, 30);
     }
   }

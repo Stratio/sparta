@@ -29,7 +29,7 @@
            <div class="box-schema-body__row"
              *ngFor="let field of schema.fields"
              [ngClass]="{'selected' :  selectedFieldsNames.indexOf(field.column) > -1, 'no-drag': disableDrag }"
-             [dndDraggable]="getSelectedItemsIncluding(field)"
+             [dndDraggable]="selectedFields"
              (dndDragstart)="onDragstart($event)"
              (dndMoved)="onMoved()"
              [dndDisable]="disableDrag"
@@ -37,7 +37,7 @@
              (positionChange)="onChangeElementPosition(field.column, $event)"
              [containerElement]="containerElement"
              [recalcPositionSubject]="recalcPositionSubject"
-             (click)="selectColumn(field)"><!--
+             (mousedown)="selectColumn(field)"><!--
          --><div class="box-schema-body__field column">
                {{field.column}}
              </div><!--
