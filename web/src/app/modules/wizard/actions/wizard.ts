@@ -59,6 +59,7 @@ export const HIDE_EDGE_OPTIONS = '[Wizard] Hide edge options';
 export const SELECT_EDGE_TYPE = '[Wizard] Select edge type';
 export const SHOW_NOTIFICATION = '[Wizard] Show notification';
 export const SHOW_GLOBAL_ERRORS = '[Wizard] Show global errors';
+export const SET_WORKFLOW_ID = '[Wizard] Set workflow Id';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -301,6 +302,11 @@ export class ShowGlobalErrorsAction implements Action {
     readonly type = SHOW_GLOBAL_ERRORS;
 }
 
+export class SetWorkflowIdAction implements Action {
+    readonly type = SET_WORKFLOW_ID;
+    constructor(public workflowId: string) { }
+}
+
 export type Actions =
     ResetWizardAction |
     GetMenuTemplatesAction |
@@ -350,4 +356,5 @@ export type Actions =
     HideEdgeOptionsAction |
     SelectEdgeTypeAction |
     ShowNotificationAction |
-    ShowGlobalErrorsAction;
+    ShowGlobalErrorsAction |
+    SetWorkflowIdAction;

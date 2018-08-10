@@ -13,19 +13,19 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1895_CarrefourBatchworkflow_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1730_Workflow_PNF_IT.feature"
 
 })
+public class SPARTA_1196_Workflow_PNF_IT extends BaseTest {
 
-public class SPARTA_1895_CarrefourBatchworkflow_IT extends BaseTest  {
-    public SPARTA_1895_CarrefourBatchworkflow_IT(String browser) {
+    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+    public SPARTA_1196_Workflow_PNF_IT(String browser) {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_execution_postgres"})
-
-    public void ExecuteWorkflow() throws Exception {
+    @Test(enabled = true, groups = {"dcos_pnf"})
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
 }

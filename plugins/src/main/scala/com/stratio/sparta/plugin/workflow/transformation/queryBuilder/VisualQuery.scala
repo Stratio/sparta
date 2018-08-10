@@ -24,8 +24,9 @@ case class VisualQuery(
   def toSql: String = {
     val selectSentence = {
       val selectSql = {
-        if (selectClauses.nonEmpty)
-          s"${selectClauses.map(_.toSql).mkString(",")}"
+        val selectFiltered = selectClauses.filter(_.expression.nonEmpty)
+        if (selectFiltered.nonEmpty)
+          s"${selectFiltered.map(_.toSql).filter(_.nonEmpty).mkString(",")}"
         else "*"
       }
 
@@ -37,18 +38,19 @@ case class VisualQuery(
       join.joinTypes match {
         case JoinTypes.LEFT_RIGHT_ONLY =>
           Option(join.joinConditions.map { condition =>
-            s"${join.leftTable.alias.getOrElse(join.leftTable.tableName)}.${condition.leftField} IS NULL OR " +
-              s"${join.rightTable.alias.getOrElse(join.rightTable.tableName)}.${condition.rightField} IS NULL"
+            s"${join.leftTable.alias.notBlank.getOrElse(join.leftTable.tableName)}.${condition.leftField} IS NULL OR " +
+              s"${join.rightTable.alias.notBlank.getOrElse(join.rightTable.tableName)}.${condition.rightField} IS NULL"
           }.mkString(" AND "))
         case _ => None
       }
     }.notBlank
     val whereSentence = whereClause.notBlank.map { where =>
-      s"WHERE $where ${joinWhereConditions.fold("") { conditions => s"AND $conditions" }}"
-    }.getOrElse(joinWhereConditions.fold("") { conditions => s"WHERE $conditions" })
+      s"WHERE $where ${joinWhereConditions.notBlank.fold("") { conditions => s"AND $conditions" }}"
+    }.getOrElse(joinWhereConditions.notBlank.fold("") { conditions => s"WHERE $conditions" })
     val orderBySentence = {
-      if (orderByClauses.nonEmpty)
-        s"ORDER BY ${orderByClauses.sortBy(_.position.getOrElse(0)).map(_.toSql).mkString(",")}"
+      val clausesFiltered = orderByClauses.filter(_.field.nonEmpty)
+      if (clausesFiltered.nonEmpty)
+        s"ORDER BY ${clausesFiltered.sortBy(_.position.getOrElse(0)).map(_.toSql).mkString(",")}"
       else ""
     }
 
@@ -59,13 +61,17 @@ case class VisualQuery(
 
 case class SelectClause(expression: String, alias: Option[String] = None) {
 
-  def toSql: String = s"$expression ${alias.fold("") { as => s"AS $as" }}"
+  def toSql: String = {
+    if(expression.nonEmpty)
+      s"$expression ${alias.fold("") { as => s"AS $as" }}"
+    else ""
+  }
 
 }
 
 case class TableExpression(tableName: String, alias: Option[String] = None) {
 
-  def toSql: String = s"$tableName ${alias.fold("") { as => s"AS $as" }}"
+  def toSql: String = s"$tableName ${alias.notBlank.fold("") { as => s"AS $as" }}"
 
 }
 
@@ -83,8 +89,8 @@ case class JoinClause(
         if (joinConditions.nonEmpty)
           s" ON ${
             joinConditions.map(_.toSql(
-              leftTable.alias.getOrElse(leftTable.tableName),
-              rightTable.alias.getOrElse(rightTable.tableName)
+              leftTable.alias.notBlank.getOrElse(leftTable.tableName),
+              rightTable.alias.notBlank.getOrElse(rightTable.tableName)
             )).mkString(" AND ")
           }"
         else ""

@@ -636,6 +636,7 @@
       "SAVE_ENVIRONMENT": "The environment variables have been saved",
       "EXPORT_ENVIRONMENT": "The environment data have been exported",
       "IMPORT_ENVIRONMENT": "The environment data have been imported",
+      "INVALID_ENVIRONMENT_FILE": "The selected environment file format is invalid",
       "DELETE_INPUT_DESCRIPTION": "The input/s has been deleted",
       "DELETE_OUTPUT_DESCRIPTION": "The output/s has been deleted",
       "DELETE_TRANSFORMATION_DESCRIPTION": "The transformation/s has been deleted",

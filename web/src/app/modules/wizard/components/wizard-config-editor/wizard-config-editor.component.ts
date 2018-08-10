@@ -286,7 +286,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
    normalizeQueryConfiguration() {
       const inputs = this.queryBuilder.inputSchemaFields.length;
-console.log('*******');
       const usedInputs = [].concat.apply([], this.queryBuilder.outputSchemaFields
          .map(output => output.originFields.map(field => `${field.alias}.${field.table}`)))
          .filter((elem, index, self) => index === self.indexOf(elem));
@@ -294,8 +293,7 @@ console.log('*******');
       let fromClause = null;
       if (usedInputs.length > 1 ||  this.queryBuilder.join.type.includes('RIGHT_ONLY') ||  this.queryBuilder.join.type.includes('LEFT_ONLY')) {
          // JOIN
-         if (this.queryBuilder.join.joins.length) {
-            if (this.queryBuilder.join.joins.length) {
+         if (this.queryBuilder.join && this.queryBuilder.join.joins && this.queryBuilder.join.joins.length) {
                const origin = this.queryBuilder.join.joins[0].origin;
                const destination = this.queryBuilder.join.joins[0].destination;
                const leftTable = { tableName: origin.table, alias: origin.alias };
@@ -303,7 +301,6 @@ console.log('*******');
                const joinTypes = this.queryBuilder.join.type;
                const joinConditions = this.queryBuilder.join.joins.map(join => ({ leftField: join.origin.column, rightField: join.destination.column }));
                joinClause = { leftTable, rightTable, joinTypes, joinConditions };
-            }
          } else {
             joinClause = {
                leftTable: { tableName: usedInputs[0].split('.')[1], alias:  usedInputs[0].split('.')[0] },

@@ -18,7 +18,7 @@
       "blockInterval": "100ms",
       "stopGracefully": false,
       "checkpointSettings": {
-        "checkpointPath": "sparta/checkpoint",
+        "checkpointPath": "{{{SPARK_STREAMING_CHECKPOINT_PATH}}}",
         "enableCheckpointing": true,
         "autoDeleteCheckpoint": true,
         "addTimeToCheckpointPath": false
@@ -32,7 +32,7 @@
       "submitArguments": {
         "userArguments": [],
         "deployMode": "client",
-        "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
+        "driverJavaOptions": "{{{SPARK_DRIVER_JAVA_OPTIONS}}}"
       },
       "sparkConf": {
         "sparkResourcesConf": {
@@ -51,12 +51,12 @@
         "coarse": true,
         "sparkUser": "",
         "sparkLocalDir": "/opt/spark/dist",
-        "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0-1.0.0",
+        "executorDockerImage": "{{{SPARK_EXECUTOR_BASE_IMAGE}}}",
         "sparkKryoSerialization": false,
         "sparkSqlCaseSensitive": false,
         "logStagesProgress": false,
-        "hdfsTokenCache": false,
-        "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "{{{SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
       }
     },
     "errorsManagement": {
@@ -116,8 +116,8 @@
           "group.id": "sparta_2",
           "bootstrap.servers": [
             {
-              "host": "kafka-0-broker.eos-kafka-framework.mesos",
-              "port": "9092"
+              "port": "9092",
+              "host": "kafka-0-broker.eos-kafka-framework.mesos"
             }
           ],
           "enable.auto.commit": false,
@@ -128,7 +128,8 @@
         "executionEngine": "Streaming",
         "supportedDataRelations": [
           "ValidData"
-        ]
+        ],
+        "lineageProperties": []
       },
       {
         "name": "tabletest",
@@ -156,8 +157,10 @@
         "supportedEngines": [],
         "executionEngine": "Streaming",
         "supportedDataRelations": [
-          "ValidData"
-        ]
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
       },
       {
         "name": "Postgres",
@@ -192,7 +195,8 @@
         "executionEngine": "Streaming",
         "supportedDataRelations": [
           "ValidData"
-        ]
+        ],
+        "lineageProperties": []
       },
       {
         "name": "Print",
@@ -221,7 +225,8 @@
         "executionEngine": "Streaming",
         "supportedDataRelations": [
           "ValidData"
-        ]
+        ],
+        "lineageProperties": []
       },
       {
         "name": "Cube",
@@ -265,7 +270,8 @@
         "executionEngine": "Streaming",
         "supportedDataRelations": [
           "ValidData"
-        ]
+        ],
+        "lineageProperties": []
       }
     ],
     "edges": [
@@ -304,7 +310,7 @@
       "k": 1
     }
   },
-  "lastUpdateDate": "2018-05-07T12:01:00Z",
+  "lastUpdateDate": "2018-07-31T12:40:35Z",
   "version": 0,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
@@ -312,10 +318,9 @@
   },
   "status": {
     "id": "71dc4598-c66c-4384-aeec-471cc0b29b65",
-    "status": "Started",
-    "statusInfo": "Workflow started correctly",
-    "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-05-07T12:39:00Z",
-    "lastUpdateDateWorkflow": "2018-05-07T12:01:00Z"
-  }
+    "status": "Created",
+    "statusId": "daa34c53-54d0-4ef6-b7f6-30ccbd0a74d0",
+    "creationDate": "2018-07-31T12:33:29Z"
+  },
+  "debugMode": false
 }

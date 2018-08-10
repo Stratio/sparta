@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -52,8 +53,8 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
-                label: fragmentData.name,
-                value: fragmentData.name
+                label: fragmentData.classPrettyName,
+                value: fragmentData.classPrettyName
             };
         });
 
@@ -63,7 +64,6 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
             }
         });
     }
-
 
     cancelCreate() {
         this.route.navigate(['templates', 'transformations']);

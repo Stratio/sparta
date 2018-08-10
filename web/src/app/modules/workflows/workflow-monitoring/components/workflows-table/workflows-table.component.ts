@@ -77,8 +77,8 @@ export class WorkflowsTableComponent {
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
             { id: 'filterStatus', label: 'Status' },
-            { id: 'startDate', label: 'Start Date' },
-            { id: 'endDate', label: 'End Date' },
+            { id: 'startDateMillis', label: 'Start Date' },
+            { id: 'endDateMillis', label: 'End Date' },
             { id: 'spark', label: '', sortable: false }
         ];
     }

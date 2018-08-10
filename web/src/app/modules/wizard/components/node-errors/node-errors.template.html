@@ -50,7 +50,7 @@
       </div>
     </div>
   </div>
-  <div class="schemas output-schemas" *ngIf="outputSchema">
+  <div class="schemas output-schemas" *ngIf="outputsSchemas.length">
     <div class="schema-title">
       <span (click)="outputSchemasOpened = !outputSchemasOpened">
         <span class="icon" [ngClass]="outputSchemasOpened ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
@@ -58,14 +58,16 @@
       </span>
     </div>
     <div *ngIf="outputSchemasOpened">
-      <div>
-        <div (click)="toggleSchema(outputSchema)" class="schema-section">
-          <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : outputSchema.expanded}"></span>
-          <span class="schema-name">{{outputSchema.name}}</span>
-        </div>
-        <span class="debug-data-link" (click)="showConsole('Data', outputSchema.name)">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
+      <div *ngFor="let outputSchema of outputsSchemas">
+         <div>
+            <div (click)="toggleSchema(outputSchema)" class="schema-section">
+               <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : outputSchema.expanded}"></span>
+               <span class="schema-name">{{outputSchema.name}}</span>
+            </div>
+            <span class="debug-data-link" (click)="showConsole('Data', outputSchema.name)">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
+         </div>
+         <node-schema *ngIf="outputSchema.expanded" [schema]="outputSchema.tree"></node-schema>
       </div>
-      <node-schema *ngIf="outputSchema.expanded" [schema]="outputSchema.tree"></node-schema>
     </div>
   </div>
 </div>

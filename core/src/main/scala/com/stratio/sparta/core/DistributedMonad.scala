@@ -159,7 +159,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
     rdd.setName(s"${rdd.name}#$processedKey")
 
-    SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
+    SdkSchemaHelper.getSchemaFromSession(xdSession, saveOptions(TableNameKey))
       .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach { schema =>
       val dataFrame = xdSession.createDataFrame(rdd, schema)
 

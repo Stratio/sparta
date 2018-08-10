@@ -2,7 +2,7 @@
 Feature: [SPARTA-1641] Environment: Operations over environment
 
   Background: : conect to navigator
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
 
@@ -13,8 +13,8 @@ Feature: [SPARTA-1641] Environment: Operations over environment
   Scenario:[SPARTA-1641][02] Create enviroment
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/environment' based on 'schemas/enviroments/enviroments_variableTest.json' as 'json' with:
       |$.variables[0].name |  UPDATE  |   ${ENVIROMENT_NAME:-DEFAULT_ENVIROMENT_NAME}  | n/a |
-      |$.variables[0].value |  UPDATE  |   ${ENVIROMENT_VALUE:-1234}  | n/a |
-    Then the service response status must be '200' and its response must contain the text '${ENVIROMENT_VALUE:-1234}'
+      |$.variables[0].value |  UPDATE  |   ${ENVIROMENT_VALUE:-${PASSWORD:-admin}}  | n/a |
+    Then the service response status must be '200' and its response must contain the text '${ENVIROMENT_VALUE:-${PASSWORD:-admin}}'
 
   Scenario:[SPARTA-1641][03] Create enviroment variable
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/environment/variable' based on 'schemas/enviroments/enviroment_1variable.json' as 'json' with:

@@ -66,7 +66,7 @@ outputs.forEach((output: any) => {
         _batchOutputs.push(output);
         _batchOutputsObject[output.classPrettyName] = output;
         _batchOutputsNames.push({
-            name: output.name,
+            name: output.classPrettyName,
             value: output,
             stepType: StepType.Output
         });
@@ -75,7 +75,7 @@ outputs.forEach((output: any) => {
         _streamingOutputs.push(output);
         _streamingOutputsObject[output.classPrettyName] = output;
         _streamingOutputsNames.push({
-            name: output.name,
+            name: output.classPrettyName,
             value: output,
             stepType: StepType.Output
         });

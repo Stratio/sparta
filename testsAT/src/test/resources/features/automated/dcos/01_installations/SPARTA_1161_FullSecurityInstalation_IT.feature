@@ -3,8 +3,7 @@ Feature: [SPARTA-1161] Installation sparta with mustache
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
-
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
 
   Scenario: [SPARTA-1161][01]Add zookeper-sparta policy to write in zookeper
@@ -23,7 +22,7 @@ Feature: [SPARTA-1161] Installation sparta with mustache
 
   Scenario: [SPARTA_1238][03] Sparta Installation with Mustache in DCOS
     #Modify json to install specific configuration forSparta
-    Given I create file 'spartamustache.json' based on 'schemas/dcosFiles/${SPARTA_JSON}' as 'json' with:
+    Given I create file 'spartamustache.json' based on 'schemas/dcosFiles/${SPARTA_JSON:-spartamustache-2.2.json}' as 'json' with:
       |   $.Framework.name                                    |  UPDATE     | ${DCOS_SERVICE_NAME}                                                    |n/a |
       |   $.Framework.environment_uri                         |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com                                  |n/a |
       |   $.Zookeeper.address                                 |  UPDATE     | ${ZK_URL}                                                               |n/a |
@@ -37,7 +36,10 @@ Feature: [SPARTA-1161] Installation sparta with mustache
       |   $.Security.Components.marathon_enabled              |  REPLACE    | true                                                                    |boolean |
       |   $.Data-Governance.dg_enabled                        |  REPLACE    | true                                                                    |boolean |
       |   $.Sparta-History.history_enabled                    |  REPLACE    | true                                                                    |boolean |
-
+      |   $.Sparta-History.host                               |  UPDATE     | jdbc:postgresql://${POSTGRES_URL:-pg-0001.postgrestls.mesos}:${POSTGRES_PORT:-5432}   |n/a |
+      |   $.Data-Governance.host                              |  UPDATE    | ${POSTGRES_URL:-pg-0001.postgrestls.mesos}                                              |n/a |
+      |   $.Data-Governance.port                              |  UPDATE    | ${POSTGRES_PORT:-5432}                                                                   |n/a |
+      |   $.Data-Governance.user                              |  UPDATE    |  ${DCOS_SERVICE_NAME}                                                                  |n/a |
 
     #Copy DEPLOY JSON to DCOS-CLI
     When I outbound copy 'target/test-classes/spartamustache.json' through a ssh connection to '/dcos'

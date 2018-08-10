@@ -5,21 +5,23 @@
     "cpus": 2,
     "mem": 2048,
     "force_pull_image": false,
-    "environment_uri": "https://intbootstrap.labs.stratio.com"
+    "environment_uri": "https://intbootstrap.labs.stratio.com",
+    "upgrade_metadata_to_andromeda": true
   },
   "Server": {
     "await_to_check_policy_status": "360s",
     "api_calls_timeout": "20",
     "await_recovery": "5000",
     "env_init": "5000",
-    "consistency_interval": "1m"
+    "consistency_interval": "1m",
+    "upload_max_filesize": "150m"
   },
   "Zookeeper": {
     "address": "zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181",
     "connection_timeout": 15000
   },
   "Marathon": {
-    "sparta_docker_image": "qa.stratio.com/stratio/sparta:2.1.0-a5c4de8",
+    "sparta_docker_image": "qa.stratio.com/stratio/sparta:2.2.0",
     "docker_forcePullImage": false,
     "docker_privileged": false,
     "Tasks": {
@@ -40,7 +42,7 @@
   "Marathon-LB": {
     "enabled": true,
     "haproxy_group": "external",
-    "haproxy_host": "sparta.megadev.labs.stratio.com",
+    "haproxy_host": "intpublic.labs.stratio.com",
     "nginx_proxy": true,
     "https": true,
     "server_side_verification": false,
@@ -53,6 +55,7 @@
     "generate_hdfs_conf_from_dfs_not_secured": false,
     "hdfs_conf_from_uri": true,
     "core_site_from_uri": false,
+    "default_fs": "hdfs-namenode1.labs.stratio.com",
     "conf_uri": "http://10.200.0.74:8085/"
   },
   "Security": {
@@ -66,6 +69,7 @@
       "ssl_enabled": true,
       "mesos_enabled": true,
       "gosec_enabled": true,
+      "hdfs_enabled": true,
       "marathon_enabled": true,
       "crossdata_security_enabled": true
     },
@@ -83,9 +87,8 @@
       "hadoop_rpc_protection": "authentication",
       "hadoop_dfs_encrypt_data_transfer": true,
       "hadoop_security_token_use_ip": false,
-      "hadoop_namenode_krb_principal": "hdfs/10.200.0.74@DEMO.STRATIO.COM",
+      "hadoop_namenode_krb_principal": "hdfs/hdfs-namenode1.labs.stratio.com@DEMO.STRATIO.COM",
       "hadoop_namnode_krb_principal_pattern": "hdfs/*@DEMO.STRATIO.COM",
-      "hadoop_dfs_encrypt_data_transfer_cipher_key_bitlength": "128",
       "key_tab_reload": true,
       "key_tab_reload_time": "23h"
     },
@@ -114,14 +117,14 @@
   "Data-Governance": {
     "dg_enabled": true,
     "host": "pg-0001.postgrestls.mesos",
-    "port": "5432",
+    "port": "122",
     "user": "sparta-server",
     "database": "governance"
   },
   "Sparta-History": {
     "history_enabled": true,
     "host": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432",
-    "database": "postgres",
+    "database": "sparta-server",
     "user": "sparta-server",
     "keep_alive": true,
     "execution_history_table": "workflow_execution_history",
@@ -131,6 +134,7 @@
   "GoSec": {
     "sparta_plugin_zk_connect": "gosec1.node.paas.labs.stratio.com:2181,gosec2.node.paas.labs.stratio.com:2181,gosec3.node.paas.labs.stratio.com:2181",
     "zk_watchers_enabled": true,
+    "sparta_plugin_kafka_enabled": false,
     "sparta_plugin_kafka_topic": "audit",
     "enable_sparta_plugin_cache": false,
     "sparta_plugin_ldap_size": "50",

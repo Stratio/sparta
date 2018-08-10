@@ -118,11 +118,15 @@ export const getSelectedNodeSchemas = createSelector(
   getEdges,
   (selectedNode: WizardNode, debugResult: any, edges: any) => {
     if (edges && edges.length && debugResult && debugResult.steps && selectedNode) {
-        return {
-        inputs: edges.filter(edge => edge.destination === selectedNode.name)
-          .map(edge => debugResult.steps[edge.origin]).filter(input => input).sort(),
-        output: debugResult.steps[selectedNode.name]
-    };
+      return {
+         inputs: edges.filter(edge => edge.destination === selectedNode.name)
+            .map(edge => edge.dataType === 'ValidData' ? debugResult.steps[edge.origin] : debugResult.steps[edge.origin + '_Discard']).filter(input => input).sort(),
+         output: debugResult.steps[selectedNode.name],
+         outputs: Object.keys(debugResult.steps)
+            .map(key => debugResult.steps[key])
+            .filter(output => output.error || (output.result.step && (output.result.step === selectedNode.name || output.result.step === selectedNode.name + '_Discard')))
+            .sort((a, b) => a.result && a.result.step && a.result.step > b.result.step ? 1 : -1)
+      };
   } else {
     return null;
   }

@@ -10,6 +10,8 @@ import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write
 
+import scala.util.Try
+
 //scalastyle:off
 
 class JsoneyStringSerializer(environmentContext: Option[EnvironmentContext] = None)
@@ -38,7 +40,7 @@ class JsoneyStringSerializer(environmentContext: Option[EnvironmentContext] = No
         if (x.toString == null) {
           new JString("")
         } else if (x.toString.contains("[") && x.toString.contains("{")) {
-          parse(x.toString)
+          Try(parse(x.toString)).getOrElse(new JString(x.toString))
         } else if (x.toString.equals("true") || x.toString.equals("false")) {
           new JBool(x.toString.toBoolean)
         } else {

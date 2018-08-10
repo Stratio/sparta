@@ -78,14 +78,13 @@ export abstract class CreateTemplateComponent implements OnInit {
     ngOnInit() {
         //edition-mode
         if (this.route.url.indexOf('edit') > -1) {
-           console.log('++++++++++');
             this.editMode = true;
             this.getEditedTemplate(this.currentActivatedRoute.snapshot.params.id);
         } else {
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions();
             this.inputFormModel.executionEngine = 'Streaming';
             this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.inputFormModel.executionEngine,
-                this.listData[0], this.stepType); this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
+                this.listData[0], this.stepType);
             this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
             this.inputFormModel.description = '';
             this.inputFormModel.className = this.listData[this.fragmentIndex].className;
@@ -99,6 +98,7 @@ export abstract class CreateTemplateComponent implements OnInit {
             if (this.listData[i].classPrettyName === type) {
                 this.fragmentIndex = i;
                 this.inputFormModel.classPrettyName = type;
+                this.inputFormModel.classPrettyName = this.listData[i].classPrettyName;
                 this.inputFormModel.className = this.listData[i].className;
                 this.inputForm.form.markAsPristine();
                 return;

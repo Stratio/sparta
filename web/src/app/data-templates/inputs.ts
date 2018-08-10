@@ -73,7 +73,7 @@ inputs.forEach((input: any) => {
         _batchInputs.push(input);
         _batchInputsObject[input.classPrettyName] = input;
         _batchInputsNames.push({
-            name: input.name,
+            name: input.classPrettyName,
             value: input,
             stepType: StepType.Input
         });
@@ -82,7 +82,7 @@ inputs.forEach((input: any) => {
         _streamingInputs.push(input);
         _streamingInputsObject[input.classPrettyName] = input;
         _streamingInputsNames.push({
-            name: input.name,
+            name: input.classPrettyName,
             value: input,
             stepType: StepType.Input
         });

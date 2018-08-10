@@ -26,7 +26,7 @@ export interface State {
       templateType?: string;
       time?: number;
    };
-};
+}
 
 const initialState: State = {
    templates: {},

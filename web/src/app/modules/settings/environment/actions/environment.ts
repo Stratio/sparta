@@ -19,7 +19,7 @@ export const IMPORT_ENVIRONMENT_COMPLETE = '[Environment] Import environment com
 export const IMPORT_ENVIRONMENT_ERROR = '[Environment] Import environment error';
 export const FILTER_ENVIRONMENT = '[Environment] Filter environment';
 export const UPDATE_ENVIRONMENT_VALUE = '[Environment] Update environment value';
-
+export const INVALID_FILE_ERROR = '[Environment] Invalid environment file error';
 
 export class UpdateEnvironmentValueAction implements Action {
   readonly type = UPDATE_ENVIRONMENT_VALUE;
@@ -96,6 +96,10 @@ export class FilterEnvironmentAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class InvalidEnvironmentFileErrorAction implements Action {
+  readonly type = INVALID_FILE_ERROR;
+}
+
 export type Actions =
   ListEnvironmentAction |
   ListEnvironmentErrorAction |
@@ -109,4 +113,5 @@ export type Actions =
   ExportEnvironmentAction |
   ExportEnvironmentCompleteAction |
   ExportEnvironmentErrorAction |
-  FilterEnvironmentAction;
+  FilterEnvironmentAction |
+  InvalidEnvironmentFileErrorAction;

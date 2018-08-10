@@ -18,3 +18,10 @@
 .node-name.collapsable{
   cursor: pointer;
 }
+.node-name {
+   white-space: nowrap;
+   span {
+      margin-right: 10px;
+      white-space: nowrap;
+   }
+}

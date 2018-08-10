@@ -1,0 +1,217 @@
+{
+  "id": "cc70afc4-b6a7-486e-a42f-5efd7e5edca6",
+  "name": "workflow-name",
+  "description": "",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraintOperator": "CLUSTER"
+    },
+    "streamingSettings": {
+      "window": "{{{SPARK_STREAMING_WINDOW}}}",
+      "blockInterval": "{{{SPARK_STREAMING_BLOCK_INTERVAL}}}",
+      "stopGracefully": true,
+      "checkpointSettings": {
+        "checkpointPath": "{{{SPARK_STREAMING_CHECKPOINT_PATH}}}",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "{{{SPARK_DRIVER_JAVA_OPTIONS}}}"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "{{{SPARK_CORES_MAX}}}",
+          "executorMemory": "{{{SPARK_EXECUTOR_MEMORY}}}",
+          "executorCores": "{{{SPARK_EXECUTOR_CORES}}}",
+          "driverCores": "{{{SPARK_DRIVER_CORES}}}",
+          "driverMemory": "{{{SPARK_DRIVER_MEMORY}}}",
+          "localityWait": "{{{SPARK_LOCALITY_WAIT}}}",
+          "taskMaxFailures": "{{{SPARK_TASK_MAX_FAILURES}}}",
+          "sparkMemoryFraction": "{{{SPARK_MEMORY_FRACTION}}}"
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkLocalDir": "{{{SPARK_LOCAL_PATH}}}",
+        "executorDockerImage": "{{{SPARK_EXECUTOR_BASE_IMAGE}}}",
+        "sparkSqlCaseSensitive": true,
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "{{{SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": true,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "pruebajdbcqa",
+        "stepType": "Input",
+        "className": "JdbcInputStep",
+        "classPrettyName": "Jdbc",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "prueba50",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 513,
+            "y": 227
+          }
+        },
+        "configuration": {
+          "inputOptions": "[]",
+          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/pruebagovernance/public",
+          "isolationLevel": "READ_UNCOMMITTED",
+          "tlsEnabled": false,
+          "driver": "{{{JDBC_DRIVER}}}",
+          "dbtable": "prueba50"
+        },
+        "supportedEngines": [
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "filterqa",
+        "stepType": "Transformation",
+        "className": "FilterTransformStep",
+        "classPrettyName": "Filter",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "prueba61",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 848,
+            "y": 191
+          }
+        },
+        "configuration": {
+          "filterExp": "colA > 10",
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "postgresqa",
+        "stepType": "Output",
+        "className": "PostgresOutputStep",
+        "classPrettyName": "Postgres",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1239,
+            "y": 255
+          }
+        },
+        "configuration": {
+          "errorSink": false,
+          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/pruebagovernance/public",
+          "postgresSaveMode": "STATEMENT",
+          "batchsize": "1000",
+          "isolationLevel": "READ_UNCOMMITTED",
+          "failFast": true,
+          "tlsEnabled": false,
+          "driver": "",
+          "schemaFromDatabase": false,
+          "saveOptions": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "lineageProperties": []
+      }
+    ],
+    "edges": [
+      {
+        "origin": "pruebajdbcqa",
+        "destination": "filterqa",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "filterqa",
+        "destination": "postgresqa",
+        "dataType": "ValidData"
+      }
+    ]
+  },
+  "executionEngine": "Batch",
+  "uiSettings": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2018-07-30T12:41:35Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "cc70afc4-b6a7-486e-a42f-5efd7e5edca6",
+    "status": "Created",
+    "statusId": "7aae9f0a-5491-47d4-800a-8485982a0292",
+    "creationDate": "2018-07-30T12:38:24Z"
+  },
+  "debugMode": false
+}

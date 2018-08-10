@@ -15,7 +15,7 @@ Feature: [SPARTA_1192] Khermes installation for produccion of data
     And I save content of element in index '0' in environment variable 'nodeText'
     And I run 'echo '!{nodeText}' | jq '.value' | sed 's/"//g' | awk '{print $1}'' locally with exit status '0' and save the value in environment variable 'nodeID'
 
-    # Start production
+#    # Start production
     Given I read file 'schemas/khermes_config/create-generator-config' as 'string' and save it in environment variable 'startConfig' with:
       | <generator-config-name> | REPLACE | generator1 |
       | <twirl-template-name> | REPLACE | template1 |
@@ -29,4 +29,4 @@ Feature: [SPARTA_1192] Khermes installation for produccion of data
     And the element on index '0' has '{"value":"OK"}' as text
 
 
-    #Execution: mvn verify -Dgroups=execution -DDCOS_CLI_HOST=dcos-cli.demo.labs.stratio.com -DCLI_USER=root -DCLI_PASSWORD=stratio -DSELENIUM_GRID=jenkins.stratio.com:4444 -DFORCE_BROWSER=chrome_sparta -DGENERATE_CHAOS=true
+    #Execution: mvn verify -Dgroups=execution -DDCOS_CLI_HOST=dcos-cli.demo.labs.stratio.com -DCLI_USER=root -DCLI_PASSWORD=stratio -DSELENIUM_GRID=sl.demo.stratio.com:4444 -DFORCE_BROWSER=chrome_64sparta  -DGENERATE_CHAOS=true

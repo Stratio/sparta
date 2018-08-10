@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
+
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1161_FullSecurityInstalation_IT.feature",
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",

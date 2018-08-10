@@ -28,19 +28,19 @@ export class InitializeWorkflowService {
     let h = true;
     if (nodes && nodes.length) {
       this.setSupportedDataRelations(workflow.executionEngine, nodes);
-      if (!nodes[0].uiConfiguration) {
         nodes.map((node: any) => {
-          node.uiConfiguration = {};
-          node.uiConfiguration.position = {
-            x: x,
-            y: y
-          };
+         if (!node.uiConfiguration || !node.uiConfiguration.position) {
+            node.uiConfiguration = {};
+            node.uiConfiguration.position = {
+               x: x,
+               y: y
+            };
 
-          h ? x += 200 : y += 120;
-          h = !h;
-        });
-      }
-    }
+            h ? x += 200 : y += 120;
+            h = !h;
+         }
+      });
+   }
     return workflow;
   }
 

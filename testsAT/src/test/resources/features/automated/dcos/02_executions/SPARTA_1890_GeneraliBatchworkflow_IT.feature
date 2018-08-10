@@ -1,7 +1,7 @@
 @rest
 Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
   Background: : conect to navigator
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And I wait '3' seconds
@@ -84,7 +84,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster1"' contains '${CLUSTER1_NUMBER:-8824}'
     When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster2"' contains '${CLUSTER2_NUMBER:-15888}'
     When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster3"' contains '${CLUSTER3_NUMBER:-17661}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from variables_calc"' contains '${VARIABLES_CAL:-43351}'
+    #When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from variables_calc"' contains '${VARIABLES_CAL:-43351}'
 
 
   @runOnEnv(DELETE_POSTGRES_INFO)

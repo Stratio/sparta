@@ -75,5 +75,6 @@ object MarathonConstant {
   val NginxMarathonLBHostEnv = "MARATHON_APP_LABEL_HAPROXY_1_VHOST"
   val GosecAuthEnableEnv = "ENABLE_GOSEC_AUTH"
   val UserNameEnv = "USER_NAME"
+  val DatastoreCaNameEnv = "DATASTORE_TRUSTSTORE_CA_NAME"
 
 }

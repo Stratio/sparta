@@ -3,22 +3,13 @@ Feature: [SPARTA-1277] Uninstall Sparta with mustache
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-  Scenario: [SPARTA-1277][01] Delete a existing policy
+  Scenario: [SPARTA-1277][01] Delete a existing workflow
     When I run 'echo ${previousWorkflowID}| cut -d'.' -f 2 ' in the ssh connection and save the value in environment variable 'idworkflowDelete'
-    And I send a 'DELETE' request to '/policy/!{idworkflowDelete}'
+    And I send a 'DELETE' request to '/workflow/!{idworkflowDelete}'
     Then the service response status must be '200'
-    When I send a 'GET' request to '/policy/all'
+    When I send a 'GET' request to '/workflow/all'
     Then the service response status must be '200' and its response must contain the text '[]'
 
   Scenario: [SPARTA-1277][02] Remove workflow
     When  I run 'dcos marathon app remove /sparta/${DCOS_SERVICE_NAME}/workflows/${WORKFLOW}' in the ssh connection
     Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | wc -l' contains '0'
-
-  @runOnEnv(AUTH_ENABLED=true)
-  Scenario: [SPARTA-1277][02] Unregister service from cas
-    Given I run 'echo "${MASTERS_LIST}" | cut -d',' -f1' locally with exit status '0' and save the value in environment variable 'MASTER_IP'
-    Then I open a ssh connection to '!{MASTER_IP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
-  #recover id cas of service
-    Given  I run 'curl -s https://master-1.node.paas.labs.stratio.com:9006/registry/services --cert /opt/mesosphere/etc/pki/node.pem --key /opt/mesosphere/etc/pki/node.key  | jq '.[]  | select(.name == "${DCOS_SERVICE_NAME}").id' in the ssh connection and save the value in environment variable 'idCas'
-  #delete service
-    Then  I run 'curl -XDELETE https://master-1.node.paas.labs.stratio.com:9006/registry/services/!{idCas} -H "Content-Type: application/json" --cert /opt/mesosphere/etc/pki/node.pem --key /opt/mesosphere/etc/pki/node.key' in the ssh connection

@@ -380,6 +380,16 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
+        case environmentActions.INVALID_FILE_ERROR: {
+            return {
+                ...state,
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'ERROR',
+                    description: 'INVALID_ENVIRONMENT_FILE'
+                }]
+            };
+        }
         default:
             return state;
     }

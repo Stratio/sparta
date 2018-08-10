@@ -1,0 +1,179 @@
+{
+  "id": "3c28126d-e324-49b5-9ef2-483366a4d3ac",
+  "name": "crossdata-read-batch",
+  "description": "crossdata-read-batch",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER"
+    },
+    "streamingSettings": {
+      "window": "2s",
+      "blockInterval": "100ms",
+      "checkpointSettings": {
+        "checkpointPath": "sparta/checkpoint",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "{{{SPARK_DRIVER_JAVA_OPTIONS}}}"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "{{{SPARK_CORES_MAX}}}",
+          "executorMemory": "{{{SPARK_EXECUTOR_MEMORY}}}",
+          "executorCores": "{{{SPARK_EXECUTOR_CORES}}}",
+          "driverCores": "{{{SPARK_DRIVER_CORES}}}",
+          "driverMemory": "{{{SPARK_DRIVER_MEMORY}}}",
+          "mesosExtraCores": "",
+          "localityWait": "{{{SPARK_LOCALITY_WAIT}}}",
+          "taskMaxFailures": "{{{SPARK_TASK_MAX_FAILURES}}}",
+          "sparkMemoryFraction": "{{{SPARK_MEMORY_FRACTION}}}",
+          "sparkParallelism": ""
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "{{{SPARK_LOCAL_PATH}}}",
+        "executorDockerImage": "{{{SPARK_EXECUTOR_BASE_IMAGE}}}",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": true,
+        "logStagesProgress": false,
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "{{{SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": true,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "Crossdata",
+        "stepType": "Input",
+        "className": "CrossdataInputStep",
+        "classPrettyName": "Crossdata",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 239,
+            "y": 77
+          }
+        },
+        "configuration": {
+          "query": "select * from FilteredArticles",
+          "tlsEnabled": false,
+          "debugOptions": "{\"query\":\"select * from FilteredArticles\"}"
+        },
+        "supportedEngines": [
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Print",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 908,
+            "y": 70
+          }
+        },
+        "configuration": {
+          "printData": "",
+          "printSchema": "",
+          "errorSink": "",
+          "printMetadata": true,
+          "logLevel": "warn"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "lineageProperties": []
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Crossdata",
+        "destination": "Print",
+        "dataType": "ValidData"
+      }
+    ]
+  },
+  "executionEngine": "Batch",
+  "uiSettings": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "k": 1
+    }
+  },
+  "creationDate": "2018-08-02T13:10:35Z",
+  "lastUpdateDate": "2018-07-26T18:27:58Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "tags": [
+    "xd-catalog-batch"
+  ],
+  "status": {
+    "id": "3c28126d-e324-49b5-9ef2-483366a4d3ac",
+    "status": "Created",
+    "statusId": "5cefd513-77a5-47a4-b859-592d507ba937",
+    "creationDate": "2018-08-02T13:10:35Z"
+  },
+  "debugMode": false,
+  "versionSparta": "2.2.0-8b6b349"
+}

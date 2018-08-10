@@ -20,6 +20,7 @@ import { StModalService } from '@stratio/egeo';
 
 import * as fromRoot from './reducers';
 import * as environmentActions from './actions/environment';
+
 import { generateJsonFile, mergeNoDuplicatedArrays } from '@utils';
 import { ImportEnvironmentModalComponent } from './components/import-environment-modal/import-environment-modal.component';
 import { BreadcrumbMenuService } from 'services';
@@ -126,22 +127,24 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
       generateJsonFile(new Date().getTime().toString(), this.internalControl.value);
    }
 
-   uploadVariables(event: any): Promise<any> {
-     return new Promise((resolve, reject) => {
-         const reader = new FileReader();
-         reader.readAsText(event[0]);
-         reader.onload = (loadEvent: any) => {
-            try {
-               this.initForm(mergeNoDuplicatedArrays(JSON.parse(loadEvent.target.result).variables, this.internalControl.value.variables, 'name', 'value'));
-               this.internalControl.markAsDirty();
-               this._cd.detectChanges();
-               resolve();
-            } catch (error) {
-               console.log('Parse error');
-               reject();
+   uploadVariables(event: any): void {
+      const reader = new FileReader();
+      reader.readAsText(event[0]);
+      reader.onload = (loadEvent: any) => {
+         try {
+            const importedVar = JSON.parse(loadEvent.target.result);
+            if (!importedVar.variables) {
+               throw Error('invalid file');
             }
-         };
-      });
+            this.initForm(mergeNoDuplicatedArrays(importedVar.variables, this.internalControl.value.variables, 'name', 'value'));
+            this.internalControl.markAsDirty();
+            this._cd.detectChanges();
+         } catch (error) {
+            console.log('Parse error');
+            this._store.dispatch(new environmentActions.InvalidEnvironmentFileErrorAction());
+         }
+      };
+
 
 
    }

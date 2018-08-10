@@ -1,7 +1,7 @@
 @rest
 Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   Background: : conect to navigator
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And I wait '3' seconds
@@ -53,7 +53,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   Scenario:[SPARTA-1279][04] Install kafka-postgres workflow
     #include workflow
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/kafka-postgres.json' as 'json' with:
-    |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_INSTANCE}?user=${DCOS_SERVICE_NAME}   | n/a |
+      |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_INSTANCE}?user=${DCOS_SERVICE_NAME}   | n/a |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
     And I save element '$.name' in environment variable 'nameWorkflow'
@@ -116,7 +116,6 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   # TEST RESULT IN POSTGRES *
   #**************************
 
-  @ignore @tillfixed(SPARTA-1866)
   Scenario:[SPARTA-1279][10] TestResult in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     Then in less than '600' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tabletest"' contains '${TABLETEST_NUMBER:-400}'

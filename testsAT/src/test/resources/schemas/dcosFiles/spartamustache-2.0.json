@@ -22,7 +22,7 @@
     "docker_forcePullImage": false,
     "docker_privileged": false,
     "Tasks": {
-      "gracePeriodSeconds": 2000,
+      "gracePeriodSeconds": 5000,
       "intervalSeconds": 60,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,

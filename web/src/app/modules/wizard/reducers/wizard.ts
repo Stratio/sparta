@@ -118,6 +118,12 @@ export function reducer(state: State = initialState, action: any): State {
         selectedEntity: ''
       };
     }
+    case wizardActions.SET_WORKFLOW_ID: {
+      return {
+        ...state,
+        workflowId: action.workflowId
+      };
+    }
     case wizardActions.TOGGLE_ENTITY_DETAILS: {
       return {
         ...state,
@@ -259,6 +265,7 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         loading: false,
+        editionMode: true,
         svgPosition: workflow.uiSettings.position,
         nodes: workflow.pipelineGraph.nodes,
         edges: workflow.pipelineGraph.edges,
@@ -284,6 +291,7 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SAVE_WORKFLOW_COMPLETE: {
       return {
         ...state,
+        editionMode: true,
         workflowId: action.payload,
         savedWorkflow: true,
         pristineWorkflow: true,

@@ -38,10 +38,10 @@ export class WizardEditorService {
             if (entityData.stepType !== 'Output') {
                 entity.writer = this.initializeSchemaService.getDefaultWriterModel();
             }
-            entity.name = this.getNewEntityName(entityData.data.classPrettyName, entities);
+            entity.name = this.getNewEntityName(entityData.data.name, entities);
         } else {
             entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);
-            entity.name = this.getNewEntityName(entityData.value.classPrettyName, entities);
+            entity.name = this.getNewEntityName(entityData.value.name, entities);
             // validation of the model
             const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
             if (errors && errors.length) {

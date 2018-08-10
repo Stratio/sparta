@@ -89,24 +89,20 @@ hose {
             'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID "']
             ]
         ],
-        ['DCOSCLI': [
-                'image': 'stratio/dcos-cli:0.6.1-SNAPSHOT',
-                'env': [
-                    'DCOS_IP=10.200.0.205',
-                    'SSL=true',
-                    'SSH=true',
-                    'TOKEN_AUTHENTICATION=true',
-                    'DCOS_USER=admin',
-                    'DCOS_PASSWORD=stratiotest',
-                    'CLI_BOOTSTRAP_USER=root',
-                    'CLI_BOOTSTRAP_PASSWORD=stratio'
-                    ],
-                'sleep':  20
-                ]
-        ]  
+        ['DCOSCLI':   ['image': 'stratio/dcos-cli:0.4.15-SNAPSHOT',
+                           'env':     ['DCOS_IP=10.200.0.205',
+                                      'SSL=true',
+                                      'SSH=true',
+                                      'TOKEN_AUTHENTICATION=true',
+                                      'DCOS_USER=admin',
+                                      'DCOS_PASSWORD=1234',
+                                      'CLI_BOOTSTRAP_USER=root',
+                                'CLI_BOOTSTRAP_PASSWORD=stratio'],
+                           'sleep':  120,
+                           'healthcheck': 5000]]
     ]
     INSTALLPARAMETERS = """
-            | -DSTRATIO_SPARTA_VERSION=1.7.8
+            | -DSTRATIO_SPARTA_VERSION=2.2.0
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
@@ -119,21 +115,22 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache-2.1.json
+            | -DSPARTA_JSON=spartamustache-2.2.json
             | -DWORKFLOW=testinput-to-print
-            | -DAUTH_ENABLED=false
-            | -DCALICOENABLED=false
+            | -DAUTH_ENABLED=true
+            | -DCALICOENABLED=true
             | -DCLIENTSECRET=cr7gDH6hX2-C3SBZYWj8F
             | -DIDNODE=564        
             | -DSELENIUM_GRID=selenium391.cd:4444
             | -DFORCE_BROWSER=chrome_64%%JUID
             | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
             | -Dquietasdefault=false
-            | -DNGINX_ACTIVE=false
+            | -DNGINX_ACTIVE=true
             | -DPOSTGRES_NODE=pg-0001
             | -DPOSTGRES_NAME=postgrestls
             | -DURL_GOSEC=/opt/stratio/gosec-sso/conf
             | -DPOSTGRES_INSTANCE=pg-0001.postgrestls.mesos:5432/postgres
+            | -DPURGE_DATA=true
             """
             
     INSTALL = { config ->
@@ -141,7 +138,7 @@ hose {
             config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
           doAT(conf: config)
         } else {
-            doAT(conf: config, groups: ['dcos_installations_executions','dcos_streaming', 'dcos_auditJob','dcos_enviroments'])
+            doAT(conf: config, groups: ['Installation_Executions_FullSecurity'])
         }
      }
 }

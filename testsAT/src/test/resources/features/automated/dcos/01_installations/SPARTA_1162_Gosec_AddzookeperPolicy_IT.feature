@@ -3,7 +3,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
 
   Background: Setup token to gosec
     #Generate token to conect to gosec
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
   @runOnEnv(ID_POLICY_ZK)
   Scenario: [SPARTA-1162][01]Add zookeper-sparta policy to write in zookeper
@@ -15,15 +15,15 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
   @runOnEnv(ID_SPARTA_POLICY_OLD)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
-      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.id                    |  UPDATE    | ${ID_SPARTA_POLICY_OLD}     | n/a |
+      |   $.name                  |  UPDATE    | ${ID_SPARTA_POLICY_OLD}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_SPARTA_POLICY)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_2.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
-      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.id                    |  UPDATE    | ${ID_SPARTA_POLICY}     | n/a |
+      |   $.name                  |  UPDATE    | ${ID_SPARTA_POLICY}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
 
@@ -63,7 +63,6 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
-    And the service response must contain the text '"id":"spartapostgres"'
 
   @runOnEnv(RESTART_SPARTA)
   Scenario: [SPARTA-1162] [08] Restart Sparta Application after gosec

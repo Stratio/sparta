@@ -96,7 +96,7 @@ export class WizardEffect {
          };*/
          const workflow = this._wizardService.getWorkflowModel(state);
 
-         if (wizard.workflowId && wizard.workflowId.length) {
+         if (wizard.editionMode) {
             return this._workflowService.updateWorkflow(workflow).mergeMap((res) => {
                redirectOnSave && this.redirectOnSave();
                return [
@@ -111,7 +111,6 @@ export class WizardEffect {
                new wizardActions.SaveWorkflowErrorAction('')
             ]));
          } else {
-            delete workflow.id;
             return this._workflowService.saveWorkflow(workflow).mergeMap((res) => {
                redirectOnSave && this.redirectOnSave();
                return [
@@ -161,7 +160,6 @@ export class WizardEffect {
                new wizardActions.GetMenuTemplatesAction(),
                new wizardActions.ModifyWorkflowCompleteAction(this._initializeWorkflowService.getInitializedWorkflow(workflow))
             ]).catch(error => {
-                  console.log(error);
                   return Observable.of(new wizardActions.ModifyWorkflowErrorAction(''));
             }));
 

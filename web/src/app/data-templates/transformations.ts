@@ -99,7 +99,7 @@ transformations.forEach((transformation: any) => {
         _batchTransformations.push(transformation);
         _batchTransformationsObject[transformation.classPrettyName] = transformation;
         _batchTransformationsNames.push({
-            name: transformation.name,
+            name: transformation.classPrettyName,
             value: transformation,
             stepType: StepType.Transformation
         });
@@ -108,7 +108,7 @@ transformations.forEach((transformation: any) => {
         _streamingTransformations.push(transformation);
         _streamingTransformationsObject[transformation.classPrettyName] = transformation;
         _streamingTransformationsNames.push({
-            name: transformation.name,
+            name: transformation.classPrettyName,
             value: transformation,
             stepType: StepType.Transformation
         });

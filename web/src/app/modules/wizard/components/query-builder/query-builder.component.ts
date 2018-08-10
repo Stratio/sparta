@@ -79,6 +79,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
 
          const alias = ['t1', 't2'];
          this.inputSchemas = schemas.inputs
+            .filter(input => !(input.error && input.error.message))
             .map((input, index) =>  ({
                name: input.result.step,
                alias: alias[index],
@@ -255,6 +256,9 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
    }
 
    getJoinArrowCoordinates() {
+      if (!this.join || !this.join.joins) {
+        return;
+      }
       const joinPaths = [];
       const inputSchemasOrder = {};
       this.inputSchemas.forEach((schema: InputSchema, index: number) => inputSchemasOrder[schema.name] = index);

@@ -14,15 +14,17 @@ Feature: [SPARTA-1278] Add Initial Configuration for Sparta
 
   @loop(MASTERS_LIST,MASTER_IP)
   @runOnEnv(REGISTERSERVICEOLD=true)
+  @runOnEnv(AUTH_ENABLED=true)
   Scenario:[SPARTA-1278][02] Register sparta tenant in cas (old version)
     Given I open a ssh connection to '<MASTER_IP>' with user 'root' and password 'stratio'
     When I run 'sed -i '/<\/util:list>/i <bean class="org.jasig.cas.support.oauth.services.OAuthRegisteredService" p:id="${IDNODE}" p:name="${DCOS_SERVICE_NAME}" p:description="A service for sparta-server running in DCOS" p:serviceId="https://!{MarathonLbDns}.labs.stratio.com/${DCOS_SERVICE_NAME}/login" p:bypassApprovalPrompt="true" p:clientId="${DCOS_SERVICE_NAME}-oauth-id" p:clientSecret="${CLIENTSECRET}"/>' ${URL_GOSEC:-/opt/stratio/gosec-sso/conf}/cas/spring-configuration/register-services.xml' in the ssh connection
     # Restart Gosec
     When I run 'systemctl restart  gosec-sso.service' in the ssh connection
     And I wait '15' seconds
-    Then in less than '180' seconds, checking each '15' seconds, the command output 'consul watch -type=checks -http-addr=<MASTER_IP>\:8500 | jq  '.[] | .Name + " " + .Status'' contains 'Gosec SSO health check passing'
+    Then in less than '180' seconds, checking each '15' seconds, the command output 'consul watch -type=checks -http-addr=<MASTER_IP>\:8500 | jq  '.[] | .Name + " " + .Status'' contains 'Service 'gosec-sso' check passing'
 
   @skipOnEnv(REGISTERSERVICEOLD=true)
+  @runOnEnv(AUTH_ENABLED=true)
   Scenario:[SPARTA-1278][02] Register sparta tenant in cas
     Given I run 'echo "${MASTERS_LIST}" | cut -d',' -f1' locally with exit status '0' and save the value in environment variable 'MASTER_IP'
     Given I open a ssh connection to '!{MASTER_IP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'

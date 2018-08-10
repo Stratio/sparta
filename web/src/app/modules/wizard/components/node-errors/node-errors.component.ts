@@ -31,6 +31,7 @@ export class NodeErrorsComponent implements OnChanges {
 
   public inputSchemas: NodeSchema[] = [];
   public outputSchema: NodeSchema = null;
+  public outputsSchemas:  NodeSchema[] = [];
   private _schemas: any = {};
 
   constructor(private _store: Store<fromWizard.State>) { }
@@ -61,20 +62,22 @@ export class NodeErrorsComponent implements OnChanges {
     } else {
       this.inputSchemas = [];
     }
-    if (value && value.output && value.output.result) {
-      this.outputSchema = {
-        name: value.output.result.step,
-        tree: this._getTreeSchema(value.output.result.schema),
+
+    if (value && value.outputs && value.outputs.length) {
+      this.outputsSchemas = value.outputs.filter(output => output.result).map(output => ({
+        name: output.result.step,
+        tree: this._getTreeSchema(output.result.schema),
         expanded: false
-      };
+      }));
     } else {
-      this.outputSchema = null;
+      this.outputsSchemas = [];
     }
+
     if (this.openedSchema === 'Output') {
       this.outputSchemasOpened = true;
       this.inputSchemasOpened = false;
-      if (this.outputSchema) {
-        this.outputSchema.expanded = true;
+      if (this.outputsSchemas.length) {
+        this.outputsSchemas[0].expanded = true;
       }
     } else {
       this.inputSchemasOpened = true;
@@ -91,10 +94,10 @@ export class NodeErrorsComponent implements OnChanges {
 
   private _getTreeNodeSchema(nodeSchema: any): StTreeNode {
     let children = [];
-    if(typeof nodeSchema.type === 'object') {
-      if(nodeSchema.type.type === 'array') {
+    if (typeof nodeSchema.type === 'object') {
+      if (nodeSchema.type.type === 'array') {
         children = nodeSchema.type.elementType.fields.map((field) => this._getTreeNodeSchema(field));
-      } else if( nodeSchema.type.type === 'struct') {
+      } else if (nodeSchema.type.type === 'struct') {
         children = nodeSchema.type.fields.map((field) => this._getTreeNodeSchema(field));
       }
     }

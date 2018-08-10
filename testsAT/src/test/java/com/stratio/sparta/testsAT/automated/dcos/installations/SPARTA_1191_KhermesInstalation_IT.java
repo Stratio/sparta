@@ -28,7 +28,7 @@ public class SPARTA_1191_KhermesInstalation_IT extends BaseTest {
     public SPARTA_1191_KhermesInstalation_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    @Test(enabled = true, groups = {"khermes_instalation"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

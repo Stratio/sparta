@@ -366,6 +366,7 @@ case class MarathonService(
       DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
+      DatastoreCaNameEnv -> Properties.envOrSome(DatastoreCaNameEnv, Option("ca")),
       LoggerStderrSizeEnv -> Properties.envOrSome(LoggerStderrSizeEnv, Option("20MB")),
       LoggerStdoutSizeEnv -> Properties.envOrSome(LoggerStdoutSizeEnv, Option("20MB")),
       LoggerStdoutRotateEnv -> Properties.envOrSome(LoggerStdoutRotateEnv, Option("rotate 10")),

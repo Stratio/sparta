@@ -4,7 +4,7 @@ Feature: [SPARTA-1678][Centralized Logging - Stdout & Stderr] Sparta installatio
   Background: Setup Paas rest client and set sso token
     # Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234' and tenant 'NONE'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
 
   Scenario: [SPARTA-1161][01] Delete Zookeper Policy

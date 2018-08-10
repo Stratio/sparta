@@ -22,11 +22,17 @@ export class WorkflowsService {
         try {
             const startDate = workflow.execution.genericDataExecution.startDate;
             workflow.startDate = formatDate(startDate);
-        } catch (error) { }
+            workflow.startDateMillis = new Date(startDate).getTime();
+        } catch (error) {
+            workflow.startDateMillis = 0;
+         }
         try {
             const endDate = workflow.execution.genericDataExecution.endDate;
             workflow.endDate = formatDate(endDate);
-        } catch (error) { }
+            workflow.endDateMillis = new Date(endDate).getTime();
+        } catch (error) {
+            workflow.endDateMillis = 0;
+        }
         try {
             const lastErrorDate = workflow.execution.genericDataExecution.lastError.date;
             workflow.lastErrorDate = formatDate(lastErrorDate, true, true);

@@ -1,7 +1,7 @@
 <div>
-   <button type="button" class="button" [ngClass]="type" (click)="file.click()">
+  <button type="button" class="button" [ngClass]="type" (click)="file.click()">
     <i [ngClass]="icon"></i>
     <span>{{text}}</span>
     </button>
-   <input type="file" (change)="onChange($event)" #file/>
+  <input type="file" (change)="onChange($event)" #file/>
 </div>

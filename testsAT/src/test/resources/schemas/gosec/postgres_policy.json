@@ -146,6 +146,18 @@
               "allActions": []
             },
             {
+            "resourceType": "Column",
+            "name": "*",
+            "recursive": false,
+            "actions": [
+            "Select",
+            "Insert",
+            "Update",
+            "References"
+            ],
+            "allActions": []
+            }
+            {
               "resourceType": "Sequence",
               "name": "*",
               "recursive": false,

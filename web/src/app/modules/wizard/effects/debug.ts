@@ -43,10 +43,9 @@ export class DebugEffect {
       .withLatestFrom(this._store.select(state => state))
       .switchMap(([redirectOnSave, state]: [any, any]) => {
          let workflow = this._wizardService.getWorkflowModel(state);
-         console.log(workflow);
          const nodes = workflow.pipelineGraph.nodes.map(node => {
             const actualNode = workflow.pipelineGraph.nodes.filter(n => n.name === node.name)[0];
-            if (node.classPrettyName === 'QueryBuilder' && actualNode && actualNode.configuration.visualQuery.joinClause  && actualNode.configuration.visualQuery.joinClause.joinConditions.length  && workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name).length === 1) {
+            if (node.classPrettyName === 'QueryBuilder' && actualNode && actualNode.configuration.visualQuery && actualNode.configuration.visualQuery.joinClause  && actualNode.configuration.visualQuery.joinClause.joinConditions.length  && workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name).length === 1) {
                const fromClause = {
                   tableName: workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name)[0].origin,
                   alias: 't1'
@@ -81,7 +80,10 @@ export class DebugEffect {
                      type: 'default',
                      templateType: 'runDebug',
                      time: 0
-                  })]))
+                  }),
+                  ... workflow.id && workflow.id.length ? [] : [
+                        new wizardActions.SetWorkflowIdAction(response.workflowDebug.id || response.workflowOriginal.id)
+                  ]]))
             .catch(error => of(new debugActions.InitDebugWorkflowErrorAction()));
 
       });

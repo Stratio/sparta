@@ -16,7 +16,7 @@ export interface WizardNode {
    uiConfiguration: {
       position: WizardNodePosition
    };
-};
+}
 
 
 export interface WizardNodePosition {

@@ -1,20 +1,20 @@
 {
   "volumes": null,
-  "id": "/khermes4",
+  "id": "/khermes",
   "cmd": "./docker-entrypoint.sh",
   "args": null,
   "user": null,
   "env": {
     "SEED": "true",
     "VAULT_ROLE_ID": "",
-    "VAULT_TOKEN": "2dc131fb-cfeb-16bb-edcf-548dc02d2071",
+    "VAULT_TOKEN": "b180f78f-1699-19de-d775-25d2cee65ffa",
     "SEED_PORT": "",
-    "SEED_IP": "10.200.1.238",
+    "SEED_IP": "10.200.1.87",
     "VAULT_SECRET_ID": "",
     "VAULT_PORT": "8200",
-    "KAFKA_BROKER_INSTANCE_NAME": "kafka-sec",
+    "KAFKA_BROKER_INSTANCE_NAME": "eos-kafka-framework",
     "DOWNLOAD_KAFKA_SECRETS": "true",
-    "KAFKA_BROKER_PRINCIPAL": "producer.kafka-sec.mesos",
+    "KAFKA_BROKER_PRINCIPAL": "producer.eos-kafka-framework.mesos",
     "DCOS": "true",
     "VAULT_HOSTS": "vault.service.paas.labs.stratio.com",
     "PORT0": "2551"
@@ -29,7 +29,7 @@
     [
       "hostname",
       "CLUSTER",
-      "10.200.1.238"
+      "10.200.1.87"
     ]
   ],
   "fetch": null,
@@ -39,7 +39,7 @@
   "maxLaunchDelaySeconds": 3600,
   "container": {
     "docker": {
-      "image": "diegohurtado/khermes_tickets_carrefour",
+      "image": "diegohurtado/khermes_tickets_carrefour:0.2.0",
       "forcePullImage": false,
       "privileged": false,
       "parameters": [

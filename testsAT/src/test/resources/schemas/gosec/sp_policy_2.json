@@ -2,12 +2,7 @@
   "id": "sparta-server2",
   "name": "sparta-server2",
   "users": [
-    {
-      "id": "sparta-server",
-      "name": "sparta-server",
-      "email": "sparta-server@demo.stratio.com",
-      "custom": false
-    }
+    "user"
   ],
   "groups": [],
   "services": [
