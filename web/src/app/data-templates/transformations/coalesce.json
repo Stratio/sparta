@@ -1,0 +1,66 @@
+{
+   "name": "Coalesce",
+   "icon": "Coalesce",
+   "category": "Spark Native",
+   "className": "CoalesceTransformStep",
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData"
+   ],
+   "classPrettyName": "Coalesce",
+   "description": "Coalesce the input RDDs",
+   "properties": [
+      {
+         "propertyId": "partitions",
+         "propertyName": "_PARTITIONS_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Change the number of partitions associated to the Spark RDDs",
+         "qa": "fragment-details-repartition-partitions"
+      },
+      {
+         "propertyId": "shuffle",
+         "propertyName": "_SHUFFLE_",
+         "propertyType": "boolean",
+         "default": false,
+         "required": true,
+         "tooltip": "Add a shuffle step. From Spark Docs: 'If you're doing a drastic coalesce, e.g. to numPartitions = 1, this may result in your computation taking place on fewer nodes than you like (e.g. one node in the case of numPartitions = 1). To avoid this, you can pass shuffle = true. This will add a shuffle step, but means the current upstream partitions will be executed in parallel (per whatever the current partitioning is).",
+         "qa": "fragment-details-field-shuffle"
+      },
+      {
+         "propertyId": "inputSchemas",
+         "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+         "propertyType": "list",
+         "required": false,
+         "complexForm": true,
+         "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+         "qa": "fragment-details-schema-fields",
+         "fields": [
+            {
+               "propertyId": "stepName",
+               "propertyName": "_INPUT_STEP_NAME_",
+               "propertyType": "text",
+               "showInputSteps": true,
+               "required": true,
+               "tooltip": "Incoming step name.",
+               "width": 8,
+               "float": false,
+               "qa": "fragment-details-field-name"
+            },
+            {
+               "propertyId": "schema",
+               "propertyName": "_DESERIALIZER_SCHEMA_",
+               "propertyType": "textarea",
+               "contentType": "JSON",
+               "width": 12,
+               "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+               "required": true,
+               "qa": "fragment-details-field-query"
+            }
+         ]
+      }
+   ]
+}

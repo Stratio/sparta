@@ -11,6 +11,7 @@ import * as avroTemplate from './transformations/avro.json';
 import * as basicDataQualityTemplate from './transformations/basicDataQuality.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
+import * as coalesceTemplate from './transformations/coalesce.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
 import * as cubeBatchTemplate from './transformations/cubeBatch.json';
@@ -32,6 +33,7 @@ import * as jsonPathTemplate from './transformations/jsonpath.json';
 import * as jsonTemplate from './transformations/json.json';
 import * as orderByTemplate from './transformations/orderBy.json';
 import * as persistTemplate from './transformations/persist.json';
+import * as queryBuilderTemplate from './transformations/queryBuilder.json';
 import * as renameColumnTemplate from './transformations/renamecolumn.json';
 import * as repartitionTemplate from './transformations/repartition.json';
 import * as selectTemplate from './transformations/select.json';
@@ -40,7 +42,6 @@ import * as triggerStreamingTemplate from './transformations/triggerStreaming.js
 import * as triggerBatchTemplate from './transformations/triggerBatch.json';
 import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
-import * as queryBuilderTemplate from './transformations/queryBuilder.json';
 
 export const transformations: any = [
     addColumnTemplate,
@@ -48,6 +49,7 @@ export const transformations: any = [
     basicDataQualityTemplate,
     castingTemplate,
     checkpointTemplate,
+    coalesceTemplate,
     csvTemplate,
     cubeTemplate,
     cubeBatchTemplate,
@@ -69,6 +71,7 @@ export const transformations: any = [
     jsonTemplate,
     orderByTemplate,
     persistTemplate,
+    queryBuilderTemplate,
     renameColumnTemplate,
     repartitionTemplate,
     selectTemplate,
@@ -76,7 +79,6 @@ export const transformations: any = [
     triggerStreamingTemplate,
     triggerBatchTemplate,
     unionTemplate,
-    queryBuilderTemplate,
     windowTemplate
 ];
 

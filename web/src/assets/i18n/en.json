@@ -447,6 +447,7 @@
    "_LIMIT_RECORDS_": "Limit records",
    "_KAFKA_PROPERTIES_": "Kafka properties",
    "_STORAGELEVEL_": "Storage level",
+   "_SHUFFLE_": "Shuffle",
    "_RABBITMQ_PROPERTY_KEY_": "RabbitMQ property",
    "_RABBITMQ_PROPERTY_VALUE_": "Value",
    "_RABBITMQ_RECEIVER_TYPE_": "RabbitMQ receiver type",
