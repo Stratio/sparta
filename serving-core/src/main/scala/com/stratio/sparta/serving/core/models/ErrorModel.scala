@@ -111,7 +111,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceDownload = "716"
   val WorkflowServiceValidate = "717"
   val WorkflowServiceResetAllStatuses = "718"
-  val WorkflowServiceFindByIdWithEnv = "719"
+  val WorkflowServiceFindByIdWithExecutionContext = "719"
   val WorkflowServiceFindByNameWithEnv = "720"
   val WorkflowServiceFindAllWithEnv = "721"
   val WorkflowServiceNewVersion = "722"
@@ -122,7 +122,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceMove = "727"
   val WorkflowServiceMigration = "728"
 
-  /* Environment Service 750-760 */
+  /* Environment Service 750-769 */
   val EnvironmentServiceUnexpected = "750"
   val EnvironmentServiceFindEnvironment = "751"
   val EnvironmentServiceCreateEnvironment = "752"
@@ -135,7 +135,7 @@ object ErrorModel extends SpartaSerializer {
   val EnvironmentServiceExportData = "759"
   val EnvironmentServiceImportData = "760"
 
-  /* Group Service 775-799 */
+  /* Group Service 770-799 */
   val GroupServiceUnexpected = "770"
   val GroupServiceFindGroup = "771"
   val GroupServiceFindAllGroups = "772"
@@ -154,7 +154,7 @@ object ErrorModel extends SpartaSerializer {
   val MetadataServiceDeleteBackup = "806"
   val MetadataServiceCleanAll = "807"
 
-  /* Debug Service 900-950 */
+  /* Debug Service 900-949 */
   val DebugWorkflowServiceUnexpected = "900"
   val DebugWorkflowServiceFindById = "901"
   val DebugWorkflowServiceFind = "902"
@@ -170,12 +170,24 @@ object ErrorModel extends SpartaSerializer {
   val DebugWorkflowServiceDeleteFile = "924"
   val DebugWorkflowServiceDownload = "925"
 
-  /* history Service 950 - 975 */
+  /* history Service 950 - 974 */
   val WorkflowHistoryExecutionUnexpected = "950"
   val WorkflowHistoryExecutionFindByUserId = "951"
   val WorkflowHistoryExecutionFindByWorkflowId = "952"
   val WorkflowHistoryStatusUnexpected = "953"
   val WorkflowHistoryStatusFindByWorkflowId = "954"
+
+  /* Parameter lists Service 975 - 999 */
+  val ParameterListServiceUnexpected = "975"
+  val ParameterListServiceFindById = "976"
+  val ParameterListServiceFindByName = "977"
+  val ParameterListServiceFindAll = "978"
+  val ParameterListServiceCreate = "979"
+  val ParameterListServiceUpdate = "980"
+  val ParameterListServiceDeleteAll = "981"
+  val ParameterListServiceDeleteByName = "982"
+  val ParameterListServiceFindByParent = "983"
+  val ParameterListServiceCreateFromWorkflow = "984"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -209,7 +221,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceValidate -> "Error validating workflow",
     WorkflowServiceResetAllStatuses -> "Error resetting all workflow statuses",
     WorkflowServiceNewVersion -> "Error creating new workflow version",
-    WorkflowServiceFindByIdWithEnv -> "Error finding workflows by ID with environment",
+    WorkflowServiceFindByIdWithExecutionContext -> "Error finding workflows by ID with execution context",
     WorkflowServiceFindByNameWithEnv -> "Error finding workflows by name with environment",
     WorkflowServiceFindAllWithEnv -> "Error finding all workflows with environment",
     WorkflowServiceFindAllByGroup -> "Error finding all workflows by group",
@@ -293,7 +305,17 @@ object ErrorModel extends SpartaSerializer {
     WorkflowHistoryExecutionFindByUserId -> "Error finding workflow History Execution by userId",
     WorkflowHistoryExecutionFindByWorkflowId -> "Error finding workflow History Execution by workflowId",
     WorkflowHistoryStatusUnexpected -> "Unexpected behaviour in Workflow Status History service",
-    WorkflowHistoryStatusFindByWorkflowId -> "Error finding workflow status history by workflow ID"
+    WorkflowHistoryStatusFindByWorkflowId -> "Error finding workflow status history by workflow ID",
+    ParameterListServiceUnexpected -> "Unexpected behaviour in parameter list service",
+    ParameterListServiceFindById -> "Error finding parameter list by ID",
+    ParameterListServiceFindByName -> "Error finding parameter list by Name",
+    ParameterListServiceFindAll -> "Error obtaining all parameter list",
+    ParameterListServiceCreate -> "Error creating parameter list",
+    ParameterListServiceUpdate -> "Error updating parameter list",
+    ParameterListServiceDeleteAll -> "Error deleting all parameter lists",
+    ParameterListServiceDeleteByName -> "Error deleting parameter list by Name",
+    ParameterListServiceFindByParent -> "Error finding parameter lists by Parent",
+    ParameterListServiceCreateFromWorkflow -> "Error creating parameter list from workflow"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

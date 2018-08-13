@@ -33,7 +33,7 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val emptyField = ""
 
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case FindAll(user) => findFrontendConfig(user)
     case _ => log.info("Unrecognized message in ConfigActor")
   }

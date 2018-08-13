@@ -18,7 +18,7 @@ import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
@@ -33,6 +33,19 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
   type ResourcesAndActions = Map[String, Action]
 
   /* PUBLIC METHODS */
+
+  override def receive : Receive = {
+    case action: Any => manageErrorInActions(receiveApiActions(action))
+  }
+
+  def receiveApiActions(action : Any): Unit
+
+  private def manageErrorInActions(actorMessageFunction: => Unit): Unit = {
+    Try(actorMessageFunction) match {
+      case Success(_) =>
+      case Failure(e) => sender ! Left(Try(throw e))
+    }
+  }
 
   /**
     * Authorize ONLY Resource and Action (e.g. Workflows -> View)

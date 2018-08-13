@@ -21,11 +21,7 @@ import org.json4s.jackson.Serialization.{read, _}
 import scala.collection.JavaConversions
 import scala.util.Try
 
-class DebugWorkflowService(
-                            curatorFramework: CuratorFramework,
-                            override val serializerSystem: Option[ActorSystem] = None,
-                            override val environmentStateActor: Option[ActorRef] = None
-                          ) extends SpartaSerializer with SLF4JLogging {
+class DebugWorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
 
   def createDebugWorkflow(debugWorkflow: DebugWorkflow): Try[DebugWorkflow] =
     Try {

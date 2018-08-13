@@ -24,7 +24,10 @@ case class GlobalSettings(
                            initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
                            addAllUploadedPlugins: Boolean = true,
                            mesosConstraint: Option[JsoneyString] = None,
-                           mesosConstraintOperator: Option[JsoneyString] = None
+                           mesosConstraintOperator: Option[JsoneyString] = None,
+                           parametersLists: Seq[String] = Seq.empty[String],
+                           parametersUsed: Seq[String] = Seq.empty[String],
+                           useEnvironment: Option[Boolean] = None
                          )
 
 case class CheckpointSettings(

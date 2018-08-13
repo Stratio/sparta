@@ -14,27 +14,27 @@ import scala.util.Try
 
 //scalastyle:off
 
-class JsoneyStringSerializer(environmentContext: Option[EnvironmentContext] = None)
+class JsoneyStringSerializer()
   extends CustomSerializer[JsoneyString](_ => {
 
     implicit val json4sJacksonFormats: Formats =
-      DefaultFormats + DateTimeSerializer + new JsoneyStringSerializer(environmentContext)
+      DefaultFormats + DateTimeSerializer + new JsoneyStringSerializer()
 
     ( {
       case obj: JObject =>
-        JsoneyString(write(obj), environmentContext)
+        JsoneyString(write(obj))
       case _: org.json4s.JsonAST.JNull.type =>
-        JsoneyString(null, environmentContext)
+        JsoneyString(null)
       case arr: JArray =>
-        JsoneyString(write(arr), environmentContext)
+        JsoneyString(write(arr))
       case s: JString =>
-        JsoneyString(s.s, environmentContext)
+        JsoneyString(s.s)
       case i: JInt =>
-        JsoneyString(i.num.toString(), environmentContext)
+        JsoneyString(i.num.toString())
       case i: JDouble =>
-        JsoneyString(i.num.toString, environmentContext)
+        JsoneyString(i.num.toString)
       case b: JBool =>
-        JsoneyString(b.value.toString, environmentContext)
+        JsoneyString(b.value.toString)
     }, {
       case x: JsoneyString =>
         if (x.toString == null) {

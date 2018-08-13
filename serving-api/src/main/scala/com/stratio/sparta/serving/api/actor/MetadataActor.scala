@@ -48,8 +48,9 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
 
   val ResourceType = "Backup"
 
-  override def receive: Receive = {
-    case UploadBackups(files, user) => if (files.isEmpty) errorResponse() else uploadBackups(files, user)
+  def receiveApiActions(action : Any): Unit = action match {
+    case UploadBackups(files, user) =>
+      if (files.isEmpty) errorResponse() else uploadBackups(files, user)
     case ListBackups(user) => browseBackups(user)
     case BuildBackup(user) => buildBackup(user)
     case DeleteBackups(user) => deleteBackups(user)

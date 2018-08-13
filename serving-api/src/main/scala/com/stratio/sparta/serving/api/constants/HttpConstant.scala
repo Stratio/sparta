@@ -15,6 +15,7 @@ object HttpConstant {
   final val PluginsPath = "plugins"
   final val WorkflowsPath = "workflows"
   final val TemplatePath = "template"
+  final val ParameterListPath = "paramList"
   final val WorkflowStatusesPath = "workflowStatuses"
   final val ExecutionsPath = "workflowExecutions"
   final val GroupsPath = "groups"

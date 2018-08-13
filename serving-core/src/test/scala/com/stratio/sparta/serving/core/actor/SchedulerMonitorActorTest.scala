@@ -58,14 +58,13 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     override lazy val currentInstanceName = Some("sparta-fl")
     override def getInstanceCurator: CuratorFramework = mock[CuratorFramework]
     override lazy val inconsistentStatusCheckerActor: ActorRef = checkerProp.ref
-    workflowsRaw = scala.collection.mutable.Map("1234" -> testWorkflow, "5678" -> testWorkflow2)
-    workflowsWithEnv = scala.collection.mutable.Map("1234" -> testWorkflow,"5678" -> testWorkflow2)
+    workflows = scala.collection.mutable.Map("1234" -> testWorkflow,"5678" -> testWorkflow2)
     statuses = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
     executions = scala.collection.mutable.Map("1234" -> testExecution, "5678" -> testExecution2)
 
     def getStatuses: Map[String, WorkflowStatus] = statuses.toMap
 
-    def getWorkflowsEnv: Map[String, Workflow] = workflowsWithEnv.toMap
+    def getWorkflowsEnv: Map[String, Workflow] = workflows.toMap
 
     def receiveTest: Receive = {
       case RetrieveStatuses =>
@@ -215,11 +214,13 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
 
     val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed, Some("statusId"))
 
+    val exContext = ExecutionContext(withEnvironment = true)
+
     val testExecution = WorkflowExecution("1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
-      WorkflowExecutionMode.marathon, "abc")))
+      testWorkflow, WorkflowExecutionMode.marathon, "abc", exContext)))
 
     val testExecution2 = WorkflowExecution("5678",None, None, None, None, Some(GenericDataExecution(testWorkflow,
-      WorkflowExecutionMode.local, "abc")))
+      testWorkflow, WorkflowExecutionMode.local, "abc", exContext)))
 
     val statusesTest = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
     val executionsTest = scala.collection.mutable.Map("1234" -> testExecution, "5678" -> testExecution2)

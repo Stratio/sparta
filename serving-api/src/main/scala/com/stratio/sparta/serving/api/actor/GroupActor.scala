@@ -26,7 +26,7 @@ class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: Actor
   private val groupService = new GroupService(curatorFramework)
   private val ResourceGroupType = "Groups"
 
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case CreateGroup(request, user) => createGroup(request, user)
     case UpdateGroup(request, user) => updateGroup(request, user)
     case FindAllGroups(user) => findAllGroups(user)

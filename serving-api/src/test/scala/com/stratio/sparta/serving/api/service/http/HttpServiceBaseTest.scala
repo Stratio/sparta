@@ -13,6 +13,7 @@ import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
+import com.stratio.sparta.serving.core.models.parameters.ParameterList
 import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
@@ -69,6 +70,8 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getGroupModel(): Group =
     Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
 
+  protected def getParameterListModel(): ParameterList =
+    ParameterList("plist", Option("id"))
 
   protected def getEnvironmentVariableModel(): EnvironmentVariable =
     EnvironmentVariable("foo", "var")
@@ -131,7 +134,7 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getWorkflowExecutionModel: WorkflowExecution =
     WorkflowExecution(
       id = "exec1",
-      genericDataExecution = Option(GenericDataExecution(getWorkflowModel(), WorkflowExecutionMode.local, "1")),
+      genericDataExecution = Option(GenericDataExecution(getWorkflowModel(), getWorkflowModel(), WorkflowExecutionMode.local, "1", ExecutionContext(true))),
       sparkSubmitExecution = Option(SparkSubmitExecution(
         driverClass = "driver",
         driverFile = "file",

@@ -6,17 +6,18 @@
 package com.stratio.sparta.serving.core.actor
 
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution, WorkflowExecutionVariables}
+import com.stratio.sparta.serving.core.models.workflow.{ExecutionContext, Workflow, WorkflowExecution, WorkflowIdExecutionContext}
 
 object LauncherActor {
 
-  case class Launch(workflowId: String, user: Option[LoggedUser])
+  case class Launch(workflowIdExecutionContext: WorkflowIdExecutionContext, user: Option[LoggedUser])
 
-  case class LaunchWithVariables(workflowExecutionVariables: WorkflowExecutionVariables, user: Option[LoggedUser])
+  case class Debug(workflowIdExecutionContext: WorkflowIdExecutionContext, user: Option[LoggedUser])
 
-  case class Debug(workflowId: String, user: Option[LoggedUser])
+  case class Start(workflow: Workflow, workflowRaw: Workflow, executionContext: ExecutionContext, userId: Option[String])
 
-  case class Start(workflow: Workflow, userId: Option[String])
+  case class StartDebug(workflow: Workflow)
 
   case class StartWithRequest(workflow: Workflow, request: WorkflowExecution)
+
 }

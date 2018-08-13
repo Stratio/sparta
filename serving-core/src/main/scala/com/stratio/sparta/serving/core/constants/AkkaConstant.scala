@@ -25,9 +25,11 @@ object AkkaConstant {
   val CrossdataActorName = "crossdataActor"
   val NginxActorName = "nginxActor"
   val EnvironmentActorName = "environmentActor"
+  val EnvironmentStatusListenerActorName = "environmentStateListenerActor"
   val GroupActorName = "groupActor"
   val GroupApiActorName = "GroupApiActor"
   val ExecutionApiActorName = "ExecutionApiActor"
+  val EnvironmentApiActorName = "EnvironmentApiActor"
   val WorkflowApiActorName = "WorkflowApiActor"
   val DebugWorkflowApiActorName = "DebugWorkflowApiActor"
   val StatusApiActorName = "StatusApiActor"
@@ -36,6 +38,7 @@ object AkkaConstant {
   val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
   val ExecutionHistoryApiActorName = "ExecutionHistoryApiActorName"
   val StatusHistoryApiActorName = "StatusHistoryApiActorName"
+  val ParameterListActorName = "ParameterListActorName"
 
   val DefaultInstances = 3
 

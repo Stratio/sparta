@@ -12,16 +12,15 @@ import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.core.models.{DebugResults, ResultStep}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
-import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
-import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.files.SpartaFile
 
 import scala.util.{Failure, Success}
 
@@ -39,7 +38,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.findById" should {
     "ask for a specific workflow" in {
-      val initWorkflow: DebugWorkflow= DebugWorkflow(getWorkflowModel(), None, None)
+      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel(), None, None)
       startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
@@ -64,10 +63,10 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.findAll" should {
     "find all workflows" in {
-      startAutopilot(Left(Success(Seq(DebugWorkflow(getWorkflowModel(),None, None)))))
+      startAutopilot(Left(Success(Seq(DebugWorkflow(getWorkflowModel(), None, None)))))
       Get(s"/${HttpConstant.DebugWorkflowsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindAll]
-        responseAs[Seq[DebugWorkflow]] should equal(Seq(DebugWorkflow(getWorkflowModel(),None, None)))
+        responseAs[Seq[DebugWorkflow]] should equal(Seq(DebugWorkflow(getWorkflowModel(), None, None)))
       }
     }
     "return a 500 if there was any error" in {
@@ -81,22 +80,22 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.resultsById" should {
     "ask for the debug results of a specific workflow" in {
-      val initWorkflow: DebugWorkflow= DebugWorkflow(getWorkflowModel(), None, None)
+      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel(), None, None)
       startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
       }
     }
     "return the debug results of a workflow" in {
-      val schemaFake= StructType(Seq(StructField("name", StringType, false),
+      val schemaFake = StructType(Seq(StructField("name", StringType, false),
         StructField("age", IntegerType, false),
         StructField("year", IntegerType, true))).json
-      val fakedResults = DebugResults(true, Map("Kafka" ->  ResultStep("Kafka", 0, Option(schemaFake),
-          Option(Seq("Gregor Samza, 28, 1915")))))
+      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep("Kafka", 0, Option(schemaFake),
+        Option(Seq("Gregor Samza, 28, 1915")))))
       startAutopilot(Left(Success(fakedResults)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
-        responseAs[DebugResults].debugSuccessful should be (true)
+        responseAs[DebugResults].debugSuccessful should be(true)
       }
     }
     "send that the results are unavailable" in {
@@ -110,24 +109,6 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
-
-  "DebugWorkflowHttpService.run" should {
-    "return a true if the run was launched" in {
-      val startDate = new DateTime()
-      startAutopilot(Left(Success(startDate)))
-      Post(s"/${HttpConstant.DebugWorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Run]
-        responseAs[DateTime].withMillis(0) should equal(startDate.withMillis(0))
-      }
-    }
-    "return a 500 if there was any error" in {
-      startAutopilot(Left(Failure(new MockException())))
-      Post(s"/${HttpConstant.DebugWorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Run]
         status should be(StatusCodes.InternalServerError)
       }
     }

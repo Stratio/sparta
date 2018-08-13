@@ -29,9 +29,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     context.system.eventStream.subscribe(self, classOf[ExecutionChange])
     context.system.eventStream.subscribe(self, classOf[ExecutionRemove])
     context.system.eventStream.subscribe(self, classOf[WorkflowChange])
-    context.system.eventStream.subscribe(self, classOf[WorkflowRawChange])
     context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
-    context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.subscribe(self, classOf[GroupChange])
     context.system.eventStream.subscribe(self, classOf[GroupRemove])
 
@@ -44,8 +42,6 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowChange])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
-    context.system.eventStream.unsubscribe(self, classOf[WorkflowRawChange])
-    context.system.eventStream.unsubscribe(self, classOf[WorkflowRawRemove])
     context.system.eventStream.unsubscribe(self, classOf[GroupChange])
     context.system.eventStream.unsubscribe(self, classOf[GroupRemove])
   }
@@ -57,15 +53,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     case FindMemoryWorkflowRaw(workflowId) =>
       log.debug(s"Find workflow by id $workflowId")
       sender ! Try {
-        workflowsRaw.getOrElse(
-          workflowId,
-          throw new ServerException(s"No workflow with id $workflowId")
-        ).copy(status = statuses.get(workflowId), execution = executions.get(workflowId))
-      }
-    case FindMemoryWorkflowWithEnv(workflowId) =>
-      log.debug(s"Find workflow with environment by id $workflowId")
-      sender ! Try {
-        workflowsWithEnv.getOrElse(
+        workflows.getOrElse(
           workflowId,
           throw new ServerException(s"No workflow with id $workflowId")
         ).copy(status = statuses.get(workflowId), execution = executions.get(workflowId))
@@ -73,17 +61,12 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     case FindAllMemoryWorkflowRaw =>
       log.debug(s"Find all workflows")
       sender ! Try {
-        workflowsRaw.values.map(workflow => wfCopy(workflow)).toSeq
-      }
-    case FindAllMemoryWorkflowWithEnv =>
-      log.debug(s"Find all workflows with environment")
-      sender ! Try {
-        workflowsWithEnv.values.map(workflow => wfCopy(workflow)).toSeq
+        workflows.values.map(workflow => wfCopy(workflow)).toSeq
       }
     case FindAllMemoryWorkflowDto =>
       log.debug(s"Find all workflows dto")
       sender ! Try {
-        workflowsRaw.values.map { workflow =>
+        workflows.values.map { workflow =>
           val workflowDto: WorkflowDto = wfCopy(workflow)
           workflowDto
         }.toSeq
@@ -91,7 +74,7 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     case FindByGroupMemoryWorkflowDto(groupId: String) =>
       log.debug(s"Find workflows dto by group id $groupId")
       sender ! Try {
-        workflowsRaw.values.flatMap { workflow =>
+        workflows.values.flatMap { workflow =>
           if (workflow.group.id.get == groupId) {
             val workflowDto: WorkflowDto = wfCopy(workflow)
             Option(workflowDto)
@@ -101,13 +84,13 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
     case FindByIdsMemoryWorkflowRaw(workflowsId) =>
       log.debug(s"Find workflows by workflow ids $workflowsId")
       sender ! Try {
-        workflowsRaw.filterKeys(key => workflowsId.contains(key)).values.toSeq
+        workflows.filterKeys(key => workflowsId.contains(key)).values.toSeq
           .map(workflow => wfCopy(workflow))
       }
     case FindByQueryMemoryWorkflowRaw(query) =>
       log.debug(s"Find workflow by query $query")
       sender ! Try {
-        workflowsRaw.find { case (_, workflow) =>
+        workflows.find { case (_, workflow) =>
           workflow.name == query.name && workflow.version == query.version.getOrElse(0L) && workflow.group.id.get == query.group.getOrElse(DefaultGroup.id.get)
         }.map { case (_, workflow) => wfCopy(workflow)
         }.getOrElse(throw new ServerException(s"No workflow with name ${query.name}"))
@@ -126,10 +109,6 @@ class WorkflowInMemoryApi extends InMemoryServicesStatus {
 object WorkflowInMemoryApi {
 
   case class FindMemoryWorkflowRaw(workflowId: String)
-
-  case class FindMemoryWorkflowWithEnv(workflowId: String)
-
-  case object FindAllMemoryWorkflowWithEnv
 
   case object FindAllMemoryWorkflowRaw
 

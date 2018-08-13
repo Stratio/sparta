@@ -75,8 +75,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     context.system.eventStream.subscribe(self, classOf[StatusChange])
     context.system.eventStream.subscribe(self, classOf[StatusRemove])
     context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
-    context.system.eventStream.subscribe(self, classOf[WorkflowRawChange])
-    context.system.eventStream.subscribe(self, classOf[WorkflowRawRemove])
+    context.system.eventStream.subscribe(self, classOf[WorkflowChange])
     context.system.eventStream.subscribe(self, classOf[ExecutionChange])
     context.system.eventStream.subscribe(self, classOf[ExecutionRemove])
 
@@ -90,8 +89,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
     context.system.eventStream.unsubscribe(self, classOf[StatusChange])
     context.system.eventStream.unsubscribe(self, classOf[StatusRemove])
     context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
-    context.system.eventStream.unsubscribe(self, classOf[WorkflowRawChange])
-    context.system.eventStream.unsubscribe(self, classOf[WorkflowRawRemove])
+    context.system.eventStream.unsubscribe(self, classOf[WorkflowChange])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionChange])
     context.system.eventStream.unsubscribe(self, classOf[ExecutionRemove])
 
@@ -122,7 +120,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
             if(!finishedStates.contains(wStatus.status))
               executeActions(wStatus.copy(status = Failed), onStatusChangeActions)
           }
-          removeWorkflowsWithEnv(wRemove.workflow)
+          removeWorkflows(wRemove.workflow)
         }
         checkSaveSnapshot()
       }
@@ -399,7 +397,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
 
   def checkForOrphanedWorkflows(): Unit = {
 
-    val currentRunningWorkflows: Map[String, String] = fromStatusesToMapWorkflowNameAndId(statuses, executions, workflowsRaw)
+    val currentRunningWorkflows: Map[String, String] = fromStatusesToMapWorkflowNameAndId(statuses, executions, workflows)
 
     inconsistentStatusCheckerActor ! CheckConsistency(currentRunningWorkflows)
   }
@@ -430,7 +428,7 @@ class SchedulerMonitorActor extends InMemoryServicesStatus with SchedulerUtils w
 
     val listIDsToStop: Seq[String] = {
       for {
-        (idWorkflow, rawWorkflow) <- workflowsRaw
+        (idWorkflow, rawWorkflow) <- workflows
       } yield {
         if (mapStoppedAsNameAndGroup.contains(rawWorkflow.name) &&
           mapStoppedAsNameAndGroup(rawWorkflow.name)._1 == rawWorkflow.group.name &&

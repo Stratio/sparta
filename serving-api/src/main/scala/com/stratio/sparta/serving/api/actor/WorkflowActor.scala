@@ -8,21 +8,23 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
-
+import akka.pattern.ask
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, LaunchWithVariables}
+import com.stratio.sparta.serving.core.actor.EnvironmentListenerActor._
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{GroupService, CassiopeiaMigrationService, WorkflowService, WorkflowValidatorService}
+import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
+import com.stratio.sparta.serving.core.services.{CassiopeiaMigrationService, GroupService, WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
-import scala.util.Try
 
-import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class WorkflowActor(
                      val curatorFramework: CuratorFramework,
@@ -35,32 +37,31 @@ class WorkflowActor(
   import WorkflowActor._
   import WorkflowDtoImplicit._
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   val ResourceWorkflow = "Workflows"
   val ResourceEnvironment = "Environment"
   val ResourceBackup = "Backup"
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val groupService = new GroupService(curatorFramework)
-  private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
   private val workflowValidatorService = new WorkflowValidatorService(Option(curatorFramework))
   private val migrationService = new CassiopeiaMigrationService(curatorFramework)
-
+  
   //scalastyle:off
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case Stop(id, user) => stop(id, user)
     case Reset(id, user) => reset(id, user)
     case Run(id, user) => run(id, user)
     case RunWithVariables(executionVariables, user) => runWithVariables(executionVariables, user)
+    case RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user) => runWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflow(workflow, user) => create(workflow, user)
-    case CreateWorkflows(workflows, user) => createList(workflows, user)
     case Update(workflow, user) => update(workflow, user)
-    case UpdateList(workflows, user) => updateList(workflows, user)
     case Find(id, user) => find(id, user)
-    case FindWithEnv(id, user) => findWithEnv(id, user)
+    case FindByIdWithExecutionContext(id, user) => findByIdWithExecutionContext(id, user)
     case FindByIdList(workflowIds, user) => findByIdList(workflowIds, user)
     case Query(query, user) => doQuery(query, user)
     case FindAll(user) => findAll(user)
-    case FindAllWithEnv(user) => findAllWithEnv(user)
     case FindAllMonitoring(user) => findAllMonitoring(user)
     case FindAllByGroup(group, user) => findAllByGroup(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
@@ -70,6 +71,7 @@ class WorkflowActor(
     case DeleteCheckpoint(id, user) => deleteCheckpoint(id, user)
     case ResetAllStatuses(user) => resetAllStatuses(user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
+    case ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user) => validateWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
     case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
@@ -79,25 +81,25 @@ class WorkflowActor(
 
   //scalastyle:on
 
-  def run(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Status)
-    val authorizationId = workflowService.findById(id).authorizationId
-    authorizeActionsByResourceId[Response](user, actions, authorizationId) {
-      Try {
-        launcherActor.forward(Launch(id.toString, user))
-      }
-    }
-  }
+  //TODO this method should be removed when the front migrate to latest version and call run with ex.context
+  def run(id: String, user: Option[LoggedUser]): Unit =
+    runWithExecutionContext(WorkflowIdExecutionContext(id, ExecutionContext(withEnvironment = true)), user)
 
-  def runWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Status)
-    val authorizationId = workflowService.findById(executionVariables.workflowId).authorizationId
-    authorizeActionsByResourceId[Response](user, actions, authorizationId) {
-      Try {
-        launcherActor.forward(LaunchWithVariables(executionVariables, user))
-      }
-    }
-  }
+  //TODO this method should be removed when the front migrate to latest version and call run with ex.context
+  def runWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser]): Unit =
+    runWithExecutionContext(
+      WorkflowIdExecutionContext(
+        executionVariables.workflowId,
+        ExecutionContext(withEnvironment = true, extraParams = executionVariables.variables)
+      ),
+      user
+    )
+
+  def runWithExecutionContext(
+                               workflowIdExecutionContext: WorkflowIdExecutionContext,
+                               user: Option[LoggedUser]
+                             ): Unit =
+    launcherActor.forward(Launch(workflowIdExecutionContext, user))
 
   def stop(id: String, user: Option[LoggedUser]): Unit = {
     val actions = Map(ResourceWorkflow -> Status)
@@ -115,16 +117,52 @@ class WorkflowActor(
     }
   }
 
-  def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    authorizeActionsByResourceId[ResponseWorkflowValidation](
-      user,
-      Map(ResourceWorkflow -> Edit),
-      workflow.authorizationId
-    ) {
+  //TODO this method should be removed when the front migrate to latest version and call validate with ex. context
+  def validate(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowRaw.authorizationId
+    val action = Map(ResourceWorkflow -> Edit)
+    authorizeActionsByResourceId[ResponseFutureWorkflowValidation](user, action, authorizationId) {
       Try {
-        workflowValidatorService.validateAll(wServiceWithEnv.applyEnv(workflow))
+        for {
+          response <- (envStateActor ? ApplyExecutionContextToWorkflow(
+            WorkflowExecutionContext(workflowRaw, ExecutionContext(withEnvironment = true)))).mapTo[Try[Workflow]]
+        } yield {
+          response match {
+            case Success(workflow) =>
+              workflowValidatorService.validateAll(workflow)
+            case Failure(e) =>
+              log.warn(s"Error applying execution context, validating without it. ${e.getLocalizedMessage}")
+              workflowValidatorService.validateAll(workflowRaw)
+          }
+        }
       }
     }
+  }
+
+  def validateWithExecutionContext(
+                                    workflowIdExecutionContext: WorkflowIdExecutionContext,
+                                    user: Option[LoggedUser]
+                                  ): Unit = {
+    val workflowRaw = workflowService.findById(workflowIdExecutionContext.workflowId)
+    val action = Map(ResourceWorkflow -> Edit)
+    val authorizationId = workflowRaw.authorizationId
+    authorizeActionsByResourceId[ResponseFutureWorkflowValidation](user, action, authorizationId) {
+      Try {
+        for {
+          response <- (envStateActor ? ApplyExecutionContextToWorkflowId(workflowIdExecutionContext))
+            .mapTo[Try[Workflow]]
+        } yield {
+          response match {
+            case Success(workflow) =>
+              workflowValidatorService.validateAll(workflow)
+            case Failure(e) =>
+              log.warn(s"Error applying execution context, validating without it. ${e.getLocalizedMessage}")
+              workflowValidatorService.validateAll(workflowRaw)
+          }
+        }
+      }
+    }
+  }
 
   def findAll(user: Option[LoggedUser]): Unit =
     filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
@@ -134,16 +172,6 @@ class WorkflowActor(
   def findAllMonitoring(user: Option[LoggedUser]): Unit =
     filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
       FindAllMemoryWorkflowDto
-    }
-
-  def findAllWithEnv(user: Option[LoggedUser]): Unit =
-    authorizeActionsAndFilterResults(
-      user,
-      Map(ResourceEnvironment -> View),
-      Map(ResourceWorkflow -> View),
-      Option(inMemoryWorkflowApi)
-    ) {
-      FindAllMemoryWorkflowWithEnv
     }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
@@ -156,14 +184,17 @@ class WorkflowActor(
       FindByGroupMemoryWorkflowDto(groupID)
     }
 
-  def findWithEnv(id: String, user: Option[LoggedUser]): Unit =
+  def findByIdWithExecutionContext(
+                                    workflowIdExecutionContext: WorkflowIdExecutionContext,
+                                    user: Option[LoggedUser]
+                                  ): Unit =
     authorizeActionsAndFilterResults(
       user,
       Map(ResourceEnvironment -> View),
       Map(ResourceWorkflow -> View),
-      Option(inMemoryWorkflowApi)
+      Option(envStateActor)
     ) {
-      FindMemoryWorkflowWithEnv(id)
+      ApplyExecutionContextToWorkflowId(workflowIdExecutionContext)
     }
 
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
@@ -179,41 +210,19 @@ class WorkflowActor(
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
     authorizeActionsByResourceId[ResponseWorkflow](user, Map(ResourceWorkflow -> Create), workflow.authorizationId) {
       Try {
-        val withEnv = wServiceWithEnv.applyEnv(workflow)
-        wServiceWithEnv.create(workflow, Option(withEnv))
+        workflowService.create(workflow)
       }
     }
-
-  def createList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit = {
-    val resourcesId = workflows.map(_.authorizationId)
-    authorizeActionsByResourcesIds[ResponseWorkflows](user, Map(ResourceWorkflow -> Create), resourcesId) {
-      Try {
-        val withEnv = workflows.map(workflow => wServiceWithEnv.applyEnv(workflow))
-        wServiceWithEnv.createList(workflows, withEnv)
-      }
-    }
-  }
 
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit =
     authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), workflow.authorizationId) {
       Try {
-        val withEnv = wServiceWithEnv.applyEnv(workflow)
-        wServiceWithEnv.update(workflow, Option(withEnv))
+        workflowService.update(workflow)
       }.recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with name ${workflow.name}.")
       }
     }
-
-  def updateList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit = {
-    val resourcesId = workflows.map(_.authorizationId)
-    authorizeActionsByResourcesIds(user, Map(ResourceWorkflow -> Edit), resourcesId) {
-      Try {
-        val withEnv = workflows.map(workflow => wServiceWithEnv.applyEnv(workflow))
-        wServiceWithEnv.updateList(workflows, withEnv)
-      }
-    }
-  }
 
   def delete(id: String, user: Option[LoggedUser]): Unit = {
     val authorizationId = workflowService.findById(id).authorizationId
@@ -317,19 +326,25 @@ object WorkflowActor extends SLF4JLogging {
 
   case class RunWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser])
 
+  case class RunWithWorkflowIdExecutionContext(
+                                                workflowIdExecutionContext: WorkflowIdExecutionContext,
+                                                user: Option[LoggedUser]
+                                              )
+
   case class Stop(id: String, user: Option[LoggedUser])
 
   case class Reset(id: String, user: Option[LoggedUser])
 
   case class ValidateWorkflow(workflow: Workflow, user: Option[LoggedUser])
 
+  case class ValidateWorkflowIdWithExContext(
+                                              workflowExecutionContext: WorkflowIdExecutionContext,
+                                              user: Option[LoggedUser]
+                                            )
+
   case class CreateWorkflow(workflow: Workflow, user: Option[LoggedUser])
 
-  case class CreateWorkflows(workflows: Seq[Workflow], user: Option[LoggedUser])
-
   case class Update(workflow: Workflow, user: Option[LoggedUser])
-
-  case class UpdateList(workflows: Seq[Workflow], user: Option[LoggedUser])
 
   case class DeleteWorkflow(id: String, user: Option[LoggedUser])
 
@@ -341,15 +356,16 @@ object WorkflowActor extends SLF4JLogging {
 
   case class FindAll(user: Option[LoggedUser])
 
-  case class FindAllWithEnv(user: Option[LoggedUser])
-
   case class FindAllMonitoring(user: Option[LoggedUser])
 
   case class Find(id: String, user: Option[LoggedUser])
 
   case class FindAllByGroup(groupID: String, user: Option[LoggedUser])
 
-  case class FindWithEnv(id: String, user: Option[LoggedUser])
+  case class FindByIdWithExecutionContext(
+                                           workflowIdExecutionContext: WorkflowIdExecutionContext,
+                                           user: Option[LoggedUser]
+                                         )
 
   case class FindByIdList(workflowIds: Seq[String], user: Option[LoggedUser])
 
@@ -365,11 +381,13 @@ object WorkflowActor extends SLF4JLogging {
 
   case class MoveWorkflow(query: WorkflowMove, user: Option[LoggedUser])
 
-  case class MigrateFromCassiopeia(workflowCassiopeia:WorkflowCassiopeia, user: Option[LoggedUser])
+  case class MigrateFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser])
 
   type Response = Try[Unit]
 
   type ResponseAny = Try[Any]
+
+  type ResponseFutureAny = Future[Try[Any]]
 
   type ResponseWorkflows = Try[Seq[Workflow]]
 
@@ -378,6 +396,8 @@ object WorkflowActor extends SLF4JLogging {
   type ResponseWorkflow = Try[Workflow]
 
   type ResponseWorkflowValidation = Try[WorkflowValidation]
+
+  type ResponseFutureWorkflowValidation = Try[Future[WorkflowValidation]]
 
   type ResponseWorkflowAndromeda = Try[WorkflowAndromeda]
 }

@@ -57,7 +57,7 @@ class ExecutionServiceTest extends WordSpecLike
   val executionID = "exec1"
   val exec = WorkflowExecution(
     id = "exec1",
-    genericDataExecution = Option(GenericDataExecution(testWorkflow, WorkflowExecutionMode.local, "1")),
+    genericDataExecution = Option(GenericDataExecution(testWorkflow, testWorkflow, WorkflowExecutionMode.local, "1", ExecutionContext(true))),
     sparkSubmitExecution = Option(SparkSubmitExecution(
       driverClass = "driver",
       driverFile = "file",
@@ -78,6 +78,54 @@ class ExecutionServiceTest extends WordSpecLike
       |"uniqueId" : "uniqueId",
       |"genericDataExecution": {
       | "workflow": {
+      |  "id": "wf1",
+      |  "name": "wf-test",
+      |  "description": "",
+      |  "settings": {},
+      |  "version": 0,
+      |  "group": {
+      |   "name" : "/home",
+      |   "id" : "940800b2-6d81-44a8-84d9-26913a2faea4" },
+      |  "pipelineGraph": {
+      |    "nodes": [
+      |     {
+      |        "name": "a",
+      |        "stepType": "Input",
+      |        "className": "",
+      |        "classPrettyName": "",
+      |        "arity": ["NullaryToNary"],
+      |        "executionEngine": "Streaming",
+      |        "writer": {
+      |          "autoCalculatedFields": [],
+      |          "saveMode": "Append"
+      |        },
+      |        "configuration": {}
+      |      },
+      |      {
+      |        "name": "b",
+      |        "stepType": "Output",
+      |        "className": "",
+      |        "classPrettyName": "",
+      |        "executionEngine": "Streaming",
+      |        "arity": ["NaryToNullary"],
+      |        "writer": {
+      |          "saveMode": "Append"
+      |        },
+      |        "configuration": {}
+      |      }
+      |    ],
+      |    "edges": [
+      |        {
+      |          "origin": "a",
+      |          "destination": "b"
+      |        }
+      |      ]
+      |  }
+      | },
+      | "executionContext":{
+      |   "withEnvironment": true
+      | },
+      | "workflowRaw": {
       |  "id": "wf1",
       |  "name": "wf-test",
       |  "description": "",

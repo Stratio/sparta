@@ -6,8 +6,9 @@
 package com.stratio.sparta.serving.api.service.http
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.StatusActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.StatusActor.{DeleteStatus, FindAll, _}
+import StatusActor.{DeleteStatus, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel

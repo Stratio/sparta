@@ -32,8 +32,9 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
 
   val ResourceType = "Files"
 
-  override def receive: Receive = {
-    case UploadPlugins(files, user) => if (files.isEmpty) errorResponse() else uploadPlugins(files, user)
+  def receiveApiActions(action : Any): Unit = action match {
+    case UploadPlugins(files, user) =>
+      if (files.isEmpty) errorResponse() else uploadPlugins(files, user)
     case ListPlugins(user) => browsePlugins(user)
     case DeletePlugins(user) => deletePlugins(user)
     case DeletePlugin(fileName, user) => deletePlugin(fileName, user)

@@ -5,9 +5,10 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.EnvironmentActor._
+import com.stratio.sparta.serving.core.actor.EnvironmentInMemoryApi.{FindMemoryEnvironment, FindMemoryEnvironmentVariable}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
@@ -17,7 +18,7 @@ import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class EnvironmentActor(val curatorFramework: CuratorFramework)
+class EnvironmentActor(val curatorFramework: CuratorFramework, inMemoryApiEnvironment: ActorRef)
                       (implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
@@ -26,7 +27,7 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
   private val ResourceType = "Environment"
 
   //scalastyle:off
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case CreateEnvironment(request, user) => createEnvironment(request, user)
     case CreateEnvironmentVariable(request, user) => createEnvironmentVariable(request, user)
     case UpdateEnvironment(request, user) => updateEnvironment(request, user)
@@ -73,13 +74,13 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
     }
 
   def findEnvironment(user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceType -> View)) {
-      environmentService.find()
+    authorizeActions(user, Map(ResourceType -> View), Option(inMemoryApiEnvironment)) {
+      FindMemoryEnvironment
     }
 
   def findEnvironmentVariable(name: String, user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceType -> View)) {
-      environmentService.findVariable(name)
+    authorizeActions(user, Map(ResourceType -> View), Option(inMemoryApiEnvironment)) {
+      FindMemoryEnvironmentVariable(name)
     }
 
   def deleteEnvironment(user: Option[LoggedUser]): Unit =

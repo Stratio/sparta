@@ -8,8 +8,9 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.core.exception.MockException
+import com.stratio.sparta.serving.api.actor.ExecutionActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.ExecutionActor._
+import ExecutionActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution

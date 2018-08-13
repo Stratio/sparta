@@ -68,9 +68,12 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val workflowApiActor = system.actorOf(Props[WorkflowInMemoryApi])
       val statusApiActor = system.actorOf(Props[StatusInMemoryApi])
       val debugWorkflowApiActor = system.actorOf(Props[DebugWorkflowInMemoryApi])
+      val parameterListApiActor = system.actorOf(Props[ParameterListInMemoryApi])
+      val environmentApiActor = system.actorOf(Props[EnvironmentInMemoryApi])
       val stListenerActor = system.actorOf(Props[StatusListenerActor])
       val workflowListenerActor = system.actorOf(Props[WorkflowListenerActor])
-      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor, debugWorkflowApiActor)
+      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor,
+        debugWorkflowApiActor, parameterListApiActor, environmentApiActor)
 
       system.actorOf(Props[SchedulerMonitorActor])
 
@@ -86,11 +89,10 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitRecovery")).getOrElse(DefaultRecoverySleep))
 
       system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
-      system.actorOf(Props(
-        new WorkflowPublisherActor(curatorFramework, Option(system), Option(envListenerActor))))
       system.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
       system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
       system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
+      system.actorOf(Props(new ParameterListPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugWorkflowPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugStepDataPublisherActor(curatorFramework)))
       system.actorOf(Props(new DebugStepErrorPublisherActor(curatorFramework)))

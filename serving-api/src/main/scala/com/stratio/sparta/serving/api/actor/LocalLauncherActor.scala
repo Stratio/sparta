@@ -33,12 +33,19 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
   lazy private val executionService = new ExecutionService(curatorFramework)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow, userId: Option[String]) => doInitSpartaContext(workflow)
-    case _ => log.info("Unrecognized message in Local Launcher Actor")
+    case Start(workflow, workflowRaw, executionContext, userId) =>
+      doInitSpartaContext(workflow, workflowRaw, executionContext, userId)
+    case _ =>
+      log.info("Unrecognized message in Local Launcher Actor")
   }
 
   //scalastyle:off
-  private def doInitSpartaContext(workflow: Workflow): Unit = {
+  private def doInitSpartaContext(
+                                   workflow: Workflow,
+                                   workflowRaw: Workflow,
+                                   executionContext: ExecutionContext,
+                                   userId: Option[String]
+                                 ): Unit = {
     Try {
       val sparkUri = LinkHelper.getClusterLocalLink
       statusService.update(WorkflowStatus(
@@ -59,10 +66,13 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
         id = workflow.id.get,
         genericDataExecution = Option(GenericDataExecution(
           workflow = workflow,
+          workflowRaw = workflowRaw,
           executionMode = local,
           executionId = UUID.randomUUID.toString,
+          executionContext = executionContext,
           startDate = Option(launchDate),
-          launchDate = Option(launchDate)
+          launchDate = Option(launchDate),
+          userId = userId
         )),
         localExecution = Option(LocalExecution(sparkURI = sparkUri))
       ))

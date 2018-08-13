@@ -28,11 +28,7 @@ import scala.collection.JavaConversions
 import scala.util._
 
 //scalastyle:off
-class WorkflowService(
-                       curatorFramework: CuratorFramework,
-                       override val serializerSystem: Option[ActorSystem] = None,
-                       override val environmentStateActor: Option[ActorRef] = None
-                     ) extends SpartaSerializer with SLF4JLogging {
+class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val executionService = new ExecutionService(curatorFramework)
@@ -45,13 +41,6 @@ class WorkflowService(
   def findById(id: String): Workflow = {
     log.debug(s"Finding workflow by id $id")
     existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
-  }
-
-  def findByIdWithVariables(executionVariables: WorkflowExecutionVariables): Workflow = {
-    log.debug(s"Finding workflow by id ${executionVariables.workflowId}")
-
-    existsById(executionVariables.workflowId, Option(json4sFormats(executionVariables.toVariablesMap)))
-      .getOrElse(throw new ServerException(s"No workflow with id ${executionVariables.workflowId}"))
   }
 
   def find(query: WorkflowQuery): Workflow = {
@@ -107,13 +96,13 @@ class WorkflowService(
     } else List.empty[Workflow]
   }
 
-  def create(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {
+  def create(workflow: Workflow): Workflow = {
     log.debug(s"Creating workflow with name ${workflow.name}, version ${workflow.version} " +
       s"and group ${workflow.group.name}")
 
     mandatoryValidationsWorkflow(workflow)
 
-    val workflowWithFields = addCreationDate(addId(addSpartaVersion(workflow)))
+    val workflowWithFields = addParametersUsed(addCreationDate(addId(addSpartaVersion(workflow))))
 
     existsById(workflowWithFields.id.get).foreach(searchWorkflow => throw new ServerException(
       s"Workflow with id ${workflowWithFields.id.get} exists." +
@@ -194,16 +183,12 @@ class WorkflowService(
     }
   }
 
-  def createList(workflows: Seq[Workflow], workflowsWithEnv: Seq[Workflow] = Seq.empty): Seq[Workflow] = {
+  def createList(workflows: Seq[Workflow]): Seq[Workflow] = {
     log.debug(s"Creating workflows from list")
-    workflows.map { workflow =>
-      val workflowWithEnv = workflowsWithEnv.find(withEnv =>
-        withEnv.name == workflow.name && withEnv.group == workflow.group && withEnv.version == workflow.version)
-      create(workflow, workflowWithEnv)
-    }
+    workflows.map { workflow => create(workflow) }
   }
 
-  def update(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {
+  def update(workflow: Workflow): Workflow = {
     log.debug(s"Updating workflow with id ${workflow.id.get}")
 
     mandatoryValidationsWorkflow(workflow)
@@ -219,20 +204,16 @@ class WorkflowService(
           s" version ${searchByName.get.version} and group ${searchByName.get.group.name} exists." +
           s" The created workflow has id ${searchByName.get.id.get}")
     } else {
-      val workflowId = addUpdateDate(workflow.copy(id = searchWorkflow.get.id))
+      val workflowWithFields = addParametersUsed(addUpdateDate(workflow.copy(id = searchWorkflow.get.id)))
       curatorFramework.setData().forPath(
-        s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
-      workflowId
+        s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
+      workflowWithFields
     }
   }
 
-  def updateList(workflows: Seq[Workflow], workflowsWithEnv: Seq[Workflow] = Seq.empty): Seq[Workflow] = {
+  def updateList(workflows: Seq[Workflow]): Seq[Workflow] = {
     log.debug(s"Updating workflows from list")
-    workflows.map { workflow =>
-      val workflowWithEnv = workflowsWithEnv.find(withEnv =>
-        withEnv.name == workflow.name && withEnv.group == workflow.group && withEnv.version == workflow.version)
-      update(workflow, workflowWithEnv)
-    }
+    workflows.map { workflow => update(workflow) }
   }
 
   def delete(id: String): Try[Unit] = {
@@ -337,11 +318,6 @@ class WorkflowService(
     statusService.update(WorkflowStatus(id, WorkflowStatusEnum.Created))
   }
 
-  def applyEnv(workflow: Workflow): Workflow = {
-    val workflowWithoutEnv = write(workflow)
-    read[Workflow](workflowWithoutEnv)
-  }
-
   def moveTo(workflowMove: WorkflowMove): List[Workflow] = {
     //Validate groups
     if (CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupSourceId}") &&
@@ -424,22 +400,17 @@ class WorkflowService(
         Seq.empty[Workflow]
     }
 
-  private[sparta] def existsById(id: String, formats: Option[Formats] = None): Option[Workflow] =
+  private[sparta] def existsById(id: String): Option[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(s"${AppConstant.WorkflowsZkPath}/$id")) {
         val workflowStr = new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowsZkPath}/$id"))
-        val workFlow = {
-          formats.fold(read[Workflow](workflowStr)) { providedFormat =>
-            implicit val json4sJacksonFormats: Formats = providedFormat
-            read[Workflow](workflowStr)
-          }
-        }
+        val workFlow = read[Workflow](workflowStr)
         Option(workFlow.copy(status =
-          statusService.findById(id) recoverWith {
+          statusService.findById(id).recoverWith {
             case e =>
               log.error(s"Error finding workflowStatus with id $id", e)
               Failure(e)
-          } toOption
+          }.toOption
         ))
       } else None
     } match {
@@ -487,7 +458,7 @@ class WorkflowService(
 
 }
 
-object WorkflowService {
+object WorkflowService extends SpartaSerializer {
 
   private[sparta] def addId(workflow: Workflow, force: Boolean = false): Workflow =
     if (workflow.id.notBlank.isEmpty || (workflow.id.notBlank.isDefined && force))
@@ -508,4 +479,20 @@ object WorkflowService {
 
   private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
     workflow.copy(lastUpdateDate = Some(new DateTime()))
+
+  private[sparta] def addParametersUsed(workflow: Workflow): Workflow =
+    workflow.copy(
+      settings = workflow.settings.copy(
+        global = workflow.settings.global.copy(parametersUsed = getParametersUsed(workflow))
+      )
+    )
+
+  private[sparta] def getParametersUsed(workflow: Workflow): Seq[String] = {
+    val workflowStr = write(workflow)
+    val parametersTwoBracketsFound = parametersTwoBracketsPattern.findAllIn(workflowStr).toArray.toSeq
+
+    parametersTwoBracketsFound.map { parameter =>
+      parameter.replaceAll("\\{\\{", "").replaceAll("\\}\\}", "")
+    }.distinct.sortBy(parameter => parameter)
+  }
 }

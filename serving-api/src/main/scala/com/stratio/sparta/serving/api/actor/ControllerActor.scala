@@ -64,7 +64,11 @@ class ControllerActor(
   val configActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ConfigActor())), ConfigActorName)
   val environmentActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new EnvironmentActor(curatorFramework))), EnvironmentActorName)
+    .props(Props(new EnvironmentActor(
+      curatorFramework, inMemoryApiActors.environmentInMemoryApi))), EnvironmentActorName)
+  val parameterListActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new ParameterListActor(
+      curatorFramework, inMemoryApiActors.parameterListInMemoryApi))), ParameterListActorName)
   val groupActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new GroupActor(curatorFramework, inMemoryApiActors.groupInMemoryApi))), GroupActorName)
   val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -73,7 +77,7 @@ class ControllerActor(
     .props(Props(new CrossdataActor())), CrossdataActorName)
   val debugActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new DebugWorkflowActor(
-      curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi, launcherActor))), DebugWorkflowApiActorName)
+      curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi, launcherActor, envListenerActor))), DebugWorkflowApiActorName)
   val executionHistoryActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ExecutionHistoryActor)), ExecutionHistoryApiActorName)
   val statusHistoryActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -93,7 +97,8 @@ class ControllerActor(
     GroupActorName -> groupActor,
     DebugWorkflowApiActorName -> debugActor,
     ExecutionHistoryApiActorName -> executionHistoryActor,
-    StatusHistoryApiActorName -> statusHistoryActor
+    StatusHistoryApiActorName -> statusHistoryActor,
+    ParameterListActorName -> parameterListActor
   )
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
@@ -144,7 +149,7 @@ class ControllerActor(
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
       serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user) ~
       serviceRoutes.debugRoutes(user) ~ serviceRoutes.executionHistoryRoutes(user) ~
-      serviceRoutes.statusHistoryRoutes(user)
+      serviceRoutes.statusHistoryRoutes(user) ~ serviceRoutes.parameterListRoute(user)
   }
 
   lazy val webRoutes: Route =
@@ -172,7 +177,9 @@ case class InMemoryApiActors(
                               statusInMemoryApi: ActorRef,
                               groupInMemoryApi: ActorRef,
                               executionInMemoryApi: ActorRef,
-                              debugWorkflowInMemoryApi: ActorRef
+                              debugWorkflowInMemoryApi: ActorRef,
+                              parameterListInMemoryApi: ActorRef,
+                              environmentInMemoryApi: ActorRef
                             )
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
@@ -192,6 +199,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
 
   def environmentRoute(user: Option[LoggedUser]): Route = environmentService.routes(user)
+
+  def parameterListRoute(user: Option[LoggedUser]): Route = parameterListService.routes(user)
 
   def groupRoute(user: Option[LoggedUser]): Route = groupService.routes(user)
 
@@ -255,6 +264,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val environmentService = new EnvironmentHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.EnvironmentActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val parameterListService = new ParameterListHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.ParameterListActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

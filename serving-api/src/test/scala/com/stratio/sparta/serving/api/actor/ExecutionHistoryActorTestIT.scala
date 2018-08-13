@@ -74,7 +74,8 @@ class ExecutionHistoryActorTestIT extends TestKit(ActorSystem("ExecutionHistoryA
   private def getWorkflowExecutionModel(update: Boolean): WorkflowExecution =
     WorkflowExecution(
       id = "exec1",
-      genericDataExecution = Option(GenericDataExecution(getWorkflowModel(update), WorkflowExecutionMode.local, "1", userId = Some("testUser"))),
+      genericDataExecution = Option(
+        GenericDataExecution(getWorkflowModel(update), getWorkflowModel(update), WorkflowExecutionMode.local, "1", ExecutionContext(true), userId = Some("testUser"))),
       sparkSubmitExecution = Option(SparkSubmitExecution(
         driverClass = "driver",
         driverFile = "file",

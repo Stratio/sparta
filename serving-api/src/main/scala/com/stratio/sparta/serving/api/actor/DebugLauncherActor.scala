@@ -10,7 +10,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.models.WorkflowError
-import com.stratio.sparta.serving.core.actor.LauncherActor.Start
+import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartDebug}
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
@@ -27,7 +27,7 @@ class DebugLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
   lazy private val debugWorkflowService = new DebugWorkflowService(curatorFramework)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow, userId: Option[String]) => doDebugWorkflow(workflow)
+    case StartDebug(workflow) => doDebugWorkflow(workflow)
     case _ => log.info("Unrecognized message in Debug Launcher Actor")
   }
 

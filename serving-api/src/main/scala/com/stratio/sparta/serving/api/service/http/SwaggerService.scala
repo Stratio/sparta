@@ -27,7 +27,8 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[MetadataHttpService],
     typeOf[DebugWorkflowHttpService],
     typeOf[ExecutionHistoryHttpService],
-    typeOf[StatusHistoryHttpService]
+    typeOf[StatusHistoryHttpService],
+    typeOf[ParameterListHttpService]
   )
 
   override def apiVersion: String = "1.0"

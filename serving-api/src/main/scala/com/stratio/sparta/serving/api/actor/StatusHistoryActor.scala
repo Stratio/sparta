@@ -33,7 +33,7 @@ class StatusHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityMana
     }
   }
 
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case FindByWorkflowId(id, user) => findByWorkflowId(id, user)
   }
 

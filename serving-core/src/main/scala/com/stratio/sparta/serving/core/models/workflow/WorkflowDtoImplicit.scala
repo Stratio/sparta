@@ -36,6 +36,7 @@ object WorkflowDtoImplicit {
     GenericDataExecutionDto(
       ge.executionMode,
       ge.executionId,
+      ge.executionContext,
       ge.launchDate,
       ge.startDate,
       ge.endDate,

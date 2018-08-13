@@ -10,6 +10,7 @@ import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.EnvironmentActor._
+import com.stratio.sparta.serving.core.actor.EnvironmentInMemoryApi
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
@@ -88,8 +89,8 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
         |"name": "default"
         |}
       """.stripMargin
-
-    lazy val environmentActor = system.actorOf(Props(new EnvironmentActor(curatorFramework)))
+    val envApi = system.actorOf(Props(new EnvironmentInMemoryApi))
+    lazy val environmentActor = system.actorOf(Props(new EnvironmentActor(curatorFramework, envApi)))
     implicit val timeout: Timeout = Timeout(15.seconds)
     CuratorFactoryHolder.setInstance(curatorFramework)
   }
@@ -119,22 +120,6 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
       expectMsgAnyClassOf(classOf[Either[ResponseEnvironment, UnauthorizedResponse]])
     }
 
-    "FindEnvironment: returns the environment" in new TestData {
-      when(curatorFramework.checkExists())
-        .thenReturn(existsBuilder)
-      when(curatorFramework.checkExists()
-        .forPath("/stratio/sparta/sparta/environment"))
-        .thenReturn(new Stat())
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath("/stratio/sparta/sparta/environment"))
-        .thenReturn(environment.getBytes)
-
-      environmentActor ! EnvironmentActor.FindEnvironment(rootUser)
-      expectMsg(Left(Success(environmentElementModel)))
-    }
-
     "FindEnvironmentVariable: returns an exception because the node of type does not exist yet" in new TestData {
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
@@ -143,48 +128,13 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
         .thenReturn(null)
 
       environmentActor ! EnvironmentActor.FindEnvironmentVariable("foo", rootUser)
-      expectMsg(Left(Failure(new ServerException(s"Impossible to find variable, No environment found"))))
+      expectMsg(Left(Failure(new ServerException(s"No environment found"))))
     }
 
     "FindEnvironmentVariable: returns a error message when limitedUser attempts to get environment" in new TestData {
       environmentActor ! EnvironmentActor.FindEnvironmentVariable("foo", limitedUser)
 
       expectMsgAnyClassOf(classOf[Either[ResponseEnvironmentVariable, UnauthorizedResponse]])
-    }
-
-    "FindEnvironmentVariable: returns exception with not found the environment variable" in new TestData {
-      when(curatorFramework.checkExists())
-        .thenReturn(existsBuilder)
-      when(curatorFramework.checkExists()
-        .forPath("/stratio/sparta/sparta/environment"))
-        .thenReturn(new Stat())
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath("/stratio/sparta/sparta/environment"))
-        .thenReturn(environment.getBytes)
-
-      environmentActor ! EnvironmentActor.FindEnvironmentVariable("other", rootUser)
-
-      expectMsg(Left(Failure(new ServerException(s"The environment variable doesn't exist"))))
-    }
-
-    "FindEnvironmentVariable: returns the environment" in new TestData {
-      when(curatorFramework.checkExists())
-        .thenReturn(existsBuilder)
-      when(curatorFramework.checkExists()
-        .forPath("/stratio/sparta/sparta/environment"))
-        .thenReturn(new Stat())
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath("/stratio/sparta/sparta/environment"))
-        .thenReturn(environment.getBytes)
-
-      environmentActor ! EnvironmentActor.FindEnvironmentVariable("foo", rootUser)
-
-      val expectedVariable = EnvironmentVariable("foo", "var")
-      expectMsg(Left(Success(expectedVariable)))
     }
 
     "CreateEnvironment: creates a environment and return the created environment" in new TestData {

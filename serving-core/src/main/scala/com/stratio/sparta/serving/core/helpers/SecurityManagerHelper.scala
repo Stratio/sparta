@@ -98,6 +98,7 @@ object SecurityManagerHelper {
       case "Files" => Resource(FilesResource, resource)
       case "Template" => Resource(TemplateResource, resource)
       case "History" => Resource(HistoryResource, resource)
+      case "ParameterList" => Resource(ParameterListResource, resource)
     }
   }
 
@@ -112,6 +113,7 @@ object SecurityManagerHelper {
       case "Files" => Resource(FilesResource, resource._2)
       case "Template" => Resource(TemplateResource, resource._2)
       case "History" => Resource(HistoryResource, resource._2)
+      case "ParameterList" => Resource(ParameterListResource, resource._2)
     }
   }
 }

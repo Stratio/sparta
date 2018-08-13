@@ -39,7 +39,7 @@ class ExecutionHistoryActor()(implicit val secManagerOpt: Option[SpartaSecurityM
     }
   }
 
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case QueryByWorkflowId(id, user) => queryByWorkflowId(id, user)
     case QueryByUserId(id, user) => queryByUserId(id, user)
   }

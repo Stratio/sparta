@@ -56,24 +56,8 @@ with Matchers {
     }
 
     "have toSeq equivalent to its internal string" in {
-      val result = JsoneyString("o").toSeq
+      val result = JsoneyString("[o]").toSeq
       val expected = Seq("o")
-
-      expected should be (result)
-    }
-
-    "string with environment should substitute keys" in {
-      val environmentContext = Option(EnvironmentContext(Map("APP" -> "SPARTA")))
-      val result = JsoneyString("Hi I'm {{APP}}", environmentContext).toString
-      val expected = "Hi I'm SPARTA"
-
-      expected should be (result)
-    }
-
-    "string with environment shouldn't substitute keys if not present in environment" in {
-      val environmentContext = Option(EnvironmentContext(Map("APP" -> "SPARTA")))
-      val result = JsoneyString("Hi I'm {{COMPANY}}", environmentContext).toString
-      val expected = "Hi I'm "
 
       expected should be (result)
     }

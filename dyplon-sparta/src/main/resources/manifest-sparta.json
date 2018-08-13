@@ -74,6 +74,15 @@
       ]
     },
     {
+      "type": "ParameterList",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit"
+      ]
+    },
+    {
       "type": "History",
       "actions": [
         "view"

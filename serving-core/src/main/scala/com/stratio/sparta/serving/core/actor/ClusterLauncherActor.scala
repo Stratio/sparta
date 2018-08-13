@@ -35,13 +35,20 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
   private val listenerService = new ListenerService(curatorFramework, statusListenerActor)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow, userId: Option[String]) => initializeSubmitRequest(workflow, userId: Option[String])
-    case StartWithRequest(workflow: Workflow, submitRequest: WorkflowExecution) => launch(workflow, submitRequest)
-    case _ => log.info("Unrecognized message in Cluster Launcher Actor")
+    case Start(workflow, workflowRaw, executionContext, _) =>
+      initializeSubmitRequest(workflow, workflowRaw, executionContext)
+    case StartWithRequest(workflow: Workflow, submitRequest: WorkflowExecution) =>
+      launch(workflow, submitRequest)
+    case _ =>
+      log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
   //scalastyle:off
-  def initializeSubmitRequest(workflow: Workflow, userId: Option[String]): Unit = {
+  def initializeSubmitRequest(
+                               workflow: Workflow,
+                               workflowRaw: Workflow,
+                               executionContext: ExecutionContext
+                             ): Unit = {
     Try {
       log.info(s"Initializing cluster options submitted by workflow: ${workflow.name}")
       val sparkSubmitService = new SparkSubmitService(workflow)
@@ -65,8 +72,10 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         id = workflow.id.get,
         genericDataExecution = Option(GenericDataExecution(
           workflow = workflow,
+          workflowRaw = workflowRaw,
           executionMode = dispatcher,
-          executionId = UUID.randomUUID.toString
+          executionId = UUID.randomUUID.toString,
+          executionContext = executionContext
         )),
         sparkSubmitExecution = Option(SparkSubmitExecution(
           driverClass = SpartaDriverClass,

@@ -34,12 +34,18 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
   private val statusService = new WorkflowStatusService(curatorFramework)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: Workflow, userId: Option[String]) => initializeSubmitRequest(workflow, userId: Option[String])
+    case Start(workflow, workflowRaw, executionContext, userId) =>
+      initializeSubmitRequest(workflow, workflowRaw, executionContext, userId)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 
   //scalastyle:off
-  def initializeSubmitRequest(workflow: Workflow, userId: Option[String]): Unit = {
+  def initializeSubmitRequest(
+                               workflow: Workflow,
+                               workflowRaw: Workflow,
+                               executionContext: ExecutionContext,
+                               userId: Option[String]
+                             ): Unit = {
     Try {
       val sparkSubmitService = new SparkSubmitService(workflow)
       log.info(s"Initializing options to submit the Workflow App associated to workflow: ${workflow.name}")
@@ -75,8 +81,10 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
         marathonExecution = Option(MarathonExecution(marathonId = WorkflowHelper.getMarathonId(workflow))),
         genericDataExecution = Option(GenericDataExecution(
           workflow = workflow,
+          workflowRaw = workflowRaw,
           executionMode = marathon,
           executionId = UUID.randomUUID.toString,
+          executionContext = executionContext,
           userId = userId
         ))
       )

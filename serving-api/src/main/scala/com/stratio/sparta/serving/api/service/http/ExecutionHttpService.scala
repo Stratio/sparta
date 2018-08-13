@@ -6,8 +6,9 @@
 package com.stratio.sparta.serving.api.service.http
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.ExecutionActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.ExecutionActor._
+import ExecutionActor._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._

@@ -11,11 +11,12 @@ import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.Unauthorize
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
+import com.stratio.sparta.serving.core.models.workflow.{DebugWorkflow, WorkflowIdExecutionContext}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import javax.ws.rs.Path
+
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.HttpHeaders.{`Content-Disposition`, `Content-Type`}
@@ -33,7 +34,8 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
     FormDataUnmarshallers.MultipartFormDataUnmarshaller
 
   override def routes(user: Option[LoggedUser] = None): Route = upload(user) ~ deleteFile(user) ~ downloadFile(user) ~
-    findAll(user) ~ create(user) ~ run(user) ~ remove(user) ~ removeAll(user) ~ findById(user) ~ resultsById(user)
+    findAll(user) ~ create(user) ~ run(user) ~ remove(user) ~ removeAll(user) ~ findById(user) ~ resultsById(user) ~
+    runWithExecutionContext(user)
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
@@ -71,7 +73,6 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
     response = classOf[DebugWorkflow])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "Debug workflow",
-      defaultValue = "",
       value = "debug workflow json",
       dataType = "DebugWorkflow",
       required = true,
@@ -115,7 +116,38 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
           for {
             response <- (supervisor ? Run(id.toString, user))
               .mapTo[Either[ResponseRun, UnauthorizedResponse]]
-          } yield deletePostPutResponse(DebugWorkflowServiceRun, response, genericError)
+          } yield deletePostPutResponseFuture(DebugWorkflowServiceRun, response, genericError)
+        }
+      }
+    }
+  }
+
+  @Path("/runWithExecutionContext")
+  @ApiOperation(value = "Runs a debug with execution context.",
+    notes = "Runs a debug by its id and providing execution context.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "WorkflowIdExecutionContext",
+      value = "Workflow id and execution context.",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowIdExecutionContext",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def runWithExecutionContext(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.DebugWorkflowsPath / "runWithExecutionContext") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[WorkflowIdExecutionContext]) { workflowIdExecutionContext =>
+            complete {
+              for {
+                response <- (supervisor ? RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user))
+                  .mapTo[Either[ResponseRun, UnauthorizedResponse]]
+              } yield deletePostPutResponseFuture(WorkflowServiceRun, response, genericError)
+            }
+          }
         }
       }
     }

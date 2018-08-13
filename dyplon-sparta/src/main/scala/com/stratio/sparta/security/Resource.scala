@@ -46,3 +46,7 @@ case object WorkflowsResource extends ResourceType{
 case object HistoryResource extends ResourceType{
   override def name(): String = "History"
 }
+
+case object ParameterListResource extends ResourceType{
+  override def name(): String = "ParameterList"
+}

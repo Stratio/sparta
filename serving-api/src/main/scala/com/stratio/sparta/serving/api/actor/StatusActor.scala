@@ -3,18 +3,17 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.actor
+package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, _}
-import com.stratio.sparta.security._
-import com.stratio.sparta.security.{Status => SpartaStatus}
-import com.stratio.sparta.serving.core.actor.StatusActor._
+import com.stratio.sparta.security.{Status => SpartaStatus, _}
 import com.stratio.sparta.serving.core.actor.StatusInMemoryApi._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
+import StatusActor._
 
 import scala.util.Try
 
@@ -30,7 +29,7 @@ class StatusActor(
   private val workflowService = new WorkflowService(curatorFramework)
 
   //scalastyle:off cyclomatic.complexity
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case CreateStatus(workflowStatus, user) => createStatus(workflowStatus, user)
     case Update(workflowStatus, user) => update(workflowStatus, user)
     case FindAll(user) => findAll(user)

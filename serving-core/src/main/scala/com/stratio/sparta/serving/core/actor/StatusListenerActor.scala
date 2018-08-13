@@ -54,7 +54,7 @@ class StatusListenerActor extends InMemoryServicesStatus {
             doWorkflowChange(wStatus.copy(status = WorkflowStatusEnum.Stopped))
           }
           workflowActions -= id
-          removeWorkflowsWithEnv(wRemove.workflow)
+          removeWorkflows(wRemove.workflow)
           removeExecution(id)
           removeStatus(id)
         }
@@ -77,7 +77,7 @@ class StatusListenerActor extends InMemoryServicesStatus {
         try {
           blocking(callback(WorkflowStatusStream(
             workflowStatus,
-            workflowsWithEnv.get(workflowStatus.id),
+            workflows.get(workflowStatus.id),
             executions.get(workflowStatus.id)
           )))
         } catch {
@@ -92,7 +92,7 @@ class StatusListenerActor extends InMemoryServicesStatus {
           try {
             blocking(callback(WorkflowStatusStream(
               workflowStatus,
-              workflowsWithEnv.get(workflowStatus.id),
+              workflows.get(workflowStatus.id),
               executions.get(workflowStatus.id)
             )))
           } catch {

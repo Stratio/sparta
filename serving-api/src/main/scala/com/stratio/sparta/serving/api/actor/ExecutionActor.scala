@@ -3,17 +3,17 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.actor
+package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.actor.ExecutionActor._
 import com.stratio.sparta.serving.core.actor.ExecutionInMemoryApi._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.stratio.sparta.serving.core.services.ExecutionService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
+import ExecutionActor._
 
 class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecution: ActorRef)
                     (implicit val secManagerOpt: Option[SpartaSecurityManager])
@@ -22,14 +22,13 @@ class ExecutionActor(val curatorFramework: CuratorFramework, inMemoryApiExecutio
   private val executionService = new ExecutionService(curatorFramework)
   private val ResourceType = "Workflows"
 
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case CreateExecution(workflowExecution, user) => createExecution(workflowExecution, user)
     case Update(workflowExecution, user) => updateExecution(workflowExecution, user)
     case FindAll(user) => findAllExecutions(user)
     case FindById(id, user) => findExecutionById(id, user)
     case DeleteAll(user) => deleteAllExecutions(user)
     case DeleteExecution(id, user) => deleteExecution(id, user)
-    case ClearLastError(id) => sender ! executionService.clearLastError(id)
     case _ => log.info("Unrecognized message in Workflow Execution Actor")
   }
 
@@ -89,5 +88,4 @@ object ExecutionActor {
 
   case class FindById(id: String, user: Option[LoggedUser])
 
-  case class ClearLastError(id: String)
 }

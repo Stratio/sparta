@@ -54,7 +54,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20
-  val DefaultSerializationTimeout = 5000
+  val DefaultContextTimeout = 5
   val DefaultEnvSleep = 5000L
   val DefaultRecoverySleep = 5000L
   val DefaultVersion = "2.2.0"
@@ -109,10 +109,15 @@ object AppConstant extends ZookeeperUtils {
   lazy val DebugWorkflowZkPath = s"$BaseZkPath/debug"
   lazy val DebugStepDataZkPath = s"$BaseZkPath/debugStepData"
   lazy val DebugStepErrorZkPath = s"$BaseZkPath/debugStepError"
+  lazy val ParameterListZkPath = s"$BaseZkPath/parameterList"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
   val CustomTypeKey = "customClassType"
+
+
+  //Parameters
+  val parametersTwoBracketsPattern = "\\{\\{[\\w\\.\\-\\_]*\\}\\}".r
 
   //Environment
   val DefaultEnvironment = Seq(

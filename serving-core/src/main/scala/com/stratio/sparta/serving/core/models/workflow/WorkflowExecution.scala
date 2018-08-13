@@ -29,8 +29,10 @@ case class WorkflowExecution(
 
 case class GenericDataExecution(
                                  workflow: Workflow,
+                                 workflowRaw: Workflow,
                                  executionMode: WorkflowExecutionMode,
                                  executionId: String,
+                                 executionContext: ExecutionContext,
                                  launchDate: Option[DateTime] = None,
                                  startDate: Option[DateTime] = None,
                                  endDate: Option[DateTime] = None,
@@ -74,6 +76,7 @@ case class WorkflowExecutionDto(
 case class GenericDataExecutionDto(
                                     executionMode: WorkflowExecutionMode,
                                     executionId: String,
+                                    executionContext: ExecutionContext,
                                     launchDate: Option[DateTime] = None,
                                     startDate: Option[DateTime] = None,
                                     endDate: Option[DateTime] = None,

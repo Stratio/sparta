@@ -26,7 +26,7 @@ class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMan
   private val ResourceType = "Template"
 
   //scalastyle:off
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case FindAllTemplates(user) => findAll(user)
     case FindByType(fragmentType, user) => findByType(fragmentType, user)
     case FindByTypeAndId(fragmentType, id, user) => findByTypeAndId(fragmentType, id, user)

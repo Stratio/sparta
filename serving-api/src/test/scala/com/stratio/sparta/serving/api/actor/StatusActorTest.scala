@@ -3,13 +3,13 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.actor
+package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit._
 import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.core.actor.StatusActor.Response
+import com.stratio.sparta.serving.core.actor.{StatusInMemoryApi, StatusListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
@@ -20,11 +20,10 @@ import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
-import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import StatusActor._
 
 import scala.concurrent.duration._
 import scala.util.Try

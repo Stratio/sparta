@@ -23,7 +23,7 @@ class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) 
   lazy val crossdataService = new CrossdataService
   val ResourceType = "Catalog"
 
-  override def receive: Receive = {
+  def receiveApiActions(action : Any): Unit = action match {
     case FindAllDatabases(user) => findAllDatabases(user)
     case FindAllTables(user) => findAllTables(user)
     case FindTables(tablesRequest, user) => findTables(tablesRequest, user)
