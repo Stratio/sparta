@@ -1,0 +1,92 @@
+{
+   "name": "ElasticSearch",
+   "icon": "ElasticSearch",
+   "className": "ElasticSearchInputStep",
+   "classPrettyName": "ElasticSearch",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
+   "description": "Allows you to read from ElasticSearch",
+   "properties": [
+      {
+         "propertyId": "nodes",
+         "propertyName": "_NODES_",
+         "propertyType": "list",
+         "default": "",
+         "required": true,
+         "hidden": false,
+         "limit": 0,
+         "tooltip": "Configures the 'es.nodes' and 'es.port' properties.",
+         "qa": "fragment-details-elasticSearch-nodes",
+         "fields": [
+            {
+               "propertyId": "node",
+               "propertyName": "_HOST_",
+               "propertyType": "text",
+               "default": "{{{ES_HOST}}}",
+               "required": true,
+               "width": 6,
+               "qa": "fragment-details-elasticSearch-node"
+            },
+            {
+               "propertyId": "httpPort",
+               "propertyName": "_HTTP_PORT_",
+               "propertyType": "text",
+               "default": "{{{ES_PORT}}}",
+               "width": 5,
+               "required": true,
+               "qa": "fragment-details-elasticSearch-httpPort"
+            }
+         ]
+      },
+      {
+         "propertyId": "resource",
+         "propertyName": "_RESOURCE_",
+         "propertyType": "text",
+         "tooltip": "Index/mapping for read data from ElasticSearch.",
+         "required": true,
+         "qa": "fragment-details-elasticSearch-resource"
+      },
+      {
+         "propertyId": "readMetadata",
+         "propertyName": "_READ_METADATA_",
+         "propertyType": "boolean",
+         "tooltip": "If enabled, include the document metadata (such as id and version) in the results else it will not include it (default behavior).",
+         "default": false,
+         "qa": "fragment-details-es-readMetadata"
+      },
+      {
+         "propertyId": "tlsEnabled",
+         "propertyName": "_TLS_ENABLE_",
+         "propertyType": "boolean",
+         "tooltip": "Enable TLS protocol in order to connect to a secured ElasticSearch using certificates",
+         "default": false,
+         "qa": "fragment-details-es-tls"
+      },
+      {
+         "propertyId": "inputOptions",
+         "propertyName": "_OPTION_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "custom-input-properties",
+         "fields": [
+            {
+               "propertyId": "inputOptionsKey",
+               "propertyName": "_OPTION_KEY_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-input-properties-key"
+            },
+            {
+               "propertyId": "inputOptionsValue",
+               "propertyName": "_OPTION_VALUE_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-input-properties-value"
+            }
+         ]
+      }
+   ]
+}

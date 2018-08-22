@@ -12,6 +12,7 @@ import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessa
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.plugin.common.elasticsearch.ElasticSearchBase
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
@@ -21,29 +22,14 @@ class ElasticSearchOutputStep(
                                name: String,
                                xDSession: XDSession,
                                properties: Map[String, JSerializable]
-                             ) extends OutputStep(name, xDSession, properties) {
+                             ) extends OutputStep(name, xDSession, properties) with ElasticSearchBase {
 
-
-  val DefaultIndexType = "sparta"
-  val DefaultNode = "localhost"
-  val DefaultHttpPort = "9200"
-  val NodeName = "node"
-  val NodesName = "nodes"
-  val HttpPortName = "httpPort"
-  val ElasticSearchClass = "org.elasticsearch.spark.sql"
   val sparkConf = xDSession.conf.getAll
-
-
   val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
-  val timeStampMapper = properties.getString("timeStampMapperFormat", None).notBlank
   val autoCreateIndex = Try(properties.getString("enableAutoCreateIndex", "true").toBoolean).getOrElse(true)
   val mappingType = properties.getString("indexMapping", DefaultIndexType)
   val httpNodes = getHostPortConf(NodesName, DefaultNode, DefaultHttpPort, NodeName, HttpPortName)
-
-  val securityOpts =
-    if (tlsEnabled)
-      elasticSecurityOptions(sparkConf)
-    else Map.empty
+  val securityOpts = if (tlsEnabled) SecurityHelper.elasticSecurityOptions(sparkConf) else Map.empty
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
@@ -62,18 +48,6 @@ class ElasticSearchOutputStep(
   def indexNameType(tableName: String): String =
     s"${tableName.toLowerCase}/$mappingType"
 
-
-  def getHostPortConf(key: String,
-                      defaultHost: String,
-                      defaultPort: String,
-                      nodeName: String,
-                      portName: String): Seq[(String, Int)] = {
-    val values = Try(properties.getMapFromArrayOfValues(key)).getOrElse(Seq.empty[Map[String, String]])
-
-    values.map(c =>
-      (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
-  }
-
   def getSparkConfig(saveMode: SaveModeEnum.Value, primaryKey: Option[String])
   : Map[String, String] = {
     saveMode match {
@@ -85,39 +59,7 @@ class ElasticSearchOutputStep(
   } ++ {
     Map("es.nodes" -> httpNodes.head._1, "es.port" -> httpNodes.head._2.toString,
       "es.index.auto.create" -> autoCreateIndex.toString)
-  } ++ {
-    timeStampMapper match {
-      case Some(timeStampMapperValue) => Map("es.mapping.timestamp" -> timeStampMapperValue)
-      case None => Map.empty[String, String]
-    }
   } ++ securityOpts
-
-  def elasticSecurityOptions(sparkConf: Map[String, String]): Map[String, String] = {
-
-    val prefixSparkElastic = "spark.ssl.datastore."
-    val prefixElasticSecurity = "es.net.ssl"
-
-    if (sparkConf.get(prefixSparkElastic + "enabled").isDefined &&
-      sparkConf(prefixSparkElastic + "enabled") == "true") {
-
-      val configElastic = sparkConf.flatMap { case (key, value) =>
-        if (key.startsWith(prefixSparkElastic))
-          Option(key.replace(prefixSparkElastic, "") -> value)
-        else None
-      }
-
-      val mappedProps = Map(
-        s"$prefixElasticSecurity" -> configElastic("enabled"),
-        s"$prefixElasticSecurity.keystore.pass" -> configElastic("keyStorePassword"),
-        s"$prefixElasticSecurity.keystore.location" -> s"file:${configElastic("keyStore")}",
-        s"$prefixElasticSecurity.truststore.location" -> s"file:${configElastic("trustStore")}",
-        s"$prefixElasticSecurity.truststore.pass" -> configElastic("trustStorePassword"))
-
-      mappedProps
-    } else {
-      Map()
-    }
-  }
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

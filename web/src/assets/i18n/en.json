@@ -337,6 +337,8 @@
    "_OUTPUT_FIELDS_FROM_": "Output fields from",
    "_FIELDS_DEFINITION_STRING_": "Fields string definition",
    "_FIELDS_DEFINITION_": "Fields definition",
+   "_RESOURCE_": "Resource",
+   "_READ_METADATA_": "Read metadata",
    "_NAME_": "Name",
    "_NULLABLE_": "Nullable",
    "_INTERVAL_": "Interval",

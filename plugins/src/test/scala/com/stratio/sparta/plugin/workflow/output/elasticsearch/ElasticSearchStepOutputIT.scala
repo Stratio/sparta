@@ -56,8 +56,7 @@ class ElasticSearchStepOutputIT extends TemporalSparkContext
          |  "tcpPort":"9300"
          |}]
            """.stripMargin),
-      "indexMapping" -> "people",
-      "timeStampMapperFormat" -> "minute"
+      "indexMapping" -> "people"
     )
 
     val elasticOutput = new ElasticSearchOutputStep("ES.out", sparkSession, properties)

@@ -136,4 +136,29 @@ object SecurityHelper extends SLF4JLogging {
 
     securityProperties
   }
+
+  def elasticSecurityOptions(sparkConf: Map[String, String]): Map[String, String] = {
+    val prefixSparkElastic = "spark.ssl.datastore."
+    val prefixElasticSecurity = "es.net.ssl"
+
+    if (sparkConf.get(prefixSparkElastic + "enabled").isDefined &&
+      sparkConf(prefixSparkElastic + "enabled") == "true") {
+
+      val configElastic = sparkConf.flatMap { case (key, value) =>
+        if (key.startsWith(prefixSparkElastic))
+          Option(key.replace(prefixSparkElastic, "") -> value)
+        else None
+      }
+
+      val mappedProps = Map(
+        s"$prefixElasticSecurity" -> configElastic("enabled"),
+        s"$prefixElasticSecurity.keystore.pass" -> configElastic("keyStorePassword"),
+        s"$prefixElasticSecurity.keystore.location" -> s"file:${configElastic("keyStore")}",
+        s"$prefixElasticSecurity.truststore.location" -> s"file:${configElastic("trustStore")}",
+        s"$prefixElasticSecurity.truststore.pass" -> configElastic("trustStorePassword")
+      )
+
+      mappedProps
+    } else Map.empty[String, String]
+  }
 }

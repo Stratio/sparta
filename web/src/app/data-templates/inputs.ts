@@ -8,6 +8,7 @@ import { StepType, Engine } from "@models/enums";
 
 import * as avroTemplate from './inputs/avro.json';
 import * as csvTemplate from './inputs/csv.json';
+import * as elasticSearchBatchTemplate from './inputs/elasticSearchBatch.json';
 import * as jsonTemplate from './inputs/json.json';
 import * as jdbcTemplate from './inputs/jdbc.json';
 import * as parquetTemplate from './inputs/parquet.json';
@@ -38,6 +39,7 @@ export const inputs = [
     customTemplate,
     customLiteTemplate,
     customLiteXdTemplate,
+    elasticSearchBatchTemplate,
     jdbcTemplate,
     jsonTemplate,
     kafkaTemplate,
