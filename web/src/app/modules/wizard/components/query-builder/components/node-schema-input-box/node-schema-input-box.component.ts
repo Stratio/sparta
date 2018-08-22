@@ -147,10 +147,13 @@ onChangeOption(ev) {
       case 'addFields':
          if (this.schema.fields && this.schema.fields.length) {
             const field = {
-               fieldType: '*',
                table: this.schema.fields[0].table,
                expression: this.schema.fields[0].alias + '.*',
-               originFields: []
+               originFields: [{
+                  alias: this.schema.fields[0].alias,
+                  name: '*',
+                  table: this.schema.fields[0].table
+               }]
             };
             this._store.dispatch(new queryBuilderActions.AddOutputSchemaFieldsAction({
                index: 0,

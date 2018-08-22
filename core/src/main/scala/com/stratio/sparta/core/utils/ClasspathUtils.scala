@@ -10,6 +10,7 @@ import java.net.URLClassLoader
 import scala.collection.JavaConversions._
 import scala.util.Try
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
@@ -83,11 +84,13 @@ class ClasspathUtils extends SLF4JLogging {
       block(clazz)
     } catch {
       case e: ClassNotFoundException =>
-        throw new Exception(s"Class $classAndPackage cannot be found in the classpath. ${e.toString}", e)
+        throw new Exception(s"Class $classAndPackage cannot be found in the classpath. ${ExceptionHelper.toPrintableException(e)}", e)
       case e: InstantiationException =>
-        throw new Exception(s"Class $classAndPackage cannot be instantiated. ${e.toString}", e)
+        throw new Exception(s"Class $classAndPackage cannot be instantiated. ${ExceptionHelper.toPrintableException(e)}", e)
       case e: Exception =>
-        throw new Exception(s"Generic error trying to instantiate $classAndPackage. ${e.toString}", e)
+        throw new Exception(s"Generic exception trying to instantiate $classAndPackage. ${ExceptionHelper.toPrintableException(e)}", e)
+      case e: NoClassDefFoundError =>
+        throw new Exception(s"Error while instantiating $classAndPackage caused by ${e.getCause.toString}", e)
     }
   }
 

@@ -232,22 +232,24 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
       if (this.schemaPositions) {
          this.outputSchemaFields.forEach((field: OutputSchemaField) => {
             field.originFields.forEach((originField) => {
-               if (field.position) {
+               if (field.position && !field.expression.includes('.*')) {
                   const initCoors = this.schemaPositions[inputSchemasOrder[originField.table]][originField.name];
-                  paths.push({
-                     initData: {
-                        tableName: originField.table,
-                        fieldName: originField.name
-                     },
-                     coordinates: {
-                        init: {
-                           x: 440,
-                           y: initCoors.y,
-                           height: initCoors.height
+                  if (initCoors) {
+                     paths.push({
+                        initData: {
+                           tableName: originField.table,
+                           fieldName: originField.name
                         },
-                        end: field.position
-                     }
-                  });
+                        coordinates: {
+                           init: {
+                              x: 440,
+                              y: initCoors.y,
+                              height: initCoors.height
+                           },
+                           end: field.position
+                        }
+                     });
+                  }
                }
             });
          });
@@ -262,35 +264,36 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
       const joinPaths = [];
       const inputSchemasOrder = {};
       this.inputSchemas.forEach((schema: InputSchema, index: number) => inputSchemasOrder[schema.name] = index);
+
       if (this.schemaPositions && this.schemaPositions.length > 1) {
          this.join.joins.map((jo: Join) => {
-            if (!this.schemaPositions[inputSchemasOrder[jo.origin.table]][jo.origin.column] || !this.schemaPositions[inputSchemasOrder[jo.destination.table]][jo.destination.column]) {
-               this.schemaPositions = [this.schemaPositions[1], this.schemaPositions[0]];
-            }
-            const initCoors = this.schemaPositions[inputSchemasOrder[jo.origin.table]][jo.origin.column];
-            const endCoors = this.schemaPositions[inputSchemasOrder[jo.destination.table]][jo.destination.column];
-            joinPaths.push({
-               initData: {
-                  tableName: jo.origin.table,
-                  fieldName: jo.origin.column
-               },
-               coordinates: {
-                  init: {
-                     x: 60,
-                     y: initCoors.y,
-                     height: initCoors.height
-                  },
-                  end: {
-                     x: 60,
-                     y: endCoors.y,
-                     height: endCoors.height
-                  }
+            if (inputSchemasOrder[jo.origin.table] !== undefined) {
+               if (!this.schemaPositions[inputSchemasOrder[jo.origin.table]][jo.origin.column] || !this.schemaPositions[inputSchemasOrder[jo.destination.table]][jo.destination.column]) {
+                  this.schemaPositions = [this.schemaPositions[1], this.schemaPositions[0]];
                }
-            });
-
+               const initCoors = this.schemaPositions[inputSchemasOrder[jo.origin.table]][jo.origin.column];
+               const endCoors = this.schemaPositions[inputSchemasOrder[jo.destination.table]][jo.destination.column];
+               joinPaths.push({
+                  initData: {
+                     tableName: jo.origin.table,
+                     fieldName: jo.origin.column
+                  },
+                  coordinates: {
+                     init: {
+                        x: 60,
+                        y: initCoors.y,
+                        height: initCoors.height
+                     },
+                     end: {
+                        x: 60,
+                        y: endCoors.y,
+                        height: endCoors.height
+                     }
+                  }
+               });
+            }
          });
       }
-
-     this.joinPaths = joinPaths;
+      this.joinPaths = joinPaths;
    }
 }

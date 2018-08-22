@@ -303,16 +303,20 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                joinClause = { leftTable, rightTable, joinTypes, joinConditions };
          } else {
             joinClause = {
-               leftTable: { tableName: usedInputs[0].split('.')[1], alias:  usedInputs[0].split('.')[0] },
-               rightTable: { tableName: usedInputs[1].split('.')[1], alias:  usedInputs[1].split('.')[0] },
+               leftTable: { tableName: this.queryBuilder.inputSchemaFields[0].name, alias:  this.queryBuilder.inputSchemaFields[0].alias },
+               rightTable: { tableName: this.queryBuilder.inputSchemaFields[1].name, alias:  this.queryBuilder.inputSchemaFields[1].alias },
                joinTypes: 'CROSS'
             };
          }
       } else {
          // FROM
-         if (this.queryBuilder.inputSchemaFields.length) {
+         if (this.queryBuilder.inputSchemaFields.length || this.queryBuilder.outputSchemaFields.length) {
             const table = this.queryBuilder.inputSchemaFields[0];
-            fromClause = { tableName: table.name, alias: table.alias };
+            const ouputTable = this.queryBuilder.outputSchemaFields[0];
+            fromClause = {
+               tableName: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].table : table.name,
+               alias: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].alias : table.alias
+            };
          }
       }
 

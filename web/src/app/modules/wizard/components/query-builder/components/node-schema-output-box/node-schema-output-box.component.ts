@@ -76,12 +76,22 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
          this.deleteSelection();
          this.editFilter = false;
          this.headerMenu = false;
+         this.schemaFields.map(field => {
+            if (field.expression === '') {
+               field.expression = 'expression';
+            }
+         });
       }
    }
 
    ngAfterViewInit(): void {
       setTimeout(() => {
          this.positionSubject.next();
+      });
+      this.schemaFields.map(field => {
+         if (field.expression === '') {
+            field.expression = 'expression';
+         }
       });
    }
    onEditFilter() {

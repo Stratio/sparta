@@ -45,7 +45,7 @@ export class DebugEffect {
          let workflow = this._wizardService.getWorkflowModel(state);
          const nodes = workflow.pipelineGraph.nodes.map(node => {
             const actualNode = workflow.pipelineGraph.nodes.filter(n => n.name === node.name)[0];
-            if (node.classPrettyName === 'QueryBuilder' && actualNode && actualNode.configuration.visualQuery && actualNode.configuration.visualQuery.joinClause  && actualNode.configuration.visualQuery.joinClause.joinConditions.length  && workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name).length === 1) {
+            if (node.classPrettyName === 'QueryBuilder' && actualNode && actualNode.configuration.visualQuery && actualNode.configuration.visualQuery.joinClause  && actualNode.configuration.visualQuery.joinClause.joinConditions  && actualNode.configuration.visualQuery.joinClause.joinConditions.length  && workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name).length === 1) {
                const fromClause = {
                   tableName: workflow.pipelineGraph.edges.filter(edge => edge.destination === node.name)[0].origin,
                   alias: 't1'
