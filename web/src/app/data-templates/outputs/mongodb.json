@@ -21,7 +21,7 @@
             "propertyType": "text",
             "default": "{{{MONGODB_HOST}}}",
             "required": true,
-             "width": 6,
+            "width": 6,
             "qa": "fragment-details-mongoDb-hostName"
           },
           {
@@ -30,7 +30,7 @@
             "propertyType": "text",
             "default": "{{{MONGODB_PORT}}}",
             "required": true,
-             "width": 5,
+            "width": 5,
             "qa": "fragment-details-mongoDb-port"
           }
         ]

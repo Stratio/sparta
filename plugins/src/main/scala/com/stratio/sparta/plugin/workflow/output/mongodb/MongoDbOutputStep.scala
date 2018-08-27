@@ -8,9 +8,9 @@ package com.stratio.sparta.plugin.workflow.output.mongodb
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.datasource.mongodb.config.MongodbConfig
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.workflow.step.OutputStep
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
@@ -18,36 +18,63 @@ import org.apache.spark.sql.types.StructType
 
 import scala.util.Try
 
+object MongoDbOutputStep {
+
+  val MongoDbSparkDatasource = "com.stratio.datasource.mongodb"
+  val DefaultDatabase = ""
+
+  def getConnectionString(properties: Map[String, JSerializable]): String = {
+
+    val hostSeq: Seq[Map[String, String]] = Try(properties.getMapFromArrayOfValues("hosts")).getOrElse(Seq.empty)
+
+    def mongoNodeMap2String: Map[String, String] => Option[String] = mongoNodeMap =>
+      for {
+        mongoHost <- mongoNodeMap.get("host").notBlank
+        mongoPort <- mongoNodeMap.get("port").notBlank
+      } yield s"$mongoHost:$mongoPort"
+
+    hostSeq.map(mongoNodeMap2String).filter(_.nonEmpty).mkString(",")
+  }
+}
+
+
 class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
-  lazy val DefaultHost = "localhost"
-  lazy val DefaultPort = "27017"
-  lazy val MongoDbSparkDatasource = "com.stratio.datasource.mongodb"
-  lazy val hosts =  getConnectionConfs("hosts", "host", "port")
-  lazy val dbName = properties.getString("dbName", "").trim
+  import MongoDbOutputStep._
+
+  val hosts: String = getConnectionString(properties)
+  val dbName: String = properties.getString("dbName", None).notBlank.getOrElse(DefaultDatabase)
+
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
-    var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
-    if (hosts.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"hosts definition is empty or not valid", name)
-      )
+    val isEmptyValidationSeq = Seq(
+      hosts -> "hosts definition is empty or not valid",
+      dbName -> "database name cannot be empty"
+    )
 
-    if (dbName.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"database name cannot be empty", name)
-      )
+    (ErrorValidations(valid = true, messages = Seq.empty) /: isEmptyValidationSeq) { case (errValidation, (value, validationMessage)) =>
 
-    validation
+      if (value.isEmpty) {
+        errValidation.copy(valid = false, messages = errValidation.messages :+ WorkflowValidationMessage(validationMessage, name))
+      } else {
+        errValidation
+      }
+    }
   }
+
+  /* DOCS
+    val Append = Value("Append")
+    val ErrorIfExists = Value("ErrorIfExists")
+    val Ignore = Value("Ignore")
+    val Overwrite = Value("Overwrite")
+    val Upsert = Value("Upsert")
+    val Delete = Value("Delete")*/
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(dbName.nonEmpty, "Database name cannot be empty")
-    
+
     val tableName = getTableNameFromOptions(options)
     val primaryKeyOption = getPrimaryKeyOptions(options)
     val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, saveMode, primaryKeyOption)
@@ -73,28 +100,13 @@ class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[Stri
     ) ++ {
       saveMode match {
         case SaveModeEnum.Upsert => getUpdateFieldsOptions(schema, primaryKey)
-        case _ => Map.empty[String, String]
+        case _ => Map.empty
       }
     }
 
   private def getUpdateFieldsOptions(schema: StructType, primaryKey: Option[String]): Map[String, String] = {
     val updateFields = primaryKey.getOrElse("")
-
     Map(MongodbConfig.UpdateFields -> updateFields)
   }
 
-  private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
-
-    if (properties(key).toString.nonEmpty && (!properties(key).toString.equals("[]"))){
-      val conObj = properties.getMapFromArrayOfValues(key)
-      conObj.map(c => {
-        val host = Try(Option(c.getString(firstJsonItem)).notBlank.map(_.toString)).getOrElse(None)
-        val port = Try(Option(c.getString(secondJsonItem)).notBlank.map(_.toString)).getOrElse(None)
-        if(host.isDefined && port.isDefined)
-          s"${host.get}:${port.get}"
-        else ""
-      }).filterNot(_.isEmpty).mkString(",")
-    }
-    else ""
-  }
 }

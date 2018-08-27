@@ -22,7 +22,7 @@ This software – including all its source code – contains proprietary informa
         <geo.version>0.6.7</geo.version>
         <xpath.version>0.1.3</xpath.version>
         <gson.version>2.8.0</gson.version>
-        <mongodb.spark.version>0.12.0</mongodb.spark.version>
+        <mongodb.spark.version>0.13.0-SNAPSHOT</mongodb.spark.version>
         <elastic.spark.version>6.1.1</elastic.spark.version>
         <cassandra.spark.version>2.0.9</cassandra.spark.version>
         <avro.spark.version>4.0.0</avro.spark.version>
@@ -149,6 +149,12 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.stratio.datasource</groupId>
             <artifactId>spark-mongodb_${scala.binary.version}</artifactId>
             <version>${mongodb.spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-actor_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.scalanlp</groupId>

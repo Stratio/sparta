@@ -3,6 +3,7 @@
 ## 2.4.0 (upcoming)
 
 * Added XML Input and Output step
+* [SPARTA-1789] Add MongoDB output
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
