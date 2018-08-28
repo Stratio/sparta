@@ -15,4 +15,4 @@ INFO "[TRUSTSTORE-CONFIG] Adding certs to java trust store"
 keytool -importkeystore -srckeystore "/etc/sds/sparta/security/truststore.jks" -destkeystore $JAVA_HOME/jre/lib/security/cacerts \
     -srcstorepass "$DEFAULT_KEYSTORE_PASS" -deststorepass "$JVMCA_PASS" -noprompt
 
-export SPARTA_TRUSTSTORE_PASSWORD=$DEFAULT_KEYSTORE_PASS
+export SPARTA_TLS_TRUSTSTORE_PASSWORD=$DEFAULT_KEYSTORE_PASS

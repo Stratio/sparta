@@ -59,8 +59,8 @@ fi
 export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"
 
-export SPARTA_TLS_JKS_NAME="/etc/sds/sparta/security/$TENANT_NAME.jks"
-export SPARTA_TRUST_JKS_NAME="/etc/sds/sparta/security/truststore.jks"
+export SPARTA_TLS_KEYSTORE_LOCATION="/etc/sds/sparta/security/$TENANT_NAME.jks"
+export SPARTA_TLS_TRUSTSTORE_LOCATION="/etc/sds/sparta/security/truststore.jks"
 export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 
 export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/$TRUSTSTORE_CA_NAME"

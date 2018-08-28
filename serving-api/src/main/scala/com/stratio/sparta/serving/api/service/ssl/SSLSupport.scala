@@ -5,10 +5,9 @@
  */
 package com.stratio.sparta.serving.api.service.ssl
 
-import java.io.FileInputStream
-import java.security.{KeyStore, SecureRandom}
-import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
+import javax.net.ssl.SSLContext
 
+import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.serving.api.helpers.SpartaHelper.log
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import spray.io._
@@ -17,22 +16,7 @@ import scala.util.{Failure, Success, Try}
 
 trait SSLSupport {
 
-  implicit def sslContext: SSLContext = {
-    val context = SSLContext.getInstance("TLS")
-    if(isHttpsEnabled) {
-      val keyStoreResource = SpartaConfig.apiConfig.get.getString("certificate-file")
-      val password = SpartaConfig.apiConfig.get.getString("certificate-password")
-
-      val keyStore = KeyStore.getInstance("jks")
-      keyStore.load(new FileInputStream(keyStoreResource), password.toCharArray)
-      val keyManagerFactory = KeyManagerFactory.getInstance("SunX509")
-      keyManagerFactory.init(keyStore, password.toCharArray)
-      val trustManagerFactory = TrustManagerFactory.getInstance("SunX509")
-      trustManagerFactory.init(keyStore)
-      context.init(keyManagerFactory.getKeyManagers, trustManagerFactory.getTrustManagers, new SecureRandom)
-    }
-    context
-  }
+  implicit def sslContext: SSLContext = SSLHelper.getSSLContext(isHttpsEnabled)
 
   implicit def sslEngineProvider: ServerSSLEngineProvider = {
     ServerSSLEngineProvider { engine =>
