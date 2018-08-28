@@ -7,7 +7,7 @@
 import { StepType, Engine } from "@models/enums";
 
 import * as avroTemplate from './outputs/avro.json';
-//import * as cassandraTemplate from './outputs/cassandra.json';
+import * as cassandraTemplate from './outputs/cassandra.json';
 import * as crossdataTemplate from './outputs/crossdata.json';
 import * as csvTemplate from './outputs/csv.json';
 import * as customTemplate from './outputs/custom.json';
@@ -29,8 +29,8 @@ import * as xmlTemplate from './outputs/xml.json';
 
 export const outputs = [
     avroTemplate,
+    cassandraTemplate,
     crossdataTemplate,
-    //cassandraTemplate,
     csvTemplate,
     customTemplate,
     customLiteTemplate,

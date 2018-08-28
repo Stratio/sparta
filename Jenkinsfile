@@ -51,6 +51,12 @@ hose {
               'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181',
                 'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']
               ]
+            ],
+            ['CASSANDRA': [
+              'image': 'stratio/cassandra-lucene-index:3.0.7.3',
+              'sleep': 20,
+              'healcheck': 9042,
+              ]
             ]
     ]
 
@@ -61,6 +67,8 @@ hose {
       |    -Dsparta.hdfs.hdfsPort=9000
       |    -Dpostgresql.host=%%POSTGRESQL
       |    -Des.host=%%ELASTIC
+      |    -Dcassandra.hosts.0=%%CASSANDRA#0
+      |    -Dcassandra.port=9042
       | """
 
     DEV = { config ->
