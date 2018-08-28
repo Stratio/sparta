@@ -33,7 +33,7 @@ object MongoDbOutputStep {
         mongoPort <- mongoNodeMap.get("port").notBlank
       } yield s"$mongoHost:$mongoPort"
 
-    hostSeq.map(mongoNodeMap2String).filter(_.nonEmpty).mkString(",")
+    hostSeq.map(mongoNodeMap2String).collect{ case Some(hostConnectionString) => hostConnectionString}.mkString(",")
   }
 }
 
@@ -47,7 +47,7 @@ class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[Stri
   val dbName: String = properties.getString("dbName", None).notBlank.getOrElse(DefaultDatabase)
 
 
-  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+  override def validate(options: Map[String, String] = Map.empty): ErrorValidations = {
 
     val isEmptyValidationSeq = Seq(
       hosts -> "hosts definition is empty or not valid",
