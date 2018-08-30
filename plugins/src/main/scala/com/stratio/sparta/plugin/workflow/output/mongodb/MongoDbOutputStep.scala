@@ -73,6 +73,10 @@ class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[Stri
 
     validateSaveMode(saveMode)
 
+    if (log.isDebugEnabled){
+      log.debug(s"MongoDB options: ${dataFrameOptions ++ getCustomProperties}")
+    }
+
     dataFrame.write
       .format(MongoDbSparkDatasource)
       .mode(getSparkSaveMode(saveMode))

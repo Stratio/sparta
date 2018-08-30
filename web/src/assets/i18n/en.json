@@ -513,6 +513,7 @@
    "_CLUSTER_NAME_": "Cluster name",
    "_ELASTICSEARCH_SAVE_PROPERTIES_": "ElasticSearch save properties",
    "_PARQUET_SAVE_PROPERTIES_": "Parquet save properties",
+   "_MONGODB_SAVE_PROPERTIES_": "MongoDB save properties",
    "_CSV_SAVE_PROPERTIES_": "CSV save properties",
    "_AVRO_SAVE_PROPERTIES_": "Avro save properties",
    "_JSON_SAVE_PROPERTIES_": "Json save properties",
