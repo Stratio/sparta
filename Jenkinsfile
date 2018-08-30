@@ -60,7 +60,7 @@ hose {
             ],
             ['MONGODB': [
               'image': 'mongo:3.2',
-              'sleep': 20,
+              'sleep': 30,
               'healthcheck': 27017
              ]
             ]
