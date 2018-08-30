@@ -64,14 +64,6 @@ class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[Stri
     }
   }
 
-  /* DOCS
-    val Append = Value("Append")
-    val ErrorIfExists = Value("ErrorIfExists")
-    val Ignore = Value("Ignore")
-    val Overwrite = Value("Overwrite")
-    val Upsert = Value("Upsert")
-    val Delete = Value("Delete")*/
-
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(dbName.nonEmpty, "Database name cannot be empty")
 
