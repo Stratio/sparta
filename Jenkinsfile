@@ -60,7 +60,7 @@ hose {
             ],
             ['MONGODB': [
               'image': 'mongo:3.2',
-              'sleep': 30,
+              'sleep': 20,
               'healthcheck': 27017
              ]
             ]
@@ -75,7 +75,7 @@ hose {
       |    -Des.host=%%ELASTIC
       |    -Dcassandra.hosts.0=%%CASSANDRA#0
       |    -Dcassandra.port=9042
-      |    -Dmongo.host=%%MONGO
+      |    -Dmongo.host=%%MONGODB
       | """
 
     DEV = { config ->
