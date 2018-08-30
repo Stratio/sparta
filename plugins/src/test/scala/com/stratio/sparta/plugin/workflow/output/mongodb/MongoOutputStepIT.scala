@@ -3,16 +3,14 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.output.cassandra
+package com.stratio.sparta.plugin.workflow.output.mongodb
 
 import com.stratio.datasource.mongodb.config.MongodbConfig
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.plugin.workflow.output.mongodb.MongoDbOutputStep
 import com.typesafe.config.ConfigException.Missing
 import com.typesafe.config.ConfigFactory
-import org.apache.spark.SparkConf
 import org.apache.spark.sql.crossdata.XDSession
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -25,7 +23,7 @@ class MongoOutputStepIT extends TemporalSparkContext with Matchers with BeforeAn
 
   val dbtestname = "testspartadb"
 
-  val mongoHost = Try(ConfigFactory.load().getString("mongo.hosts.0")) match {
+  val mongoHost = Try(ConfigFactory.load().getString("mongo.host")) match {
     case Success(configHost) =>
       log.info(s"MongoDB host from config: $configHost")
       configHost
