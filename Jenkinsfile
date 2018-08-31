@@ -55,7 +55,7 @@ hose {
             ['CASSANDRA': [
               'image': 'stratio/cassandra-lucene-index:3.0.7.3',
               'sleep': 20,
-              'healcheck': 9042
+              'healthcheck': 9042
               ]
             ],
             ['MONGODB': [
