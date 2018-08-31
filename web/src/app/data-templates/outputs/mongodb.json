@@ -21,7 +21,7 @@
             "propertyType": "text",
             "default": "{{{MONGODB_HOST}}}",
             "required": true,
-             "width": 6,
+            "width": 6,
             "qa": "fragment-details-mongoDb-hostName"
           },
           {
@@ -30,7 +30,7 @@
             "propertyType": "text",
             "default": "{{{MONGODB_PORT}}}",
             "required": true,
-             "width": 5,
+            "width": 5,
             "qa": "fragment-details-mongoDb-port"
           }
         ]
@@ -52,6 +52,32 @@
           "tooltip": "If checked, this output can be used to send error events. This feature can be configured through the errors management settings.",
           "default": false,
           "qa": "fragment-details-errorSink"
+       },
+       {
+          "propertyId": "saveOptions",
+          "propertyName": "_MONGODB_SAVE_PROPERTIES_",
+          "propertyType": "list",
+          "required": false,
+          "tooltip": "",
+          "qa": "fragment-details-mongodb-save-properties",
+          "fields": [
+             {
+                "propertyId": "saveOptionsKey",
+                "propertyName": "_SAVE_OPTIONS_KEY_",
+                "propertyType": "text",
+                "width": 4,
+                "required": false,
+                "qa": "fragment-details-mongodb-saveOptionsKey"
+             },
+             {
+                "propertyId": "saveOptionsValue",
+                "propertyName": "_SAVE_OPTIONS_VALUE_",
+                "propertyType": "text",
+                "width": 4,
+                "required": false,
+                "qa": "fragment-details-mongodb-saveOptionsValue"
+             }
+          ]
        }
     ]
   }

@@ -79,6 +79,7 @@ nexus
 
 \.spark-warehouse
 \.directory
+**.orig
 
 web/npm.tar.gz
 
