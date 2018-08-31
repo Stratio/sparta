@@ -2,8 +2,17 @@
 
 ## 2.4.0 (upcoming)
 
-* Added XML Input and Output step
-* [SPARTA-1789] Add MongoDB output
+* New transformations:
+    - [SPARTA-2171] Coalesce
+ 
+* New batch inputs:
+    - [SPARTA-2215] Cassandra
+    - [SPARTA-2123] ElasticSearch
+    - XML
+
+* New outputs:
+    - [SPARTA-2209] Cassandra
+    - [SPARTA-1789] MongoDB   
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 

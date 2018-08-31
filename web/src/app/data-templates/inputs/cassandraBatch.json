@@ -1,0 +1,85 @@
+{
+   "name": "Cassandra",
+   "icon": "Cassandra",
+   "className": "CassandraInputStep",
+   "classPrettyName": "Cassandra",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
+   "description": "Allows you to read from Cassandra",
+   "properties": [
+      {
+         "propertyId": "nodes",
+         "propertyName": "_NODES_",
+         "propertyType": "list",
+         "default": "",
+         "required": true,
+         "hidden": false,
+         "limit": 0,
+         "tooltip": "Configures the cassandra nodes",
+         "qa": "fragment-details-cassandra-nodes",
+         "fields": [
+            {
+               "propertyId": "node",
+               "propertyName": "_HOST_",
+               "propertyType": "text",
+               "default": "{{{CASSANDRA_HOST}}}",
+               "required": true,
+               "qa": "fragment-details-cassandra-node"
+            }
+         ]
+      },
+      {
+         "propertyId": "keyspace",
+         "propertyName": "_KEYSPACE_",
+         "propertyType": "text",
+         "default": "{{{CASSANDRA_KEYSPACE}}}",
+         "required": true,
+         "tooltip": "",
+         "qa": "fragment-details-cassandra-keyspace"
+      },
+      {
+         "propertyId": "cluster",
+         "propertyName": "_CLUSTER_",
+         "propertyType": "text",
+         "default": "{{{CASSANDRA_CLUSTER}}}",
+         "required": true,
+         "tooltip": "",
+         "qa": "fragment-details-cassandra-cluster"
+      },
+      {
+         "propertyId": "table",
+         "propertyName": "_TABLE_",
+         "propertyType": "text",
+         "default": "",
+         "required": true,
+         "tooltip": "",
+         "qa": "fragment-details-cassandra-cluster"
+      },
+      {
+         "propertyId": "inputOptions",
+         "propertyName": "_OPTION_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "custom-input-properties",
+         "fields": [
+            {
+               "propertyId": "inputOptionsKey",
+               "propertyName": "_OPTION_KEY_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-input-properties-key"
+            },
+            {
+               "propertyId": "inputOptionsValue",
+               "propertyName": "_OPTION_VALUE_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-input-properties-value"
+            }
+         ]
+      }
+   ]
+}

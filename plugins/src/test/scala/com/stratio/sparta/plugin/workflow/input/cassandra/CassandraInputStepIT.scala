@@ -3,24 +3,24 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.output.cassandra
+package com.stratio.sparta.plugin.workflow.input.cassandra
 
-import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.plugin.workflow.output.cassandra.CassandraOutputStep
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.SparkConf
-import org.junit.runner.RunWith
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.junit.JUnitRunner
-import org.scalatest._
 import org.apache.spark.sql.crossdata.XDSession
+import org.junit.runner.RunWith
+import org.scalatest.{BeforeAndAfterAll, _}
+import org.scalatest.junit.JUnitRunner
 
 import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnitRunner])
-class CassandraOutputStepIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+class CassandraInputStepBatchIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
 
@@ -34,33 +34,49 @@ class CassandraOutputStepIT extends TemporalSparkContext with ShouldMatchers wit
       "localhost"
   }
 
-  trait CommonValues {
+  "Cassandra" should "read a dataFrame" in {
+
     val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
 
     import xdSession.implicits._
+    import com.datastax.spark.connector.cql.CassandraConnector
 
-    val time = DateTime.now.getMillis
-    val data = sc.parallelize(Seq(Person("Marcos", 18), Person("Juan", 21), Person("Jose", 26))).toDS().toDF
-  }
-
-  trait WithEventData extends CommonValues {
-    val properties = Map("nodes" -> JsoneyString(s"""
+    val outputProperties = Map(
+      "nodes" -> JsoneyString(
+        s"""
+           |[{
+           |  "node":"$cassandraHost"
+           |}]
+      """.stripMargin),
+      "cluster" -> "spartacluster",
+      "keyspace" -> "spartakeyspace"
+    )
+    val inputProperties = Map("nodes" -> JsoneyString(
+      s"""
          |[{
          |  "node":"$cassandraHost"
          |}]
       """.stripMargin),
       "cluster" -> "spartacluster",
+      "table" -> "sparta",
       "keyspace" -> "spartakeyspace"
     )
-
-    val cassandraOutput = new CassandraOutputStep("cassandra.out", sparkSession, properties)
-  }
-
-  "Cassandra" should "save a dataFrame and read the same information" in new WithEventData {
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val cassandraOutput = new CassandraOutputStep("cassandra.out", sparkSession, outputProperties)
+    val cassandraInput = new CassandraInputStepBatch(
+      "cassandra-out",
+      outputOptions,
+      Option(ssc),
+      sparkSession,
+      inputProperties
+    )
+    val data = sc.parallelize(
+      Seq(
+        Person("Marcos", 18), Person("Juan", 21), Person("Jose", 26)
+      )
+    ).toDS().toDF
 
     xdSession.conf.set("spark.cassandra.connection.host", cassandraOutput.connectionHosts)
-
-    import com.datastax.spark.connector.cql.CassandraConnector
 
     CassandraConnector(new SparkConf().setAll(xdSession.conf.getAll)).withSessionDo { session =>
       session.execute(
@@ -77,11 +93,7 @@ class CassandraOutputStepIT extends TemporalSparkContext with ShouldMatchers wit
 
     cassandraOutput.save(data, SaveModeEnum.Append, Map(cassandraOutput.TableNameKey -> "sparta"))
 
-    val loadData = xdSession.read.format(cassandraOutput.CassandraClass)
-      .options(Map("cluster" -> "spartacluster", "keyspace" -> "spartakeyspace", "table" -> "sparta"))
-      .load()
-
-    loadData.count() should be (3)
+    cassandraInput.initWithSchema()._1.ds.count() should be(3)
   }
 }
 

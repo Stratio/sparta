@@ -78,6 +78,12 @@ class ElasticSearchInputStepBatch(
         )
     }
 
+    if(debugOptions.isDefined && !validDebuggingOptions)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
+      )
+
     validation
   }
 

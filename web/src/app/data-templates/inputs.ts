@@ -7,6 +7,7 @@
 import { StepType, Engine } from "@models/enums";
 
 import * as avroTemplate from './inputs/avro.json';
+import * as cassandraBatchTemplate from './inputs/cassandraBatch.json';
 import * as csvTemplate from './inputs/csv.json';
 import * as elasticSearchBatchTemplate from './inputs/elasticSearchBatch.json';
 import * as jsonTemplate from './inputs/json.json';
@@ -33,6 +34,7 @@ import * as websocketTemplate from './inputs/websocket.json';
 
 export const inputs = [
     avroTemplate,
+    cassandraBatchTemplate,
     crossdataStreamingTemplate,
     crossdataBatchTemplate,
     csvTemplate,
