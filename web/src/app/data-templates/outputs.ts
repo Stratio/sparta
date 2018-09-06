@@ -14,6 +14,7 @@ import * as customTemplate from './outputs/custom.json';
 import * as customLiteTemplate from './outputs/customLite.json';
 import * as customLiteXdTemplate from './outputs/customLiteXd.json';
 import * as elasticSearchTemplate from './outputs/elastic-search.json';
+import * as genericDatasourceTemplate from './outputs/genericDatasource.json';
 import * as httpTemplate from './outputs/http.json';
 import * as jdbcTemplate from './outputs/jdbc.json';
 import * as jsonTemplate from './outputs/json.json';
@@ -36,6 +37,7 @@ export const outputs = [
     customLiteTemplate,
     customLiteXdTemplate,
     elasticSearchTemplate,
+    genericDatasourceTemplate,
     httpTemplate,
     jdbcTemplate,
     jsonTemplate,

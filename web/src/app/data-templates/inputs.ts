@@ -10,6 +10,7 @@ import * as avroTemplate from './inputs/avro.json';
 import * as cassandraBatchTemplate from './inputs/cassandraBatch.json';
 import * as csvTemplate from './inputs/csv.json';
 import * as elasticSearchBatchTemplate from './inputs/elasticSearchBatch.json';
+import * as genericDatasourceBatchTemplate from './inputs/genericDatasourceBatch.json';
 import * as jsonTemplate from './inputs/json.json';
 import * as jdbcTemplate from './inputs/jdbc.json';
 import * as parquetTemplate from './inputs/parquet.json';
@@ -42,6 +43,7 @@ export const inputs = [
     customLiteTemplate,
     customLiteXdTemplate,
     elasticSearchBatchTemplate,
+    genericDatasourceBatchTemplate,
     jdbcTemplate,
     jsonTemplate,
     kafkaTemplate,

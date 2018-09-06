@@ -1,0 +1,45 @@
+{
+   "name": "Datasource",
+   "className": "GenericDatasourceInputStepBatch",
+   "classPrettyName": "Datasource",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
+   "description": "Allows you to read from any SparkSQL datasource",
+   "properties": [
+      {
+         "propertyId": "datasource",
+         "propertyName": "_DATASOURCE_FORMAT_",
+         "propertyType": "text",
+         "default": "org.apache.spark.sql.execution.datasources.parquet",
+         "required": true,
+         "tooltip": "Configures the SparkSQL datasource. Datasources should be provided through Sparta plugins",
+         "qa": "fragment-details-datasource"
+      },
+      {
+         "propertyId": "inputOptions",
+         "propertyName": "_OPTION_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "custom-input-properties",
+         "fields": [
+            {
+               "propertyId": "inputOptionsKey",
+               "propertyName": "_OPTION_KEY_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-input-properties-key"
+            },
+            {
+               "propertyId": "inputOptionsValue",
+               "propertyName": "_OPTION_VALUE_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-input-properties-value"
+            }
+         ]
+      }
+   ]
+}

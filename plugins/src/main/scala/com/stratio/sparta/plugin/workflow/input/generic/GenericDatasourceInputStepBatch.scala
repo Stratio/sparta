@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.input.parquet
+package com.stratio.sparta.plugin.workflow.input.generic
 
 import java.io.{Serializable => JSerializable}
 
@@ -14,12 +14,16 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.plugin.helper.ErrorValidationsHelper
+import com.stratio.sparta.plugin.helper.ErrorValidationsHelper.HasError
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
-class ParquetInputStepBatch(
+
+
+class GenericDatasourceInputStepBatch(
                              name: String,
                              outputOptions: OutputOptions,
                              ssc: Option[StreamingContext],
@@ -28,31 +32,20 @@ class ParquetInputStepBatch(
                            )
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val pathKey = "path"
-  lazy val path: Option[String] = properties.getString(pathKey, None)
+  // TODO datasource alternatives should be recovered from Classpath in order to avoid user errors
+  lazy val datasource: Option[String] =
+    properties.getString("datasource", None)
 
-  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
-    var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
-    if (!SdkSchemaHelper.isCorrectTableName(name))
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"The step name $name is not valid.", name)
-      )
+  override def validate(options: Map[String, String] = Map.empty): ErrorValidations = {
 
-    if (path.isEmpty)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the input path cannot be empty", name)
-      )
+    val validationSeq = Seq[(HasError,String)](
+      !SdkSchemaHelper.isCorrectTableName(name) -> s"The step name $name is not valid",
+      (debugOptions.isDefined && !validDebuggingOptions) -> errorDebugValidation,
+      datasource.isEmpty -> "The custom class field cannot be empty"
+    )
 
-    if(debugOptions.isDefined && !validDebuggingOptions)
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
-      )
-
-    validation
+    ErrorValidationsHelper.validate(validationSeq, name)
   }
 
   //Dummy function on batch inputs that generates DataSets with schema
@@ -61,14 +54,12 @@ class ParquetInputStepBatch(
   }
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    require(path.nonEmpty, "The input path cannot be empty")
 
-    val userOptions = propertiesWithCustom.collect{
-      case (key, value) if key != pathKey => key -> value.toString
-    }
+    val source: String =
+      datasource.getOrElse(throw new RuntimeException("The input datasource format is mandatory"))
 
-    val df = xDSession.read.options(userOptions).parquet(path.get)
-
+    val userOptions = propertiesWithCustom.mapValues(_.toString)
+    val df = xDSession.read.format(source).options(userOptions).load()
     (df.rdd, Option(df.schema))
   }
 }

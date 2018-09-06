@@ -1,0 +1,63 @@
+ {
+    "name": "Datasource",
+    "className": "GenericDatasourceOutputStep",
+    "classPrettyName": "Datasource",
+    "arity": ["NullaryToNullary", "NaryToNullary"],
+    "supportedEngines": ["Streaming", "Batch"],
+    "description": "Allows you to write to any SparkSQL datasource",
+    "properties": [
+      {
+         "propertyId": "datasource",
+         "propertyName": "_DATASOURCE_FORMAT_",
+         "propertyType": "text",
+         "default": "org.apache.spark.sql.execution.datasources.parquet",
+         "required": true,
+         "tooltip": "Configures the SparkSQL datasource. Datasources should be provided through Sparta plugins",
+         "qa": "fragment-details-datasource"
+      },
+      {
+         "propertyId": "tableKeyOption",
+         "propertyName": "_DATASOURCE_TABLE_KEY_",
+         "propertyType": "text",
+         "default": "",
+         "required": true,
+         "tooltip": "SparkSQL option to define the table-like component of the specific datasource",
+         "qa": "fragment-details-datasource-tablekey"
+      },
+      {
+         "propertyId": "tablePattern",
+         "propertyName": "_DATASOURCE_TABLE_PATTERN_",
+         "propertyType": "text",
+         "default": "",
+         "required": false,
+         "tooltip": "Pattern to define the value of the option specified by 'TableKey'. It should take advantage of the placeholder '_TABLE_NAME_' that will be replaced by the proper table name. It is set to '_TABLE_NAME_' by default. An example could be mydatabase._TABLE_NAME_",
+         "qa": "fragment-details-datasource-tablepattern"
+      },
+      {
+        "propertyId": "saveOptions",
+        "propertyName": "_DATASOURCE_SAVE_PROPERTIES_",
+        "propertyType": "list",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-genericDS-save-properties",
+        "fields": [
+          {
+            "propertyId": "saveOptionsKey",
+            "propertyName": "_SAVE_OPTIONS_KEY_",
+            "propertyType": "text",
+             "width": 4,
+            "required": false,
+            "qa": "fragment-details-genericDS-saveOptionsKey"
+          },
+          {
+            "propertyId": "saveOptionsValue",
+            "propertyName": "_SAVE_OPTIONS_VALUE_",
+            "propertyType": "text",
+             "width": 4,
+            "required": false,
+            "qa": "fragment-details-genericDS-saveOptionsValue"
+          }
+        ]
+      }
+    ]
+  }

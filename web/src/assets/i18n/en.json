@@ -576,6 +576,10 @@
    "_ROOT_TAG_" : "The XML file root tag to be treated as the root",
    "_XML_MODE_": "Policy for dealing with corrupt records",
    "_XML_SAVE_PROPERTIES_": "XML save properties",
+   "_DATASOURCE_FORMAT_": "Spark SQL datasource",
+   "_DATASOURCE_SAVE_PROPERTIES_": "Datasource save properties",
+   "_DATASOURCE_TABLE_KEY_": "Table option key",
+   "_DATASOURCE_TABLE_PATTERN_": "Table option value (pattern)",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

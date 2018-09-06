@@ -8,11 +8,13 @@
 * New batch inputs:
     - [SPARTA-2215] Cassandra
     - [SPARTA-2123] ElasticSearch
+    - [SPARTA-2119] Generic Datasource 
     - XML
 
 * New outputs:
     - [SPARTA-2209] Cassandra
-    - [SPARTA-1789] MongoDB   
+    - [SPARTA-1789] MongoDB
+    - [SPARTA-2119] Generic Datasource  
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 

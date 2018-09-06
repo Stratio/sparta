@@ -17,4 +17,5 @@ object SaveModeEnum extends Enumeration {
   val Delete = Value("Delete")
 
   val allSaveModes = Seq(Append, ErrorIfExists, Ignore, Overwrite, Upsert, Delete)
+  val sparkSaveModes = Seq(Append, ErrorIfExists, Ignore, Overwrite)
 }
