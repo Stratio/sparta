@@ -48,7 +48,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
               ))
             case Failure(e) =>
               val error = s"An error was encountered while stopping workflow with Spark Handler, killing it ..."
-              log.warn(s"$error. With exception: ${e.getLocalizedMessage}")
+              log.warn(s"$error with exception: ${e.getLocalizedMessage}")
               Try(handler.kill()) match {
                 case Success(_) =>
                   val information = s"Workflow killed with Spark Handler"

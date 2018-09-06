@@ -60,6 +60,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   private val classpathUtils = WorkflowHelper.classpathUtils
   private var steps = Seq.empty[GraphStep]
   private var order = 0L
+  private val userId = Properties.envOrNone(UserNameEnv)
 
   /**
     * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
@@ -115,7 +116,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     if (execute) errorManager.clearError()
 
-    val userId = Properties.envOrNone(UserNameEnv)
     val phaseEnum = PhaseEnum.Context
     val errorMessage = s"An error was encountered while initializing Spark Session"
     val okMessage = s"Spark Session initialized successfully"
@@ -149,10 +149,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
 
     if (execute) {
-      val errorMessage = s"An error was encountered while executing sql sentences"
-      val okMessage = s"Sql sentences executed successfully"
+      val errorMessage = s"An error was encountered while executing initial sql sentences"
+      val okMessage = s"Initial Sql sentences executed successfully"
       errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
-        val initSqlSentences = workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString)
+        val initSqlSentences = workflow.settings.global.preExecutionSqlSentences.map(modelSentence => modelSentence.sentence.toString)
         executeSentences(initSqlSentences, userId)
       }
     }
@@ -192,11 +192,11 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     steps = workflow.pipelineGraph.nodes.map { node =>
       node.stepType.toLowerCase match {
-        case value if value == InputStep.StepType =>
+        case InputStep.StepType =>
           createInputStep(node)
-        case value if value == TransformStep.StepType =>
+        case TransformStep.StepType =>
           createTransformStep(node)
-        case value if value == OutputStep.StepType =>
+        case OutputStep.StepType =>
           createOutputStep(node)
         case _ =>
           throw new DriverException(s"Incorrect node step ${node.stepType}. Review the nodes in pipelineGraph")
@@ -346,6 +346,18 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           }
         }
       }
+  }
+
+  /**
+    * Execute steps once Spark execution has ended successfully. It applies only to batch workflows.
+    */
+  def postExecutionStep(): Unit = {
+    val errorMessage = s"An error was encountered while executing final sql sentences"
+    val okMessage = s"Final Sql sentences executed successfully"
+    errorManager.traceFunction(PhaseEnum.Execution, okMessage, errorMessage) {
+      val outputSqlSentences = workflow.settings.global.postExecutionSqlSentences.map(_.sentence.toString)
+      executeSentences(outputSqlSentences, userId)
+    }
   }
 
   /**

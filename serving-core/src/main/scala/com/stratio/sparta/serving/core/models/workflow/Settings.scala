@@ -20,13 +20,14 @@ case class Settings(
 
 case class GlobalSettings(
                            executionMode: WorkflowExecutionMode = WorkflowExecutionMode.marathon,
-                           userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
-                           initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
+                           userPluginsJars: Seq[UserJar] = Seq.empty,
+                           preExecutionSqlSentences: Seq[SqlSentence] = Seq.empty,
+                           postExecutionSqlSentences: Seq[SqlSentence] = Seq.empty,
                            addAllUploadedPlugins: Boolean = true,
                            mesosConstraint: Option[JsoneyString] = None,
                            mesosConstraintOperator: Option[JsoneyString] = None,
-                           parametersLists: Seq[String] = Seq.empty[String],
-                           parametersUsed: Seq[String] = Seq.empty[String],
+                           parametersLists: Seq[String] = Seq.empty,
+                           parametersUsed: Seq[String] = Seq.empty,
                            useEnvironment: Option[Boolean] = None
                          )
 

@@ -16,6 +16,8 @@
     - [SPARTA-1789] MongoDB
     - [SPARTA-2119] Generic Datasource  
 
+* Post workflow execution SQL sentences 
+
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
 * N executions by workflow

@@ -30,7 +30,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings(local, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
+    GlobalSettings(local, Seq.empty, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(

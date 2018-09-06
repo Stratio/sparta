@@ -27,7 +27,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings(local, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
+    GlobalSettings(local, Seq.empty, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
@@ -35,7 +35,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
       sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))
   )
   val wrongSettingsModel = Settings(
-    GlobalSettings(local, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2"))),
+    GlobalSettings(local, Seq.empty, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2"))),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(

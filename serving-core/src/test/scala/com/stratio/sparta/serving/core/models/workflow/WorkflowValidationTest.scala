@@ -500,7 +500,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate Mesos constraints without a colon" in {
       val pipeline = PipelineGraph(nodes,edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2")))
+        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true, Some(JsoneyString("constraint1constraint2")))
         )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
@@ -512,7 +512,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate Mesos constraints with more than a colon" in {
       val pipeline = PipelineGraph(nodes,edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2:")))
+        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true, Some(JsoneyString("constraint1:constraint2:")))
       )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
@@ -524,7 +524,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     "not validate Mesos constraints with a colon at the beginning or end of the string" in {
       val pipeline = PipelineGraph(nodes,edges)
       val wrongSettingsModel = Settings(
-        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, true ,Some(JsoneyString(":constraint1")))
+        GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true, Some(JsoneyString(":constraint1")))
       )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)

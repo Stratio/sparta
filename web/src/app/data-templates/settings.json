@@ -90,13 +90,13 @@
             "qa": "mesos-constraint-operator"
          },
         {
-          "propertyId": "initSqlSentences",
-          "propertyName": "SETTINGS._SQL_SENTENCES_",
+          "propertyId": "preExecutionSqlSentences",
+          "propertyName": "SETTINGS._INITIAL_SQL_SENTENCES_",
           "propertyType": "list",
-           "complexForm": false,
-           "width": 8,
+          "complexForm": false,
+          "width": 8,
           "tooltip": "SQL sentences that will be executed when the workflow starts. It is useful specially when the user needs to registry temporal/master tables from external datasources. Once launched, it's possible to mix them inside the triggers.",
-          "qa": "workflow-sql-sentences",
+          "qa": "workflow-input-sql-sentences",
           "fields": [{
             "propertyId": "sentence",
             "propertyName": "SETTINGS._SQL_SENTENCE_",
@@ -105,7 +105,26 @@
              "width": 8,
             "required": false,
             "tooltip": "SQL sentence",
-            "qa": "workflow-sql-sentence"
+            "qa": "workflow-input-sql-sentence"
+          }]
+        },
+        {
+          "propertyId": "postExecutionSqlSentences",
+          "propertyName": "SETTINGS._FINAL_SQL_SENTENCES_",
+          "propertyType": "list",
+          "complexForm": false,
+          "width": 8,
+          "tooltip": "SQL sentences that will be executed after the workflow ends. It only applies to batch workflows",
+          "qa": "workflow-output-sql-sentences",
+          "fields": [{
+             "propertyId": "sentence",
+             "propertyName": "SETTINGS._SQL_SENTENCE_",
+             "propertyType": "textarea",
+             "contentType": "SQL",
+             "width": 8,
+             "required": false,
+             "tooltip": "SQL sentence",
+             "qa": "workflow-output-sql-sentence"
           }]
         },
          {

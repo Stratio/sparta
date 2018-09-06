@@ -157,11 +157,11 @@ object SparkContextFactory extends SLF4JLogging {
     }
   }
 
-  def executeSentences(initSqlSentences: Seq[String], userId: Option[String] = None): Unit = {
+  def executeSentences(sqlSentences: Seq[String], userId: Option[String] = None): Unit = {
     maybeWithHdfsUgiService {
       val sessionId = getSessionIdFromUserId(userId)
       xdSession.get(sessionId).foreach { session =>
-        initSqlSentences.filter(_.nonEmpty).foreach { sentence =>
+        sqlSentences.filter(_.nonEmpty).foreach { sentence =>
           val trimSentence = sentence.trim
           session.sql(trimSentence)
         }

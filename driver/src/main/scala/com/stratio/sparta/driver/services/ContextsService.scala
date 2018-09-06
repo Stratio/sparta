@@ -72,6 +72,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
       spartaWorkflow.setup()
       notifyWorkflowStarted(workflow)
       spartaWorkflow.stages()
+      spartaWorkflow.postExecutionStep()
     } finally {
       spartaWorkflow.cleanUp()
     }
@@ -125,6 +126,7 @@ case class ContextsService(curatorFramework: CuratorFramework)
       notifyWorkflowStarted(workflow)
       spartaWorkflow.stages()
       getXDSession().foreach(session => setDispatcherSettings(workflow, session.sparkContext))
+      spartaWorkflow.postExecutionStep()
     } finally {
       spartaWorkflow.cleanUp()
     }
