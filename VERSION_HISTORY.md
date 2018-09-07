@@ -3,7 +3,7 @@
 
 #### 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
-#### 2.2.1-ca02ff1 (Built: September 07, 2018 | Pre-release)
+#### 2.2.1-ca02ff1 (Built: September 07, 2018 | Released: September 07, 2018)
 
 #### 2.2.0-8b6b349 (Built: July 26, 2018 | Released: July 26, 2018)
 
