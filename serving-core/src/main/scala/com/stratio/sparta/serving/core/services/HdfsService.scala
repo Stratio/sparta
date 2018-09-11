@@ -91,12 +91,12 @@ case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation])
         ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
           override def run(): FSDataOutputStream = {
             log.debug(s"Creating Hdfs file with security from path: $path and destination: $destPath")
-            dfs.create(new Path(s"$destPath${file.getName}"))
+            dfs.create(new Path(s"$destPath${file.getName}"), overwrite)
           }
         })
       case None =>
         log.debug(s"Creating Hdfs file without security from path: $path and destination: $destPath")
-        dfs.create(new Path(s"$destPath${file.getName}"))
+        dfs.create(new Path(s"$destPath${file.getName}"), overwrite)
     }
 
     val in = new BufferedInputStream(new FileInputStream(file))

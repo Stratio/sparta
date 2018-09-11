@@ -6,7 +6,8 @@
 
 package com.stratio.sparta.serving.core.workflow
 
-import java.io.Serializable
+import java.io.{File, Serializable}
+import java.net.URL
 
 import akka.event.Logging
 import akka.util.Timeout
@@ -35,15 +36,15 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import com.stratio.sparta.core.constants.SdkConstants._
+import com.stratio.sparta.core.utils.UserFirstURLClassLoader
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper.getConfigurationsFromObjects
 import com.stratio.sparta.serving.core.services.SparkSubmitService
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
 import scalax.collection.Graph
-import scalax.collection.GraphTraversal.{DepthFirst, Parameters, Predecessors}
+import scalax.collection.GraphTraversal.{Parameters, Predecessors}
 import scalax.collection.edge.LDiEdge
 
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
@@ -133,8 +134,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         extraConfiguration = stepsSparkConfig ++ sparkLocalConfig
       )
 
-      JarsHelper.addJarsToClassPath(files)
-      addFilesToSparkContext(files)
+      val userFirstURLClassLoader = {
+        JarsHelper.addJarsToClassPath(files)
+        val urls = JarsHelper.getLocalPathFromJars(files).map(new File(_).toURI.toURL)
+        UserFirstURLClassLoader(urls.toArray, Thread.currentThread().getContextClassLoader)
+      }
+      Thread.currentThread().setContextClassLoader(userFirstURLClassLoader)
 
       xDSession
     }

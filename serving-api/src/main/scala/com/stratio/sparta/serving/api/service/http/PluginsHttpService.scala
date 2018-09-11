@@ -140,7 +140,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
     }
   }
 
-  @Path("/{fileName}")
+  @Path("/download/{fileName}")
   @ApiOperation(value = "Downloads a file from the plugin directory.",
     httpMethod = "GET")
   @ApiImplicitParams(Array(

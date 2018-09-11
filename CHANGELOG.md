@@ -14,7 +14,11 @@
 * New outputs:
     - [SPARTA-2209] Cassandra
     - [SPARTA-1789] MongoDB
-    - [SPARTA-2119] Generic Datasource  
+    - [SPARTA-2119] Generic Datasource 
+     
+* Bug fixing:
+    - [SPARTA-2228] Load latest version of plugins at runtime 
+
 
 * Post workflow execution SQL sentences 
 

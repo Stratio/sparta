@@ -80,7 +80,7 @@ class ClasspathUtils extends SLF4JLogging {
     val clazMap: Map[String, String] = if(inputClazzMap.isEmpty) defaultStepsInClasspath else inputClazzMap ++ defaultStepsInClasspath
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
     try {
-      val clazz = Class.forName(finalClazzToInstance)
+      val clazz = Class.forName(finalClazzToInstance, true, Thread.currentThread().getContextClassLoader)
       block(clazz)
     } catch {
       case e: ClassNotFoundException =>
