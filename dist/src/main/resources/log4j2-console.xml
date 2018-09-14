@@ -10,78 +10,99 @@
                 - sed -i -e 's/\[MDC_AUDIT_KEY\]/audit/g' log4j2.xml
                 - sed -i -e 's/\[MDC_PROCESS_KEY\]/process/g' log4j2.xml
                 - sed -i -e 's/\[MDC_DATA-JSON_KEY\]/data-json/g' log4j2.xml
+
 -->
-<Configuration monitorInterval="60">
+<Configuration monitorInterval="30">
+    <Properties>
+        <Property name="formattedJsonPatternCentralizedLogging">
+            %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{0} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %c %m%n
+        </Property>
+        <Property name="unformattedJsonPatternCentralizedLogging">
+            %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{0} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %c {"@message":"Unformatted message. Provided log has been added to @data","@data": %m,"@exception":"%enc{%throwable}{JSON}"}%n
+        </Property>
+        <Property name="commonPatternCentralizedLogging">
+            %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{0} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %c {"@message":"%enc{%m}{JSON}","@data":%replace{%X{[MDC_DATA-JSON_KEY]}}{^.{0}$}{{}},"@exception":"%enc{%throwable}{JSON}"}%n
+        </Property>
+        <Property name="basePattern">
+            %level | %d{dd-MM-yyyy HH:mm:ss,SSS} | %c | %m%n
+        </Property>
+    </Properties>
+    <Scripts>
+        <Script name="messageSelectorCentralizedLogging" language="javascript"><![CDATA[
+            var result = "Common";
+            try {
+                var originalMessage = logEvent.getMessage().getFormattedMessage();
+                var stringMessage = typeof originalMessage !== "string" ? JSON.stringify(originalMessage) : originalMessage;
+                var message = JSON.parse(stringMessage);
+                if (typeof message === "object" && message !== null) {
+                    if (message.hasOwnProperty("@message")) {
+                        result = "FormattedJSON";
+                    } else {
+                        result = "UnformattedJSON";
+                    }
+                }
+            } catch (e) {
+                result = "Common";
+            }
+            result;
+            ]]>
+        </Script>
+    </Scripts>
     <Appenders>
-        <Console name="stderr" target="SYSTEM_ERR">
+        <Console name="stderrCentralizedJSONLogging" target="SYSTEM_ERR">
             <PatternLayout>
-                <Pattern>
-                    %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %C {"@message":"%m","@data":%replace{%X{[MDC_DATA-JSON_KEY]}}{^.{0}$}{{}}}%n
-                </Pattern>
+                <ScriptPatternSelector alwaysWriteExceptions="false">
+                    <ScriptRef ref="messageSelectorCentralizedLogging"/>
+                    <PatternMatch key="FormattedJSON">
+                        <Pattern>${formattedJsonPatternCentralizedLogging}</Pattern>
+                    </PatternMatch>
+                    <PatternMatch key="UnformattedJSON">
+                        <Pattern>${unformattedJsonPatternCentralizedLogging}</Pattern>
+                    </PatternMatch>
+                    <PatternMatch key="Common">
+                        <Pattern>${commonPatternCentralizedLogging}</Pattern>
+                    </PatternMatch>
+                </ScriptPatternSelector>
             </PatternLayout>
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
-        <Console name="stdout" target="SYSTEM_OUT">
-            <PatternLayout>
-                <Pattern>
-                    %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %C {"@message":"%m","@data":%replace{%X{[MDC_DATA-JSON_KEY]}}{^.{0}$}{{}}}%n
-                </Pattern>
+        <Console name="stdoutCentralizedJSONLogging" target="SYSTEM_OUT">
+            <PatternLayout alwaysWriteExceptions="false">
+                <ScriptPatternSelector>
+                    <ScriptRef ref="messageSelectorCentralizedLogging"/>
+                    <PatternMatch key="FormattedJSON">
+                        <Pattern>${formattedJsonPatternCentralizedLogging}</Pattern>
+                    </PatternMatch>
+                    <PatternMatch key="UnformattedJSON">
+                        <Pattern>${unformattedJsonPatternCentralizedLogging}</Pattern>
+                    </PatternMatch>
+                    <PatternMatch key="Common">
+                        <Pattern>${commonPatternCentralizedLogging}</Pattern>
+                    </PatternMatch>
+                </ScriptPatternSelector>
             </PatternLayout>
             <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
+        <Async name="stdoutAsync">
+            <AppenderRef ref="stdoutCentralizedJSONLogging"/>
+        </Async>
     </Appenders>
     <Loggers>
         <Root level="${env:SERVICE_LOG_LEVEL:-ERROR}">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
+            <AppenderRef ref="stdoutAsync"/>
+            <AppenderRef ref="stderrCentralizedJSONLogging"/>
         </Root>
-        <Logger name="com.stratio.sparta" level="${env:SPARTA_LOG_LEVEL:-INFO}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.spark.launcher.SpartaOutputRedirector" level="${env:SPARTA_REDIRECTOR_LOG_LEVEL:-INFO}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="com.stratio.crossdata" level="${env:CROSSDATA_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.zookeeper" level="${env:ZOOKEEPER_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.I0Itec.zkclient" level="${env:ZOOKEEPER_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.spark" level="${env:SPARK_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.spark-project" level="${env:SPARK_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.hadoop" level="${env:HADOOP_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.parquet" level="${env:PARQUET_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.avro" level="${env:AVRO_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="org.apache.http" level="${env:HTTP_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
-        <Logger name="com.typesafe.slick" level="${env:SLICK_LOG_LEVEL:-ERROR}" additivity="false">
-            <AppenderRef ref="stdout"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
+        <Logger name="com.stratio.sparta" level="${env:SPARTA_LOG_LEVEL:-INFO}"/>
+        <Logger name="org.apache.spark.launcher.SpartaOutputRedirector" level="${env:SPARTA_REDIRECTOR_LOG_LEVEL:-INFO}"/>
+        <Logger name="com.stratio.crossdata" level="${env:CROSSDATA_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.apache.zookeeper" level="${env:ZOOKEEPER_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.I0Itec.zkclient" level="${env:ZOOKEEPER_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.apache.spark" level="${env:SPARK_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.spark-project" level="${env:SPARK_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.apache.hadoop" level="${env:HADOOP_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.apache.parquet" level="${env:PARQUET_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.apache.avro" level="${env:AVRO_LOG_LEVEL:-ERROR}"/>
+        <Logger name="org.apache.http" level="${env:HTTP_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.typesafe.slick" level="${env:SLICK_LOG_LEVEL:-ERROR}"/>
     </Loggers>
 </Configuration>

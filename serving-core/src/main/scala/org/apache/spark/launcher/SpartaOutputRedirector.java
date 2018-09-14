@@ -57,7 +57,11 @@ public class SpartaOutputRedirector {
           if (validLogLevel(logLevel)) {
             classPath = line.replaceAll(pattern, "$2");
             message = line.replaceAll(pattern, "$3");
-            messageToLog.append("Class: ").append(classPath).append("\tMessage: ").append(message);
+            if(classPath.contains("org.apache.spark.internal.Logging")) {
+              messageToLog.append(message);
+            } else {
+              messageToLog.append(classPath).append("\t").append(message);
+            }
           } else {
             if (!nextLogLineLogged && !nextLogLine.isEmpty() && !nextLogLevel.isEmpty()) {
               if (!line.isEmpty())
@@ -66,7 +70,7 @@ public class SpartaOutputRedirector {
             } else {
               logLevel = "INFO";
               message = line;
-              messageToLog.append("Message: ").append(message);
+              messageToLog.append(message);
             }
           }
 
@@ -88,7 +92,11 @@ public class SpartaOutputRedirector {
             if (validLogLevel(nextLogLevel)) {
               String nextClassPath = notLogLine.replaceAll(pattern, "$2");
               String nextMessage = notLogLine.replaceAll(pattern, "$3");
-              nextLogLine = "Class: " + nextClassPath + "\tMessage: " + nextMessage;
+              if(nextClassPath.contains("org.apache.spark.internal.Logging")) {
+                nextLogLine = nextMessage;
+              } else {
+                nextLogLine = nextClassPath + "\t" + nextMessage;
+              }
               nextLogLineLogged = false;
               stop = true;
             } else {

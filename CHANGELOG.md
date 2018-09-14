@@ -19,7 +19,7 @@
 * Bug fixing:
     - [SPARTA-2228] Load latest version of plugins at runtime 
 
-
+* [SPARTA-2153] Fix Crossdata logs, update formats and integrate Async appender
 * Post workflow execution SQL sentences 
 * [SPARTA-2252] Data Governance catalog in Crossdata
 * [SPARTA-2247] Upgrade Crossdata to 2.14.0
