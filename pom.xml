@@ -108,7 +108,7 @@ This software – including all its source code – contains proprietary informa
         <gosec.dyplon.version>0.15.0-99ffc72</gosec.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.13.0-9505450</crossdata.version>
+        <crossdata.version>2.14.0-M1</crossdata.version>
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
@@ -613,18 +613,6 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>org.json4s</groupId>
                         <artifactId>json4s-ext</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.scalikejdbc</groupId>
-                        <artifactId>scalikejdbc_${scala.binary.version}</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-text</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.hazelcast</groupId>
-                        <artifactId>hazelcast</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
