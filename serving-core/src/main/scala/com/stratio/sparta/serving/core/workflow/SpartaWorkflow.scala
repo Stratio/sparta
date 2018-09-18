@@ -245,26 +245,57 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     val nodesModel = workflow.pipelineGraph.nodes
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
+
+    implicit val nodeGraphOrdering = new Ordering[NodeGraph] {
+      override def compare(x: NodeGraph, y: NodeGraph): Int = {
+        if(x.priority != y.priority)
+          y.priority.compare(x.priority)
+        else x.name.compare(y.name)
+      }
+    }
+    implicit val outputStepOrdering = new Ordering[OutputStep[Underlying]] {
+      override def compare(x: OutputStep[Underlying], y: OutputStep[Underlying]): Int = {
+        if(x.priority != y.priority)
+          y.priority.compare(x.priority)
+        else x.name.compare(y.name)
+      }
+    }
+    implicit val nodeGraphTypedOrdering = new Ordering[graph.NodeT] {
+      override def compare(x: graph.NodeT, y: graph.NodeT): Int = {
+        if(x.priority != y.priority)
+          y.priority.compare(x.priority)
+        else x.name.compare(y.name)
+      }
+    }
+    //-1 indicates that the nodeY has more priority than the nodeX, and 1 indicates that nodeX has more priority
     val nodeOrdering = graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
       case (x, y) if x == InputStep.StepType && y != InputStep.StepType => 1
       case (x, y) if x != InputStep.StepType && y == InputStep.StepType => -1
-      case (x, y) if x == InputStep.StepType && y == InputStep.StepType => nodeX.name.compare(nodeY.name) * -1
+      case (x, y) if x == InputStep.StepType && y == InputStep.StepType => nodeGraphTypedOrdering.compare(nodeY, nodeX)
       case (x, y) if x == TransformStep.StepType && y == TransformStep.StepType =>
-        val xAllInputs = graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
-        val yAllInputs = graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
-        if (xAllInputs && !yAllInputs) 1
-        else if (!xAllInputs && yAllInputs) -1
-        else nodeX.name.compare(nodeY.name) * -1
+        if (nodeX.priority != nodeY.priority)
+          nodeX.priority.compare(nodeY.priority)
+        else {
+          val xAllInputs = graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
+          val yAllInputs = graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
+          if (xAllInputs && !yAllInputs) 1
+          else if (!xAllInputs && yAllInputs) -1
+          else nodeY.name.compare(nodeX.name)
+        }
       case _ => 0
     })
+
     val parameters = Parameters(direction = Predecessors)
     val transformations = scala.collection.mutable.HashMap.empty[String, TransformStepData[Underlying]]
     val inputs = scala.collection.mutable.HashMap.empty[String, InputStepData[Underlying]]
-    val errorOutputs: Seq[OutputStep[Underlying]] = nodesModel.filter { node =>
-      val isSinkOutput = Try(node.configuration(WorkflowHelper.OutputStepErrorProperty).toString.toBoolean)
-        .getOrElse(false)
-      node.stepType.toLowerCase == OutputStep.StepType && isSinkOutput
-    }.map(errorOutputNode => createOutputStep(errorOutputNode)).sortBy(step => step.name)
+    val errorOutputs: Seq[OutputStep[Underlying]] = nodesModel
+      .filter { node =>
+        val isSinkOutput = Try(node.configuration(WorkflowHelper.OutputStepErrorProperty).toString.toBoolean)
+          .getOrElse(false)
+        node.stepType.toLowerCase == OutputStep.StepType && isSinkOutput
+      }
+      .map(errorOutputNode => createOutputStep(errorOutputNode))
+      .sorted
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
@@ -290,21 +321,19 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       } else nodesList
     }
 
-    nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType)
-      .sortBy(node => node.name)
-      .foreach { outputNode =>
+    nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType).sorted.foreach { outputNode =>
         val newOutput = createOutputStep(outputNode)
         val outNodeGraph = graph.get(outputNode)
         val outputPredecessors = outNodeGraph.diPredecessors.toList
 
-        outputPredecessors.sortBy(node => node.name).foreach { predecessor =>
-          val nodesToReOrder = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
-          log.debug(s"List of steps to order: ${nodesToReOrder.map(_.name).mkString(",")}")
-          val nodesOrdered = reOrderNodes(nodesToReOrder, 0)
-          log.debug(s"List of steps ordered: ${nodesOrdered.map(_.name).mkString(",")}")
+        outputPredecessors.sorted.foreach { predecessor =>
+            val nodesToReOrder = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
+            log.debug(s"List of steps to order: ${nodesToReOrder.map(_.name).mkString(",")}")
+            val nodesOrdered = reOrderNodes(nodesToReOrder, 0)
+            log.debug(s"List of steps ordered: ${nodesOrdered.map(_.name).mkString(",")}")
 
-          nodesOrdered.foreach(node => createStep(node))
-        }
+            nodesOrdered.foreach(node => createStep(node))
+          }
 
         val outputPredecessorsOrdered = outputPredecessors.sortBy { node =>
           node.stepType.toLowerCase match {

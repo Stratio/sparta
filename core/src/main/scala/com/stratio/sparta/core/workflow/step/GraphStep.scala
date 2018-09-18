@@ -42,6 +42,9 @@ trait GraphStep extends CustomProperties {
     "mapstringinteger" -> MapType(StringType, IntegerType),
     "mapstringstring" -> MapType(StringType, StringType)
   )
+  lazy val priority: Int = Try {
+    propertiesWithCustom.asInstanceOf[Map[String, String]].getOrElse("priority", "0").toInt
+  }.getOrElse(0)
 
   /* METHODS TO IMPLEMENT */
 
@@ -59,7 +62,7 @@ trait GraphStep extends CustomProperties {
     Try(DataType.fromJson(raw)).getOrElse(LegacyTypeStringParser.parse(raw))
 
 
-  def lineageProperties(): Map[String, String] = properties.asInstanceOf[Map[String,String]]
+  def lineageProperties(): Map[String, String] = properties.asInstanceOf[Map[String, String]]
 
 }
 

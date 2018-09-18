@@ -11,6 +11,8 @@ import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 
+import scala.util.Try
+
 case class NodeGraph(
                       name: String,
                       stepType: String,
@@ -25,8 +27,12 @@ case class NodeGraph(
                       supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
                       executionEngine: Option[ExecutionEngine] = Option(Streaming),
                       supportedDataRelations: Option[Seq[DataType]] = None,
-                      lineageProperties : Seq[NodeLineageProperty] = Seq.empty[NodeLineageProperty]
-                    )
+                      lineageProperties: Seq[NodeLineageProperty] = Seq.empty[NodeLineageProperty]
+                    ) {
+
+  def priority: Int = Try(configuration.mapValues(_.toString).getOrElse("priority", "0").toInt).getOrElse(0)
+
+}
 
 /**
   * Wrapper class used by the api consumers
