@@ -6,14 +6,13 @@
 package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
-import akka.testkit.{TestActor, TestProbe}
+import akka.testkit.TestActor
 import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.serving.api.actor.ExecutionActor
+import com.stratio.sparta.serving.api.actor.ExecutionActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import ExecutionActor._
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
+import com.stratio.sparta.serving.core.models.workflow.{DtoModelImplicits, WorkflowExecution, WorkflowExecutionDto}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -26,43 +25,46 @@ class ExecutionHttpServiceTest extends WordSpec
   with ExecutionHttpService
   with HttpServiceBaseTest {
 
-  val executionActorTestProbe = TestProbe()
-  val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val rootUser = Option(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
 
-  override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.ExecutionActorName -> executionActorTestProbe.ref
-  )
+  override implicit val actors: Map[String, ActorRef] = Map()
 
-  override val supervisor: ActorRef = executionActorTestProbe.ref
+  override val supervisor: ActorRef = testProbe.ref
 
   "ExecutionHttpService.findAll" should {
     "find all workflow executions" in {
-      val executionActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindAll(user) =>
-              sender ! Left(Success(Seq(getWorkflowExecutionModel)))
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(Left(Success(Seq(getWorkflowExecutionModel))))
       Get(s"/${HttpConstant.ExecutionsPath}") ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsg(FindAll(rootUser))
+        testProbe.expectMsg(FindAll(rootUser))
         responseAs[Seq[WorkflowExecution]] should equal(Seq(getWorkflowExecutionModel))
       }
     }
     "return a 500 if there was any error" in {
-      val executionActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindAll(user) =>
-              sender ! Left(Failure(new MockException))
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(Left(Failure(new MockException)))
       Get(s"/${HttpConstant.ExecutionsPath}") ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsg(FindAll(rootUser))
+        testProbe.expectMsg(FindAll(rootUser))
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "ExecutionHttpService.findAllDto" should {
+    "find all workflow executions dto" in {
+
+      import DtoModelImplicits._
+
+      val execution = getWorkflowExecutionModel
+      val executionDto: WorkflowExecutionDto = execution
+      startAutopilot(Left(Success(Seq(executionDto))))
+      Get(s"/${HttpConstant.ExecutionsPath}/findAllDto") ~> routes(rootUser) ~> check {
+        testProbe.expectMsg(FindAllDto(rootUser))
+        responseAs[Seq[WorkflowExecutionDto]] should equal(Seq(executionDto))
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException)))
+      Get(s"/${HttpConstant.ExecutionsPath}/findAllDto") ~> routes(rootUser) ~> check {
+        testProbe.expectMsg(FindAllDto(rootUser))
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -70,32 +72,16 @@ class ExecutionHttpServiceTest extends WordSpec
 
   "ExecutionHttpService.find" should {
     "find workflow execution by id" in {
-      val executionActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindById(id, user) =>
-              sender ! Left(Success(getWorkflowExecutionModel))
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(Left(Success(getWorkflowExecutionModel)))
       Get(s"/${HttpConstant.ExecutionsPath}/id") ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsg(FindById("id", rootUser))
+        testProbe.expectMsg(FindById("id", rootUser))
         responseAs[WorkflowExecution] should equal(getWorkflowExecutionModel)
       }
     }
     "return a 500 if there was any error" in {
-      val executionActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FindById(id, user) =>
-              sender ! Left(Failure(new MockException))
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(Left(Failure(new MockException)))
       Get(s"/${HttpConstant.ExecutionsPath}/id") ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsg(FindById("id", rootUser))
+        testProbe.expectMsg(FindById("id", rootUser))
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -103,32 +89,16 @@ class ExecutionHttpServiceTest extends WordSpec
 
   "ExecutionHttpService.update" should {
     "update a workflow execution  when the id exists" in {
-      val executionActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case Update(workflowExecution, user) =>
-              sender ! Left(Try(workflowExecution))
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(Left(Try(getWorkflowExecutionModel)))
       Put(s"/${HttpConstant.ExecutionsPath}", getWorkflowExecutionModel) ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsgType[Update]
+        testProbe.expectMsgType[Update]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
-      val executionActorAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case Update(workflowExecution, user) =>
-              sender ! Left(Try(throw new Exception))
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(Left(Try(throw new Exception)))
       Put(s"/${HttpConstant.ExecutionsPath}", getWorkflowExecutionModel) ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsgType[Update]
+        testProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -144,9 +114,9 @@ class ExecutionHttpServiceTest extends WordSpec
               TestActor.NoAutoPilot
           }
       })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(None, testProbe, executionActorAutoPilot)
       Post(s"/${HttpConstant.ExecutionsPath}", getWorkflowExecutionModel) ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsgType[CreateExecution]
+        testProbe.expectMsgType[CreateExecution]
         responseAs[WorkflowExecution] should equal(getWorkflowExecutionModel)
       }
     }
@@ -159,9 +129,9 @@ class ExecutionHttpServiceTest extends WordSpec
               TestActor.NoAutoPilot
           }
       })
-      startAutopilot(None, executionActorTestProbe, executionActorAutoPilot)
+      startAutopilot(None, testProbe, executionActorAutoPilot)
       Post(s"/${HttpConstant.ExecutionsPath}", getWorkflowExecutionModel) ~> routes(rootUser) ~> check {
-        executionActorTestProbe.expectMsgType[CreateExecution]
+        testProbe.expectMsgType[CreateExecution]
         status should be(StatusCodes.InternalServerError)
       }
     }

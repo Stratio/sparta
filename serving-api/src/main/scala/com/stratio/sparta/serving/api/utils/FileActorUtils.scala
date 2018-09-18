@@ -106,8 +106,8 @@ trait FileActorUtils extends SLF4JLogging {
         if(Try(Properties.envOrElse("SECURITY_TLS_ENABLE", "false").toBoolean).getOrElse(false)) "https://"
         else "http://"
       }
-      val host = Try(InetAddress.getLocalHost.getHostName).getOrElse(SpartaConfig.apiConfig.get.getString("host"))
-      val port = SpartaConfig.apiConfig.get.getInt("port")
+      val host = Try(InetAddress.getLocalHost.getHostName).getOrElse(SpartaConfig.getApiConfig().get.getString("host"))
+      val port = SpartaConfig.getApiConfig().get.getInt("port")
 
       s"$protocol$host:$port/${HttpConstant.SpartaRootPath}/$apiPath"
     }

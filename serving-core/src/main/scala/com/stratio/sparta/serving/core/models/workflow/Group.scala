@@ -13,6 +13,7 @@ object Group {
     group.name.matches(regexGroups)
   }
 }
+
 case class Group(id: Option[String], name: String) extends EntityAuthorization {
 
   def authorizationId: String = name

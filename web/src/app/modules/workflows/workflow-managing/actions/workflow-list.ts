@@ -26,7 +26,6 @@ export const REMOVE_WORKFLOW_SELECTION = '[Workflow-Managing] Remove workflow se
 export const DELETE_WORKFLOW = '[Workflow-Managing] Delete workflow';
 export const DELETE_WORKFLOW_COMPLETE = '[Workflow-Managing] Delete workflow complete';
 export const DELETE_WORKFLOW_ERROR = '[Workflow-Managing] Delete workflow error';
-export const DELETE_GROUP_COMPLETE = '[Workflow-Managing] Delete group complete';
 export const DELETE_VERSION = '[Workflow-Managing] Delete version';
 export const DELETE_VERSION_COMPLETE = '[Workflow-Managing] Delete version complete';
 export const DELETE_VERSION_ERROR = '[Workflow-Managing] Delete version error';
@@ -39,9 +38,20 @@ export const DUPLICATE_WORKFLOW_ERROR = '[Workflow-Managing] Duplicate workflow 
 export const DOWNLOAD_WORKFLOWS = '[Workflow-Managing] Download workflows';
 export const DOWNLOAD_WORKFLOWS_COMPLETE = '[Workflow-Managing] Download workflows complete';
 export const DOWNLOAD_WORKFLOWS_ERROR = '[Workflow-Managing] Download workflows error';
+
 export const RUN_WORKFLOW = '[Workflow-Managing] Run workflow';
 export const RUN_WORKFLOW_COMPLETE = '[Workflow-Managing] Run workflow complete';
 export const RUN_WORKFLOW_ERROR = '[Workflow-Managing] Run workflow error';
+
+export const CONFIG_ADVANCED_EXECUTION = '[Workflow-Managing] Config advanced execution';
+export const CONFIG_ADVANCED_EXECUTION_COMPLETE = '[Workflow-Managing] Config advanced execution complete';
+export const CONFIG_ADVANCED_EXECUTION_ERROR = '[Workflow-Managing] Config advanced execution error';
+export const CANCEL_ADVANCED_EXECUTION = '[Workflow-Managing] Cancel advanced execution';
+
+export const RUN_ADVANCED_WORKFLOW = '[Workflow-Managing] Run advanced workflow';
+export const RUN_ADVANCED_WORKFLOW_COMPLETE = '[Workflow-Managing] Run advanced workflow complete';
+export const RUN_ADVANCED_WORKFLOW_ERROR = '[Workflow-Managing] Run advanced workflow error';
+
 export const STOP_WORKFLOW = '[Workflow-Managing] Stop workflow';
 export const STOP_WORKFLOW_COMPLETE = '[Workflow-Managing] Stop workflow complete';
 export const STOP_WORKFLOW_ERROR = '[Workflow-Managing] Stop workflow error';
@@ -73,10 +83,22 @@ export const MOVE_WORKFLOW_GROUP = '[Workflow-Managing] Move workflow group';
 export const SAVE_WORKFLOW_GROUP = '[Workflow-Managing] Save workflow group';
 export const DELETE_WORKFLOW_GROUP = '[Workflow-Managing] Delete workflow group';
 export const DELETE_GROUP = '[Workflow-Managing] Delete group';
+export const DELETE_GROUP_COMPLETE = '[Workflow-Managing] Delete group complete';
+
+export const DELETE_SINGLE_GROUP = '[Workflow-Managing] Delete single group';
+export const DELETE_SINGLE_GROUP_COMPLETE = '[Workflow-Managing] Delete single group complete';
+export const DELETE_SINGLE_GROUP_ERROR = '[Workflow-Managing] Delete single group error';
 
 
+export const DELETE_SINGLE_WORKFLOW = '[Workflow-Managing] Delete single workflow';
+export const DELETE_SINGLE_WORKFLOW_COMPLETE = '[Workflow-Managing] Delete single workflow complete';
+export const DELETE_SINGLE_WORKFLOW_ERROR = '[Workflow-Managing] Delete single workflow error';
 
+export const DELETE_SINGLE_VERSION = '[Workflow-Managing] Delete single version';
+export const DELETE_SINGLE_VERSION_COMPLETE = '[Workflow-Managing] Delete single version complete';
+export const DELETE_SINGLE_VERSION_ERROR = '[Workflow-Managing] Delete single version error';
 
+export const HIDE_NOTIFICATION = '[Workflow-Managing] Hide notification';
 
 export class ListGroupWorkflowsAction implements Action {
   readonly type = LIST_GROUP_WORKFLOWS;
@@ -192,8 +214,6 @@ export class DeleteGroupCompleteAction implements Action {
 
 export class DeleteVersionAction implements Action {
   readonly type = DELETE_VERSION;
-
-  constructor() { }
 }
 
 export class DeleteVersionCompleteAction implements Action {
@@ -208,6 +228,7 @@ export class DeleteVersionErrorAction implements Action {
 
 export class GenerateNewVersionAction implements Action {
   readonly type = GENERATE_NEW_VERSION;
+  constructor(public versionId: string) { }
 }
 
 export class GenerateNewVersionCompleteAction implements Action {
@@ -259,9 +280,9 @@ export class RunWorkflowCompleteAction implements Action {
   constructor(public payload: any) { }
 }
 
-
 export class RunWorkflowErrorAction implements Action {
   readonly type = RUN_WORKFLOW_ERROR;
+  constructor(public payload: any) { }
 }
 
 export class StopWorkflowAction implements Action {
@@ -429,6 +450,68 @@ export class ResetModalAction implements Action {
   readonly type = RESET_MODAL;
 }
 
+export class DeleteSingleGroupAction implements Action {
+  readonly type = DELETE_SINGLE_GROUP;
+  constructor(public groupId: string) { }
+}
+
+export class DeleteSingleGroupCompleteAction implements Action {
+  readonly type = DELETE_SINGLE_GROUP_COMPLETE;
+  constructor(public groupId: string) { }
+}
+
+export class DeleteSingleGroupErrorAction implements Action {
+  readonly type = DELETE_SINGLE_GROUP_ERROR;
+}
+
+export class DeleteSingleWorkflowAction implements Action {
+  readonly type = DELETE_SINGLE_WORKFLOW;
+  constructor(public workflowName: string) { }
+}
+
+export class DeleteSingleWorkflowCompleteAction implements Action {
+  readonly type = DELETE_SINGLE_WORKFLOW_COMPLETE;
+}
+
+export class DeleteSingleWorkflowErrorAction implements Action {
+  readonly type = DELETE_SINGLE_WORKFLOW_ERROR;
+}
+
+export class DeleteSingleVersionAction implements Action {
+  readonly type = DELETE_SINGLE_VERSION;
+  constructor(public versionId: string) { }
+}
+
+export class DeleteSingleVersionCompleteAction implements Action {
+  readonly type = DELETE_SINGLE_VERSION_COMPLETE;
+}
+
+export class DeleteSingleVersionErrorAction implements Action {
+  readonly type = DELETE_SINGLE_VERSION_ERROR;
+}
+
+
+export class HideNotificationAction implements Action {
+  readonly type = HIDE_NOTIFICATION;
+}
+
+export class ConfigAdvancedExecutionAction implements Action {
+  readonly type = CONFIG_ADVANCED_EXECUTION;
+  constructor(public workflowId: string) { }
+}
+
+export class ConfigAdvancedExecutionCompleteAction implements Action {
+  readonly type = CONFIG_ADVANCED_EXECUTION_COMPLETE;
+  constructor(public config: any) { }
+}
+
+export class ConfigAdvancedExecutionErrorAction implements Action {
+  readonly type = CONFIG_ADVANCED_EXECUTION_ERROR;
+}
+
+export class CancelAdvancedExecutionAction implements Action {
+  readonly type = CANCEL_ADVANCED_EXECUTION;
+}
 
 export type Actions =
   ListGroupWorkflowsAction |
@@ -437,6 +520,9 @@ export type Actions =
   ListGroupsAction |
   ListGroupsCompleteAction |
   ListGroupsErrorAction |
+  ConfigAdvancedExecutionAction |
+  ConfigAdvancedExecutionCompleteAction |
+  ConfigAdvancedExecutionErrorAction |
   ChangeGroupLevelAction |
   ChangeGroupLevelCompleteAction |
   InitCreateGroupAction |
@@ -492,4 +578,16 @@ export type Actions =
   MoveWorkflowGroup |
   SaveWorkflowGroup |
   DeleteWorkflowGroup |
-  DeleteGroup;
+  DeleteGroup |
+  DeleteSingleGroupAction |
+  DeleteSingleGroupCompleteAction |
+  DeleteSingleGroupErrorAction |
+  DeleteSingleWorkflowAction |
+  DeleteSingleWorkflowCompleteAction |
+  DeleteSingleWorkflowErrorAction |
+  DeleteSingleVersionAction |
+  DeleteSingleVersionCompleteAction |
+  DeleteSingleVersionErrorAction |
+  HideNotificationAction |
+  ConfigAdvancedExecutionAction |
+  CancelAdvancedExecutionAction;

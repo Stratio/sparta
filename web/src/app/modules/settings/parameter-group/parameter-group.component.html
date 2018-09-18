@@ -1,0 +1,14 @@
+<tool-bar>
+   <div breadcrumb>
+      <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="parameter-group-breadcrumb"></st-breadcrumbs>
+   </div>
+</tool-bar>
+<section class="container">
+   <st-horizontal-tabs class="parameter-group-categories" [options]="tabsOptions" qaTag="parameter-group-categories" (changedOption)="changeTabOption($event)"></st-horizontal-tabs>
+
+   <div class="section-content" [ngSwitch]="selectedOption">
+      <global-parameters-container *ngSwitchCase="'global'"></global-parameters-container>
+      <environment-parameters-container *ngSwitchCase="'environment'"></environment-parameters-container>
+      <custom-parameters-container *ngSwitchCase="'custom'"></custom-parameters-container>
+   </div>
+</section>

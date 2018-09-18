@@ -5,9 +5,17 @@
  */
 package com.stratio.sparta.serving.core.exception
 
-case class ErrorManagerException(msg: String) extends RuntimeException(msg)
+case class ErrorManagerException(msg: String, prettyMsg: Option[String]) extends RuntimeException(msg) {
+
+  def getPrintableMsg: String = prettyMsg.getOrElse(msg)
+
+}
 
 object ErrorManagerException {
 
-  def apply(msg: String, cause: Throwable): Throwable = new ErrorManagerException(msg).initCause(cause)
+  def apply(msg: String, cause: Throwable): Throwable =
+    new ErrorManagerException(msg, None).initCause(cause)
+
+  def apply(msg: String, cause: Throwable, prettyMsg: String): Throwable =
+    new ErrorManagerException(msg, Option(prettyMsg)).initCause(cause)
 }

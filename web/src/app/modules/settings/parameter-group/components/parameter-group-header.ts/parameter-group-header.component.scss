@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.header-container {
+      text-align: right;
+}
+
+.search-input{
+    max-width: 400px;
+    vertical-align: bottom;
+    display: inline-block;
+    width: 100%;
+    padding-right: 4em;
+}
+
+.form-file{
+  display: inline-block;
+}
+
+.button {
+  margin-left: 6px;
+}

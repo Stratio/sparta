@@ -10,19 +10,15 @@ import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.serving.core.error.ZookeeperErrorImpl
+import com.stratio.sparta.serving.core.error.PostgresErrorImpl
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
-import com.stratio.sparta.serving.core.services.GroupService
+import com.stratio.sparta.serving.core.services.dao.WorkflowPostgresDao
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
-import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
 
@@ -51,6 +47,22 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
   // A Workflow name should not contain special characters and Uppercase letters (because of DCOS deployment)
   val regexName = "^[a-z0-9-]*"
 
+  def validateInvalidGroupParameters(implicit workflow: Workflow): WorkflowValidation = {
+    val groupParametersInWorkflow = WorkflowPostgresDao.getGroupsParametersUsed(workflow)
+    val invalidGroupsParameters = groupParametersInWorkflow.filter { groupParameter =>
+      !workflow.settings.global.parametersLists.contains(groupParameter._1)
+    }
+    val invalidGroups = invalidGroupsParameters.map(_._1)
+    val invalidParameters = invalidGroupsParameters.map(_._2)
+
+    if (invalidGroupsParameters.nonEmpty)
+      copy(
+        valid = false,
+        messages = messages :+ WorkflowValidationMessage(s"There are parameters with invalid " +
+          s"groups(${invalidGroups.mkString(",")}): ${invalidParameters.mkString(",")}")
+      )
+    else this
+  }
 
   def validateDeployMode(implicit workflow: Workflow): WorkflowValidation = {
     if (workflow.settings.global.executionMode == marathon &&
@@ -96,18 +108,12 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
       case None => this
     }
 
-  def validateGroupName(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
-    if (curator.isEmpty) this
+  def validateGroupName(implicit workflow: Workflow): WorkflowValidation = {
+    if (workflow.group.name.matches(regexGroups))
+      this
     else {
-      val groupService = new GroupService(curator.get)
-      val groupInZk = groupService.findByID(workflow.group.id.get).toOption
-      if (groupInZk.isDefined && workflow.group.name.equals(groupInZk.get.name)
-        && workflow.group.name.matches(regexGroups))
-        this
-      else {
-        val msg = messages :+ WorkflowValidationMessage("The workflow group does not exist or is invalid")
-        copy(valid = false, messages = msg)
-      }
+      val msg = messages :+ WorkflowValidationMessage("The workflow group is invalid")
+      copy(valid = false, messages = msg)
     }
   }
 
@@ -137,16 +143,16 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
     else this
   }
 
-  def validatePlugins(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
-    val pluginsValidations = if (workflow.executionEngine == Streaming && curator.isDefined) {
+  def validatePlugins(implicit workflow: Workflow): WorkflowValidation = {
+    val pluginsValidations = if (workflow.executionEngine == Streaming) {
       val plugins = JarsHelper.localUserPluginJars(workflow)
-      val errorManager = ZookeeperErrorImpl(workflow, curator.get)
+      val errorManager = PostgresErrorImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
-    } else if (workflow.executionEngine == Batch && curator.isDefined) {
+    } else if (workflow.executionEngine == Batch) {
       val plugins = JarsHelper.localUserPluginJars(workflow)
-      val errorManager = ZookeeperErrorImpl(workflow, curator.get)
+      val errorManager = PostgresErrorImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()

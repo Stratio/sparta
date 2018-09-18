@@ -24,6 +24,17 @@
    &.catalog {
      border-radius: 4px 4px 0px 0px;
    }
+
+}
+.param-value .st-input{
+  padding-left: 40px;
+}
+
+.icon-selected-param {
+  position: absolute;
+  color: #999;
+  top: 13px;
+  left: 14px;
 }
 
 .st-input__container {
@@ -31,135 +42,28 @@
 }
 
 
-
-.var-mode {
-    line-height: 13px!important;
-
-    .st-input{
-      padding-left: 42px;
-      padding-right: 45px;
-    }
-    &__label {
-        color: $action-secondary-04;
-        font-size: 10px;
-        display: block;
-        position: absolute;
-        font-family: $egeo-nunito-sans-extraBold;
-        top: 15px;
-        left: 17px;
-    }
-
-    .height-size {
-      min-height: 200px;
-    }
-    &__list {
-
-        list-style: none;
-        border: 1px solid $input-field-onfocus;
-        border-top: 0;
-        position: absolute;
-        width: 100%;
-        background: white;
-        top: 40px;
-        z-index: 100;
-        overflow-x: hidden;
-        overflow-y: auto;
-        max-height: 200px;
-        left: 0;
-        border-radius: 0px 0px 4px 4px;
-        .empty-vars {
-           padding: 20px 0px 0px 40px;
-           span {
-            font-family: $egeo-nunito-sans;
-            font-size: 13px;
-            color: $neutral-09;
-           }
-           .not-found{
-              color:  #4a90e2;
-              cursor: pointer;
-           }
-        }
-        .navigation {
-            padding: 8px 0px 7px 17px;
-            font-size: 13px;
-            border-bottom: 1px solid $action-secondary-03;
-            color: $neutral-09;
-            span {
-               margin-right: 5px;
-            }
-            .icon {
-               display: inline-block;
-                font-size: 10px;
-                transform: rotate(-90deg);
-                -moz-transition: all 0.2s linear;
-               -webkit-transition: all 0.2s linear;
-               transition: all 0.2s linear;
-             }
-             .right-icon {
-                transform: rotate(0deg);
-             }
-         }
-        li {
-          position: relative;
-          padding: 8px 0px 8px 45px;
-          cursor: pointer;
-          line-height: 24px;
-
-          &:hover {
-            background-color: #f4f4f4;
-          }
-
-        }
-        li.hover {
-         background-color: #b3d4fc;
-        }
-        .filterSelect {
-            width: 50%;
-            padding: 0px 0px 0px 10px;
-            margin-bottom: 5px;
-         }
-
-        &-label {
-          color: $action-secondary-04;
-          font-size: 10px;
-          position: absolute;
-          font-family: $egeo-nunito-sans-extraBold;
-          top: 7px;
-          left: 17px;
-        }
-
-        &-key {
-          font-size: 15px;
-          color: $action-secondary-07;
-        }
-
-        &-value {
-          font-size: 13px;
-          color: $action-secondary-05;
-          line-height: 16px;
-          display: block;
-        }
-    }
-}
-
-.variable-selector {
-   width: 40px;
-   height: 38px;
-   position: absolute;
-   top: 1px;
-   cursor: pointer;
-   right: 1px;
-   border-radius: 0px 3px 3px 0;
-   background-color: $brand;
-   display: flex;
-   align-items: center;
-   justify-content: center;
+.add-parameter {
+    width: 40px;
+    height: 21px;
+    position: absolute;
+    top: 9px;
+    border-radius: 12px;
+    background-color: white;
+    cursor: pointer;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   .icon {
-    color: $neutral-00;
-     font-size: 10px;
+    color: $action-secondary-06;
+     font-size: 12px;
   }
 }
 
-.var-mode .variable-selector {
-   border-radius: 0px 3px 0px 0;
+.param-type {
+  color: $action-secondary-06;
+  font-size: 12px;
+  font-family: $egeo-nunito-sans-semiBold;
+  margin-top: 2px;
 }

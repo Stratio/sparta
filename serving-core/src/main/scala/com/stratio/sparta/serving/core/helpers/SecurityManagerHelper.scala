@@ -42,7 +42,7 @@ object SecurityManagerHelper {
     }
 
 
-  def isSecurityManagerEnabled: Boolean = Try(getSecurityConfig.get.getBoolean("manager.enabled")) match {
+  def isSecurityManagerEnabled: Boolean = Try(getSecurityConfig().get.getBoolean("manager.enabled")) match {
     case Success(value) =>
       value
     case Failure(e) =>
@@ -51,15 +51,13 @@ object SecurityManagerHelper {
   }
 
   def isCrossdataSecurityManagerEnabled: Boolean =
-    Try(crossdataConfig.get.getBoolean("security.enable-manager")) match {
+    Try(getCrossdataConfig().get.getBoolean("security.enable-manager")) match {
       case Success(value) =>
         value
       case Failure(e) =>
         log.error("Incorrect value in crossdata security manager option, setting enabled value by default", e)
         true
     }
-
-  def getSecurityConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigSecurity, config))
 
   def errorResponseAuthorization(userId: String, resource: String): UnauthorizedResponse = {
     val msg = s"Unauthorized action on resource: $resource. User $userId doesn't have enough permissions."

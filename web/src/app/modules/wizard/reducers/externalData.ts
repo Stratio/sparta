@@ -7,20 +7,27 @@
 import * as externalDataActions from './../actions/externalData';
 
 export interface State {
+  globalVariables: Array<any>;
   environmentVariables: Array<any>;
+  customGroups: any;
 };
 
 const initialState: State = {
+  globalVariables: [],
   environmentVariables: [],
+  customGroups: []
 };
 
 export function reducer(state: State = initialState, action: any): State {
   switch (action.type) {
 
-    case externalDataActions.GET_ENVIRONMENT_LIST_COMPLETE: {
+    case externalDataActions.GET_PARAMS_LIST_COMPLETE: {
+      const groups = action.payload[0];
       return {
         ...state,
-        environmentVariables: action.payload
+        globalVariables: action.payload[1].variables,
+        environmentVariables: groups.find(group => group.name === 'Environment').parameters,
+        customGroups: groups.filter(group => group.name !== 'Environment')
       };
     }
     default:

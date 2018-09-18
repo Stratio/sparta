@@ -36,7 +36,7 @@ export class WorkflowJsonModal implements OnInit {
     public model: any = {
         name: '',
         description: '',
-        json: ''
+        json: ' '
     };
 
     constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }

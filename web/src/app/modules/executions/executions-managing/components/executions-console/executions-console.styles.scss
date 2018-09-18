@@ -1,0 +1,38 @@
+@import '~@stratio/egeo/theme/constants';
+
+.console-tabs {
+    width: 150px;
+    display: inline-block;
+}
+
+.exceptions {
+  font-family: monospace;
+  font-size: 12px;
+
+  .message {
+    color: $status-critical-default;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+  .exception {
+    margin-top: 5px;
+  }
+}
+
+.no-data {
+  color: $action-secondary-04;
+}
+
+.buttons {
+   position: absolute;
+   right: 15px;
+   top: 13px;
+   z-index: 1;
+   .close-console {
+      float: right;
+      cursor: pointer;
+   }
+}

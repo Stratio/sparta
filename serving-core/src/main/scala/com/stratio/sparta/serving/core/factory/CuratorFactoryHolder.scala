@@ -9,7 +9,6 @@ package com.stratio.sparta.serving.core.factory
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
 import org.apache.curator.retry.ExponentialBackoffRetry
@@ -23,7 +22,6 @@ import scala.util.{Failure, Success, Try}
 object CuratorFactoryHolder extends SLF4JLogging {
 
   private var curatorFramework: Option[CuratorFramework] = None
-  final val ZKConfigPrefix = AppConstant.ConfigZookeeper
 
   def setInstance(curatorInstance: CuratorFramework) : Unit = {
     resetInstance()
@@ -34,7 +32,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
     * Gets a new instance of a CuratorFramework if it was not created before.
     * @return a singleton instance of CuratorFramework.
     */
-  def getInstance(config: Option[Config] = SpartaConfig.getZookeeperConfig): CuratorFramework = {
+  def getInstance(config: Option[Config] = SpartaConfig.getZookeeperConfig()): CuratorFramework = {
     curatorFramework match {
       case None =>
         val defaultConnectionString = getStringConfigValue(config, ZKConnection, DefaultZKConnection)
@@ -48,17 +46,25 @@ object CuratorFactoryHolder extends SLF4JLogging {
             .connectString(defaultConnectionString)
             .connectionTimeoutMs(connectionTimeout)
             .sessionTimeoutMs(sessionTimeout)
-            .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
-            ).build())
+            .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts))
+            .build())
 
-          curatorFramework.get.start()
-          log.info(s"Curator instance created correctly for Zookeeper cluster $defaultConnectionString")
-          curatorFramework.get
+          curatorFramework.foreach(_.start())
+          log.info(s"Curator connection created correctly for Zookeeper cluster $defaultConnectionString")
+          curatorFramework.getOrElse(throw new Exception("Curator connection not created"))
         } match {
           case Success(curatorFk) => curatorFk
           case Failure(e) => log.error("Unable to establish a connection with the specified Zookeeper", e); throw e
         }
-      case Some(curatorFk) => curatorFk
+      case Some(curatorFk) =>
+        Try(curatorFk.getZookeeperClient.getZooKeeper.getState.isConnected) match {
+          case Success(_) =>
+            curatorFk
+          case Failure(e) =>
+            log.error("Curator connection disconnected. Reconnecting it!", e)
+            resetInstance()
+            getInstance()
+        }
     }
   }
 
@@ -72,9 +78,9 @@ object CuratorFactoryHolder extends SLF4JLogging {
     }
   }
 
-  def existsPath(path: String): Boolean = curatorFramework match {
-    case Some(curator) => Option(curator.checkExists().forPath(path)).isDefined
-    case None => false
+  def existsPath(path: String): Boolean = Try(getInstance()) match {
+    case Success(curator) => Try(Option(curator.checkExists().forPath(path))).toOption.flatten.isDefined
+    case Failure(e) => throw e
   }
 
   protected def getPathValue[U](configKey: String, config: Config, typeToReturn: Class[U]): U =

@@ -10,42 +10,42 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
-import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.{ForgetExecutionStatusActions, OnExecutionStatusChangeDo}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import org.apache.curator.framework.CuratorFramework
+import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
 import org.apache.spark.launcher.SparkAppHandle
 
 import scala.util.{Failure, Success, Try}
 
-class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: ActorRef) extends SpartaSerializer
-  with SLF4JLogging {
+class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSerializer with SLF4JLogging {
 
-  private val workflowService = new WorkflowService(curatorFramework)
-  private val statusService = new WorkflowStatusService(curatorFramework)
-  private val executionService = new ExecutionService(curatorFramework)
+  private val executionService = new WorkflowExecutionPostgresDao
 
   //scalastyle:off
-  def addSparkClientListener(workflowId: String, handler: SparkAppHandle): Unit = {
-    val workflow = workflowService.findById(workflowId)
-    log.info(s"Spark Client listener added to ${workflow.name} with id: $workflowId")
-    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatusStream =>
-      if (workflowStatusStream.workflowStatus.status == Stopping || workflowStatusStream.workflowStatus.status == Failed) {
+  def addSparkClientListener(executionId: String, handler: SparkAppHandle): Unit = {
+    log.info(s"Spark Client listener added to execution id: $executionId")
+    executionStatusListenerActor ! OnExecutionStatusChangeDo(executionId) { executionStatusChange =>
+
+      val state = executionStatusChange.newExecution.lastStatus.state
+
+      if (state == Stopping || state == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
           Try {
-            log.info("Stopping submission workflow with handler")
+            log.info("Stopping execution with handler")
             handler.stop()
           } match {
             case Success(_) =>
               val information = s"Workflow correctly stopped with Spark Handler"
               log.info(information)
-              statusService.update(WorkflowStatus(
-                id = workflowId,
-                status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
-                statusInfo = Some(information)
-              ))
+              executionService.updateStatus(ExecutionStatusUpdate(
+                executionId,
+                ExecutionStatus(
+                  state = if (state == Stopping) Stopped else Failed,
+                  statusInfo = Option(information)
+                )))
             case Failure(e) =>
               val error = s"An error was encountered while stopping workflow with Spark Handler, killing it ..."
               log.warn(s"$error with exception: ${e.getLocalizedMessage}")
@@ -53,11 +53,12 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                 case Success(_) =>
                   val information = s"Workflow killed with Spark Handler"
                   log.info(information)
-                  statusService.update(WorkflowStatus(
-                    id = workflowId,
-                    status = if (workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
-                    statusInfo = Some(information)
-                  ))
+                  executionService.updateStatus(ExecutionStatusUpdate(
+                    executionId,
+                    ExecutionStatus(
+                      state = if (state == Stopping) Stopped else Failed,
+                      statusInfo = Option(information)
+                    )))
                 case Failure(exception) =>
                   val error = s"Problems encountered while killing workflow with Spark Handler"
                   log.warn(error)
@@ -67,16 +68,17 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                     exception.toString,
                     ExceptionHelper.toPrintableException(exception)
                   )
-                  executionService.setLastError(workflowId, wError)
-                  statusService.update(WorkflowStatus(
-                    id = workflowId,
-                    status = Failed,
-                    statusInfo = Some(error)
-                  ))
+                  executionService.setLastError(executionId, wError)
+                  executionService.updateStatus(ExecutionStatusUpdate(
+                    executionId,
+                    ExecutionStatus(
+                      state = Failed,
+                      statusInfo = Option(error)
+                    )))
               }
           }
         } finally {
-          statusListenerActor ! ForgetWorkflowStatusActions(workflowId)
+          executionStatusListenerActor ! ForgetExecutionStatusActions(executionId)
         }
       }
     }

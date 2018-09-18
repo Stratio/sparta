@@ -19,7 +19,7 @@ object SdkConstants {
   val DefaultZKRetryAttemps = 5
   val ZKRetryInterval = "retryInterval"
   val DefaultZKRetryInterval = 10000
-  val StepErrorDataKey = "errorPath"
-  val StepDataKey = "dataPath"
+
   val WorkflowIdKey = "workflowId"
+
 }

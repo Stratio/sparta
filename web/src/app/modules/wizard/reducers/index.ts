@@ -228,3 +228,11 @@ export const isShowedCrossdataCatalog = createSelector(getWizardState, state => 
 export const isWorkflowDebugging = createSelector(getDebugState, state => state.isDebugging);
 export const getDebugConsoleSelectedTab = createSelector(getDebugState, state => state.debugConsoleSelectedTab);
 export const getEnvironmentList = createSelector(getExternalDataState, state => state.environmentVariables);
+export const getCustomGroups = createSelector(getExternalDataState, state => state.customGroups);
+export const isShowingDebugConfig = createSelector(getDebugState, state => state.showDebugConfig);
+export const getParameters = createSelector(getExternalDataState, state => ({
+  globalVariables: state.globalVariables,
+  environmentVariables: state.environmentVariables,
+  customGroups: state.customGroups
+}));
+

@@ -67,13 +67,7 @@
 
       &:hover {
          background: white!important;
-         .icon-container {
-            animation: jump 0.5s linear;
-         }
 
-         .icon{
-            animation: spinner 0.5s linear;
-         }
       }
 
       .title {
@@ -118,26 +112,4 @@
     .workflow-starter {
         top: 95px;
     }
-}
-
-@keyframes spinner {
-   from {
-      transform: rotateY(0deg);
-    }
-    to {
-
-      transform: rotateY(-360deg);
-    }
-}
-
-@keyframes jump {
-  0%{
-    transform: translateY(0);
-  }
-  50%{
-    transform: translateY(-12px);
-  }
-  100%{
-    transform: translateY(0);
- }
 }

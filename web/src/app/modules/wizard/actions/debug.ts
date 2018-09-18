@@ -26,6 +26,9 @@ export const DOWNLOAD_DEBUG_FILE_COMPLETE = '[Wizard] Download debug file comple
 export const DOWNLOAD_DEBUG_FILE_ERROR = '[Wizard] Download debug file error';
 export const SHOW_ENTITY_DEBUG_SCHEMA = '[Wizard] Show entity debug schema';
 
+export const SHOW_DEBUG_CONFIG = '[Wizard] Show debug config';
+export const HIDE_DEBUG_CONFIG = '[Wizard] Hide debug config';
+
 export class InitDebugWorkflowAction implements Action {
     readonly type = INIT_DEBUG_WORKFLOW;
 }
@@ -116,6 +119,14 @@ export class ShowEntityDebugSchema implements Action {
      constructor(public entityName: string) {}
 }
 
+export class ShowDebugConfigAction implements Action {
+    readonly type = SHOW_DEBUG_CONFIG;
+}
+
+export class HideDebugConfigAction implements Action {
+    readonly type = HIDE_DEBUG_CONFIG;
+}
+
 export type Actions =
     InitDebugWorkflowAction |
     InitDebugWorkflowCompleteAction |
@@ -136,4 +147,6 @@ export type Actions =
     DeleteDebugFileAction |
     DeleteDebugFileCompleteAction |
     DeleteDebugFileErrorAction |
-    ShowEntityDebugSchema;
+    ShowEntityDebugSchema |
+    ShowDebugConfigAction |
+    HideDebugConfigAction;

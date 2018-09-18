@@ -6,6 +6,8 @@
 
 package com.stratio.sparta.serving.core.constants
 
+import scala.util.Properties
+
 object MarathonConstant {
 
   /* Constant variables */
@@ -46,7 +48,7 @@ object MarathonConstant {
   val VaultEnableEnv = "VAULT_ENABLE"
   val VaultHostsEnv = "VAULT_HOSTS"
   val VaultTokenEnv = "VAULT_TOKEN"
-  val WorkflowIdEnv = "SPARTA_WORKFLOW_ID"
+  val ExecutionIdEnv = "SPARTA_EXECUTION_ID"
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
   val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
   val PluginFiles = "SPARTA_PLUGIN_FILES"

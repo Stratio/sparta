@@ -1,4 +1,3 @@
-import { errorComparator } from 'rxjs-tslint/node_modules/tslint/lib/verify/lintError';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -16,7 +15,6 @@ import {
   EventEmitter
 } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
-import { Store } from '@ngrx/store';
 
 @Component({
   selector: 'workflow-console',

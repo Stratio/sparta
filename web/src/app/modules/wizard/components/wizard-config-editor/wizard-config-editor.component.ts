@@ -46,7 +46,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
    @Input() config: any;
    @Input() workflowType: string;
-   @Input() environmentList: Array<Environment> = [];
+   @Input() parameters;
    @ViewChild('entityForm') public entityForm: NgForm;
 
    public basicSettings: any = [];
@@ -95,24 +95,22 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       setTimeout(() => {
          this.fadeActive = true;
       });
-      this.formVariables = this.environmentList.map(env => Object.assign(env, {
-         valueType: 'env'
-      }));
-      if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
+      this.valueDictionary.parameters = this.parameters;
+      /*if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
          let attrs = [];
          this.config.schemas.inputs.forEach(input => attrs = attrs.concat(this._getInputSchema(input)));
          this.valueDictionary.formFieldsVariables = [...this.formVariables, ...attrs];
          this.valueDictionary.formFieldsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
-      }
+      }*/
 
-      if (this.config.inputSteps && this.config.inputSteps.length) {
+      /*if (this.config.inputSteps && this.config.inputSteps.length) {
           this.valueDictionary.inputStepsVariables = [...this.formVariables, ...this.config.inputSteps.map(step => ({
             name: step,
             value: step,
             valueType: 'step'
           }))];
           this.valueDictionary.inputStepsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
-      }
+      }*/
       this._getMenuTabs();
       this.validatedNameSubcription = this._store.select(fromWizard.getValidatedEntityName)
          .takeUntil(this._componentDestroyed)

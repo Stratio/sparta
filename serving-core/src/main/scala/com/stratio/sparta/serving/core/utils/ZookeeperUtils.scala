@@ -19,7 +19,7 @@ trait ZookeeperUtils {
   }
 
 
-  def retrieveFromConf: Option[String] = Try(SpartaConfig.getZookeeperConfig.get.getString("storagePath")) match {
+  def retrieveFromConf: Option[String] = Try(SpartaConfig.getZookeeperConfig().get.getString("storagePath")) match {
     case Success(confPath) if confPath.nonEmpty => Option(confPath)
     case Success(_) => None
     case Failure(_) => None

@@ -1,0 +1,17 @@
+<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [withContext]="true"></parameter-group-header>
+<parameters-table [inputParameters]="environmentParams" [contextList]="environmentContexts" [withContext]="true" (onAddNewContext)="addNewContext($event)"
+   (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)"></parameters-table>
+
+<st-fullscreen-layout *ngIf="showConfigContext" [title]="'Environment - Settings'">
+      <div class="st-fullscreen-layout-buttons">
+         <button class="button button-secondary-line" (click)="toggleConfigContext()">Cancel</button>
+         <button class="button button-primary" id="run-button">Save</button>
+      </div>
+      <div class="st-fullscreen-layout-content">
+         <div>Contexts</div>
+         <parameter-group-header (onCreateParam)="onAddEnvironmentContext()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()"></parameter-group-header>
+         <parameters-table [inputList]="environmentContexts" (onAddNewContext)="addNewContext($event)" [configContext]="true"
+            (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)"
+            (onSaveParamList)="saveContextList($event)"></parameters-table>
+      </div>
+   </st-fullscreen-layout>

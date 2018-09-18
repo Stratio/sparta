@@ -1,0 +1,13 @@
+<p class="info-text">Select a parameter of the lists shown below or create your custom one.</p>
+<div class="row">
+  <div class="col-sm-5">
+    <sp-select [(ngModel)]="sourceValue" (change)="loadVariables($event)" placeholder="Select a source" label="Source" [options]="sourceOptions"></sp-select>
+  </div>
+  <div class="col-sm-7">
+    <sp-select *ngIf="!setParamValue && sourceValue && sourceValue.length" placeholder="Select a parameter" [(ngModel)]="paramName" label="Parameter name" [options]="variableSelector"></sp-select>
+    <sp-input *ngIf="setParamValue" [(ngModel)]="paramValue" label="Parameter name"></sp-input>
+  </div>
+</div>
+
+<button [disabled]="!(sourceValue && sourceValue.length && ((paramName &&paramName.length) || (paramValue && paramValue.length)))" (click)="saveParameterSelection()" class="param-button button button-primary">Use this parameter</button>
+<button (click)="cancel()" class="param-button button button-secondary-line">Cancel</button>

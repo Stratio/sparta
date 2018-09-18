@@ -1,0 +1,14 @@
+<div class="header-container">
+  <st-search class="search-input" [placeholder]="listMode ? ('DASHBOARD.FILTER_LIST'  | translate) : ('DASHBOARD.FILTER_ENVIRONMENT' | translate)" [debounce]="200" [minLength]="0"
+        [value]="searchValue" (search)="onSearch.emit($event)" qaTag="filter-parameters"></st-search>
+  <form-file class="form-file" type="button-toolbar" title="Upload environment variables" icon="icon-upload" (onFileUpload)="onUploadParams.emit($event)"></form-file>
+  <button class="button button-toolbar" id="download-params" (click)="onDownloadParams.emit()">
+    <i class="icon-download"></i>
+  </button>
+  <button class="button button-toolbar" id="create-param" (click)="onCreateParam.emit()">
+    <i class="icon-plus"></i>
+  </button>
+  <button *ngIf="withContext" class="button button-toolbar" id="create-param" (click)="onConfigContext.emit()">
+      <i class="icon-cog"></i>
+    </button>
+</div>

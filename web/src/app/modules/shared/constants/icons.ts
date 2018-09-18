@@ -43,7 +43,6 @@ export const icons: any = {
     DropColumns: '\ue123',
     DropDuplicates: '\ue908',
     AddColumns: '\ue104',
-    RenameColumns: '\ue91D',
     DataProfiling: '\uE091',
     BasicDataQuality: '\uE94D',
     InitNulls: '\ue919',

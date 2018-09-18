@@ -35,7 +35,6 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
     clusterConfig = Some(CuratorFactoryHolderIT.basicConfig.get.withValue("sparta.zookeeper.connectionString",
       ConfigValueFactory.fromAnyRef(zkTestServer.getConnectString)))
 
-    SpartaConfig.initMainConfig(clusterConfig)
     //val instance = CuratorFactoryHolder.getInstance()
     Option(CuratorFactoryHolder.getInstance().checkExists().forPath("/test")) match {
       case eb: ExistsBuilder =>
@@ -53,7 +52,6 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
 
   "CuratorFactory holder" must "create correctly and to check if exists" in {
     Given(s"ZK configuration: $CuratorFactoryHolderIT.configString")
-    SpartaConfig.initMainConfig(clusterConfig)
     val instance = CuratorFactoryHolder.getInstance()
     When("creates a ephemeral node in ZK server")
     instance.create().withMode(CreateMode.EPHEMERAL).forPath(CuratorFactoryHolderIT.PathTestNode)

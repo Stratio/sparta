@@ -21,7 +21,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "default": "{{{KAFKA_BROKER_HOST}}}",
+            "default": "{{{Environment.KAFKA_BROKER_HOST}}}",
             "required": true,
             "width": 6,
             "tooltip": "Server address. Default value set to localhost",
@@ -32,7 +32,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "default": "{{{KAFKA_BROKER_PORT}}}",
+            "default": "{{{Environment.KAFKA_BROKER_PORT}}}",
             "required": true,
             "width": 5,
             "tooltip": "Server port. Default value set to 9092",
@@ -66,7 +66,7 @@
           "propertyId": "group.id",
           "propertyName": "_GROUP_ID_",
           "propertyType": "text",
-          "default": "{{{KAFKA_GROUP_ID}}}",
+          "default": "{{{Default.KAFKA_GROUP_ID}}}",
           "required": false,
           "tooltip": "Identifies the consumer group this consumer belongs to.",
           "qa": "fragment-details-stratio-kafkadirect-group-id"
@@ -98,7 +98,7 @@
           "propertyId": "outputField",
           "propertyName": "_OUTPUT_FIELD_",
           "propertyType": "text",
-          "default": "{{{DEFAULT_OUTPUT_FIELD}}}",
+          "default": "{{{Default.DEFAULT_OUTPUT_FIELD}}}",
           "required": false,
           "visible": [
              [
@@ -262,7 +262,7 @@
           "propertyId": "spark.streaming.kafka.consumer.poll.ms",
           "propertyName": "_MAX_POLL_TIMEOUT_",
           "propertyType": "text",
-          "default": "{{{KAFKA_MAX_POLL_TIMEOUT}}}",
+          "default": "{{{Default.KAFKA_MAX_POLL_TIMEOUT}}}",
           "required": true,
           "tooltip": "If the timeout is too low and the Kafka brokers need more time to answer there the user will encounter many “TASK FAILED”s messages, which causes a delay in the preparation of the assigned tasks into the executors. However, if this timeout is too high the Spark executor wastes a lot of time doing nothing and produces large delays (pollTimeout + task scheduling in the new executor).",
           "qa": "fragment-details-kafka-maxPollTimeout"
@@ -271,7 +271,7 @@
           "propertyId": "spark.streaming.kafka.maxRatePerPartition",
           "propertyName": "_MAX_RATE_PER_PARTITION_",
           "propertyType": "text",
-          "default": "{{{KAFKA_MAX_RATE_PER_PARTITION}}}",
+          "default": "{{{Default.KAFKA_MAX_RATE_PER_PARTITION}}}",
           "required": false,
           "tooltip": "Limit the rate per partition when backpressure is enabled.",
           "qa": "fragment-details-kafka-maxRatePerPartition"

@@ -9,35 +9,42 @@ import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import org.joda.time.DateTime
 
 case class WorkflowExecution(
-                              id: String,
+                              id: Option[String] = None,
+                              statuses: Seq[ExecutionStatus] = Seq(ExecutionStatus()),
+                              genericDataExecution: GenericDataExecution,
                               sparkSubmitExecution: Option[SparkSubmitExecution] = None,
                               sparkExecution: Option[SparkExecution] = None,
                               sparkDispatcherExecution: Option[SparkDispatcherExecution] = None,
                               marathonExecution: Option[MarathonExecution] = None,
-                              genericDataExecution: Option[GenericDataExecution] = None,
                               localExecution: Option[LocalExecution] = None
                             ) extends EntityAuthorization {
 
-  def authorizationId: String = genericDataExecution.map { executionInfo =>
-    executionInfo.workflow.authorizationId
-  }.getOrElse("N/A")
+  def authorizationId: String = genericDataExecution.workflow.authorizationId
 
+  def getWorkflowToExecute: Workflow = genericDataExecution.workflow
+
+  def getExecutionId: String =
+    id.getOrElse(throw new Exception("The selected execution does not have id"))
+
+  def lastStatus: ExecutionStatus = statuses.head
 }
 
 case class GenericDataExecution(
                                  workflow: Workflow,
                                  workflowRaw: Workflow,
                                  executionMode: WorkflowExecutionMode,
-                                 executionId: String,
                                  executionContext: ExecutionContext,
                                  launchDate: Option[DateTime] = None,
                                  startDate: Option[DateTime] = None,
                                  endDate: Option[DateTime] = None,
                                  userId: Option[String] = None,
-                                 lastError: Option[WorkflowError] = None
+                                 lastError: Option[WorkflowError] = None,
+                                 name: Option[String] = None,
+                                 description: Option[String] = None
                                )
 
 case class SparkSubmitExecution(
@@ -63,25 +70,35 @@ case class SparkExecution(applicationId: String)
 
 case class LocalExecution(sparkURI: Option[String] = None)
 
+
+case class ExecutionStatus(
+                            state: WorkflowStatusEnum.Value = WorkflowStatusEnum.Created,
+                            statusInfo: Option[String] = None,
+                            lastUpdateDate: Option[DateTime] = None
+                          )
+
 /**
   * Wrapper class used by the api consumers
   */
 case class WorkflowExecutionDto(
-                                 id: String,
-                                 marathonExecution: Option[MarathonExecution] = None,
-                                 genericDataExecution: Option[GenericDataExecutionDto] = None,
+                                 id: Option[String],
+                                 statuses: Seq[ExecutionStatus],
+                                 genericDataExecution: GenericDataExecutionDto,
+                                 marathonExecution: Option[MarathonExecutionDto] = None,
                                  localExecution: Option[LocalExecution] = None
                                ) extends Dto
 
+case class MarathonExecutionDto(sparkURI: Option[String] = None) extends Dto
+
 case class GenericDataExecutionDto(
                                     executionMode: WorkflowExecutionMode,
-                                    executionId: String,
                                     executionContext: ExecutionContext,
+                                    workflow: WorkflowDto,
                                     launchDate: Option[DateTime] = None,
                                     startDate: Option[DateTime] = None,
                                     endDate: Option[DateTime] = None,
-                                    userId: Option[String] = None,
-                                    lastError: Option[WorkflowError] = None
+                                    lastError: Option[WorkflowError] = None,
+                                    name: Option[String] = None,
+                                    description: Option[String] = None
                                   ) extends Dto
-
 

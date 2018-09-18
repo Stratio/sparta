@@ -1,0 +1,20 @@
+@import '~@stratio/egeo/theme/constants';
+
+.executions-list {
+   flex: 1;
+}
+
+.container {
+   background-color: $neutral-00;
+   margin-top: 10px;
+}
+
+.table-title {
+   font-size: $egeo-font-size-xxlarge;
+   padding: 10px 0px 10px 15px;
+}
+.table-container {
+    display: flex;
+    width: 100%;
+}
+

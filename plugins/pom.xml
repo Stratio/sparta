@@ -48,6 +48,11 @@ This software – including all its source code – contains proprietary informa
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
+            <artifactId>serving-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparta</groupId>
             <artifactId>core</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -251,7 +256,42 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.twitter</groupId>
             <artifactId>bijection-avro_${scala.binary.version}</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.typesafe.slick</groupId>
+            <artifactId>slick_${scala.binary.version}</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.slick</groupId>
+            <artifactId>slick-hikaricp_${scala.binary.version}</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!--Test dependencies-->
         <dependency>

@@ -18,7 +18,6 @@ import { settingsTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { InitializeSchemaService } from 'app/services/initialize-schema.service';
 import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
-import { SpInputVariable } from '@app/shared/components/sp-input/sp-input.models';
 
 
 @Component({
@@ -31,7 +30,7 @@ import { SpInputVariable } from '@app/shared/components/sp-input/sp-input.models
 export class WizardSettingsComponent implements OnInit, OnDestroy {
 
   @Input() edition: boolean;
-  @Input() environmentList: Array<any> = [];
+  @Input() parameters;
   @Input() workflowType: string;
   @ViewChild('entityForm') public entityForm: NgForm;
 
@@ -42,22 +41,17 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
   public tags: Array<string> = [];
   public fadeActive = false;
   public isShowedHelp = false;
+  public parametersLists = [];
 
   public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
   public entityFormModel: any = {};   // common config
   public settingsFormModel: any = {}; // advanced settings
   public valueDictionary: any = {};
   public helpOptions: Array<HelpOptions> = [];
-  public formVariables: Array<SpInputVariable> = [];
   private errorManagementOutputs: Array<string> = [];
   private settingsSubscription: Subscription;
 
   ngOnInit(): void {
-    this.formVariables = this.environmentList.map(env => ({
-      name: env.name,
-      value: env.value,
-      valueType: 'env'
-    }));
     setTimeout(() => {
       this.fadeActive = true;
     });
@@ -76,9 +70,10 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
     this.settingsSubscription = this.store.select(fromWizard.getWorkflowSettings).subscribe((currentSettings: any) => {
       const settings = _cloneDeep(currentSettings);
       this.tags = settings.basic.tags;
-
       this.basicFormModel = settings.basic;
       this.settingsFormModel = settings.advancedSettings;
+      this.parametersLists = this.settingsFormModel.global.parametersLists || [];
+
     });
     const settings = _cloneDeep(<any>settingsTemplate);
 
@@ -94,7 +89,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
         value: outputName
       };
     });
-
+    this.valueDictionary.parameters = this.parameters;
     this.advancedSettings = this.workflowType === 'Streaming' ? settings.advancedSettings :
       settings.advancedSettings.filter((section: any) => {
         return section.name !== 'streamingSettings';
@@ -106,6 +101,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
   saveForm() {
     if (this.entityForm.valid) {
       this.basicFormModel.tags = this.tags;
+      this.settingsFormModel.global.parametersLists = this.parametersLists;
       this.store.dispatch(new wizardActions.SaveSettingsAction({
         basic: this.basicFormModel,
         advancedSettings: this.settingsFormModel

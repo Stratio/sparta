@@ -22,7 +22,7 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
-        "default": "{{{DEFAULT_DELIMITER}}}",
+        "default": "{{{Default.DEFAULT_DELIMITER}}}",
         "trim": false,
         "required": false,
         "qa": "fragment-details-filesystem-delimiter"

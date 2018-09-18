@@ -131,7 +131,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
    private _showCreateJsonModal(): void {
       this._modalService.show({
-         modalTitle: 'Configuration from JSON',
+         modalTitle: 'Import from JSON',
          maxWidth: 980,
          outputs: {
             onCloseJsonModal: this._onCloseJsonModal.bind(this)

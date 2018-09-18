@@ -1,0 +1,9 @@
+<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" [listMode]="customList && customList.length"></parameter-group-header>
+<div class="tableContainer">
+   <div *ngIf="breadcrumbList" class="breadcrumb"><span class="link" (click)="goCustom()">All groups</span><span> / {{breadcrumbList.name}}</span></div>
+   <parameters-table [inputParameters]="customParams" [inputList]="customList" [contextList]="customContexts" [withContext]="true"
+      (onSaveParamContexts)="saveParamContexts($event)" (onNavigate)="navigateToList($event)" (onSaveParamList)="saveParamList($event)"
+      (deleteParam)="deleteCustomParam($event)" (changeContext)="onChangeContext($event)" (onAddNewContext)="addNewContext($event)">
+   </parameters-table>
+</div>
+

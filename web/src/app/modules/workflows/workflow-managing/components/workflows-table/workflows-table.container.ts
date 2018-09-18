@@ -33,7 +33,11 @@ import { Group } from '../../models/workflows';
             (onChangeOrderVersions)="changeOrderVersions($event)"
             (changeFolder)="changeFolder($event)"
             (openWorkflow)="showWorkflowVersions($event)"
+            (onDeleteVersion)="onDeleteVersion($event)"
             (selectWorkflow)="selectWorkflow($event)"
+            (onDeleteFolder)="onDeleteFolder($event)"
+            (generateVersion)="generateVersion($event)"
+            (onDeleteWorkflow)="onDeleteWorkflow($event)"
             (selectGroup)="selectGroup($event)"
             (selectVersion)="selectVersion($event)"></workflows-manage-table>
     `,
@@ -86,6 +90,22 @@ export class WorkflowsManagingTableContainer implements OnInit {
          name: workflow.name,
          group: workflow.group
       }));
+   }
+
+   onDeleteFolder(folderId: string) {
+      this._store.dispatch(new workflowActions.DeleteSingleGroupAction(folderId));
+   }
+
+   onDeleteWorkflow(workflowName: string) {
+      this._store.dispatch(new workflowActions.DeleteSingleWorkflowAction(workflowName));
+   }
+
+   onDeleteVersion(versionId: string) {
+      this._store.dispatch(new workflowActions.DeleteSingleVersionAction(versionId));
+   }
+
+   generateVersion(versionId: string): void {
+      this._store.dispatch(new workflowActions.GenerateNewVersionAction(versionId));
    }
 
    constructor(private _store: Store<State>) { }

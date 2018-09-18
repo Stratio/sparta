@@ -26,7 +26,6 @@ case class TemplateElement(
                           ) extends EntityAuthorization {
 
   def authorizationId: String = name
-
 }
 
 object TemplateType extends Enumeration {

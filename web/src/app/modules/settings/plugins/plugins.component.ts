@@ -27,7 +27,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbMenuService } from 'app/services';
 import { FormFileComponent } from '@app/shared/components/form-file/form-file.component';
-import { take } from 'rxjs/operator/take';
 
 @Component({
    selector: 'sparta-plugins',

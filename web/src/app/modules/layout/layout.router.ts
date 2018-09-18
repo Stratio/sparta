@@ -13,9 +13,13 @@ const layoutRoutes: Routes = [
         component: LayoutComponent,
         children: [
             {
-                path: '',
-                loadChildren: '@app/workflows/workflow-monitoring/workflows.module#WorkflowsMonitoringModule'
+               path: '',
+               loadChildren: '@app/executions/executions-monitoring/executions.monitoring.module#ExecutionsMonitoringModule'
             },
+            {
+               path: 'executions',
+               loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule'
+           },
             {
                 path: 'repository',
                 loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
@@ -25,7 +29,7 @@ const layoutRoutes: Routes = [
                 loadChildren: '@app/templates/templates.module#TemplatesModule'
             },
             {
-                path: 'settings',
+                path: 'sparta-settings',
                 loadChildren: '@app/settings/settings.module#SettingsModule'
             },
             {

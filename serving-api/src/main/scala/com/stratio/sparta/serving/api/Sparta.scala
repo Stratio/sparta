@@ -15,10 +15,5 @@ import com.stratio.sparta.serving.core.constants.AppConstant
  */
 object Sparta extends App with SLF4JLogging {
 
-  SpartaConfig.initMainConfig()
-  SpartaConfig.initApiConfig()
-  SpartaConfig.initSparkConfig()
-  SpartaConfig.initCrossdataConfig()
-  SpartaConfig.initSpartaPostgresConfig()
   SpartaHelper.initSpartaAPI(AppConstant.ConfigAppName)
 }

@@ -13,6 +13,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.services.SparkSubmitService.spartaTenant
 import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
@@ -35,13 +36,13 @@ object SparkContextFactory extends SLF4JLogging {
 
   /* LAZY VARIABLES */
 
-  private lazy val xDConfPath = SpartaConfig.getDetailConfig.get.getString("crossdata.reference")
+  private lazy val xDConfPath = SpartaConfig.getDetailConfig().get.getString("crossdata.reference")
   private lazy val hdfsWithUgiService = Try(HdfsService()).toOption
     .flatMap(utils => utils.ugiOption.flatMap(_ => Option(utils)))
   private lazy val jdbcDriverVariables: Seq[(String, String)] =
     SparkSubmitService.getJarsSparkConfigurations(JarsHelper.getJdbcDriverPaths, true).toSeq
   private lazy val kerberosYarnDefaultVariables: Seq[(String, String)] = {
-    val hdfsConfig = SpartaConfig.getHdfsConfig
+    val hdfsConfig = SpartaConfig.getHdfsConfig()
     (HdfsService.getPrincipalName(hdfsConfig).notBlank, HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
       case (Some(principal), Some(keyTabPath)) =>
         KerberosUser.securize(principal, keyTabPath)
@@ -61,7 +62,7 @@ object SparkContextFactory extends SLF4JLogging {
     } else Seq.empty[(String, String)]
   }
   private lazy val proxyVariables: Seq[(String, String)] = {
-    if (Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").isDefined) {
+    if (Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).isDefined) {
       val proxyPath = s"/workflows-$spartaTenant/crossdata-sparkUI"
       log.debug(s"XDSession with proxy base: $proxyPath")
       Seq(("spark.ui.proxyBase", proxyPath))

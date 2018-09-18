@@ -15,16 +15,16 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.governance.commons.agent.actors.PostgresSender
 import com.stratio.governance.commons.agent.actors.PostgresSender.PostgresEvent
 import com.stratio.governance.commons.agent.model.metadata.{Metadata, OperationCommandType}
-import com.stratio.sparta.dg.agent.commons.LineageUtils
-import com.stratio.sparta.serving.core.actor.StatusListenerActor._
-import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
+//import com.stratio.sparta.dg.agent.commons.LineageUtils
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor._
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.NodeGraph
 
-class LineageService(statusListenerActor: ActorRef,
+//TODO fix with new architecture
+class LineageService(executionListenerActor: ActorRef,
                      workflowListenerActor: ActorRef) extends Actor with SLF4JLogging {
 
-  import LineageService._
+  /*import LineageService._
 
   override val supervisorStrategy =
     AllForOneStrategy() {
@@ -42,13 +42,13 @@ class LineageService(statusListenerActor: ActorRef,
     extractTenantMetadata()
     extractWorkflowChanges()
     extractStatusChanges()
-  }
+  }*/
 
   override def receive: Receive = {
     case _ => log.debug("Unrecognized message in LineageService Actor")
   }
 
-  private def extractTenantMetadata(): Unit = {
+  /*private def extractTenantMetadata(): Unit = {
 
     log.debug(s"Sending tenant lineage")
 
@@ -94,13 +94,13 @@ class LineageService(statusListenerActor: ActorRef,
   }
 
   def extractStatusChanges(): Unit =
-    statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>
-      Try(LineageUtils.statusMetadataLineage(workflowStatusStream)) match {
+    executionListenerActor ! OnExecutionStatusesChangeDo(WorkflowStatusLineageKey) { workflowExecutionChange =>
+      Try(LineageUtils.statusMetadataLineage(workflowExecutionChange)) match {
         case Success(maybeList) =>
           maybeList.fold() { listMetadata =>
             senderPostgres ! PostgresEvent(listMetadata, List.empty[Metadata])
-            log.debug(s"Sending workflow status lineage for workflowStatus: " +
-              s"${workflowStatusStream.workflow.get.name}")
+            log.debug(s"Sending workflow status lineage for execution: " +
+              s"${workflowExecutionChange.execution.id}")
           }
         case Failure(exception) =>
           log.warn(s"Error while generating the metadata related to a status event:${exception.getMessage}")
@@ -111,12 +111,13 @@ class LineageService(statusListenerActor: ActorRef,
     workflowListenerActor ! ForgetWorkflowActions(WorkflowLineageKey)
 
   def stopWorkflowStatusChangesExtraction(): Unit =
-    statusListenerActor ! ForgetWorkflowStatusActions(WorkflowStatusLineageKey)
+    executionListenerActor ! ForgetExecutionStatusActions(WorkflowStatusLineageKey)*/
 }
 
 object LineageService {
 
-  def props(statusListenerActor: ActorRef, workflowListenerActor: ActorRef): Props = Props(new LineageService(statusListenerActor, workflowListenerActor))
+  def props(executionListenerActor: ActorRef, workflowListenerActor: ActorRef): Props =
+    Props(new LineageService(executionListenerActor, workflowListenerActor))
 
   val WorkflowLineageKey = "workflow-lineage"
   val WorkflowStatusLineageKey = "workflow-status-lineage"

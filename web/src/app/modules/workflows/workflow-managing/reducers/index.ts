@@ -39,6 +39,11 @@ export const getOrderState = createSelector(
     state => state.order
 );
 
+export const getNotificationMessage = createSelector(
+    getWorkflowsEntityState,
+    state => state.notification
+);
+
 export const getCurrentLevel = createSelector(getWorkflowsEntityState, state => state.currentLevel);
 export const getWorkflowList = createSelector(getWorkflowsEntityState, state => state.workflowList);
 export const getWorkflowVersionsList = createSelector(getWorkflowsEntityState, state => state.workflowsVersionsList);
@@ -109,3 +114,5 @@ export const getCurrentGroupLevel: any = createSelector(getWorkflowsEntityState,
 export const getAllGroups: any = createSelector(getWorkflowsEntityState, (state) => state.groups);
 export const getLoadingState: any = createSelector(getWorkflowsEntityState, (state) => state.loading);
 export const getSavingState: any = createSelector(getWorkflowsEntityState, (state) => state.saving);
+export const getShowExecutionConfig = createSelector(getWorkflowsEntityState, state => state.showExecutionConfig);
+export const getExecutionContexts = createSelector(getWorkflowsEntityState, state => state.executionContexts);

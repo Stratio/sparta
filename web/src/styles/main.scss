@@ -99,3 +99,20 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
 *[class*="icon-"] {
    font-family: ico_stratio !important;
 }
+
+
+.icon-streaming-workflow {
+    background-image: url('../assets/images/iconStreaming.svg');
+}
+
+
+.icon-batch-workflow {
+    background-image: url('../assets/images/iconBatch.svg');
+}
+
+.icon-streaming-workflow , .icon-batch-workflow {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    background-size: cover;
+}

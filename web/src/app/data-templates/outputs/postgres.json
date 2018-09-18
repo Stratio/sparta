@@ -11,7 +11,7 @@
         "propertyId": "url",
         "propertyName": "_JDBC_URL_",
         "propertyType": "text",
-        "default": "{{{POSTGRES_URL}}}",
+        "default": "{{{Environment.POSTGRES_URL}}}",
         "required": true,
         "tooltip": "Url to connect to a Postgres Database.",
         "qa": "fragment-details-postgres-url"

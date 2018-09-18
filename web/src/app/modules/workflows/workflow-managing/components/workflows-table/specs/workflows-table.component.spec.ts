@@ -5,13 +5,14 @@
  */
 
 import { ComponentFixture, async, TestBed, fakeAsync } from '@angular/core/testing';
-import { StTableModule } from '@stratio/egeo';
+import { StTableModule, StModalService } from '@stratio/egeo';
 import { DebugElement, NO_ERRORS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 import { WorkflowsManagingTableComponent } from './../workflows-table.component';
 import { TranslateMockModule } from '@test/translate-stub';
-import { Router } from '@angular/router';
+import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
 
 
 let component: WorkflowsManagingTableComponent;
@@ -49,14 +50,19 @@ const routerStub = {
 };
 
 describe('[WorkflowsManagingTableComponent]', () => {
+    let modalServiceMock: StModalService;
+
     beforeEach(async(() => {
+        modalServiceMock = jasmine.createSpyObj('StModalService', ['show']);
         TestBed.configureTestingModule({
             imports: [
                 StTableModule,
                 TranslateMockModule,
+                MenuOptionsListModule
             ],
             providers: [
                 { provide: Router, useValue: routerStub },
+                { provide: StModalService, useValue: modalServiceMock },
             ],
             declarations: [WorkflowsManagingTableComponent],
             schemas: [NO_ERRORS_SCHEMA]
@@ -100,7 +106,7 @@ describe('[WorkflowsManagingTableComponent]', () => {
         it('should select a group when the row its clicked', () => {
             let selectedGroup = '';
             component.selectGroup.subscribe((groupName: string) => selectedGroup = groupName);
-            const rowSelector = fixture.debugElement.query(By.css('.workflow-table .group-row'));
+            const rowSelector = fixture.debugElement.query(By.css('.workflow-table .group-row td:first-child'));
             rowSelector.triggerEventHandler('click', { name: fakeGroups[0].name });
             expect(selectedGroup).toBe(fakeGroups[0].name);
         });
@@ -108,7 +114,7 @@ describe('[WorkflowsManagingTableComponent]', () => {
         it('should select a workflow when the row its clicked', () => {
             let selectedWorkflow = '';
             component.selectWorkflow.subscribe((workflowName: string) => selectedWorkflow = workflowName);
-            const rowSelector = fixture.debugElement.query(By.css('.workflow-table .workflow-row'));
+            const rowSelector = fixture.debugElement.query(By.css('.workflow-table .workflow-row td:first-child'));
             rowSelector.triggerEventHandler('click', { name: fakeWorkflows[0].name });
             expect(selectedWorkflow).toBe(fakeWorkflows[0].name);
         });
@@ -206,7 +212,7 @@ describe('[WorkflowsManagingTableComponent]', () => {
         it('should select a version when the row its clicked', () => {
             let selectedVersion = '';
             component.selectVersion.subscribe((versionId: string) => selectedVersion = versionId);
-            const rowSelector = fixture.debugElement.query(By.css('.version-table .workflow-versions'));
+            const rowSelector = fixture.debugElement.query(By.css('.version-table .workflow-versions td:first-child'));
             rowSelector.triggerEventHandler('click', { id: 'versionId' });
             expect(selectedVersion.length).not.toBe(0);
         });

@@ -39,7 +39,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     @Input() name = '';
     @Input() label = '';
     @Input() fieldType: 'text' | 'number' | 'password' = 'text';
-    @Input() public selectedValue: any = {};
+    @Input() selectedValue: any = {};
     @Input() errors: any;
     @Input() options: any = [];
     @Input() qaTag: string;
@@ -50,7 +50,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     @Input() max: number;
     @Input() isFocused = false;
     @Input() readonly = false;
-    @Input() public errorRequiredMessage = '';
+    @Input() errorRequiredMessage = '';
 
     @Input()
     get value(): any {
@@ -120,7 +120,10 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     }
 
     ngOnInit(): void {
-        this.internalControl = new FormControl({});
+        this.internalControl = new FormControl({
+            label: this.placeholder,
+            value: undefined
+        });
         this.valueChangeSub = this.internalControl.valueChanges.subscribe((value) => this.onChange(value.value));
     }
 
@@ -142,11 +145,18 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
 
     // When value is received from outside
     writeValue(newValue: any): void {
-        const val = this.options.find((option: any) => option.value === newValue);
-        this.internalControl.setValue(val ? val : {
-            label: newValue,
-            value: newValue
-        });
+        if (newValue === undefined) {
+            this.internalControl.setValue({
+                label: this.placeholder,
+                value: undefined
+            });
+        } else {
+            const val = this.options.find((option: any) => option.value === newValue);
+            this.internalControl.setValue(val ? val : {
+                label: newValue,
+                value: newValue
+            });
+        }
     }
 
     // Registry the change function to propagate internal model changes

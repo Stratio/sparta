@@ -12,7 +12,7 @@ import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -66,9 +66,20 @@ object WorkflowHelper extends SLF4JLogging {
     Try(reg.findAllMatchIn(group).next.matched).getOrElse(group)
   }
 
-  def getMarathonId(wfModel: Workflow): String = {
+  def getExecutionDeploymentId(workflowExecution: WorkflowExecution): String = {
+    val workflow = workflowExecution.getWorkflowToExecute
+
+    s"${retrieveGroup(workflow.group.name)}/${workflow.name}/${workflow.name}-v${workflow.version}" +
+      s"/${workflowExecution.getExecutionId}"
+  }
+
+  def getMarathonId(workflowExecution: WorkflowExecution): String = {
     val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
-    s"sparta/$inputServiceName/workflows/${retrieveGroup(wfModel.group.name)}" +
-      s"/${wfModel.name}/${wfModel.name}-v${wfModel.version}"
+
+    s"sparta/$inputServiceName/workflows/${getExecutionDeploymentId(workflowExecution)}"
+  }
+
+  def getProxyLocation(workflowLocation: String): String = {
+    s"/workflows-${AppConstant.marathonInstanceName}/$workflowLocation/"
   }
 }

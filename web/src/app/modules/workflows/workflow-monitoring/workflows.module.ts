@@ -26,7 +26,8 @@ import { WorkflowsManageModule } from '@app/workflows/workflow-managing/workflow
 import { WorkflowJsonModal } from '@app/workflows/workflow-managing';
 import { WorkflowsService } from '@app/workflows/workflow-monitoring/workflows.service';
 import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
-import { WorkflowConsoleComponent } from '@app/workflows/workflow-monitoring/components/workflow-console/workflow-console.component';
+import { WorkflowConsoleComponent } from './components/workflow-console/workflow-console.component';
+
 
 @NgModule({
     declarations: [

@@ -5,14 +5,14 @@
  */
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getCurrentGroupLevel, getVersionsOrderedList, getSelectedVersionsData } from './../../reducers';
+import { State, getCurrentGroupLevel, getVersionsOrderedList, getSelectedVersionsData, getNotificationMessage } from './../../reducers';
 import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';
-import { Router } from '@angular/router';
 
 
 @Component({
@@ -23,13 +23,16 @@ import { Router } from '@angular/router';
             [selectedVersionsData]="selectedVersionsData$ | async"
             [selectedGroupsList]="selectedGroupsList"
             [versionsListMode]="versionsListMode"
+            [notificationMessage]="notificationMessage$ | async"
             [showDetails]="showDetails"
             [levelOptions]="levelOptions"
             (onEditVersion)="editVersion($event)"
-            (generateVersion)="generateVersion()"
             (downloadWorkflows)="downloadWorkflows()" 
             (showWorkflowInfo)="showWorkflowInfo.emit()"
             (onDeleteWorkflows)="deleteWorkflows()"
+            (hideNotification)="hideNotification()"
+            (showExecutionConfig)="showExecutionConfig($event)"
+            (onSimpleRun)="simpleRun($event)"
             (onDeleteVersions)="deleteVersions()"
             (changeFolder)="changeFolder($event)"></workflows-manage-header>
     `,
@@ -51,12 +54,14 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
     public openedWorkflow = '';
     public workflowVersions$: Observable<any>;
     public selectedVersionsData$: Observable<any>;
+    public notificationMessage$: Observable<any>;
     private openedWorkflowSubscription: Subscription;
     private currentLevelSubscription: Subscription;
 
     ngOnInit(): void {
         this.selectedVersionsData$ = this._store.select(getSelectedVersionsData);
         this.workflowVersions$ = this._store.select(getVersionsOrderedList);
+        this.notificationMessage$ = this._store.select(getNotificationMessage);
         this.currentLevelSubscription = this._store.select(getCurrentGroupLevel).subscribe((levelGroup: any) => {
             const level = levelGroup.group;
             const levelOptions = ['Home'];
@@ -100,8 +105,16 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
         this._store.dispatch(new workflowActions.ChangeGroupLevelAction(level));
     }
 
-    generateVersion(): void {
-        this._store.dispatch(new workflowActions.GenerateNewVersionAction());
+    showExecutionConfig(id: string) {
+        this._store.dispatch(new workflowActions.ConfigAdvancedExecutionAction(id));
+    }
+
+    hideNotification(): void {
+        this._store.dispatch(new workflowActions.HideNotificationAction());
+    }
+
+    simpleRun(event) {
+        this._store.dispatch(new workflowActions.RunWorkflowAction(event));
     }
 
     ngOnDestroy(): void {

@@ -33,7 +33,7 @@ trait SSLSupport {
   }
 
   def isHttpsEnabled: Boolean =
-    SpartaConfig.getSprayConfig match {
+    SpartaConfig.getSprayConfig() match {
       case Some(config) =>
         Try(config.getValue("ssl-encryption")) match {
           case Success(value) =>

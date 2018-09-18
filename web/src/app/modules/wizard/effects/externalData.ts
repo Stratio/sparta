@@ -27,22 +27,26 @@ import { Effect, Actions } from '@ngrx/effects';
 
 import * as fromWizard from './../reducers';
 import * as externalDataActions from './../actions/externalData';
-import { EnvironmentService } from 'app/services';
+import { EnvironmentService, ParametersService } from 'app/services';
 
 @Injectable()
 export class ExternalDataEffect {
 
    @Effect()
-   getEnvironmentVariables$: Observable<any> = this._actions$
-      .ofType(externalDataActions.GET_ENVIRONMENT_LIST)
-      .switchMap(() => this._environmentService.getEnvironment()
-            .map((response) => new externalDataActions.GetEnvironmentListCompleteAction(response.variables))
-            .catch(error => of(new externalDataActions.GetEnvironmentListErrorAction())));
+   getParamList$: Observable<any> = this._actions$
+      .ofType(externalDataActions.GET_PARAMS_LIST)
+      .switchMap(() => Observable.forkJoin([
+         this._parametersService.getParamList(),
+         this._parametersService.getGlobalParameters()
+      ])
+      .map((response) => new externalDataActions.GetParamsListCompleteAction(response))
+      .catch(error => of(new externalDataActions.GetParamsListErrorAction())));
 
    constructor(
       private _actions$: Actions,
       private _store: Store<fromWizard.State>,
-      private _environmentService: EnvironmentService
+      private _environmentService: EnvironmentService,
+      private _parametersService: ParametersService
    ) { }
 
 

@@ -24,6 +24,7 @@ import {
 export class SpartaSidebarComponent implements AfterViewInit {
 
     @Input() isVisible = false;
+    @Input() showCloseButton = true;
     @Input() showScrollBar = false;
     @Output() onCloseSidebar = new EventEmitter();
 

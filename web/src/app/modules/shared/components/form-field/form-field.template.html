@@ -11,7 +11,7 @@
       [forceValidations]="forceValidations"
       [errors]="errorsService.errors.inputErrors"
       [qaTag]="field.qa"
-      [variableList]="getVariableList()"
+      [parameters]="valueDictionary['parameters']"
       [showVars]="showVars"
       [minlength]="field.minlength"
       [maxlength]="field.maxlength"></sp-input>
@@ -81,7 +81,6 @@
       [formListData]="field.fields"
       [qaTag]="field.qa"
       [variableList]="variableList"
-      [showVars]="showVars"
       [valueDictionary]="valueDictionary"
       [required]="field.required"
       [complexForm]="field.complexForm"

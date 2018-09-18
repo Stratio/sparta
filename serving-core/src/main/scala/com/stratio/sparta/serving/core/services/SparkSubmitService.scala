@@ -6,17 +6,13 @@
 package com.stratio.sparta.serving.core.services
 
 
-import java.nio.file.{Files, Paths}
-import javax.xml.bind.DatatypeConverter
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
-import com.stratio.sparta.serving.core.constants.SparkConstant.{SubmitMasterConf, _}
-import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.constants.SparkConstant._
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.SparkSubmitService._
@@ -29,7 +25,7 @@ import scala.util.{Failure, Properties, Success, Try}
 
 class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
-  lazy val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig
+  lazy val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig()
   lazy val hdfsFilesService = HdfsFilesService()
 
   // Spark submit arguments supported
@@ -52,10 +48,15 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     SubmitExecutorMemory -> SubmitExecutorMemoryConf
   )
 
-  def extractDriverSubmit(detailConfig: Config): String = {
+  def extractDriverSubmit: String = {
+    val detailConfig = SpartaConfig.getDetailConfig().getOrElse {
+      val message = "Impossible to extract detail configuration"
+      log.error(message)
+      throw new Exception(message)
+    }
     val driverStorageLocation = Try(detailConfig.getString(AppConstant.DriverLocation))
       .getOrElse(AppConstant.DefaultMarathonDriverURI)
-    if (driverLocation(driverStorageLocation) == ConfigHdfs)
+    if (driverLocation(driverStorageLocation) == HdfsKey)
       hdfsFilesService.uploadDriverFile(driverStorageLocation)
     else driverStorageLocation
   }
@@ -65,22 +66,12 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     */
   def validateSparkHome: String = {
     val sparkHome = extractSparkHome.notBlank
-    require(sparkHome.isDefined,
-      "You must set the $SPARK_HOME path in configuration or environment")
+    require(sparkHome.isDefined, "You must set the $SPARK_HOME path in configuration or environment")
     sparkHome.get
   }
 
-  def extractDriverArgs(zookeeperConfig: Config,
-                        pluginsFiles: Seq[String],
-                        detailConfig: Config): Map[String, String] = {
-    Map(
-      "detailConfig" -> keyConfigEncoded("config", detailConfig),
-      "hdfsConfig" -> keyOptionConfigEncoded("hdfs", hdfsConfig),
-      "plugins" -> pluginsEncoded(pluginsFiles),
-      "workflowId" -> workflow.id.get,
-      "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig)
-    )
-  }
+  def extractDriverArgs(pluginsFiles: Seq[String]): Map[String, String] =
+    Map(PluginsKey -> pluginsEncoded(pluginsFiles))
 
   def extractSubmitArgsAndSparkConf(pluginsFiles: Seq[String]): (Map[String, String], Map[String, String]) = {
     val sparkConfs = getSparkClusterConfig
@@ -96,13 +87,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
           addTlsConfs(
             addPluginsConfs(
               addSparkUserConf(
-                addAppNameConf(
-                  addCalicoNetworkConf(
-                    addNginxPrefixConf(
-                      addPluginsFilesToConf(
-                        addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs),
-                        pluginsFiles
-                      )))))))))
+                addCalicoNetworkConf(
+                  addPluginsFilesToConf(
+                    addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs),
+                    pluginsFiles
+                  )))))))
     )
   }
 
@@ -185,7 +174,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       if Try(calicoEnable.toBoolean).getOrElse(false)
       calicoNetwork <- Properties.envOrNone(CalicoNetworkEnv)
     } yield calicoNetwork
-    
+
     calicoNetworkFromEnv match {
       case Some(someNetwork) => sparkConfs ++ Map(
         SubmitDriverCalicoNetworkConf -> someNetwork,
@@ -194,14 +183,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       case _ => sparkConfs
     }
   }
-
-  private[core] def addNginxPrefixConf(sparkConfs: Map[String, String]): Map[String, String] = {
-    for {
-      _ <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").notBlank
-      appName <- Properties.envOrNone(DcosServiceName).notBlank
-    } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
-  } getOrElse sparkConfs
-
 
   private[core] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] =
     getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
@@ -341,12 +322,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     sparkConfs ++ tlsOptions
   }
 
-  private[core] def addAppNameConf(sparkConfs: Map[String, String]): Map[String, String] =
-    if (!sparkConfs.contains(SubmitAppNameConf)) {
-      val appName = s"${workflow.group.name.replaceFirst("/", "").replaceAll("/", "-")}-${workflow.name}-v${workflow.version}"
-      sparkConfs ++ Map(SubmitAppNameConf -> appName)
-    } else sparkConfs
-
   private[core] def driverLocation(driverPath: String): String = {
     val begin = 0
     val end = 4
@@ -417,17 +392,20 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
 object SparkSubmitService {
 
-  lazy val spartaTenant = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
+  val ExecutionIdKey = "executionId"
+  val PluginsKey = "plugins"
+
+  lazy val spartaTenant = Properties.envOrElse(MarathonConstant.DcosServiceName,
     Properties.envOrElse("TENANT_NAME", "sparta"))
   lazy val spartaLocalAppName = s"$spartaTenant-spark-standalone"
-  lazy val extraSparkJarsPath = Try(SpartaConfig.crossdataConfig.get.getString("session.sparkjars-path"))
+  lazy val extraSparkJarsPath = Try(SpartaConfig.getCrossdataConfig().get.getString("session.sparkjars-path"))
     .getOrElse("/opt/sds/sparta/repo")
   lazy val mapExtraSparkJars: Seq[String] = Seq(
     s"$extraSparkJarsPath/org/elasticsearch/elasticsearch-spark-20_2.11/6.1.1/elasticsearch-spark-20_2.11-6.1.1.jar",
     s"$extraSparkJarsPath/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar"
   )
 
-  def getJarsSparkConfigurations(jarFiles: Seq[String],extraJars : Boolean  = false): Map[String, String] =
+  def getJarsSparkConfigurations(jarFiles: Seq[String], extraJars: Boolean = false): Map[String, String] =
     if (jarFiles.exists(_.trim.nonEmpty)) {
       val jarFilesFiltered = jarFiles.filter(file =>
         !file.startsWith("hdfs") && !file.startsWith("http") && file.nonEmpty)
@@ -439,7 +417,7 @@ object SparkSubmitService {
         )
       } else Map.empty[String, String]
 
-      if (extraJars && !Try(SpartaConfig.sparkConfig.get.getString("master")).getOrElse("local").contains("local")) {
+      if (extraJars && !Try(SpartaConfig.getSparkConfig().get.getString("master")).getOrElse("local").contains("local")) {
         classpathConfs ++ Map(SubmitJarsConf -> (jarFiles ++: mapExtraSparkJars).filter(_.nonEmpty).mkString(","))
       } else {
         classpathConfs ++ Map(SubmitJarsConf -> jarFiles.filter(_.nonEmpty).mkString(","))
@@ -464,13 +442,13 @@ object SparkSubmitService {
     val defaultConf = Map(
       SubmitNameConf -> spartaLocalAppName
     )
-    val referenceConf = SpartaConfig.sparkConfig.fold(defaultConf) { sparkConfig =>
+    val referenceConf = SpartaConfig.getSparkConfig().fold(defaultConf) { sparkConfig =>
       sparkConfig.entrySet().iterator().toSeq.map { values =>
         s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
       }.toMap
     }
     val envConf = sys.env.filterKeys(key => key.startsWith("SPARK_EXTRA_CONFIG"))
-      .map{ case (key, value) =>
+      .map { case (key, value) =>
         key.replaceAll("SPARK_EXTRA_CONFIG_", "").replaceAll("_", ".") -> value
       }
     referenceConf ++ defaultConf ++ envConf

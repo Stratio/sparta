@@ -6,17 +6,16 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.models.env.EnvironmentVariable
+import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
 
 case class ExecutionContext(
-                             withEnvironment: Boolean,
-                             extraParams: Seq[EnvironmentVariable] = Seq.empty[EnvironmentVariable],
+                             extraParams: Seq[ParameterVariable] = Seq.empty[ParameterVariable],
                              paramsLists: Seq[String] = Seq.empty[String]
                            ) {
 
-  def toVariablesMap: Map[String, String] = extraParams.flatMap(paramVariable =>
-    if(paramVariable.value.nonEmpty)
-      Option(paramVariable.name -> paramVariable.value)
+  def toParametersMap: Map[String, String] = extraParams.flatMap(parameter =>
+    if(parameter.value.nonEmpty)
+      Option(parameter.name -> parameter.value.getOrElse(""))
     else None
   ).toMap
 }

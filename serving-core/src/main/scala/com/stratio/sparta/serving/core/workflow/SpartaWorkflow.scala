@@ -6,31 +6,47 @@
 
 package com.stratio.sparta.serving.core.workflow
 
+import java.io.Serializable
+import scala.annotation.tailrec
+import scala.concurrent.duration._
+import scala.util.{Properties, Try}
+import scalax.collection.Graph
+import scalax.collection.GraphTraversal.{Parameters, Predecessors}
+import scalax.collection.edge.LDiEdge
 import java.io.{File, Serializable}
 import java.net.URL
 
 import akka.event.Logging
 import akka.util.Timeout
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.streaming.{Duration, StreamingContext}
+
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.constants.SdkConstants._
+import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.workflow.step._
 import com.stratio.sparta.core.{ContextBuilder, DistributedMonad, WorkflowContext}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.DatabaseTableConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
 import com.stratio.sparta.serving.core.error.ErrorManager
 import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper.getConfigurationsFromObjects
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowRelationSettings}
+import com.stratio.sparta.serving.core.services.SparkSubmitService
+import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
@@ -54,7 +70,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                                                            )
   extends CheckpointUtils with DistributedMonadImplicits {
 
-  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout")).getOrElse(DefaultApiTimeout) - 1
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout")).getOrElse(DefaultApiTimeout) - 1
 
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
@@ -144,7 +160,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       xDSession
     }
 
-    if(workflow.debugMode.isDefined && workflow.debugMode.get){
+    if (workflow.debugMode.isDefined && workflow.debugMode.get) {
       val errorMessage = s"An error was encountered while clearing cached tables"
       val okMessage = s"Cached tables cleared successfully"
       errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
@@ -254,7 +270,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     @tailrec
     def reOrderNodes(nodesList: List[NodeGraph], nextNodeIndex: Int): List[NodeGraph] = {
-      if(nextNodeIndex < nodesList.size) {
+      if (nextNodeIndex < nodesList.size) {
         val nodeToAnalyze = nodesList(nextNodeIndex)
         val nodeGraph = graph.get(nodeToAnalyze)
         val fullNodePredecessors = nodeGraph.diPredecessors.toList.flatMap { predecessor =>
@@ -268,7 +284,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           case None => nextNodes
         }
         val newPreviousNodes = nodesList.slice(0, nextNodeIndex) ++ nodesToReorder.takeRight(1)
-        val nextNodeToAnalyze = if(nodesToReorder.isEmpty) nextNodeIndex + 1 else nextNodeIndex
+        val nextNodeToAnalyze = if (nodesToReorder.isEmpty) nextNodeIndex + 1 else nextNodeIndex
 
         reOrderNodes(newPreviousNodes ++ nextNodesWithoutReordered, nextNodeToAnalyze)
       } else nodesList
@@ -282,7 +298,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         val outputPredecessors = outNodeGraph.diPredecessors.toList
 
         outputPredecessors.sortBy(node => node.name).foreach { predecessor =>
-          val nodesToReOrder  = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
+          val nodesToReOrder = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
           log.debug(s"List of steps to order: ${nodesToReOrder.map(_.name).mkString(",")}")
           val nodesOrdered = reOrderNodes(nodesToReOrder, 0)
           log.debug(s"List of steps ordered: ${nodesOrdered.map(_.name).mkString(",")}")
@@ -447,7 +463,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     s"${TransformStep.StepType}-$name"
   }
 
-
   /**
     * Find the input steps that are predecessors to the node passed as parameter.
     *
@@ -591,22 +606,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val classType = node.configuration.getOrElse(CustomTypeKey, node.className).toString
       val configuration = if (node.className.equalsIgnoreCase("DebugOutputStep")) {
-        val zkConfig = SpartaConfig.getZookeeperConfig match {
-          case Some(config) => Map(
-            ZKConnection -> JsoneyString(config.getString(ZKConnection)),
-            ZKConnectionTimeout -> JsoneyString(config.getString(ZKConnectionTimeout)),
-            ZKSessionTimeout -> JsoneyString(config.getString(ZKSessionTimeout)),
-            ZKRetryAttemps -> JsoneyString(config.getString(ZKRetryAttemps)),
-            ZKRetryInterval -> JsoneyString(config.getString(ZKRetryInterval)),
-            StepErrorDataKey -> JsoneyString(DebugStepErrorZkPath),
-            StepDataKey -> JsoneyString(DebugStepDataZkPath),
-            WorkflowIdKey -> JsoneyString(workflow.id.get)
-
-          )
-          case None => Map.empty[String, JsoneyString]
-        }
-
-        node.configuration ++ zkConfig
+        val extraConfig = Map(WorkflowIdKey -> JsoneyString(workflow.id.get))
+        node.configuration ++ extraConfig
       } else node.configuration
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(

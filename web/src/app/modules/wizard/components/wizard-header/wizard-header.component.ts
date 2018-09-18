@@ -23,6 +23,7 @@ import * as debugActions from './../../actions/debug';
 
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
+import { MenuOptionListGroup } from "@app/shared/components/menu-options-list/menu-options-list.component";
 
 @Component({
   selector: 'wizard-header',
@@ -49,7 +50,20 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
   @ViewChild('nameForm') public nameForm: NgForm;
   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
-
+   public runOptions: MenuOptionListGroup[] = [
+      {
+         options: [
+            {
+               label: 'Run',
+               id: 'simple'
+            },
+            {
+               label: 'Run with custom params',
+               id: 'advanced'
+            }
+         ]
+      }
+   ];
   public isShowedEntityDetails$: Observable<boolean>;
   public menuOptions$: Observable<Array<FloatingMenuModel>>;
   public isLoading$: Observable<boolean>;
@@ -72,7 +86,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     private _location: Location) { }
 
   ngOnInit(): void {
-    this._modalService.container = this.target;
     this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
     this.isLoading$ = this._store.select(fromWizard.isLoading);
 
@@ -166,11 +179,20 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     this._store.dispatch(new wizardActions.ShowGlobalErrorsAction());
   }
 
+  selectedDebug(event) {
+    if (event === 'simple') {
+      this.debugWorkflow();
+    } else {
+      this._store.dispatch(new debugActions.ShowDebugConfigAction());
+    }
+  }
+
   public showConfirmModal(): void {
     if (this.isPristine) {
       this.redirectPrevious();
       return;
     }
+    this._modalService.container = this.target;
     this._modalService.show({
       modalTitle: 'Exit workflow',
       outputs: {

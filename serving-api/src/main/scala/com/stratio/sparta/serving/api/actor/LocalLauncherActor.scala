@@ -5,96 +5,71 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import java.util.UUID
-
 import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
+import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
-import org.apache.curator.framework.CuratorFramework
-import org.joda.time.DateTime
+import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
 
 import scala.util.{Failure, Success, Try}
 
-class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with SLF4JLogging {
+class LocalLauncherActor() extends Actor with SLF4JLogging {
 
-  lazy private val contextService: ContextsService = ContextsService(curatorFramework)
-  lazy private val statusService = new WorkflowStatusService(curatorFramework)
-  lazy private val executionService = new ExecutionService(curatorFramework)
+  lazy private val contextService: ContextsService = ContextsService()
+  lazy private val executionService = new WorkflowExecutionPostgresDao
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow, workflowRaw, executionContext, userId) =>
-      doInitSpartaContext(workflow, workflowRaw, executionContext, userId)
-    case _ =>
-      log.info("Unrecognized message in Local Launcher Actor")
+    case Start(execution) => doStartExecution(execution)
+    case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 
-  //scalastyle:off
-  private def doInitSpartaContext(
-                                   workflow: Workflow,
-                                   workflowRaw: Workflow,
-                                   executionContext: ExecutionContext,
-                                   userId: Option[String]
-                                 ): Unit = {
+  private def doStartExecution(workflowExecution: WorkflowExecution): Unit = {
     Try {
-      val sparkUri = LinkHelper.getClusterLocalLink
-      statusService.update(WorkflowStatus(
-        id = workflow.id.get,
-        status = NotStarted,
-        lastUpdateDateWorkflow = workflow.lastUpdateDate
-      ))
+      val workflow = workflowExecution.getWorkflowToExecute
+      executionService.updateStatus(ExecutionStatusUpdate(
+        workflowExecution.getExecutionId,
+        ExecutionStatus(
+          state = NotStarted
+        )))
       val jars = JarsHelper.localUserPluginJars(workflow)
       val startedInformation = s"Starting workflow in local mode"
       log.info(startedInformation)
-      statusService.update(WorkflowStatus(
-        id = workflow.id.get,
-        status = Starting,
-        statusInfo = Some(startedInformation)
-      ))
-      val launchDate = new DateTime()
-      executionService.create(WorkflowExecution(
-        id = workflow.id.get,
-        genericDataExecution = Option(GenericDataExecution(
-          workflow = workflow,
-          workflowRaw = workflowRaw,
-          executionMode = local,
-          executionId = UUID.randomUUID.toString,
-          executionContext = executionContext,
-          startDate = Option(launchDate),
-          launchDate = Option(launchDate),
-          userId = userId
-        )),
-        localExecution = Option(LocalExecution(sparkURI = sparkUri))
-      ))
+      executionService.updateStatus(ExecutionStatusUpdate(
+        workflowExecution.getExecutionId,
+        ExecutionStatus(
+          state = Starting,
+          statusInfo = Option(startedInformation)
+        )))
       if (workflow.executionEngine == Streaming)
-        contextService.localStreamingContext(workflow, jars)
+        contextService.localStreamingContext(workflowExecution, jars)
       if (workflow.executionEngine == Batch) {
-        contextService.localContext(workflow, jars)
-        statusService.update(WorkflowStatus(
-          id = workflow.id.get,
-          status = Stopping,
-          statusInfo = Some("Workflow executed successfully")
-        ))
+        contextService.localContext(workflowExecution, jars)
+        executionService.updateStatus(ExecutionStatusUpdate(
+          workflowExecution.getExecutionId,
+          ExecutionStatus(
+            state = Stopping,
+            statusInfo = Option("Workflow executed successfully, stopping it")
+          )))
       }
     } match {
       case Success(_) =>
         log.info("Workflow executed successfully")
         self ! PoisonPill
-      case Failure(_: ErrorManagerException) =>
-        statusService.update(WorkflowStatus(
-          id = workflow.id.get,
-          status = Failed
-        ))
+      case Failure(exception: ErrorManagerException) =>
+        executionService.updateStatus(ExecutionStatusUpdate(
+          workflowExecution.getExecutionId,
+          ExecutionStatus(
+            state = Failed,
+            statusInfo = Option(exception.getPrintableMsg)
+          )))
         self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating the workflow"
@@ -105,14 +80,14 @@ class LocalLauncherActor(curatorFramework: CuratorFramework) extends Actor with 
           exception.toString,
           ExceptionHelper.toPrintableException(exception)
         )
-        executionService.setLastError(workflow.id.get, error)
-        statusService.update(WorkflowStatus(
-          id = workflow.id.get,
-          status = Failed,
-          statusInfo = Option(information)
-        ))
+        executionService.setLastError(workflowExecution.getExecutionId, error)
+        executionService.updateStatus(ExecutionStatusUpdate(
+          workflowExecution.getExecutionId,
+          ExecutionStatus(
+            state = Failed,
+            statusInfo = Option(information)
+          )))
         self ! PoisonPill
     }
   }
-
 }

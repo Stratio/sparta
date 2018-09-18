@@ -16,11 +16,13 @@
 </section>
 <wizard-config-editor *ngIf="editionConfigMode.isEdition"
    [workflowType]="workflowType"
-   [environmentList]="environmentList"
+   [parameters]="parameters"
    [config]="editionConfigMode"></wizard-config-editor>
 
 <wizard-settings [workflowType]="workflowType"
    [edition]="isEdit"
-   [environmentList]="environmentList"
+   [parameters]="parameters"
    [workflowType]="workflowType"
    *ngIf="workflowType.length && showSettings"></wizard-settings>
+
+<custom-execution-container (closeCustomExecution)="closeCustomExecution()" *ngIf="showDebugConfig$ | async"></custom-execution-container>

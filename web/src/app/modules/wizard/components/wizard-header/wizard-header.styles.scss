@@ -212,3 +212,46 @@ $cloudy-black: #cdd6df;
 .icon-green {
     color: $status-success-hover;
 }
+
+.multi-button{
+    overflow: visible;
+    border: 1px solid #777;
+    outline: 0;
+    color: #555;
+
+    &[disabled] {
+        background: #ededed;
+        border-color: transparent;
+    }
+    
+    &:hover {
+        border-color: #b5b5b5;
+    }
+
+    .execution-options {
+        display: inline-block;
+        vertical-align: top;
+        text-align: left;
+    }
+
+    .primary-option {
+        padding: .625rem;
+        display: inline-block;
+        margin-top: 2px;
+    }
+
+    .options {
+        border-left: 1px solid #777;
+        height: 38px;
+        display: table-cell;
+        vertical-align: middle;
+        &:hover {
+            border-color: #b5b5b5;
+        }
+        i {
+            padding: 0 0.4rem;
+            font-size: 11px;
+            padding-top:3px;
+        }
+    }
+}

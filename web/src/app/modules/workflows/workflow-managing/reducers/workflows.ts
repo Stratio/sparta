@@ -4,8 +4,8 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
- import * as workflowActions from '../actions/workflow-list';
-import { formatDate, getFilterStatus } from '@utils';
+import * as workflowActions from '../actions/workflow-list';
+import { formatDate } from '@utils';
 import { homeGroup } from '@app/shared/constants/global';
 import { DataDetails } from './../models/data-details';
 import { Group, GroupWorkflow } from './../models/workflows';
@@ -32,6 +32,14 @@ export interface State {
    showModal: boolean;
    modalError: string;
    saving: boolean;
+   notification: {
+      text: string;
+      status: string;
+      autoCloseTime?: number;
+      visible: boolean;
+   };
+   showExecutionConfig: boolean;
+   executionContexts: any;
 }
 
 const initialState: State = {
@@ -55,7 +63,14 @@ const initialState: State = {
    reload: false,
    showModal: true,
    modalError: '',
-   saving: false
+   saving: false,
+   notification: {
+      visible: false,
+      text: '',
+      status: ''
+   },
+   showExecutionConfig: false,
+   executionContexts: null
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -68,7 +83,6 @@ export function reducer(state: State = initialState, action: any): State {
             version.lastUpdateAux = lastUpdateDate;
             version.lastUpdate = formatDate(lastUpdate);
             version.tagsAux = version.tags ? version.tags.join(', ') : '';
-            version.formattedStatus = getFilterStatus(version.status.status);
             try {
                const lastErrorDate = version.execution.genericDataExecution.lastError.date;
                version.lastErrorDate = formatDate(lastErrorDate, true, true);
@@ -153,7 +167,7 @@ export function reducer(state: State = initialState, action: any): State {
                   workflowId !== action.payload) : [action.payload, ...state.selectedWorkflows],
             selectedEntities: isSelected ? state.selectedEntities.filter((entity: DataDetails) =>
                entity.type !== 'workflow' || entity.data !== action.payload)
-               : [{type: 'workflow', data: action.payload}, ...state.selectedEntities]
+               : [{ type: 'workflow', data: action.payload }, ...state.selectedEntities]
          };
       }
       case workflowActions.SHOW_WORKFLOW_VERSIONS: {
@@ -181,11 +195,11 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             selectedGroups: isSelected ?
-                  state.selectedGroups.filter((groupName: string) => groupName !== action.payload) :
-                        [...state.selectedGroups, action.payload],
+               state.selectedGroups.filter((groupName: string) => groupName !== action.payload) :
+               [...state.selectedGroups, action.payload],
             selectedEntities: isSelected ? state.selectedEntities.filter((entity: DataDetails) =>
                entity.type !== 'group' || entity.data !== action.payload) :
-                  [{type: 'group', data: action.payload}, ...state.selectedEntities]
+               [{ type: 'group', data: action.payload }, ...state.selectedEntities]
          };
       }
       case workflowActions.DELETE_WORKFLOW_COMPLETE: {
@@ -200,7 +214,13 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             selectedVersions: [],
-            selectedVersionsData: []
+            selectedVersionsData: [],
+            notification: {
+               text: 'DELETE_VERSION',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
       case workflowActions.DELETE_GROUP_COMPLETE: {
@@ -253,13 +273,25 @@ export function reducer(state: State = initialState, action: any): State {
             ...state,
             showModal: false,
             selectedGroups: [],
-            selectedEntities: []
+            selectedEntities: [],
+            notification: {
+               text: 'RENAME_GROUP',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
       case workflowActions.CREATE_GROUP_COMPLETE: {
          return {
             ...state,
-            showModal: false
+            showModal: false,
+            notification: {
+               text: 'CREATE_GROUP',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
       case workflowActions.ADD_GROUP: {
@@ -273,6 +305,12 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             showModal: false
+         };
+      }
+      case workflowActions.RUN_WORKFLOW_COMPLETE: {
+         return {
+            ...state,
+            showExecutionConfig: false
          };
       }
       case workflowActions.SAVE_JSON_WORKFLOW: {
@@ -294,7 +332,13 @@ export function reducer(state: State = initialState, action: any): State {
             ...state,
             showModal: false,
             selectedWorkflows: [],
-            selectedEntities: []
+            selectedEntities: [],
+            notification: {
+               text: 'RENAME_WORKFLOW',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
       case workflowActions.MOVE_WORKFLOW_COMPLETE: {
@@ -332,7 +376,13 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             workflowList,
-            workflowsVersionsList
+            workflowsVersionsList,
+            notification: {
+               text: 'MOVE_WORKFLOW',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
 
@@ -352,19 +402,36 @@ export function reducer(state: State = initialState, action: any): State {
             workflowsVersionsList
          };
       }
-
-
-
       case workflowActions.DELETE_WORKFLOW_GROUP: {
          const workflowList = state.workflowList.filter(workflow => action.payload.indexOf(workflow.name) === -1);
-         const workflowsVersionsList = state.workflowsVersionsList.filter(workflow =>  action.payload.indexOf(workflow.name) === -1);
+         const workflowsVersionsList = state.workflowsVersionsList.filter(workflow => action.payload.indexOf(workflow.name) === -1);
          return {
             ...state,
             workflowList,
-            workflowsVersionsList
+            workflowsVersionsList,
+            selectedWorkflows: [],
+            selectedGroups: [],
+            notification: {
+               text: 'DELETE_WORKFLOW',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
-
+      case workflowActions.DELETE_SINGLE_VERSION_COMPLETE: {
+         return {
+            ...state,
+            selectedVersions: [],
+            selectedVersionsData: [],
+            notification: {
+               text: 'DELETE_SINGLE_VERSION',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
+         };
+      }
       case workflowActions.DELETE_GROUP: {
          const groups = state.groups.filter(group => action.payload.indexOf(group.name) === -1);
          return {
@@ -372,7 +439,43 @@ export function reducer(state: State = initialState, action: any): State {
             groups
          };
       }
-
+      case workflowActions.DELETE_SINGLE_GROUP_COMPLETE: {
+         return {
+            ...state,
+            groups: state.groups.filter(group => group.id !== action.groupId),
+            selectedWorkflows: [],
+            selectedGroups: [],
+            selectedEntities: [],
+            notification: {
+               text: 'DELETE_SINGLE_GROUP',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
+         };
+      }
+      case workflowActions.HIDE_NOTIFICATION: {
+         return {
+            ...state,
+            notification: {
+               ...state.notification,
+               visible: false
+            }
+         };
+      }
+      case workflowActions.CONFIG_ADVANCED_EXECUTION_COMPLETE: {
+         return {
+            ...state,
+            showExecutionConfig: true,
+            executionContexts: action.config
+         };
+      }
+      case workflowActions.CANCEL_ADVANCED_EXECUTION: {
+         return {
+            ...state,
+            showExecutionConfig: false
+         };
+      }
       default:
          return state;
    }

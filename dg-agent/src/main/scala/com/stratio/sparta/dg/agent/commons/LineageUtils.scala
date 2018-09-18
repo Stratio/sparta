@@ -14,8 +14,9 @@ import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.Eve
 import com.stratio.governance.commons.agent.model.metadata.lineage.{TransformationMetadataProperties, _}
 import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
 import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, OperationCommandType, SourceType}
-import com.stratio.sparta.dg.agent.commons.WorkflowStatusUtils.fromDatetimeToLongWithDefault
+//import com.stratio.sparta.dg.agent.commons.WorkflowStatusUtils.fromDatetimeToLongWithDefault
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
+import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Failed, Finished, Started}
 import com.stratio.sparta.serving.core.models.workflow._
@@ -24,9 +25,10 @@ import com.stratio.sparta.serving.core.models.workflow._
   * Utilitary object for dg-workflows methods
   */
 //scalastyle:off
+//TODO refactor lineage with new architecture
 object LineageUtils {
 
-  val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
+/*  val tenantName = Properties.envOrElse(MarathonConstant.DcosServiceName, "sparta")
 
   implicit def writerToMap(writer: WriterGraph): Map[String, String] = {
     writer.tableName match {
@@ -193,24 +195,27 @@ object LineageUtils {
     tenantList
   }
 
-  def statusMetadataLineage(workflowStatusStream: WorkflowStatusStream): Option[List[WorkflowStatusMetadata]] = {
+  def statusMetadataLineage(workflowExecutionChange: WorkflowExecutionChange): Option[List[WorkflowStatusMetadata]] = {
     import WorkflowStatusUtils._
+    import workflowExecutionChange.execution._
 
-    if (checkIfProcessableStatus(workflowStatusStream)) {
-      val wfError = workflowStatusStream.execution.flatMap(_.genericDataExecution.flatMap(_.lastError))
+    if (checkIfProcessableStatus(workflowExecutionChange)) {
+      val wfError = genericDataExecution.lastError
+      val workflow = getWorkflowToExecute
+      val lastStatus = workflowExecutionChange.execution.lastStatus
       val metadataSerialized = new WorkflowStatusMetadata(
-        name = workflowStatusStream.workflow.get.name,
-        status = mapSparta2GovernanceStatuses(workflowStatusStream.workflowStatus.status),
-        error = if (workflowStatusStream.workflowStatus.status == Failed && wfError.isDefined)
-          Some(workflowStatusStream.execution.get.genericDataExecution.get.lastError.get.message) else Some(""),
-        key = workflowStatusStream.workflowStatus.id,
-        metadataPath = workflowMetadataPathString(workflowStatusStream.workflow.get, "status"),
+        name = workflow.name,
+        status = mapSparta2GovernanceStatuses(lastStatus.state),
+        error = if (lastStatus.state == Failed && wfError.isDefined)
+          Some(genericDataExecution.lastError.get.message) else Some(""),
+        key = getExecutionId,
+        metadataPath = workflowMetadataPathString(workflow, getExecutionId, "status"),
         agentVersion = SpartaType.agentVersion,
         serverVersion = SpartaType.serverVersion,
-        tags = workflowStatusStream.workflow.get.tags.getOrElse(Seq.empty).toList,
+        tags = workflow.tags.getOrElse(Seq.empty).toList,
         sourceType = SourceType.SPARTA,
-        modificationTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflowStatus.lastUpdateDate),
-        accessTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflow.get.lastUpdateDate),
+        modificationTime = fromDatetimeToLongWithDefault(lastStatus.lastUpdateDate),
+        accessTime = fromDatetimeToLongWithDefault(lastStatus.lastUpdateDate),
         customType = SpartaType.STATUS
       )
 
@@ -249,17 +254,14 @@ object LineageUtils {
 
     workflowList
   }
-}
-
-object WorkflowStatusUtils {
 
   def fromDatetimeToLongWithDefault(dateTime: Option[DateTime]): Option[Long] =
     dateTime.fold(Some(System.currentTimeMillis())) { dt => Some(dt.getMillis) }
 
-  def checkIfProcessableStatus(workflowStatusStream: WorkflowStatusStream): Boolean = {
-    val eventStatus = workflowStatusStream.workflowStatus.status
-    (eventStatus == Started || eventStatus == Finished || eventStatus == Failed) &&
-      workflowStatusStream.workflow.isDefined
+  def checkIfProcessableStatus(workflowExecutionChange: WorkflowExecutionChange): Boolean = {
+    val eventStatus = workflowExecutionChange.execution.lastStatus.state
+
+    eventStatus == Started || eventStatus == Finished || eventStatus == Failed
   }
 
   def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value): EventType =
@@ -267,7 +269,7 @@ object WorkflowStatusUtils {
       case Started => EventType.Running
       case Finished => EventType.Success
       case Failed => EventType.Failed
-    }
+    }*/
 }
 
 object LineageItem extends Enumeration {

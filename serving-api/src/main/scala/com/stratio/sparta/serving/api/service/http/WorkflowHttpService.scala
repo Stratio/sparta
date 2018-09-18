@@ -25,6 +25,7 @@ import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.StatusCodes
 import spray.routing._
+import com.stratio.sparta.serving.api.constants.HttpConstant._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -39,12 +40,12 @@ trait WorkflowHttpService extends BaseHttpService {
   )
 
   override def routes(user: Option[LoggedUser] = None): Route =
-    find(user) ~ findAll(user) ~ create(user) ~ run(user) ~ stop(user) ~ reset(user) ~
+    find(user) ~ findAll(user) ~ create(user) ~ run(user) ~
       update(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
-      removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
-      resetAllStatuses(user) ~ createVersion(user) ~ findByIdWithExecutionContext(user) ~ findAllByGroup(user) ~
-      findAllMonitoring(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
-      migrate(user) ~ validateWithContext(user)
+      removeList(user) ~ findList(user) ~ validate(user) ~
+      createVersion(user) ~ findAllByGroup(user) ~
+      findAllDto(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
+      migrate(user) ~ validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -102,49 +103,15 @@ trait WorkflowHttpService extends BaseHttpService {
     }
   }
 
-  @Path("/findByIdWithExecutionContext")
-  @ApiOperation(value = "Finds a workflow from its id with execution context.",
-    notes = "Finds a workflow from its id with context substitution.",
-    httpMethod = "POST",
-    response = classOf[Workflow])
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "workflowIdExecutionContext",
-      value = "workflow id execution context model",
-      dataType = "WorkflowIdExecutionContext",
-      required = true,
-      paramType = "body")
-  ))
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def findByIdWithExecutionContext(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "findByIdWithExecutionContext") { id =>
-      pathEndOrSingleSlash {
-        post {
-          entity(as[WorkflowIdExecutionContext]) { workflowIdExecutionContext =>
-            complete {
-              for {
-                response <- (supervisor ? FindByIdWithExecutionContext(workflowIdExecutionContext, user))
-                  .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
-              } yield deletePostPutResponse(WorkflowServiceFindByIdWithExecutionContext, response, genericError)
-            }
-          }
-        }
-      }
-    }
-  }
-
-
   @Path("/find")
   @ApiOperation(value = "Finds a workflow with query.",
     notes = "Finds a workflow from query.",
     httpMethod = "POST",
-    response = classOf[Workflow])
+    response = classOf[Array[Workflow]])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "query",
       value = "query model",
-      dataType = "WorkflowQuery",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowQuery",
       required = true,
       paramType = "body")
   ))
@@ -160,7 +127,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? Query(workflowQuery, user))
-                  .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
+                  .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceFind, response, genericError)
             }
           }
@@ -223,7 +190,7 @@ trait WorkflowHttpService extends BaseHttpService {
     }
   }
 
-  @Path("/findAllMonitoring")
+  @Path("/findAllDto")
   @ApiOperation(value = "Finds all workflows Dto for monitoring.",
     notes = "Finds all workflows with less fields for monitoring view.",
     httpMethod = "GET",
@@ -232,13 +199,13 @@ trait WorkflowHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findAllMonitoring(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "findAllMonitoring") {
+  def findAllDto(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findAllDto") {
       pathEndOrSingleSlash {
         get {
           context =>
             for {
-              response <- (supervisor ? FindAllMonitoring(user))
+              response <- (supervisor ? FindAllDto(user))
                 .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
             } yield getResponse(context, WorkflowServiceFindAllMonitoring, response, genericError)
         }
@@ -255,7 +222,7 @@ trait WorkflowHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "workflow",
       defaultValue = "",
       value = "workflow json",
-      dataType = "Workflow",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.Workflow",
       required = true,
       paramType = "body")))
   def create(user: Option[LoggedUser]): Route = {
@@ -283,7 +250,7 @@ trait WorkflowHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "workflow",
       defaultValue = "",
       value = "workflow json",
-      dataType = "Workflow",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.Workflow",
       required = true,
       paramType = "body")))
   def update(user: Option[LoggedUser]): Route = {
@@ -297,29 +264,6 @@ trait WorkflowHttpService extends BaseHttpService {
                   .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceUpdate, response, genericError, StatusCodes.OK)
             }
-          }
-        }
-      }
-    }
-  }
-
-  @Path("")
-  @ApiOperation(value = "Deletes all workflows.",
-    notes = "Deletes all workflows.",
-    httpMethod = "DELETE")
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def removeAll(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath) {
-      pathEndOrSingleSlash {
-        delete {
-          complete {
-            for {
-              response <- (supervisor ? DeleteAll(user))
-                .mapTo[Either[Response, UnauthorizedResponse]]
-            } yield deletePostPutResponse(WorkflowServiceDeleteAll, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -379,7 +323,7 @@ trait WorkflowHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? DeleteWorkflow(id.toString, user))
-              .mapTo[Either[Response, UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(WorkflowServiceDeleteById, response, genericError, StatusCodes.OK)
         }
       }
@@ -393,7 +337,7 @@ trait WorkflowHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "query",
       value = "workflow name",
-      dataType = "WorkflowDelete",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowDelete",
       required = true,
       paramType = "body")
   ))
@@ -412,37 +356,6 @@ trait WorkflowHttpService extends BaseHttpService {
                   .mapTo[Either[Response, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceDeleteWithAllVersions, response, genericError, StatusCodes.OK)
             }
-          }
-        }
-      }
-    }
-  }
-
-  // scalastyle:off cyclomatic.complexity
-  @Path("/checkpoint/{id}")
-  @ApiOperation(value = "Delete checkpoint associated to a workflow by its id.",
-    notes = "Delete checkpoint associated to a workflow by its id.",
-    httpMethod = "DELETE")
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "id",
-      value = "id of the workflow",
-      dataType = "String",
-      required = true,
-      paramType = "path")
-  ))
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def deleteCheckpoint(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "checkpoint" / Segment) { id =>
-      delete {
-        complete {
-          for {
-            response <- (supervisor ? DeleteCheckpoint(id, user))
-              .mapTo[Either[Response, UnauthorizedResponse]]
-          } yield {
-            deletePostPutResponse(WorkflowServiceDeleteCheckpoint, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -470,7 +383,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflow(workflow, user))
-                  .mapTo[Either[ResponseFutureWorkflowValidation, UnauthorizedResponse]]
+                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
           }
@@ -499,29 +412,9 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user))
-                  .mapTo[Either[ResponseFutureWorkflowValidation, UnauthorizedResponse]]
+                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
-          }
-        }
-      }
-    }
-  }
-
-  @Path("/resetAllStatuses")
-  @ApiOperation(value = "Reset all workflow statuses.",
-    notes = "Reset all statuses",
-    httpMethod = "POST",
-    response = classOf[WorkflowValidation])
-  def resetAllStatuses(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "resetAllStatuses") {
-      pathEndOrSingleSlash {
-        post {
-          complete {
-            for {
-              response <- (supervisor ? ResetAllStatuses(user))
-                .mapTo[Either[Response, UnauthorizedResponse]]
-            } yield deletePostPutResponse(WorkflowServiceResetAllStatuses, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -549,8 +442,10 @@ trait WorkflowHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? Run(id.toString, user))
-              .mapTo[Either[ResponseFutureAny, UnauthorizedResponse]]
-          } yield deletePostPutResponseFuture(WorkflowServiceRun, response, genericError, StatusCodes.OK)
+              .mapTo[Either[ResponseRun, UnauthorizedResponse]]
+          } yield {
+            deletePostPutResponse(WorkflowServiceRun, response, genericError)
+          }
         }
       }
     }
@@ -578,8 +473,8 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? RunWithVariables(executionWithVariables, user))
-                  .mapTo[Either[ResponseFutureAny, UnauthorizedResponse]]
-              } yield deletePostPutResponseFuture(WorkflowServiceRun, response, genericError)
+                  .mapTo[Either[ResponseRun, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceRun, response, genericError)
             }
           }
         }
@@ -609,8 +504,8 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user))
-                  .mapTo[Either[ResponseFutureAny, UnauthorizedResponse]]
-              } yield deletePostPutResponseFuture(WorkflowServiceRun, response, genericError)
+                  .mapTo[Either[ResponseRun, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceRun, response, genericError)
             }
           }
         }
@@ -618,38 +513,41 @@ trait WorkflowHttpService extends BaseHttpService {
     }
   }
 
-  @Path("/stop/{id}")
-  @ApiOperation(value = "Stop a workflow from by id.",
-    notes = "Stop a workflow by its id.",
-    httpMethod = "POST")
+  @Path("/runWithParametersView")
+  @ApiOperation(value = "Extract the visualization data to run the workflow through the workflow.",
+    notes = "Extract the visualization data to run the workflow through the workflow.",
+    httpMethod = "POST",
+    response = classOf[RunWithExecutionContextView])
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "id",
-      value = "id of the workflow",
-      dataType = "String",
+    new ApiImplicitParam(name = "Workflow",
+      defaultValue = "",
+      value = "workflow in json",
+      dataType = "Workflow",
       required = true,
-      paramType = "path")
+      paramType = "body")
   ))
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def stop(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "stop" / JavaUUID) { id =>
-      post {
-        complete {
-          for {
-            response <- (supervisor ? Stop(id.toString, user))
-              .mapTo[Either[ResponseAny, UnauthorizedResponse]]
-          } yield deletePostPutResponse(WorkflowServiceStop, response, genericError, StatusCodes.OK)
+  def runWithParametersView(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "runWithParametersView") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[Workflow]) { workflow =>
+            complete {
+              for {
+                response <- (supervisor ? RunWithParametersView(workflow, user))
+                  .mapTo[Either[ResponseRunWithExecutionContextView, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceRunWithExecutionContextView, response, genericError)
+            }
+          }
         }
       }
     }
   }
 
-  @Path("/reset/{id}")
-  @ApiOperation(value = "Reset status workflow by id.",
-    notes = "Reset status workflow by id.",
-    httpMethod = "POST")
+  @Path("/runWithParametersViewById/{id}")
+  @ApiOperation(value = "Extract the visualization data to run the workflow through its ID.",
+    notes = "Extract the visualization data to run the workflow through its ID.",
+    httpMethod = "POST",
+    response = classOf[RunWithExecutionContextView])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
       value = "id of the workflow",
@@ -657,18 +555,16 @@ trait WorkflowHttpService extends BaseHttpService {
       required = true,
       paramType = "path")
   ))
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def reset(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "reset" / JavaUUID) { id =>
+  def runWithParametersViewById(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "runWithParametersViewById" / JavaUUID) { workflowId =>
       post {
         complete {
           for {
-            response <- (supervisor ? Reset(id.toString, user))
-              .mapTo[Either[ResponseAny, UnauthorizedResponse]]
-          } yield deletePostPutResponse(WorkflowServiceReset, response, genericError, StatusCodes.OK)
+            response <- (supervisor ? RunWithParametersViewId(workflowId.toString, user))
+              .mapTo[Either[ResponseRunWithExecutionContextView, UnauthorizedResponse]]
+          } yield {
+            deletePostPutResponse(WorkflowServiceRunWithExecutionContextView, response, genericError)
+          }
         }
       }
     }
@@ -720,7 +616,7 @@ trait WorkflowHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "query",
       value = "new version model",
-      dataType = "WorkflowVersion",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowVersion",
       required = true,
       paramType = "body")
   ))
@@ -752,7 +648,7 @@ trait WorkflowHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "query",
       value = "new workflow name",
-      dataType = "WorkflowRename",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowRename",
       required = true,
       paramType = "body")
   ))
@@ -768,7 +664,7 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? RenameWorkflow(query, user))
-                  .mapTo[Either[Response, UnauthorizedResponse]]
+                  .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceRename, response, genericError, StatusCodes.OK)
             }
           }
@@ -785,7 +681,7 @@ trait WorkflowHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "query",
       defaultValue = "",
       value = "workflow to move",
-      dataType = "WorkflowMove",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowMove",
       required = true,
       paramType = "body")))
   @ApiResponses(Array(
@@ -817,7 +713,7 @@ trait WorkflowHttpService extends BaseHttpService {
     new ApiImplicitParam(name = "workflow cassiopeia",
       defaultValue = "",
       value = "workflow json",
-      dataType = "WorkflowCassiopeia",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.migration.WorkflowCassiopeia",
       required = true,
       paramType = "body")))
   @ApiResponses(Array(

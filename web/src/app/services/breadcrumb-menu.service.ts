@@ -13,7 +13,7 @@ export class BreadcrumbMenuService {
     public getOptions(lastOption?: string): string[] {
         let options = ['home'];
         const params = this.route.url.split('/');
-        options = options.concat(params.slice(1, params.length));
+        options = options.concat(params.slice(1, params.length).map(param => param.replace('-', ' ')));
         if (lastOption && lastOption.length) {
             options[options.length - 1] = lastOption;
         }
@@ -24,7 +24,7 @@ export class BreadcrumbMenuService {
         const routeParams = this.getOptions();
         let route = '';
         for (let i = 1; i < routeIndex + 1; i++) {
-            route += '/' + routeParams[i];
+            route += '/' + routeParams[i].replace(' ', '-');
         }
         this.route.navigate([route], {});
     }

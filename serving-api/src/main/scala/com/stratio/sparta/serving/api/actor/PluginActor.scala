@@ -17,6 +17,7 @@ import com.stratio.sparta.serving.core.services.HdfsFilesService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
+import HttpConstant._
 
 import scala.util.{Failure, Success, Try}
 
@@ -32,7 +33,7 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
 
   val ResourceType = "Files"
 
-  def receiveApiActions(action : Any): Unit = action match {
+  def receiveApiActions(action : Any): Any = action match {
     case UploadPlugins(files, user) =>
       if (files.isEmpty) errorResponse() else uploadPlugins(files, user)
     case ListPlugins(user) => browsePlugins(user)
@@ -46,12 +47,12 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
     sender ! Left(Failure(new Exception(s"At least one file is expected")))
 
   def deletePlugins(user: Option[LoggedUser]): Unit =
-    authorizeActions[PluginResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[Response](user, Map(ResourceType -> Delete)) {
       Try(hdfsFilesService.deletePlugins()).orElse(deleteFiles())
     }
 
   def deletePlugin(fileName: String, user: Option[LoggedUser]): Unit =
-    authorizeActions[PluginResponse](user, Map(ResourceType -> Delete)) {
+    authorizeActions[Response](user, Map(ResourceType -> Delete)) {
       Try(hdfsFilesService.deletePlugin(fileName)).orElse(deleteFile(fileName))
     }
 
@@ -85,7 +86,7 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
     }
 
   def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
-    authorizeActions[PluginResponse](user, Map(ResourceType -> Upload)) {
+    authorizeActions[Response](user, Map(ResourceType -> Upload)) {
       uploadFiles(files, useTemporalDirectory = true).flatMap { spartaFile =>
         Try {
           spartaFile.foreach { file =>
@@ -101,8 +102,6 @@ object PluginActor {
   type SpartaFilesResponse = Try[Seq[SpartaFile]]
 
   type SpartaFileResponse = Try[SpartaFile]
-
-  type PluginResponse = Try[Unit]
 
   case class UploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser])
 

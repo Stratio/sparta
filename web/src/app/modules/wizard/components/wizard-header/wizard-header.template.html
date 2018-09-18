@@ -14,8 +14,8 @@
       <div class="row">
         <div class="col-sm-12">
           <div class="header-info" *ngIf="workflowName.length">
-            <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="workflowType === 'Streaming'"/>
-            <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="workflowType === 'Batch'"/>
+            <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="workflowType === 'Streaming'" />
+            <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="workflowType === 'Batch'" />
             <div class="workflow-name-container">
               <span class="title egeo-title-extra-large">{{workflowName}} -</span>
               <span class="title egeo-title-giant">v{{workflowVersion}}</span>
@@ -79,9 +79,16 @@
             </button>
           </div>
           <div class="" style="float:right">
-            <button [disabled]="isWorkflowDebugging" (click)="debugWorkflow()" id="debug-mode" spTitle="Run debug mode" class="button button-toolbar">
-              <i class="icon-debug"></i>
-            </button>
+            <button  [disabled]="isWorkflowDebugging" class="button multi-button" id="debug-mode">
+              <div class="button-options"><!--
+                  --><i (click)="debugWorkflow()" spTitle="Run debug mode" class="primary-option icon-debug"></i><!--
+                  --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="selectedDebug($event)">
+                      <div class="options">
+                          <i class="icon-arrow2_down"></i>
+                      </div>
+                  </menu-options-list><!--
+              --></div>
+          </button>
             <button spTitle="Show node info" [ngClass]="{'selected-button': isShowedEntityDetails$ | async, 'errors' : (!validations.valid && validations.messages && validations.messages.length) || genericError}"
               class="button button-toolbar" id="show-info-button" (click)="toggleEntityInfo()">
                 <i class="icon-info1"></i>

@@ -38,3 +38,8 @@
       </div>
    </div>
 </div>
+<custom-execution-container (executeWorkflow)="executeWorkflow($event)" 
+    (closeCustomExecution)="closeCustomExecution()" 
+    [executionContexts]="executionContexts$ | async"
+    [workflowName]="selectedVersion.data.name"
+    *ngIf="showExecutionConfig$ | async"></custom-execution-container>

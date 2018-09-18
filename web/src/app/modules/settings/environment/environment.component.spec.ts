@@ -83,7 +83,7 @@ describe('[EnvironmentComponent]', () => {
       });
 
       it('If file does not have vars which are already in the list, all them are added', (done) => {
-         let emptyEnvironmentListStore = _cloneDeep(initialStateValue);
+         const emptyEnvironmentListStore = _cloneDeep(initialStateValue);
          emptyEnvironmentListStore.environment.environment.environmentList.variables = [];
          mockStoreInstance.next(emptyEnvironmentListStore);
          fixture.detectChanges();
@@ -96,7 +96,7 @@ describe('[EnvironmentComponent]', () => {
             value: 'fake 2'
          }
          ];
-         let newEnvironmentVarFile = {
+         const newEnvironmentVarFile = {
             variables: fakeEnvVarList
          };
          component.uploadVariables([new Blob([JSON.stringify(newEnvironmentVarFile)], { type: 'json' })]).then(() => {

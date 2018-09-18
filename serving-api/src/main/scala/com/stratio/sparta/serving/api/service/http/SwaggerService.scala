@@ -15,19 +15,15 @@ trait SwaggerService extends SwaggerHttpService {
   override def apiTypes: Seq[Type] = Seq(
     typeOf[TemplateHttpService],
     typeOf[WorkflowHttpService],
-    typeOf[WorkflowStatusHttpService],
     typeOf[PluginsHttpService],
     typeOf[AppStatusHttpService],
     typeOf[ExecutionHttpService],
     typeOf[AppInfoHttpService],
     typeOf[ConfigHttpService],
     typeOf[CrossdataHttpService],
-    typeOf[EnvironmentHttpService],
+    typeOf[GlobalParametersHttpService],
     typeOf[GroupHttpService],
-    typeOf[MetadataHttpService],
     typeOf[DebugWorkflowHttpService],
-    typeOf[ExecutionHistoryHttpService],
-    typeOf[StatusHistoryHttpService],
     typeOf[ParameterListHttpService]
   )
 

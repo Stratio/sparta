@@ -9,7 +9,8 @@ import { StoreModule } from '@ngrx/store';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule,
-    StModalService, StProgressBarModule, StTextareaModule } from '@stratio/egeo';
+    StModalService, StProgressBarModule, StTextareaModule, StForegroundNotificationsModule, StFullscreenLayoutModule, StInputModule
+} from '@stratio/egeo';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 
 import { SharedModule } from '@app/shared';
@@ -24,7 +25,10 @@ import {
 import { reducers } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
-;
+import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
+import { SpSelectModule } from '@app/shared/components/sp-select/sp-select.module';
+import { CustomExecutionModule } from '@app/custom-execution/custom-execution.module';
+
 @NgModule({
     exports: [
       WorkflowJsonModal
@@ -53,11 +57,16 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
         PerfectScrollbarModule,
         SpTooltipModule,
         StCheckboxModule,
+        CustomExecutionModule,
         StHorizontalTabsModule,
         StProgressBarModule,
+        StForegroundNotificationsModule,
         StTableModule,
         StTextareaModule,
+        SpSelectModule,
+        StInputModule,
         StBreadcrumbsModule,
+        MenuOptionsListModule,
         WorkflowManagingRouterModule,
         SharedModule,
         StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal,

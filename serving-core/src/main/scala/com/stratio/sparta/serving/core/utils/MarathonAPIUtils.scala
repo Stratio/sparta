@@ -9,22 +9,21 @@ package com.stratio.sparta.serving.core.utils
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.model.HttpMethods
-import akka.io.Tcp.Message
 import akka.stream.ActorMaterializer
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
-import com.stratio.sparta.serving.core.marathon.OauthTokenUtils.{expireToken, getToken}
-import com.stratio.tikitakka.common.util.HttpRequestUtils
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.marathon.OauthTokenUtils.{expireToken, getToken}
 import com.stratio.sparta.serving.core.utils.MarathonApiError._
+import com.stratio.tikitakka.common.util.HttpRequestUtils
 import net.minidev.json.JSONArray
 import org.slf4j.Logger
 
-import scala.util.{Failure, Properties, Success, Try}
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.collection.JavaConverters._
+import scala.util.{Failure, Properties, Success, Try}
 
 class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) extends SLF4JLogging {
   outer =>
@@ -34,35 +33,33 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
     override implicit val actorMaterializer: ActorMaterializer = outer.materializer
   }
 
-  import oauthUtils._
   import MarathonAPIUtils._
+  import oauthUtils._
 
   implicit val loggerMarathonUtils: Logger = outer.log
 
   private[core] val UnauthorizedKey = "<title>Unauthorized</title>"
 
-  private[core] val errorServerErrors= Seq("<title>500 Internal Server Error</title>",
+  private[core] val errorServerErrors = Seq("<title>500 Internal Server Error</title>",
     "<title>502 Bad Gateway</title>")
-
-  private[core] val instanceName = AppConstant.instanceName.fold("sparta-server") { x => x }
 
   private[core] val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
 
-  def removeEmptyFoldersFromDCOS : Unit = {
+  def removeEmptyFoldersFromDCOS: Unit = {
     outer.log.debug("Retrieving groups from MarathonAPI to purge the empty ones")
     val groupsToDelete = for {
       groupsToDeleteFuture <- retrieveEmptyGroups
       groupsAfterCheck <- Future(groupsToDeleteFuture)
     } yield groupsAfterCheck
-    groupsToDelete.onSuccess{ case groups =>
-      if(groups.isEmpty)
+    groupsToDelete.onSuccess { case groups =>
+      if (groups.isEmpty)
         log.debug("No eligible groups for deletion were found")
       else
         groups.foreach(sendDeleteForGroup)
     }
   }
 
-  def checkDiscrepancy(activeWorkflowsInZK: Map[String,String]): Future[(Map[String,String], Seq[String])] = {
+  def checkDiscrepancy(activeWorkflowsInZK: Map[String, String]): Future[(Map[String, String], Seq[String])] = {
     for {
       runningWorkflows <- retrieveApps()
       listRunningWorkflows <- Future(extractWorkflowStatus(runningWorkflows))
@@ -98,7 +95,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   private[core] def responseCheckedAuthorization(response: String, successfulLog: Option[String]): Future[String] = {
     if (response.contains(UnauthorizedKey))
       responseUnauthorized()
-    else if(errorServerErrors.exists(response.contains(_))) responseUnExpectedError(ServerError(response))
+    else if (errorServerErrors.exists(response.contains(_))) responseUnExpectedError(ServerError(response))
     else {
       successfulLog.foreach(log.debug(_))
       Future(response)
@@ -106,7 +103,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   }
 
   def retrieveApps(): Future[String] = {
-    val appsList = s"v2/apps?id=sparta/$instanceName/workflows"
+    val appsList = s"v2/apps?id=sparta/$marathonInstanceName/workflows"
     for {
       responseMarathon <- doRequest[String](marathonApiUri.get,
         appsList,
@@ -121,7 +118,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   }
 
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
-    val groupsPath = s"v2/groups/sparta/$instanceName/workflows"
+    val groupsPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
     for {
       groups <- doRequest[String](marathonApiUri.get,
         groupsPath,
@@ -151,7 +148,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   }
 
   private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
-    val GroupPath = s"v2/groups/sparta/$instanceName/workflows"
+    val GroupPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
 
     import oauthUtils._
 
@@ -271,9 +268,10 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
 }
 
 object MarathonAPIUtils {
+
   //Here there are all the methods for handling JSON responses wrt MarathonAPI
 
-  case class CustomNode(nameNode: String, childrenNodes:Seq[String])
+  case class CustomNode(nameNode: String, childrenNodes: Seq[String])
 
   case class AppParameters(appId: String, addressIP: String, port: Int)
 
@@ -298,13 +296,13 @@ object MarathonAPIUtils {
     listOfGroupsToCheck.++=(rootGroup)
 
     // Breadth-first traversal: iteration more efficient than recursion when there are deeply nested JSONs
-    while(listOfGroupsToCheck.nonEmpty){
+    while (listOfGroupsToCheck.nonEmpty) {
       val currentJnode = listOfGroupsToCheck.head
       val nestedGroups = currentJnode.findValue("groups").elements().asScala.toSeq
       val childrenNames = nestedGroups.flatMap(node => Try(node.get("id").asText).toOption)
       val currentApps = currentJnode.findValue("apps").asScala
       val currentID = Try(currentJnode.get("id").asText).toOption.notBlank
-      currentID.fold(){id => if (nestedGroups.isEmpty && currentApps.isEmpty) listOfEmptyGroups += id}
+      currentID.fold() { id => if (nestedGroups.isEmpty && currentApps.isEmpty) listOfEmptyGroups += id }
 
       listOfGroupsToCheck -= currentJnode
       listOfGroupsToCheck ++= nestedGroups
@@ -314,7 +312,7 @@ object MarathonAPIUtils {
     }
 
     // Mark for deletion only the inner nodes that have only empty children
-    listOfGroups.toList.foreach{ group =>
+    listOfGroups.toList.foreach { group =>
       if (group.childrenNodes.nonEmpty && group.childrenNodes.forall(child => listOfEmptyGroups.contains(child)))
         listOfEmptyGroups += group.nameNode
     }
@@ -322,7 +320,7 @@ object MarathonAPIUtils {
     listOfEmptyGroups
   }
 
-  private[core] def parseFindingEmpty(jsonString: String) : Seq[String] = {
+  private[core] def parseFindingEmpty(jsonString: String): Seq[String] = {
     if (jsonString.trim.nonEmpty)
       Try(new ObjectMapper().readTree(jsonString)) match {
         case Success(json) => extractEmpty(json)
@@ -337,7 +335,7 @@ abstract class MarathonApiError protected(description: String) extends RuntimeEx
   override def getMessage: String = s"MarathonAPI problem: $description"
 }
 
-object MarathonApiError{
+object MarathonApiError {
 
   object Unauthorized extends MarathonApiError("Unauthorized in Marathon API")
 

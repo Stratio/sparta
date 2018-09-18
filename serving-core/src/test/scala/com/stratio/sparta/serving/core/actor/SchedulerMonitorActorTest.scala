@@ -12,14 +12,11 @@ import akka.util.Timeout
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActor.{RetrieveStatuses, RetrieveWorkflowsEnv, _}
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActorTest._
-import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
-import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.WorkflowRemove
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionMode, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.MarathonAPIUtils
-import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
@@ -32,6 +29,7 @@ import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+//TODO test more cases
 @RunWith(classOf[JUnitRunner])
 class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec", SpartaConfig.daemonicAkkaConfig))
   with ImplicitSender
@@ -56,75 +54,17 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     self: SchedulerMonitorActor =>
 
     override lazy val currentInstanceName = Some("sparta-fl")
-    override def getInstanceCurator: CuratorFramework = mock[CuratorFramework]
     override lazy val inconsistentStatusCheckerActor: ActorRef = checkerProp.ref
-    workflows = scala.collection.mutable.Map("1234" -> testWorkflow,"5678" -> testWorkflow2)
-    statuses = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
-    executions = scala.collection.mutable.Map("1234" -> testExecution, "5678" -> testExecution2)
 
-    def getStatuses: Map[String, WorkflowStatus] = statuses.toMap
+    /*def receiveTest: Receive = {
 
-    def getWorkflowsEnv: Map[String, Workflow] = workflows.toMap
-
-    def receiveTest: Receive = {
-      case RetrieveStatuses =>
-        sender ! getStatuses
-      case RetrieveWorkflowsEnv =>
-        sender ! getWorkflowsEnv
-    }
+    }*/
   }
 
   "SchedulerMonitorActorTest" when {
 
     import SchedulerMonitorActorTest._
-    val actor = system.actorOf(Props(new SchedulerMonitorActor() with TestActor {
-      override def managementReceive: Receive = {
-        super.managementReceive orElse receiveTest
-      }
-    }))
-
-    "it receives a message TriggerCheck" should {
-      "send to the inconsistentStatusCheckerActor a Map <DCOS App ID,Workflow id>" in {
-        actor ! TriggerCheck
-        checkerProp.expectMsg(CheckConsistency(mapMarathonWorkflowIDs))
-      }
-    }
-
-    "it receives an event StatusChange" should {
-      "mark it as stopped updating its internal state" in {
-        actor ! StatusChange("myPath", testStatus.copy(status = WorkflowStatusEnum.Stopped))
-        actor ! RetrieveStatuses
-        expectMsgPF() { case messageStatuses: Map[String, WorkflowStatus] =>
-          messageStatuses.get(testStatus.id).fold(false) {
-            status => status.status == WorkflowStatusEnum.Stopped
-          }
-        }
-        actor ! TriggerCheck
-        checkerProp.expectMsg(CheckConsistency(Map.empty[String, String]))
-      }
-
-      "mark it as running updating its internal state" in {
-        actor ! StatusChange("myPath", testStatus)
-        actor ! RetrieveStatuses
-        expectMsgPF() { case messageStatuses: Map[String, WorkflowStatus] =>
-          messageStatuses.get(testStatus.id).fold(false) {
-            status => status.status == WorkflowStatusEnum.Started
-          }
-        }
-        actor ! TriggerCheck
-        checkerProp.expectMsg(CheckConsistency(mapMarathonWorkflowIDs))
-      }
-    }
-
-    "it receives an event WorkflowRemove" should {
-      "remove the workflow and change its internal state" in {
-        actor ! WorkflowRemove("myPath", testWorkflow)
-        actor ! RetrieveWorkflowsEnv
-        expectMsgPF() { case messageWorkflow: Map[String, Workflow] =>
-          messageWorkflow.isEmpty
-        }
-      }
-    }
+    val actor = system.actorOf(Props(new SchedulerMonitorActor() with TestActor))
 
     "the method CheckDiscrepancy in its utils is invoked" should {
       "retrieve correctly only inconsistent status through MarathonAPI" in {
@@ -136,40 +76,38 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
           assert(res._2.isEmpty)
         }
         whenReady(mockMarathon.checkDiscrepancy(Map.empty[String, String])) { res =>
-          assert(res._2 === Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0"))
+          assert(res._2 === Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234"))
         }
         whenReady(mockMarathon.checkDiscrepancy(
-          Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-v0" -> "1234"))) { res =>
+          Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-v0/5678" -> "5678"))) { res =>
           assert(
-            res._1 === Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-v0" -> "1234") &&
-              res._2 === Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0"))
+            res._1 === Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-v0/5678" -> "5678") &&
+              res._2 === Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234"))
         }
         val extractApp = mockMarathon.extractWorkflowStatus(testJSON)
-        extractApp should be(Some(Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0")))
+        extractApp should be(Some(Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234")))
       }
     }
 
-    "the method fromStatusesToMapWorkflow is invoked" should {
+    "the method fromExecutionsToMapMarathonIdExecutionId is invoked" should {
       "retrieve correctly the app names in Marathon" in {
         val objectSchedulerMonitorActor = SchedulerMonitorActor
-        val extractApp = objectSchedulerMonitorActor.fromStatusesToMapWorkflowNameAndId(statusesTest, executionsTest,
-          workflowsTest)(Some("sparta-fl"))
+        val extractApp = objectSchedulerMonitorActor.fromExecutionsToMapMarathonIdExecutionId(executionsTest)(Some("sparta-fl"))
         extractApp should be(
-          Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0" -> "1234"))
+          Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234" -> "1234"))
       }
     }
 
-    "the method fromDCOSName2NameAndTupleGroupVersion is invoked" should {
+    "the method fromDCOSName2ExecutionId is invoked" should {
       "retrieve correctly the workflow name, group and version" in {
         val objectSchedulerMonitorActor = SchedulerMonitorActor
-        val seqTest = Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0",
-          "/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v2",
-          "/sparta/sparta-fl/workflows/home/aaa/bbb/ccc/test-input-print/test-input-print-v3")
-        val extractApp =  objectSchedulerMonitorActor.fromDCOSName2NameAndTupleGroupVersion(seqTest)
+        val seqTest = Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234",
+          "/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v2/5678",
+          "/sparta/sparta-fl/workflows/home/aaa/bbb/ccc/test-input-print/test-input-print-v3/91011")
+        val extractApp =  objectSchedulerMonitorActor.fromDCOSName2ExecutionId(seqTest)
         extractApp should be(
-          Map("test-input-print" -> ("/home", 0L),
-            "test-input-print" -> ("/home", 2L),
-            "test-input-print" -> ("/home/aaa/bbb/ccc", 3L)))
+          Seq("1234", "5678", "91011")
+        )
       }
     }
   }
@@ -210,28 +148,38 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       lastUpdateDate = Option(new DateTime(timestampEpochTest))
     )
 
-    val testStatus = WorkflowStatus("1234", WorkflowStatusEnum.Started, Some("statusId"))
 
-    val testStatus2 = WorkflowStatus("5678", WorkflowStatusEnum.Failed, Some("statusId"))
+    val exContext = ExecutionContext()
 
-    val exContext = ExecutionContext(withEnvironment = true)
+    val testExecution = WorkflowExecution(
+      Option("1234"),
+      Seq(ExecutionStatus(WorkflowStatusEnum.Started)),
+      GenericDataExecution(testWorkflow, testWorkflow, WorkflowExecutionMode.marathon, exContext),
+      None,
+      None,
+      None,
+      Option(MarathonExecution("sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234")),
+      None
+    )
 
-    val testExecution = WorkflowExecution("1234",None, None, None, None, Some(GenericDataExecution(testWorkflow,
-      testWorkflow, WorkflowExecutionMode.marathon, "abc", exContext)))
+    val testExecution2 = WorkflowExecution(
+      Option("5678"),
+      Seq(ExecutionStatus(WorkflowStatusEnum.Started)),
+      GenericDataExecution(testWorkflow, testWorkflow, WorkflowExecutionMode.local, exContext),
+      None,
+      None,
+      None,
+      None,
+      None
+    )
 
-    val testExecution2 = WorkflowExecution("5678",None, None, None, None, Some(GenericDataExecution(testWorkflow,
-      testWorkflow, WorkflowExecutionMode.local, "abc", exContext)))
-
-    val statusesTest = scala.collection.mutable.Map("1234" -> testStatus, "5678" -> testStatus2)
-    val executionsTest = scala.collection.mutable.Map("1234" -> testExecution, "5678" -> testExecution2)
-    val workflowsTest = scala.collection.mutable.Map("1234" -> testWorkflow, "5678" -> testWorkflow2)
-
+    val executionsTest = Seq(testExecution, testExecution2)
 
     val testJSON =
       """
         |{
         |  "apps": [{
-        |    "id": "/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0",
+        |    "id": "/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234",
         |    "cmd": null,
         |    "args": null,
         |    "user": null,
@@ -269,7 +217,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       """.stripMargin
 
     val mapMarathonWorkflowIDs =
-      Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0" -> "1234")
+      Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234" -> "1234")
 
 
 

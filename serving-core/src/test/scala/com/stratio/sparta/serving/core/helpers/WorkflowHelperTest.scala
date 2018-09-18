@@ -5,8 +5,8 @@
  */
 package com.stratio.sparta.serving.core.helpers
 
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
-import com.stratio.sparta.serving.core.models.workflow.{Group, PipelineGraph, Settings, Workflow}
+import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowExecutionMode}
+import com.stratio.sparta.serving.core.models.workflow._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -39,11 +39,16 @@ class WorkflowHelperTest extends WordSpec with ShouldMatchers with Matchers with
       }
     }
 
-    "a workflow is passed" should{
+    "a workflow execution is passed" should{
       "create correcly a path" in {
         //It is "undefined" instead of sparta-server or any tenant because there is no Environment Variable
-        val expected = "sparta/undefined/workflows/home/kafka-to-kafka/kafka-to-kafka-v2"
-        WorkflowHelper.getMarathonId(wf) should be (expected)
+        val expected = "sparta/undefined/workflows/home/kafka-to-kafka/kafka-to-kafka-v2/1234-5678"
+        val execution = WorkflowExecution(
+          id = Option("1234-5678"),
+          statuses = Seq(ExecutionStatus()),
+          genericDataExecution = GenericDataExecution(wf, wf, WorkflowExecutionMode.local, ExecutionContext())
+        )
+        WorkflowHelper.getMarathonId(execution) should be (expected)
       }
     }
   }

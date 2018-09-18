@@ -16,9 +16,11 @@ import {
     ApiService,
     ErrorMessagesService,
     CrossdataService,
+    ParametersService,
     BreadcrumbMenuService,
     InitializeSchemaService,
     InitializeWorkflowService,
+    ExecutionService
 } from 'services';
 import { AppState } from './app.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -39,10 +41,12 @@ export const APP_PROVIDERS: Array<any> = [
     BackupService,
     EnvironmentService,
     CrossdataService,
+    ParametersService,
     ResourcesService,
     InitializeSchemaService,
     BreadcrumbMenuService,
     ApiService,
     ErrorMessagesService,
-    InitializeWorkflowService
+    InitializeWorkflowService,
+    ExecutionService
 ];

@@ -11,26 +11,22 @@ import java.nio.file.{Files, StandardCopyOption}
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.stream.ActorMaterializer
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
+import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
 import com.stratio.sparta.serving.core.utils.NginxUtils._
-import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.sys.process._
-import scala.util.{Failure, Properties, Success, Try}
-import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
+import scala.util.{Properties, Try}
 
 object NginxUtils {
 
-  import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
-
   def buildSparkUI(id: String): Option[String] = {
     val url = for {
-      monitorVhost <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST")
-      serviceName <- Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
+      monitorVhost <- Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv)
+      serviceName <- Properties.envOrNone(MarathonConstant.DcosServiceName)
     } yield {
       val useSsl = Properties.envOrNone("SECURITY_TLS_ENABLE") flatMap { strVal =>
         Try(strVal.toBoolean).toOption
@@ -295,10 +291,11 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
 
       val workflowName = Try(id.substring(id.indexOf("home"))).getOrElse(id.split('/').last)
       val monitorEndUrl = monitorUrl(uiVirtualHost, instanceName, workflowName, useSsl)
+      val nginxLocation = WorkflowHelper.getProxyLocation(workflowName)
 
       s"""
          |
-         |    location /workflows-$instanceName/$workflowName/ {
+         |    location $nginxLocation {
          |      proxy_pass        http://$ip:$port/;
          |      proxy_redirect    http://$uiVirtualHost/ $monitorEndUrl;
          |      proxy_set_header  Host             $$host;

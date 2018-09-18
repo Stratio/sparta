@@ -40,7 +40,7 @@ fi
 
 INFO "[SPARTA-RUN-MARATHON] Running Marathon app with java command: $JAVACMD"
 INFO "[SPARTA-RUN-MARATHON] Running Marathon app with java options: $SPARTA_MARATHON_OPTIONS"
-INFO "[SPARTA-RUN-MARATHON] Running Marathon app with arguments: workflowId -> $SPARTA_WORKFLOW_ID & zookeeperConfig -> $SPARTA_ZOOKEEPER_CONFIG & detailConfig -> $SPARTA_DETAIL_CONFIG"
+INFO "[SPARTA-RUN-MARATHON] Running Marathon app with arguments: workflowId -> $SPARTA_EXECUTION_ID & zookeeperConfig -> $SPARTA_ZOOKEEPER_CONFIG & detailConfig -> $SPARTA_DETAIL_CONFIG"
 
 exec "$JAVACMD" $SPARTA_MARATHON_OPTIONS \
   -classpath "$CLASSPATH" \
@@ -50,4 +50,4 @@ exec "$JAVACMD" $SPARTA_MARATHON_OPTIONS \
   -Dapp.home="$SPARTA_HOME" \
   -Dbasedir="$SPARTA_HOME" \
   "$SPARTA_MARATHON_MAIN_CLASS" \
-  "$SPARTA_WORKFLOW_ID" "$SPARTA_ZOOKEEPER_CONFIG" "$SPARTA_DETAIL_CONFIG"
+  "$SPARTA_EXECUTION_ID"

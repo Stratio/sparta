@@ -211,12 +211,6 @@ describe('[WorkflowsManagingHeaderContainer]', () => {
         });
 
 
-        it('can dispatch generate version action', () => {
-            const expectedAction = new workflowActions.GenerateNewVersionAction();
-            component.generateVersion(); // go to /app
-            expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-        });
-
     });
 
 });

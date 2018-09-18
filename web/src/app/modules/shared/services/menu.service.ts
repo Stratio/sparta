@@ -42,30 +42,6 @@ export class MenuService {
             label: 'Catalog',
             link: DASHBOARD_ROUTES.CROSSDATA,
             subMenus: []
-        },
-        {
-            icon: 'icon-record',
-            label: 'Settings',
-            link: DASHBOARD_ROUTES.SETTINGS,
-            subMenus: [
-                /* {
-                     label:'GENERAL',
-                     link: DASHBOARD_ROUTES.INPUTS,
-                     isActive:true
-                 },*/
-                {
-                    label: 'Backups',
-                    link: DASHBOARD_ROUTES.BACKUPS
-                },
-                {
-                    label: 'Plugins',
-                    link: DASHBOARD_ROUTES.PLUGINS
-                },
-                {
-                    label: 'Environment',
-                    link: DASHBOARD_ROUTES.ENVIRONMENT
-                }
-            ]
         }
     ];
 

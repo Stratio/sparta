@@ -13,6 +13,7 @@ export interface State {
   showDebugConsole: boolean;
   debugConsoleSelectedTab: string;
   showedDebugDataEntity: string;
+  showDebugConfig: boolean;
 };
 
 const initialState: State = {
@@ -20,7 +21,8 @@ const initialState: State = {
   lastDebugResult: null,
   showDebugConsole: false,
   debugConsoleSelectedTab: 'Exceptions',
-  showedDebugDataEntity: ''
+  showedDebugDataEntity: '',
+  showDebugConfig: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -107,6 +109,18 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         showDebugConsole: false
+      };
+    }
+    case debugActions.SHOW_DEBUG_CONFIG: {
+      return {
+        ...state,
+        showDebugConfig: true
+      };
+    }
+    case debugActions.HIDE_DEBUG_CONFIG: {
+      return {
+        ...state,
+        showDebugConfig: false
       };
     }
     default:

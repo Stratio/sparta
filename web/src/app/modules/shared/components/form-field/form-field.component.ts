@@ -35,7 +35,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
    @Input() disabledForm = false;
    @Input() valueDictionary;
    @Input() variableList: Array<any> = [];
-   @Input() showVars: boolean;
+
 
    public stFormControl: FormControl;
    public stFormControlSubcription: Subscription;

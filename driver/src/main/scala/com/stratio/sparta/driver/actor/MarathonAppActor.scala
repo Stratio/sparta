@@ -7,28 +7,24 @@ package com.stratio.sparta.driver.actor
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
+import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
-import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
-import com.stratio.sparta.serving.core.actor.StatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.{ForgetExecutionStatusActions, OnExecutionStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.LauncherActor.Run
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowStatusService}
-import org.apache.curator.framework.CuratorFramework
+import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonAppActor(
-                        val curatorFramework: CuratorFramework,
-                        listenerActor: ActorRef
-                      ) extends Actor with SLF4JLogging {
+class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor with SLF4JLogging {
 
-  private val statusService = new WorkflowStatusService(curatorFramework)
-  private val executionService = new ExecutionService(curatorFramework)
+  lazy val executionService = new WorkflowExecutionPostgresDao
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(execution) => doStartApp(execution)
@@ -44,33 +40,27 @@ class MarathonAppActor(
 
   //scalastyle:off
   def doStartApp(execution: WorkflowExecution): Unit = {
-    val workflow = execution.genericDataExecution.get.workflow
     Try {
-      log.debug(s"Obtaining status with workflow id: ${workflow.id.get}")
-      statusService.findById(workflow.id.get) match {
-        case Success(status) =>
-          log.debug(s"Obtained status: ${status.status}")
-          if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
-            status.status != Finished) {
-            log.debug(s"Closing checker with id: ${workflow.id.get} and name: ${workflow.name}")
-            closeChecker(workflow.id.get, workflow.name)
-            log.debug(s"Obtaining execution with workflow id: ${workflow.id.get}")
+      log.debug(s"Obtained status: ${execution.lastStatus.state}")
+      if (execution.lastStatus.state != Stopped && execution.lastStatus.state != Stopping &&
+        execution.lastStatus.state != Failed && execution.lastStatus.state != Finished) {
+        log.debug(s"Closing checker with execution id: ${execution.getExecutionId}")
+        closeChecker(execution.getExecutionId)
+        log.debug(s"Obtaining execution with workflow id: ${execution.getExecutionId}")
 
-            log.debug(s"Starting execution: ${execution.toString}")
-            val clusterLauncherActor =
-              context.actorOf(Props(new ClusterLauncherActor(curatorFramework, listenerActor)), ClusterLauncherActorName)
-            clusterLauncherActor ! StartWithRequest(workflow, execution)
-          } else {
-            val information = "Workflow App launched by Marathon with incorrect state, the job was not executed"
-            log.info(information)
-            preStopActions()
-            statusService.update(WorkflowStatus(
-              id = workflow.id.get,
-              status = if(status.status == Stopping) Stopped else status.status,
-              statusInfo = Option(information)
-            ))
-          }
-        case Failure(e) => throw e
+        log.debug(s"Starting execution: ${execution.toString}")
+        val clusterLauncherActor =
+          context.actorOf(Props(new ClusterLauncherActor(executionStatusListenerActor)), ClusterLauncherActorName)
+        clusterLauncherActor ! Run(execution)
+      } else {
+        val information = "Workflow App launched by Marathon with incorrect state, the job was not executed"
+        log.info(information)
+        executionService.updateStatus(ExecutionStatusUpdate(
+          execution.getExecutionId,
+          ExecutionStatus(
+          state = if (execution.lastStatus.state == Stopping) Stopped else execution.lastStatus.state,
+          statusInfo = Option(information)
+          )))
       }
     } match {
       case Success(_) =>
@@ -78,36 +68,38 @@ class MarathonAppActor(
       case Failure(exception) =>
         val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
-        preStopActions()
         val error = WorkflowError(
           information,
           PhaseEnum.Launch,
           exception.toString,
           ExceptionHelper.toPrintableException(exception)
         )
-        executionService.setLastError(workflow.id.get, error)
-        statusService.update(WorkflowStatus(
-          id = workflow.id.get,
-          status = Failed,
-          statusInfo = Option(information)
-        ))
+        for {
+          _ <- executionService.setLastError(execution.getExecutionId, error)
+          _ <- executionService.updateStatus(ExecutionStatusUpdate(
+            execution.getExecutionId,
+            ExecutionStatus(state = Failed, statusInfo = Option(information))
+          ))
+        } yield {
+          log.debug(s"Updated correctly the execution status ${execution.getExecutionId} to $Failed in MarathonAppActor")
+        }
     }
   }
 
   //scalastyle:on
 
-  def closeChecker(workflowId: String, workflowName: String): Unit = {
-    log.debug(s"Close checker added to $workflowName with id: $workflowId")
+  def closeChecker(executionId: String): Unit = {
+    log.debug(s"Close checker added to execution id: $executionId")
 
-    listenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatusStream =>
-      if (workflowStatusStream.workflowStatus.status == Stopped ||
-        workflowStatusStream.workflowStatus.status == Failed) {
+    executionStatusListenerActor ! OnExecutionStatusChangeDo(executionId) { executionStatusChange =>
+      if (executionStatusChange.newExecution.lastStatus.state == Stopped ||
+        executionStatusChange.newExecution.lastStatus.state == Failed) {
         try {
           val information = s"Executing pre-close actions in Workflow App ..."
           log.info(information)
           preStopActions()
         } finally {
-          listenerActor ! ForgetWorkflowStatusActions(workflowId)
+          executionStatusListenerActor ! ForgetExecutionStatusActions(executionId)
         }
       }
     }

@@ -6,6 +6,7 @@
 package com.stratio.sparta.core.models
 
 case class ResultStep(
+                       id: Option[String] = None,
                        step: String,
                        numEvents: Int = 0,
                        schema: Option[String] = None,

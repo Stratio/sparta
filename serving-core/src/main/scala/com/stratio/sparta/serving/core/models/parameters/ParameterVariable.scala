@@ -5,4 +5,10 @@
  */
 package com.stratio.sparta.serving.core.models.parameters
 
-case class ParameterVariable(name: String, value: Option[String] = None)
+case class ParameterVariable(name: String, value: Option[String] = None) {
+
+  def this(name: String, value: String) {
+    this(name, Option(value))
+  }
+
+}

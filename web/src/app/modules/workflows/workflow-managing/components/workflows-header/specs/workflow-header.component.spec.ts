@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { WorkflowsManagingHeaderComponent } from './../workflows-header.component';
 import { WorkflowsManagingService } from './../../../workflows.service';
 import { SharedModule } from '@app/shared';
+import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
 
 
 let component: WorkflowsManagingHeaderComponent;
@@ -35,7 +36,8 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          imports: [
             StBreadcrumbsModule,
             TranslateMockModule,
-            SharedModule
+            SharedModule,
+            MenuOptionsListModule
          ],
          providers: [
             { provide: Router, useValue: routeMock },
@@ -84,10 +86,6 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          expect(fixture.nativeElement.querySelector('#download-button')).toBeNull();
       });
 
-      it('the edit version button should not be displayed', () => {
-         expect(fixture.nativeElement.querySelector('#edit-version-button')).toBeNull();
-      });
-
       it('the move group button should not be displayed', () => {
          expect(fixture.nativeElement.querySelector('#move-group-button')).toBeNull();
       });
@@ -105,7 +103,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          fixture.detectChanges();
       });
 
-      it('should can edit group name', () => {
+      xit('should can edit group name', () => {
          fixture.nativeElement.querySelector('#edit-workflow-group-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
          expect(callParams.modalTitle).toBe(component.renameFolderTitle);
@@ -115,7 +113,7 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          });
       });
 
-      it('should can move a group', () => {
+      xit('should can move a group', () => {
          fixture.detectChanges();
          fixture.nativeElement.querySelector('#move-group-button').click();
          const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
@@ -140,26 +138,6 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
       beforeEach(() => {
          component.selectedWorkflowsInner = ['workflow1'];
          fixture.detectChanges();
-      });
-
-      it('should can edit workflow name', () => {
-         fixture.nativeElement.querySelector('#edit-workflow-group-button').click();
-         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
-         expect(callParams.modalTitle).toBe(component.renameWorkflowTitle);
-         expect(callParams.inputs).toEqual({
-            entityType: 'Workflow',
-            entityName: component.selectedWorkflowsInner[0]
-         });
-      });
-
-      it('should can move a workflow', () => {
-         fixture.nativeElement.querySelector('#move-group-button').click();
-         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
-         expect(callParams.modalTitle).toBe(component.moveGroupTitle);
-         expect(callParams.inputs).toEqual({
-            workflow: component.selectedWorkflowsInner[0],
-            currentGroup: null
-         });
       });
 
       it('should can remove a workflow', () => {
@@ -223,16 +201,6 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          expect(component.downloadWorkflows.emit).toHaveBeenCalled();
       });
 
-      it('should can edit the selected version', () => {
-         fixture.detectChanges();
-         spyOn(component.onEditVersion, 'emit');
-         const runDebugElement: HTMLButtonElement = fixture.nativeElement.querySelector('#edit-version-button');
-         expect(runDebugElement).not.toBeNull();
-         runDebugElement.click();
-         expect(component.onEditVersion.emit).toHaveBeenCalled();
-      });
-
-
       it('should can remove a version', () => {
          fixture.detectChanges();
          fixture.nativeElement.querySelector('#delete-button').click();
@@ -241,24 +209,14 @@ describe('[WorkflowsManagingHeaderComponent]', () => {
          expect(callParams.messageTitle).toBe(component.deleteWorkflowModalMessage);
       });
 
-      it('should can create a new version', () => {
-         fixture.detectChanges();
-         spyOn(component.generateVersion, 'emit');
-         fixture.nativeElement.querySelector('#version-option').click();
-         expect(component.generateVersion.emit).toHaveBeenCalled();
-      });
-
-      it('should can create a workflow from a version', () => {
-         fixture.detectChanges();
-         fixture.nativeElement.querySelector('#workflow-option').click();
-         const callParams = (<jasmine.Spy>modalServiceMock.show).calls.mostRecent().args[0];
-         expect(callParams.modalTitle).toBe(component.duplicateWorkflowTitle);
-      });
    });
 
    describe('other actions can be performed', () => {
 
-      beforeEach(() => fixture.detectChanges());
+      beforeEach(() =>  {
+         fixture.nativeElement.querySelector('#create-entity-button').click();
+         fixture.detectChanges();
+      });
 
       it('should can create a folder', () => {
          fixture.nativeElement.querySelector('#group-option').click();

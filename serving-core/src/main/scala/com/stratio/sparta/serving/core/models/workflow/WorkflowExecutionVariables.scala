@@ -6,9 +6,10 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.models.env.EnvironmentVariable
+import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
 
-case class WorkflowExecutionVariables(workflowId: String, variables: Seq[EnvironmentVariable]) {
+case class WorkflowExecutionVariables(workflowId: String, variables: Seq[ParameterVariable]) {
 
-  def toVariablesMap: Map[String, String] = variables.map(envVariable => envVariable.name -> envVariable.value).toMap
+  def toVariablesMap: Map[String, String] = variables.map(envVariable =>
+    envVariable.name -> envVariable.value.getOrElse("")).toMap
 }

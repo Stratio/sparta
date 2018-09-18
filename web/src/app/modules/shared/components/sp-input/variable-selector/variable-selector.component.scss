@@ -1,0 +1,16 @@
+@import '~@stratio/egeo/theme/constants';
+:host {
+  display: block;
+  width: 100%;
+}
+
+.info-text {
+  padding-bottom: 1em;
+  color: $neutral-11;
+}
+
+.param-button {
+  float: right;
+  margin-top: 1.4em;
+  margin-left: 1em;
+}

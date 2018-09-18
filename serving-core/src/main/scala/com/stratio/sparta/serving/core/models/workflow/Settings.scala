@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.core.models.ErrorsManagement
 import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.{DeployMode, WorkflowExecutionMode}
@@ -26,10 +27,15 @@ case class GlobalSettings(
                            addAllUploadedPlugins: Boolean = true,
                            mesosConstraint: Option[JsoneyString] = None,
                            mesosConstraintOperator: Option[JsoneyString] = None,
-                           parametersLists: Seq[String] = Seq.empty,
-                           parametersUsed: Seq[String] = Seq.empty,
-                           useEnvironment: Option[Boolean] = None
+                           parametersLists: Seq[String] = Seq.empty[String],
+                           parametersUsed: Seq[String] = Seq.empty[String]
                          )
+
+case class GlobalSettingsDto(
+                           executionMode: WorkflowExecutionMode = WorkflowExecutionMode.marathon,
+                           parametersLists: Seq[String] = Seq.empty[String],
+                           parametersUsed: Seq[String] = Seq.empty[String]
+                         ) extends Dto
 
 case class CheckpointSettings(
                                checkpointPath: JsoneyString = JsoneyString("sparta/checkpoint"),

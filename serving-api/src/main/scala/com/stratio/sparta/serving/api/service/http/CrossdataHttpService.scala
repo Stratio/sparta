@@ -79,7 +79,7 @@ trait CrossdataHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "tableRequest",
       value = "Table conditions request",
-      dataType = "TableRequest",
+      dataType = "com.stratio.sparta.serving.core.models.crossdata.TableRequest",
       required = true,
       paramType = "body")
   ))
@@ -108,7 +108,7 @@ trait CrossdataHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "TableInfoRequest",
       value = "Table conditions request",
-      dataType = "TableInfoRequest",
+      dataType = "com.stratio.sparta.serving.core.models.crossdata.TableInfoRequest",
       required = true,
       paramType = "body")
   ))
@@ -137,7 +137,7 @@ trait CrossdataHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "query",
       value = "Query string",
-      dataType = "QueryRequest",
+      dataType = "com.stratio.sparta.serving.core.models.crossdata.QueryRequest",
       required = true,
       paramType = "body")
   ))

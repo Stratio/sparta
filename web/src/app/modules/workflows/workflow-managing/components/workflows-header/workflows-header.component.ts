@@ -22,11 +22,9 @@ import { StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Subscription';
 
 import { WorkflowsManagingService } from './../../workflows.service';
-import { WorkflowRenameModal } from './../workflow-rename-modal/workflow-rename.component';
-import { MoveGroupModal } from './../move-group-modal/move-group.component';
 import { DuplicateWorkflowComponent } from './../duplicate-workflow-modal/duplicate-workflow.component';
 import { isWorkflowRunning } from '@utils';
-import { take } from 'rxjs/operator/take';
+import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
 
 @Component({
    selector: 'workflows-manage-header',
@@ -44,6 +42,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    @Input() selectedGroupsList: Array<string>;
    @Input() showDetails = false;
    @Input() levelOptions: Array<string>;
+   @Input() notificationMessage: any;
    @Input() versionsListMode = false;
 
    @Output() downloadWorkflows = new EventEmitter();
@@ -53,37 +52,61 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    @Output() changeFolder = new EventEmitter();
    @Output() generateVersion = new EventEmitter();
    @Output() onEditVersion = new EventEmitter<any>();
+   @Output() hideNotification = new EventEmitter();
+   @Output() showExecutionConfig = new EventEmitter<string>();
+   @Output() onSimpleRun = new EventEmitter<any>();
 
    public selectedVersionsInner: Array<string> = [];
    public selectedWorkflowsInner: Array<string> = [];
    public selectedGroupsListInner: Array<string> = [];
-   public menuOptions = [
+   public visibleNotification = true;
+   public runOptions: MenuOptionListGroup[] = [
       {
-         name: 'Group',
-         value: 'group'
-      }, {
-         name: 'Workflow',
-         subMenus: [
+         options: [
             {
-               name: 'New workflow from scratch',
-               value: 'scratch',
-               subMenus: [
-                  {
-                     name: 'Streaming',
-                     value: 'streaming'
-                  },
-                  {
-                     name: 'Batch',
-                     value: 'batch'
-                  }
-               ]
+               label: 'Run',
+               id: 'simple'
             },
             {
-               name: 'New workflow from json file',
-               value: 'file'
+               label: 'Run with custom params',
+               id: 'advanced'
             }
          ]
       }
+   ];
+   public menuOptions: MenuOptionListGroup[] = [
+      {
+         options: [
+            {
+               icon: 'icon-folder',
+               label: 'New folder',
+               id: 'group'
+            }
+         ]
+      },
+      {
+         options: [
+            {
+               icon: 'icon-streaming-workflow',
+               label: 'Streaming workflow',
+               id: 'streaming'
+            },
+            {
+               icon: 'icon-batch-workflow',
+               label: 'Batch workflow',
+               id: 'batch'
+            }
+         ]
+      },
+      {
+         options: [
+            {
+               icon: 'icon-json',
+               label: 'Import from JSON',
+               id: 'file'
+            }
+         ]
+      },
    ];
    public isRunning = isWorkflowRunning;
    public deleteWorkflowModalTitle: string;
@@ -108,6 +131,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    ];
 
    private _modalSubscription: Subscription;
+   private _notificationHandler;
 
    ngOnChanges(changes: SimpleChanges): void {
       if (changes['selectedWorkflows']) {
@@ -155,57 +179,21 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
          });
    }
 
-   public runWorkflow(version: any): void {
-      if (isWorkflowRunning(version.status.status)) {
-         const stopPolicy = {
-            'id': version.id,
-            'status': 'Stopping'
-         };
-         this.workflowsService.stopWorkflow(stopPolicy);
-      } else {
-         this.workflowsService.runWorkflow(version.id, '');
-      }
-   }
-
-   public editWorkflowGroup(): void {
-      this._modalService.show({
-         modalTitle: this.selectedGroupsListInner.length ? this.renameFolderTitle : this.renameWorkflowTitle,
-         maxWidth: 500,
-         inputs: {
-            entityType: this.selectedGroupsListInner.length ? 'Group' : 'Workflow',
-            entityName: this.selectedGroupsListInner.length ? this.selectedGroupsListInner[0] : this.selectedWorkflowsInner[0]
-         },
-         outputs: {
-            onCloseRenameModal: (response: any) => {
-               this._modalService.close();
-            }
-         },
-      }, WorkflowRenameModal);
-   }
-
    public editVersion(): void {
       this.onEditVersion.emit(this.selectedVersions[0]);
    }
 
-   public selectLevel(event: number): void {
-      this.changeFolder.emit(event);
+   public changeNotificationVisibility(visible: boolean) {
+      if (!visible) {
+         this.hideNotification.emit();
+      } else {
+         clearInterval(this._notificationHandler);
+         this._notificationHandler = setTimeout(() => this.hideNotification.emit(), 5000);
+      }
    }
 
-   public moveTo(): void {
-      this._modalService.show({
-         modalTitle: this.moveGroupTitle,
-         maxWidth: 500,
-         inputs: {
-            workflow: this.selectedWorkflowsInner.length ? this.selectedWorkflowsInner[0] : null,
-            currentGroup: this.selectedGroupsListInner.length ? this.selectedGroupsListInner[0] : null,
-
-         },
-         outputs: {
-            onCloseMoveGroup: (response: any) => {
-               this._modalService.close();
-            }
-         },
-      }, MoveGroupModal);
+   public selectLevel(event: number): void {
+      this.changeFolder.emit(event);
    }
 
    public deleteWorkflowConfirmModal() {
@@ -234,7 +222,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    }
 
    public selectedMenuOption(event: any) {
-      switch (event.value) {
+      switch (event) {
          case 'streaming':
             this.route.navigate(['wizard/streaming']);
             break;
@@ -251,6 +239,21 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
             this.workflowsService.showCreateJsonModal();
             break;
       }
+   }
+
+   public selectedExecution(event: string) {
+      if (event === 'simple') {
+         this.simpleRun();
+      } else {
+         this.showExecutionConfig.emit(this.selectedVersions[0]);
+      }
+   }
+
+   public simpleRun() {
+      this.onSimpleRun.emit({
+         workflowId: this.selectedVersionsData[0].id,
+         workflowName: this.selectedVersionsData[0].name
+      });
    }
 
    public selectedDuplicatedOption(event: any) {

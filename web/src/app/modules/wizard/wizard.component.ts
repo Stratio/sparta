@@ -6,9 +6,11 @@
 
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Subject } from 'rxjs/Subject';
 import { DOCUMENT } from '@angular/common';
+import { Store } from '@ngrx/store';
+
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 import * as fromWizard from './reducers';
 import * as debugActions from './actions/debug';
@@ -31,8 +33,8 @@ export class WizardComponent implements OnInit, OnDestroy {
    public showSettings = false;
    public creationMode: CreationMode;
    public isEdit = false;
-   public environmentList: Array<any> = [];
-
+   public parameters: any = [];
+   public showDebugConfig$: Observable<boolean>;
    private _componentDestroyed = new Subject();
 
    constructor(
@@ -48,7 +50,7 @@ export class WizardComponent implements OnInit, OnDestroy {
    ngOnInit(): void {
       const id = this._route.snapshot.params.id;
       this.isEdit = id && id.length ? true : false;
-      this._store.dispatch(new externalDataActions.GetEnvironmentListAction());
+      this._store.dispatch(new externalDataActions.GetParamsListAction());
       this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings
       const type = this._route.snapshot.params.type === 'streaming' ? Engine.Streaming : Engine.Batch;
       if (this.isEdit) {
@@ -88,12 +90,18 @@ export class WizardComponent implements OnInit, OnDestroy {
             this._cd.markForCheck();
          });
       // retrieves the environment list
-      this._store.select(fromWizard.getEnvironmentList)
+      this._store.select(fromWizard.getParameters)
          .takeUntil(this._componentDestroyed)
-         .subscribe((environmentList: Array<any>) => {
-            this.environmentList = environmentList;
+         .subscribe(parameters => {
+            this.parameters = parameters;
             this._cd.markForCheck();
          });
+
+      this.showDebugConfig$ = this._store.select(fromWizard.isShowingDebugConfig);
+   }
+
+   closeCustomExecution() {
+      this._store.dispatch(new debugActions.HideDebugConfigAction());
    }
 
    ngOnDestroy(): void {

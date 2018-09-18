@@ -14,10 +14,10 @@ object LauncherActor {
 
   case class Debug(workflowIdExecutionContext: WorkflowIdExecutionContext, user: Option[LoggedUser])
 
-  case class Start(workflow: Workflow, workflowRaw: Workflow, executionContext: ExecutionContext, userId: Option[String])
+  case class Start(execution: WorkflowExecution)
 
-  case class StartDebug(workflow: Workflow)
+  case class StartDebug(execution: WorkflowExecution)
 
-  case class StartWithRequest(workflow: Workflow, request: WorkflowExecution)
+  case class Run(execution: WorkflowExecution)
 
 }

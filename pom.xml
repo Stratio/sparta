@@ -99,7 +99,6 @@ This software – including all its source code – contains proprietary informa
         <easy.mock.version>2.5.2</easy.mock.version>
         <mailapi.version>1.4.3</mailapi.version>
         <scalaj.version>2.3.0</scalaj.version>
-        <stratio.common.utils.version>0.6.0</stratio.common.utils.version>
         <commons-configuration.version>1.6</commons-configuration.version>
         <apache.spark.version>2.2.0</apache.spark.version>
         <stratio.spark.version>1.0.0-e3622dd</stratio.spark.version>
@@ -121,6 +120,7 @@ This software – including all its source code – contains proprietary informa
         <leveldbjni.version>1.8</leveldbjni.version>
         <slick.version>3.2.3</slick.version>
         <junit.version>4.12</junit.version>
+        <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
         <sonar.exclusions>
             **/*.js,

@@ -33,4 +33,7 @@ case class ParameterList(
       parent.fold(Seq.empty[(String, String)]) { parentList => Seq(s"$parentList.$key" -> value)}
   }
 
+  def getParameterValue(name : String): Option[String] =
+    parameters.find(variable => variable.name == name).flatMap(_.value)
+
 }

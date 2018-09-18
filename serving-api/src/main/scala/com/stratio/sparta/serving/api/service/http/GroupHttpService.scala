@@ -6,20 +6,22 @@
 package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
+import scala.concurrent.Future
+import scala.util.Try
 
 import akka.pattern.ask
+import com.wordnik.swagger.annotations._
+import spray.http.StatusCodes
+import spray.routing._
+
 import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.Group
-import com.wordnik.swagger.annotations._
-import spray.http.StatusCodes
-import spray.routing._
-
-import scala.util.Try
 
 @Api(value = HttpConstant.GroupsPath, description = "Operations over workflow groups", position = 0)
 trait GroupHttpService extends BaseHttpService {
@@ -47,7 +49,7 @@ trait GroupHttpService extends BaseHttpService {
         context =>
           for {
             response <- (supervisor ? FindAllGroups(user))
-              .mapTo[Either[Try[Seq[Group]], UnauthorizedResponse]]
+              .mapTo[Either[ResponseGroups, UnauthorizedResponse]]
           } yield getResponse(context, GroupServiceFindAllGroups, response, genericError)
       }
     }
@@ -75,7 +77,7 @@ trait GroupHttpService extends BaseHttpService {
         context =>
           for {
             response <- (supervisor ? FindGroupByID(name, user))
-              .mapTo[Either[Try[Group], UnauthorizedResponse]]
+              .mapTo[Either[ResponseGroup, UnauthorizedResponse]]
           } yield getResponse(context, GroupServiceFindGroup, response, genericError)
       }
     }
@@ -103,7 +105,7 @@ trait GroupHttpService extends BaseHttpService {
         context =>
           for {
             response <- (supervisor ? FindGroupByName(name, user))
-              .mapTo[Either[Try[Group], UnauthorizedResponse]]
+              .mapTo[Either[ResponseGroup, UnauthorizedResponse]]
           } yield getResponse(context, GroupServiceFindGroup, response, genericError)
       }
     }
@@ -121,7 +123,7 @@ trait GroupHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? DeleteAllGroups(user))
-              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(GroupServiceDeleteAllGroups, response, genericError, StatusCodes.OK)
         }
       }
@@ -148,7 +150,7 @@ trait GroupHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? DeleteGroupByID(name, user))
-              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(GroupServiceDeleteGroup, response, genericError, StatusCodes.OK)
         }
       }
@@ -175,7 +177,7 @@ trait GroupHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? DeleteGroupByName(name, user))
-              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(GroupServiceDeleteGroup, response, genericError, StatusCodes.OK)
         }
       }
@@ -204,8 +206,8 @@ trait GroupHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? UpdateGroup(request, user))
-                .mapTo[Either[Try[Group], UnauthorizedResponse]]
-            } yield deletePostPutResponse(GroupServiceUpdateGroup, response, genericError, StatusCodes.OK)
+                .mapTo[Either[ResponseGroup, UnauthorizedResponse]]
+            } yield deletePostPutResponse(GroupServiceUpdateGroup, response, genericError)
           }
         }
       }
@@ -232,7 +234,7 @@ trait GroupHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? CreateGroup(request, user))
-                .mapTo[Either[Try[Group], UnauthorizedResponse]]
+                .mapTo[Either[ResponseGroup, UnauthorizedResponse]]
             } yield deletePostPutResponse(GroupServiceCreateGroup, response, genericError)
           }
         }

@@ -11,7 +11,7 @@
         "propertyId": "url",
         "propertyName": "_JDBC_URL_",
         "propertyType": "text",
-        "default": "{{{JDBC_URL}}}",
+        "default": "{{{Environment.JDBC_URL}}}",
         "required": true,
         "tooltip": "Url to connect to a JDBC database.",
         "qa": "fragment-details-jdbc-url"
@@ -29,6 +29,7 @@
         "propertyId": "driver",
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
+         "default": "{{{Environment.JDBC_DRIVER}}}",
         "required": false,
         "tooltip": "Driver class which tells Spark the kind of JDBC database used in this output.",
         "qa": "fragment-details-jdbc-driver"

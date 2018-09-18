@@ -24,7 +24,7 @@ import scala.util.{Failure, Properties, Success, Try}
 
 case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation]) extends SLF4JLogging {
 
-  lazy private val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig
+  lazy private val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig()
 
   def reLogin(): Unit = ugiOption.foreach(ugi => ugi.checkTGTAndReloginFromKeytab())
 
@@ -135,7 +135,7 @@ object HdfsService extends SLF4JLogging {
     Option(System.getenv(SystemKeyTabPath)).orElse(Try(hdfsConfig.get.getString(KeytabPath)).toOption.notBlank)
 
   def apply(): HdfsService = {
-    val hdfsConfig = SpartaConfig.getHdfsConfig
+    val hdfsConfig = SpartaConfig.getHdfsConfig()
     val configuration = hdfsConfiguration(hdfsConfig)
 
     log.debug("Creating HDFS connection ...")

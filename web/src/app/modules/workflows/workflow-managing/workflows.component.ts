@@ -21,7 +21,9 @@ import {
     getSelectedVersions,
     getSelectedVersion,
     getLoadingState,
-    getVersionsOrderedList
+    getVersionsOrderedList,
+    getShowExecutionConfig,
+    getExecutionContexts
 } from './reducers';
 import { WorkflowsManagingService } from './workflows.service';
 import { DataDetails } from './models/data-details';
@@ -49,6 +51,8 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     public selectedEntity$: Observable<DataDetails>;
     public workflowVersions$: Observable<Array<GroupWorkflow>>;
     public isLoading$: Observable<boolean>;
+    public showExecutionConfig$: Observable<any>;
+    public executionContexts$: Observable<any>;
 
     public selectedWorkflowsIds: string[] = [];
     public breadcrumbOptions: string[] = [];
@@ -76,6 +80,8 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
         this._store.dispatch(new workflowActions.ListGroupsAction());
         // this._store.dispatch(new workflowActions.ListGroupWorkflowsAction());
 
+        this.showExecutionConfig$ = this._store.select(getShowExecutionConfig);
+        this.executionContexts$ = this._store.select(getExecutionContexts);
         this._workflowList$ = this._store.select(getWorkflowsOrderedList)
             .distinctUntilChanged()
             .subscribe((workflowList: any) => {
@@ -107,6 +113,18 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
 
     showWorkflowInfo() {
         this.showDetails = !this.showDetails;
+    }
+
+    closeCustomExecution() {
+        this._store.dispatch(new workflowActions.CancelAdvancedExecutionAction());
+    }
+
+    executeWorkflow(event) {
+        this._store.dispatch(new workflowActions.RunWorkflowAction({
+            workflowId: this.selectedVersion.data.id,
+            workflowName: this.selectedVersion.data.name,
+            executionContext: event
+        }));
     }
 
     public ngOnDestroy(): void {

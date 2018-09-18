@@ -111,7 +111,7 @@ class NginxUtilsTest extends BaseUtilsTest {
                 |      "VAULT_HOSTS": "vault.service.paas.labs.stratio.com",
                 |      "HADOOP_CONF_FROM_DFS_NOT_SECURED": "false",
                 |      "CONTAINER_LOGGER_LOGROTATE_STDOUT_OPTIONS": "rotate 10",
-                |      "SPARTA_WORKFLOW_ID": "dcd33b29-5bd3-4f08-b468-2d8cdeac1ef9",
+                |      "SPARTA_EXECUTION_ID": "dcd33b29-5bd3-4f08-b468-2d8cdeac1ef9",
                 |      "USE_DYNAMIC_AUTHENTICATION": "true",
                 |      "HADOOP_RPC_PROTECTION": "authentication",
                 |      "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES": "AES/CTR/NoPadding",

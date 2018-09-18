@@ -7,25 +7,28 @@
 package com.stratio.sparta.serving.api.helpers
 
 import scala.util.{Properties, Try}
-
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import com.typesafe.config.ConfigFactory
 import slick.jdbc.PostgresProfile
 import spray.can.Http
-
 import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
-import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.factory.{CuratorFactoryHolder, PostgresFactory}
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
-import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService, CassiopeiaMigrationService}
+import com.stratio.sparta.serving.core.services.migration.CassiopeiaMigrationService
+import spray.can.Http
+
+import scala.concurrent.blocking
+import scala.util.{Failure, Properties, Success, Try}
 
 
 /**
@@ -40,83 +43,49 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
     * @param appName with the name of the application.
     */
   def initSpartaAPI(appName: String): Unit = {
-    if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
-      val curatorFramework = CuratorFactoryHolder.getInstance()
-      if (Try(SpartaConfig.getDetailConfig.get.getBoolean("migration.enable")).getOrElse(true)) {
-        val migration = new CassiopeiaMigrationService(curatorFramework)
-          migration.migrateCassiopeiaWorkflows()
-          migration.migrateCassiopeiaTemplates()
+    if (
+      SpartaConfig.getSpartaConfig().isDefined && SpartaConfig.getDetailConfig().isDefined &&
+        SpartaConfig.getSparkConfig().isDefined && SpartaConfig.getPostgresConfig().isDefined &&
+        SpartaConfig.getCrossdataConfig().isDefined && SpartaConfig.getOauth2Config().isDefined &&
+        SpartaConfig.getZookeeperConfig().isDefined && SpartaConfig.getApiConfig().isDefined &&
+        SpartaConfig.getSprayConfig().isDefined) {
+      log.info("Initializing Sparta Postgres schemas and data ...")
+      PostgresFactory.invokeInitializationMethods()
+
+      if (Try(SpartaConfig.getDetailConfig().get.getBoolean("migration.enable")).getOrElse(true)) {
+        val migration = new CassiopeiaMigrationService()
+        migration.migrateCassiopeiaWorkflows()
+        migration.migrateCassiopeiaTemplates()
       }
 
-      log.debug("Initializing Dyplon authorization plugins ...")
+      log.info("Initializing Dyplon authorization plugins ...")
       implicit val secManager = SecurityManagerHelper.securityManager
       SecurityManagerHelper.initCrossdataSecurityManager()
 
       log.debug("Initializing Sparta system ...")
-      implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
+      implicit val system = ActorSystem(appName, SpartaConfig.getSpartaConfig())
 
-      val envListenerActor = system.actorOf(Props[EnvironmentListenerActor])
-
-      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitEnvInit")).getOrElse(DefaultEnvSleep) / 5)
-
-      system.actorOf(Props(new EnvironmentPublisherActor(curatorFramework)))
-
-      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitEnvInit")).getOrElse(DefaultEnvSleep))
-
-      val groupApiActor = system.actorOf(Props[GroupInMemoryApi])
-      val executionApiActor = system.actorOf(Props[ExecutionInMemoryApi])
-      val workflowApiActor = system.actorOf(Props[WorkflowInMemoryApi])
-      val statusApiActor = system.actorOf(Props[StatusInMemoryApi])
-      val debugWorkflowApiActor = system.actorOf(Props[DebugWorkflowInMemoryApi])
-      val parameterListApiActor = system.actorOf(Props[ParameterListInMemoryApi])
-      val environmentApiActor = system.actorOf(Props[EnvironmentInMemoryApi])
-      val stListenerActor = system.actorOf(Props[StatusListenerActor])
-      val workflowListenerActor = system.actorOf(Props[WorkflowListenerActor])
-      val inMemoryApiActors = InMemoryApiActors(workflowApiActor, statusApiActor, groupApiActor, executionApiActor,
-        debugWorkflowApiActor, parameterListApiActor, environmentApiActor)
+      val parametersListenerActor = system.actorOf(Props[ParametersListenerActor])
+      val executionStatusChangeListenerActor = system.actorOf(Props[ExecutionStatusChangeListenerActor])
 
       system.actorOf(Props[SchedulerMonitorActor])
+      system.actorOf(Props(new ExecutionStatusChangePublisherActor()))
 
-      if (Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
-        log.debug("Initializing lineage service ...")
-        system.actorOf(LineageService.props(stListenerActor, workflowListenerActor))
-      }
-
-      log.debug("Initializing Sparta data ...")
-      new EnvironmentService(curatorFramework).initialize()
-      new GroupService(curatorFramework).initialize()
-
-      Thread.sleep(Try(SpartaConfig.getDetailConfig.get.getLong("awaitRecovery")).getOrElse(DefaultRecoverySleep))
-
-      system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
-      system.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
-      system.actorOf(Props(new GroupPublisherActor(curatorFramework)))
-      system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
-      system.actorOf(Props(new ParameterListPublisherActor(curatorFramework)))
-      system.actorOf(Props(new DebugWorkflowPublisherActor(curatorFramework)))
-      system.actorOf(Props(new DebugStepDataPublisherActor(curatorFramework)))
-      system.actorOf(Props(new DebugStepErrorPublisherActor(curatorFramework)))
-
-      if (Try(SpartaConfig.getSpartaPostgres.get.getBoolean("historyEnabled")).getOrElse(false)) {
-        log.debug("Initializing history actors ...")
-        system.actorOf(ExecutionHistoryListenerActor.props(PostgresProfile,
-          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load())))
-        system.actorOf(StatusHistoryListenerActor.props(PostgresProfile,
-          SpartaConfig.getSpartaPostgres.getOrElse(ConfigFactory.load())))
+      if (Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)) {
+        log.info("Initializing lineage service ...")
+        //TODO lineage
+        //system.actorOf(LineageService.props(executionListenerActor, workflowListenerActor))
       }
 
       val controllerActor = system.actorOf(Props(new ControllerActor(
-          curatorFramework,
-          stListenerActor,
-          envListenerActor,
-          inMemoryApiActors
-        )), ControllerActorName)
-
+        executionStatusChangeListenerActor,
+        parametersListenerActor
+      )), ControllerActorName)
 
       log.info("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
-        interface = SpartaConfig.apiConfig.get.getString("host"),
-        port = SpartaConfig.apiConfig.get.getInt("port")
+        interface = SpartaConfig.getApiConfig().get.getString("host"),
+        port = SpartaConfig.getApiConfig().get.getInt("port")
       )
 
       if (Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true })

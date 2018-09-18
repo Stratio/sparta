@@ -11,15 +11,23 @@ import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowValidation}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.apache.commons.lang.exception.ExceptionUtils
+import scalax.collection.Graph
+import scalax.collection.edge.LDiEdge
+import com.stratio.sparta.core.helpers.ExceptionHelper
+import com.stratio.sparta.core.models.WorkflowValidationMessage
+import com.stratio.sparta.serving.core.helpers.GraphHelper
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowValidation}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import org.apache.commons.lang.exception.ExceptionUtils
 import org.apache.curator.framework.CuratorFramework
 import scalax.collection.Graph
 import scalax.collection.edge.LDiEdge
+import scala.util.{Failure, Success, Try}
 
 import scala.util.{Failure, Success, Try}
 
-class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None) {
+class WorkflowValidatorService() {
 
-  implicit val curator: Option[CuratorFramework] = curatorFramework
   val maxNumAllowedChars = 100
 
   def validateAll(workflow: Workflow): WorkflowValidation = {
@@ -42,6 +50,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
         .validateCheckpointCubes
         .validateDeployMode
         .validateSparkCores
+        .validateInvalidGroupParameters
         .validateMesosConstraints
         .validatePlugins
     }
@@ -74,6 +83,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
       new WorkflowValidation()
         .validateGroupName
         .validateName
+        .validateInvalidGroupParameters
     }
 
     validationResult.copy(messages = validationResult.messages.distinct)

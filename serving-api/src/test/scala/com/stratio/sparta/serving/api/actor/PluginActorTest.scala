@@ -61,8 +61,7 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   val limitedUser = Some(LoggedUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
 
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
-    SpartaConfig.initApiConfig()
+    SpartaConfig.getApiConfig(Option(localConfig))
   }
 
   override def afterAll: Unit = {

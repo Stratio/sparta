@@ -8,17 +8,20 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import com.wordnik.swagger.annotations._
+import spray.http.StatusCodes
+import spray.routing.Route
+
+import com.stratio.sparta.serving.api.constants.HttpConstant._
+import com.stratio.sparta.serving.api.actor.TemplateActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.TemplateActor._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.stratio.spray.oauth2.client.OauthClient
-import com.wordnik.swagger.annotations._
-import spray.http.StatusCodes
-import spray.routing.Route
+
 
 @Api(value = HttpConstant.TemplatePath, description = "Operations over templates (inputs, outputs and transformations)")
 trait TemplateHttpService extends BaseHttpService with OauthClient {
@@ -132,7 +135,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   @ApiOperation(value = "Find all templates",
     notes = "Finds all templates",
     httpMethod = "GET",
-    response = classOf[TemplateElement],
+    response = classOf[Seq[TemplateElement]],
     responseContainer = "List")
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
@@ -156,7 +159,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "template",
       value = "template to save",
-      dataType = "TemplateElementModel",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.TemplateElement",
       required = true,
       paramType = "body")
   ))
@@ -181,7 +184,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "template",
       value = "template json",
-      dataType = "TemplateElementModel",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.TemplateElement",
       required = true,
       paramType = "body")))
   def update(user: Option[LoggedUser]): Route = {
@@ -191,8 +194,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
           complete {
             for {
               response <- (supervisor ? Update(template, user))
-                .mapTo[Either[Response, UnauthorizedResponse]]
-            } yield deletePostPutResponse(TemplateServiceUpdate, response, genericError, StatusCodes.OK)
+                .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
+            } yield deletePostPutResponse(TemplateServiceUpdate, response, genericError)
           }
         }
       }
@@ -224,7 +227,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
         complete {
           for {
             response <- (supervisor ? DeleteByTypeAndId(templateType, id, user))
-              .mapTo[Either[Response, UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(TemplateServiceDeleteByTypeId, response, genericError, StatusCodes.OK)
         }
       }
@@ -256,7 +259,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
         complete {
           for {
             response <- (supervisor ? DeleteByTypeAndName(templateType, name, user))
-              .mapTo[Either[Response, UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(TemplateServiceDeleteByTypeName, response, genericError, StatusCodes.OK)
         }
       }
@@ -282,7 +285,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
         complete {
           for {
             response <- (supervisor ? DeleteByType(templateType, user))
-              .mapTo[Either[Response, UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(TemplateServiceDeleteByType, response, genericError, StatusCodes.OK)
         }
       }
@@ -301,7 +304,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
         complete {
           for {
             response <- (supervisor ? DeleteAllTemplates(user))
-              .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
+              .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(TemplateServiceDeleteAll, response, genericError, StatusCodes.OK)
         }
       }
@@ -315,7 +318,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "template",
       value = "template json",
-      dataType = "TemplateElementModel",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.TemplateElement",
       required = true,
       paramType = "body")))
   @ApiResponses(Array(

@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.enumerators.{DataType, NodeArityEnum, WorkflowExecutionMode}
 
 case class DebugWorkflow(
+                          id:Option[String] = None,
                           workflowOriginal: Workflow,
                           workflowDebug: Option[Workflow],
                           result: Option[DebugResults]
@@ -54,8 +55,6 @@ case class DebugWorkflow(
         sparkSettings = sparkDebugSettings()
       ),
       name = s"${workflowOriginal.name}-debug",
-      status = None,
-      execution = None,
       uiSettings = None,
       pipelineGraph = pipelineGraphDebug(),
       debugMode = Option(true)

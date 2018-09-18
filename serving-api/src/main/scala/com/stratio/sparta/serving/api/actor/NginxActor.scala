@@ -9,12 +9,12 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{Actor, Cancellable}
 import akka.stream.ActorMaterializer
+import com.stratio.sparta.serving.api.actor.NginxActor._
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
-import com.stratio.sparta.serving.api.actor.NginxActor._
-import com.stratio.sparta.serving.core.actor.StatusPublisherActor.StatusChange
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -29,7 +29,7 @@ class NginxActor extends Actor {
 
 
   override def preStart(): Unit = {
-    context.system.eventStream.subscribe(self, classOf[StatusChange])
+    context.system.eventStream.subscribe(self, classOf[ExecutionStatusChange])
     scheduledInitialCheck
   }
 
@@ -50,18 +50,23 @@ class NginxActor extends Actor {
   private def updateAndMakeSureIsRunning: Future[Unit] =
     for {
       haveChanges <- nginxService.updateNginx()
-      res <- if(haveChanges) nginxService.reloadNginx() else Future.successful(())
+      res <- if (haveChanges) nginxService.reloadNginx() else Future.successful(())
     } yield res
 
-  private def updateIfNecessary(workflowStatus: WorkflowStatus): Unit =
-    if(workflowStatus.status == Started || workflowStatus.status == Stopped || workflowStatus.status == Failed)
+  private def updateIfNecessary(workflowExecution: WorkflowExecution): Unit = {
+    val state = workflowExecution.lastStatus.state
+
+    if (state == Started || state == Stopped || state == Failed)
       updateAndMakeSureIsRunning
     else Future.successful(())
+  }
 
 
   override def receive: Receive = {
     case GetServiceStatus =>
-      self ! { if(nginxService.isNginxRunning) Up else Down }
+      self ! {
+        if (nginxService.isNginxRunning) Up else Down
+      }
     case Start =>
       nginxService.startNginx()
     case Stop =>
@@ -75,28 +80,36 @@ class NginxActor extends Actor {
       updateAndMakeSureIsRunning
     case UpdateAndMakeSureIsRunning =>
       updateAndMakeSureIsRunning
-    case workflowStatusChange: StatusChange =>
-      updateIfNecessary(workflowStatusChange.workflowStatus)
+    case workflowExecutionStatusChange: ExecutionStatusChange =>
+      updateIfNecessary(workflowExecutionStatusChange.executionChange.newExecution)
   }
 
   override def postStop(): Unit = {
     scheduledPeriodicCheck.cancel()
     scheduledInitialCheck.cancel()
     updateAndMakeSureIsRunning
+    context.system.eventStream.unsubscribe(self, classOf[ExecutionStatusChange])
   }
 }
 
 object NginxActor {
 
   trait ServiceStatus
+
   object Up extends ServiceStatus
+
   object Down extends ServiceStatus
 
   object GetServiceStatus
+
   object Start
+
   object Stop
+
   object Restart
+
   object Update
+
   object UpdateAndMakeSureIsRunning
 
 }

@@ -38,14 +38,14 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.findById" should {
     "ask for a specific workflow" in {
-      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel(), None, None)
+      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel().id,getWorkflowModel(), None, None)
       startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
       }
     }
     "return workflow" in {
-      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel(), None, None)
+      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel().id,getWorkflowModel(), None, None)
       startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
@@ -63,10 +63,10 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.findAll" should {
     "find all workflows" in {
-      startAutopilot(Left(Success(Seq(DebugWorkflow(getWorkflowModel(), None, None)))))
+      startAutopilot(Left(Success(Seq(DebugWorkflow(getWorkflowModel().id,getWorkflowModel(), None, None)))))
       Get(s"/${HttpConstant.DebugWorkflowsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindAll]
-        responseAs[Seq[DebugWorkflow]] should equal(Seq(DebugWorkflow(getWorkflowModel(), None, None)))
+        responseAs[Seq[DebugWorkflow]] should equal(Seq(DebugWorkflow(getWorkflowModel().id,getWorkflowModel(), None, None)))
       }
     }
     "return a 500 if there was any error" in {
@@ -80,7 +80,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   "DebugWorkflowHttpService.resultsById" should {
     "ask for the debug results of a specific workflow" in {
-      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel(), None, None)
+      val initWorkflow: DebugWorkflow = DebugWorkflow(getWorkflowModel().id,getWorkflowModel(), None, None)
       startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[GetResults]
@@ -90,7 +90,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       val schemaFake = StructType(Seq(StructField("name", StringType, false),
         StructField("age", IntegerType, false),
         StructField("year", IntegerType, true))).json
-      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep("Kafka", 0, Option(schemaFake),
+      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep(None,"Kafka", 0, Option(schemaFake),
         Option(Seq("Gregor Samza, 28, 1915")))))
       startAutopilot(Left(Success(fakedResults)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {

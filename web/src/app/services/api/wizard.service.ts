@@ -5,15 +5,18 @@
  */
 
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Store } from '@ngrx/store';
+
 import { Observable } from 'rxjs/Observable';
 import { ApiService } from './api.service';
-import { HttpClient } from '@angular/common/http';
+import * as fromRoot from 'reducers';
 
 @Injectable()
 export class WizardApiService extends ApiService {
 
-  constructor(private _http: HttpClient) {
-    super(_http);
+  constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
+      super(_http, _store);
   }
 
   debug(workflow: any): Observable<any> {

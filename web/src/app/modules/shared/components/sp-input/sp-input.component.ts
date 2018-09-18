@@ -16,16 +16,18 @@ import {
    Output,
    ViewChildren,
    ElementRef,
-   AfterViewInit
+   AfterViewInit,
+   ViewChild,
+   ViewContainerRef
 } from '@angular/core';
 import {
    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
-import { uniq as _uniq } from 'lodash';
 import { SpInputError, SpInputVariable } from './sp-input.models';
+import { StModalService } from '@stratio/egeo';
+import { VariableSelectorComponent } from '@app/shared/components/sp-input/variable-selector/variable-selector.component';
 
-const navigates = ['ArrowDown', 'ArrowUp', 'Enter'];
 
 @Component({
    selector: 'sp-input',
@@ -53,7 +55,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    @Input() max: number;
    @Input() isFocused = false;
    @Input() readonly = false;
-   @Input() variableList: Array<SpInputVariable> = [];
+   @Input() parameters: any;
    @Input() showVars = false;
 
    @Input()
@@ -68,7 +70,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
    @ViewChildren('input') vc: any;
-
+   @ViewChild('variableSelectorModal', { read: ViewContainerRef }) target: any;
 
    public disabled = false; // To check disable
    public focus = false;
@@ -80,27 +82,22 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    public selectedIndex = 0;
    public defaultList = true;
    public filteredVariableGroupList: Array<any>;
-   public emptyVariables = true;
-   public typeSelected = 'var';
 
+   public isParameterValue = false;
+   public paramType = '';
+   public paramValue = '';
 
-
-   public selectedFilter = undefined;
-
-   private scrollList: any;
    private sub: Subscription;
    private _value: any;
    private valueChangeSub: Subscription;
    private internalInputModel: any = '';
-   public options =  [];
-   public selectedOption = 'default';
-   public isVarValue = false;
+   public options = [];
 
    private _element: any;
 
    private focusPristine = true;
 
-   constructor(private _cd: ChangeDetectorRef, private _elementRef: ElementRef) {
+   constructor(private _cd: ChangeDetectorRef, private _elementRef: ElementRef, private _stModalService: StModalService) {
       this._element = _elementRef.nativeElement;
    }
 
@@ -125,44 +122,13 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    }
 
    ngOnInit(): void {
-
       this.internalControl = new FormControl(this.internalInputModel);
       this.valueChangeSub = this.internalControl.valueChanges.subscribe((value) => {
          this.focusPristine = false;
-         if (this.selectVarMode) {
-            this.filterVarListValue(value);
-            this.defaultList = !!value.length;
-         }
+         this.valuechange();
       });
-
-      this.addOptions(_uniq(this.variableList.map(variable => variable.valueType)).map(item => ({ label: item, value: item })));
-      this.groupFilteredVariableList();
-      this.filteredVariableList = this.variableList;
-      this.defaultList = !!this.internalControl.value.length;
    }
 
-   private addOptions(options) {
-      if (options.length) {
-         this.selectedOption = options[0].value;
-         this.options = options;
-      }
-   }
-
-   toggleVarType(event, filter) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.selectedFilter = filter === this.selectedFilter ? undefined : filter;
-   }
-
-   filterVarListValue(value: string): void {
-      const compval = value.toUpperCase();
-      const selectedOption = this.selectedOption;
-      this.filteredVariableList = this.variableList.filter((variable: SpInputVariable) =>
-            variable.name.toUpperCase().indexOf(compval) > -1 || (variable.valueType && variable.valueType.toUpperCase().indexOf(compval) > -1));
-      this.emptyVariables = !this.filteredVariableList.length;
-      this.defaultList = !this.emptyVariables || !!value.length;
-
-   }
 
    ngAfterViewInit(): void {
       if (this.isFocused) {
@@ -183,86 +149,36 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       }
    }
 
-   showVarCatalog(event) {
-      event.preventDefault();  //prevent default DOM action
-      event.stopPropagation();   //stop bubbling
-      this.vc.first.nativeElement.focus();
 
-      this.selectVarMode = true;
-
-      this.filterVarListValue(this.internalControl.value);
-
-      this.defaultList = !!this.internalControl.value;
-
-
-   }
-
-   groupFilteredVariableList() {
-      this.filteredVariableGroupList = this.options.map(option =>
-         ({
-            filter: option.label,
-            list: this.variableList.filter(variable => variable.valueType === option.label)
-         }));
-
-   }
-
-   valuechange(event) {
+   valuechange() {
       this.pristine = false;
-      this.onChange(this.isVarValue && ['env', 'var'].includes(this.typeSelected)  ? `{{{${this.internalControl.value}}}}` : this.internalControl.value);
+      this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : this.internalControl.value);
    }
 
-
-   selectVar(event: any, variable: SpInputVariable) {
-      event.preventDefault();  //prevent default DOM action
-      event.stopPropagation();   //stop bubbling
-      if (this.options.map(option => option.label).includes(variable.valueType)) {
-         this.isVarValue = true;
-         this.internalControl.setValue(variable.name);
-         this.onChange(variable.valueType === 'env' ? `{{{${this.internalControl.value}}}}` : this.internalControl.value);
-      } else {
-         this.isVarValue = false;
-         this.internalControl.setValue(variable.name);
-         this.onChange(this.internalControl.value);
-      }
-
-      this.focusPristine = true;
-      this.vc.first.nativeElement.blur();
-      this.selectedIndex = 0;
-      this.typeSelected = variable.valueType;
-      this.selectVarMode = false;
-   }
-
-
-
-
-   resetVarValue() {
-      if (this.isVarValue && !this.focusPristine) {
-         this.isVarValue = false;
-         this.onChange(this.internalControl.value);
-      }
-      this.focusPristine = true;
-      this.selectVarMode = false;
-      this.filterVarListValue(this.internalControl.value);
-   }
 
    // When value is received from outside
    writeValue(value: any): void {
       if (typeof value === 'object') {
          value = JSON.stringify(value);
       }
-      this.isVarValue = false;
-      if (this.showVars && this.selectedOption === 'env' && value) {
+      this.isParameterValue = false;
+      if (this.parameters && value) {
          if (value.length > 6 && value.indexOf('{{{') === 0 && value.indexOf('}}}') === value.length - 3) {
             value = value.replace('{{{', '').replace('}}}', '');
-            this.isVarValue = true;
+            this.isParameterValue = true;
+            this.paramValue = value;
+            value = this.getParamLabel(value);
 
          } else if (value.length > 4 && value.indexOf('{{') === 0 && value.indexOf('}}') === value.length - 2) {
             value = value.replace('{{', '').replace('}}', '');
-            this.isVarValue = true;
+            this.isParameterValue = true;
+            this.paramValue = value;
+            value = this.getParamLabel(value);
          }
       }
+
       if (this.forceValidations) {
-         this.onChange(this.isVarValue && ['env', 'var'].includes(this.typeSelected) ? `{{{${value}}}}` : value);
+         this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : value);
       }
       this.internalInputModel = value;
       this._value = value;
@@ -302,88 +218,63 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
    /** Style functions */
    onFocus(event: Event): void {
       this.focus = true;
-
-      if (this.isVarValue) {
-         this.selectVarMode = true;
-         this.filterVarListValue(this.internalControl.value);
-      }
-
-   }
-
-   onKeydown(event) {
-         if (event.key === 'Backspace' && !this.internalControl.value.length) {
-            this.selectVarMode = false;
-            this.isVarValue = false;
-            this.selectedIndex = 0;
-         } else if (navigates.includes(event.key) && this.filteredVariableList.length ) {
-            this.scrollList = this._element.querySelector('ul');
-            switch (event.key) {
-               case 'ArrowUp':
-                  if (this.selectedIndex > 0) {
-                     this.selectedIndex--;
-                  }
-                  break;
-               case 'ArrowDown':
-
-                  if (this.selectedIndex < this.filteredVariableList.length - 1) {
-                     if (!this.selectVarMode) {
-                        this.selectVarMode = true;
-                        this.filterVarListValue(this.internalControl.value);
-                     } else if (this.defaultList) {
-                        this.selectedIndex++;
-                     }
-                  }
-                  break;
-               case 'Enter':
-                  if (this.selectVarMode) {
-                     this.selectVar(event, this.filteredVariableList[this.selectedIndex]);
-                  }
-
-                  break;
-               default:
-                  break;
-            }
-            if (this.scrollList) {
-               this.scrollList.scrollTop = this.getScroll(this.scrollList);
-            }
-         }
-
-
-    }
-
-   private getScroll(list: any): any {
-      if (list && list.children.length) {
-         const elementsHeight = list.children.length && Array.from(list.children)
-            .filter((element, index) => index <= this.selectedIndex)
-            .reduce((prev: number, next: any, i, elements) => prev + next.offsetHeight, 0);
-         return (list.scrollHeight !== list.offsetHeight && elementsHeight > list.offsetHeight)
-            ? elementsHeight - list.offsetHeight
-            : 0;
-      }
-     return 0;
    }
 
    onFocusOut(event: Event): void {
       this.focus = false;
    }
 
-   selectAll(event: Event) {
-      event.stopPropagation();
-      event.preventDefault();
-      this.internalControl.setValue('');
-      this.selectedFilter = undefined;
+   showParameterSelector() {
+      this._stModalService.container = this.target;
+      this._stModalService.show({
+         modalTitle: 'Parameter selection',
+         maxWidth: 770,
+         inputs: {
+            parameters: this.parameters,
+            currentParameter: this.isParameterValue ? {
+               paramType: this.paramType,
+               value: this.paramValue
+            } : null
+         },
+         outputs: {
+            onSelectValue: (value) => {
+               if (value && value.length) {
+                  this.isParameterValue = true;
+                  this.paramValue = value;
+                  this.internalControl.setValue(this.getParamLabel(value));
+               }
+               this._stModalService.close();
+            }
+         },
+      }, VariableSelectorComponent);
    }
 
-   onChangeEvent(event: Event): void {
-      this._value = this.vc.first.nativeElement.value;
-      this.change.emit(this.value);
-      event.stopPropagation();
-      event.preventDefault();
+   getParamLabel(value) {
+      if (value.indexOf('Global.') === 0) {
+         this.paramType = 'Global';
+         return value.replace('Global.', '');
+      } else if (value.indexOf('Environment.') === 0) {
+         this.paramType = 'Environment';
+         return value.replace('Environment.', '');
+      } else if (value.indexOf('.') === -1) {
+         this.paramType = 'Undefined';
+         return value;
+      } else {
+         this.paramType = 'Custom';
+         return value;
+      }
    }
 
-   onChangeFilter(option) {
-      this.selectedOption = option;
-      this.filterVarListValue(this.internalControl.value);
+   onKeydown(event) {
+      if (this.isParameterValue) {
+         if (event.key === 'Backspace') {
+            this.isParameterValue = false;
+            this.internalControl.setValue('');
+         } else {
+            event.preventDefault();
+         }
+      }
+
    }
 
    // When status change call this function to check if have errors

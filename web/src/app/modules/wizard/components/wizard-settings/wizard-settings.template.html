@@ -14,7 +14,7 @@
          <button class="button button-toolbar help-button" [ngClass]="{'selected-button' : isShowedHelp}" (click)="isShowedHelp = !isShowedHelp">
             <i class="icon-help2"></i>
          </button>
-         <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()" id="cancel-settings-edition">
+         <button class="button button-secondary-line cancel-button" (click)="cancelEdition()" id="cancel-settings-edition">
             <span>{{'WIZARD.CANCEL' | translate}}</span>
          </button>
          <button class="button button-primary" (click)="saveForm()" id="save-settings-button">
@@ -29,7 +29,7 @@
             <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
                <div class="col-sm-12">
                   <form-generator-group 
-                    [variableList]="formVariables" 
+                    [variableList]="parameters" 
                     [showVars]="true" 
                     [(ngModel)]="settingsFormModel"
                     [formData]="advancedSettings" 
@@ -48,6 +48,11 @@
                                  [(ngModel)]="tags" [placeholder]="'Add tags separated by commas'" [tooltip]="'This is a Tag Input component tooltip'">
                               </st-tag-input>
                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <parameters-group-selector [(selectedGroups)]="parametersLists" class="parameters-group"></parameters-group-selector>
+                            </div>
                         </div>
                      </div>
                   </form-generator-group>

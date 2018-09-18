@@ -64,10 +64,12 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def checkpointPathFromWorkflow(workflow: Workflow, checkTime: Boolean = true): String = {
     val path = cleanCheckpointPath(workflow.settings.streamingSettings.checkpointSettings.checkpointPath.toString)
+    val executionExtension = if(workflow.executionId.isDefined) s"/${workflow.executionId.get}" else ""
+    val extension = s"${workflow.group.name}/${workflow.name}$executionExtension"
 
     if (checkTime && workflow.settings.streamingSettings.checkpointSettings.addTimeToCheckpointPath)
-      s"$path/${workflow.name}/${Calendar.getInstance().getTime.getTime}"
-    else s"$path/${workflow.name}"
+      s"$path/$extension/${Calendar.getInstance().getTime.getTime}"
+    else s"$path/$extension"
   }
 
   /* PRIVATE METHODS */

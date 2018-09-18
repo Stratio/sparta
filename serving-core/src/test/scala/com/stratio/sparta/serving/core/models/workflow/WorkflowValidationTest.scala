@@ -340,7 +340,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         .forPath(s"/stratio/sparta/sparta/group/${invalidGroup.id.get}"))
         .thenReturn(invalidGroupJSON.getBytes)
 
-      val result = new WorkflowValidation().validateGroupName(workflow, Some(curatorFramework))
+      val result = new WorkflowValidation().validateGroupName(workflow)
 
       result.valid shouldBe true
     }
@@ -374,7 +374,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         .forPath(s"/stratio/sparta/sparta/group/${invalidGroup.id.get}"))
         .thenReturn(invalidGroupJSON.getBytes)
 
-      val result = new WorkflowValidation().validateGroupName(workflow, Some(curatorFramework))
+      val result = new WorkflowValidation().validateGroupName(workflow)
 
       result.valid shouldBe false
     }

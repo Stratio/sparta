@@ -10,72 +10,64 @@ import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.actor.EnvironmentListenerActor._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.actor.WorkflowInMemoryApi._
-import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
-import com.stratio.sparta.serving.core.services.{CassiopeiaMigrationService, GroupService, WorkflowService, WorkflowValidatorService}
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
-import org.apache.curator.framework.CuratorFramework
-import org.apache.zookeeper.KeeperException.NoNodeException
+import com.stratio.sparta.serving.core.services.WorkflowValidatorService
+import com.stratio.sparta.serving.core.services.dao.{GroupPostgresDao, WorkflowPostgresDao}
+import com.stratio.sparta.serving.core.services.migration.CassiopeiaMigrationService
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 class WorkflowActor(
-                     val curatorFramework: CuratorFramework,
-                     inMemoryWorkflowApi: ActorRef,
                      launcherActor: ActorRef,
-                     envStateActor: ActorRef
+                     parametersStateActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with CheckpointUtils with ActionUserAuthorize {
+  extends Actor with ActionUserAuthorize {
 
+  import DtoModelImplicits._
   import WorkflowActor._
-  import WorkflowDtoImplicit._
+
+  val ResourceWorkflow = "Workflows"
+  val ResourceGlobalParameters = "GlobalParameters"
+  val ResourceBackup = "Backup"
+
+  private val workflowPgService = new WorkflowPostgresDao
+  private val groupPgService = new GroupPostgresDao
+  private val workflowValidatorService = new WorkflowValidatorService()
+  private val migrationService = new CassiopeiaMigrationService()
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val ResourceWorkflow = "Workflows"
-  val ResourceEnvironment = "Environment"
-  val ResourceBackup = "Backup"
-
-  private val workflowService = new WorkflowService(curatorFramework)
-  private val groupService = new GroupService(curatorFramework)
-  private val workflowValidatorService = new WorkflowValidatorService(Option(curatorFramework))
-  private val migrationService = new CassiopeiaMigrationService(curatorFramework)
-  
   //scalastyle:off
-  def receiveApiActions(action : Any): Unit = action match {
-    case Stop(id, user) => stop(id, user)
-    case Reset(id, user) => reset(id, user)
+  def receiveApiActions(action: Any): Any = action match {
     case Run(id, user) => run(id, user)
     case RunWithVariables(executionVariables, user) => runWithVariables(executionVariables, user)
     case RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user) => runWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflow(workflow, user) => create(workflow, user)
     case Update(workflow, user) => update(workflow, user)
     case Find(id, user) => find(id, user)
-    case FindByIdWithExecutionContext(id, user) => findByIdWithExecutionContext(id, user)
     case FindByIdList(workflowIds, user) => findByIdList(workflowIds, user)
     case Query(query, user) => doQuery(query, user)
     case FindAll(user) => findAll(user)
-    case FindAllMonitoring(user) => findAllMonitoring(user)
+    case FindAllDto(user) => findAllDto(user)
     case FindAllByGroup(group, user) => findAllByGroup(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
     case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
-    case DeleteAll(user) => deleteAll(user)
-    case DeleteCheckpoint(id, user) => deleteCheckpoint(id, user)
-    case ResetAllStatuses(user) => resetAllStatuses(user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
     case ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user) => validateWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
     case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
     case MigrateFromCassiopeia(workflowCassiopeia, user) => migrateWorkflowFromCassiopeia(workflowCassiopeia, user)
+    case RunWithParametersView(workflow, user) => runWithParametersView(workflow, user)
+    case RunWithParametersViewId(workflowId, user) => runWithParametersViewById(workflowId, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -83,14 +75,14 @@ class WorkflowActor(
 
   //TODO this method should be removed when the front migrate to latest version and call run with ex.context
   def run(id: String, user: Option[LoggedUser]): Unit =
-    runWithExecutionContext(WorkflowIdExecutionContext(id, ExecutionContext(withEnvironment = true)), user)
+    runWithExecutionContext(WorkflowIdExecutionContext(id, ExecutionContext()), user)
 
   //TODO this method should be removed when the front migrate to latest version and call run with ex.context
   def runWithVariables(executionVariables: WorkflowExecutionVariables, user: Option[LoggedUser]): Unit =
     runWithExecutionContext(
       WorkflowIdExecutionContext(
         executionVariables.workflowId,
-        ExecutionContext(withEnvironment = true, extraParams = executionVariables.variables)
+        ExecutionContext(extraParams = executionVariables.variables)
       ),
       user
     )
@@ -101,212 +93,195 @@ class WorkflowActor(
                              ): Unit =
     launcherActor.forward(Launch(workflowIdExecutionContext, user))
 
-  def stop(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Status)
-    val authorizationId = workflowService.findById(id).authorizationId
-    authorizeActionsByResourceId[ResponseAny](user, actions, authorizationId) {
-      workflowService.stop(id)
-    }
-  }
-
-  def reset(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Status)
-    val authorizationId = workflowService.findById(id).authorizationId
-    authorizeActionsByResourceId[ResponseAny](user, actions, authorizationId) {
-      workflowService.reset(id)
-    }
-  }
-
   //TODO this method should be removed when the front migrate to latest version and call validate with ex. context
   def validate(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
     val authorizationId = workflowRaw.authorizationId
     val action = Map(ResourceWorkflow -> Edit)
-    authorizeActionsByResourceId[ResponseFutureWorkflowValidation](user, action, authorizationId) {
-      Try {
-        for {
-          response <- (envStateActor ? ApplyExecutionContextToWorkflow(
-            WorkflowExecutionContext(workflowRaw, ExecutionContext(withEnvironment = true)))).mapTo[Try[Workflow]]
-        } yield {
-          response match {
-            case Success(workflow) =>
-              workflowValidatorService.validateAll(workflow)
-            case Failure(e) =>
-              log.warn(s"Error applying execution context, validating without it. ${e.getLocalizedMessage}")
-              workflowValidatorService.validateAll(workflowRaw)
-          }
-        }
-      }
+
+    authorizeActionsByResourceId(user, action, authorizationId, Option(sender)) {
+      for {
+        response <- (parametersStateActor ? ValidateExecutionContextToWorkflow(
+          workflowExecutionContext = WorkflowExecutionContext(workflowRaw, ExecutionContext()),
+          ignoreCustomParams = true
+        )).mapTo[Try[ValidationContextResult]]
+      } yield manageValidationResult(response)
     }
   }
 
   def validateWithExecutionContext(
                                     workflowIdExecutionContext: WorkflowIdExecutionContext,
                                     user: Option[LoggedUser]
-                                  ): Unit = {
-    val workflowRaw = workflowService.findById(workflowIdExecutionContext.workflowId)
-    val action = Map(ResourceWorkflow -> Edit)
-    val authorizationId = workflowRaw.authorizationId
-    authorizeActionsByResourceId[ResponseFutureWorkflowValidation](user, action, authorizationId) {
-      Try {
+                                  ): Future[Unit] = {
+
+    val senderResponseTo = Option(sender)
+    for {
+      workflowRaw <- workflowPgService.findWorkflowById(workflowIdExecutionContext.workflowId)
+    } yield {
+      val action = Map(ResourceWorkflow -> Edit)
+      val authorizationId = workflowRaw.authorizationId
+      authorizeActionsByResourceId(user, action, authorizationId, senderResponseTo) {
         for {
-          response <- (envStateActor ? ApplyExecutionContextToWorkflowId(workflowIdExecutionContext))
-            .mapTo[Try[Workflow]]
-        } yield {
-          response match {
-            case Success(workflow) =>
-              workflowValidatorService.validateAll(workflow)
-            case Failure(e) =>
-              log.warn(s"Error applying execution context, validating without it. ${e.getLocalizedMessage}")
-              workflowValidatorService.validateAll(workflowRaw)
-          }
-        }
+          response <- (parametersStateActor ? ValidateExecutionContextToWorkflowId(
+            workflowIdExecutionContext = workflowIdExecutionContext, ignoreCustomParams = false
+          )).mapTo[Try[ValidationContextResult]]
+        } yield manageValidationResult(response)
+      }
+    }
+  }
+
+  def runWithParametersView(workflow: Workflow, user: Option[LoggedUser]): Unit = {
+    val senderResponseTo = Option(sender)
+    val authorizationId = workflow.authorizationId
+    val action = Map(ResourceWorkflow -> View)
+
+    authorizeActionsByResourceId(user, action, authorizationId, senderResponseTo) {
+      for {
+        response <- (parametersStateActor ? GetRunWithExecutionContextView(workflow))
+          .mapTo[Try[RunWithExecutionContextView]]
+      } yield response
+    }
+  }
+
+  def runWithParametersViewById(workflowId: String, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      workflowRaw <- workflowPgService.findWorkflowById(workflowId)
+    } yield {
+      val action = Map(ResourceWorkflow -> View)
+      val authorizationId = workflowRaw.authorizationId
+
+      authorizeActionsByResourceId(user, action, authorizationId, senderResponseTo) {
+        for {
+          response <- (parametersStateActor ? GetRunWithExecutionContextViewById(workflowId))
+            .mapTo[Try[RunWithExecutionContextView]]
+        } yield response
       }
     }
   }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
-      FindAllMemoryWorkflowRaw
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
+      workflowPgService.findAllWorkflows()
     }
 
-  def findAllMonitoring(user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
-      FindAllMemoryWorkflowDto
+  def findAllDto(user: Option[LoggedUser]): Unit = {
+    val sendTo = sender
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View), Some(sendTo)) {
+      workflowPgService.findAll().map(workflows => workflows.map { workflow =>
+        val workflowDto: WorkflowDto = workflow
+        workflowDto
+      })
     }
+  }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
-      FindMemoryWorkflowRaw(id)
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
+      workflowPgService.findWorkflowById(id)
     }
 
   def findAllByGroup(groupID: String, user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
-      FindByGroupMemoryWorkflowDto(groupID)
-    }
-
-  def findByIdWithExecutionContext(
-                                    workflowIdExecutionContext: WorkflowIdExecutionContext,
-                                    user: Option[LoggedUser]
-                                  ): Unit =
-    authorizeActionsAndFilterResults(
-      user,
-      Map(ResourceEnvironment -> View),
-      Map(ResourceWorkflow -> View),
-      Option(envStateActor)
-    ) {
-      ApplyExecutionContextToWorkflowId(workflowIdExecutionContext)
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
+      workflowPgService.findByGroupID(groupID)
     }
 
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
-      FindByIdsMemoryWorkflowRaw(workflowIds)
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
+      workflowPgService.findByIdList(workflowIds)
     }
 
   def doQuery(query: WorkflowQuery, user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryWorkflowApi)) {
-      FindByQueryMemoryWorkflowRaw(query)
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
+      workflowPgService.doQuery(query)
     }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    authorizeActionsByResourceId[ResponseWorkflow](user, Map(ResourceWorkflow -> Create), workflow.authorizationId) {
-      Try {
-        workflowService.create(workflow)
-      }
+    authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Create), workflow.authorizationId) {
+      workflowPgService.createWorkflow(workflow)
     }
 
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit =
     authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), workflow.authorizationId) {
-      Try {
-        workflowService.update(workflow)
-      }.recover {
-        case _: NoNodeException =>
-          throw new ServerException(s"No workflow with name ${workflow.name}.")
+      workflowPgService.updateWorkflow(workflow)
+    }
+
+  def delete(id: String, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      workflow <- workflowPgService.findWorkflowById(id)
+    } yield {
+      val authorizationId = Option(workflow.authorizationId).getOrElse("N/A")
+      authorizeActionsByResourceId(
+        user, Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status), authorizationId, senderResponseTo) {
+        workflowPgService.deleteWorkflowById(id)
       }
     }
+  }
 
-  def delete(id: String, user: Option[LoggedUser]): Unit = {
-    val authorizationId = workflowService.findById(id).authorizationId
-    authorizeActionsByResourceId[Response](
-      user,
-      Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status),
-      authorizationId
-    ) {
-      workflowService.delete(id)
+  def deleteWithAllVersion(workflowDelete: WorkflowDelete, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      group <- groupPgService.findGroupById(workflowDelete.groupId)
+    } yield {
+      val authorizationId = s"${group.name}/${workflowDelete.name}"
+      authorizeActionsByResourceId(
+        user,
+        Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status), authorizationId, senderResponseTo) {
+        workflowPgService.deleteWithAllVersions(workflowDelete)
+      }
     }
   }
 
-  def deleteWithAllVersion(workflowDelete: WorkflowDelete, user: Option[LoggedUser]): Unit = {
-    val groupName = groupService.findByID(workflowDelete.groupId)
-    val authorizationId = s"$groupName/${workflowDelete.name}"
-    authorizeActionsByResourceId[Response](
-      user,
-      Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status),
-      authorizationId
-    ) {
-      workflowService.deleteWithAllVersions(workflowDelete)
+  def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      workflows <- workflowPgService.findByIdList(workflowIds)
+    } yield {
+      val resourcesId = workflows.map(_.authorizationId)
+      authorizeActionsByResourcesIds(
+        user,
+        Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status),
+        resourcesId, senderResponseTo
+      ) {
+        workflowPgService.deleteWorkflowList(workflowIds)
+      }
     }
   }
 
-  def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit = {
-    val resourcesId = workflowIds.map(id => workflowService.findById(id).authorizationId)
-    authorizeActionsByResourcesIds[Response](
-      user,
-      Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status),
-      resourcesId
-    ) {
-      workflowService.deleteList(workflowIds)
+  def createVersion(workflowVersion: WorkflowVersion, user: Option[LoggedUser]): Future[Any] = {
+    for {
+      sendTo <- Future(sender)
+      workflow <- workflowPgService.findWorkflowById(workflowVersion.id)
+    } yield {
+      val authorizationId = Option(workflow.authorizationId).getOrElse("N/A")
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Create), authorizationId, Option(sendTo)) {
+        workflowPgService.createVersion(workflowVersion)
+      }
     }
   }
 
-  def deleteAll(user: Option[LoggedUser]): Unit = {
-    val resourcesId = workflowService.findAll.map(_.authorizationId)
-    val actions = Map(ResourceWorkflow -> Delete, ResourceWorkflow -> Status)
-    authorizeActionsByResourcesIds[Response](user, actions, resourcesId) {
-      workflowService.deleteAll()
-    }
-  }
-
-  def resetAllStatuses(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Status)
-    val resourcesId = workflowService.findAll.map(_.authorizationId)
-    authorizeActionsByResourcesIds[Response](user, actions, resourcesId) {
-      workflowService.resetAllStatuses()
-    }
-  }
-
-  def deleteCheckpoint(id: String, user: Option[LoggedUser]): Unit = {
-    val authorizationId = workflowService.findById(id).authorizationId
-    authorizeActionsByResourceId[Response](user, Map(ResourceWorkflow -> Status), authorizationId) {
-      Try(deleteCheckpointPath(workflowService.findById(id)))
-    }
-  }
-
-  def createVersion(workflowVersion: WorkflowVersion, user: Option[LoggedUser]): Unit = {
-    val workflow = workflowService.findById(workflowVersion.id)
-    val group = workflowVersion.group.getOrElse(workflow.group).name
-    val authorizationId = s"$group/${workflow.name}"
-    authorizeActionsByResourceId[ResponseWorkflow](user, Map(ResourceWorkflow -> Create), authorizationId) {
-      Try(workflowService.createVersion(workflowVersion))
-    }
-  }
-
-  def rename(workflowRename: WorkflowRename, user: Option[LoggedUser]): Unit = {
-    val groupName = groupService.findByID(workflowRename.groupId).map(_.name).getOrElse("N/A")
-    val authorizationId = s"$groupName/${workflowRename.newName}"
-    authorizeActionsByResourceId[Response](user, Map(ResourceWorkflow -> Edit), authorizationId) {
-      workflowService.rename(workflowRename)
+  def rename(workflowRename: WorkflowRename, user: Option[LoggedUser]): Future[Any] = {
+    for {
+      sendTo <- Future(sender)
+      group <- groupPgService.findGroupById(workflowRename.groupId)
+    } yield {
+      val authorizationId = s"${group.name}/${workflowRename.newName}"
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), authorizationId, Option(sendTo)) {
+        workflowPgService.rename(workflowRename)
+      }
     }
   }
 
   def moveTo(workflowMove: WorkflowMove, user: Option[LoggedUser]): Unit = {
-    val groupName = groupService.findByID(workflowMove.groupTargetId).map(_.name).getOrElse("N/A")
-    val authorizationId = s"$groupName/${workflowMove.workflowName}"
-    authorizeActionsByResourceId[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> Edit), authorizationId) {
-      Try {
-        val workflowsDto: Seq[WorkflowDto] = workflowService.moveTo(workflowMove)
-        workflowsDto
-      } recover {
-        case _: NoNodeException => Seq.empty[WorkflowDto]
+    for {
+      sendTo <- Future(sender)
+      group <- groupPgService.findGroupById(workflowMove.groupTargetId)
+    } yield {
+      val authorizationId = s"${group.name}/${workflowMove.workflowName}"
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), authorizationId, Option(sendTo)) {
+        workflowPgService.moveTo(workflowMove).map(list => {
+          val workflowsDto: Seq[WorkflowDto] = list
+          workflowsDto
+        })
       }
     }
   }
@@ -315,6 +290,19 @@ class WorkflowActor(
     authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceBackup -> View)) {
       Try {
         migrationService.migrateWorkflowFromCassiopeia(workflowCassiopeia)
+      }
+    }
+  }
+
+  private def manageValidationResult(validationContextResult: Try[ValidationContextResult]): Try[WorkflowValidation] = {
+    Try {
+      validationContextResult match {
+        case Success(result) =>
+          if (result.workflowValidation.valid)
+            workflowValidatorService.validateAll(result.workflow)
+          else result.workflowValidation
+        case Failure(e) =>
+          throw e
       }
     }
   }
@@ -331,10 +319,6 @@ object WorkflowActor extends SLF4JLogging {
                                                 user: Option[LoggedUser]
                                               )
 
-  case class Stop(id: String, user: Option[LoggedUser])
-
-  case class Reset(id: String, user: Option[LoggedUser])
-
   case class ValidateWorkflow(workflow: Workflow, user: Option[LoggedUser])
 
   case class ValidateWorkflowIdWithExContext(
@@ -350,22 +334,15 @@ object WorkflowActor extends SLF4JLogging {
 
   case class DeleteWorkflowWithAllVersions(query: WorkflowDelete, user: Option[LoggedUser])
 
-  case class DeleteAll(user: Option[LoggedUser])
-
   case class DeleteList(workflowIds: Seq[String], user: Option[LoggedUser])
 
   case class FindAll(user: Option[LoggedUser])
 
-  case class FindAllMonitoring(user: Option[LoggedUser])
+  case class FindAllDto(user: Option[LoggedUser])
 
   case class Find(id: String, user: Option[LoggedUser])
 
   case class FindAllByGroup(groupID: String, user: Option[LoggedUser])
-
-  case class FindByIdWithExecutionContext(
-                                           workflowIdExecutionContext: WorkflowIdExecutionContext,
-                                           user: Option[LoggedUser]
-                                         )
 
   case class FindByIdList(workflowIds: Seq[String], user: Option[LoggedUser])
 
@@ -375,19 +352,15 @@ object WorkflowActor extends SLF4JLogging {
 
   case class RenameWorkflow(query: WorkflowRename, user: Option[LoggedUser])
 
-  case class DeleteCheckpoint(id: String, user: Option[LoggedUser])
-
-  case class ResetAllStatuses(user: Option[LoggedUser])
-
   case class MoveWorkflow(query: WorkflowMove, user: Option[LoggedUser])
 
   case class MigrateFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser])
 
-  type Response = Try[Unit]
+  case class RunWithParametersView(workflow: Workflow, user: Option[LoggedUser])
 
-  type ResponseAny = Try[Any]
+  case class RunWithParametersViewId(workflowId: String, user: Option[LoggedUser])
 
-  type ResponseFutureAny = Future[Try[Any]]
+  type ResponseRun = Try[String]
 
   type ResponseWorkflows = Try[Seq[Workflow]]
 
@@ -397,7 +370,7 @@ object WorkflowActor extends SLF4JLogging {
 
   type ResponseWorkflowValidation = Try[WorkflowValidation]
 
-  type ResponseFutureWorkflowValidation = Try[Future[WorkflowValidation]]
+  type ResponseRunWithExecutionContextView = Try[RunWithExecutionContextView]
 
   type ResponseWorkflowAndromeda = Try[WorkflowAndromeda]
 }

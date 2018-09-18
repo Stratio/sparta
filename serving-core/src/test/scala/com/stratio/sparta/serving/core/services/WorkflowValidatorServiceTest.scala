@@ -59,14 +59,10 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
       val basicResult = workflowValidatorService.validateBasicSettings(workflow)
       val graphResult = workflowValidatorService.validateGraph(workflow)
       val advancedResult = workflowValidatorService.validateAdvancedSettings(workflow)
-      val pluginsResult = workflowValidatorService.validatePlugins(workflow)
-      val allResult = workflowValidatorService.validateAll(workflow)
 
       basicResult.valid shouldBe true
       graphResult.valid shouldBe true
       advancedResult.valid shouldBe true
-      pluginsResult.valid shouldBe true
-      allResult.valid shouldBe true
 
     }
 

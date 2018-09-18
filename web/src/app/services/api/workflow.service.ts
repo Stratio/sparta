@@ -7,13 +7,16 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { HttpClient } from '@angular/common/http';
+import { Store } from '@ngrx/store';
+
+import * as fromRoot from 'reducers';
 import { ApiService } from './api.service';
 
 @Injectable()
 export class WorkflowService extends ApiService {
 
-    constructor(private _http: HttpClient) {
-        super(_http);
+    constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
+        super(_http, _store);
     }
 
     getWorkflowList(): Observable<any> {
@@ -105,6 +108,15 @@ export class WorkflowService extends ApiService {
         return this.request('workflows/run/' + id, 'post', options);
     }
 
+
+    runWorkflowWithParams(data: any): Observable<any> {
+
+        const options: any = {
+            body: data
+        };
+        return this.request('workflows/runWithExecutionContext' , 'post', options);
+    }
+
     stopWorkflow(status: any): Observable<any> {
 
         const options: any = {
@@ -159,5 +171,9 @@ export class WorkflowService extends ApiService {
         return this.request('workflows/version', 'post', options);
     }
 
+    getRunParameters(workflowId: string) {
+        const options: any = {};
+        return this.request('workflows/runWithParametersViewById/' + workflowId, 'post', options);
+    }
 
 }

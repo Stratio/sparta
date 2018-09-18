@@ -1,0 +1,36 @@
+@import '~@stratio/egeo/theme/constants';
+
+.tool-bar {
+   margin-top: 30px;
+   margin-bottom: 0px;
+}
+
+.selection-tools {
+   button {
+      margin-left: 7px;
+   }
+   display:inline-block;
+   margin-right: 50px;
+}
+
+st-search {
+   width: 100%;
+   min-width:350px;
+   display: inline-block;
+}
+
+
+.executions-filters {
+   padding-left: 10px;
+   font-size: 16px;
+   padding-top: 12px;
+   font-size: 16px;
+   .icon {
+      font-size: 12px;
+      margin-right: 5px;
+   }
+}
+
+.execution-info {
+   text-align: right;
+}

@@ -6,11 +6,10 @@
 
 import { NgModule } from '@angular/core';
 import { SharedModule } from '@app/shared';
-import { EgeoModule, StModalModule, StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
+import { StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { FormsModule } from '@angular/forms';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PluginsEffect } from './effects/plugins';
 import { reducers } from './reducers';
 import { PluginsComponent } from './plugins.component';
@@ -32,7 +31,9 @@ import { PluginRoutingModule } from './plugins.routes';
         StCheckboxModule,
         StTableModule,
         SharedModule,
-        StTableModule
+        StTableModule,
+        FormsModule,
+        ReactiveFormsModule
     ]
 })
 

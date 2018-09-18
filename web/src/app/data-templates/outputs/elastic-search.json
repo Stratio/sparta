@@ -22,7 +22,7 @@
                "propertyId": "node",
                "propertyName": "_HOST_",
                "propertyType": "text",
-               "default": "{{{ES_HOST}}}",
+               "default": "{{{Environment.ES_HOST}}}",
                "required": true,
                "width": 6,
                "qa": "fragment-details-elasticSearch-node"
@@ -31,7 +31,7 @@
                "propertyId": "httpPort",
                "propertyName": "_HTTP_PORT_",
                "propertyType": "text",
-               "default": "{{{ES_PORT}}}",
+               "default": "{{{Environment.ES_PORT}}}",
                "width": 5,
                "required": true,
                "qa": "fragment-details-elasticSearch-httpPort"
@@ -42,7 +42,7 @@
          "propertyId": "indexMapping",
          "propertyName": "_INDEX_MAPPING_",
          "propertyType": "text",
-         "default": "{{{ES_INDEX_MAPPING}}}",
+         "default": "{{{Default.ES_INDEX_MAPPING}}}",
          "tooltip": "Value will be used as mapping name for indexing.",
          "required": false,
          "qa": "fragment-details-elasticSearch-indexMapping"

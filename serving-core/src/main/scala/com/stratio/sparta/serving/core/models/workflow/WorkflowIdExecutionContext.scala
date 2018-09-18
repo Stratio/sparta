@@ -6,4 +6,10 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class WorkflowIdExecutionContext(workflowId: String, executionContext: ExecutionContext)
+case class WorkflowIdExecutionContext(
+                                       workflowId: String,
+                                       executionContext: ExecutionContext,
+                                       executionSettings: Option[RunExecutionSettings] = None
+                                     )
+
+case class RunExecutionSettings(name: Option[String] = None, description: Option[String] = None)

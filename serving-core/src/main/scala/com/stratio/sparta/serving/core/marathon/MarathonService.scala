@@ -13,6 +13,7 @@ import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
+import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant.EnvironmentCleanerActorName
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -23,12 +24,11 @@ import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
+import com.stratio.sparta.serving.core.services.SparkSubmitService
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
-import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
-import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
 import com.typesafe.config.Config
 import org.json4s.jackson.Serialization._
 import play.api.libs.json._
@@ -38,21 +38,18 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Properties, Try}
 
-case class MarathonService(
-                       context: ActorContext,
-                       workflow: Option[Workflow],
-                       execution: Option[WorkflowExecution]
-                     ) extends SpartaSerializer {
+//scalastyle:off
+case class MarathonService(context: ActorContext, execution: Option[WorkflowExecution]) extends SpartaSerializer {
 
-  def this(context: ActorContext, workflow: Workflow, execution: WorkflowExecution) =
-    this(context, Option(workflow), Option(execution))
+  def this(context: ActorContext, execution: WorkflowExecution) =
+    this(context, Option(execution))
 
-  def this(context: ActorContext) = this(context, None, None)
+  def this(context: ActorContext) = this(context, None)
 
   /* Implicit variables */
 
   implicit val actorSystem: ActorSystem = context.system
-  val timeoutConfig = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+  val timeoutConfig = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
   implicit val timeout: Timeout = Timeout(timeoutConfig.seconds)
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
@@ -62,7 +59,6 @@ case class MarathonService(
   val appInfo = InfoHelper.getAppInfo
   val versionParsed = if (appInfo.pomVersion != "${project.version}") appInfo.pomVersion else version
   val DefaultSpartaDockerImage = s"qa.stratio.com/stratio/sparta:$versionParsed"
-  val ServiceName = workflow.fold("") { workflow => WorkflowHelper.getMarathonId(workflow) }
 
   /* Lazy variables */
   lazy val calicoEnabled: Boolean = {
@@ -72,7 +68,7 @@ case class MarathonService(
   }
   lazy val useDynamicAuthentication = Try(scala.util.Properties.envOrElse(DynamicAuthEnv, "false").toBoolean)
     .getOrElse(false)
-  lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig.get
+  lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
   lazy val upAndDownActor: ActorRef = actorSystem.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
     s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
@@ -83,9 +79,10 @@ case class MarathonService(
   /* PUBLIC METHODS */
 
   def launch(): Unit = {
-    require(workflow.isDefined && execution.isDefined,
-      "It is mandatory to specify a workflow and a request")
-    val createApp = addRequirements(getMarathonAppFromFile, workflow.get, execution.get)
+    require(execution.isDefined, "It is mandatory to specify a execution")
+    require(execution.get.marathonExecution.isDefined, "It is mandatory that the execution contains marathon settings")
+    val workflow = execution.get.getWorkflowToExecute
+    val createApp = addRequirements(getMarathonAppFromFile, workflow, execution.get)
     log.info(s"Submitting Marathon application: ${write(createApp)}")
     for {
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
@@ -222,7 +219,7 @@ case class MarathonService(
     val newEnv = Option(
       envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
-        calicoProperties ++ extraProperties
+        calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -292,7 +289,7 @@ case class MarathonService(
     val newPortDefinitions = if (calicoEnabled) None else app.portDefinitions
 
     app.copy(
-      id = ServiceName,
+      id = execution.marathonExecution.get.marathonId,
       cpus = newCpus,
       mem = newMem + getSOMemory,
       env = newEnv,
@@ -339,7 +336,8 @@ case class MarathonService(
 
   private def hadoopProperties: Map[String, JsString] =
     sys.env.filterKeys { key =>
-      key.startsWith("HADOOP") || key.startsWith("CORE_SITE") || key.startsWith("HDFS_SITE")
+      key.startsWith("HADOOP") || key.startsWith("CORE_SITE") || key.startsWith("HDFS_SITE") ||
+        key.startsWith("HDFS")
     }.mapValues(value => JsString(value))
 
   private def xdProperties: Map[String, JsString] =
@@ -348,6 +346,22 @@ case class MarathonService(
         key.startsWith("CROSSDATA_STORAGE") ||
         key.startsWith("CROSSDATA_SECURITY")
     }.mapValues(value => JsString(value))
+
+  private def postgresProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("SPARTA_POSTGRES")
+    }.mapValues(value => JsString(value))
+
+  private def zookeeperProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("SPARTA_ZOOKEEPER")
+    }.mapValues(value => JsString(value))
+
+  private def spartaConfigProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.contains("SPARTA_TIMEOUT_API_CALLS")
+    }.mapValues(value => JsString(value))
+
 
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] = {
     val submitExecution = execution.sparkSubmitExecution.get
@@ -359,10 +373,8 @@ case class MarathonService(
       LdLibraryEnv -> ldNativeLibrary,
       AppJarEnv -> marathonJar,
       VaultTokenEnv -> getVaultToken,
-      ZookeeperConfigEnv -> submitExecution.driverArguments.get("zookeeperConfig"),
-      DetailConfigEnv -> submitExecution.driverArguments.get("detailConfig"),
       PluginFiles -> Option(submitExecution.pluginFiles.mkString(",")),
-      WorkflowIdEnv -> submitExecution.driverArguments.get("workflowId"),
+      ExecutionIdEnv -> submitExecution.driverArguments.get(SparkSubmitService.ExecutionIdKey),
       DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
@@ -370,7 +382,7 @@ case class MarathonService(
       SpartaSecretFolderEnv -> Properties.envOrNone(SpartaSecretFolderEnv),
       DcosServiceName -> Properties.envOrNone(DcosServiceName),
       GosecAuthEnableEnv -> Properties.envOrNone(GosecAuthEnableEnv),
-      UserNameEnv -> execution.genericDataExecution.flatMap(_.userId),
+      UserNameEnv -> execution.genericDataExecution.userId,
       MarathonAppConstraints -> submitExecution.sparkConfigurations.get(SubmitMesosConstraintConf),
       SpartaZookeeperPathEnv -> Option(BaseZkPath)
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> JsString(value))) }.flatten.toMap

@@ -5,24 +5,24 @@
  */
 import { Action } from '@ngrx/store';
 
-export const GET_ENVIRONMENT_LIST = '[Wizard] Get environment list';
-export const GET_ENVIRONMENT_LIST_COMPLETE = '[Wizard] Get environment list complete';
-export const GET_ENVIRONMENT_LIST_ERROR = '[Wizard] Get environment list error';
+export const GET_PARAMS_LIST = '[Wizard] Get params list';
+export const GET_PARAMS_LIST_COMPLETE = '[Wizard] Get params list complete';
+export const GET_PARAMS_LIST_ERROR = '[Wizard] Get params list error';
 
-export class GetEnvironmentListAction implements Action {
-    readonly type = GET_ENVIRONMENT_LIST;
+export class GetParamsListAction implements Action {
+    readonly type = GET_PARAMS_LIST;
 }
 
-export class GetEnvironmentListCompleteAction implements Action {
-    readonly type = GET_ENVIRONMENT_LIST_COMPLETE;
+export class GetParamsListCompleteAction implements Action {
+    readonly type = GET_PARAMS_LIST_COMPLETE;
     constructor(public payload: any) { }
 }
 
-export class GetEnvironmentListErrorAction implements Action {
-    readonly type = GET_ENVIRONMENT_LIST_ERROR;
+export class GetParamsListErrorAction implements Action {
+    readonly type = GET_PARAMS_LIST_ERROR;
 }
 
 export type Actions =
-    GetEnvironmentListAction |
-    GetEnvironmentListCompleteAction |
-    GetEnvironmentListErrorAction;
+    GetParamsListAction |
+    GetParamsListCompleteAction |
+    GetParamsListErrorAction;

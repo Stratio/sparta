@@ -19,9 +19,8 @@ class InconsistentStatusCheckerActor extends Actor {
 
   override def receive: Receive = {
     case msg@CheckConsistency(_) =>
-      waitForMarathonAnswer(sender, msg.runningInZookeeper)
+      waitForMarathonAnswer(sender, msg.runningInDatabase)
   }
-
 
   def waitForMarathonAnswer(sender: ActorRef, currentRunningWorkflows: Map[String, String]): Unit = {
     for {

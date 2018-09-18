@@ -17,7 +17,7 @@
                                 *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                                 label="{{field.propertyName | translate}}" 
                                 fieldType="{{field.propertyType}}"
-                                [variableList]="getVariableList(field)"
+                                [parameters]="valueDictionary['parameters']"
                                 [showVars]="showVars"
                                 [formControl]="item.controls[field.propertyId]" 
                                 qaTag="form-list-input" [required]="field.required"

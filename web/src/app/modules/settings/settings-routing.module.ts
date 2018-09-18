@@ -7,6 +7,7 @@
 import { SettingsComponent } from './settings.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { SettingsHomeComponent } from './settings/settings.component';
 
 
 const settingsRoutes: Routes = [
@@ -16,7 +17,7 @@ const settingsRoutes: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: 'backups'
+                component: SettingsHomeComponent
             },
             {
                 path: 'backups',
@@ -27,8 +28,8 @@ const settingsRoutes: Routes = [
                 loadChildren: './plugins/plugins.module#PluginsModule'
             },
             {
-                path: 'environment',
-                loadChildren: './environment/environment.module#EnvironmentModule'
+                path: 'parameter-group',
+                loadChildren: './parameter-group/parameter-group.module#ParameterGroupModule'
             }
         ]
     }

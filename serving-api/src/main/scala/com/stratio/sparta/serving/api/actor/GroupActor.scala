@@ -3,30 +3,31 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, ActorRef}
-import com.stratio.sparta.security.SpartaSecurityManager
+
+import akka.actor.Actor
+import com.stratio.sparta.security.{SpartaSecurityManager, _}
+import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.Group
-import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.services.GroupService
+import com.stratio.sparta.serving.core.services.dao.GroupPostgresDao
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import org.apache.curator.framework.CuratorFramework
-import GroupActor._
-import com.stratio.sparta.serving.core.actor.GroupInMemoryApi._
 
+import scala.concurrent.Future
 import scala.util.Try
 
-class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: ActorRef)
-                (implicit val secManagerOpt: Option[SpartaSecurityManager])
+class GroupActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
-  private val groupService = new GroupService(curatorFramework)
+  private val groupPgService = new GroupPostgresDao()
   private val ResourceGroupType = "Groups"
 
-  def receiveApiActions(action : Any): Unit = action match {
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  def receiveApiActions(action: Any): Any = action match {
     case CreateGroup(request, user) => createGroup(request, user)
     case UpdateGroup(request, user) => updateGroup(request, user)
     case FindAllGroups(user) => findAllGroups(user)
@@ -40,45 +41,63 @@ class GroupActor(val curatorFramework: CuratorFramework, inMemoryApiGroup: Actor
 
   def createGroup(request: Group, user: Option[LoggedUser]): Unit =
     authorizeActionsByResourceId(user, Map(ResourceGroupType -> Create), request.authorizationId) {
-      groupService.create(request)
+      groupPgService.createFromGroup(request)
     }
 
   def updateGroup(request: Group, user: Option[LoggedUser]): Unit =
     authorizeActionsByResourceId(user, Map(ResourceGroupType -> Edit), request.authorizationId) {
-      groupService.update(request)
+      groupPgService.update(request)
     }
 
   def findGroupByName(name: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId(user, Map(ResourceGroupType -> View), Option(inMemoryApiGroup)) {
-      FindMemoryGroupByName(name)
+    authorizeActionResultResources(user, Map(ResourceGroupType -> View)) {
+      groupPgService.findGroupByName(name)
     }
 
   def findGroupByID(id: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId(user, Map(ResourceGroupType -> View), Option(inMemoryApiGroup)) {
-      FindMemoryGroup(id)
+    authorizeActionResultResources(user, Map(ResourceGroupType -> View)) {
+      groupPgService.findGroupById(id)
     }
 
   def findAllGroups(user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceGroupType -> View), Option(inMemoryApiGroup)) {
-      FindAllMemoryGroup
+    authorizeActionResultResources(user, Map(ResourceGroupType -> View)) {
+      groupPgService.findAll()
     }
 
-  def deleteAllGroups(user: Option[LoggedUser]): Unit = {
-    val resourcesId = groupService.findAll.map(_.authorizationId)
-    authorizeActionsByResourcesIds(user, Map(ResourceGroupType -> Delete), resourcesId) {
-      groupService.deleteAll()
+  def deleteAllGroups(user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      groups <- groupPgService.findAll()
+    } yield {
+      val resourcesId = groups.map(_.authorizationId)
+      authorizeActionsByResourcesIds(user, Map(ResourceGroupType -> Delete), resourcesId, senderResponseTo) {
+        groupPgService.deleteAllGroups()
+      }
     }
   }
 
-  def deleteGroupByName(name: String, user: Option[LoggedUser]): Unit =
-    authorizeActionsByResourceId(user, Map(ResourceGroupType -> Delete), name) {
-      groupService.deleteByName(name)
+  def deleteGroupByName(name: String, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      group <- groupPgService.findGroupByName(name)
+    } yield {
+      val resourcesId = Seq(group.authorizationId)
+      authorizeActionsByResourcesIds(user, Map(ResourceGroupType -> Delete), resourcesId, senderResponseTo) {
+        groupPgService.deleteByName(name)
+      }
     }
+  }
 
-  def deleteGroupByID(id: String, user: Option[LoggedUser]): Unit = {
-    val resourcesId = groupService.findByID(id).map(_.authorizationId).getOrElse("N/A")
-    authorizeActionsByResourceId(user, Map(ResourceGroupType -> Delete), resourcesId) {
-      groupService.deleteById(id)
+  //scala style:off
+  def deleteGroupByID(id: String, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      group <- groupPgService.findGroupById(id)
+    } yield {
+      val resourcesId = Seq(group.authorizationId)
+      authorizeActionsByResourcesIds(user, Map(ResourceGroupType -> Delete), resourcesId, senderResponseTo) {
+        groupPgService.deleteById(id)
+      }
     }
   }
 }
@@ -101,8 +120,7 @@ object GroupActor {
 
   case class FindGroupByName(name: String, user: Option[LoggedUser])
 
-  type Response = Try[Unit]
-
   type ResponseGroup = Try[Group]
 
+  type ResponseGroups = Try[Seq[Group]]
 }

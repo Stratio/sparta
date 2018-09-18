@@ -38,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
                         undefined, alertNot.duration ? alertNot.duration : 1000);
                     } else {
                         const title = 'ALERTS.' + alertNot.title;
-                        const description = 'ALERTS.' + alertNot.description;
+                        const description = alertNot.text ? alertNot.text : 'ALERTS.' + alertNot.description;
                         this._translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
                             this._alertService.notifyAlert(value[title], value[description], alertNot.type,
                             undefined, alertNot.duration ? alertNot.duration : 1000);

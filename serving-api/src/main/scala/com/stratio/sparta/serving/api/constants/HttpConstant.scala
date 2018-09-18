@@ -5,11 +5,13 @@
  */
 package com.stratio.sparta.serving.api.constants
 
-import scala.util.Properties
+import com.stratio.sparta.serving.core.constants.MarathonConstant
+
+import scala.util.{Properties, Try}
 
 object HttpConstant {
 
-  final val SpartaRootPath = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
+  final val SpartaRootPath = Properties.envOrElse(MarathonConstant.DcosServiceName, "sparta")
   final val DebugWorkflowsPath = "debug"
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"
@@ -19,15 +21,19 @@ object HttpConstant {
   final val WorkflowStatusesPath = "workflowStatuses"
   final val ExecutionsPath = "workflowExecutions"
   final val GroupsPath = "groups"
-  final val EnvironmentPath = "environment"
+  final val GlobalParametersPath = "globalParameters"
   final val SwaggerPath = "swagger"
   final val ConfigPath = "config"
   final val AppStatus = "appStatus"
   final val CrossdataPath = "crossdata"
   final val AppInfoPath = "appInfo"
   final val MetadataPath = "metadata"
-  final val ExecutionsHistoryPath = "workflowExecutionsHistory"
-  final val StatusHistoryPath = "workflowStatusHistory"
   final val NotFound = 400
   final val NotFoundMessage = "Not Found"
+
+
+  type Response = Try[Unit]
+  type ResponseAny = Try[Any]
+  type ResponseBoolean = Try[Boolean]
+
 }

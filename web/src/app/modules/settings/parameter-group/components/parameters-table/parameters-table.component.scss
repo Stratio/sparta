@@ -1,0 +1,211 @@
+/**
+ * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+ *
+ * This software – including all its source code – contains proprietary
+ * information of Stratio Big Data Inc., Sucursal en España and
+ * may not be revealed, sold, transferred, modified, distributed or
+ * otherwise made available, licensed or sublicensed to third parties;
+ * nor reverse engineered, disassembled or decompiled, without express
+ * written authorization from Stratio Big Data Inc., Sucursal en España.
+ */
+
+@import '~@stratio/egeo/theme/constants';
+
+
+:host {
+   st-dropdown-menu {
+      position: absolute;
+      z-index: 10000;
+      top: 30px;
+      left: -60px;
+   }
+ }
+
+#parametersTable {
+   margin-top: 10px;
+   position: relative;
+   table {
+      width: 100%;
+      thead {
+         background-color: $action-secondary-02;
+         th {
+            padding-left: 20px;
+            text-align: left;
+            &:first-child {
+               width: 400px;
+            }
+         }
+         tr {
+            height: 41px;
+         }
+         .context {
+            position: absolute;
+            top: 9px;
+            font-size: 12px;
+            margin-left: 5px;
+            background-color: $action-secondary-03;
+            border-radius: 2px;
+            padding: 6px 7px 6px 6px;
+            cursor: pointer;
+            border: solid 1px $neutral-04;
+
+         }
+      }
+      tbody {
+         th, td {
+            font-family: $egeo-nunito-sans;
+            font-weight: 600;
+            font-size: 15px;
+            color: $neutral-11;
+            padding-left: 20px;
+            &:last-child {
+               padding-right: 40px;
+               text-align: right;
+            }
+         }
+         tr {
+            height: 75px;
+            background-color: $neutral-00;
+            border: solid 1px $neutral-04;
+            cursor: pointer;
+            text-align: left;
+         }
+         .edit {
+            cursor: initial;
+            td {
+               background-color: $action-secondary-01;
+               padding: 30px 0px 30px 0px;
+               position: relative;
+            }
+            .edit-container {
+               .defaultContainer {
+                  display: flex;
+                  padding-left: 20px;
+                  position: relative;
+                  button {
+                     margin-top: 20px;
+                  }
+                  .icon-ellipsis {
+                     margin-left: 17px;
+                     position: relative;
+                     top: 13px;
+                     font-size: 22px;
+                     color: $action-secondary-04;
+                     cursor: pointer;
+                  }
+                  .option-box {
+                     width: 240px;
+                     height: 60px;
+                     border-radius: 5px;
+                     background-color: $neutral-00;
+                     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+                     position: absolute;
+                     top: 60px;
+                     right: 10px;
+                     text-align: left;
+                     overflow: hidden;
+                     color: $status-critical-default;
+                     .option-element {
+                        padding: 16px 10px 20px 20px;
+                        cursor: pointer;
+                        &:hover {
+                           background-color: $action-secondary-01;
+                        }
+                        span {
+                           font-size: $egeo-font-size-small;
+                           margin-left: 16px;
+                        }
+                        .icon-trash {
+                           font-size: $egeo-font-size-xxsmall;
+                        }
+                     }
+
+                  }
+
+               }
+               .context-container {
+                  margin-top: 20px;
+               }
+               .add-context-container {
+                  cursor: pointer;
+                  color: $action-primary-default;
+                  font-size: 16px;
+                  margin-top: 10px;
+                  position: relative;
+
+                  text-align: left;
+                  .context-menu {
+                     position: absolute;
+                     top: 30px;
+                     background-color: #ffffff;
+                     border-radius: 5px;
+                     min-width: 210px;
+                     font-weight: normal;
+                     font-size: 15px;
+                     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+                     ul {
+                        padding: 10px 30px 4px 30px;
+                        list-style: none;
+                        color: $action-secondary-07;
+                        max-height: 215px;
+                        overflow-y: auto;
+                        .option {
+                           margin: 5px 0px 5px 0px;
+                        }
+                     }
+                     .line {
+                        border-top: 1px solid $action-secondary-02;
+                        font-size: 16px;
+                        color: $neutral-11;
+                        padding: 7px 0px 9px 0px;
+                        text-align: center;
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+
+   }
+
+   .context-create-container {
+      width: 460px;
+      background-color: $neutral-00;
+      border-radius: 2px;
+      border: solid 1px $neutral-06;
+      box-shadow: 0 1px 2px 0 rgba(222, 222, 222, 0.5);
+      position: absolute;
+      bottom: 0px;
+      right: 70px;
+      padding: 40px 20px 40px 30px;
+      text-align: left;
+      .header {
+         .title {
+            font-size: 22px;
+            font-weight: bold;
+            color: $neutral-13;
+         }
+         .close {
+            font-size: 20px;
+            color: $action-secondary-04;
+            float: right;
+            cursor: pointer;
+         }
+      }
+
+      .body {
+         margin-top: 20px;
+         display: flex;
+         .input, .save {
+            padding: 0;
+         }
+         .save {
+            text-align: right;
+            padding-top: 22px;
+         }
+
+
+      }
+   }
+}

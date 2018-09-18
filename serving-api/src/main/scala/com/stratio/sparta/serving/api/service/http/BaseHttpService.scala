@@ -29,7 +29,7 @@ import scala.util.{Failure, Success, Try}
   */
 trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaSerializer with SLF4JLogging {
 
-  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
 
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
@@ -60,29 +60,6 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaS
         context.failWith(throw new ServerException(ErrorModel.toString(genericError)))
     }
 
-  def getResponseFuture[T](
-                            context: RequestContext,
-                            errorCodeToReturn: String,
-                            response: Either[Future[Try[T]], UnauthorizedResponse],
-                            genericError: ErrorModel
-                          )(implicit marshaller: ToResponseMarshaller[T]): Unit =
-    response match {
-      case Left(future) =>
-        future.map { data: Try[T] =>
-          data match {
-            case Success(data: T) =>
-              context.complete(data)
-            case Failure(e) =>
-              context.failWith(e)
-          }
-        }
-      case Right(UnauthorizedResponse(exception)) =>
-        val errorModel = ErrorModel.toErrorModel(exception.getLocalizedMessage)
-        context.complete(errorModel.statusCode, errorModel)
-      case _ =>
-        context.failWith(throw new ServerException(ErrorModel.toString(genericError)))
-    }
-
   def deletePostPutResponse[T](
                                 errorCodeToReturn: String,
                                 response: Either[Try[T], UnauthorizedResponse],
@@ -93,27 +70,6 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaS
         data
       case Left((Failure(e))) =>
         throwExceptionResponse(e, errorCodeToReturn)
-      case Right(UnauthorizedResponse(exception)) =>
-        throw exception
-      case _ =>
-        throw new ServerException(ErrorModel.toString(genericError))
-    }
-
-  def deletePostPutResponseFuture[T](
-                                      errorCodeToReturn: String,
-                                      response: Either[Future[Try[T]], UnauthorizedResponse],
-                                      genericError: ErrorModel
-                                    ): Future[T] =
-    response match {
-      case Left(future) =>
-        future.map { data: Try[T] =>
-          data match {
-            case Success(data: T) =>
-              data
-            case Failure(e) =>
-              throwExceptionResponse(e, errorCodeToReturn)
-          }
-        }
       case Right(UnauthorizedResponse(exception)) =>
         throw exception
       case _ =>
@@ -131,28 +87,6 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaS
         statusResponse
       case Left((Failure(e))) =>
         throwExceptionResponse(e, errorCodeToReturn)
-      case Right(UnauthorizedResponse(exception)) =>
-        throw exception
-      case _ =>
-        throw new ServerException(ErrorModel.toString(genericError))
-    }
-
-  def deletePostPutResponseFuture(
-                                   errorCodeToReturn: String,
-                                   response: Either[Future[Try[_]], UnauthorizedResponse],
-                                   genericError: ErrorModel,
-                                   statusResponse: StatusCode
-                                 ): Future[StatusCode] =
-    response match {
-      case Left(future) =>
-        future.map { data: Try[_] =>
-          data match {
-            case Success(_) =>
-              statusResponse
-            case Failure(e) =>
-              throwExceptionResponse(e, errorCodeToReturn)
-          }
-        }
       case Right(UnauthorizedResponse(exception)) =>
         throw exception
       case _ =>

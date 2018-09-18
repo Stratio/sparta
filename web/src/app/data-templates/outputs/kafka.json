@@ -19,7 +19,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "default": "{{{KAFKA_BROKER_HOST}}}",
+            "default": "{{{Environment.KAFKA_BROKER_HOST}}}",
             "required": true,
             "tooltip": "Kafka's address.",
              "width": 6,
@@ -29,7 +29,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "default": "{{{KAFKA_BROKER_PORT}}}",
+            "default": "{{{Environment.KAFKA_BROKER_PORT}}}",
             "required": true,
             "tooltip": "Kafka's port.",
              "width": 5,
@@ -63,7 +63,7 @@
         "propertyId": "value.serializer.row.delimiter",
         "propertyName": "_KAFKA_ROW_SEPARATOR_",
         "propertyType": "text",
-        "default": "{{{DEFAULT_DELIMITER}}}",
+        "default": "{{{Default.DEFAULT_DELIMITER}}}",
         "required": false,
          "visible": [
             [

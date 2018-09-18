@@ -38,7 +38,9 @@ class ConfigHttpServiceTest extends WordSpec
   override val supervisor: ActorRef = testProbe.ref
 
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
+    SpartaConfig.getSpartaConfig(Option(localConfig))
+    SpartaConfig.getZookeeperConfig(Option(localConfig))
+    SpartaConfig.getDetailConfig(Option(localConfig))
   }
 
   protected def retrieveStringConfig(): FrontendConfiguration =

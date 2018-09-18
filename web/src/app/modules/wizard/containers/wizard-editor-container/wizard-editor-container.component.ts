@@ -5,15 +5,16 @@
  */
 
 import {
-   ChangeDetectionStrategy,
-   ChangeDetectorRef,
-   Component,
-   ElementRef,
-   HostListener,
-   Input,
-   OnDestroy,
-   OnInit,
-   ViewChild
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
@@ -34,7 +35,6 @@ import { WizardNode, WizardEdge, WizardEdgeNodes, EdgeOption } from '@app/wizard
 import { KEYS } from '@app/wizard/wizard.constants';
 import { ZoomTransform } from '@app/wizard/models/drag';
 import { WizardEditorService, WizardEditorComponent } from '@app/wizard';
-import { take } from 'rxjs/operator/take';
 
 @Component({
    selector: 'wizard-editor-container',
@@ -48,6 +48,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
    @Input() workflowType = '';
    @Input() hiddenContent: boolean;
    @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
+   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
+
    public selectedNodeName = '';
    public selectedNodeModel: WizardNode;
    public selectedEdge: WizardEdge;
@@ -242,6 +244,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
          { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
       ];
+      this._modalService.container = this.target;
       this._modalService.show({
          modalTitle: modalTitle,
          buttons: buttons,

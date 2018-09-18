@@ -2,44 +2,17 @@
    [attr.title]="contextualHelp">
    {{label}}
 </label>
-<div class="st-input__container" [ngClass]="{'var-mode' :  showVars && (isVarValue || (focus && selectVarMode))}">
-   <div class="var-mode__label" *ngIf="showVars && (isVarValue || (focus && selectVarMode))">{{typeSelected}}</div>
-   <input #input class="st-input" autocomplete="off" (input)="valuechange($event)" (focus)="onFocus($event)" (focusout)="onFocusOut($event); " (blur)="onFocusOut($event)" [formControl]="internalControl"
+<div class="st-input__container" [ngClass]="{'param-value' : isParameterValue}">
+   <span class="icon-selected-param icon-json" *ngIf="isParameterValue"></span>
+   <input #input class="st-input" (keydown)="onKeydown($event)" autocomplete="off" (focus)="onFocus($event)" (focusout)="onFocusOut($event); " (blur)="onFocusOut($event)" [formControl]="internalControl"
       [placeholder]="placeholder" [name]="name" [attr.type]="fieldType" [attr.id]="qaTag" [attr.maxlength]="maxLength" [attr.min]="min"
-      [attr.max]="max" [value]="value" [readonly]="readonly" [ngClass]="{'error': showError(), 'catalog': showVars && focus && selectVarMode}" (keydown)="onKeydown($event)">
-   <div class="variable-selector" (mousedown)="showVarCatalog($event)" *ngIf="showVars">
-      <span class="icon icon-arrow2_down"></span>
-   </div>
-   <div *ngIf="showVars && focus && selectVarMode">
-      <ul class="var-mode__list" *ngIf="defaultList" [ngClass]="{ 'height-size': emptyVariables } ">
-         <div *ngIf="defaultList && emptyVariables" class="empty-vars">
-               <span>Sorry, we found not results.</span><span class="not-found" (mousedown)="selectAll($event)"> View all variables</span>
-         </div>
-         <li *ngFor="let variable of filteredVariableList; let i = index;" (mousedown)="selectVar($event, variable)" [ngClass]="{hover: i === selectedIndex}" >
-            <div class="var-mode__list-label">{{variable.valueType}}</div>
-            <span class="var-mode__list-key">{{variable.name}}</span>
-            <span class="var-mode__list-value">{{variable.value}}</span>
-         </li>
-      </ul>
-      <div *ngIf="!defaultList" class="var-mode__list height-size" >
-         <ul class="group" *ngFor="let type of filteredVariableGroupList" >
-            <div class="navigation" (mousedown)="toggleVarType($event, type.filter)">
-               <span class="icon icon-arrow4_down" [ngClass]=" { 'right-icon' : type.filter === selectedFilter}"></span>{{type.filter}}
-            </div>
-            <ng-container *ngIf="type.filter === selectedFilter">
-               <li *ngFor="let variable of type.list; let i = index;" (mousedown)="selectVar($event, variable)" [ngClass]="{hover: i === selectedIndex}" >
-                  <div class="var-mode__list-label">{{variable.valueType}}</div>
-                  <span class="var-mode__list-key">{{variable.name}}</span>
-                  <span class="var-mode__list-value">{{variable.value}}</span>
-               </li>
-            </ng-container>
-
-         </ul>
+      [attr.max]="max" [value]="value" [readonly]="readonly" [ngClass]="{'error': showError()}">
+      <div *ngIf="parameters && (isParameterValue || this.focus)" class="add-parameter" (mousedown)="showParameterSelector()">
+         <span class="icon icon-json"></span>
       </div>
-
-   </div>
-
 </div>
+<div class="param-type" *ngIf="isParameterValue">{{paramType}} Parameter</div>
 <div class="st-input-error-layout" *ngIf="showError()">
    <span class="st-input-error-message">{{errorMessage}}</span>
 </div>
+<div #variableSelectorModal></div>

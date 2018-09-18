@@ -92,16 +92,17 @@ li.search {
 li.item {
    display: block;
    /*min-width: 150px;*/
-   padding: 10px 8px 10px 20px;
+   padding: 9px 8px 9px 20px;
    cursor: pointer;
+   font-size: 14px;
    padding-right: 30px;
    /*color:$neutral-09;*/
    color: #192a3a;
 
    -webkit-tap-highlight-color: transparent;
    .has-submenu {
-      font-size: 12px;
-          float: right;
+      font-size: 11px;
+      float: right;
       margin-top: 6px;
       margin-right: 10px;
    }

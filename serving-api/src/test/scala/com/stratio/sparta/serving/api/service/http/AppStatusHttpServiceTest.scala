@@ -22,7 +22,6 @@ with MockFactory {
 
   override implicit val actors: Map[String, ActorRef] = Map()
   override val supervisor: ActorRef = testProbe.ref
-  override val curatorInstance = mock[CuratorFramework]
 
   "AppStatusHttpService" should {
     "check the status of the server" in {

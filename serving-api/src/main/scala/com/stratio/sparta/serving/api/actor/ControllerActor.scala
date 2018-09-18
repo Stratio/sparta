@@ -5,86 +5,66 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import scala.concurrent.duration._
-import scala.util.{Properties, Try}
-
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
-import com.typesafe.config.Config
-import org.apache.curator.framework.CuratorFramework
-import spray.http.StatusCodes._
-import spray.routing._
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
+import com.typesafe.config.Config
+import spray.http.StatusCodes._
+import spray.routing._
+
+import scala.concurrent.duration._
+import scala.util.{Properties, Try}
 
 class ControllerActor(
-                       curatorFramework: CuratorFramework,
-                       stListenerActor: ActorRef,
-                       envListenerActor: ActorRef,
-                       inMemoryApiActors: InMemoryApiActors
-                     )
-                     (implicit secManager: Option[SpartaSecurityManager])
+                       executionStListenerActor: ActorRef,
+                       envListenerActor: ActorRef
+                     )(implicit secManager: Option[SpartaSecurityManager])
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
 
-  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
   log.debug("Initializing actors in Controller Actor")
 
-  val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new StatusActor(
-      curatorFramework, stListenerActor, inMemoryApiActors.statusInMemoryApi))), StatusActorName)
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new TemplateActor(curatorFramework))), TemplateActorName)
+    .props(Props(new TemplateActor())), TemplateActorName)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(curatorFramework, stListenerActor, envListenerActor))), LauncherActorName)
+    .props(Props(new LauncherActor(executionStListenerActor, envListenerActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new WorkflowActor(
-      curatorFramework, inMemoryApiActors.workflowInMemoryApi, launcherActor, envListenerActor))), WorkflowActorName)
+    .props(Props(new WorkflowActor(launcherActor, envListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new ExecutionActor(curatorFramework, inMemoryApiActors.executionInMemoryApi))), ExecutionActorName)
+    .props(Props(new ExecutionActor())), ExecutionActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new PluginActor())), PluginActorName)
   val configActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ConfigActor())), ConfigActorName)
-  val environmentActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new EnvironmentActor(
-      curatorFramework, inMemoryApiActors.environmentInMemoryApi))), EnvironmentActorName)
+  val globalParametersActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new GlobalParametersActor())), GlobalParametersActorName)
   val parameterListActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new ParameterListActor(
-      curatorFramework, inMemoryApiActors.parameterListInMemoryApi))), ParameterListActorName)
+    .props(Props(new ParameterListActor())), ParameterListActorName)
   val groupActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new GroupActor(curatorFramework, inMemoryApiActors.groupInMemoryApi))), GroupActorName)
-  val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new MetadataActor())), MetadataActorName)
+    .props(Props(new GroupActor())), GroupActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
   val debugActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new DebugWorkflowActor(
-      curatorFramework, inMemoryApiActors.debugWorkflowInMemoryApi, launcherActor, envListenerActor))), DebugWorkflowApiActorName)
-  val executionHistoryActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new ExecutionHistoryActor)), ExecutionHistoryApiActorName)
-  val statusHistoryActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new StatusHistoryActor)), StatusHistoryApiActorName)
+    .props(Props(new DebugWorkflowActor(launcherActor))), DebugWorkflowActorName)
 
   val actorsMap = Map(
-    StatusActorName -> statusActor,
     TemplateActorName -> templateActor,
     WorkflowActorName -> workflowActor,
     LauncherActorName -> launcherActor,
@@ -92,17 +72,14 @@ class ControllerActor(
     ExecutionActorName -> executionActor,
     ConfigActorName -> configActor,
     CrossdataActorName -> crossdataActor,
-    MetadataActorName -> metadataActor,
-    EnvironmentActorName -> environmentActor,
+    GlobalParametersActorName -> globalParametersActor,
     GroupActorName -> groupActor,
-    DebugWorkflowApiActorName -> debugActor,
-    ExecutionHistoryApiActorName -> executionHistoryActor,
-    StatusHistoryApiActorName -> statusHistoryActor,
+    DebugWorkflowActorName -> debugActor,
     ParameterListActorName -> parameterListActor
   )
 
-  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
-  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
+  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
+  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config()
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
@@ -143,13 +120,13 @@ class ControllerActor(
   }
 
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {
-    serviceRoutes.templateRoute(user) ~ serviceRoutes.workflowContextRoute(user) ~
-      serviceRoutes.executionRoute(user) ~ serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
+    serviceRoutes.templateRoute(user) ~ serviceRoutes.executionRoute(user) ~
+      serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.swaggerRoute ~
-      serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
-      serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user) ~
-      serviceRoutes.debugRoutes(user) ~ serviceRoutes.executionHistoryRoutes(user) ~
-      serviceRoutes.statusHistoryRoutes(user) ~ serviceRoutes.parameterListRoute(user)
+      serviceRoutes.serviceInfoRoute(user) ~
+      serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
+      serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
+      serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user)
   }
 
   lazy val webRoutes: Route =
@@ -172,23 +149,11 @@ class ControllerActor(
     }
 }
 
-case class InMemoryApiActors(
-                              workflowInMemoryApi: ActorRef,
-                              statusInMemoryApi: ActorRef,
-                              groupInMemoryApi: ActorRef,
-                              executionInMemoryApi: ActorRef,
-                              debugWorkflowInMemoryApi: ActorRef,
-                              parameterListInMemoryApi: ActorRef,
-                              environmentInMemoryApi: ActorRef
-                            )
-
-class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
+class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
   def templateRoute(user: Option[LoggedUser]): Route = templateService.routes(user)
 
   def workflowRoute(user: Option[LoggedUser]): Route = workflowService.routes(user)
-
-  def workflowContextRoute(user: Option[LoggedUser]): Route = workflowContextService.routes(user)
 
   def executionRoute(user: Option[LoggedUser]): Route = executionService.routes(user)
 
@@ -198,23 +163,17 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
 
-  def environmentRoute(user: Option[LoggedUser]): Route = environmentService.routes(user)
+  def globalParametersRoute(user: Option[LoggedUser]): Route = globalParametersService.routes(user)
 
   def parameterListRoute(user: Option[LoggedUser]): Route = parameterListService.routes(user)
 
   def groupRoute(user: Option[LoggedUser]): Route = groupService.routes(user)
 
-  def metadataRoute(user: Option[LoggedUser]): Route = metadataService.routes(user)
-
   def serviceInfoRoute(user: Option[LoggedUser]): Route = serviceInfoService.routes(user)
 
   def crossdataRoute(user: Option[LoggedUser]): Route = crossdataService.routes(user)
 
-  def debugRoutes(user: Option[LoggedUser]) :Route = debugService.routes(user)
-
-  def executionHistoryRoutes(user: Option[LoggedUser]): Route = executionHistoryService.routes(user)
-
-  def statusHistoryRoutes(user: Option[LoggedUser]): Route = statusHistoryService.routes(user)
+  def debugRoutes(user: Option[LoggedUser]): Route = debugService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -230,12 +189,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }
 
-  private val workflowContextService = new WorkflowStatusHttpService {
-    implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.LauncherActorName)
-    override val actorRefFactory: ActorRefFactory = context
-  }
-
   private val executionService = new ExecutionHttpService {
     implicit val actors = actorsMap
     override val supervisor = actorsMap(AkkaConstant.ExecutionActorName)
@@ -246,7 +199,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context
-    override val curatorInstance = curatorFramework
   }
 
   private val pluginsService = new PluginsHttpService {
@@ -261,9 +213,9 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }
 
-  private val environmentService = new EnvironmentHttpService {
+  private val globalParametersService = new GlobalParametersHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.EnvironmentActorName)
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.GlobalParametersActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 
@@ -276,12 +228,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val groupService = new GroupHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.GroupActorName)
-    override val actorRefFactory: ActorRefFactory = context
-  }
-
-  private val metadataService = new MetadataHttpService {
-    override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.MetadataActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 
@@ -299,19 +245,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   private val debugService = new DebugWorkflowHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.DebugWorkflowApiActorName)
-    override val actorRefFactory: ActorRefFactory = context
-  }
-
-  private val executionHistoryService = new ExecutionHistoryHttpService {
-    override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.ExecutionHistoryApiActorName)
-    override val actorRefFactory: ActorRefFactory = context
-  }
-
-  private val statusHistoryService = new StatusHistoryHttpService {
-    override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.StatusHistoryApiActorName)
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.DebugWorkflowActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

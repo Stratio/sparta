@@ -11,44 +11,40 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.models.DebugResults
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.api.utils.FileActorUtils
-import com.stratio.sparta.serving.core.actor.DebugWorkflowInMemoryApi._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Debug
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.DebugWorkflowService
+import com.stratio.sparta.serving.core.services.dao.DebugWorkflowPostgresDao
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 
 class DebugWorkflowActor(
-                          val curatorFramework: CuratorFramework,
-                          inMemoryDebugWorkflowApi: ActorRef,
-                          launcherActor: ActorRef,
-                          envStateActor: ActorRef
-                        )
-                        (implicit val secManagerOpt: Option[SpartaSecurityManager])
+                          launcherActor: ActorRef
+                        )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize {
 
   import DebugWorkflowActor._
 
   val ResourceWorkflow = "Workflows"
   val ResourceFiles = "Files"
-  val debugService = new DebugWorkflowService(curatorFramework)
+  val debugPgService = new DebugWorkflowPostgresDao()
 
   val targetDir = "debug"
   val temporalDir = "/tmp/sparta/debug"
   val apiPath = s"${HttpConstant.DebugWorkflowsPath}/download"
 
   //scalastyle:off
-  def receiveApiActions(action : Any): Unit = action match {
+  def receiveApiActions(action: Any): Unit = action match {
     case CreateDebugWorkflow(workflow, user) => createDebugWorkflow(workflow, user)
     case DeleteById(id, user) => deleteByID(id, user)
     case DeleteAll(user) => deleteAll(user)
@@ -65,53 +61,71 @@ class DebugWorkflowActor(
   //scalastyle:on
 
   def createDebugWorkflow(debugWorkflow: DebugWorkflow, user: Option[LoggedUser]): Unit = {
-    authorizeActionsByResourceId[ResponseDebugWorkflow](
+    authorizeActionsByResourceId(
       user,
       Map(ResourceWorkflow -> Create),
       debugWorkflow.authorizationId
     ) {
-      debugService.createDebugWorkflow(debugWorkflow)
+      debugPgService.createDebugWorkflow(debugWorkflow)
     }
   }
 
-  def deleteByID(id: String, user: Option[LoggedUser]): Unit = {
-    val authorizationId = debugService.findByID(id).map(_.authorizationId).getOrElse("N/A")
-    authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Delete), authorizationId) {
-      debugService.deleteDebugWorkflowByID(id)
+  def deleteByID(id: String, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      debugWorkflow <- debugPgService.findDebugWorkflowById(id)
+    } yield {
+      val authorizationId = debugWorkflow.authorizationId
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Delete), authorizationId, senderResponseTo) {
+        debugPgService.deleteDebugWorkflowByID(id)
+      }
     }
   }
 
-  def deleteAll(user: Option[LoggedUser]): Unit = {
-    val resourcesId = debugService.findAll.map(_.authorizationId)
-    authorizeActionsByResourcesIds(user, Map(ResourceWorkflow -> Delete), resourcesId) {
-      debugService.deleteAllDebugWorkflows
+  def deleteAll(user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      allDebugs <- debugPgService.findAll()
+    } yield {
+      val resourcesId = allDebugs.map(_.authorizationId)
+      authorizeActionsByResourcesIds(user, Map(ResourceWorkflow -> Delete), resourcesId, senderResponseTo) {
+        debugPgService.deleteAllDebugWorkflows()
+      }
     }
   }
 
-  def find(id: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId(user, Map(ResourceWorkflow -> View), Option(inMemoryDebugWorkflowApi)) {
-      FindMemoryDebugWorkflow(id)
+  def find(id: String, user: Option[LoggedUser]): Unit = {
+    authorizeActions(user, Map(ResourceWorkflow -> View)) {
+      debugPgService.findDebugWorkflowById(id)
     }
+  }
 
-  def findAll(user: Option[LoggedUser]): Unit =
-    filterResultsWithAuthorization(user, Map(ResourceWorkflow -> View), Option(inMemoryDebugWorkflowApi)) {
-      FindAllMemoryDebugWorkflows
+  def findAll(user: Option[LoggedUser]): Unit = {
+    authorizeActions(user, Map(ResourceWorkflow -> View)) {
+      debugPgService.findAll()
     }
+  }
 
-  def getResults(id: String, user: Option[LoggedUser]): Unit =
-    authorizeResultByResourceId(user, Map(ResourceWorkflow -> View), Option(inMemoryDebugWorkflowApi)) {
-      FindMemoryDebugResultsWorkflow(id)
+  def getResults(id: String, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
+    for {
+      debugWorkflow <- debugPgService.findDebugWorkflowById(id)
+    } yield {
+      val resourcesId = debugWorkflow.authorizationId
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> View), resourcesId, senderResponseTo) {
+        debugPgService.getResultsByID(id)
+      }
     }
+  }
 
   def run(id: String, user: Option[LoggedUser]): Unit =
-    runWithExecutionContext(WorkflowIdExecutionContext(id, ExecutionContext(withEnvironment = true)), user)
+    runWithExecutionContext(WorkflowIdExecutionContext(id, ExecutionContext()), user)
 
   def runWithExecutionContext(
                                workflowIdExecutionContext: WorkflowIdExecutionContext,
                                user: Option[LoggedUser]
                              ): Unit =
     launcherActor.forward(Debug(workflowIdExecutionContext, user))
-
 
   def downloadFile(fileName: String, user: Option[LoggedUser]): Unit =
     authorizeActions[SpartaFileResponse](user, Map(ResourceFiles -> Download)) {
@@ -156,23 +170,17 @@ object DebugWorkflowActor extends SLF4JLogging {
 
   case class DeleteFile(fileName: String, user: Option[LoggedUser])
 
-
   type ResponseDebugWorkflow = Try[DebugWorkflow]
 
   type ResponseDebugWorkflows = Try[Seq[DebugWorkflow]]
 
   type ResponseResult = Try[DebugResults]
 
-  type ResponseRun = Future[Try[DateTime]]
-
-  type ResponseAny = Try[Any]
-
-  type Response = Try[Unit]
+  type ResponseRun = Try[DateTime]
 
   type SpartaFilePath = Try[String]
 
   type SpartaFileResponse = Try[SpartaFile]
 
   type SpartaFilesResponse = Try[Seq[SpartaFile]]
-
 }

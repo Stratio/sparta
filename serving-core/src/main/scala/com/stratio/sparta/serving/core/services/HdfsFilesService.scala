@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.services
 import java.io.File
 
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.constants.AppConstant.SystemHadoopConfDir
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
@@ -19,24 +19,24 @@ import scala.util.{Properties, Try}
 
 case class HdfsFilesService() extends CheckpointUtils {
 
-  lazy private val hdfsConfig = SpartaConfig.getHdfsConfig
+  lazy private val hdfsConfig = SpartaConfig.getHdfsConfig()
   lazy private val host = Try(hdfsConfig.get.getString(AppConstant.HdfsMaster)).toOption
   lazy private val port = Try(hdfsConfig.get.getInt(AppConstant.HdfsPort)).toOption
   lazy private val hdfsService = HdfsService()
   lazy private val instanceName = {
-    val instancePrefix = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "")
+    val instancePrefix = Properties.envOrElse(MarathonConstant.DcosServiceName, "")
 
     if (instancePrefix.nonEmpty && !instancePrefix.endsWith("/")) s"$instancePrefix/" else instancePrefix
   }
   lazy private val pluginsLocation = {
-    val pluginsLocationPrefix = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsLocation))
+    val pluginsLocationPrefix = Try(SpartaConfig.getDetailConfig().get.getString(AppConstant.PluginsLocation))
       .getOrElse(AppConstant.DefaultPluginsLocation)
 
     instanceName + pluginsLocationPrefix
   }
   lazy private val pluginJarPathParsed = s"${pluginsLocation.replace("hdfs://", "")}" +
     s"${if (pluginsLocation.endsWith("/")) "" else "/"}"
-  lazy private val driverLocation = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
+  lazy private val driverLocation = Try(SpartaConfig.getDetailConfig().get.getString(AppConstant.DriverPackageLocation))
     .getOrElse(AppConstant.DefaultDriverPackageLocation)
 
   def browsePlugins: Seq[FileStatus] =

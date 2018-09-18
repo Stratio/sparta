@@ -11,9 +11,8 @@ import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
-import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
-import com.stratio.sparta.serving.core.models.parameters.ParameterList
+import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
@@ -64,8 +63,8 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getFragmentModel(): TemplateElement =
     getFragmentModel(None)
 
-  protected def getEnvironmentModel(): Environment =
-    Environment(Seq(EnvironmentVariable("foo", "var")))
+  protected def getEnvironmentModel(): GlobalParameters =
+    GlobalParameters(Seq(new ParameterVariable("foo", "var")))
 
   protected def getGroupModel(): Group =
     Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
@@ -73,14 +72,8 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getParameterListModel(): ParameterList =
     ParameterList("plist", Option("id"))
 
-  protected def getEnvironmentVariableModel(): EnvironmentVariable =
-    EnvironmentVariable("foo", "var")
-
-  protected def getEnvironmentData(): EnvironmentData =
-    EnvironmentData(Seq(), Seq(), Seq(), Seq())
-
-  protected def getWorkflowStatusModel(): WorkflowStatus =
-    WorkflowStatus("id", WorkflowStatusEnum.Launched, Some("statusId"))
+  protected def getEnvironmentVariableModel(): ParameterVariable =
+    new ParameterVariable("foo", "var")
 
   protected def getValidWorkflowValidation(): WorkflowValidation = {
     new WorkflowValidation(valid = true)
@@ -104,8 +97,7 @@ trait HttpServiceBaseTest extends WordSpec
       settings = settingsModel,
       name = "testworkflow",
       description = "whatever",
-      pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph]),
-      status = Some(getWorkflowStatusModel())
+      pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
     )
 
     workflow
@@ -133,8 +125,13 @@ trait HttpServiceBaseTest extends WordSpec
 
   protected def getWorkflowExecutionModel: WorkflowExecution =
     WorkflowExecution(
-      id = "exec1",
-      genericDataExecution = Option(GenericDataExecution(getWorkflowModel(), getWorkflowModel(), WorkflowExecutionMode.local, "1", ExecutionContext(true))),
+      id = Option("exec1"),
+      genericDataExecution = GenericDataExecution(
+        getWorkflowModel(),
+        getWorkflowModel(),
+        WorkflowExecutionMode.local,
+        ExecutionContext()
+      ),
       sparkSubmitExecution = Option(SparkSubmitExecution(
         driverClass = "driver",
         driverFile = "file",

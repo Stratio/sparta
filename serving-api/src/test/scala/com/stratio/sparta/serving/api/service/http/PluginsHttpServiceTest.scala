@@ -36,7 +36,9 @@ class PluginsHttpServiceTest extends WordSpec
   override implicit val actors: Map[String, ActorRef] = Map.empty
 
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
+    SpartaConfig.getSpartaConfig(Option(localConfig))
+    SpartaConfig.getZookeeperConfig(Option(localConfig))
+    SpartaConfig.getDetailConfig(Option(localConfig))
   }
 
   "PluginsHttpService.upload" should {

@@ -23,6 +23,9 @@ import { FormFieldModule } from '@app/shared/components/form-field/form-field.mo
 import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
 import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
 import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
+import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
+import { FormFileModule } from '@app/shared/components/form-file/form-file.module';
+import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
 
 @NgModule({
    exports: [
@@ -34,10 +37,13 @@ import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box
       SpSelectModule,
       SpTitleModule,
       SpHelpModule,
+      ToolBarModule,
       FormGeneratorModule,
       FormFieldModule,
+      FormFileModule,
       FormListModule,
       TableNotificationModule,
+      SpartaSidebarModule,
       ConsoleBoxModule
    ],
    imports: [
@@ -50,6 +56,9 @@ import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box
       ReactiveFormsModule,
       SpInputModule,
       SpTextareaModule,
+      SpartaSidebarModule,
+      ToolBarModule,
+      FormFileModule,
       HighlightTextareaModule,
       SpSelectModule,
       TranslateModule,

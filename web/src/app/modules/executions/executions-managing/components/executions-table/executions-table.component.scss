@@ -1,0 +1,99 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+   .st-table__header {
+      background-color: $action-secondary-02;
+   }
+}
+.execution-link {
+   display: inline-block;
+   cursor: pointer;
+   &:hover {
+      color: $action-secondary-07;
+      text-decoration: underline;
+   }
+}
+
+.check-column {
+   width: 10px;
+   padding-right: 0;
+}
+
+.execution-table {
+   display: block;
+   tr:hover {
+      cursor: pointer;
+   }
+
+   td {
+    padding:16px 20px;
+   }
+   st-checkbox{
+       pointer-events: none;
+   }
+}
+
+.icon-row {
+    margin-right: 8px;
+    margin-top: 1px;
+    width: 20px;
+    float: left;
+}
+
+.spark-link {
+   max-width: 10px;
+   padding-left: 0;
+   padding-right: 30px;
+   i {
+      color: $action-primary-default;
+      font-size: 20px;
+      line-height: 9px;
+   }
+}
+
+.tag-column {
+   label {
+      display: inline-block;
+      span {
+         max-width: 100px;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+         display: inline-block;
+      }
+   }
+}
+
+st-pagination {
+   display: block;
+}
+
+hr {
+   height: 1px;
+   background: $neutral-05;
+   margin: 24px 0;
+}
+
+.oval {
+   width: 12px;
+   height: 12px;
+   background-color: $status-success-default;
+   border-radius: 50%;
+   display: inline-block;
+   &.Stopped {
+      background-color: $status-critical-default;
+   }
+   &.Failed {
+      background-color: $misc-peach;
+   }
+}
+
+.status-field {
+   font-family: $egeo-nunito-sans-semiBold;
+   color: $neutral-11;
+}
+
+.all-executions button{
+   margin: 0 auto;
+   display: block;
+}

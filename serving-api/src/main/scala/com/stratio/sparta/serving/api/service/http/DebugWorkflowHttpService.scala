@@ -23,6 +23,7 @@ import spray.http.HttpHeaders.{`Content-Disposition`, `Content-Type`}
 import spray.http.{StatusCodes, _}
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
+import HttpConstant._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -116,7 +117,7 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
           for {
             response <- (supervisor ? Run(id.toString, user))
               .mapTo[Either[ResponseRun, UnauthorizedResponse]]
-          } yield deletePostPutResponseFuture(DebugWorkflowServiceRun, response, genericError)
+          } yield deletePostPutResponse(DebugWorkflowServiceRun, response, genericError)
         }
       }
     }
@@ -145,7 +146,7 @@ trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
               for {
                 response <- (supervisor ? RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user))
                   .mapTo[Either[ResponseRun, UnauthorizedResponse]]
-              } yield deletePostPutResponseFuture(WorkflowServiceRun, response, genericError)
+              } yield deletePostPutResponse(WorkflowServiceRun, response, genericError)
             }
           }
         }

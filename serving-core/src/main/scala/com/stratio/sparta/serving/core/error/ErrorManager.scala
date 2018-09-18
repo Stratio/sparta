@@ -15,9 +15,8 @@ import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{DebugWorkflowService, ExecutionService, WorkflowStatusService}
-import org.apache.curator.framework.CuratorFramework
+import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate, Workflow}
+import com.stratio.sparta.serving.core.services.dao.{DebugWorkflowPostgresDao, WorkflowExecutionPostgresDao}
 
 import scala.util.{Failure, Success, Try}
 
@@ -73,30 +72,35 @@ trait ErrorManager extends SLF4JLogging {
       case e => log.error(s"Error while persisting error: $workflowError", e)
     }
 
-    ErrorManagerException(s"$message. Message: ${exception.getLocalizedMessage}", exception)
+    ErrorManagerException(s"$message. Message: ${exception.getLocalizedMessage}", exception, message)
   }
 }
 
-trait ZooKeeperError extends ErrorManager {
+trait PostgresError extends ErrorManager {
 
-  val curatorFramework: CuratorFramework
-  val statusService = new WorkflowStatusService(curatorFramework)
-  val executionService = new ExecutionService(curatorFramework)
+  lazy val executionService = new WorkflowExecutionPostgresDao
 
-  def traceError(error: WorkflowError): Unit = {
-    statusService.update(WorkflowStatus(workflow.id.get, NotDefined, None, None))
-    executionService.setLastError(workflow.id.get, error)
-  }
+  def traceError(error: WorkflowError): Unit =
+    workflow.executionId.foreach { executionId =>
+      executionService.updateStatus(ExecutionStatusUpdate(
+        executionId,
+        ExecutionStatus(
+          state = NotDefined
+        )))
+      executionService.setLastError(executionId, error)
+    }
+
 
   def clearError(): Unit =
-    workflow.id.foreach(id => executionService.clearLastError(id))
+    workflow.executionId.foreach { executionId =>
+      executionService.clearLastError(executionId)
+    }
 
 }
 
-trait ZooKeeperDebugError extends ErrorManager {
+trait PostgresDebugError extends ErrorManager {
 
-  val curatorFramework: CuratorFramework
-  val debugService = new DebugWorkflowService(curatorFramework)
+  lazy val debugService = new DebugWorkflowPostgresDao
 
   def traceError(error: WorkflowError): Unit =
     workflow.id.foreach(id => debugService.setError(id, Option(error)))
@@ -106,13 +110,13 @@ trait ZooKeeperDebugError extends ErrorManager {
 
 }
 
-case class ZookeeperErrorImpl(workflow: Workflow, curatorFramework: CuratorFramework) extends ZooKeeperError
+case class PostgresErrorImpl(workflow: Workflow) extends PostgresError
 
-case class ZookeeperDebugErrorImpl(workflow: Workflow, curatorFramework: CuratorFramework) extends ZooKeeperDebugError
+case class PostgresDebugErrorImpl(workflow: Workflow) extends PostgresDebugError
 
 trait LogError extends ErrorManager with SLF4JLogging {
 
-  def traceError(error: WorkflowError): Unit = log.error(s"This error was not saved to Zookeeper : $error")
+  def traceError(error: WorkflowError): Unit = log.error(s"This error was not saved to Postgres : $error")
 
   def clearError(): Unit = log.error(s"Cleaned errors")
 }

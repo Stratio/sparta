@@ -9,16 +9,25 @@
 -->
 
 <div #userProfile>
-   <st-pop-over qaTag="notifications-pop" [title]="'GLOBAL.USER_PROFILE.TITLE' | translate" [hidden]="!showUserProfileMenu"
-      [offset]="userMenuOffset">
+   <st-pop-over qaTag="notifications-pop" [hidden]="!showUserProfileMenu" [offset]="userMenuOffset">
       <div pop-over-button>
-         <div [title]="userName ? userName : ''" class="user-profile" (click)="toggleUserProfile()">
+         <div [title]="userName ? userName : ''" class="user-profile" (click)="toggleUserProfile($event)">
             <span *ngIf="userName && userName.length">{{userName.substring(0, 2).toUpperCase()}}</span>
             <span *ngIf="!userName || !userName.length">S</span>
          </div>
+         <div class="profile" *ngIf="userName && userName.length">
+            <span class="name">{{userName}}</span>
+         </div>
       </div>
       <div pop-over-content class="user-profile-container">
-         <button class="button button-link-primary" (click)="logout()">{{'GLOBAL.USER_PROFILE.LOGOUT' | translate}}</button>
+         <div>
+            <div class="section">
+               <span class="settings-link" routerLink="/sparta-settings">Settings</span>
+            </div>
+            <div class="section logout">
+               <button class="button button-link-primary" (click)="logout()">{{'GLOBAL.USER_PROFILE.LOGOUT' | translate}}</button>
+            </div>
+         </div>
       </div>
    </st-pop-over>
 </div>

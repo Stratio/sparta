@@ -95,22 +95,49 @@ export class WorkflowEffect {
             });
         }).catch(error => Observable.from([new workflowActions.DeleteWorkflowErrorAction(), new errorActions.ServerErrorAction(error)]));
 
+
+    @Effect()
+    deleteSingleFolder$: Observable<Action> = this.actions$
+        .ofType<workflowActions.DeleteSingleGroupAction>(workflowActions.DELETE_SINGLE_GROUP)
+        .map(action => action.groupId)
+        .switchMap((id: string) => this.workflowService.deleteGroupById(id)
+        .map(() => new workflowActions.DeleteSingleGroupCompleteAction(id))
+        .catch((error) => Observable.of(new workflowActions.DeleteSingleGroupErrorAction())));
+
+    @Effect()
+    deleteSingleWorkflow$: Observable<Action> = this.actions$
+        .ofType<workflowActions.DeleteSingleWorkflowAction>(workflowActions.DELETE_SINGLE_WORKFLOW)
+        .map(action => action.workflowName)
+        .withLatestFrom(this.store.select(fromRoot.getWorkflowList))
+        .switchMap(([workflowName, workflowList]: [string, Array<GroupWorkflow>]) => {
+            const list = workflowList.filter(workflow => workflow.name === workflowName).map(workflow => workflow.id);
+            return this.workflowService.deleteWorkflowList(list)
+                .map(() => new workflowActions.DeleteWorkflowGroup([workflowName]))
+                .catch((error) => Observable.of(new workflowActions.DeleteSingleWorkflowErrorAction()));
+        });
+
     @Effect()
     deleteVersions$: Observable<Action> = this.actions$
-       .ofType(workflowActions.DELETE_VERSION)
-       .map((action: any) => action.payload)
+       .ofType<workflowActions.DeleteVersionAction>(workflowActions.DELETE_VERSION)
        .withLatestFrom(this.store.select(fromRoot.getSelectedVersions))
        .switchMap(([data, selectedVersions]) => this.workflowService.deleteWorkflowList(selectedVersions))
        .mergeMap(() => [new workflowActions.DeleteVersionCompleteAction(''), new workflowActions.ListGroupsAction()])
        .catch(error => Observable.from([new workflowActions.DeleteVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
 
     @Effect()
+    deleteSingleVersion$: Observable<Action> = this.actions$
+       .ofType<workflowActions.DeleteSingleVersionAction>(workflowActions.DELETE_SINGLE_VERSION)
+       .map((action: any) => action.versionId)
+       .switchMap(versionId => this.workflowService.deleteWorkflowList([versionId]))
+       .mergeMap(() => [new workflowActions.DeleteSingleVersionCompleteAction(), new workflowActions.ListGroupsAction()])
+       .catch(error => Observable.from([new workflowActions.DeleteSingleVersionErrorAction(), new errorActions.ServerErrorAction(error)]));
+
+    @Effect()
     generateVersion$: Observable<Action> = this.actions$
        .ofType(workflowActions.GENERATE_NEW_VERSION)
-       .map((action: any) => action.payload)
+       .map((action: any) => action.versionId)
        .withLatestFrom(this.store.select(state => state.workflowsManaging))
-       .switchMap(([data, workflow]: [any, any]) => {
-            const id = workflow.workflowsManaging.selectedVersions[0];
+       .switchMap(([id, workflow]: [string, any]) => {
             const version = workflow.workflowsManaging.workflowList.find((w: any) => w.id === id);
             return this.workflowService.generateVersion({
                 id: version.id,
@@ -149,9 +176,12 @@ export class WorkflowEffect {
     @Effect()
     runWorkflow$: Observable<Action> = this.actions$
         .ofType(workflowActions.RUN_WORKFLOW)
-        .switchMap((data: any) => this.workflowService.runWorkflow(data.payload.id)
-        .map((response: any) => new workflowActions.RunWorkflowCompleteAction(data.payload.name))
-        .catch(error => Observable.of(new workflowActions.RunWorkflowErrorAction())));
+        .switchMap((data: any) => (typeof data.payload.executionContext ? this.workflowService.runWorkflow(data.payload.workflowId) :
+            this.workflowService.runWorkflowWithParams({
+                workflowId: data.payload.workflowId,
+                executionContext: data.payload.executionContext
+            })).map((response: any) => new workflowActions.RunWorkflowCompleteAction(data.payload.workflowName))
+        .catch(error => Observable.of(new workflowActions.RunWorkflowErrorAction(error))));
 
     @Effect()
     stopWorkflow$: Observable<Action> = this.actions$
@@ -226,6 +256,13 @@ export class WorkflowEffect {
         }).mergeMap(() => [new workflowActions.RenameWorkflowCompleteAction(), new workflowActions.ListGroupsAction()])
         .catch(error => Observable.from([new workflowActions.RenameWorkflowErrorAction(''), new errorActions.ServerErrorAction(error)])));
 
+    @Effect()
+    getExecutionContexts$: Observable<Action> = this.actions$
+        .ofType<workflowActions.RenameGroupAction>(workflowActions.CONFIG_ADVANCED_EXECUTION)
+        .map((action: any) => action.workflowId)
+        .switchMap((id: string) => this.workflowService.getRunParameters(id)
+        .map(response => new workflowActions.ConfigAdvancedExecutionCompleteAction(response))
+        .catch(error => Observable.of(new workflowActions.ConfigAdvancedExecutionErrorAction())));
 
     @Effect()
     moveWorkflow$: Observable<Action> = this.actions$

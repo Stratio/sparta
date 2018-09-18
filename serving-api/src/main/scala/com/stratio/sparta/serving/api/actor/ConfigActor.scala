@@ -29,11 +29,11 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
   val apiPath = HttpConstant.ConfigPath
 
   val ResourceType = "Configuration"
-  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
+  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config()
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val emptyField = ""
 
-  def receiveApiActions(action : Any): Unit = action match {
+  def receiveApiActions(action : Any): Any = action match {
     case FindAll(user) => findFrontendConfig(user)
     case _ => log.info("Unrecognized message in ConfigActor")
   }
@@ -46,7 +46,7 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
 
   def retrieveStringConfig(user: Option[LoggedUser]): Try[FrontendConfiguration] = {
     Try {
-      val timeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+      val timeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
         .getOrElse(AppConstant.DefaultApiTimeout) + 1
       if (enabledSecurity)
         FrontendConfiguration(timeout, retrieveNameUser(user), LinkHelper.getClusterLocalLink)

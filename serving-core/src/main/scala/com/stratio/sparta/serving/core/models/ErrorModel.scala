@@ -46,6 +46,8 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowExecutionDeleteById = "579"
   val WorkflowExecutionUpdate = "580"
   val WorkflowExecutionCreate = "581"
+  val WorkflowExecutionFindAllDto = "582"
+  val WorkflowExecutionDashboard = "583"
 
   /* Crossdata Service 600-624 */
   val CrossdataServiceUnexpected = "600"
@@ -121,19 +123,18 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceDeleteWithAllVersions = "726"
   val WorkflowServiceMove = "727"
   val WorkflowServiceMigration = "728"
+  val WorkflowServiceRunWithExecutionContextView = "729"
 
   /* Environment Service 750-769 */
-  val EnvironmentServiceUnexpected = "750"
-  val EnvironmentServiceFindEnvironment = "751"
-  val EnvironmentServiceCreateEnvironment = "752"
-  val EnvironmentServiceDeleteEnvironment = "753"
-  val EnvironmentServiceUpdateEnvironment = "754"
-  val EnvironmentServiceFindEnvironmentVariable = "755"
-  val EnvironmentServiceCreateEnvironmentVariable = "756"
-  val EnvironmentServiceUpdateEnvironmentVariable = "757"
-  val EnvironmentServiceDeleteEnvironmentVariable = "758"
-  val EnvironmentServiceExportData = "759"
-  val EnvironmentServiceImportData = "760"
+  val GlobalParametersServiceUnexpected = "750"
+  val GlobalParametersServiceFindEnvironment = "751"
+  val GlobalParametersServiceCreateEnvironment = "752"
+  val GlobalParametersServiceDeleteEnvironment = "753"
+  val GlobalParametersServiceUpdateEnvironment = "754"
+  val GlobalParametersServiceFindEnvironmentVariable = "755"
+  val GlobalParametersServiceCreateEnvironmentVariable = "756"
+  val GlobalParametersServiceUpdateEnvironmentVariable = "757"
+  val GlobalParametersDeleteEnvironmentVariable = "758"
 
   /* Group Service 770-799 */
   val GroupServiceUnexpected = "770"
@@ -188,6 +189,12 @@ object ErrorModel extends SpartaSerializer {
   val ParameterListServiceDeleteByName = "982"
   val ParameterListServiceFindByParent = "983"
   val ParameterListServiceCreateFromWorkflow = "984"
+  val ParameterListServiceFindAllContexts = "985"
+  val ParameterListServiceFindEnvironment = "986"
+  val ParameterListServiceFindEnvironmentContexts = "987"
+  val ParameterListServiceFindEnvironmentAndContexts = "988"
+  val ParameterListServiceFindGroupAndContexts = "989"
+  val ParameterListServiceDeleteById = "990"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -228,6 +235,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceFindAllMonitoring -> "Error finding all workflows for monitoring",
     WorkflowServiceRename -> "Error renaming all workflow versions",
     WorkflowServiceMove -> "Error moving workflow between groups",
+    WorkflowServiceRunWithExecutionContextView -> "Error creating run with parameters view",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",
@@ -247,6 +255,8 @@ object ErrorModel extends SpartaSerializer {
     TemplateServiceDeleteAll -> "Error deleting all templates",
     WorkflowExecutionUnexpected -> "575",
     WorkflowExecutionFindAll -> "Error obtaining all workflow executions",
+    WorkflowExecutionFindAllDto -> "Error obtaining all workflow executions dto",
+    WorkflowExecutionDashboard -> "Error obtaining dashboard",
     WorkflowExecutionFindById -> "Error obtaining workflow execution",
     WorkflowExecutionDeleteAll -> "Error deleting all workflow executions",
     WorkflowExecutionDeleteById -> "Error deleting workflow execution",
@@ -271,16 +281,14 @@ object ErrorModel extends SpartaSerializer {
     MetadataServiceDeleteAllBackups -> "Error deleting all backups",
     MetadataServiceDeleteBackup -> "Error deleting backup",
     MetadataServiceCleanAll -> "Error cleaning all metadata",
-    EnvironmentServiceUnexpected -> "Unexpected behaviour in environment service",
-    EnvironmentServiceFindEnvironment -> "Error obtaining environment",
-    EnvironmentServiceCreateEnvironment -> "Error creating environment",
-    EnvironmentServiceDeleteEnvironment -> "Error deleting environment",
-    EnvironmentServiceFindEnvironmentVariable -> "Error obtaining environment variable",
-    EnvironmentServiceCreateEnvironmentVariable -> "Error creating environment variable",
-    EnvironmentServiceUpdateEnvironmentVariable -> "Error updating environment variable",
-    EnvironmentServiceDeleteEnvironmentVariable -> "Error deleting environment variable",
-    EnvironmentServiceExportData -> "Error exporting environment data",
-    EnvironmentServiceImportData -> "Error importing environment data",
+    GlobalParametersServiceUnexpected -> "Unexpected behaviour in global parameters service",
+    GlobalParametersServiceFindEnvironment -> "Error obtaining global parameters",
+    GlobalParametersServiceCreateEnvironment -> "Error creating global parameters",
+    GlobalParametersServiceDeleteEnvironment -> "Error deleting global parameters",
+    GlobalParametersServiceFindEnvironmentVariable -> "Error obtaining global parameters variable",
+    GlobalParametersServiceCreateEnvironmentVariable -> "Error creating global parameters variable",
+    GlobalParametersServiceUpdateEnvironmentVariable -> "Error updating global parameters variable",
+    GlobalParametersDeleteEnvironmentVariable -> "Error deleting global parameters variable",
     GroupServiceUnexpected -> "Unexpected behaviour in group service",
     GroupServiceFindGroup -> "Error obtaining group",
     GroupServiceCreateGroup -> "Error creating group",
@@ -315,7 +323,14 @@ object ErrorModel extends SpartaSerializer {
     ParameterListServiceDeleteAll -> "Error deleting all parameter lists",
     ParameterListServiceDeleteByName -> "Error deleting parameter list by Name",
     ParameterListServiceFindByParent -> "Error finding parameter lists by Parent",
-    ParameterListServiceCreateFromWorkflow -> "Error creating parameter list from workflow"
+    ParameterListServiceCreateFromWorkflow -> "Error creating parameter list from workflow",
+    ParameterListServiceFindAllContexts -> "Error finding contexts by parameter group",
+    ParameterListServiceFindEnvironment -> "Error finding environment",
+    ParameterListServiceFindEnvironmentContexts -> "Error finding environment contexts",
+    ParameterListServiceFindEnvironmentAndContexts -> "Error finding environment and their contexts",
+    ParameterListServiceFindGroupAndContexts -> "Error finding group and their contexts",
+    ParameterListServiceDeleteById -> "Error deleting parameter list by id"
+
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

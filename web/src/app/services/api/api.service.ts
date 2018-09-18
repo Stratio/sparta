@@ -6,11 +6,15 @@
 
 import { Injectable } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
+import { Store } from '@ngrx/store';
 
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 import { Observable } from 'rxjs/Observable';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpErrorAction } from 'app/actions/errors';
+import * as fromRoot from 'reducers';
+
 
 export interface ApiRequestOptions {
    method: string;
@@ -24,7 +28,7 @@ export class ApiService {
 
    private requestOptions: any = {};
 
-   constructor(private http: HttpClient) { }
+   constructor(private http: HttpClient, private _store: Store<fromRoot.State>) { }
 
    request(url: string, method: string, options: any): Observable<any> {
       this.requestOptions = {};
@@ -41,10 +45,13 @@ export class ApiService {
 
       return this.http.request(method, url, this.requestOptions).map((res: any) => {
          try {
+            if (res === 'OK') {
+               return JSON.parse(JSON.stringify(res));
+            }
             return JSON.parse(res);
          } catch (error) {
             if (res.indexOf('gosec-sso-ha') > -1) {
-               window.location.href = 'login';
+               this._store.dispatch(new HttpErrorAction(''));
                throw new Error;
             }
             return res;

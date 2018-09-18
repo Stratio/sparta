@@ -10,6 +10,7 @@ import javax.ws.rs.Path
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
@@ -60,7 +61,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
             complete {
               for {
                 response <- (supervisor ? UploadPlugins(form.fields, user))
-                  .mapTo[Either[PluginResponse, UnauthorizedResponse]]
+                  .mapTo[Either[Response, UnauthorizedResponse]]
               } yield deletePostPutResponse(PluginsServiceUpload, response, genericError, StatusCodes.OK)
             }
           }
@@ -133,7 +134,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
         complete {
           for {
             response <- (supervisor ? DeletePlugin(file, user))
-              .mapTo[Either[PluginResponse, UnauthorizedResponse]]
+              .mapTo[Either[Response, UnauthorizedResponse]]
           } yield deletePostPutResponse(PluginsServiceDeleteByName, response, genericError, StatusCodes.OK)
         }
       }

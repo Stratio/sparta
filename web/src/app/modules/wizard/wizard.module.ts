@@ -9,7 +9,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
    StModalModule, StProgressBarModule, StTagInputModule, StFullscreenLayoutModule,
    StHorizontalTabsModule, StModalService, StDropdownMenuModule, EgeoResolveService,
-   StTreeModule
+   StTreeModule, StSearchModule, StCheckboxModule
 } from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
@@ -45,6 +45,9 @@ import { NodeSchemaComponent } from '@app/wizard/components/node-schema/node-sch
 import { WizardConsoleComponent } from '@app/wizard/components/wizard-console/wizard-console.component';
 import { NodeTreeDataComponent } from '@app/wizard/components/wizard-console/data-node-tree/node-tree-data.component';
 import { QueryBuilderModule } from '@app/wizard/components/query-builder/query-builder.module';
+import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
+import { CustomExecutionModule } from '@app/custom-execution/custom-execution.module';
+import { ParametersGroupSelectorComponent } from './components/wizard-settings/parameters-group-selector/parameters-group-selector.component';
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -71,6 +74,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
       NodeErrorsComponent,
       NodeSchemaComponent,
       NodeTreeDataComponent,
+      ParametersGroupSelectorComponent,
       SidebarConfigComponent
    ],
    imports: [
@@ -78,6 +82,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
       StTagInputModule,
       StFullscreenLayoutModule,
       StDropdownMenuModule,
+      StSearchModule,
+      StCheckboxModule,
       StHorizontalTabsModule,
       SpForegroundNotificationsModule,
       StTreeModule,
@@ -86,7 +92,9 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
       EffectsModule.forFeature([DebugEffect, WizardEffect, ExternalDataEffect]),
       HighlightTextareaModule,
       QueryBuilderModule,
+      MenuOptionsListModule,
       WizardRoutingModule,
+      CustomExecutionModule,
       FormsModule,
       SharedModule,
       FormsModule,

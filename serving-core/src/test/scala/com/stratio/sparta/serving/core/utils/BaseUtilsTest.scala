@@ -22,7 +22,6 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
   with ImplicitSender
   with MockitoSugar {
 
-  SpartaConfig.initMainConfig()
   val curatorFramework = mock[CuratorFramework]
   val interval = 60000
 
