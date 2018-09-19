@@ -6,22 +6,10 @@
 
 package com.stratio.sparta.serving.core.workflow
 
-import java.io.Serializable
-import scala.annotation.tailrec
-import scala.concurrent.duration._
-import scala.util.{Properties, Try}
-import scalax.collection.Graph
-import scalax.collection.GraphTraversal.{Parameters, Predecessors}
-import scalax.collection.edge.LDiEdge
 import java.io.{File, Serializable}
-import java.net.URL
 
 import akka.event.Logging
 import akka.util.Timeout
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.streaming.{Duration, StreamingContext}
-
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
@@ -29,11 +17,11 @@ import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.utils.UserFirstURLClassLoader
 import com.stratio.sparta.core.workflow.step._
 import com.stratio.sparta.core.{ContextBuilder, DistributedMonad, WorkflowContext}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.constants.DatabaseTableConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
 import com.stratio.sparta.serving.core.error.ErrorManager
 import com.stratio.sparta.serving.core.exception.DriverException
@@ -47,14 +35,9 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.services.SparkSubmitService
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
-import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import com.stratio.sparta.core.constants.SdkConstants._
-import com.stratio.sparta.core.utils.UserFirstURLClassLoader
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper.getConfigurationsFromObjects
-import com.stratio.sparta.serving.core.services.SparkSubmitService
 
 import scala.annotation.tailrec
 import scala.concurrent.duration._
@@ -239,6 +222,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     */
   def executeWorkflow(implicit workflowContext: WorkflowContext, customClasspathClasses: Map[String, String]): Unit = {
 
+    import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
+
     log.debug("Executing workflow")
 
     order = 0L
@@ -246,23 +231,16 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     val nodesModel = workflow.pipelineGraph.nodes
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
 
-    implicit val nodeGraphOrdering = new Ordering[NodeGraph] {
-      override def compare(x: NodeGraph, y: NodeGraph): Int = {
-        if(x.priority != y.priority)
-          y.priority.compare(x.priority)
-        else x.name.compare(y.name)
-      }
-    }
     implicit val outputStepOrdering = new Ordering[OutputStep[Underlying]] {
       override def compare(x: OutputStep[Underlying], y: OutputStep[Underlying]): Int = {
-        if(x.priority != y.priority)
+        if (x.priority != y.priority)
           y.priority.compare(x.priority)
         else x.name.compare(y.name)
       }
     }
     implicit val nodeGraphTypedOrdering = new Ordering[graph.NodeT] {
       override def compare(x: graph.NodeT, y: graph.NodeT): Int = {
-        if(x.priority != y.priority)
+        if (x.priority != y.priority)
           y.priority.compare(x.priority)
         else x.name.compare(y.name)
       }
@@ -275,13 +253,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       case (x, y) if x == TransformStep.StepType && y == TransformStep.StepType =>
         if (nodeX.priority != nodeY.priority)
           nodeX.priority.compare(nodeY.priority)
-        else {
-          val xAllInputs = graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
-          val yAllInputs = graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)
-          if (xAllInputs && !yAllInputs) 1
-          else if (!xAllInputs && yAllInputs) -1
-          else nodeY.name.compare(nodeX.name)
-        }
+        else nodeY.name.compare(nodeX.name)
       case _ => 0
     })
 
@@ -322,80 +294,80 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
 
     nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType).sorted.foreach { outputNode =>
-        val newOutput = createOutputStep(outputNode)
-        val outNodeGraph = graph.get(outputNode)
-        val outputPredecessors = outNodeGraph.diPredecessors.toList
+      val newOutput = createOutputStep(outputNode)
+      val outNodeGraph = graph.get(outputNode)
+      val outputPredecessors = outNodeGraph.diPredecessors.toList
 
-        outputPredecessors.sorted.foreach { predecessor =>
-            val nodesToReOrder = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
-            log.debug(s"List of steps to order: ${nodesToReOrder.map(_.name).mkString(",")}")
-            val nodesOrdered = reOrderNodes(nodesToReOrder, 0)
-            log.debug(s"List of steps ordered: ${nodesOrdered.map(_.name).mkString(",")}")
+      outputPredecessors.sorted.foreach { predecessor =>
+        val nodesToReOrder = predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse
+        log.debug(s"List of steps to order: ${nodesToReOrder.map(_.name).mkString(",")}")
+        val nodesOrdered = reOrderNodes(nodesToReOrder, 0)
+        log.debug(s"List of steps ordered: ${nodesOrdered.map(_.name).mkString(",")}")
 
-            nodesOrdered.foreach(node => createStep(node))
-          }
+        nodesOrdered.foreach(node => createStep(node))
+      }
 
-        val outputPredecessorsOrdered = outputPredecessors.sortBy { node =>
-          node.stepType.toLowerCase match {
-            case value if value == InputStep.StepType && graphContext.inputs.contains(node.name) =>
-              graphContext.inputs(node.name).order
-            case value if value == TransformStep.StepType && graphContext.transformations.contains(node.name) =>
-              graphContext.transformations(node.name).order
-            case _ => Long.MaxValue
-          }
+      val outputPredecessorsOrdered = outputPredecessors.sortBy { node =>
+        node.stepType.toLowerCase match {
+          case value if value == InputStep.StepType && graphContext.inputs.contains(node.name) =>
+            graphContext.inputs(node.name).order
+          case value if value == TransformStep.StepType && graphContext.transformations.contains(node.name) =>
+            graphContext.transformations(node.name).order
+          case _ => Long.MaxValue
         }
+      }
 
-        outputPredecessorsOrdered.foreach { predecessor =>
-          if (predecessor.stepType.toLowerCase == InputStep.StepType) {
-            val phaseEnum = PhaseEnum.Write
-            val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
-            val okMessage = s"Input step ${predecessor.name} written successfully"
+      outputPredecessorsOrdered.foreach { predecessor =>
+        if (predecessor.stepType.toLowerCase == InputStep.StepType) {
+          val phaseEnum = PhaseEnum.Write
+          val errorMessage = s"An error was encountered while writing input step ${predecessor.name}"
+          val okMessage = s"Input step ${predecessor.name} written successfully"
 
-            errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
-              inputs.find(_._1 == predecessor.name).foreach {
-                case (_, InputStepData(step, data, _, _)) =>
-                  newOutput.writeTransform(
-                    data,
-                    step.outputOptions,
-                    workflow.settings.errorsManagement,
-                    errorOutputs,
-                    Seq.empty[String]
-                  )
-              }
-            }
-          }
-          if (predecessor.stepType.toLowerCase == TransformStep.StepType) {
-            val phaseEnum = PhaseEnum.Write
-            val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}"
-            val okMessage = s"Transform step ${predecessor.name} written successfully"
-
-            errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
-              val relationSettings = Try {
-                predecessor.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
-              }.getOrElse(defaultWorkflowRelationSettings)
-
-              /*
-              When one transformation is saved, we need to check if the data is the discarded. This situation is produced when:
-                       discard
-                 step ---------> output (where the name contains _Discard and is used by the save and the errors management in order to find the schema)
-              */
-              val stepName = nodeName(predecessor.name, relationSettings.dataType)
-              transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
+          errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
+            inputs.find(_._1 == predecessor.name).foreach {
+              case (_, InputStepData(step, data, _, _)) =>
                 newOutput.writeTransform(
-                  transform.data,
-                  transform.step.outputOptions.copy(
-                    stepName = stepName,
-                    tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType)
-                  ),
+                  data,
+                  step.outputOptions,
                   workflow.settings.errorsManagement,
                   errorOutputs,
-                  transform.predecessors
+                  Seq.empty[String]
                 )
-              }
+            }
+          }
+        }
+        if (predecessor.stepType.toLowerCase == TransformStep.StepType) {
+          val phaseEnum = PhaseEnum.Write
+          val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}"
+          val okMessage = s"Transform step ${predecessor.name} written successfully"
+
+          errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
+            val relationSettings = Try {
+              predecessor.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
+            }.getOrElse(defaultWorkflowRelationSettings)
+
+            /*
+            When one transformation is saved, we need to check if the data is the discarded. This situation is produced when:
+                     discard
+               step ---------> output (where the name contains _Discard and is used by the save and the errors management in order to find the schema)
+            */
+            val stepName = nodeName(predecessor.name, relationSettings.dataType)
+            transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
+              newOutput.writeTransform(
+                transform.data,
+                transform.step.outputOptions.copy(
+                  stepName = stepName,
+                  tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType)
+                ),
+                workflow.settings.errorsManagement,
+                errorOutputs,
+                transform.predecessors
+              )
             }
           }
         }
       }
+    }
   }
 
   /**

@@ -21,7 +21,7 @@ object GraphHelper extends SLF4JLogging {
     edges.flatMap { edge =>
       (nodes.find(_.name == edge.origin), nodes.find(_.name == edge.destination)) match {
         case (Some(nodeOrigin), Some(nodeDestination)) =>
-          Option(LDiEdge(nodeOrigin,nodeDestination)(WorkflowRelationSettings(
+          Option(LDiEdge(nodeOrigin, nodeDestination)(WorkflowRelationSettings(
             edge.dataType.getOrElse(DataType.ValidData)
           )))
         case _ =>
@@ -29,4 +29,16 @@ object GraphHelper extends SLF4JLogging {
           None
       }
     }
+}
+
+object GraphHelperImplicits {
+
+  implicit val nodeGraphOrdering = new Ordering[NodeGraph] {
+    override def compare(x: NodeGraph, y: NodeGraph): Int = {
+      if (x.priority != y.priority)
+        y.priority.compare(x.priority)
+      else x.name.compare(y.name)
+    }
+  }
+
 }

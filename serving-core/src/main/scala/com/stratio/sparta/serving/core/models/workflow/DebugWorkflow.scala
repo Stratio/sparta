@@ -6,15 +6,22 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.core.enumerators.WhenError
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{DebugResults, ErrorsManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.enumerators.{DataType, NodeArityEnum, WorkflowExecutionMode}
 
+import scalax.collection.Graph
+import scalax.collection.GraphTraversal.{Parameters, Successors}
+import scalax.collection.edge.LDiEdge
+
+//scalastyle:off
 case class DebugWorkflow(
-                          id:Option[String] = None,
+                          id: Option[String] = None,
                           workflowOriginal: Workflow,
                           workflowDebug: Option[Workflow],
                           result: Option[DebugResults]
@@ -112,20 +119,47 @@ case class DebugWorkflow(
     )
   }
 
-  //scalastyle:off
   private[workflow] def pipelineGraphDebug(): PipelineGraph = {
+    import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
     import workflowOriginal.pipelineGraph
 
-    val newNodes = pipelineGraph.nodes.flatMap { node =>
-      node.stepType.toLowerCase match {
-        case InputStep.StepType => Option(node.copy(
-          className = s"$inputClassName${workflowOriginal.executionEngine}",
-          classPrettyName = inputPrettyClassName)
-        )
-        case OutputStep.StepType => None
-        case _ => Option(node)
-      }
-    } :+ debugOutputNode :+ debugOutputNodeDiscard
+    val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflowOriginal)
+    val nodeOrdering = graph.NodeOrdering((nodeX, nodeY) =>
+      if (nodeX.priority != nodeY.priority)
+        nodeX.priority.compare(nodeY.priority) * -1
+      else nodeY.name.compare(nodeX.name) * -1
+    )
+    val parameters = Parameters(direction = Successors)
+    val nodesInGraph = workflowOriginal.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType)
+      .sorted
+      .flatMap { inputNode =>
+        val inNodeGraph = graph.get(inputNode)
+        inNodeGraph.outerNodeTraverser(parameters).withOrdering(nodeOrdering).toList.reverse.flatMap { node =>
+          node.stepType.toLowerCase match {
+            case InputStep.StepType => Option(node.copy(
+              className = s"$inputClassName${workflowOriginal.executionEngine}",
+              classPrettyName = inputPrettyClassName)
+            )
+            case OutputStep.StepType => None
+            case _ => Option(node)
+          }
+        }
+      }.reverse
+    var index = "a"
+    val nodesNames = nodesInGraph.flatMap { node =>
+      val nodes = Seq(
+        node.name -> s"${index}_${debugOutputNode.name}_${node.name}",
+        SdkSchemaHelper.discardTableName(node.name) -> s"${index}_${debugOutputNode.name}_${node.name}")
+      index = index + "a"
+      nodes
+    }.toMap
+    val outputNodes = nodesInGraph.flatMap { node =>
+      Seq(
+        debugOutputNode.copy(name = nodesNames(node.name)),
+        debugOutputNodeDiscard.copy(name = nodesNames(SdkSchemaHelper.discardTableName(node.name)))
+      )
+    }
+    val newNodes = nodesInGraph ++ outputNodes
     val outputs = pipelineGraph.nodes.flatMap { node =>
       if (node.stepType.equalsIgnoreCase(OutputStep.StepType)) Option(node.name)
       else None
@@ -137,8 +171,16 @@ case class DebugWorkflow(
           node.supportedDataRelations match {
             case Some(relations) => relations.map { dataType =>
               if (dataType == DataType.ValidData)
-                EdgeGraph(origin = node.name, destination = outputDebugName, dataType = Option(dataType))
-              else EdgeGraph(origin = node.name, destination = outputDebugNameDiscards, dataType = Option(dataType))
+                EdgeGraph(
+                  origin = node.name,
+                  destination = nodesNames(node.name),
+                  dataType = Option(dataType)
+                )
+              else EdgeGraph(
+                origin = node.name,
+                destination = nodesNames(SdkSchemaHelper.discardTableName(node.name)),
+                dataType = Option(dataType)
+              )
             }
             case None => Seq(EdgeGraph(origin = node.name, destination = outputDebugName))
           }

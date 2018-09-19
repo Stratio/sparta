@@ -32,38 +32,32 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
 
   def findDebugWorkflowById(id: String): Future[DebugWorkflow] = findByIdHead(id)
 
-  def getResultsByID(id: String): Future[DebugWorkflow] = {
+  def getResultsByID(id: String): Future[DebugResults] = {
     for {
       debugWorkflow <- findDebugWorkflowById(id)
       resultStep <- getDebugStepData(id)
     } yield {
-      val copyDebug = debugWorkflow.result match {
-        case Some(result) => {
+      debugWorkflow.result match {
+        case Some(result) =>
           val map = resultStep.flatMap { element => Map(element.step -> element) }.toMap
-          debugWorkflow.copy(result = Option(result.copy(stepResults = map)))
-        }
+          result.copy(stepResults = map)
         case None => throw new ServerException(s"No results for workflow id=$id")
       }
-      copyDebug
     }
   }
 
   def createDebugWorkflow(debugWorkflow: DebugWorkflow): Future[DebugWorkflow] = {
-    debugWorkflow.workflowOriginal.id match {
-      case Some(id) => {
-        (for {
-          exists <- findByID(id)
-        } yield {
-          val newDebug = exists.fold(writeDebugWorkflow(createDebugWorkflowFromOriginal(debugWorkflow))) { existingWk =>
-            updateDateDebugWorkflow(createDebugWorkflowFromOriginal(debugWorkflow), existingWk)
+    debugWorkflow.workflowOriginal.id.orElse(debugWorkflow.id) match {
+      case Some(id) =>
+        findByID(id).flatMap { exists =>
+          val newDebug = exists.fold(addFieldsToCreatedDebugWorkflow(debugWorkflow)) { existingWk =>
+            addFieldsToUpdatedDebugWorkflow(debugWorkflow, existingWk)
           }
           upsert(newDebug).map(_ => newDebug)
-        }).flatMap(f => f)
-      }
-      case None => {
-        val newDebug = writeDebugWorkflow(createDebugWorkflowFromOriginal(debugWorkflow))
+        }
+      case None =>
+        val newDebug = addFieldsToCreatedDebugWorkflow(debugWorkflow)
         upsert(newDebug).map(_ => newDebug)
-      }
     }
   }
 
@@ -107,20 +101,18 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
       val debugWithErrors = error match {
         case Some(wError) =>
           wError.step match {
-            case Some(wErrorStep) => {
+            case Some(wErrorStep) =>
               val debugResult = actualDebug.result match {
                 case Some(result) => result.copy(stepErrors = result.stepErrors ++ Map(wErrorStep -> wError))
                 case None => DebugResults(false, stepErrors = Map(wErrorStep -> wError))
               }
               actualDebug.copy(result = Option(debugResult))
-            }
-            case None => {
+            case None =>
               val newDebugResult = actualDebug.result match {
                 case Some(result) => result.copy(genericError = error)
                 case None => DebugResults(debugSuccessful = true, stepResults = Map.empty, stepErrors = Map.empty, genericError = error)
               }
               actualDebug.copy(result = Option(newDebugResult))
-            }
           }
         case None =>
           actualDebug.copy(result = actualDebug.result.map(result => result.copy(genericError = None, stepErrors = Map.empty)))
@@ -211,29 +203,37 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
       case Some(_) => workflow
     }
 
-  private[services] def createDebugWorkflowFromOriginal(debugWorkflow: DebugWorkflow): DebugWorkflow =
-    debugWorkflow.copy(id = debugWorkflow.workflowOriginal.id,
-      workflowDebug = Option(debugWorkflow.transformToWorkflowRunnable))
-
-  private[services] def writeDebugWorkflow(debugWorkflow: DebugWorkflow): DebugWorkflow = {
-    val updatedOriginalWorkflow = debugWorkflow.copy(workflowOriginal =
-      addCreationDate(addId(addSpartaVersion(debugWorkflow.workflowOriginal))))
-    val updatedDebugWorkflow = updatedOriginalWorkflow.copy(
-      workflowDebug = debugWorkflow.workflowDebug.map { workflow =>
-        workflow.copy(id = updatedOriginalWorkflow.workflowOriginal.id)
-      }
-    )
-    updatedDebugWorkflow
-  }
-
   private[services] def addId(workflow: Workflow, force: Boolean = false): Workflow =
     if (workflow.id.notBlank.isEmpty || (workflow.id.notBlank.isDefined && force))
       workflow.copy(id = Some(UUID.randomUUID.toString))
     else workflow
 
-  private[services] def updateDateDebugWorkflow(debugWorkflow: DebugWorkflow, oldDebugWorkflow: DebugWorkflow): DebugWorkflow = {
-    val updatedWorkflowId = debugWorkflow.copy(workflowOriginal = addUpdateDate(debugWorkflow.workflowOriginal
-      .copy(id = oldDebugWorkflow.workflowOriginal.id)))
-    updatedWorkflowId
+  private[services] def addFieldsToCreatedDebugWorkflow(
+                                                         debugWorkflow: DebugWorkflow
+                                                       ): DebugWorkflow = {
+    val debugId = debugWorkflow.id.orElse(addId(debugWorkflow.workflowOriginal).id)
+    val workflowOriginalModified = addSpartaVersion(addCreationDate(debugWorkflow.workflowOriginal.copy(id = debugId)))
+    val workflowDebugModified = debugWorkflow.transformToWorkflowRunnable.copy(id = debugId)
+
+    debugWorkflow.copy(
+      workflowOriginal = workflowOriginalModified,
+      id = debugId,
+      workflowDebug = Option(workflowDebugModified)
+    )
+  }
+
+  private[services] def addFieldsToUpdatedDebugWorkflow(
+                                                         debugWorkflow: DebugWorkflow,
+                                                         oldDebugWorkflow: DebugWorkflow
+                                                       ): DebugWorkflow = {
+    val debugId = oldDebugWorkflow.id.orElse(addId(oldDebugWorkflow.workflowOriginal).id)
+    val workflowOriginalModified = addSpartaVersion(addUpdateDate(debugWorkflow.workflowOriginal.copy(id = debugId)))
+    val workflowDebugModified = debugWorkflow.transformToWorkflowRunnable.copy(id = debugId)
+
+    debugWorkflow.copy(
+      workflowOriginal = workflowOriginalModified,
+      id = debugId,
+      workflowDebug = Option(workflowDebugModified)
+    )
   }
 }

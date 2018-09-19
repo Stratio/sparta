@@ -6,6 +6,7 @@
 
 package com.stratio.sparta.serving.core.actor
 
+import com.stratio.sparta.serving.core.actor.BusNotification.InitNodeListener
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionStatusChange
@@ -21,6 +22,15 @@ class ExecutionStatusChangePublisherActor() extends ListenerPublisher {
   import ExecutionStatusChangePublisherActor._
 
   val relativePath: String = AppConstant.BaseZkPath
+
+  override def preStart(): Unit = {
+    if(!CuratorFactoryHolder.existsPath(AppConstant.ExecutionsStatusChangesZkPath))
+      CuratorFactoryHolder.getInstance().createContainers(AppConstant.ExecutionsStatusChangesZkPath)
+
+    context.system.eventStream.subscribe(self, classOf[InitNodeListener])
+
+    initNodeListener()
+  }
 
   override def initNodeListener(): Unit = {
     val nodeListener = new PathChildrenCacheListener {
