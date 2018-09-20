@@ -74,7 +74,10 @@ class LauncherActor(
               newExecution <- createExecution(
                 validationContextResult.workflow,
                 workflowRaw,
-                workflowIdExecutionContext.executionContext,
+                addParameterListsToExecutionContext(
+                  validationContextResult.workflow.settings.global.parametersLists,
+                  workflowIdExecutionContext.executionContext
+                ),
                 workflowIdExecutionContext.executionSettings,
                 user
               )
@@ -234,6 +237,15 @@ class LauncherActor(
           )))
         throw exception
     }
+  }
+
+  private def addParameterListsToExecutionContext(
+                                                   workflowParameterList: Seq[String],
+                                                   executionContext: ExecutionContext
+                                                 ): ExecutionContext = {
+    if(executionContext.paramsLists.isEmpty)
+      executionContext.copy(paramsLists = workflowParameterList)
+    else executionContext
   }
 
   private def createExecution(
