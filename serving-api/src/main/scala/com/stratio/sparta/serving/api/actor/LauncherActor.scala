@@ -5,17 +5,20 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
 import akka.actor.{Props, _}
 import akka.pattern.ask
+import org.joda.time.DateTime
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor._
-import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ApplyExecutionContextToWorkflow, ApplyExecutionContextToWorkflowId}
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
-import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SpartaDriverClass
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, SparkConstant}
@@ -26,12 +29,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
-import com.stratio.sparta.serving.core.services.dao.{DebugWorkflowPostgresDao, WorkflowExecutionPostgresDao, WorkflowPostgresDao}
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import org.joda.time.DateTime
-
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 
 class LauncherActor(
                     statusListenerActor: ActorRef,
@@ -39,12 +37,10 @@ class LauncherActor(
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   private val ResourceWorkflow = "Workflows"
-  private val executionService = new WorkflowExecutionPostgresDao
-  private val workflowService = new WorkflowPostgresDao
-  private val debugPgService = new DebugWorkflowPostgresDao()
+  private val executionService = PostgresDaoFactory.executionPgService
+  private val workflowService = PostgresDaoFactory.workflowPgService
+  private val debugPgService = PostgresDaoFactory.debugWorkflowPgService
 
   private val marathonLauncherActor = context.actorOf(Props(new MarathonLauncherActor), MarathonLauncherActorName)
   private val clusterLauncherActor = context.actorOf(Props(

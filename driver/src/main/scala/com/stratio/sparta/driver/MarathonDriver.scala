@@ -5,8 +5,14 @@
  */
 package com.stratio.sparta.driver
 
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -18,13 +24,7 @@ import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate}
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
-
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 //scalastyle:off
 object MarathonDriver extends SLF4JLogging with SpartaSerializer {
@@ -39,7 +39,7 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
       log.debug(s"Arguments: ${args.mkString(", ")}")
       val executionId = args(ExecutionIdIndex)
       val system = ActorSystem("MarathonApp")
-      val executionService = new WorkflowExecutionPostgresDao
+      val executionService = PostgresDaoFactory.executionPgService
       val execution = Await.result(executionService.findExecutionById(executionId), Duration.Inf)
 
       Try {

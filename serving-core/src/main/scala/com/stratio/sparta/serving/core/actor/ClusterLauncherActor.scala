@@ -5,7 +5,13 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
+
 import akka.actor.{Actor, ActorRef}
+import org.apache.spark.launcher.SpartaLauncher
+import org.joda.time.DateTime
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -15,17 +21,11 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils.SchedulerUtils
-import org.apache.spark.launcher.SpartaLauncher
-import org.joda.time.DateTime
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
 
 class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor with SchedulerUtils {
 
-  lazy val executionService = new WorkflowExecutionPostgresDao
+  lazy val executionService = PostgresDaoFactory.executionPgService
   lazy val listenerService = new ListenerService(executionStatusListenerActor)
 
   override def receive: PartialFunction[Any, Unit] = {

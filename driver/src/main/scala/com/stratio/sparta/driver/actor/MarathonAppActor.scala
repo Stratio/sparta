@@ -5,8 +5,12 @@
  */
 package com.stratio.sparta.driver.actor
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success, Try}
+
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -17,14 +21,11 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Run
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor with SLF4JLogging {
 
-  lazy val executionService = new WorkflowExecutionPostgresDao
+  lazy val executionService = PostgresDaoFactory.executionPgService
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(execution) => doStartApp(execution)

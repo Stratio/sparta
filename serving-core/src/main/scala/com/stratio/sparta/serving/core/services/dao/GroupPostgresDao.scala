@@ -7,25 +7,24 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
+import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
 import com.stratio.sparta.serving.core.dao.GroupDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.Group
-import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
-import slick.jdbc.PostgresProfile
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
 
 class GroupPostgresDao extends GroupDao {
 
   override val profile = PostgresProfile
   override val db = JdbcSlickConnection.db
 
-  private val workflowPgService = new WorkflowPostgresDao()
+  private val workflowPgService = PostgresDaoFactory.workflowPgService
 
   import profile.api._
 

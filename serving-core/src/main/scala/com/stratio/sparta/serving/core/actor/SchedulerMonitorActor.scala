@@ -5,7 +5,16 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import scala.concurrent._
+import scala.io.Source
+import scala.util.{Failure, Properties, Success, Try}
+
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.impl.client.HttpClientBuilder
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.read
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -21,16 +30,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils.SchedulerUtils
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.impl.client.HttpClientBuilder
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.read
-
-import scala.concurrent._
-import scala.io.Source
-import scala.util.{Failure, Properties, Success, Try}
+import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
 
 class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSerializer {
 
@@ -38,7 +38,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
 
   import SchedulerMonitorActor._
 
-  lazy val executionService = new WorkflowExecutionPostgresDao
+  lazy val executionService = PostgresDaoFactory.executionPgService
 
   lazy val inconsistentStatusCheckerActor: ActorRef =
     context.system.actorOf(Props(new InconsistentStatusCheckerActor()), AkkaConstant.InconsistentStatusCheckerActorName)

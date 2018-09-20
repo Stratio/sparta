@@ -6,20 +6,23 @@
 
 package com.stratio.sparta.serving.core.dao
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
+
 import akka.event.slf4j.SLF4JLogging
 import slick.ast.BaseTypedType
 import slick.relational.RelationalProfile
+
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.utils.JdbcSlickUtils
+import com.stratio.sparta.serving.core.utils.{JdbcSlickUtils, PostgresDaoFactory}
 
 //scalastyle:off
 trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
+
+  implicit val exc = PostgresDaoFactory.pgExecutionContext
 
   import profile.api._
 
@@ -79,7 +82,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
   def tableCreation(name: String) = {
     db.run(table.exists.result) onComplete {
       case Success(result) =>
-        if(result)
+        if (result)
           log.info(s"Table $name already exists: skipping creation")
         else doCreateTable(name)
       case Failure(_) =>

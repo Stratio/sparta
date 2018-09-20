@@ -7,22 +7,19 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.TemplateActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
-import com.stratio.sparta.serving.core.services.dao.TemplatePostgresDao
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 import scala.concurrent.Future
 import scala.util.Try
 
 class TemplateActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val templatePgService = new TemplatePostgresDao()
-
-  import scala.concurrent.ExecutionContext.Implicits.global
+  private val templatePgService = PostgresDaoFactory.templatePgService
 
   //TODO migration service
   //private val migrationService = new CassiopeiaMigrationService(curatorFramework)

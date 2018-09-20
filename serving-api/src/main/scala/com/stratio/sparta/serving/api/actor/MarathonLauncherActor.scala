@@ -5,7 +5,11 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, ActorRef, PoisonPill}
+import scala.util.{Failure, Success, Try}
+
+import akka.actor.{Actor, PoisonPill}
+import org.joda.time.DateTime
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -13,17 +17,12 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils._
-import org.apache.curator.framework.CuratorFramework
-import org.joda.time.DateTime
-
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, _}
 
 class MarathonLauncherActor extends Actor
   with SchedulerUtils {
 
-  private val executionService = new WorkflowExecutionPostgresDao
+  private val executionService = PostgresDaoFactory.executionPgService
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(execution) => doStartExecution(execution)

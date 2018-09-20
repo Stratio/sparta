@@ -9,16 +9,18 @@ import java.io.StringReader
 
 import akka.actor.{Actor, ActorRef}
 import com.github.mustachejava.DefaultMustacheFactory
+
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecutionContext, WorkflowIdExecutionContext, _}
-import com.stratio.sparta.serving.core.services.dao.{GlobalParametersPostgresDao, ParameterListPostgresDao, WorkflowPostgresDao}
+import com.stratio.sparta.serving.core.services.dao.WorkflowPostgresDao
 import com.twitter.mustache.ScalaObjectHandler
 import org.json4s.jackson.Serialization._
-
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+
+import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 class ParametersListenerActor extends Actor with SpartaSerializer {
 
@@ -27,9 +29,9 @@ class ParametersListenerActor extends Actor with SpartaSerializer {
   case class ParametersToApplyContext(parametersToApply: Map[String, String], parametersWithoutValue: Seq[String])
 
   val moustacheFactory = new DefaultMustacheFactory
-  val globalParametersService = new GlobalParametersPostgresDao
-  val parameterListService = new ParameterListPostgresDao
-  val workflowService = new WorkflowPostgresDao
+  val globalParametersService = PostgresDaoFactory.globalParametersService
+  val parameterListService = PostgresDaoFactory.parameterListPostgresDao
+  val workflowService = PostgresDaoFactory.workflowPgService
 
   override def preStart(): Unit = {
     moustacheFactory.setObjectHandler(new ScalaObjectHandler)

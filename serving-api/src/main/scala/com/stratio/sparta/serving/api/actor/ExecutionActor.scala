@@ -6,17 +6,16 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import scala.concurrent.Future
+import scala.util.Try
+
 import akka.actor.Actor
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.ExecutionActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{DashboardView, DtoModelImplicits, WorkflowExecution, WorkflowExecutionDto}
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.Try
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 
 class ExecutionActor()
                     (implicit val secManagerOpt: Option[SpartaSecurityManager])
@@ -24,7 +23,7 @@ class ExecutionActor()
 
   import DtoModelImplicits._
 
-  private val executionPgService = new WorkflowExecutionPostgresDao()
+  private val executionPgService = PostgresDaoFactory.executionPgService
   private val ResourceType = "Workflows"
 
   //scalastyle:off

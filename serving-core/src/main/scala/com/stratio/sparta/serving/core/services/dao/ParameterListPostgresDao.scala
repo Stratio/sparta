@@ -7,22 +7,21 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization._
+import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.ParameterListDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterListAndContexts, ParameterListFromWorkflow, ParameterVariable}
-import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
-import org.joda.time.DateTime
-import slick.jdbc.PostgresProfile
-import AppConstant._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
-import org.json4s.jackson.Serialization._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
 
 class ParameterListPostgresDao extends ParameterListDao {
 
@@ -31,7 +30,7 @@ class ParameterListPostgresDao extends ParameterListDao {
 
   import profile.api._
 
-  lazy val workflowService = new WorkflowPostgresDao
+  lazy val workflowService = PostgresDaoFactory.workflowPgService
 
   override def initializeData(): Unit = {
     val customDefaultsFuture = findByName(CustomExampleParameterList)

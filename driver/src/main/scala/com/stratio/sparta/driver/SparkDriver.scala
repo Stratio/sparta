@@ -7,6 +7,7 @@ package com.stratio.sparta.driver
 
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -18,10 +19,11 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
 import com.typesafe.config.ConfigFactory
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Properties, Success, Try}
+
+import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 object SparkDriver extends SLF4JLogging with SpartaSerializer {
 
@@ -46,7 +48,7 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
       val executionId = args(ExecutionIdIndex)
       val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
         .split(",").filter(s => s != " " && s.nonEmpty)
-      val executionService = new WorkflowExecutionPostgresDao
+      val executionService = PostgresDaoFactory.executionPgService
 
       val execution = Await.result(executionService.findExecutionById(executionId), Duration.Inf)
 

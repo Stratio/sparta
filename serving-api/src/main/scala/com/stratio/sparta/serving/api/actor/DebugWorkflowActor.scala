@@ -6,8 +6,15 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import scala.concurrent.Future
+import scala.util.Try
+
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
+import org.joda.time.DateTime
+import spray.http.BodyPart
+import spray.httpx.Json4sJacksonSupport
+
 import com.stratio.sparta.core.models.DebugResults
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.constants.HttpConstant
@@ -18,15 +25,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.DebugWorkflowPostgresDao
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import org.joda.time.DateTime
-import spray.http.BodyPart
-import spray.httpx.Json4sJacksonSupport
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.Try
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 
 class DebugWorkflowActor(
                           launcherActor: ActorRef
@@ -37,7 +36,7 @@ class DebugWorkflowActor(
 
   val ResourceWorkflow = "Workflows"
   val ResourceFiles = "Files"
-  val debugPgService = new DebugWorkflowPostgresDao()
+  val debugPgService = PostgresDaoFactory.debugWorkflowPgService
 
   val targetDir = "debug"
   val temporalDir = "/tmp/sparta/debug"

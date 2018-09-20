@@ -7,18 +7,17 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
+
+import org.joda.time.DateTime
+import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.TemplateDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
-import org.joda.time.DateTime
-import slick.jdbc.PostgresProfile
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
 
 class TemplatePostgresDao extends TemplateDao {
 

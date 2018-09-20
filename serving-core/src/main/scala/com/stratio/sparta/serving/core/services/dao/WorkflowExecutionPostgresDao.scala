@@ -7,6 +7,13 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+import scala.concurrent.Future
+import scala.util.{Failure, Properties, Success, Try}
+
+import com.github.nscala_time.time.OrderingImplicits._
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.write
+import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -19,18 +26,10 @@ import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
 import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, NginxUtils}
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.write
-import slick.jdbc.PostgresProfile
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Properties, Success, Try}
-import DtoModelImplicits._
-import com.github.nscala_time.time.OrderingImplicits._
 
 //scalastyle:off
 class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
@@ -225,8 +224,9 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   private def writeExecutionStatusInZk(workflowExecutionStatusChange: WorkflowExecutionStatusChange): Unit = {
 
-    import AppConstant._
     import workflowExecutionStatusChange._
+
+    import AppConstant._
 
     Try {
       if (CuratorFactoryHolder.existsPath(ExecutionsStatusChangesZkPath))

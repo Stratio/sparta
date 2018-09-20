@@ -7,25 +7,24 @@
 package com.stratio.sparta.serving.api.actor
 
 
+import scala.concurrent.Future
+import scala.util.Try
+
 import akka.actor.Actor
+
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.Group
-import com.stratio.sparta.serving.core.services.dao.GroupPostgresDao
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-
-import scala.concurrent.Future
-import scala.util.Try
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 
 class GroupActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
-  private val groupPgService = new GroupPostgresDao()
+  private val groupPgService = PostgresDaoFactory.groupPgService
   private val ResourceGroupType = "Groups"
 
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   def receiveApiActions(action: Any): Any = action match {
     case CreateGroup(request, user) => createGroup(request, user)

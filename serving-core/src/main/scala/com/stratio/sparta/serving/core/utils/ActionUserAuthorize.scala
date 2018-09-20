@@ -6,20 +6,21 @@
 
 package com.stratio.sparta.serving.core.utils
 
+import scala.annotation.tailrec
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
+
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
+
 import com.stratio.sparta.security.{Action, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-
-import scala.annotation.tailrec
 
 trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
@@ -28,7 +29,7 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
-  import context.dispatcher
+  implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
 
   //scalastyle:off
   type ResourcesAndActions = Map[String, Action]
@@ -96,10 +97,10 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
     * Filter Service Results One by One by authorizationId (e.g. allWorkflows -> foreach(hasPermissionIn gosec) -> result)
     */
   def authorizeActionResultResources[T](
-                                               user: Option[LoggedUser],
-                                               resourcesAndActions: ResourcesAndActions,
-                                               sendTo: Option[ActorRef] = None
-                                             )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit = {
+                                         user: Option[LoggedUser],
+                                         resourcesAndActions: ResourcesAndActions,
+                                         sendTo: Option[ActorRef] = None
+                                       )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit = {
     val senderActor = sendTo.getOrElse(sender)
 
     (secManagerOpt, user) match {
@@ -129,10 +130,10 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
   }
 
   @tailrec
-  private def extractValueFromTry(completedAction: Try[Any]): Any ={
+  private def extractValueFromTry(completedAction: Try[Any]): Any = {
     completedAction match {
       case Success(actionMatch) => actionMatch match {
-        case actionMatch2 : Try[Any] => extractValueFromTry(actionMatch2)
+        case actionMatch2: Try[Any] => extractValueFromTry(actionMatch2)
         case _ => completedAction
       }
       case Failure(_) => completedAction

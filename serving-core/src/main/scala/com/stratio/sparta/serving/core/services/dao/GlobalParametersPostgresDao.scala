@@ -6,16 +6,16 @@
 
 package com.stratio.sparta.serving.core.services.dao
 
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+
+import slick.jdbc.PostgresProfile
+
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.GlobalParametersDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
-import slick.jdbc.PostgresProfile
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 //scalastyle:off
 class GlobalParametersPostgresDao extends GlobalParametersDao {

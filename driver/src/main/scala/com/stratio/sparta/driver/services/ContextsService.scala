@@ -6,6 +6,11 @@
 package com.stratio.sparta.driver.services
 
 
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
+
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
@@ -17,20 +22,15 @@ import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PostgresDaoFactory, SchedulerUtils}
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
-import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
 
 case class ContextsService()
 
   extends SchedulerUtils with CheckpointUtils with DistributedMonadImplicits with ContextBuilderImplicits {
 
-  private val executionService = new WorkflowExecutionPostgresDao
+  private val executionService = PostgresDaoFactory.executionPgService
   private val phase = PhaseEnum.Checkpoint
   private val errorMessage = s"An error was encountered while initializing Checkpoint"
   private val okMessage = s"Spark Checkpoint initialized successfully"

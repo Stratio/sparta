@@ -6,23 +6,20 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.ParameterListActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterListAndContexts, ParameterListFromWorkflow}
-import com.stratio.sparta.serving.core.services.dao.ParameterListPostgresDao
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 import scala.concurrent.Future
 import scala.util.Try
 
 class ParameterListActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val parameterListPostgresDao = new ParameterListPostgresDao
+  private val parameterListPostgresDao = PostgresDaoFactory.parameterListPostgresDao
   private val ResourceType = "ParameterList"
-
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   //scalastyle:off
   def receiveApiActions(action: Any): Any = action match {

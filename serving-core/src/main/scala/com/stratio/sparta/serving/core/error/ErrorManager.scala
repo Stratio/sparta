@@ -6,10 +6,14 @@
 package com.stratio.sparta.serving.core.error
 
 import java.util.Date
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 import akka.event.Logging
 import akka.event.Logging.LogLevel
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -17,11 +21,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate, Workflow}
-import com.stratio.sparta.serving.core.services.dao.{DebugWorkflowPostgresDao, WorkflowExecutionPostgresDao}
-
-import scala.concurrent.duration._
-import scala.concurrent.Await
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 trait ErrorManager extends SLF4JLogging {
 
@@ -98,7 +98,7 @@ trait PostgresError extends ErrorManager {
 
   val defaultLogErrorLevel = Logging.ErrorLevel
 
-  lazy val executionService = new WorkflowExecutionPostgresDao
+  lazy val executionService = PostgresDaoFactory.executionPgService
 
   def traceError(error: WorkflowError): Unit =
     workflow.executionId.foreach { executionId =>
@@ -124,7 +124,7 @@ trait PostgresDebugError extends ErrorManager {
 
   val defaultLogErrorLevel = Logging.DebugLevel
 
-  lazy val debugService = new DebugWorkflowPostgresDao
+  lazy val debugService = PostgresDaoFactory.debugWorkflowPgService
 
   def traceError(error: WorkflowError): Unit =
     workflow.id.foreach { id =>

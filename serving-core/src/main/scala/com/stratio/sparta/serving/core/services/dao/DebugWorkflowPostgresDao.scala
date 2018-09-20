@@ -6,20 +6,20 @@
 
 package com.stratio.sparta.serving.core.services.dao
 
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
+import java.util.UUID
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+
 import org.joda.time.DateTime
 import slick.jdbc.PostgresProfile
+
 import com.stratio.sparta.core.models.{DebugResults, WorkflowError}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.DebugWorkflowDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.{DebugWorkflow, Workflow}
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
-import java.util.UUID
 
 //scalastyle:off
 class DebugWorkflowPostgresDao extends DebugWorkflowDao {
