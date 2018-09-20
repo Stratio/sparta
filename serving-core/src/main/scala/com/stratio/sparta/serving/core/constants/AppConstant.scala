@@ -127,8 +127,6 @@ object AppConstant extends ZookeeperUtils {
   //Example Custom Group parameters
   val CustomExampleParameterList = "Default"
   val DefaultCustomExampleParameters = Seq(
-    new ParameterVariable("DEFAULT_OUTPUT_FIELD", "raw"),
-    new ParameterVariable("DEFAULT_DELIMITER", ","),
     new ParameterVariable("CASSANDRA_KEYSPACE", "sparta"),
     new ParameterVariable("CASSANDRA_CLUSTER", "sparta"),
     new ParameterVariable("KAFKA_GROUP_ID", "sparta"),
@@ -140,6 +138,8 @@ object AppConstant extends ZookeeperUtils {
 
   //Global Parameters
   val DefaultGlobalParameters = Seq(
+    new ParameterVariable("DEFAULT_OUTPUT_FIELD", "raw"),
+    new ParameterVariable("DEFAULT_DELIMITER", ","),
     new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE","qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0"),
     new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS","-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
     new ParameterVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),

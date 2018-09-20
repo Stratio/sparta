@@ -39,8 +39,6 @@
         "propertyId": "dbName",
         "propertyName": "_DATEBASE_NAME_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "{{{MONGODB_DB}}}",
         "required": true,
         "tooltip": "Default value set to sparta.",
         "qa": "fragment-details-mongoDb-dbName"

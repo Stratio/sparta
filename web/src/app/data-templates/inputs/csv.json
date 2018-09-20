@@ -30,7 +30,7 @@
            "propertyName": "_DELIMITER_",
            "propertyType": "text",
            "tooltip": "Delimiter character for input rows.",
-           "default": "{{{Default.DEFAULT_DELIMITER}}}",
+           "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
            "required": false,
            "qa": "fragment-details-csv-delimiter"
         },

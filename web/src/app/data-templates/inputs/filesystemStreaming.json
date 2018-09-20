@@ -20,7 +20,7 @@
          "propertyId": "outputField",
          "propertyName": "_OUTPUT_FIELD_",
          "propertyType": "text",
-         "default": "{{{Default.DEFAULT_OUTPUT_FIELD}}}",
+         "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
          "required": true,
          "tooltip": "Name assigned to the output field generated",
          "qa": "fragment-details-websocket-outputField"

@@ -58,7 +58,7 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Please note that any character belonging to the following set is not allowed: [ \\ , \" , # ]. (Note that the square brackets [ ] only delimit the set).",
-        "default": "{{{Default.DEFAULT_DELIMITER}}}",
+        "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
         "trim": false,
         "required": false,
         "qa": "fragment-details-http-delimiter"

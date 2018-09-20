@@ -63,7 +63,7 @@
         "propertyId": "value.serializer.row.delimiter",
         "propertyName": "_KAFKA_ROW_SEPARATOR_",
         "propertyType": "text",
-        "default": "{{{Default.DEFAULT_DELIMITER}}}",
+        "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
         "required": false,
          "visible": [
             [

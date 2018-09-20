@@ -32,7 +32,6 @@
         "propertyId": "keyspace",
         "propertyName": "_KEYSPACE_",
         "propertyType": "text",
-        "default": "{{{CASSANDRA_KEYSPACE}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-cassandra-keyspace"
@@ -41,7 +40,6 @@
         "propertyId": "cluster",
         "propertyName": "_CLUSTER_",
         "propertyType": "text",
-        "default": "{{{CASSANDRA_CLUSTER}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-cassandra-cluster"

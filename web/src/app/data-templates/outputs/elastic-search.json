@@ -42,7 +42,6 @@
          "propertyId": "indexMapping",
          "propertyName": "_INDEX_MAPPING_",
          "propertyType": "text",
-         "default": "{{{Default.ES_INDEX_MAPPING}}}",
          "tooltip": "Value will be used as mapping name for indexing.",
          "required": false,
          "qa": "fragment-details-elasticSearch-indexMapping"

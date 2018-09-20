@@ -240,7 +240,7 @@
          "propertyName": "_DELIMITER_",
          "propertyType": "text",
          "required": true,
-         "default": "{{{Default.DEFAULT_DELIMITER}}}",
+         "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
          "tooltip": "Delimiter character used to parse the CSV string",
          "qa": "fragment-details-csv-delimiter"
       },
