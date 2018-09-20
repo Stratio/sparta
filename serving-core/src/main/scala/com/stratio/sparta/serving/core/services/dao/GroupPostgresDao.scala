@@ -54,22 +54,36 @@ class GroupPostgresDao extends GroupDao {
 
   def update(group: Group): Future[Group] = {
     if (Group.isValid(group)) {
-      for {
-        groups <- filterByName(group.name)
-        oldGroup <-
-          if (groups.nonEmpty)
-            throw new ServerException(
-              s"Unable to update group ${group.id.get} with name ${group.name} because target group already exists")
-          else findByIdHead(group.id.get)
-        groupsToUpdate <- findGroupAndSubgroups(oldGroup.name)
-      } yield {
-        groupsToUpdate.foreach { currentGroup =>
-          val newGroup = Group(currentGroup.id, currentGroup.name.replaceFirst(oldGroup.name, group.name))
-          upsert(newGroup)
+      val id = group.id.getOrElse(
+        throw new ServerException(s"It's mandatory the id field"))
+
+      findByIdHead(id).flatMap { oldGroup =>
+        val updateActions = for {
+          groupsToUpdate <- findGroupAndSubgroups(oldGroup.name)
+          workflowActions <- Future.sequence {
+            groupsToUpdate.map { groupToUpdate =>
+              workflowPgService.findByGroupID(groupToUpdate.id.get).map { workflows =>
+                workflows.map { workflow =>
+                  val newWorkflow = workflow.copy(
+                    groupId = Option(id),
+                    group = group
+                  )
+                  workflowPgService.upsertAction(newWorkflow)
+                }
+              }
+            }
+          }
+          groupActions = groupsToUpdate.map { currentGroup =>
+            val newGroup = Group(currentGroup.id, currentGroup.name.replaceFirst(oldGroup.name, group.name))
+            upsertAction(newGroup)
+          }
+        } yield workflowActions.flatten ++ groupActions
+
+        updateActions.flatMap { actionsToExecute =>
+          db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
         }
-        group
-      }
-    } else throw new ServerException(s"Unable to create group ${group.name} because its name is invalid")
+      }.map(_ => group)
+    } else throw new ServerException(s"Unable to update group ${group.name} because its name is invalid")
   }
 
   def deleteById(id: String): Future[Boolean] = {
@@ -79,7 +93,8 @@ class GroupPostgresDao extends GroupDao {
       for {
         group <- findByIdHead(id)
         groups <- findGroupAndSubgroups(group.name)
-      } yield deleteYield(groups)
+        result <- deleteYield(groups)
+      } yield result
     }
   }
 
@@ -89,14 +104,16 @@ class GroupPostgresDao extends GroupDao {
     } else {
       for {
         groups <- findGroupAndSubgroups(name)
-      } yield deleteYield(groups)
+        result <- deleteYield(groups)
+      } yield result
     }
   }
 
   def deleteAllGroups(): Future[Boolean] =
     for {
       groups <- findAll()
-    } yield deleteYield(groups)
+      result <- deleteYield(groups)
+    } yield result
 
 
   /** PRIVATE METHODS **/
@@ -133,25 +150,30 @@ class GroupPostgresDao extends GroupDao {
       else throw new ServerException(s"No group found by id $id")
     }
 
-  private[services] def deleteYield(groups: Seq[Group]): Boolean = {
-    groups.foreach { currentGroup =>
-      if (currentGroup.id.get != DefaultGroup.id.get && currentGroup.name != DefaultGroup.name) {
+  //scalastyle:off
+  private[services] def deleteYield(groups: Seq[Group]): Future[Boolean] = {
+    val deleteActions = groups.map { currentGroup =>
+      if (currentGroup.id.isDefined && currentGroup.id.get != DefaultGroup.id.get && currentGroup.name != DefaultGroup.name) {
         log.debug(s"Deleting group ${currentGroup.id} ${currentGroup.name}")
         for {
-          ids <- workflowPgService.findByGroupID(currentGroup.id.get)
-          _ <- workflowPgService.deleteWorkflowList(ids.flatMap(_.id))
-        } yield {
-          Try(deleteByID(currentGroup.id.get)) match {
-            case Success(_) =>
-              log.info(s"Group ${currentGroup.name} with id ${currentGroup.id.get} deleted")
-              true
-            case Failure(e) =>
-              throw e
+          workflowsToUpdate <- workflowPgService.findByGroupID(currentGroup.id.get)
+          workflowActions = workflowsToUpdate.map { workflow =>
+            workflowPgService.deleteByIDAction(workflow.id.get)
           }
-        }
+        } yield workflowActions :+ deleteByIDAction(currentGroup.id.get)
+      } else Future(Seq.empty)
+    }
+
+    Future.sequence(deleteActions).map { actionsSequence =>
+      val actions = actionsSequence.flatten
+      Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))) match {
+        case Success(_) =>
+          log.info(s"Groups ${groups.map(_.name).mkString(",")} deleted")
+          true
+        case Failure(e) =>
+          throw e
       }
     }
-    true
   }
 
 }
