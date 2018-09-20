@@ -191,11 +191,18 @@ export function reducer(state: State = initialState, action: any): State {
          });
       }
       case workflowActions.RUN_WORKFLOW_ERROR: {
+         let message = '';
+         try {
+            const error = JSON.parse(action.payload.error);
+            message = error.exception;
+         } catch (error) {
+            message = action.payload.message;
+         }
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.ERROR,
                title: 'ERROR',
-               text: action.payload.message,
+               text: message,
                duration: 4000
             }]
          });

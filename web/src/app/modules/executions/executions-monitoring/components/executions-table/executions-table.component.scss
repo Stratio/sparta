@@ -28,10 +28,10 @@ hr {
    border-radius: 50%;
    display: inline-block;
    &.Stopped {
-      background-color: $status-critical-default;
+      background-color: $misc-peach;
    }
    &.Failed {
-      background-color: $misc-peach;
+      background-color: $status-critical-default;
    }
 }
 
@@ -43,6 +43,7 @@ hr {
 .all-executions button{
    margin: 10px auto;
    display: block;
+   margin-bottom: 32px;
 }
 
 .spark-link {

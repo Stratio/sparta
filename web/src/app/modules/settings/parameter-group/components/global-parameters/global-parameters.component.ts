@@ -15,6 +15,9 @@ import { GlobalParam } from './../../models/globalParam';
 export class GlobalParametersComponent implements OnInit {
 
    @Input() globalParams: GlobalParam[];
+   @Input() creationMode: boolean;
+
+
    @Output() addGlobalParam =  new EventEmitter<any>();
    @Output() saveParam = new EventEmitter<any>();
    @Output() deleteParam = new EventEmitter<any>();

@@ -15,5 +15,6 @@ export const DASHBOARD_ROUTES = {
     PLUGINS: '/settings/plugins',
     CROSSDATA: '/catalog',
     BACKUPS: '/settings/backups',
-    ENVIRONMENT: '/settings/environment'
+    ENVIRONMENT: '/settings/environment',
+    EXECUTIONS_MANAGING: '/executions'
 };

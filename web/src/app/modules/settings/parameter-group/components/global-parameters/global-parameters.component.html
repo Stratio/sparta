@@ -1,2 +1,2 @@
-<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)"></parameter-group-header>
-<parameters-table [inputParameters]="globalParams" (onSaveParamContexts)="saveGlobalParam($event)" (deleteParam)="deleteGlobalParam($event)"></parameters-table>
+<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" [creationMode]="creationMode"></parameter-group-header>
+<parameters-table [inputParameters]="globalParams" (onSaveParamContexts)="saveGlobalParam($event)" (deleteParam)="deleteGlobalParam($event)" [creationMode]="creationMode"></parameters-table>

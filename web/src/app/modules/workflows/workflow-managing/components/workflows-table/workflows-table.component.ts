@@ -335,7 +335,7 @@ export class WorkflowsManagingTableComponent {
 
       this.versionFields = [
          { id: 'version', label: 'Version' },
-         { id: 'tagsAux', label: 'Tag' },
+         { id: 'tagsAux', label: 'Tags' },
          { id: 'lastUpdateAux', label: 'Last update' },
          { id: 'options', label: '', sortable: false }
       ];

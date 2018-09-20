@@ -21,12 +21,18 @@ import { GlobalParam } from './../../models/globalParam';
       (saveParam)="onSaveParam($event)"
       (deleteParam)="onDeleteParam($event)"
       (search)="searchGlobal($event)"
+      [creationMode]="creationMode"
       ></global-parameters>
   `
 })
 export class GlobalParametersContainer implements OnInit {
-  public globalParams$: Observable<GlobalParam[]>;
-  constructor(private _store: Store<fromParameters.State>) { }
+
+   public globalParams$: Observable<GlobalParam[]>;
+   public creationMode = false;
+
+   constructor(private _store: Store<fromParameters.State>) { }
+
+
 
    ngOnInit(): void {
       this._init();
@@ -35,6 +41,8 @@ export class GlobalParametersContainer implements OnInit {
    private _init() {
       this._store.dispatch(new globalParamsActions.ListGlobalParamsAction());
       this.globalParams$ = this._store.select(fromParameters.getGlobalVariables);
+      this._store.select(fromParameters.getIsCreating)
+         .subscribe((isCreating: boolean) =>  this.creationMode = isCreating );
    }
    onAddGlobalParam() {
       this._store.dispatch(new globalParamsActions.AddGlobalParamsAction());

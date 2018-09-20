@@ -19,6 +19,8 @@ export class EnvironmentParametersComponent implements OnInit {
    @Input() environmentParams: any;
    @Input() environmentContexts: string[];
    @Input() configContexts: string[];
+   @Input() creationMode: boolean;
+
    @Output() addContext = new EventEmitter<any>();
    @Output() saveParam = new EventEmitter<any>();
    @Output() updateParam = new EventEmitter<any>();

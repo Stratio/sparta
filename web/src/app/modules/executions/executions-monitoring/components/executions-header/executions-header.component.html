@@ -8,16 +8,24 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<tool-bar>
-   <div breadcrumb>
-      <h1 class="egeo-title-large monitoring-title">{{'DASHBOARD.HOME.MONITORING_TITLE' | translate}}</h1>
+<div class="container">
+   <div class="row">
+      <div class="col-sm-12">
+         <div class="monitoring-header">
+            <h1 class="egeo-title-large monitoring-title">{{'DASHBOARD.HOME.MONITORING_TITLE' | translate}}</h1>
+            <span class="monitoring-link button button-link-primary" routerLink="executions">
+               View all executions 
+               <i class="icon icon-arrow2_right"></i>
+            </span>
+         </div>
+      </div>
    </div>
-</tool-bar>
+</div>
 <div class="container">
    <div class="row">
       <div class="col-sm-12">
          <div class="filters">
-            <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters">
+            <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters" (click)="showExecutions(filter.name)">
                <span class="number">{{ filter.value }}</span>
                <span class="label">{{ filter.name }}</span>
                <i class="icon {{filter.icon}}"></i>

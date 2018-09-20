@@ -17,6 +17,8 @@ export class CustomParametersComponent implements OnInit {
    @Input() customList: any[];
    @Input() customContexts: string[];
    @Input() breadcrumbList: any;
+   @Input() creationMode: boolean;
+
    @Output() navigate = new EventEmitter<any>();
    @Output() saveParam = new EventEmitter<any>();
    @Output() addCustomParam = new EventEmitter<any>();
@@ -27,6 +29,9 @@ export class CustomParametersComponent implements OnInit {
    @Output() addContext = new EventEmitter<any>();
    @Output() changeContext = new EventEmitter<any>();
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
+   @Output() addCustomContext =  new EventEmitter<any>();
+
+   public showConfigContext = false;
 
 
    constructor() {}
@@ -67,5 +72,13 @@ export class CustomParametersComponent implements OnInit {
 
    addNewContext(context) {
       this.addContext.emit(context);
+   }
+
+   toggleConfigContext() {
+      this.showConfigContext = !this.showConfigContext;
+   }
+
+   onAddCustomContext() {
+      this.addCustomContext.emit();
    }
 }

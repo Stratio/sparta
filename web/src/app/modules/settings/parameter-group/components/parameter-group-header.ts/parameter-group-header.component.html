@@ -5,10 +5,10 @@
   <button class="button button-toolbar" id="download-params" (click)="onDownloadParams.emit()">
     <i class="icon-download"></i>
   </button>
-  <button class="button button-toolbar" id="create-param" (click)="onCreateParam.emit()">
+  <button class="button button-toolbar" id="create-param" (click)="onCreateParam.emit()" [disabled]="creationMode">
     <i class="icon-plus"></i>
   </button>
-  <button *ngIf="withContext" class="button button-toolbar" id="create-param" (click)="onConfigContext.emit()">
+  <button *ngIf="withContext && !listMode" class="button button-toolbar" id="create-param" (click)="onConfigContext.emit()">
       <i class="icon-cog"></i>
     </button>
 </div>

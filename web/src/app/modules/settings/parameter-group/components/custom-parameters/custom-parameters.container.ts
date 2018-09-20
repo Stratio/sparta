@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 import * as fromParameters from './../../reducers';
@@ -30,6 +30,8 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (changeContext)="onChangeContext($event)"
       (addContext)="onAddContext($event)"
       (search)="searchCustom($event)"
+      [creationMode]="creationMode"
+      (addCustomContext)="onAddCustomContext()"
       >
 
    </custom-parameters>
@@ -40,8 +42,9 @@ export class CustomParametersContainer implements OnInit {
    public customLists$: Observable<GlobalParam[]>;
    public customContexts$: Observable<string[]>;
    public breadcrumbList$: Observable<any>;
+   public creationMode = false;
 
-   constructor(private _store: Store<fromParameters.State>) { }
+   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit(): void {
       this._init();
@@ -53,6 +56,11 @@ export class CustomParametersContainer implements OnInit {
       this.customParams$ = this._store.select(fromParameters.getCustomParams);
       this.customContexts$ = this._store.select(fromParameters.getCustomContexts);
       this.breadcrumbList$ = this._store.select(fromParameters.getSelectedList);
+      this._store.select(fromParameters.getCustomIsCreating)
+         .subscribe((isCreating: boolean) =>{
+            this.creationMode = isCreating;
+            this._cd.markForCheck();
+         });
    }
 
    navigateToList(list) {
@@ -93,6 +101,10 @@ export class CustomParametersContainer implements OnInit {
 
    searchCustom(global) {
       this._store.dispatch(new customParamsActions.SearchCustomAction(global));
+   }
+
+   onAddCustomContext() {
+      this._store.dispatch(new customParamsActions.AddCustomContextAction());
    }
 
 }

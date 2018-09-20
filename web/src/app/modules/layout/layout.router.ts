@@ -8,45 +8,45 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout.component';
 
 const layoutRoutes: Routes = [
-    {
-        path: '',
-        component: LayoutComponent,
-        children: [
-            {
-               path: '',
-               loadChildren: '@app/executions/executions-monitoring/executions.monitoring.module#ExecutionsMonitoringModule'
-            },
-            {
-               path: 'executions',
-               loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule'
-           },
-            {
-                path: 'repository',
-                loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
-            },
-            {
-                path: 'templates',
-                loadChildren: '@app/templates/templates.module#TemplatesModule'
-            },
-            {
-                path: 'sparta-settings',
-                loadChildren: '@app/settings/settings.module#SettingsModule'
-            },
-            {
-                path: 'catalog',
-                loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
-            }
-        ]
-    }
+   {
+      path: '',
+      component: LayoutComponent,
+      children: [
+         {
+            path: '',
+            loadChildren: '@app/executions/executions-monitoring/executions.monitoring.module#ExecutionsMonitoringModule'
+         },
+         {
+            path: 'executions',
+            loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule'
+         },
+         {
+            path: 'repository',
+            loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
+         },
+         {
+            path: 'templates',
+            loadChildren: '@app/templates/templates.module#TemplatesModule'
+         },
+         {
+            path: 'sparta-settings',
+            loadChildren: '@app/settings/settings.module#SettingsModule'
+         },
+         {
+            path: 'catalog',
+            loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
+         }
+      ]
+   }
 ];
 
 @NgModule({
-    exports: [
-        RouterModule
-    ],
-    imports: [
-        RouterModule.forChild(layoutRoutes)
-    ]
+   exports: [
+      RouterModule
+   ],
+   imports: [
+      RouterModule.forChild(layoutRoutes)
+   ]
 })
 
 export class LayoutRouter { }

@@ -5,43 +5,97 @@
  */
 
 import * as executionActions from '../actions/executions';
+import { isEqual } from 'lodash';
+import { Order } from '@stratio/egeo';
 
 export interface State {
    executionList: Array<any>;
    executionInfo: any;
    loading: boolean;
    selectedExecutionsIds: Array<string>;
+   statusFilter: string;
+   typeFilter: string;
+   timeIntervalFilter: number;
+   searchQuery: string;
+   pagination: {
+      perPage: number;
+      pageNumber: number;
+   };
+   order: Order;
 }
 
 const initialState: State = {
    executionList: [],
    executionInfo: null,
    loading: true,
-   selectedExecutionsIds: []
+   selectedExecutionsIds: [],
+   statusFilter: '',
+   typeFilter: '',
+   timeIntervalFilter: 0,
+   searchQuery: '',
+   pagination: {
+      perPage: 10,
+      pageNumber: 0
+   },
+   order: {
+      orderBy: 'startDateMillis',
+      type: 0
+   }
 };
 
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
-
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
-         const { payload } = action;
-         const executionList = payload.map(execution => {
-            const { id, statuses, marathonExecution, localExecution, genericDataExecution: { endDate, startDate, workflow: { name, group, executionEngine }, executionContext: { paramsLists: context }  }} = execution;
-            return { id, name, sparkURI: localExecution ? localExecution.sparkURI : marathonExecution && marathonExecution.sparkURI || '' , endDate, startDate, group, executionEngine, context: context.join(), status: statuses.length && statuses[0].state };
-         });
-         return { ...state, executionList, selectedExecutionsIds: [] };
+         const executionList = action.payload;
+
+         return { ...state, executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList };
       }
 
       case executionActions.SELECT_EXECUTIONS_ACTION: {
-         const { execution: { id }} = action;
+         const { execution: { id } } = action;
          return { ...state, selectedExecutionsIds: [id, ...state.selectedExecutionsIds] };
       }
       case executionActions.DESELECT_EXECUTIONS_ACTION: {
 
-         const { execution: { id }} = action;
+         const { execution: { id } } = action;
          return { ...state, selectedExecutionsIds: state.selectedExecutionsIds.filter(e => e !== id) };
       }
-
+      case executionActions.SELECT_STATUS_FILTER: {
+         return {
+            ...state,
+            statusFilter: action.status,
+            selectedExecutionsIds: []
+         };
+      }
+      case executionActions.SELECT_TYPE_FILTER: {
+         return {
+            ...state,
+            typeFilter: action.workflowType,
+            selectedExecutionsIds: []
+         };
+      }
+      case executionActions.SELECT_TIME_INTERVAL_FILTER: {
+         return {
+            ...state,
+            timeIntervalFilter: action.time,
+            selectedExecutionsIds: []
+         };
+      }
+      case executionActions.SEARCH_EXECUTION: {
+         return {
+            ...state,
+            searchQuery: action.searchQuery
+         };
+      }
+      case executionActions.CHANGE_ORDER: {
+         return {
+            ...state,
+            order: action.order
+         };
+      }
+      case executionActions.RESET_VALUES: {
+         return initialState;
+      }
       default:
          return state;
    }

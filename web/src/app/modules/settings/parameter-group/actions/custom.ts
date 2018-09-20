@@ -25,6 +25,8 @@ export const CHANGE_CONTEXT_OPTION = '[Custom Params] Change context option';
 export const ADD_CONTEXT = '[Custom Params] Add context';
 export const ADD_CONTEXT_COMPLETE = '[Custom Params] Add context complete';
 export const SEARCH_CUSTOM_PARAMS = '[Custom Params] Search custom params';
+export const ADD_CUSTOM_CONTEXT = '[Custom Params] Add custom context';
+export const SAVE_CUSTOM_PARAMS_COMPLETE = '[Custom Params] Save custom params complete';
 
 export class ListCustomParamsAction implements Action {
    readonly type = LIST_CUSTOM_PARAMS;
@@ -118,6 +120,18 @@ export class SearchCustomAction implements Action {
    constructor(public text: string) {}
 }
 
+export class AddCustomContextAction implements Action {
+   readonly type = ADD_CUSTOM_CONTEXT;
+   constructor() {}
+}
+
+export class SaveCustomParamsCompleteAction implements Action {
+   readonly type = SAVE_CUSTOM_PARAMS_COMPLETE;
+   constructor() {}
+}
+
+
+
 export type Actions = ListCustomParamsAction
   | ListCustomParamsCompleteAction
   | ListCustomParamsErrorAction
@@ -135,4 +149,6 @@ export type Actions = ListCustomParamsAction
   | ChangeContextOptionAction
   | AddContextAction
   | AddContextCompleteAction
-  | SearchCustomAction;
+  | SearchCustomAction
+  | AddCustomContextAction
+  | SaveCustomParamsCompleteAction;

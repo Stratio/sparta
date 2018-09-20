@@ -12,6 +12,7 @@ export interface State {
    contexts: Array<any>;
    allVariables: Array<any>;
    configContexts: Array<any>;
+   creationMode: boolean;
 }
 
 const initialState: State = {
@@ -19,7 +20,8 @@ const initialState: State = {
    environmentVariables: [],
    contexts: [],
    allVariables: [],
-   configContexts: []
+   configContexts: [],
+   creationMode: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -47,7 +49,7 @@ export function reducer(state: State = initialState, action: any): State {
                   .map(c => ({ name: c.name, value: c.parameters[env.name], id: c.id }))
             }));
 
-         return { ...state, environmentVariables, allVariables: environmentVariables, list: { id, name }, contexts };
+         return { ...state, environmentVariables, allVariables: environmentVariables, list: { id, name }, contexts, creationMode: false };
       }
 
       case environmentParamsActions.ADD_CONTEXT_COMPLETE: {
@@ -60,14 +62,14 @@ export function reducer(state: State = initialState, action: any): State {
       case environmentParamsActions.ADD_ENVIRONMENT_PARAMS: {
          return {
             ...state,
-            environmentVariables: [{ name: 'newName', value: 'newValue', contexts: [] }, ...state.environmentVariables]
+            environmentVariables: [{ name: '', value: '', contexts: [] }, ...state.environmentVariables],
+            creationMode: true
          };
       }
 
       case environmentParamsActions.CHANGE_CONTEXT_OPTION: {
-         console.log(action.context);
          if (action.context === 'default') {
-            return { ...state, environmentVariables: state.allVariables };
+            return { ...state, environmentVariables: state.allVariables,  creationMode: false };
          } else {
             const context = state.contexts.find(element => element.name === action.context);
             const parameters = context.parameters.map(param => {
@@ -78,7 +80,7 @@ export function reducer(state: State = initialState, action: any): State {
                   return param;
                }
             });
-            return { ...state, environmentVariables: parameters };
+            return { ...state, environmentVariables: parameters,  creationMode: false };
          }
       }
 
@@ -92,7 +94,8 @@ export function reducer(state: State = initialState, action: any): State {
       case environmentParamsActions.ADD_ENVIRONMENT_CONTEXT: {
          return {
             ...state,
-            contexts: [{ name: 'newContext', parameters: state.environmentVariables, parent: state.list.name }, ...state.contexts]
+            contexts: [{ name: '', parameters: state.environmentVariables, parent: state.list.name }, ...state.contexts],
+            creationMode: true
          };
       }
 

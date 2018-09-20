@@ -5,19 +5,21 @@
  */
 
 import * as executionActions from '../actions/executions';
+import { formatDate } from '@utils';
+import { isEqual} from 'lodash';
 
- const icons = {
-    running: 'icon-play',
-    failed: 'icon-arrow-down',
-    stopped: 'icon-pause',
-    archived: 'icon-folder'
- };
+const icons = {
+   running: 'icon-play',
+   failed: 'icon-arrow-down',
+   stopped: 'icon-pause',
+   archived: 'icon-folder'
+};
 
 export interface State {
-  executionList: Array<any>;
-  executionInfo: any;
-  loading: boolean;
-  filters: Array<any>;
+   executionList: Array<any>;
+   executionInfo: any;
+   loading: boolean;
+   filters: Array<any>;
 }
 
 const initialState: State = {
@@ -30,16 +32,14 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
 
    switch (action.type) {
-
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
-         const { lastExecutions, executionsSummary: summary } = action.payload;
-         const executionList = lastExecutions.map(execution => {
-            const { id, statuses, localExecution: { sparkURI }, genericDataExecution: { endDate, startDate, workflow: { name, group, executionEngine }, executionContext: { paramsLists: context }  }} = execution;
-            return { id, name, sparkURI, endDate, startDate, group, executionEngine, context: context.join(), status: statuses.length && statuses[0].state };
-         });
+         const { executionList, executionsSummary: summary } = action.payload;
          const filters = Object.keys(summary)
             .map(key => ({ name: key, value: summary[key], icon: icons[key] }));
-         return { ...state, executionList, filters };
+         return {
+            ...state,
+            executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList,
+            filters };
       }
 
       default:

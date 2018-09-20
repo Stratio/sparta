@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 
@@ -26,6 +26,7 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (changeContext)="onChangeContext($event)"
       (search)="searchEnvironment($event)"
       (saveEnvironmentContext)="onSaveEnvironmentContext($event)"
+      [creationMode]="creationMode"
        ></environment-parameters>
   `
 })
@@ -35,9 +36,10 @@ export class EnvironmentParametersContainer implements OnInit {
    public configContexts$: Observable<any[]>;
 
    public list$: Observable<any>;
+   public creationMode = false;
 
 
-   constructor(private _store: Store<fromParameters.State>) { }
+   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit(): void {
       this._init();
@@ -49,6 +51,12 @@ export class EnvironmentParametersContainer implements OnInit {
       this.environmentContexts$ = this._store.select(fromParameters.getEnvironmentContexts);
 
       this.list$ = this._store.select(fromParameters.getListId);
+
+      this._store.select(fromParameters.getEnvironmentIsCreating)
+         .subscribe((isCreating: boolean) => {
+            this.creationMode = isCreating;
+            this._cd.markForCheck();
+         });
    }
 
    onAddContext(context) {

@@ -24,6 +24,7 @@ import { reducerToken, reducerProvider } from './reducers';
 import { ExecutionsEffect } from './effects/executions';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
+import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 
 @NgModule({
@@ -49,7 +50,7 @@ import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box
         SharedModule,
         ConsoleBoxModule
     ],
-    providers: [reducerProvider]
+    providers: [reducerProvider, ExecutionHelperService]
 })
 
 export class ExecutionsMonitoringModule {

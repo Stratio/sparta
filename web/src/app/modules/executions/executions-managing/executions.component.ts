@@ -7,6 +7,7 @@ import {
    ChangeDetectionStrategy,
    ChangeDetectorRef,
    Component,
+   OnDestroy,
    OnInit,
    ViewChild,
    ViewContainerRef
@@ -33,7 +34,7 @@ import * as fromRoot from './reducers';
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class ExecutionsManagingComponent implements OnInit {
+export class ExecutionsManagingComponent implements OnInit, OnDestroy {
 
    @ViewChild('newExecutionsModalMonitoring', { read: ViewContainerRef }) target: any;
 
@@ -48,7 +49,7 @@ export class ExecutionsManagingComponent implements OnInit {
    private _selectedExecutions: Subscription;
 
 
-   private timer;
+   private _intervalHandler;
 
    constructor(private _store: Store<State>,
       private _route: Router,
@@ -57,7 +58,8 @@ export class ExecutionsManagingComponent implements OnInit {
 
    ngOnInit() {
       this._store.dispatch(new executionsActions.ListExecutionsAction());
-      this.executionsList$ = this._store.select(fromRoot.getExecutionsList);
+      this._intervalHandler = setInterval(() => this._store.dispatch(new executionsActions.ListExecutionsAction()), 3000);
+      this.executionsList$ = this._store.select(fromRoot.getFilteredSearchExecutionsList);
 
       this._selectedExecutions = this._store.select(fromRoot.getSelectedExecutions).subscribe((selectedIds: any) => {
          this.selectedExecutionsIds = selectedIds;
@@ -72,4 +74,9 @@ export class ExecutionsManagingComponent implements OnInit {
    showWorkflowExecutionInfo(ev) { }
 
    showConsole(ev) { }
+
+   ngOnDestroy(): void {
+      clearInterval(this._intervalHandler);
+   }
+
 }

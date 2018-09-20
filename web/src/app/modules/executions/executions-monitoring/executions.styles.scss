@@ -4,8 +4,12 @@
    flex: 1;
 }
 
+.table-wrapper {
+    background: $neutral-00;
+    box-shadow: 0 0 20px 0 rgba(30, 30, 30, 0.05);
+}
+
 .container {
-   background-color: $neutral-00;
    margin-top: 10px;
 }
 

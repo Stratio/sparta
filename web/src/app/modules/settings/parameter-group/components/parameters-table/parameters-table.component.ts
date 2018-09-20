@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, Input, ChangeDetectorRef, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, OnInit, EventEmitter, Output, OnChanges } from '@angular/core';
 import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
 import { FormGroup, FormBuilder, FormControl, FormArray, Validators } from '@angular/forms';
 
@@ -14,7 +14,7 @@ import { FormGroup, FormBuilder, FormControl, FormArray, Validators } from '@ang
    templateUrl: 'parameters-table.component.html'
 })
 
-export class ParametersTableComponent implements OnInit {
+export class ParametersTableComponent implements OnInit, OnChanges {
    @Input() inputParameters: GlobalParam[];
    @Input() inputList: any[];
 
@@ -22,6 +22,7 @@ export class ParametersTableComponent implements OnInit {
    @Input() withContext: boolean;
    @Input() configContext: boolean;
    @Input() listMode: boolean;
+   @Input() creationMode: boolean;
 
    @Output() onAddNewContext = new EventEmitter<any>();
    @Output() onSaveParamContexts = new EventEmitter<any>();
@@ -39,8 +40,6 @@ export class ParametersTableComponent implements OnInit {
    public selectedParameter = null;
    public selectedParameterList = null;
    public showContextMenu = false;
-   public newContext = '';
-   public creatingContext = false;
    public checked = false;
    public showOption = false;
 
@@ -70,7 +69,16 @@ export class ParametersTableComponent implements OnInit {
       if (this.contextList) {
          this.contextNameList = this.contextList.map(context => context.name);
       }
+   }
 
+   ngOnChanges(changes: any) {
+      if (changes.creationMode && changes.creationMode.currentValue && changes.creationMode.currentValue !== changes.creationMode.previousValue) {
+         this.selectedParameter = null;
+         this.selectedParameterList = null;
+         changes.inputParameters && changes.inputParameters.currentValue.length ?
+         this.selectedRow({ name: '', value: '', contexts: [] }) :
+         this.selectedList({ name: '' });
+      }
    }
 
    navigateList(list, ev) {
@@ -85,7 +93,6 @@ export class ParametersTableComponent implements OnInit {
 
    selectedList(list: any) {
       this.selectedParameterList = this.selectedParameterList && this.selectedParameterList.name === list.name ? null : list;
-      this.creatingContext = false;
       if (this.selectedParameterList) {
          this.myListForm.controls['name'].setValue(list.name);
          this.myListForm.markAsPristine();
@@ -95,7 +102,6 @@ export class ParametersTableComponent implements OnInit {
    }
    selectedRow(parameter: any) {
       this.showContextMenu = false;
-      this.creatingContext = false;
       this.selectedParameter = this.selectedParameter && this.selectedParameter.name === parameter.name ? null : parameter;
       if (this.selectedParameter) {
          this.showOption = false;
@@ -110,7 +116,7 @@ export class ParametersTableComponent implements OnInit {
          this.contexts = this.myForm.get('contexts') as FormArray;
          if (this.selectedParameter) {
             this.myForm.controls['name'].setValue(parameter.name);
-            this.myForm.controls['value'].setValue(parameter.defaultValue);
+            this.myForm.controls['value'].setValue(parameter.defaultValue || parameter.value);
 
             this.contexts.controls = [];
             if (parameter.contexts) {
@@ -146,7 +152,8 @@ export class ParametersTableComponent implements OnInit {
    }
 
    onSaveList() {
-      this.onSaveParamList.emit({ value: this.myListForm.value, list: this.selectedParameterList });
+      const list = this.selectedParameterList && this.selectedParameterList.id ? this.selectedParameterList : this.inputList[0];
+      this.onSaveParamList.emit({ value: this.myListForm.value, list });
       this.myListForm.markAsPristine();
       this.showOption = false;
    }
@@ -191,22 +198,6 @@ export class ParametersTableComponent implements OnInit {
 
       this.showContextMenu = false;
       this.myForm.markAsDirty();
-   }
-
-   createContext() {
-      this.creatingContext = true;
-   }
-
-   onSaveNewContext() {
-      this.onAddNewContext.emit({ context: this.newContext });
-      this.creatingContext = false;
-      this.showContextMenu = false;
-      this.newContext = '';
-      this.selectedParameter = null;
-   }
-
-   closeContextModal() {
-      this.creatingContext = false;
    }
 
 }

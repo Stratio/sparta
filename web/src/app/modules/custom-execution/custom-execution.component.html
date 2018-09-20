@@ -10,7 +10,6 @@
         <div class="form-container st-form-field">
           <sp-select class="st-form-field" 
             [forceValidations]="forceValidations" 
-            [required]="true" 
             [(ngModel)]="form.environment" 
             name="environment"
             (change)="changeContext($event, 'Environment')"
@@ -22,7 +21,6 @@
           <div *ngFor="let group of customGroups; let i = index;">
             <sp-select class="st-form-field" 
               [forceValidations]="forceValidations" 
-              [required]="true" 
               (change)="changeContext($event, group.name)"
               [(ngModel)]="form.customGroups[group.name]" 
               name="customGroups" 

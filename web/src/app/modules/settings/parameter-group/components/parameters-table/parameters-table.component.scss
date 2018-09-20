@@ -19,15 +19,25 @@
       top: 30px;
       left: -60px;
    }
+   .st-input {
+      font-weight: 600;
+      font-size: $egeo-font-size-xsmall;
+      color: $action-secondary-07;
+   }
+
  }
 
 #parametersTable {
    margin-top: 10px;
    position: relative;
    table {
+      font-family: $egeo-nunito-sans;
       width: 100%;
       thead {
          background-color: $action-secondary-02;
+         font-size: $egeo-font-size-xsmall;
+         font-weight: 600;
+         color: $neutral-11;
          th {
             padding-left: 20px;
             text-align: left;
@@ -62,6 +72,12 @@
                padding-right: 40px;
                text-align: right;
             }
+            &.value {
+               font-weight: normal;
+            }
+            .icon.arrow {
+               color: $neutral-11;
+            }
          }
          tr {
             height: 75px;
@@ -95,7 +111,6 @@
                   }
                   .option-box {
                      width: 240px;
-                     height: 60px;
                      border-radius: 5px;
                      background-color: $neutral-00;
                      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
@@ -106,7 +121,7 @@
                      overflow: hidden;
                      color: $status-critical-default;
                      .option-element {
-                        padding: 16px 10px 20px 20px;
+                        padding: 20px 10px 16px 20px;
                         cursor: pointer;
                         &:hover {
                            background-color: $action-secondary-01;
@@ -121,6 +136,7 @@
                      }
 
                   }
+
 
                }
                .context-container {

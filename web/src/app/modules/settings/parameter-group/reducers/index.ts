@@ -60,6 +60,11 @@ export const getGlobalVariables = createSelector(
    state => state.globalVariables
 );
 
+export const getIsCreating = createSelector(
+   getGlobalEntityState,
+   state => state.creationMode
+);
+
 // Enviroment parameters selectors
 
 export const getEnvironmentVariables = createSelector(
@@ -81,6 +86,13 @@ export const getConfigContexts = createSelector(
    getEnvironmentEntityState,
    state => state.configContexts
 );
+
+export const getEnvironmentIsCreating = createSelector(
+   getEnvironmentEntityState,
+   state => state.creationMode
+);
+
+
 
 // Custom parameters selectors
 
@@ -106,4 +118,9 @@ export const getCustomContexts = createSelector(
 export const getSelectedList = createSelector(
    getCustomEntityState,
    state => state.list
+);
+
+export const getCustomIsCreating = createSelector(
+   getCustomEntityState,
+   state => state.creationMode
 );

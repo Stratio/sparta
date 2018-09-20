@@ -1,10 +1,19 @@
 @import '~@stratio/egeo/theme/constants';
 
-.tool-bar {
-   margin-bottom: 12px;
+.monitoring-header {
+  padding: 30px 0px 8px;
 }
 
+.monitoring-title {
+  display: inline-block;
+}
 
+.monitoring-link {
+  float: right;
+  .icon {
+      font-size: 12px;
+  }
+}
 .filters {
    display: flex;
    flex-direction: row;
@@ -19,8 +28,8 @@
    background: white;
    margin: 0 10px;
    padding: 15px 35px;
-   border: 1px solid $action-secondary-02;
    cursor: pointer;
+   box-shadow: 0 0 20px 0 rgba(30, 30, 30, 0.05);
    flex: 1;
    border-radius: 5px;
    position: relative;

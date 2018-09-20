@@ -14,6 +14,7 @@ export interface State {
    list: any;
    allVariables: Array<any>;
    allCustomList: Array<any>;
+   creationMode: boolean;
 }
 
 const initialState: State = {
@@ -23,7 +24,8 @@ const initialState: State = {
    listMode: true,
    list: null,
    allVariables: [],
-   allCustomList: []
+   allCustomList: [],
+   creationMode: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -37,6 +39,7 @@ export function reducer(state: State = initialState, action: any): State {
             customVariables: [],
             allVariables: [],
             list: null,
+            creationMode: false
          };
       }
 
@@ -62,20 +65,22 @@ export function reducer(state: State = initialState, action: any): State {
                   .map(c => ({ name: c.name, value: c.parameters[env.name], id: c.id }))
             }));
 
-         return { ...state, customVariables, allVariables: customVariables, list: { id, name }, contexts, customList: [], allCustomList: [] };
+         return { ...state, customVariables, allVariables: customVariables, list: { id, name }, contexts, customList: [], allCustomList: [], creationMode: false };
 
       }
 
       case customParamsActions.ADD_CUSTOM_LIST: {
          return {
             ...state,
-            customList: [{ name: 'newName', value: 'newValue', parameters: [] }, ...state.customList]
+            customList: [{ name: '', value: '', parameters: [] }, ...state.customList],
+            creationMode: true
          };
       }
       case customParamsActions.ADD_CUSTOM_PARAMS: {
          return {
             ...state,
-            customVariables: [{ name: 'newName', value: 'newValue', contexts: [] }, ...state.customVariables]
+            customVariables: [{ name: '', value: '', contexts: [] }, ...state.customVariables],
+            creationMode: true
          };
       }
 
@@ -113,6 +118,18 @@ export function reducer(state: State = initialState, action: any): State {
             return { ...state, customVariables: state.allVariables, customList: state.allCustomList };
          }
       }
+
+      case customParamsActions.ADD_CUSTOM_CONTEXT: {
+         return {
+            ...state,
+            contexts: [{ name: '', parameters: state.customVariables, parent: state.list.name }, ...state.contexts],
+            creationMode: true
+         };
+      }
+      case customParamsActions.SAVE_CUSTOM_PARAMS_COMPLETE: {
+         return { ...state, creationMode: false };
+      }
+
 
       default:
          return state;

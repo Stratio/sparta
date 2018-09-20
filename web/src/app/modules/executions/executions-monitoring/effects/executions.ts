@@ -23,6 +23,7 @@ import * as fromRoot from '../reducers';
 import { ExecutionService } from 'services/execution.service';
 
 import { of } from 'rxjs/observable/of';
+import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 
 @Injectable()
@@ -32,11 +33,15 @@ export class ExecutionsEffect {
    getExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_EXECUTIONS)
       .switchMap( () => this._executionService.getDashboardExecutions()
-         .map(executions =>  new executionsActions.ListExecutionsCompleteAction(executions))
+         .map(executions => new executionsActions.ListExecutionsCompleteAction({
+             executionsSummary: executions.executionsSummary,
+             executionList: executions.lastExecutions.map(execution => this._executionHelperService.normalizeExecution(execution))
+         }))
          .catch(err => of(new executionsActions.ListExecutionsFailAction())));
 
    constructor(
       private actions$: Actions,
+      private _executionHelperService: ExecutionHelperService,
       private store: Store<fromRoot.State>,
       private _executionService: ExecutionService
    ) { }

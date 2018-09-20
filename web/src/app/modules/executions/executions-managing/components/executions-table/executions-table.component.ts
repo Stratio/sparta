@@ -25,9 +25,14 @@ export class ExecutionsTableComponent {
 
    @Input() executionList: Array<any> = [];
    @Input() selectedExecutionsIds: Array<string> = [];
+   @Input() perPage = 0;
+   @Input() pageNumber = 0;
+   @Input() currentOrder;
 
    @Output() selectExecution = new EventEmitter<any>();
    @Output() deselectExecution = new EventEmitter<any>();
+   @Output() onChangeOrder = new EventEmitter<Order>();
+   @Output() onChangePage = new EventEmitter<any>();
 
    public fields: StTableHeader[];
    public generatedId: string;
@@ -44,7 +49,6 @@ export class ExecutionsTableComponent {
       }
    }
 
-   onChangeOrder(ev) { }
 
    showSparkUI(url: string) {
       window.open(url, '_blank');

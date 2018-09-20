@@ -9,50 +9,72 @@
 -->
 
 <tool-bar>
-   <div breadcrumb>
-      <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="templates-breadcrumb"></st-breadcrumbs>
-   </div>
+    <div breadcrumb>
+        <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="templates-breadcrumb"></st-breadcrumbs>
+    </div>
 </tool-bar>
 <div class="container">
 
-   <div class="row tool-bar">
-      <div class="col-sm-4">
-         <div class="executions-filters">
-            <span class="item">all status<i class="icon icon-arrow2_down"></i></span>
-            <span class="item">all types<i class="icon icon-arrow2_down"></i></span>
-            <span class="item">any time<i class="icon icon-arrow2_down"></i></span>
-         </div>
-      </div>
-      <div class="col-sm-4">
-         <div class="executions-search">
-            <st-search [placeholder]="'Search...'" qaTag="search-execution" (search)="onSearch.emit($event)" [value]="searchQuery"></st-search>
-         </div>
-      </div>
-      <div class="col-sm-3">
-         <div class="global-actions">
-            <div class="selection-tools">
-               <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
+    <div class="row tool-bar">
+        <div class="col-sm-4">
+            <div class="executions-filters">
+                <span class="item">
+                    <st-dropdown-menu [items]="statuses"
+                        [active]="showedFilter === 'status'"
+                        [selectedItem]="statusFilterItem"
+                        (change)="onChangeStatusFilter.emit($event.value)">
+                        <span (click)="selectFilter($event, 'status')">{{statusFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+                    </st-dropdown-menu>
+                </span>
+                <span class="item">
+                    <st-dropdown-menu [items]="workflowTypes"
+                        [active]="showedFilter === 'type'"
+                        [selectedItem]="typeFilterItem"
+                        (change)="onChangeTypeFilter.emit($event.value)">
+                        <span (click)="selectFilter($event, 'type')">{{typeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+                    </st-dropdown-menu>
+                </span>
+                <span class="item">
+                    <st-dropdown-menu [items]="timeIntervals"
+                        [active]="showedFilter === 'time'"
+                        [selectedItem]="timeIntervalFilterItem"
+                        (change)="onChangeTimeIntervalFilter.emit($event.value)">
+                        <span (click)="selectFilter($event, 'time')">{{timeIntervalFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+                    </st-dropdown-menu>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="executions-search">
+                <st-search [placeholder]="'Search...'" qaTag="search-execution" (search)="onSearch.emit($event.text)" [value]="searchQuery"></st-search>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <div class="global-actions">
+                <div class="selection-tools">
+                    <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
                   <i class="icon-trash"></i>
                </button>
-               <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
+                    <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
                   <i class="icon-archive"></i>
                </button>
-               <button  *ngIf="false" spTitle="Run selected execution" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
+                    <button *ngIf="false" spTitle="Run selected execution" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
                   <i class="icon-play"></i>
                </button>
-               <button *ngIf="selectedExecutions && selectedExecutions.length" spTitle="Stop selected execution" class="button button-toolbar" id="run-button" (click)="onStopExecution.emit()">
+                    <button *ngIf="selectedExecutions && selectedExecutions.length" spTitle="Stop selected execution" class="button button-toolbar"
+                        id="run-button" (click)="onStopExecution.emit()">
                   <i class="icon-stop"></i>
                </button>
-               <div class="separator"></div>
+                    <div class="separator"></div>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="col-sm-1">
-         <div class="execution-info">
-            <button spTitle="Show info sidebar" class="button button-toolbar" id="info-button" (click)="showExecutionInfo.emit()" [ngClass]="{'selected-button': showDetails}">
+        </div>
+        <div class="col-sm-1">
+            <div class="execution-info">
+                <button spTitle="Show info sidebar" class="button button-toolbar" id="info-button" (click)="showExecutionInfo.emit()" [ngClass]="{'selected-button': showDetails}">
                <i class="icon-info1"></i>
             </button>
-         </div>
-      </div>
-   </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -44,7 +44,7 @@ export class CustomParametersEffect {
    navigateParam$: Observable<any> = this._actions$
       .ofType(customParametersActions.NAVIGAGE_TO_LIST)
       .map((action: any) => action.payload)
-      .withLatestFrom(this._store.select(state => state.parameterGroup.environment))
+      .withLatestFrom(this._store.select(state => state.parameterGroup.custom))
       .switchMap(([param, state]) => this._parametersService.getCustomAndContext(param.name)
          .map(res => new customParametersActions.NavigateToListCompleteAction(res))
          .catch(error => of(new customParametersActions.ListCustomParamsErrorAction())));
@@ -77,7 +77,7 @@ export class CustomParametersEffect {
             .mergeMap((results: any) => {
                const actions: Array<Action> = [];
                if (results.length) {
-                  actions.push(new customParametersActions.ListCustomParamsErrorAction());
+                  actions.push(new customParametersActions.SaveCustomParamsCompleteAction());
                }
                return actions;
             })
@@ -140,7 +140,7 @@ export class CustomParametersEffect {
          const parameters = [...customVariables.slice(0, index), ...customVariables.slice(index + 1)];
          const updatedList = { name, id, parameters };
          return this._parametersService.updateParamList(updatedList)
-            .map(res => new customParametersActions.ListCustomParamsNameAction(name))
+            .map(res => new customParametersActions.NavigateToListAction({name}))
             .catch(error => of(new customParametersActions.ListCustomParamsErrorAction()));
       });
 

@@ -81,10 +81,10 @@ hr {
    border-radius: 50%;
    display: inline-block;
    &.Stopped {
-      background-color: $status-critical-default;
+   background-color: $status-success-default;
    }
    &.Failed {
-      background-color: $misc-peach;
+      background-color: $status-critical-default;
    }
 }
 
@@ -96,4 +96,12 @@ hr {
 .all-executions button{
    margin: 0 auto;
    display: block;
+}
+
+.execution-group {
+    color: $action-secondary-05;
+    font-size: 14px;
+    line-height: 7px;
+    margin-top: 5px;
+    padding-left: 28px;
 }

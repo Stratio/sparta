@@ -5,6 +5,7 @@
  */
 
 import { Action } from '@ngrx/store';
+import { Order } from '@stratio/egeo';
 
 export const LIST_EXECUTIONS = '[Executions Managing] List executions';
 export const LIST_EXECUTIONS_COMPLETE = '[Executions Managing] List executions complete';
@@ -14,7 +15,15 @@ export const DESELECT_EXECUTIONS_ACTION = '[Executions Managing] Deselect execut
 export const STOP_EXECUTIONS_ACTION = '[Executions Managing] Stop execution';
 export const STOP_EXECUTIONS_ACTION_COMPLETE = '[Executions Managing] Stop execution complete';
 
+export const SELECT_TYPE_FILTER = '[Executions Managing] Select type filter';
+export const SELECT_STATUS_FILTER = '[Executions Managing] Select status filter';
+export const SELECT_TIME_INTERVAL_FILTER = '[Executions Managing] Select time interval filter';
 
+export const SEARCH_EXECUTION = '[Executions Managing] Search execution';
+
+export const CHANGE_ORDER = '[Executions Managing] Change order';
+
+export const RESET_VALUES = '[Executions Managing] Reset values';
 
 export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS;
@@ -47,10 +56,43 @@ export class StopExecutionCompleteAction implements Action {
    readonly type = STOP_EXECUTIONS_ACTION_COMPLETE;
 }
 
+export class SelectTypeFilterAction implements Action {
+  readonly type = SELECT_TYPE_FILTER;
+  constructor(public workflowType: string) {}
+}
 
+export class SelectStatusFilterAction implements Action {
+  readonly type = SELECT_STATUS_FILTER;
+  constructor(public status: string) {}
+}
+
+export class SelectTimeIntervalFilterAction implements Action {
+  readonly type = SELECT_TIME_INTERVAL_FILTER;
+  constructor(public time: number) {}
+}
+
+export class SearchExecutionAction implements Action {
+  readonly type = SEARCH_EXECUTION;
+  constructor(public searchQuery: string) {}
+}
+
+export class ChangeExecutionsOrderAction implements Action {
+  readonly type = CHANGE_ORDER;
+  constructor(public order: Order) {}
+}
+
+export class ResetValuesAction implements Action {
+  readonly type = RESET_VALUES;
+}
 
 export type Actions = ListExecutionsAction
    | ListExecutionsFailAction
    | ListExecutionsCompleteAction
    | SelectExecutionAction
-   | DeselectExecutionAction;
+   | DeselectExecutionAction
+   | SelectTypeFilterAction
+   | SelectStatusFilterAction
+   | SelectTimeIntervalFilterAction
+   | SearchExecutionAction
+   | ChangeExecutionsOrderAction
+   | ResetValuesAction;

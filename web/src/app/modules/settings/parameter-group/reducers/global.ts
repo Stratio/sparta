@@ -9,11 +9,13 @@ import * as globalParamsActions from './../actions/global';
 export interface State {
    globalVariables: Array<any>;
    allVariables: Array<any>;
+   creationMode: boolean;
 }
 
 const initialState: State = {
    globalVariables: [],
-   allVariables: []
+   allVariables: [],
+   creationMode : false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -23,14 +25,16 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             allVariables: action.params,
-            globalVariables: action.params
+            globalVariables: action.params,
+            creationMode: false
          };
       }
 
       case globalParamsActions.ADD_GLOBAL_PARAMS: {
          return {
             ...state,
-            globalVariables: [{ name: 'newName', value: 'newValue', contexts: [] }, ...state.globalVariables]
+            globalVariables: [{ name: '', value: '', contexts: [] }, ...state.globalVariables],
+            creationMode: true
          };
       }
 

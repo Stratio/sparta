@@ -101,6 +101,12 @@ export class WorkflowService extends ApiService {
         return this.request('workflows/download/' + id, 'get', options);
     }
 
+    validateWithExecutionContext(data: any): Observable<any> {
+        const options: any = {
+            body: data
+        };
+        return this.request('workflows/validateWithExecutionContext' , 'post', options);
+    }
 
     runWorkflow(id: string): Observable<any> {
 

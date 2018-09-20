@@ -12,6 +12,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/withLatestFrom';
+import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
@@ -176,11 +177,14 @@ export class WorkflowEffect {
     @Effect()
     runWorkflow$: Observable<Action> = this.actions$
         .ofType(workflowActions.RUN_WORKFLOW)
-        .switchMap((data: any) => (typeof data.payload.executionContext ? this.workflowService.runWorkflow(data.payload.workflowId) :
-            this.workflowService.runWorkflowWithParams({
+        .switchMap((data: any) => (!data.payload.executionContext ? this.workflowService.runWorkflow(data.payload.workflowId) :
+            Observable.combineLatest(this.workflowService.validateWithExecutionContext({
                 workflowId: data.payload.workflowId,
                 executionContext: data.payload.executionContext
-            })).map((response: any) => new workflowActions.RunWorkflowCompleteAction(data.payload.workflowName))
+            }), this.workflowService.runWorkflowWithParams({
+                workflowId: data.payload.workflowId,
+                executionContext: data.payload.executionContext
+            }))).map(() => new workflowActions.RunWorkflowCompleteAction(data.payload.workflowName))
         .catch(error => Observable.of(new workflowActions.RunWorkflowErrorAction(error))));
 
     @Effect()
