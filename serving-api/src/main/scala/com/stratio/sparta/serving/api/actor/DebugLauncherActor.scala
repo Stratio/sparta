@@ -53,16 +53,21 @@ class DebugLauncherActor() extends Actor with SLF4JLogging {
           log.info("Workflow debug executed successfully")
           for {
             _ <- debugWorkflowPgService.setSuccessful(workflow.id.get, state = true)
+            _ <- debugWorkflowPgService.setEndDate(workflow.id.get)
           } yield {
-            self ! PoisonPill
+            log.info("Workflow debug results updated successfully")
           }
         case Failure(_: ErrorManagerException) =>
-          for {_ <- debugWorkflowPgService.setSuccessful(workflow.id.get, state = false)} yield {
-            self ! PoisonPill
+          log.info("Workflow debug executed with ErrorManager exception")
+          for {
+            _ <- debugWorkflowPgService.setSuccessful(workflow.id.get, state = false)
+            _ <- debugWorkflowPgService.setEndDate(workflow.id.get)
+          } yield {
+            log.info("Workflow debug results updated successfully")
           }
         case Failure(exception) =>
           val information = s"Error initiating the workflow debug"
-          log.error(information, exception)
+          log.info(information, exception)
           for {
             _ <- debugWorkflowPgService.setSuccessful(workflow.id.get, state = false)
             _ <- debugWorkflowPgService.setError(
@@ -74,11 +79,11 @@ class DebugLauncherActor() extends Actor with SLF4JLogging {
                 Try(exception.getCause.getMessage).toOption.getOrElse(exception.getMessage)
               ))
             )
+            _ <- debugWorkflowPgService.setEndDate(workflow.id.get)
           } yield {
-            self ! PoisonPill
+            log.info("Workflow debug results updated successfully")
           }
       }
-      debugWorkflowPgService.setEndDate(workflow.id.get)
     } finally {
       stopStreamingContext()
     }

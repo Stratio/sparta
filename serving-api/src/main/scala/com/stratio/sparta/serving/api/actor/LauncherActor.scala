@@ -213,7 +213,6 @@ class LauncherActor(
         context.actorOf(Props(new DebugLauncherActor()), actorName)
       }
 
-      debugPgService.removeDebugStepData(debugId)
       workflowLauncherActor ! StartDebug(dummyExecution)
       (workflow, workflowLauncherActor)
     } match {

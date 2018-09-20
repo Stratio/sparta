@@ -13,22 +13,31 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate, Workflow}
 import com.stratio.sparta.serving.core.services.dao.{DebugWorkflowPostgresDao, WorkflowExecutionPostgresDao}
 
+import scala.concurrent.duration._
+import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 
 trait ErrorManager extends SLF4JLogging {
 
   val workflow: Workflow
 
+  val defaultLogLevel: LogLevel
+
+  val defaultLogErrorLevel: LogLevel
+
+  val LogMessagePattern = "An error was detected : {}"
+
   def traceFunction[T](
                         code: PhaseEnum.Value,
                         okMessage: String,
                         errorMessage: String,
-                        logLevel: LogLevel = Logging.InfoLevel,
+                        logLevel: LogLevel = defaultLogLevel,
                         step: Option[String] = None
                       )(f: => T): T = {
     Try(f) match {
@@ -65,7 +74,14 @@ trait ErrorManager extends SLF4JLogging {
       date = new Date,
       step = step
     )
-    log.error("An error was detected : {}", workflowError)
+
+    defaultLogErrorLevel.asInt match {
+      case 1 => log.error(LogMessagePattern, workflowError)
+      case 2 => log.warn(LogMessagePattern, workflowError)
+      case 3 => log.info(LogMessagePattern, workflowError)
+      case _ => log.debug(LogMessagePattern, workflowError)
+    }
+
     Try {
       traceError(workflowError)
     } recover {
@@ -77,6 +93,10 @@ trait ErrorManager extends SLF4JLogging {
 }
 
 trait PostgresError extends ErrorManager {
+
+  val defaultLogLevel = Logging.InfoLevel
+
+  val defaultLogErrorLevel = Logging.ErrorLevel
 
   lazy val executionService = new WorkflowExecutionPostgresDao
 
@@ -100,13 +120,21 @@ trait PostgresError extends ErrorManager {
 
 trait PostgresDebugError extends ErrorManager {
 
+  val defaultLogLevel = Logging.DebugLevel
+
+  val defaultLogErrorLevel = Logging.DebugLevel
+
   lazy val debugService = new DebugWorkflowPostgresDao
 
   def traceError(error: WorkflowError): Unit =
-    workflow.id.foreach(id => debugService.setError(id, Option(error)))
+    workflow.id.foreach { id =>
+      Await.result(debugService.setError(id, Option(error)), AppConstant.maxDebugTimeout milliseconds)
+    }
 
   def clearError(): Unit =
-    workflow.id.foreach(id => debugService.clearLastError(id))
+    workflow.id.foreach { id =>
+      Await.result(debugService.clearLastError(id), AppConstant.maxDebugTimeout milliseconds)
+    }
 
 }
 

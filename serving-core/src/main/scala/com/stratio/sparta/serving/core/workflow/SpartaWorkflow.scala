@@ -114,7 +114,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     log.debug("Creating workflow stages")
 
-    if (execute) errorManager.clearError()
+    if (execute)
+      errorManager.clearError()
 
     val phaseEnum = PhaseEnum.Context
     val errorMessage = s"An error was encountered while initializing Spark Session"

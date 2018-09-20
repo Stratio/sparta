@@ -7,13 +7,12 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Success, Try}
 import org.joda.time.DateTime
 import slick.jdbc.PostgresProfile
-
 import com.stratio.sparta.core.models.{DebugResults, WorkflowError}
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.DebugWorkflowDao
@@ -34,14 +33,14 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
 
   def getResultsByID(id: String): Future[DebugResults] = {
     for {
-      debugWorkflow <- findDebugWorkflowById(id)
       resultStep <- getDebugStepData(id)
+      debugWorkflow <- findDebugWorkflowById(id)
     } yield {
       debugWorkflow.result match {
-        case Some(result) =>
+        case Some(result) if  result.endExecutionDate.isDefined =>
           val map = resultStep.flatMap { element => Map(element.step -> element) }.toMap
           result.copy(stepResults = map)
-        case None => throw new ServerException(s"No results for workflow id=$id")
+        case _ => throw new ServerException(s"No results for workflow id=$id")
       }
     }
   }
@@ -49,6 +48,7 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
   def createDebugWorkflow(debugWorkflow: DebugWorkflow): Future[DebugWorkflow] = {
     debugWorkflow.workflowOriginal.id.orElse(debugWorkflow.id) match {
       case Some(id) =>
+        removeDebugStepData(id)
         findByID(id).flatMap { exists =>
           val newDebug = exists.fold(addFieldsToCreatedDebugWorkflow(debugWorkflow)) { existingWk =>
             addFieldsToUpdatedDebugWorkflow(debugWorkflow, existingWk)
@@ -61,70 +61,72 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
     }
   }
 
-  def setSuccessful(id: String, state: Boolean): Future[Unit] = {
+  def setSuccessful(id: String, state: Boolean): Future[DebugWorkflow] = {
     for {
       actualDebug <- findDebugWorkflowById(id)
-    } yield {
-      val newResult = actualDebug.result match {
-        case Some(result) => result.copy(debugSuccessful = state)
-        case None => DebugResults(state)
+      newResult = actualDebug.result match {
+        case Some(result) =>
+          result.copy(debugSuccessful = state)
+        case None =>
+          DebugResults(state)
       }
-      val newDebug = actualDebug.copy(result = Option(newResult))
-      db.run(table.filter(_.id === id).update(newDebug))
-    }
+      newDebug = actualDebug.copy(result = Option(newResult))
+      _ <- upsert(newDebug)
+    } yield newDebug
+
   }
 
-  def setEndDate(id: String): Future[Unit] = {
+  def setEndDate(id: String): Future[DebugWorkflow] = {
     log.debug(s"Setting end date to debug execution with id $id")
     for {
       actualDebug <- findDebugWorkflowById(id)
-    } yield {
-      actualDebug.result.foreach { result =>
-        val newResult = result.copy(endExecutionDate = Option(new DateTime()))
-        val newDebug = actualDebug.copy(result = Option(newResult))
-        db.run(table.filter(_.id === id).update(newDebug))
+      newDebug <- actualDebug.result match {
+        case Some(result) =>
+          val newResult = result.copy(endExecutionDate = Option(new DateTime()))
+          val newDebug = actualDebug.copy(result = Option(newResult))
+
+          upsert(newDebug).map(_ => newDebug)
+        case None => Future(actualDebug)
       }
-    }
+    } yield newDebug
   }
 
-  def clearLastError(id: String): Future[Unit] = {
+  def clearLastError(id: String): Future[DebugWorkflow] = {
     log.debug(s"Clearing last debug execution error with id $id")
     setError(id, None)
   }
 
   //scalastyle:off
-  def setError(id: String, error: Option[WorkflowError]): Future[Unit] = {
+  def setError(id: String, error: Option[WorkflowError]): Future[DebugWorkflow] = {
     log.debug(s"Setting error to debug execution error with id $id")
     for {
       actualDebug <- findDebugWorkflowById(id)
-    } yield {
-      val debugWithErrors = error match {
+      debugWithErrors = error match {
         case Some(wError) =>
           wError.step match {
             case Some(wErrorStep) =>
               val debugResult = actualDebug.result match {
                 case Some(result) => result.copy(stepErrors = result.stepErrors ++ Map(wErrorStep -> wError))
-                case None => DebugResults(false, stepErrors = Map(wErrorStep -> wError))
+                case None => DebugResults(debugSuccessful = false, stepErrors = Map(wErrorStep -> wError))
               }
               actualDebug.copy(result = Option(debugResult))
             case None =>
               val newDebugResult = actualDebug.result match {
                 case Some(result) => result.copy(genericError = error)
-                case None => DebugResults(debugSuccessful = true, stepResults = Map.empty, stepErrors = Map.empty, genericError = error)
+                case None => DebugResults(debugSuccessful = false, stepResults = Map.empty, stepErrors = Map.empty, genericError = error)
               }
               actualDebug.copy(result = Option(newDebugResult))
           }
         case None =>
           actualDebug.copy(result = actualDebug.result.map(result => result.copy(genericError = None, stepErrors = Map.empty)))
       }
-      db.run(table.filter(_.id === id).update(debugWithErrors))
-    }
+      newDebug <- upsert(debugWithErrors).map(_ => debugWithErrors)
+    } yield newDebug
   }
 
   def removeDebugStepData(id: String): Future[Boolean] = {
     for {
-      debug <- findDebugWorkflowById(id)
-      resultStep <- db.run(resultTable.filter(_.id startsWith debug.id.get).result)
+      resultStep <- db.run(resultTable.filter(_.id startsWith id).result)
     } yield {
       Try(deleteResultList(resultStep.flatMap(_.id.toList))) match {
         case Success(_) =>
@@ -218,7 +220,8 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
     debugWorkflow.copy(
       workflowOriginal = workflowOriginalModified,
       id = debugId,
-      workflowDebug = Option(workflowDebugModified)
+      workflowDebug = Option(workflowDebugModified),
+      result = None
     )
   }
 
@@ -233,7 +236,8 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
     debugWorkflow.copy(
       workflowOriginal = workflowOriginalModified,
       id = debugId,
-      workflowDebug = Option(workflowDebugModified)
+      workflowDebug = Option(workflowDebugModified),
+      result = None
     )
   }
 }
