@@ -34,6 +34,7 @@ export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
          const { executionList, executionsSummary: summary } = action.payload;
+
          const filters = Object.keys(summary)
             .map(key => ({ name: key, value: summary[key], icon: icons[key] }));
          return {

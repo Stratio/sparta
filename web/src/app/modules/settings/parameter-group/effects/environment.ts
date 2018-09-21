@@ -19,6 +19,7 @@ import { Effect, Actions } from '@ngrx/effects';
 
 import * as fromParameters from './../reducers';
 import * as environmentParametersActions from './../actions/environment';
+import * as alertParametersActions from './../actions/alert';
 
 import { ParametersService } from 'app/services';
 
@@ -29,8 +30,11 @@ export class EnviromentParametersEffect {
    getEnvironmentParameters$: Observable<any> = this._actions$
       .ofType(environmentParametersActions.LIST_ENVIRONMENT_PARAMS)
       .switchMap(() => this._parametersService.getEnvironmentAndContext()
-         .map((response) => new environmentParametersActions.ListEnvironmentParamsCompleteAction(response))
-         .catch(error => of(new environmentParametersActions.ListEnvironmentParamsErrorAction())));
+         .mergeMap(response => [
+            new environmentParametersActions.ListEnvironmentParamsCompleteAction(response),
+            new alertParametersActions.HideLoadingAction()
+         ])
+         .catch(error => of(new alertParametersActions.HideLoadingAction())));
 
    @Effect()
    saveContext$: Observable<any> = this._actions$
@@ -42,8 +46,11 @@ export class EnviromentParametersEffect {
          const newContext = { name, parent, parameters };
 
          return this._parametersService.createParamList(newContext)
-            .map((context) => new environmentParametersActions.AddContextCompleteAction({ name: context.name, id: context.id }))
-            .catch(error => of(new environmentParametersActions.ListEnvironmentParamsErrorAction()));
+            .mergeMap(context => [
+               new environmentParametersActions.AddContextCompleteAction({ name: context.name, id: context.id }),
+               new alertParametersActions.ShowAlertAction('Context saved')
+            ])
+            .catch(error => of(new alertParametersActions.ShowAlertAction('Context can not save')));
       });
 
    @Effect()
@@ -85,11 +92,14 @@ export class EnviromentParametersEffect {
             .mergeMap((results: any) => {
                const actions: Array<Action> = [];
                if (results.length) {
-                  actions.push(new environmentParametersActions.ListEnvironmentParamsAction());
+                  actions.push(
+                     new environmentParametersActions.ListEnvironmentParamsAction(),
+                     new alertParametersActions.ShowAlertAction('Params saved')
+                  );
                }
                return actions;
             })
-            .catch(error => of(new environmentParametersActions.ListEnvironmentParamsErrorAction()));
+            .catch(error => of(new alertParametersActions.ShowAlertAction('Params can not save')));
       });
 
    @Effect()
@@ -103,8 +113,11 @@ export class EnviromentParametersEffect {
          const parameters = [...environmentVariables.slice(0, index), ...environmentVariables.slice(index + 1)];
          const updatedList = { name, id, parameters };
          return this._parametersService.updateParamList(updatedList)
-            .map(res => new environmentParametersActions.ListEnvironmentParamsAction())
-            .catch(error => of(new environmentParametersActions.ListEnvironmentParamsErrorAction()));
+            .mergeMap(context => [
+               new environmentParametersActions.ListEnvironmentParamsAction(),
+               new alertParametersActions.ShowAlertAction('Param deleted')
+            ])
+            .catch(error => of(new alertParametersActions.ShowAlertAction('Param can not delete')));
       });
 
    @Effect()
@@ -116,8 +129,11 @@ export class EnviromentParametersEffect {
             this._parametersService.updateParamList(context) :
             this._parametersService.createParamList(context);
          return saveContext
-            .map(res => new environmentParametersActions.ListEnvironmentParamsAction())
-            .catch(error => of(new environmentParametersActions.ListEnvironmentParamsErrorAction()));
+            .mergeMap(res => [
+               new environmentParametersActions.ListEnvironmentParamsAction(),
+               new alertParametersActions.ShowAlertAction('Context saved')
+            ])
+            .catch(error => of(new alertParametersActions.ShowAlertAction('Context can not save')));
       });
 
 

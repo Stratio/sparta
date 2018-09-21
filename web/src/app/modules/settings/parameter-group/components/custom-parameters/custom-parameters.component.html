@@ -9,6 +9,8 @@
 
 <st-fullscreen-layout *ngIf="showConfigContext" [title]="'Environment - Settings'">
    <div class="st-fullscreen-layout-buttons">
+      <sp-foreground-notifications alert class="notification" [status]="" [text]="alertMessage" [visible]="showAlert"></sp-foreground-notifications>
+
       <button class="button button-secondary-line" (click)="toggleConfigContext()">Exit</button>
    </div>
    <div class="st-fullscreen-layout-content">

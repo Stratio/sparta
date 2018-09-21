@@ -4,46 +4,35 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import * as globalParamsActions from './../actions/global';
+import * as alertParamsActions from './../actions/alert';
 
 export interface State {
-   contexts: Array<any>;
-   allContexts: Array<any>;
-   list: any;
+   loading: boolean;
+   message: string;
 }
 
 const initialState: State = {
-   contexts: [],
-   allContexts: [],
-   list: null
+   loading: false,
+   message: ''
 };
 
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
-
-      /* case globalParamsActions.LIST_GLOBAL_PARAMS_COMPLETE: {
-         return {
-            ...state,
-            allVariables: action.params,
-            globalVariables: action.params
-         };
+      case alertParamsActions.SHOW_LOADING: {
+         return { ...state, loading: true };
       }
 
-      case globalParamsActions.ADD_GLOBAL_PARAMS: {
-         return {
-            ...state,
-            globalVariables: [{ name: 'newName', value: 'newValue', contexts: [] }, ...state.globalVariables]
-         };
+      case alertParamsActions.HIDE_LOADING: {
+         return { ...state, loading: false };
       }
 
-      case globalParamsActions.SEARCH_GLOBAL_PARAMS: {
-         if (action.text) {
-            const globalVariables = state.allVariables.filter(global => global.name.toLowerCase().includes(action.text.toLowerCase()));
-            return { ...state, globalVariables };
-         } else {
-            return { ...state, globalVariables: state.allVariables };
-         }
-      } */
+      case alertParamsActions.SHOW_ALERT: {
+         return { ...state, message: action.message, loading: false };
+      }
+
+      case alertParamsActions.HIDE_ALERT: {
+         return { ...state, message: '' };
+      }
 
       default:
          return state;

@@ -38,7 +38,9 @@ export function reducer(state: State = initialState, action: any): State {
                   obj[item.name] = item.value;
                   return obj;
                }, {})
-            }));
+
+            }))
+            .sort((a, b) => a.name > b.name ? 1 : a.name < b.name ? -1 : 0);
 
          const environmentVariables = parameters
             .map(env => ({

@@ -10,6 +10,8 @@ import { Observable } from 'rxjs/Observable';
 
 import * as fromParameters from './../../reducers';
 import * as environmentParamsActions from './../../actions/environment';
+import * as alertParametersActions from './../../actions/alert';
+
 import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
 
 @Component({
@@ -47,6 +49,7 @@ export class EnvironmentParametersContainer implements OnInit {
 
    private _init() {
       this._store.dispatch(new environmentParamsActions.ListEnvironmentParamsAction());
+      this.initRequest();
       this.environmentParams$ = this._store.select(fromParameters.getEnvironmentVariables);
       this.environmentContexts$ = this._store.select(fromParameters.getEnvironmentContexts);
 
@@ -63,6 +66,7 @@ export class EnvironmentParametersContainer implements OnInit {
       this._store.dispatch(new environmentParamsActions.AddContextAction(context.context));
    }
    onSaveParam(param) {
+      this.initRequest();
       this._store.dispatch(new environmentParamsActions.SaveParam(param));
    }
 
@@ -71,6 +75,7 @@ export class EnvironmentParametersContainer implements OnInit {
    }
 
    onDeleteParam(param) {
+      this.initRequest();
       this._store.dispatch(new environmentParamsActions.DeleteEnviromentAction(param));
    }
 
@@ -91,6 +96,10 @@ export class EnvironmentParametersContainer implements OnInit {
       if (list.name !== name) {
          this._store.dispatch(new environmentParamsActions.SaveEnvironmentContext({ ...list, name }));
       }
+   }
+
+   initRequest() {
+      this._store.dispatch(new alertParametersActions.ShowLoadingAction());
    }
 
 }

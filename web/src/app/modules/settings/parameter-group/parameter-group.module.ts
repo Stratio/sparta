@@ -10,10 +10,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
-import { StHorizontalTabsModule, StBreadcrumbsModule, StSearchModule, StInputModule, StCheckboxModule, StDropdownMenuModule, StFullscreenLayoutModule } from '@stratio/egeo';
+import { StProgressBarModule, StHorizontalTabsModule, StBreadcrumbsModule, StSearchModule, StInputModule, StCheckboxModule, StDropdownMenuModule, StFullscreenLayoutModule } from '@stratio/egeo';
 
 import { ParameterGroupComponent } from './parameter-group.component';
 import { ParameterGroupRoutingModule } from './parameter-group.router';
+import { SpForegroundNotificationsModule } from '@app/shared/components/sp-foreground-notifications/sp-foreground-notifications.module';
+
 import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
 import { FormFileModule } from '@app/shared/components/form-file/form-file.module';
 import { reducers } from './reducers/';
@@ -60,7 +62,9 @@ import { CustomParametersEffect } from './effects/custom';
       ReactiveFormsModule,
       StCheckboxModule,
       StDropdownMenuModule,
-      StFullscreenLayoutModule
+      StFullscreenLayoutModule,
+      SpForegroundNotificationsModule,
+      StProgressBarModule
    ]
 })
 

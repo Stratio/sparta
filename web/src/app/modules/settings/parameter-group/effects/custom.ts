@@ -19,6 +19,7 @@ import { Effect, Actions } from '@ngrx/effects';
 
 import * as fromParameters from './../reducers';
 import * as customParametersActions from './../actions/custom';
+import * as alertParametersActions from './../actions/alert';
 
 import { ParametersService } from 'app/services';
 
@@ -77,7 +78,10 @@ export class CustomParametersEffect {
             .mergeMap((results: any) => {
                const actions: Array<Action> = [];
                if (results.length) {
-                  actions.push(new customParametersActions.SaveCustomParamsCompleteAction());
+                  actions.push(
+                     new customParametersActions.SaveCustomParamsCompleteAction(),
+                     new alertParametersActions.ShowAlertAction('List saved')
+                  );
                }
                return actions;
             })
@@ -122,7 +126,10 @@ export class CustomParametersEffect {
             .mergeMap((results: any) => {
                const actions: Array<Action> = [];
                if (results.length) {
-                  actions.push(new customParametersActions.NavigateToListAction({name}));
+                  actions.push(
+                     new customParametersActions.NavigateToListAction({name}),
+                     new alertParametersActions.ShowAlertAction('Param saved')
+                  );
                }
                return actions;
             })
@@ -140,8 +147,11 @@ export class CustomParametersEffect {
          const parameters = [...customVariables.slice(0, index), ...customVariables.slice(index + 1)];
          const updatedList = { name, id, parameters };
          return this._parametersService.updateParamList(updatedList)
-            .map(res => new customParametersActions.NavigateToListAction({name}))
-            .catch(error => of(new customParametersActions.ListCustomParamsErrorAction()));
+            .mergeMap(res => [
+               new customParametersActions.NavigateToListAction({name}),
+               new alertParametersActions.ShowAlertAction('List deleted')
+            ])
+            .catch(error => of(new alertParametersActions.ShowAlertAction('List can not delete')));
       });
 
    @Effect()
@@ -154,8 +164,11 @@ export class CustomParametersEffect {
          const newContext = { name, parent, parameters };
 
          return this._parametersService.createParamList(newContext)
-            .map((context) => new customParametersActions.AddContextCompleteAction({ name: context.name, id: context.id }))
-            .catch(error => of(new customParametersActions.ListCustomParamsErrorAction()));
+            .mergeMap((context) => [
+               new customParametersActions.AddContextCompleteAction({ name: context.name, id: context.id }),
+               new alertParametersActions.ShowAlertAction('Context deleted')
+            ])
+            .catch(error => of(new alertParametersActions.ShowAlertAction('Context can not delete')));
       });
 
    constructor(

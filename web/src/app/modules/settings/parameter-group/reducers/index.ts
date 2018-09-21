@@ -13,11 +13,13 @@ import * as fromRoot from 'reducers';
 import * as fromGlobal from './global';
 import * as fromEnvironment from './environment';
 import * as fromCustom from './custom';
+import * as fromContext from './context';
 
 export interface ParameterGroupState {
    global: fromGlobal.State;
    environment: fromEnvironment.State;
    custom: fromCustom.State;
+   alerts: fromContext.State;
 }
 
 export interface State extends fromRoot.State {
@@ -27,7 +29,8 @@ export interface State extends fromRoot.State {
 export const reducers = {
    global: fromGlobal.reducer,
    environment: fromEnvironment.reducer,
-   custom: fromCustom.reducer
+   custom: fromCustom.reducer,
+   alerts: fromContext.reducer
 };
 
 export const getParameterGroupState = createFeatureSelector<ParameterGroupState>('parameterGroup');
@@ -49,6 +52,12 @@ export const getCustomEntityState = createSelector(
    getParameterGroupState,
    state => state.custom
 );
+
+export const getAlertsEntityState = createSelector(
+   getParameterGroupState,
+   state => state.alerts
+);
+
 
 /** */
 
@@ -123,4 +132,15 @@ export const getSelectedList = createSelector(
 export const getCustomIsCreating = createSelector(
    getCustomEntityState,
    state => state.creationMode
+);
+
+
+export const isLoading = createSelector(
+   getAlertsEntityState,
+   state => state.loading
+);
+
+export const showAlert = createSelector(
+   getAlertsEntityState,
+   state => state.message
 );

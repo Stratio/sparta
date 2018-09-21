@@ -10,6 +10,8 @@ import { Observable } from 'rxjs/Observable';
 
 import * as fromParameters from './../../reducers';
 import * as globalParamsActions from './../../actions/global';
+import * as alertParametersActions from './../../actions/alert';
+
 import { GlobalParam } from './../../models/globalParam';
 
 @Component({
@@ -40,19 +42,26 @@ export class GlobalParametersContainer implements OnInit {
 
    private _init() {
       this._store.dispatch(new globalParamsActions.ListGlobalParamsAction());
+      this.initRequest();
       this.globalParams$ = this._store.select(fromParameters.getGlobalVariables);
       this._store.select(fromParameters.getIsCreating)
          .subscribe((isCreating: boolean) =>  this.creationMode = isCreating );
+   }
+
+   initRequest() {
+      this._store.dispatch(new alertParametersActions.ShowLoadingAction());
    }
    onAddGlobalParam() {
       this._store.dispatch(new globalParamsActions.AddGlobalParamsAction());
    }
 
    onSaveParam(param) {
+      this.initRequest();
       this._store.dispatch(new globalParamsActions.SaveGlobalAction(param));
    }
 
    onDeleteParam(param) {
+      this.initRequest();
       this._store.dispatch(new globalParamsActions.DeleteGlobalAction(param));
    }
 

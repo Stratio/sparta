@@ -19,8 +19,10 @@ import { Effect, Actions } from '@ngrx/effects';
 
 import * as fromParameters from './../reducers';
 import * as globalParametersActions from './../actions/global';
+import * as alertParametersActions from './../actions/alert';
 
 import { ParametersService } from 'app/services';
+import { from } from 'rxjs/observable/from';
 
 @Injectable()
 export class GlobalParametersEffect {
@@ -29,8 +31,11 @@ export class GlobalParametersEffect {
    getGlobalParameters$: Observable<any> = this._actions$
       .ofType(globalParametersActions.LIST_GLOBAL_PARAMS)
       .switchMap(() => this._parametersService.getGlobalParameters()
-         .map((response) => new globalParametersActions.ListGlobalParamsCompleteAction(response.variables))
-         .catch(error => of(new globalParametersActions.ListGlobalParamsErrorAction())));
+      .mergeMap(response => [
+            new globalParametersActions.ListGlobalParamsCompleteAction(response.variables),
+            new alertParametersActions.HideLoadingAction()
+         ])
+      .catch(error => of(new globalParametersActions.ListGlobalParamsErrorAction())));
 
    @Effect()
    saveGlobals$: Observable<any> = this._actions$
@@ -49,8 +54,13 @@ export class GlobalParametersEffect {
          const updateVariables = { variables: parameters };
          if (index !== -1 && (globalVariables[index].value !== value || globalVariables[index].name !== name)) {
             return this._parametersService.saveGlobalParameter(updateVariables)
-               .map(res => new globalParametersActions.ListGlobalParamsCompleteAction(res.variables))
-               .catch(error => of(new globalParametersActions.ListGlobalParamsErrorAction()));
+               .mergeMap(res => [
+                  new globalParametersActions.ListGlobalParamsCompleteAction(res.variables),
+                  new alertParametersActions.ShowAlertAction('Param save successful')
+               ])
+               .catch(error => of(new alertParametersActions.ShowAlertAction('Param can not save')));
+         } else {
+            return of(new alertParametersActions.ShowAlertAction('Param saved'));
          }
       });
 
@@ -66,8 +76,11 @@ export class GlobalParametersEffect {
          const parameters = [...globalVariables.slice(0, index), ...globalVariables.slice(index + 1)];
          const updateVariables = { variables: parameters };
          return this._parametersService.saveGlobalParameter(updateVariables)
-            .map(res => new globalParametersActions.ListGlobalParamsCompleteAction(updateVariables.variables))
-            .catch(error => of(new globalParametersActions.ListGlobalParamsErrorAction()));
+            .mergeMap(res => [
+               new globalParametersActions.ListGlobalParamsCompleteAction(updateVariables.variables),
+               new alertParametersActions.ShowAlertAction('Param delete successful')
+            ])
+            .catch(error => of(new alertParametersActions.ShowAlertAction('Param can not delete')));
       });
 
    constructor(

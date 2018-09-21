@@ -4,15 +4,22 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
+import { Store } from '@ngrx/store';
+import * as fromParameters from '../../reducers';
+import * as alertParametersActions from '../../actions/alert';
 
 @Component({
-   selector: "custom-parameters",
-   templateUrl: "./custom-parameters.component.html",
-   styleUrls: ["./custom-parameters.component.scss"]
+   selector: 'custom-parameters',
+   templateUrl: './custom-parameters.component.html',
+   styleUrls: ['./custom-parameters.component.scss']
 })
 export class CustomParametersComponent implements OnInit {
+
+   public alertMessage = '';
+   public showAlert: boolean;
+
    @Input() customParams: GlobalParam[];
    @Input() customList: any[];
    @Input() customContexts: string[];
@@ -34,9 +41,19 @@ export class CustomParametersComponent implements OnInit {
    public showConfigContext = false;
 
 
-   constructor() {}
+   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) {}
 
-   ngOnInit(): void {}
+   ngOnInit(): void {
+      this._store.select(fromParameters.showAlert).subscribe(alert => {
+         this.showAlert = !!alert;
+         if (alert) {
+            this.alertMessage = alert;
+            this.closeAlert();
+         } else {
+            this._cd.markForCheck();
+         }
+      });
+   }
 
    navigateToList(list) {
       this.navigate.emit(list);
@@ -80,5 +97,8 @@ export class CustomParametersComponent implements OnInit {
 
    onAddCustomContext() {
       this.addCustomContext.emit();
+   }
+   closeAlert() {
+      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 30000);
    }
 }

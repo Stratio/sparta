@@ -7,3 +7,4 @@
 export * from './global';
 export * from './environment';
 export * from './custom';
+export * from './alert';

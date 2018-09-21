@@ -4,5 +4,16 @@
 }
 .section-content {
   width: 100%;
-  padding-top: 2em;
+  padding-top: 15px;
+}
+
+sp-foreground-notifications {
+   position: absolute;
+   left: 0;
+   right: 0;
+   max-width: 450px;
+   margin-left: auto;
+   margin-right: auto;
+   margin-top: 10px;
+   z-index: 99999;
 }

@@ -17,7 +17,8 @@
       position: absolute;
       z-index: 10000;
       top: 30px;
-      left: -60px;
+      left: -110px;
+      min-width: 220px;
    }
    .st-input {
       font-weight: 600;
@@ -54,7 +55,7 @@
             font-size: 12px;
             margin-left: 5px;
             background-color: $action-secondary-03;
-            border-radius: 2px;
+            border-radius: 4px;
             padding: 6px 7px 6px 6px;
             cursor: pointer;
             border: solid 1px $neutral-04;
@@ -164,6 +165,7 @@
                         list-style: none;
                         color: $action-secondary-07;
                         max-height: 215px;
+                        min-width: 210px;
                         overflow-y: auto;
                         .option {
                            margin: 5px 0px 5px 0px;
