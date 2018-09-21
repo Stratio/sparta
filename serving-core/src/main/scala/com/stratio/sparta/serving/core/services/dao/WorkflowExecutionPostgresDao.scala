@@ -66,49 +66,51 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
 
   def updateStatus(executionStatus: ExecutionStatusUpdate): Future[WorkflowExecution] = {
-    findExecutionById(executionStatus.id).flatMap { actualExecutionStatus =>
-      val actualStatus = actualExecutionStatus.lastStatus
-      val inputExecutionStatus = executionStatus.status
-      val newState = {
-        if (inputExecutionStatus.state == WorkflowStatusEnum.NotDefined)
-          actualStatus.state
-        else inputExecutionStatus.state
-      }
-      val newStatusInfo = {
-        if (inputExecutionStatus.statusInfo.isEmpty && newState != actualStatus.state)
-          Option(s"Execution state changed to $newState")
-        else if (inputExecutionStatus.statusInfo.isEmpty && newState == actualStatus.state)
-          actualStatus.statusInfo
-        else inputExecutionStatus.statusInfo
-      }
-      val newLastUpdateDate = {
-        if (newState != actualStatus.state)
-          getNewUpdateDate
-        else actualStatus.lastUpdateDate
-      }
-      val newStatus = inputExecutionStatus.copy(
-        state = newState,
-        statusInfo = newStatusInfo,
-        lastUpdateDate = newLastUpdateDate
-      )
-      val newStatuses = if (newStatus.state == actualStatus.state) {
-        newStatus +: actualExecutionStatus.statuses.drop(1)
-      } else newStatus +: actualExecutionStatus.statuses
-      val newExecutionWithStatus = actualExecutionStatus.copy(statuses = newStatuses)
-      val newExInformation = new StringBuilder
-      if (actualStatus.state != newStatus.state)
-        newExInformation.append(s"\tStatus -> ${actualStatus.state} to ${newStatus.state}")
-      if (actualStatus.statusInfo != newStatus.statusInfo)
-        newExInformation.append(s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
-      if (newExInformation.nonEmpty)
-        log.info(s"Updating execution ${actualExecutionStatus.getExecutionId}: $newExInformation")
-      val result = upsert(newExecutionWithStatus).map(_ => newExecutionWithStatus)
+    synchronized {
+      findExecutionById(executionStatus.id).flatMap { actualExecutionStatus =>
+        val actualStatus = actualExecutionStatus.lastStatus
+        val inputExecutionStatus = executionStatus.status
+        val newState = {
+          if (inputExecutionStatus.state == WorkflowStatusEnum.NotDefined)
+            actualStatus.state
+          else inputExecutionStatus.state
+        }
+        val newStatusInfo = {
+          if (inputExecutionStatus.statusInfo.isEmpty && newState != actualStatus.state)
+            Option(s"Execution state changed to $newState")
+          else if (inputExecutionStatus.statusInfo.isEmpty && newState == actualStatus.state)
+            actualStatus.statusInfo
+          else inputExecutionStatus.statusInfo
+        }
+        val newLastUpdateDate = {
+          if (newState != actualStatus.state)
+            getNewUpdateDate
+          else actualStatus.lastUpdateDate
+        }
+        val newStatus = inputExecutionStatus.copy(
+          state = newState,
+          statusInfo = newStatusInfo,
+          lastUpdateDate = newLastUpdateDate
+        )
+        val newStatuses = if (newStatus.state == actualStatus.state) {
+          newStatus +: actualExecutionStatus.statuses.drop(1)
+        } else newStatus +: actualExecutionStatus.statuses
+        val newExecutionWithStatus = actualExecutionStatus.copy(statuses = newStatuses)
+        val newExInformation = new StringBuilder
+        if (actualStatus.state != newStatus.state)
+          newExInformation.append(s"\tStatus -> ${actualStatus.state} to ${newStatus.state}")
+        if (actualStatus.statusInfo != newStatus.statusInfo)
+          newExInformation.append(s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
+        if (newExInformation.nonEmpty)
+          log.info(s"Updating execution ${actualExecutionStatus.getExecutionId}: $newExInformation")
+        val result = upsert(newExecutionWithStatus).map(_ => newExecutionWithStatus)
 
-      result.onSuccess { case workflowExecution =>
-        writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, workflowExecution))
-      }
+        result.onSuccess { case workflowExecution =>
+          writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, workflowExecution))
+        }
 
-      result
+        result
+      }
     }
   }
 

@@ -73,7 +73,7 @@ object JdbcSlickConnection extends JdbcSlickHelper with SLF4JLogging {
 
   import slick.jdbc.JdbcBackend.Database
 
-  lazy val db = {
+  lazy val db = synchronized {
     val conf = SpartaConfig.getPostgresConfig().getOrElse(ConfigFactory.load())
     val dbconf = Database.forConfig("", conf.withFallback(ConfigFactory.parseProperties(slickConnectionProperties(conf))))
     tryConnection(dbconf)
