@@ -21,50 +21,58 @@ import scala.util.{Failure, Success, Try}
   */
 object CuratorFactoryHolder extends SLF4JLogging {
 
-  private var curatorFramework: Option[CuratorFramework] = None
+  @volatile private var curatorFramework: Option[CuratorFramework] = None
 
-  def setInstance(curatorInstance: CuratorFramework) : Unit = {
+  def setInstance(curatorInstance: CuratorFramework): Unit = {
     resetInstance()
     curatorFramework = Option(curatorInstance)
   }
 
   /**
     * Gets a new instance of a CuratorFramework if it was not created before.
+    *
     * @return a singleton instance of CuratorFramework.
     */
   def getInstance(config: Option[Config] = SpartaConfig.getZookeeperConfig()): CuratorFramework = {
-    curatorFramework match {
-      case None =>
-        val defaultConnectionString = getStringConfigValue(config, ZKConnection, DefaultZKConnection)
-        val connectionTimeout = getIntConfigValue(config, ZKConnectionTimeout, DefaultZKConnectionTimeout)
-        val sessionTimeout = getIntConfigValue(config, ZKSessionTimeout, DefaultZKSessionTimeout)
-        val retryAttempts = getIntConfigValue(config, ZKRetryAttemps, DefaultZKRetryAttemps)
-        val retryInterval = getIntConfigValue(config, ZKRetryInterval, DefaultZKRetryInterval)
+    synchronized {
+      curatorFramework match {
+        case None =>
+          val defaultConnectionString = getStringConfigValue(config, ZKConnection, DefaultZKConnection)
+          val connectionTimeout = getIntConfigValue(config, ZKConnectionTimeout, DefaultZKConnectionTimeout)
+          val sessionTimeout = getIntConfigValue(config, ZKSessionTimeout, DefaultZKSessionTimeout)
+          val retryAttempts = getIntConfigValue(config, ZKRetryAttemps, DefaultZKRetryAttemps)
+          val retryInterval = getIntConfigValue(config, ZKRetryInterval, DefaultZKRetryInterval)
 
-        Try {
-          curatorFramework = Some(CuratorFrameworkFactory.builder()
-            .connectString(defaultConnectionString)
-            .connectionTimeoutMs(connectionTimeout)
-            .sessionTimeoutMs(sessionTimeout)
-            .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts))
-            .build())
+          Try {
+            val newFramework = CuratorFrameworkFactory.builder()
+              .connectString(defaultConnectionString)
+              .connectionTimeoutMs(connectionTimeout)
+              .sessionTimeoutMs(sessionTimeout)
+              .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts))
+              .build()
 
-          curatorFramework.foreach(_.start())
-          log.info(s"Curator connection created correctly for Zookeeper cluster $defaultConnectionString")
-          curatorFramework.getOrElse(throw new Exception("Curator connection not created"))
-        } match {
-          case Success(curatorFk) => curatorFk
-          case Failure(e) => log.error("Unable to establish a connection with the specified Zookeeper", e); throw e
-        }
-      case Some(curatorFk) =>
-        Try(curatorFk.getZookeeperClient.getZooKeeper.getState.isConnected) match {
-          case Success(_) =>
-            curatorFk
-          case Failure(e) =>
-            log.error("Curator connection disconnected. Reconnecting it!", e)
-            resetInstance()
-            getInstance()
-        }
+            newFramework.start()
+            curatorFramework = Some(newFramework)
+            log.info(s"Curator connection created correctly for Zookeeper cluster $defaultConnectionString")
+            curatorFramework.getOrElse(throw new Exception("Curator connection not created"))
+          } match {
+            case Success(curatorFk) =>
+              curatorFk
+            case Failure(e) =>
+              log.error("Unable to establish a connection with the specified Zookeeper", e)
+              resetInstance()
+              throw e
+          }
+        case Some(curatorFk) =>
+          Try(curatorFk.getZookeeperClient.getZooKeeper.getState.isConnected) match {
+            case Success(_) =>
+              curatorFk
+            case Failure(e) =>
+              log.error("Curator connection disconnected", e)
+              resetInstance()
+              throw e
+          }
+      }
     }
   }
 
