@@ -53,9 +53,10 @@ export class GlobalParametersEffect {
             [...globalVariables, paramWithoutContexts];
          const updateVariables = { variables: parameters };
          if (index !== -1 && (globalVariables[index].value !== value || globalVariables[index].name !== name)) {
-            return this._parametersService.saveGlobalParameter(updateVariables)
+
+            return this._parametersService.updateGlobalParameter(updateVariables)
                .mergeMap(res => [
-                  new globalParametersActions.ListGlobalParamsCompleteAction(res.variables),
+                  new globalParametersActions.ListGlobalParamsAction(),
                   new alertParametersActions.ShowAlertAction('Param save successful')
                ])
                .catch(error => of(new alertParametersActions.ShowAlertAction('Param can not save')));
@@ -75,7 +76,7 @@ export class GlobalParametersEffect {
          const index = globalVariables.findIndex(env => env.name === name);
          const parameters = [...globalVariables.slice(0, index), ...globalVariables.slice(index + 1)];
          const updateVariables = { variables: parameters };
-         return this._parametersService.saveGlobalParameter(updateVariables)
+         return this._parametersService.updateGlobalParameter(updateVariables)
             .mergeMap(res => [
                new globalParametersActions.ListGlobalParamsCompleteAction(updateVariables.variables),
                new alertParametersActions.ShowAlertAction('Param delete successful')
