@@ -106,8 +106,7 @@ trait PostgresError extends ErrorManager {
         executionId,
         ExecutionStatus(
           state = NotDefined
-        )))
-      executionService.setLastError(executionId, error)
+        )), error)
     }
 
 

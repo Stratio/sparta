@@ -63,6 +63,8 @@ class ControllerActor(
     .props(Props(new CrossdataActor())), CrossdataActorName)
   val debugActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new DebugWorkflowActor(launcherActor))), DebugWorkflowActorName)
+  val mlModelActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new MlModelActor())), MlModelsActorName)
 
   val actorsMap = Map(
     TemplateActorName -> templateActor,
@@ -75,7 +77,8 @@ class ControllerActor(
     GlobalParametersActorName -> globalParametersActor,
     GroupActorName -> groupActor,
     DebugWorkflowActorName -> debugActor,
-    ParameterListActorName -> parameterListActor
+    ParameterListActorName -> parameterListActor,
+    MlModelsActorName -> mlModelActor
   )
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
@@ -126,7 +129,8 @@ class ControllerActor(
       serviceRoutes.serviceInfoRoute(user) ~
       serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
       serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
-      serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user)
+      serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
+      serviceRoutes.mlModelsRoutes(user)
   }
 
   lazy val webRoutes: Route =
@@ -174,6 +178,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   def crossdataRoute(user: Option[LoggedUser]): Route = crossdataService.routes(user)
 
   def debugRoutes(user: Option[LoggedUser]): Route = debugService.routes(user)
+
+  def mlModelsRoutes(user: Option[LoggedUser]): Route = mlModelsService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -246,6 +252,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   private val debugService = new DebugWorkflowHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.DebugWorkflowActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val mlModelsService = new MlModelsHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.MlModelsActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

@@ -70,13 +70,12 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
                     exception.toString,
                     ExceptionHelper.toPrintableException(exception)
                   )
-                  executionService.setLastError(executionId, wError)
                   executionService.updateStatus(ExecutionStatusUpdate(
                     executionId,
                     ExecutionStatus(
                       state = Failed,
                       statusInfo = Option(error)
-                    )))
+                    )), wError)
               }
           }
         } finally {

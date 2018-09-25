@@ -42,13 +42,12 @@ class MarathonLauncherActor extends Actor
           exception.toString,
           ExceptionHelper.toPrintableException(exception)
         )
-        executionService.setLastError(workflowExecution.getExecutionId, error)
         executionService.updateStatus(ExecutionStatusUpdate(
           workflowExecution.getExecutionId,
           ExecutionStatus(
             state = Failed,
             statusInfo = Option(information)
-          )))
+          )), error)
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized successfully"
@@ -63,13 +62,13 @@ class MarathonLauncherActor extends Actor
           workflowExecution.getWorkflowToExecute
         } match {
           case Success(_) =>
-            executionService.updateStatus(ExecutionStatusUpdate(
+            val updateStateResult = executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(
                 state = Uploaded,
                 statusInfo = Option(information)
               )))
-            executionService.setLaunchDate(workflowExecution.getExecutionId, new DateTime())
+            executionService.setLaunchDate(updateStateResult, new DateTime())
           case Failure(exception) =>
             val information = s"An error was encountered while launching the Workflow App in the Marathon API"
             val error = WorkflowError(
@@ -78,13 +77,12 @@ class MarathonLauncherActor extends Actor
               exception.toString,
               ExceptionHelper.toPrintableException(exception)
             )
-            executionService.setLastError(workflowExecution.getExecutionId, error)
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(
                 state = Failed,
                 statusInfo = Option(information)
-              )))
+              )), error)
         }
     }
   }

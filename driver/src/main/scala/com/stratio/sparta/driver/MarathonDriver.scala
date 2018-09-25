@@ -5,14 +5,8 @@
  */
 package com.stratio.sparta.driver
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
-
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -25,6 +19,10 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate}
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
 object MarathonDriver extends SLF4JLogging with SpartaSerializer {
@@ -60,16 +58,12 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
               exception.toString,
               ExceptionHelper.toPrintableException(exception)
             )
-            val updateStateResult = for {
-              _ <- executionService.setLastError(executionId, error)
-              _ <- executionService.updateStatus(ExecutionStatusUpdate(
-                executionId,
-                ExecutionStatus(state = Failed, statusInfo = Option(information))
-              ))
-            } yield {
-              log.debug(s"Updated correctly the execution status $executionId to $Failed in Marathon Driver")
-            }
-            Await.result(updateStateResult, 60 seconds)
+            val executionWithError =executionService.updateStatus(ExecutionStatusUpdate(
+              executionId,
+              ExecutionStatus(state = Failed, statusInfo = Option(information))
+            ), error)
+            log.debug(s"Updated correctly the execution status $executionId to $Failed in Marathon Driver")
+            executionWithError
           } match {
             case Success(_) =>
               throw DriverException(information, exception)

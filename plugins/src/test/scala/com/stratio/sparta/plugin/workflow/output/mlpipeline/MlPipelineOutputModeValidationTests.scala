@@ -7,9 +7,11 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -45,7 +47,7 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedSaveMode)
+      assert(validation.get.messages(0).message == ValidationErrorMessages.invalidSaveMode)
     }
 
   "MlPipeline" should "show a validation error with a invalid output.mode property value" in
@@ -61,30 +63,17 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
   "MlPipeline" should "show a validation error with filesystem output.mode without defining a path" in
     new WithValidPipeline with WithValidateStep {
 
-      properties = properties.updated("output.mode", StaticData.SAVE_MODE_FILESYSTEM)
+      properties = properties.updated("output.mode", MlPipelineSaveMode.FILESYSTEM)
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedPath)
     }
 
-  "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining DCOS service Id" in
+  "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining url" in
     new WithValidPipeline with WithValidateStep {
 
-      properties = properties.updated("output.mode", StaticData.SAVE_MODE_MLMODELREP)
-        .updated("mlmodelrepPort", "8000")
-        .updated("mlmodelrepModelName", "test")
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedMlRepoConnection)
-    }
-
-  "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining DCOS service Port" in
-    new WithValidPipeline with WithValidateStep {
-
-      properties = properties.updated("output.mode", StaticData.SAVE_MODE_MLMODELREP)
-        .updated("mlmodelrepId", "mlmodelrep")
+      properties = properties.updated("output.mode", MlPipelineSaveMode.MODELREP)
         .updated("mlmodelrepModelName", "test")
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
@@ -95,26 +84,12 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
   "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining the model name" in
     new WithValidPipeline with WithValidateStep {
 
-      properties = properties.updated("output.mode", StaticData.SAVE_MODE_MLMODELREP)
-        .updated("mlmodelrepId", "mlmodelrep")
-        .updated("mlmodelrepPort", "8000")
+      properties = properties.updated("output.mode", MlPipelineSaveMode.MODELREP)
+        .updated(SdkConstants.ModelRepositoryUrl, "http://localhost:8000")
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedMlRepoConnection)
-    }
-
-  "MlPipeline" should "show a validation error with mlModelRepo output.mode when provided port is invalid" in
-    new WithValidPipeline with WithValidateStep {
-
-      properties = properties.updated("output.mode", StaticData.SAVE_MODE_MLMODELREP)
-        .updated("mlmodelrepId", "mlmodelrep")
-        .updated("mlmodelrepPort", "aaa")
-        .updated("mlmodelrepModelName", "test")
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message == ValidationErrorMessages.mlModelRepInvalidPortValue)
     }
 
 }

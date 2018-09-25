@@ -325,6 +325,12 @@ This software – including all its source code – contains proprietary informa
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-mllib-${apache.spark.version}_${scala.binary.version}</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>

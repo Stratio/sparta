@@ -11,6 +11,7 @@ import java.io.{File, Serializable}
 import akka.event.Logging
 import akka.util.Timeout
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
@@ -120,7 +121,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     val phaseEnum = PhaseEnum.Context
     val errorMessage = s"An error was encountered while initializing Spark Session"
     val okMessage = s"Spark Session initialized successfully"
-    val xDSession = errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+    val xDSession = errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel) {
       val isLocal = !execute || workflow.settings.global.executionMode == local // || workflow.debugMode.forall(mode => mode)
       val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
       val sparkLocalConfig = if (isLocal) {
@@ -521,6 +522,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
+      val configuration = if(node.className.equalsIgnoreCase("MlModelTransformStep"))
+        node.configuration ++ getIntelligenceConfiguration
+      else node.configuration
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.name,
@@ -541,7 +545,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           classOf[XDSession],
           classOf[Map[String, Serializable]]
         ).newInstance(node.name, outputOptions, workflow.settings.errorsManagement.transformationStepsManagement,
-          workflowContext.ssc, workflowContext.xDSession, node.configuration)
+          workflowContext.ssc, workflowContext.xDSession, configuration)
           .asInstanceOf[TransformStep[Underlying]],
         customClasspathClasses
       )
@@ -610,7 +614,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       val configuration = if (node.className.equalsIgnoreCase("DebugOutputStep")) {
         val extraConfig = Map(WorkflowIdKey -> JsoneyString(workflow.id.get))
         node.configuration ++ extraConfig
-      } else node.configuration
+      } else if(node.className.equalsIgnoreCase("MlPipelineOutputStep"))
+        node.configuration ++ getIntelligenceConfiguration
+      else node.configuration
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
@@ -620,6 +626,15 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         customClasspathClasses
       )
     }
+  }
+
+  private def getIntelligenceConfiguration: Map[String, JsoneyString] = {
+    val url = SpartaConfig.getIntelligenceConfig() match {
+      case Some(config) => Try(config.getString(ModelRepositoryUrlKey)).getOrElse(DefaultModelRepositoryUrl)
+      case None => DefaultModelRepositoryUrl
+    }
+
+    Map(SdkConstants.ModelRepositoryUrl -> url)
   }
 }
 

@@ -50,3 +50,7 @@ case object HistoryResource extends ResourceType{
 case object ParameterListResource extends ResourceType{
   override def name(): String = "ParameterList"
 }
+
+case object MlModelsResource extends ResourceType{
+  override def name(): String = "MlModels"
+}

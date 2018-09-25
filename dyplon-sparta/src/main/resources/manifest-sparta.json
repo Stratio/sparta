@@ -87,6 +87,12 @@
       "actions": [
         "view"
       ]
+    },
+    {
+      "type": "MlModels",
+      "actions": [
+        "view"
+      ]
     }
   ]
 }

@@ -11,6 +11,7 @@ import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
@@ -42,9 +43,8 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers wi
 
   trait WithFilesystemProperties {
     var properties:Map[String, JSerializable] = Map(
-      "output.mode" -> JsoneyString(StaticData.SAVE_MODE_FILESYSTEM),
-      "path" -> JsoneyString("/tmp/pipeline_tests"),
-      "overrideHdfs" -> true
+      "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
+      "path" -> JsoneyString("/tmp/pipeline_tests")
     )
   }
 

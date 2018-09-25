@@ -61,7 +61,7 @@ class ExecutionActor()
       execById <- executionPgService.findExecutionById(id)
     } yield {
       val authorizationId = execById.authorizationId
-      authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId) {
+      authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, Option(sender)) {
         executionPgService.stopExecution(id)
       }
     }

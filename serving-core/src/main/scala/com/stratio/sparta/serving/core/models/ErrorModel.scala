@@ -155,6 +155,9 @@ object ErrorModel extends SpartaSerializer {
   val MetadataServiceDeleteBackup = "806"
   val MetadataServiceCleanAll = "807"
 
+  /* Repository ML Models 826-850 */
+  val MlModelsServiceFindAll = "826"
+
   /* Debug Service 900-949 */
   val DebugWorkflowServiceUnexpected = "900"
   val DebugWorkflowServiceFindById = "901"
@@ -329,7 +332,8 @@ object ErrorModel extends SpartaSerializer {
     ParameterListServiceFindEnvironmentContexts -> "Error finding environment contexts",
     ParameterListServiceFindEnvironmentAndContexts -> "Error finding environment and their contexts",
     ParameterListServiceFindGroupAndContexts -> "Error finding group and their contexts",
-    ParameterListServiceDeleteById -> "Error deleting parameter list by id"
+    ParameterListServiceDeleteById -> "Error deleting parameter list by id",
+    MlModelsServiceFindAll -> "Error finding all machine learning models"
 
   )
 

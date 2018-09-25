@@ -6,19 +6,19 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
-import java.net.URI
 
 import com.stratio.intelligence.mlmodelrepository.client.MlModelsRepositoryClient
 import com.stratio.intelligence.mlmodelrepository.client.dtos.requests.UploadModelRequestData
 import com.stratio.intelligence.mlmodelrepository.client.dtos.responses.UploadModelResponse
+import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization._
-import StaticData._
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
@@ -38,20 +38,19 @@ class MlPipelineOutputStep(
 
   implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer() + BooleanToString
 
-  // => Save mode
-  lazy val saveMode: Option[String] = properties.getString("output.mode", None)
+  lazy val outputMode: Option[MlPipelineSaveMode.Value] =
+    Try(MlPipelineSaveMode.withName(properties.getString("output.mode").toUpperCase)).toOption
+
   // · Hdfs
-  lazy val pathToSave: Option[String] = properties.getString("path", None)
-  lazy val overrideHdfs: Boolean = properties.getBoolean("overrideHdfs", default = false)
+  lazy val pathToSave: Option[String] = properties.getString("path", None).notBlank
+
   // · Ml-model-repository
   lazy val validateConnectionMlModelrep: Boolean = properties.getBoolean("validateMlModelRep", default = false)
-  lazy val externalMlModelRepositoryId: Option[String] = properties.getString("mlmodelrepId", None)
-  lazy val externalMlModelRepositoryPort: Option[String] = properties.getString("mlmodelrepPort", None)
+  lazy val externalMlModelRepositoryUrl: Option[String] = properties.getString(SdkConstants.ModelRepositoryUrl, None).notBlank
   lazy val externalMlModelRepositoryModelName: Option[String] = properties.getString("mlmodelrepModelName", None)
   lazy val externalMlModelRepositoryTmpDir: String = properties.getString("mlmodelrepModelTmpDir", "/tmp")
-  lazy val serializationLib: String = properties.getString("serializationLib", SPARK_BOTH_SER_LIB)
-  // Note: only for testing purposes
-  lazy val externalMlModelLocalMode: Boolean = properties.getBoolean("mlmodelrepLocal", default = false)
+  lazy val serializationLib: MlPipelineSerializationLibs.Value =
+    MlPipelineSerializationLibs.withName(properties.getString("serializationLib", "SPARK_AND_MLEAP").toUpperCase)
 
   // => Pipeline related
   // · Pipeline Json descriptor --> deserialized into Array[PipelineStageDescriptor]
@@ -60,16 +59,15 @@ class MlPipelineOutputStep(
   // · SparkMl Pipeline (built using Array[PipelineStageDescriptor])
   lazy val pipeline: Try[Pipeline] = getPipelineFromDescriptor(pipelineDescriptor.get)
 
-  // => Ml-Models-Repository client
-  // TODO - How to get URL without front
-  lazy val mlModelRepUrl: URI = getMlRepoURI(externalMlModelLocalMode, !externalMlModelLocalMode,
-                                             externalMlModelRepositoryId.get, externalMlModelRepositoryPort.get)
-  lazy val mlModelRepClient: Try[MlModelsRepositoryClient] = Try {
-    if (externalMlModelLocalMode) // Insecure: only for qa/testing purposes
-      new MlModelsRepositoryClient(xDSession, mlModelRepUrl.toString)
-    else                           // Secured
-      new MlModelsRepositoryClient(xDSession, mlModelRepUrl.toString, SSLHelper.getSSLContextV2(true))
+  def mlModelRepClient: Try[MlModelsRepositoryClient] = Try {
+    MlPipelineOutputStep.getMlRepositoryClient(
+      xDSession,
+      externalMlModelRepositoryUrl.getOrElse(throw new Exception(ValidationErrorMessages.errorUrlMessage))
+    )
   }
+
+  override def cleanUp(options: Map[String, String]): Unit =
+    externalMlModelRepositoryUrl.foreach(url => MlPipelineOutputStep.removeMlRepositoryClient(url))
 
   /**
     * Validates the options and the pipeline construction process
@@ -82,42 +80,32 @@ class MlPipelineOutputStep(
     var validation: ErrorValidations = ErrorValidations(valid = true, messages = Seq.empty)
 
     // => Save mode
-    if (saveMode.isEmpty) {
+    if (outputMode.isEmpty) {
       // - Non defined
-      validation = addValidationError(validation, ValidationErrorMessages.nonDefinedSaveMode)
-    }else {
-      // - Defined but with an invalid value
-      if (!SAVE_MODES.contains(saveMode.get))
-        validation = addValidationError(validation, ValidationErrorMessages.invalidSaveMode)
-      else {
-        // => Filesystem mode - path not defined
-        if (saveMode.get == SAVE_MODE_FILESYSTEM && pathToSave.isEmpty)
-          validation = addValidationError(validation, ValidationErrorMessages.nonDefinedPath)
+      validation = addValidationError(validation, ValidationErrorMessages.invalidSaveMode)
+    } else {
+      // => Filesystem mode - path not defined
+      if (((outputMode.get == MlPipelineSaveMode.FILESYSTEM) || (outputMode.get == MlPipelineSaveMode.BOTH)) && pathToSave.isEmpty)
+        validation = addValidationError(validation, ValidationErrorMessages.nonDefinedPath)
 
-        // => Ml-Model-Repository
-        if (saveMode.get == SAVE_MODE_MLMODELREP)
-        // · id, port, tmpDir or model name not defined
-          if (externalMlModelRepositoryId.isEmpty || externalMlModelRepositoryPort.isEmpty
-            || externalMlModelRepositoryModelName.isEmpty) {
-            validation = addValidationError(validation, ValidationErrorMessages.nonDefinedMlRepoConnection)
-          } else {
-            // · Port must be castable to int
-            if (Try{externalMlModelRepositoryPort.get.toInt}.isFailure)
-              validation = addValidationError(validation, ValidationErrorMessages.mlModelRepInvalidPortValue)
-            // · If validate Ml-Model-repository external connection during creation time is enabled
-            validation = if (validateConnectionMlModelrep){
-              mlModelRepClient match {
-                case Success(client) => {
-                  client.checkIfModelExists(externalMlModelRepositoryModelName.get) match {
-                    case Success(true) => addValidationError(validation, ValidationErrorMessages.mlModelRepModelAlreadyExistError)
-                    case Success(false) => validation
-                    case Failure(e) => addValidationError(validation, s"${ValidationErrorMessages.mlModelRepConnectionError} ${e.getMessage}")
-                  }
+      // => Ml-Model-Repository
+      if ((outputMode.get == MlPipelineSaveMode.MODELREP) || (outputMode.get == MlPipelineSaveMode.BOTH)) {
+        if (externalMlModelRepositoryUrl.isEmpty || externalMlModelRepositoryModelName.isEmpty) {
+          validation = addValidationError(validation, ValidationErrorMessages.nonDefinedMlRepoConnection)
+        } else {
+          // · If validate Ml-Model-repository external connection during creation time is enabled
+          validation = if (validateConnectionMlModelrep) {
+            mlModelRepClient match {
+              case Success(client) =>
+                client.checkIfModelExists(externalMlModelRepositoryModelName.get) match {
+                  case Success(true) => addValidationError(validation, ValidationErrorMessages.mlModelRepModelAlreadyExistError)
+                  case Success(false) => validation
+                  case Failure(e) => addValidationError(validation, s"${ValidationErrorMessages.mlModelRepConnectionError} ${e.getMessage}")
                 }
-                case Failure(e) => addValidationError(validation, s"${ValidationErrorMessages.mlModelRepConnectionError} ${e.getMessage}")
-              }
-            }else validation
-          }
+              case Failure(e) => addValidationError(validation, s"${ValidationErrorMessages.mlModelRepConnectionError} ${e.getMessage}")
+            }
+          } else validation
+        }
       }
     }
 
@@ -158,61 +146,52 @@ class MlPipelineOutputStep(
     */
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
 
-    // · Get ml-model-repository client before executing training (checks connection)
-    if(externalMlModelRepositoryId.isDefined)
-      mlModelRepClient.getOrElse(throw new Exception(ValidationErrorMessages.mlModelRepConnectionError))
-
     // · Getting built pipeline
     val builtPipeline = pipeline.getOrElse(throw new Exception(ValidationErrorMessages.errorBuildingPipelineInstance))
 
     // · Validating schemas
     var currentSchema = dataFrame.schema
-    builtPipeline.getStages.map(stage => Try {
-      currentSchema = stage.transformSchema(currentSchema)
-    } match {
-      case Failure(e) =>
-        throw new Exception(s"Schema error on ${stage.getClass.getSimpleName}@${stage.uid}: ${e.getMessage}")
-      case _ => None
-    })
+    builtPipeline.getStages.foreach { stage =>
+      Try {
+        currentSchema = stage.transformSchema(currentSchema)
+      } match {
+        case Failure(e) =>
+          throw new Exception(s"Schema error on ${stage.getClass.getSimpleName}@${stage.uid}: ${e.getMessage}")
+        case _ => None
+      }
+    }
 
     // · Training pipeline
     val pipelineModel: PipelineModel = builtPipeline.fit(dataFrame)
 
     // · Save model to path
-    pathToSave.foreach(path =>
-      if (overrideHdfs) pipelineModel.write.overwrite().save(path) else pipelineModel.save(path)
-    )
+    if ((outputMode.get == MlPipelineSaveMode.FILESYSTEM) || (outputMode.get == MlPipelineSaveMode.BOTH))
+      pathToSave.foreach { path =>
+        if (saveMode == SaveModeEnum.Overwrite)
+          pipelineModel.write.overwrite().save(path)
+        else pipelineModel.save(path)
+      }
 
     // · Save model into an external ml model repository
-    externalMlModelRepositoryId.foreach(_ => {
+    if ((outputMode.get == MlPipelineSaveMode.MODELREP) || (outputMode.get == MlPipelineSaveMode.BOTH)) {
       // - Creating metadata dto
       val modelInfoDto = UploadModelRequestData(
         modelName = externalMlModelRepositoryModelName.get,
-        user = "sparta", notebook = "sparta", modelDescription = "", framework = "spark", additionalInfo = "" )
+        user = "sparta",
+        notebook = "sparta",
+        modelDescription = "",
+        framework = "spark",
+        additionalInfo = ""
+      )
       // - Executing uploading request
-      val response: Try[UploadModelResponse] = mlModelRepClient.get.uploadSparkModel(
-        modelInfoDto, dataFrame, pipelineModel, serializationLib)
+      val response: Try[UploadModelResponse] =
+        mlModelRepClient.get.uploadSparkModel(modelInfoDto, dataFrame, pipelineModel, serializationLib.toString)
+
       response match {
         case Success(_) => None
         case Failure(e) => throw e
       }
-    })
-  }
-
-  private def getMlRepoURI(localMode: Boolean, enableSecurity: Boolean, // Only For local testing
-                           mlModelrepId: String, mlModelRepPort: String, endpoint: String = ""): URI = {
-
-    def getDcosHostFromId(id: String): String = {
-      assert(id.startsWith("/"), "Bad Ml-Model-Repository service ID.")
-      s"${id.stripPrefix("/").split("/").reverse.mkString(".")}.marathon.mesos"
     }
-
-    def getScheme(secured: Boolean) = if (secured) "https://" else "http://"
-
-    if (localMode)
-      new URI(s"http://localhost:$mlModelRepPort$endpoint")
-    else new URI(
-      s"${getScheme(enableSecurity)}${getDcosHostFromId(mlModelrepId)}:$mlModelRepPort$endpoint")
   }
 
   /**
@@ -280,4 +259,19 @@ class MlPipelineOutputStep(
       case Right(pipeline) => Success(pipeline)
     }
   }
+}
+
+object MlPipelineOutputStep {
+
+  private val mlModelsRepositoryClients = scala.collection.mutable.Map[String, MlModelsRepositoryClient]()
+
+  def getMlRepositoryClient(xDSession: XDSession, url: String): MlModelsRepositoryClient = {
+    mlModelsRepositoryClients.getOrElseUpdate(url, {
+      if (url.contains("https"))
+        new MlModelsRepositoryClient(xDSession, url, SSLHelper.getSSLContextV2(withHttps = true))
+      else new MlModelsRepositoryClient(xDSession, url)
+    })
+  }
+
+  def removeMlRepositoryClient(url: String): Unit = mlModelsRepositoryClients.remove(url)
 }

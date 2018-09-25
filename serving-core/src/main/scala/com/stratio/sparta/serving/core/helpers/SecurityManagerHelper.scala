@@ -97,6 +97,7 @@ object SecurityManagerHelper {
       case "Template" => Resource(TemplateResource, resource)
       case "History" => Resource(HistoryResource, resource)
       case "ParameterList" => Resource(ParameterListResource, resource)
+      case "MlModels" => Resource(MlModelsResource, resource)
     }
   }
 

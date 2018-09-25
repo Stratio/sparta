@@ -27,6 +27,7 @@ object SpartaConfig extends SLF4JLogging {
   private var marathonConfig: Option[Config] = None
   private var sprayConfig: Option[Config] = None
   private var securityConfig: Option[Config] = None
+  private var intelligenceConfig: Option[Config] = None
 
   def getSpartaConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initMainConfig(fromConfig)
@@ -75,6 +76,10 @@ object SpartaConfig extends SLF4JLogging {
   def getSecurityConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initSecurityConfig(fromConfig)
     else securityConfig.orElse(initSecurityConfig(fromConfig))
+
+  def getIntelligenceConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initIntelligenceConfig(fromConfig)
+    else intelligenceConfig.orElse(initIntelligenceConfig(fromConfig))
 
   def daemonicAkkaConfig: Config = mainConfig match {
     case Some(mainSpartaConfig) =>
@@ -165,6 +170,12 @@ object SpartaConfig extends SLF4JLogging {
     val configFactory = SpartaConfigFactory(fromConfig)
     securityConfig = initConfig(ConfigSecurity, configFactory)
     securityConfig
+  }
+
+  private[config] def initIntelligenceConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    intelligenceConfig = initConfig(ConfigIntelligence, configFactory)
+    intelligenceConfig
   }
 
 }

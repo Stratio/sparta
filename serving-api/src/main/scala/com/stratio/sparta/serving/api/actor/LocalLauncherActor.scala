@@ -81,13 +81,12 @@ class LocalLauncherActor() extends Actor with SLF4JLogging {
           exception.toString,
           ExceptionHelper.toPrintableException(exception)
         )
-        executionService.setLastError(workflowExecution.getExecutionId, error)
         executionService.updateStatus(ExecutionStatusUpdate(
           workflowExecution.getExecutionId,
           ExecutionStatus(
             state = Failed,
             statusInfo = Option(information)
-          )))
+          )), error)
         self ! PoisonPill
     }
   }

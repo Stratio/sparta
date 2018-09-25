@@ -131,15 +131,11 @@ class LauncherActor(
           ExceptionHelper.toPrintableException(exception)
         )
         val executionId = workflowExecution.getExecutionId
-        for{
-          _ <- executionService.setLastError(executionId, error)
-          _ <- executionService.updateStatus(ExecutionStatusUpdate(
-            executionId,
-            ExecutionStatus(state = Failed, statusInfo = Option(information))
-          ))
-        } yield {
-          log.debug(s"Updated correctly the execution status $executionId to $Failed in LaucnherActor")
-        }
+        executionService.updateStatus(ExecutionStatusUpdate(
+          executionId,
+          ExecutionStatus(state = Failed, statusInfo = Option(information))
+        ), error)
+        log.debug(s"Updated correctly the execution status $executionId to $Failed in LaucnherActor")
         throw exception
     }
   }

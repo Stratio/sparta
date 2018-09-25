@@ -219,7 +219,8 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     val newEnv = Option(
       envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
-        calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties
+        calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
+        intelligenceProperties
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -362,6 +363,10 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
       key.contains("SPARTA_TIMEOUT_API_CALLS")
     }.mapValues(value => JsString(value))
 
+  private def intelligenceProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("INTELLIGENCE")
+    }.mapValues(value => JsString(value))
 
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] = {
     val submitExecution = execution.sparkSubmitExecution.get

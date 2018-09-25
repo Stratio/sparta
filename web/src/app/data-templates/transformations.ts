@@ -31,6 +31,7 @@ import * as intersectionTemplate from './transformations/intersection.json';
 import * as joinTemplate from './transformations/join.json';
 import * as jsonPathTemplate from './transformations/jsonpath.json';
 import * as jsonTemplate from './transformations/json.json';
+import * as mlModelTemplate from './transformations/mlModel.json';
 import * as orderByTemplate from './transformations/orderBy.json';
 import * as persistTemplate from './transformations/persist.json';
 import * as queryBuilderTemplate from './transformations/queryBuilder.json';
@@ -69,6 +70,7 @@ export const transformations: any = [
     joinTemplate,
     jsonPathTemplate,
     jsonTemplate,
+    mlModelTemplate,
     orderByTemplate,
     persistTemplate,
     queryBuilderTemplate,

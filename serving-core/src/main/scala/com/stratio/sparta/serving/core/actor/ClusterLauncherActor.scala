@@ -5,13 +5,7 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
-
 import akka.actor.{Actor, ActorRef}
-import org.apache.spark.launcher.SpartaLauncher
-import org.joda.time.DateTime
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -22,6 +16,10 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
+import org.apache.spark.launcher.SpartaLauncher
+import org.joda.time.DateTime
+
+import scala.util.{Failure, Success, Try}
 
 class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor with SchedulerUtils {
 
@@ -35,8 +33,8 @@ class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor
   }
 
   def doStartExecution(workflowExecution: WorkflowExecution): Unit = {
-    executionService.setLaunchDate(workflowExecution.getExecutionId, new DateTime())
-    doRun(workflowExecution)
+    val updateDateResult = executionService.setLaunchDate(workflowExecution, new DateTime())
+    doRun(updateDateResult)
   }
 
   //scalastyle:off
@@ -85,30 +83,22 @@ class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor
           exception.toString,
           ExceptionHelper.toPrintableException(exception)
         )
-        for {
-          _ <- executionService.setLastError(workflowExecution.getExecutionId, error)
-          _ <- executionService.updateStatus(ExecutionStatusUpdate(
-            workflowExecution.getExecutionId,
-            ExecutionStatus(state = Failed, statusInfo = Option(information))
-          ))
-        } yield {
-          log.debug(s"Updated correctly the execution status ${workflowExecution.getExecutionId} to $Failed in ClusterLauncherActor")
-        }
+        executionService.updateStatus(ExecutionStatusUpdate(
+          workflowExecution.getExecutionId,
+          ExecutionStatus(state = Failed, statusInfo = Option(information))
+        ), error)
+        log.debug(s"Updated correctly the execution status ${workflowExecution.getExecutionId} to $Failed in ClusterLauncherActor")
       case Success(sparkHandler) =>
         if (workflowExecution.getWorkflowToExecute.settings.global.executionMode == marathon)
           listenerService.addSparkClientListener(workflowExecution.getExecutionId, sparkHandler)
         val information = "Workflow launched correctly"
         log.info(information)
-        for {
-          _ <- executionService.updateStatus(ExecutionStatusUpdate(
-            workflowExecution.getExecutionId,
-            ExecutionStatus(state = Launched, statusInfo = Option(information))
-          ))
-          _ <- executionService.setStartDate(workflowExecution.getExecutionId, new DateTime())
-        } yield {
-          log.debug(s"Updated correctly the execution status ${workflowExecution.getExecutionId} to $Launched in ClusterLauncherActor")
-        }
-
+        val updateStateResult = executionService.updateStatus(ExecutionStatusUpdate(
+          workflowExecution.getExecutionId,
+          ExecutionStatus(state = Launched, statusInfo = Option(information))
+        ))
+        executionService.setStartDate(updateStateResult, new DateTime())
+        log.debug(s"Updated correctly the execution status ${workflowExecution.getExecutionId} to $Launched in ClusterLauncherActor")
     }
   }
 }

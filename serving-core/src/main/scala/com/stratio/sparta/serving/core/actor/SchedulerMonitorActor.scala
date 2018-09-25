@@ -137,7 +137,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
 
   //scalastyle:off
   def localStop(workflowExecution: WorkflowExecution): Unit = {
-    if (workflowExecution.lastStatus.state == Stopping) {
+    val updatedExecution = if (workflowExecution.lastStatus.state == Stopping) {
       log.info("Stop message received")
       scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
@@ -167,15 +167,13 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
               e.toString,
               ExceptionHelper.toPrintableException(e)
             )
-            executionService.setLastError(workflowExecution.getExecutionId, wError)
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(state = Failed, statusInfo = Option(error)))
-            )
-          }
+            , wError)
+          } else workflowExecution
       }
-    }
-    if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == Failed) {
+    } else if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == Failed) {
       scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
         scheduledActions -= task
@@ -188,9 +186,10 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
         workflowExecution.getExecutionId,
         ExecutionStatus(state = newStatus, statusInfo = newStatusInfo)
       ))
-    }
-    if (workflowExecution.lastStatus.state == Stopping || workflowExecution.lastStatus.state == Failed) {
-      Try(executionService.setEndDate(workflowExecution.getExecutionId, new DateTime()))
+    } else workflowExecution
+
+    if (updatedExecution.genericDataExecution.endDate.isEmpty) {
+      Try(executionService.setEndDate(updatedExecution, new DateTime()))
         .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
     }
   }
@@ -205,7 +204,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
         scheduledActions -= task
       }
       log.info(s"Finishing workflow with Marathon API")
-      Try {
+      val executionUpdated = Try {
         new MarathonService(context).kill(workflowExecution.marathonExecution.get.marathonId)
       } match {
         case Success(_) =>
@@ -228,15 +227,16 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
               e.toString,
               ExceptionHelper.toPrintableException(e)
             )
-            executionService.setLastError(workflowExecution.getExecutionId, wError)
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(state = Failed, statusInfo = Some(error))
-            ))
-          }
+            ), wError)
+          } else workflowExecution
       }
-      Try(executionService.setEndDate(workflowExecution.getExecutionId, new DateTime()))
-        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
+      if (executionUpdated.genericDataExecution.endDate.isEmpty) {
+        Try(executionService.setEndDate(executionUpdated, new DateTime()))
+          .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
+      }
     }
   }
 
@@ -248,7 +248,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
         scheduledActions -= task
       }
       log.info(s"Finishing workflow with Dispatcher API")
-      Try {
+      val executionUpdated = Try {
         val urlWithAppId = s"${workflowExecution.sparkDispatcherExecution.get.killUrl}/" +
           s"${workflowExecution.sparkExecution.get.applicationId}"
         log.info(s"Killing application (${workflowExecution.sparkExecution.get.applicationId}) " +
@@ -270,12 +270,12 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
           log.debug(s"Failed response: $submissionResponse")
           val information = s"Error while stopping task"
           log.info(information)
-          val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error, error))
-          wError.foreach(error => executionService.setLastError(workflowExecution.getExecutionId, error))
-          executionService.updateStatus(ExecutionStatusUpdate(
+          val updateStateResult = executionService.updateStatus(ExecutionStatusUpdate(
             workflowExecution.getExecutionId,
             ExecutionStatus(state = Failed, statusInfo = Some(information))
           ))
+          val wError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error, error))
+          wError.map(error => executionService.setLastError(updateStateResult, error)).getOrElse(updateStateResult)
         case Failure(e) =>
           val error = "Impossible to parse submission killing response"
           log.error(error, e)
@@ -285,14 +285,15 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
             e.toString,
             ExceptionHelper.toPrintableException(e)
           )
-          executionService.setLastError(workflowExecution.getExecutionId, wError)
           executionService.updateStatus(ExecutionStatusUpdate(
             workflowExecution.getExecutionId,
             ExecutionStatus(state = Failed, statusInfo = Some(error))
-          ))
+          ), wError)
       }
-      Try(executionService.setEndDate(workflowExecution.getExecutionId, new DateTime()))
-        .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
+      if (executionUpdated.genericDataExecution.endDate.isEmpty) {
+        Try(executionService.setEndDate(executionUpdated, new DateTime()))
+          .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
+      }
     }
   }
 
@@ -308,35 +309,35 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
 
       workflowExecution.lastStatus.state match {
         case status if wrongStartStates.contains(status) =>
-          val information = s"Checker: the workflow did not start correctly after maximum deployment time"
+          val information = s"Checker: the workflow execution did not start correctly after maximum deployment time"
           log.warn(information.replace("  ", s" $id "))
           executionService.updateStatus(ExecutionStatusUpdate(
             id,
             ExecutionStatus(state = Failed, statusInfo = Some(information))
           ))
         case status if wrongStopStates.contains(status) =>
-          val information = s"Checker: the workflow did not stop correctly after maximum deployment time"
+          val information = s"Checker: the workflow execution  did not stop correctly after maximum deployment time"
           log.warn(information.replace("  ", s" $id "))
           executionService.updateStatus(ExecutionStatusUpdate(
             id,
             ExecutionStatus(state = Failed, statusInfo = Some(information))
           ))
         case status if validStartStates.contains(status) =>
-          val information = s"Checker: the workflow started correctly"
+          val information = s"Checker: the workflow execution  started correctly"
           log.info(information.replace("  ", s" $id "))
           executionService.updateStatus(ExecutionStatusUpdate(
             id,
             ExecutionStatus(state = NotDefined, statusInfo = Some(information))
           ))
         case status if validStopStates.contains(status) =>
-          val information = s"Checker: the workflow stopped correctly"
+          val information = s"Checker: the workflow execution  stopped correctly"
           log.info(information.replace("  ", s" $id "))
           executionService.updateStatus(ExecutionStatusUpdate(
             id,
             ExecutionStatus(state = NotDefined, statusInfo = Some(information))
           ))
         case _ =>
-          val information = s"Checker: the workflow has invalid state ${workflowExecution.lastStatus.state}"
+          val information = s"Checker: the workflow execution  has invalid state ${workflowExecution.lastStatus.state}"
           log.info(information.replace("  ", s" $id "))
           executionService.updateStatus(ExecutionStatusUpdate(
             id,

@@ -6,8 +6,6 @@
 
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization
 
-import javassist.bytecode.stackmap.TypeData.ClassName
-
 import org.apache.spark.ml.param.Param
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JBool
@@ -17,7 +15,11 @@ import scala.util.Try
 
 /** Custom json4s serializator/deserializator for boolean values threated as strings */
 object BooleanToString extends CustomSerializer[String](
-  format => ({ case JBool(x) => x.toString }, { case x: String => JBool(x.toBoolean) })
+  _ => ( {
+    case JBool(x) => x.toString
+  }, {
+    case x: String => JBool(x.toBoolean)
+  })
 )
 
 
@@ -37,36 +39,24 @@ case class PipelineStageDescriptor(
                                     name: String,
                                     uid: String,
                                     className: String,
-                                    // parameters: Seq[PipelineStageParam],
                                     properties: Map[String, String]
                                   )
 
 
-/** PipelineStage parameter object descriptor
-  *
-  * @param name
-  * @param value
-  */
-case class PipelineStageParam(
-                               name: String,
-                               value: String
-                             )
-
-
 //noinspection ScalaStyle
-object MlPipelineDeserializationUtils{
+object MlPipelineDeserializationUtils {
 
-  def decodeParamValue(param: Param[Any], value:String=null): Try[Any] = Try {
+  def decodeParamValue(param: Param[Any], value: String = null): Try[Any] = Try {
     param.getClass().getSimpleName match {
-      case "BooleanParam" => if(value==null) "Boolean" else value.toBoolean
-      case "LongParam" => if(value==null) "Long"  else value.toLong
-      case "DoubleParam" => if(value==null) "Double" else value.toDouble
-      case "FloatParam" => if(value==null) "Float" else value.toFloat
-      case "IntParam" => if(value==null) "Int" else value.toInt
-      case "StringArrayParam" => if(value==null) "Array[String] (comma separated values)" else value.split(",").map(_.trim)
-      case "DoubleArrayParam" => if(value==null) "Array[Double] (comma separated values)" else value.split(",").map(_.trim.toDouble)
-      case "IntArrayParam" => if(value==null) "Array[Int] (comma separated values)" else value.split(",").map(_.trim.toInt)
-      case "Param" => if(value==null) "String" else value
+      case "BooleanParam" => if (value == null) "Boolean" else value.toBoolean
+      case "LongParam" => if (value == null) "Long" else value.toLong
+      case "DoubleParam" => if (value == null) "Double" else value.toDouble
+      case "FloatParam" => if (value == null) "Float" else value.toFloat
+      case "IntParam" => if (value == null) "Int" else value.toInt
+      case "StringArrayParam" => if (value == null) "Array[String] (comma separated values)" else value.split(",").map(_.trim)
+      case "DoubleArrayParam" => if (value == null) "Array[Double] (comma separated values)" else value.split(",").map(_.trim.toDouble)
+      case "IntArrayParam" => if (value == null) "Array[Int] (comma separated values)" else value.split(",").map(_.trim.toInt)
+      case "Param" => if (value == null) "String" else value
       case _ => throw new Exception("Unknown parameter type")
     }
   }

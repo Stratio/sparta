@@ -8,19 +8,17 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation
 object ValidationErrorMessages {
 
   // => Output mode errors
-  val nonDefinedSaveMode = "'output.mode' property is mandatory."
-  val invalidSaveMode = "Invalid 'output.mode' property value."
+  val invalidSaveMode = "Invalid save mode value."
   // - Filesystem
-  val nonDefinedPath = "'path' property is mandatory in Filesystem output mode."
+  val nonDefinedPath = "The path is mandatory in Filesystem save mode."
   // - Ml-Model-Repository
-  val nonDefinedMlRepoConnection = "Ml-model-repository DCOS service Id, port and model name properties " +
-  "are mandatory in Ml-Model-Repository output mode."
+  val nonDefinedMlRepoConnection = "The url and the model name are mandatory in Ml-Model-Repository save mode."
   val mlModelRepConnectionError = "Error while connecting to external Ml-Model-Repository."
-  val mlModelRepModelAlreadyExistError = "There exists a model with the same name in external Ml-Model-Repository."
-  val mlModelRepInvalidPortValue = "Ml-Model-Repository port has an invalid value."
+  val mlModelRepModelAlreadyExistError = "There exists a model with the same name."
+  val errorUrlMessage = "It's mandatory to specify the model repository URL."
 
   // => Json pipeline descriptor
-  val emptyJsonPipelineDescriptor = "'pipeline' property (with a non-empty JSON pipeline descriptor) is mandatory."
+  val emptyJsonPipelineDescriptor = "The pipeline descriptor is mandatory."
   val invalidJsonFormatPipelineDescriptor = "Unable to parse pipeline json descriptor."
 
   // => Building pipeline

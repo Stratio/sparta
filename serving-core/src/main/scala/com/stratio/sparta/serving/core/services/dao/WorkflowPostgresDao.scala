@@ -32,6 +32,8 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   import profile.api._
 
+  import com.stratio.sparta.serving.core.dao.CustomColumnTypes._
+
   import WorkflowPostgresDao._
 
   private val validatorService = new WorkflowValidatorService()
@@ -136,8 +138,8 @@ class WorkflowPostgresDao extends WorkflowDao {
     log.debug(s"Renaming workflow versions for group: ${workflowRename.groupId} and name: ${workflowRename.oldName}")
     (for {
       oldWorkflow <- db.run(table.filter(w => w.name === workflowRename.oldName && w.groupId.isDefined && w.groupId === workflowRename.groupId).result)
-      updated <- db.run(DBIO.sequence(oldWorkflow.map(w =>
-        table.filter(_.id === w.id.get).update(w.copy(name = workflowRename.newName)))).transactionally) //Update after filter by id
+      _ <- db.run(DBIO.sequence(oldWorkflow.map(w =>
+        table.filter(_.id === w.id.get).map(_.name).update(workflowRename.newName))).transactionally) //Update after filter by id
     } yield {
       db.run(table.filter(w => w.name === workflowRename.newName && w.groupId === workflowRename.groupId).result)
     }).flatMap(f => f)

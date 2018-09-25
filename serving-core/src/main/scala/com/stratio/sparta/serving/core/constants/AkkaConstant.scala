@@ -27,6 +27,7 @@ object AkkaConstant {
   val ParametersStatusListenerActorName = "parametersStatusListenerActor"
   val GroupActorName = "groupActor"
   val DebugWorkflowActorName = "DebugWorkflowApiActor"
+  val MlModelsActorName = "MlModelsApiActor"
   val EnvironmentCleanerActorName= "EnvironmentCleanerActor"
   val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
   val ParameterListActorName = "ParameterListActorName"

@@ -123,7 +123,7 @@ This software – including all its source code – contains proprietary informa
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
-        <mlmodelrep.version>1.3.0-SNAPSHOTPR63</mlmodelrep.version>
+        <mlmodelrep.version>1.3.0-M1</mlmodelrep.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -511,25 +511,6 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
-                <version>${stratio.spark.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.stratio.spark</groupId>
                 <artifactId>spark-mllib-${apache.spark.version}_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
@@ -580,6 +561,25 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>org.scalanlp</groupId>
                         <artifactId>breeze_${scala.binary.version}</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.spark</groupId>
+                <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
+                <version>${stratio.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -803,6 +803,11 @@ This software – including all its source code – contains proprietary informa
                 <groupId>com.gettyimages</groupId>
                 <artifactId>spray-swagger_${scala.binary.version}</artifactId>
                 <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
+                <version>${http.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.typesafe.play</groupId>

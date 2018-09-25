@@ -29,6 +29,10 @@
              {
                 "label": "External Ml-Model-Repository service",
                 "value": "MODELREP"
+             },
+             {
+                "label": "Both",
+                "value": "BOTH"
              }
           ],
           "default": "FILESYSTEM",
@@ -47,58 +51,15 @@
                    "propertyId": "output.mode",
                    "value": "FILESYSTEM"
                 }
+             ],
+             [
+                {
+                   "propertyId": "output.mode",
+                   "value": "BOTH"
+                }
              ]
           ],
           "tooltip": "Hdfs path",
-          "qa": ""
-       },
-       {
-          "propertyId": "overrideHdfs",
-          "propertyName": "_MLPIPELINE_OVERRIDE_HDFS_",
-          "propertyType": "boolean",
-          "required": false,
-          "visible": [
-             [
-                {
-                   "propertyId": "output.mode",
-                   "value": "FILESYSTEM"
-                }
-             ]
-          ],
-          "default": false,
-          "tooltip": "Hdfs path",
-          "qa": ""
-       },
-       {
-          "propertyId": "mlmodelrepId",
-          "propertyName": "_MODELREP_ID_",
-          "propertyType": "text",
-          "required": false,
-          "visible": [
-             [
-                {
-                   "propertyId": "output.mode",
-                   "value": "MODELREP"
-                }
-             ]
-          ],
-          "tooltip": "Ml-model-repository DCOS service Id.",
-          "qa": ""
-       },
-       {
-          "propertyId": "mlmodelrepPort",
-          "propertyName": "_MODELREP_PORT_",
-          "propertyType": "text",
-          "required": false,
-          "visible": [
-             [
-                {
-                   "propertyId": "output.mode",
-                   "value": "MODELREP"
-                }
-             ]
-          ],
-          "tooltip": "Ml-model-repository DCOS service port.",
           "qa": ""
        },
        {
@@ -111,6 +72,12 @@
                 {
                    "propertyId": "output.mode",
                    "value": "MODELREP"
+                }
+             ],
+             [
+                {
+                   "propertyId": "output.mode",
+                   "value": "BOTH"
                 }
              ]
           ],
@@ -143,6 +110,12 @@
                    "propertyId": "output.mode",
                    "value": "MODELREP"
                 }
+             ],
+             [
+                {
+                   "propertyId": "output.mode",
+                   "value": "BOTH"
+                }
              ]
           ],
           "tooltip": "Serialization library to use for saving the pipeline model into the Ml-Model-Repository.",
@@ -158,6 +131,12 @@
                 {
                    "propertyId": "output.mode",
                    "value": "MODELREP"
+                }
+             ],
+             [
+                {
+                   "propertyId": "output.mode",
+                   "value": "BOTH"
                 }
              ]
           ],
@@ -175,6 +154,12 @@
                 {
                    "propertyId": "output.mode",
                    "value": "MODELREP"
+                }
+             ],
+             [
+                {
+                   "propertyId": "output.mode",
+                   "value": "BOTH"
                 }
              ]
           ],

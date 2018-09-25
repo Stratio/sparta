@@ -7,10 +7,12 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -38,13 +40,11 @@ class MlModelRepositoryServiceTests extends TemporalSparkContext with Matchers {
 
   trait WithLocalRepositoryProperties {
     var properties: Map[String, JSerializable] = Map(
-      "output.mode" -> JsoneyString(StaticData.SAVE_MODE_MLMODELREP),
-      "mlmodelrepId" -> "/local",
-      "mlmodelrepPort" -> "8080",
+      "output.mode" -> JsoneyString(MlPipelineSaveMode.MODELREP.toString),
       "mlmodelrepModelName" -> "localtest",
       "mlmodelrepModelTmpDir" -> "/tmp",
-      "mlmodelrepLocal" -> true,
-      "serializationLib" -> "MLEAP"
+      SdkConstants.ModelRepositoryUrl -> "http://localhost:8080",
+      "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.MLEAP.toString)
     )
   }
 

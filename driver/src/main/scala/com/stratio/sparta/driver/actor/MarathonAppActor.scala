@@ -5,12 +5,8 @@
  */
 package com.stratio.sparta.driver.actor
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
-
 import akka.actor.{Actor, ActorRef, Props}
 import akka.event.slf4j.SLF4JLogging
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -22,6 +18,8 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
+
+import scala.util.{Failure, Success, Try}
 
 class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor with SLF4JLogging {
 
@@ -75,15 +73,12 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
           exception.toString,
           ExceptionHelper.toPrintableException(exception)
         )
-        for {
-          _ <- executionService.setLastError(execution.getExecutionId, error)
-          _ <- executionService.updateStatus(ExecutionStatusUpdate(
-            execution.getExecutionId,
-            ExecutionStatus(state = Failed, statusInfo = Option(information))
-          ))
-        } yield {
-          log.debug(s"Updated correctly the execution status ${execution.getExecutionId} to $Failed in MarathonAppActor")
-        }
+        executionService.updateStatus(ExecutionStatusUpdate(
+          execution.getExecutionId,
+          ExecutionStatus(state = Failed, statusInfo = Option(information))
+        ), error)
+        log.debug(s"Updated correctly the execution status ${execution.getExecutionId} to $Failed in MarathonAppActor")
+
     }
   }
 
