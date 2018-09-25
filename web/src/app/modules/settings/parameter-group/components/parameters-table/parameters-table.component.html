@@ -53,6 +53,10 @@
                               </div>
                               <div class="col-sm-2">
                                  <button [disabled]="!myListForm.valid || myListForm.pristine" class="button button-primary save-button" (click)="onSaveList(list)">Save</button>
+                                 <span class="icon icon-ellipsis" (click)="onOption()"> </span>
+                                 <div *ngIf="showOption" class="option-box">
+                                    <div class="option-element" (click)="onDeleteList(list)"><i class="icon-trash"><span>Delete</span></i></div>
+                                 </div>
                               </div>
                            </div>
                         </div>

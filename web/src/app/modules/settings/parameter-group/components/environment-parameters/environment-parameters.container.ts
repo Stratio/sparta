@@ -29,6 +29,7 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (search)="searchEnvironment($event)"
       (saveEnvironmentContext)="onSaveEnvironmentContext($event)"
       [creationMode]="creationMode"
+      (deleteContext)="onDeleteContext($event)"
        ></environment-parameters>
   `
 })
@@ -96,6 +97,9 @@ export class EnvironmentParametersContainer implements OnInit {
       if (list.name !== name) {
          this._store.dispatch(new environmentParamsActions.SaveEnvironmentContext({ ...list, name }));
       }
+   }
+   onDeleteContext(context) {
+      this._store.dispatch(new environmentParamsActions.DeleteContextAction(context));
    }
 
    initRequest() {

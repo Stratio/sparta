@@ -22,8 +22,7 @@ export const SEARCH_ENVIRONMENT_PARAMS = '[Environment Params] Search environmen
 export const ADD_ENVIRONMENT_CONTEXT = '[Environment Params] Add environment context';
 export const SAVE_ENVIRONMENT_CONTEXT = '[Environment Params] Save environment context';
 export const SAVE_ENVIRONMENT_CONTEXT_COMPLETE = '[Environment Params] Save environment context complete';
-
-
+export const DELETE_ENVIRONMENT_CONTEXT = '[Environment Params] Delete environment context';
 
 export class ListEnvironmentParamsAction implements Action {
    readonly type = LIST_ENVIRONMENT_PARAMS;
@@ -105,6 +104,11 @@ export class SaveEnvironmentContextComplete implements Action {
    constructor(public payload: any) {}
 }
 
+export class DeleteContextAction implements Action {
+   readonly type = DELETE_ENVIRONMENT_CONTEXT;
+   constructor(public context: any) {}
+}
+
 export type Actions = ListEnvironmentParamsAction
   | ListEnvironmentParamsCompleteAction
   | ListEnvironmentParamsErrorAction
@@ -118,4 +122,5 @@ export type Actions = ListEnvironmentParamsAction
   | DeleteEnviromentAction
   | ChangeContextOptionAction
   | SearchEnvironmentAction
-  | AddEnvironmentContextAction;
+  | AddEnvironmentContextAction
+  | DeleteContextAction;

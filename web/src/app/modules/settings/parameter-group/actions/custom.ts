@@ -19,6 +19,7 @@ export const ADD_CUSTOM_PARAMS = '[Custom Params] Add custom params';
 export const ADD_CUSTOM_PARAMS_COMPLETE = '[Custom Params] Add custom params complete';
 export const ADD_CUSTOM_LIST = '[Custom Params] Add custom list';
 export const SAVE_CUSTOM_LIST = '[Custom Params] Save custom list';
+export const SAVE_CUSTOM_CONTEXT = '[Custom Params] Save custom context';
 export const DELETE_CUSTOM_PARAMS = '[Custom Params] Delete custom param';
 export const GO_CUSTOM_PARAMS = '[Custom Params] Go custom param';
 export const CHANGE_CONTEXT_OPTION = '[Custom Params] Change context option';
@@ -27,6 +28,9 @@ export const ADD_CONTEXT_COMPLETE = '[Custom Params] Add context complete';
 export const SEARCH_CUSTOM_PARAMS = '[Custom Params] Search custom params';
 export const ADD_CUSTOM_CONTEXT = '[Custom Params] Add custom context';
 export const SAVE_CUSTOM_PARAMS_COMPLETE = '[Custom Params] Save custom params complete';
+export const DELETE_CUSTOM_LIST = '[Custom Params] Delete custom list';
+export const DELETE_CUSTOM_CONTEXT = '[Custom Params] Delete custom context';
+
 
 export class ListCustomParamsAction implements Action {
    readonly type = LIST_CUSTOM_PARAMS;
@@ -91,6 +95,13 @@ export class SaveCustomListAction implements Action {
    constructor(public payload: any) {}
 }
 
+export class SaveCustomContextAction implements Action {
+   readonly type = SAVE_CUSTOM_CONTEXT;
+   constructor(public payload: any) {}
+}
+
+
+
 export class DeleteCustomAction implements Action {
    readonly type = DELETE_CUSTOM_PARAMS;
    constructor(public payload: any) {}
@@ -130,6 +141,16 @@ export class SaveCustomParamsCompleteAction implements Action {
    constructor() {}
 }
 
+export class DeleteListAction implements Action {
+   readonly type = DELETE_CUSTOM_LIST;
+   constructor(public list: any) {}
+}
+
+export class DeleteContextAction implements Action {
+   readonly type = DELETE_CUSTOM_CONTEXT;
+   constructor(public context: any) {}
+}
+
 
 
 export type Actions = ListCustomParamsAction
@@ -151,4 +172,7 @@ export type Actions = ListCustomParamsAction
   | AddContextCompleteAction
   | SearchCustomAction
   | AddCustomContextAction
-  | SaveCustomParamsCompleteAction;
+  | SaveCustomParamsCompleteAction
+  | DeleteListAction
+  | DeleteContextAction
+  | SaveCustomContextAction;

@@ -13,6 +13,6 @@
          <parameter-group-header (onCreateParam)="onAddEnvironmentContext()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [creationMode]="creationMode"></parameter-group-header>
          <parameters-table [inputList]="environmentContexts" (onAddNewContext)="addNewContext($event)" [configContext]="true"
             (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)"
-            (onSaveParamList)="saveContextList($event)" [creationMode]="creationMode"></parameters-table>
+            (onSaveParamList)="saveContextList($event)" [creationMode]="creationMode" (deleteList)="onDeleteContext($event)"></parameters-table>
       </div>
    </st-fullscreen-layout>

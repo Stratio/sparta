@@ -8,7 +8,7 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } fro
 import { Store } from '@ngrx/store';
 import * as fromParameters from '../../reducers';
 import * as alertParametersActions from '../../actions/alert';
-
+import * as environmentParametersActions from '../../actions/environment';
 
 @Component({
   selector: 'environment-parameters',
@@ -35,6 +35,7 @@ export class EnvironmentParametersComponent implements OnInit {
    @Output() deleteParam = new EventEmitter<any>();
    @Output() changeContext = new EventEmitter<any>();
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
+   @Output() deleteContext = new EventEmitter<any>();
 
   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
 
@@ -72,6 +73,10 @@ export class EnvironmentParametersComponent implements OnInit {
 
    toggleConfigContext() {
       this.showConfigContext = !this.showConfigContext;
+      this._store.dispatch(new alertParametersActions.HideAlertAction());
+      if (!this.showConfigContext) {
+         this._store.dispatch(new environmentParametersActions.ListEnvironmentParamsAction());
+      }
    }
 
    saveContextList(context) {
@@ -81,8 +86,11 @@ export class EnvironmentParametersComponent implements OnInit {
    onAddEnvironmentContext() {
       this.addEnvironmentContext.emit();
    }
+   onDeleteContext(list) {
+      this.deleteContext.emit(list);
+   }
 
    closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 30000);
+      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 3000);
    }
 }

@@ -9,6 +9,7 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
 import { Store } from '@ngrx/store';
 import * as fromParameters from '../../reducers';
 import * as alertParametersActions from '../../actions/alert';
+import * as customParametersActions from '../../actions/custom';
 
 @Component({
    selector: 'custom-parameters',
@@ -31,12 +32,15 @@ export class CustomParametersComponent implements OnInit {
    @Output() addCustomParam = new EventEmitter<any>();
    @Output() addCustomList = new EventEmitter<any>();
    @Output() saveList = new EventEmitter<any>();
+   @Output() saveContext = new EventEmitter<any>();
    @Output() deleteParam = new EventEmitter<any>();
    @Output() goToCustom = new EventEmitter<any>();
    @Output() addContext = new EventEmitter<any>();
    @Output() changeContext = new EventEmitter<any>();
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
    @Output() addCustomContext =  new EventEmitter<any>();
+   @Output() deleteList = new EventEmitter<any>();
+   @Output() deleteContext = new EventEmitter<any>();
 
    public showConfigContext = false;
 
@@ -75,6 +79,12 @@ export class CustomParametersComponent implements OnInit {
       this.saveList.emit(list);
    }
 
+   saveParamContext(list: any) {
+      this.saveContext.emit(list);
+   }
+
+
+
    deleteCustomParam(param) {
       this.deleteParam.emit(param);
    }
@@ -93,12 +103,25 @@ export class CustomParametersComponent implements OnInit {
 
    toggleConfigContext() {
       this.showConfigContext = !this.showConfigContext;
+      this._store.dispatch(new alertParametersActions.HideAlertAction());
+      if (!this.showConfigContext) {
+         this._store.dispatch(new customParametersActions.NavigateToListAction({ name: this.breadcrumbList.name  }));
+      }
    }
 
    onAddCustomContext() {
       this.addCustomContext.emit();
    }
+
+   onDeleteList(list) {
+      this.deleteList.emit(list);
+   }
+
+   onDeleteContext(list) {
+      this.deleteContext.emit(list);
+   }
+
    closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 30000);
+      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 3000);
    }
 }

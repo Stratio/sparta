@@ -136,6 +136,18 @@ export class EnviromentParametersEffect {
             .catch(error => of(new alertParametersActions.ShowAlertAction('Context can not save')));
       });
 
+      @Effect()
+      deleteCustomContext$: Observable<any> = this._actions$
+         .ofType(environmentParametersActions.DELETE_ENVIRONMENT_CONTEXT)
+         .map((action: any) => action.context)
+         .switchMap((context: any) => {
+            return this._parametersService.deleteList(context.id)
+               .mergeMap(res => [
+                  new environmentParametersActions.ListEnvironmentParamsAction(),
+                  new alertParametersActions.ShowAlertAction('Context deleted')
+               ])
+               .catch(error => of(new alertParametersActions.ShowAlertAction('Context can not delete')));
+         });
 
 
    constructor(

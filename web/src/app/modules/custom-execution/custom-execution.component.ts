@@ -96,7 +96,6 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   changeContext(event, groupName) {
-    console.log("c")
     const groups = this.executionContexts.groupsAndContexts;
     const eventGroup = groups.find(group => group.parameterList.name === groupName);
     this.selectedContexts[groupName] = eventGroup.contexts.find(context => context.name === event).parameters;

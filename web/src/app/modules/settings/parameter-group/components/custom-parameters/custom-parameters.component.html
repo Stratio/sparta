@@ -3,7 +3,8 @@
    <div *ngIf="breadcrumbList" class="breadcrumb"><span class="link" (click)="goCustom()">All groups</span><span> / {{breadcrumbList.name}}</span></div>
    <parameters-table [inputParameters]="customParams" [inputList]="customList" [contextList]="customContexts" [withContext]="true"
       (onSaveParamContexts)="saveParamContexts($event)" (onNavigate)="navigateToList($event)" (onSaveParamList)="saveParamList($event)"
-      (deleteParam)="deleteCustomParam($event)" (changeContext)="onChangeContext($event)" (onAddNewContext)="addNewContext($event)" [creationMode]="creationMode">
+      (deleteParam)="deleteCustomParam($event)" (changeContext)="onChangeContext($event)" (onAddNewContext)="addNewContext($event)" [creationMode]="creationMode"
+      (deleteList)="onDeleteList($event)">
    </parameters-table>
 </div>
 
@@ -17,8 +18,8 @@
       <div>Contexts</div>
       <parameter-group-header (onCreateParam)="onAddCustomContext()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [creationMode]="creationMode"></parameter-group-header>
       <parameters-table [inputList]="customContexts" (onAddNewContext)="addNewContext($event)" [configContext]="true"
-         (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteCustomParam($event)" (changeContext)="onChangeContext($event)"
-         (onSaveParamList)="saveParamList($event)" [creationMode]="creationMode"></parameters-table>
+         (onSaveParamContexts)="saveParamContext($event)" (deleteParam)="deleteCustomParam($event)" (changeContext)="onChangeContext($event)"
+         (onSaveParamList)="saveParamContext($event)" [creationMode]="creationMode" (deleteList)="onDeleteContext($event)"></parameters-table>
    </div>
 </st-fullscreen-layout>
 

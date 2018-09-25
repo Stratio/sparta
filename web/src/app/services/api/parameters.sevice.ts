@@ -57,6 +57,11 @@ export class ParametersService extends ApiService {
       return this.request(`paramList/parentAndContexts/${name}`, 'get', options);
    }
 
+   deleteList(id: string): Observable<any> {
+      const options: any = {};
+      return this.request(`paramList/id/${id}`, 'delete', options);
+   }
+
    getCustomContexts(name: string): Observable<any> {
       const options: any = {};
       return this.request(`paramList/contexts/${name}`, 'get', options);

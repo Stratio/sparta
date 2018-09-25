@@ -30,6 +30,7 @@ export class ParametersTableComponent implements OnInit, OnChanges {
    @Output() onNavigate = new EventEmitter<any>();
    @Output() onSaveParamList = new EventEmitter<any>();
    @Output() deleteParam = new EventEmitter<any>();
+   @Output() deleteList = new EventEmitter<any>();
    @Output() changeContext = new EventEmitter<any>();
 
 
@@ -143,6 +144,10 @@ export class ParametersTableComponent implements OnInit, OnChanges {
    onChangeContext(context) {
       this.selectedContext = context.value;
       this.changeContext.emit(this.selectedContext);
+   }
+
+   onDeleteList(list) {
+      this.deleteList.emit(list);
    }
 
    onSave() {

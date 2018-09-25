@@ -25,6 +25,7 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (addCustomParam)="onAddCustomParam()"
       (addCustomList)="onAddCustomList()"
       (saveList)="onSaveList($event)"
+      (saveContext)="onSaveContext($event)"
       (deleteParam)="onDeleteParam($event)"
       (goToCustom)="goCustom()"
       (changeContext)="onChangeContext($event)"
@@ -32,6 +33,8 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (search)="searchCustom($event)"
       [creationMode]="creationMode"
       (addCustomContext)="onAddCustomContext()"
+      (deleteList)="onDeleteList($event)"
+      (deleteContext)="onDeleteContext($event)"
       >
 
    </custom-parameters>
@@ -83,6 +86,10 @@ export class CustomParametersContainer implements OnInit {
       this._store.dispatch(new customParamsActions.SaveCustomListAction(list));
    }
 
+   onSaveContext(context) {
+      this._store.dispatch(new customParamsActions.SaveCustomContextAction(context));
+   }
+
    onDeleteParam(param) {
       this._store.dispatch(new customParamsActions.DeleteCustomAction(param));
    }
@@ -106,5 +113,14 @@ export class CustomParametersContainer implements OnInit {
    onAddCustomContext() {
       this._store.dispatch(new customParamsActions.AddCustomContextAction());
    }
+
+   onDeleteList(list) {
+      this._store.dispatch(new customParamsActions.DeleteListAction(list));
+   }
+
+   onDeleteContext(context) {
+      this._store.dispatch(new customParamsActions.DeleteContextAction(context));
+   }
+
 
 }
