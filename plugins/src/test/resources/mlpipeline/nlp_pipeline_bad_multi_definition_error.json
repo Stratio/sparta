@@ -1,0 +1,64 @@
+[
+    {
+        "name": "Tokenizer",
+        "className": "org.apache.spark.ml.feature.Tokenizer",
+        "uid": "t1",
+        "properties": {
+            "inputCol": "text",
+            "outputCol": "words"
+        }
+    },
+    {
+        "name": "HashingTF",
+        "className": "nonexistent_stage_1",
+        "uid": "h1",
+        "properties": {
+            "inputCol": "words",
+            "numFeatures": "1000",
+            "outputCol": "features"
+
+        }
+    },
+    {
+        "name": "LogisticRegression",
+        "uid": "l1",
+        "className": "org.apache.spark.ml.classification.nonexistent_stage_2",
+        "properties": {
+            "maxIter": "10",
+            "regParam": "0.001",
+            "fitIntercept": false
+        }
+    },
+    {
+        "name": "Tokenizer",
+        "className": "org.apache.spark.ml.feature.Tokenizer",
+        "uid": "t2",
+        "properties": {
+            "inputCol": "text",
+            "outputCol": "words",
+            "nonexistent_param_1": "aaa"
+        }
+    },
+    {
+        "name": "HashingTF",
+        "className": "org.apache.spark.ml.feature.HashingTF",
+        "uid": "h2",
+        "properties": {
+            "inputCol": "words",
+            "numFeatures": "bad_value1",
+            "outputCol": "features",
+            "nonexistent_param_2": "aaa"
+
+        }
+    },
+    {
+        "name": "LogisticRegression",
+        "uid": "l2",
+        "className": "org.apache.spark.ml.classification.LogisticRegression",
+        "properties": {
+            "maxIter": "10",
+            "regParam": "bad_value2",
+            "fitIntercept": false
+        }
+    }
+]

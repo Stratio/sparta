@@ -253,7 +253,11 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
-            <artifactId>spray-routing_${scala.binary.version}</artifactId>
+            <artifactId>spray-routing-shapeless23_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.chuusai</groupId>
+            <artifactId>shapeless_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.tikitakka</groupId>

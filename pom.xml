@@ -74,6 +74,7 @@ This software – including all its source code – contains proprietary informa
         <scalatest.version>2.2.5</scalatest.version>
         <scalatick.version>2.2.5</scalatick.version>
         <spray.version>1.3.4</spray.version>
+        <shapeless.version>2.3.2</shapeless.version>
         <guava.version>14.0.1</guava.version>
         <spray.json.test.version>1.3.2</spray.json.test.version>
         <typesafe.config.version>1.3.0</typesafe.config.version>
@@ -122,6 +123,7 @@ This software – including all its source code – contains proprietary informa
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
+        <mlmodelrep.version>1.3.0-SNAPSHOTPR63</mlmodelrep.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -527,6 +529,61 @@ This software – including all its source code – contains proprietary informa
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>com.stratio.spark</groupId>
+                <artifactId>spark-mllib-${apache.spark.version}_${scala.binary.version}</artifactId>
+                <version>${stratio.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.spark</groupId>
+                <artifactId>spark-mllib-${apache.spark.version}_${scala.binary.version}</artifactId>
+                <version>${stratio.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+                <classifier>tests</classifier>
+            </dependency>
+            <!-- · Stratio ML-Models-Repository client -->
+            <dependency>
+                <groupId>com.stratio</groupId>
+                <artifactId>ml-repository-client</artifactId>
+                <version>${mlmodelrep.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.scala-lang</groupId>
+                        <artifactId>scala-library</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.scalanlp</groupId>
+                        <artifactId>breeze_${scala.binary.version}</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-streaming_${scala.binary.version}</artifactId>
                 <version>${apache.spark.version}</version>
@@ -698,8 +755,19 @@ This software – including all its source code – contains proprietary informa
             </dependency>
             <dependency>
                 <groupId>io.spray</groupId>
-                <artifactId>spray-routing_${scala.binary.version}</artifactId>
+                <artifactId>spray-routing-shapeless23_${scala.binary.version}</artifactId>
                 <version>${spray.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.chuusai</groupId>
+                        <artifactId>shapeless_${scala.binary.version}</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.chuusai</groupId>
+                <artifactId>shapeless_${scala.binary.version}</artifactId>
+                <version>${shapeless.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.spray</groupId>
@@ -908,6 +976,11 @@ This software – including all its source code – contains proprietary informa
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
+                <version>${http.client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpmime</artifactId>
                 <version>${http.client.version}</version>
             </dependency>
             <dependency>

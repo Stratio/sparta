@@ -15,6 +15,7 @@
     - [SPARTA-2209] Cassandra
     - [SPARTA-1789] MongoDB
     - [SPARTA-2119] Generic Datasource 
+    - [INTELL-1821] Mlpipeline for building and training SparkMl pipelines
      
 * Bug fixing:
     - [SPARTA-2228] Load latest version of plugins at runtime 

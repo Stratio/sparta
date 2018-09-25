@@ -197,6 +197,10 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-mllib-${apache.spark.version}_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-mesos-${apache.spark.version}_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>

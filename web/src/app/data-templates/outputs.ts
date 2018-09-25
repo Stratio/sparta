@@ -19,6 +19,7 @@ import * as httpTemplate from './outputs/http.json';
 import * as jdbcTemplate from './outputs/jdbc.json';
 import * as jsonTemplate from './outputs/json.json';
 import * as kafkaTemplate from './outputs/kafka.json';
+import * as mlPipeline from './outputs/mlpipeline.json';
 import * as mongodbTemplate from './outputs/mongodb.json';
 import * as parquetTemplate from './outputs/parquet.json';
 import * as postgresTemplate from './outputs/postgres.json';
@@ -42,6 +43,7 @@ export const outputs = [
     jdbcTemplate,
     jsonTemplate,
     kafkaTemplate,
+    mlPipeline,
     mongodbTemplate,
     parquetTemplate,
     postgresTemplate,
