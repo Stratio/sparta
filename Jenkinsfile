@@ -13,7 +13,7 @@ hose {
     MAVEN_THREADSPERCORE = 4
     EXPOSED_PORTS = [9090]
     KMS_UTILS = '0.4.0'
-    BASEIMG = 'qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0'
+    BASEIMG = 'qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428'
     DOCKERFILECOMMAND = 'WORKDIR / \n RUN apt-get update -y && apt-get install -y nginx realpath coreutils krb5-user libpam-krb5 libpam-ccreds auth-client-config curl wget php5-curl make jq vim && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && wget -qO- https://www.openssl.org/source/openssl-1.0.2l.tar.gz | tar xz && cd openssl-1.0.2l && sudo ./config && sudo make && sudo make install && sudo ln -sf /usr/local/ssl/bin/openssl /usr/bin/openssl && wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && chmod +x jq-linux64 && mv jq-linux64 /usr/bin/jq'
     BUILDTOOLVERSION = '3.5.0'
     NEW_VERSIONING = 'true'
@@ -126,7 +126,7 @@ hose {
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
             | -DHDFS_REALM=DEMO.STRATIO.COM
-            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0
+            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0

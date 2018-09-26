@@ -24,6 +24,9 @@
 * Post workflow execution SQL sentences 
 * [SPARTA-2252] Data Governance catalog in Crossdata
 * [SPARTA-2247] Upgrade Crossdata to 2.14.0
+* [SPARTA-2287] Upgrade Spark to 2.2.0-2.0.0
+* Upgrade Mongo datasource to 0.13.1
+
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
