@@ -7,6 +7,7 @@
 package com.stratio.sparta.serving.core.factory
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.constants.AppConstant
 
 import scala.collection.JavaConversions._
@@ -25,33 +26,35 @@ object PostgresFactory extends SLF4JLogging {
   val initializeMethod = "initializeData"
 
   def invokeInitializationMethods(): Unit = {
-    blocking {
-      Try(invokeDaoMethod(AppConstant.PostgresDaos, schemaMethod)) match {
-        case Success(_) =>
-          log.info("Sparta Postgres schemas created correctly")
-        case Failure(e) =>
-          log.error("Impossible to initialize Sparta Postgres schemas, shutting down Application", e)
-          System.exit(-1)
-      }
+    Try(invokeDaoMethod(AppConstant.PostgresDaos, schemaMethod)) match {
+      case Success(_) =>
+        log.info("Sparta Postgres schemas created correctly")
+      case Failure(e) =>
+        log.error(s"Impossible to initialize Sparta Postgres schemas, shutting down Application" +
+          s" with exception ${ExceptionHelper.toPrintableException(e)}", e)
+        System.exit(-1)
     }
-    blocking {
-      Try(invokeDaoMethod(AppConstant.PostgresDaos, tableSchemaMethod)) match {
-        case Success(_) =>
-          log.info("Sparta Postgres table schemas created correctly")
-        case Failure(e) =>
-          log.error("Impossible to initialize Sparta Postgres table schemas, shutting down Application", e)
-          System.exit(-1)
-      }
+
+
+    Try(invokeDaoMethod(AppConstant.PostgresDaos, tableSchemaMethod)) match {
+      case Success(_) =>
+        log.info("Sparta Postgres table schemas created correctly")
+      case Failure(e) =>
+        log.error(s"Impossible to initialize Sparta Postgres table schemas, shutting down Application" +
+          s" with exception ${ExceptionHelper.toPrintableException(e)}", e)
+        System.exit(-1)
     }
-    blocking {
-      Try(invokeDaoMethod(AppConstant.PostgresDaos, initializeMethod)) match {
-        case Success(_) =>
-          log.info("Sparta Postgres data created correctly")
-        case Failure(e) =>
-          log.error("Impossible to initialize Sparta Postgres data, shutting down Application", e)
-          System.exit(-1)
-      }
+
+
+    Try(invokeDaoMethod(AppConstant.PostgresDaos, initializeMethod)) match {
+      case Success(_) =>
+        log.info("Sparta Postgres data created correctly")
+      case Failure(e) =>
+        log.error(s"Impossible to initialize Sparta Postgres data, shutting down Application" +
+          s" with exception ${ExceptionHelper.toPrintableException(e)}", e)
+        System.exit(-1)
     }
+
   }
 
   private def invokeDaoMethod(packageDao: String, method: String): Unit = {
@@ -60,7 +63,7 @@ object PostgresFactory extends SLF4JLogging {
       new SubTypesScanner()
     )
     reflections.getSubTypesOf(classOf[DaoUtils]).filterNot(_.isInterface)
-      .foreach{ daoClazz =>
+      .foreach { daoClazz =>
         val postgresDao = daoClazz.newInstance()
         daoClazz.getMethod(method).invoke(postgresDao)
       }

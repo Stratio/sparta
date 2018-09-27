@@ -9,21 +9,23 @@ package com.stratio.sparta.serving.core.dao
 import javax.cache.Cache
 import scala.collection.JavaConverters._
 import scala.concurrent.{Future, Promise}
+import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
-
 import akka.event.slf4j.SLF4JLogging
+import slick.ast.BaseTypedType
+import slick.relational.RelationalProfile
 import org.apache.ignite.IgniteCache
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.lang.{IgniteFuture, IgniteInClosure}
-import slick.ast.BaseTypedType
-import slick.relational.RelationalProfile
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.utils.{JdbcSlickUtils, PostgresDaoFactory}
+import slick.jdbc.meta.MTable
+
+import scala.concurrent.duration._
 
 //scalastyle:off
 trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
@@ -74,7 +76,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
   def createSchema(): Unit = {
     dbSchemaName.foreach { schemaName =>
       val createSchemaSql = s"create schema if not exists $schemaName;"
-      db.run(sqlu"#$createSchemaSql").onComplete {
+      Try(Await.result(db.run(sqlu"#$createSchemaSql"), AppConstant.DefaultApiTimeout seconds)) match {
         case Success(_) =>
           log.debug(s"Schema $schemaName created if not exists")
         case Failure(e) =>
@@ -85,10 +87,11 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
 
   // Table creation
 
-  def tableCreation(name: String) = {
-    db.run(table.exists.result) onComplete {
+  def tableCreation(name: String, schemaName: Option[String]): Unit = {
+    Try(Await.result(db.run(MTable.getTables), AppConstant.DefaultApiTimeout seconds)) match {
       case Success(result) =>
-        if (result)
+        val exists = result.exists(mTable => mTable.name.name == name && mTable.name.schema == schemaName)
+        if (exists)
           log.info(s"Table $name already exists: skipping creation")
         else doCreateTable(name)
       case Failure(_) =>
@@ -96,16 +99,18 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
     }
   }
 
-  def doCreateTable(name: String) = {
+  def doCreateTable(name: String): Unit = {
     log.info(s"Creating table $name")
-    val dbioAction = (for {
-      _ <- table.schema.create
-    } yield ()).transactionally
-    db.run(txHandler(dbioAction))
+    Try(Await.result(db.run(txHandler(table.schema.create)), AppConstant.DefaultApiTimeout seconds)) match {
+      case Success(_) =>
+        log.debug(s"Table $name created correctly")
+      case Failure(e) =>
+        throw e
+    }
   }
 
   def createTableSchema(): Unit = {
-    tableCreation(tableName)
+    tableCreation(tableName, dbSchemaName)
   }
 
   // Table data initialization
