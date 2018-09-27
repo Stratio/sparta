@@ -32,7 +32,8 @@ object ErrorModel extends SpartaSerializer {
   val AppInfo = "561"
 
   /* App Info Service */
-  val AppStatus = "562"
+  val AppStatusZk = "562"
+  val AppStatusPostgres = "566"
 
   /* Config Service */
   val ConfigurationUnexpected = "563"
@@ -209,7 +210,8 @@ object ErrorModel extends SpartaSerializer {
     CrossdataServiceListTables -> "Impossible to list tables in Crossdata Context",
     CrossdataServiceListColumns -> "Impossible to list columns in Crossdata Context",
     AppInfo -> "Impossible to extract server information",
-    AppStatus -> "Zookeeper is not connected",
+    AppStatusZk -> "Zookeeper is not connected",
+    AppStatusPostgres -> "Postgres is not connected",
     WorkflowServiceUnexpected -> "Unexpected behaviour in Workflow service",
     WorkflowServiceFindById -> "Error finding workflow by ID",
     WorkflowServiceFind -> "Error executing workflow query",
