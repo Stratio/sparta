@@ -59,7 +59,7 @@ object SSLHelper extends SLF4JLogging {
     } else SSLContext.getInstance("TLS")
   }
 
-  private def getKeyStoreFileAndPassword: (String, String) = {
+  def getKeyStoreFileAndPassword: (String, String) = {
     val config = ConfigFactory.load()
 
     val keyStoreFile = Try(config.getString("sparta.ssl.keystore.location")).recover { case _ =>
@@ -75,7 +75,7 @@ object SSLHelper extends SLF4JLogging {
     (keyStoreFile, keyStorePassword)
   }
 
-  private def getTrustStoreFileAndPassword: (String, String) = {
+  def getTrustStoreFileAndPassword: (String, String) = {
     val config = ConfigFactory.load()
 
     val trustStoreFile = Try(config.getString("sparta.ssl.truststore.location")).recover { case _ =>

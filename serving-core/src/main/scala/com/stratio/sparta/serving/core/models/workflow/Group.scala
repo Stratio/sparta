@@ -7,6 +7,9 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 
+import scala.annotation.meta.field
+import org.apache.ignite.cache.query.annotations.QuerySqlField
+
 object Group {
   def isValid(group: Group): Boolean = {
     val regexGroups= "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
@@ -14,8 +17,11 @@ object Group {
   }
 }
 
-case class Group(id: Option[String], name: String) extends EntityAuthorization {
+case class Group(
+                  id: Option[String],
+                  name: String) extends EntityAuthorization {
 
   def authorizationId: String = name
 
 }
+

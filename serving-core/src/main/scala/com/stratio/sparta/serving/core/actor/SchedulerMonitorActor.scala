@@ -69,6 +69,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
     context.system.eventStream.subscribe(self, classOf[ExecutionStatusChange])
 
     onStatusChangeActions += manageStopAction
+    onStatusChangeActions += manageCacheAction
     invalidStartupStateActions += manageStartupStateAction
   }
 
@@ -122,6 +123,9 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
     }
   }
 
+  val manageCacheAction: WorkflowExecution => Unit = (execution: WorkflowExecution) => {
+    executionService.updateCacheExecutionStatus(execution)
+  }
 
   val manageStartupStateAction: WorkflowExecution => Unit = (workflowExecution: WorkflowExecution) => {
     if (workflowExecution.lastStatus.state == Uploaded ||

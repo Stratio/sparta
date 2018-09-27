@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFa
 class ParameterListPostgresDao extends ParameterListDao {
 
   override val profile = PostgresProfile
-  override val db = JdbcSlickConnection.db
+  override val db = JdbcSlickConnection.getDatabase
 
   import profile.api._
 

@@ -33,6 +33,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigZookeeper = "sparta.zookeeper"
   val ConfigMarathon = "sparta.marathon"
   val ConfigIntelligence = "sparta.intelligence"
+  val ConfigIgnite = "sparta.ignite"
   val HdfsKey = "hdfs"
   val DefaultOauth2CookieName = "user"
   val DriverPackageLocation = "driverPackageLocation"
@@ -98,6 +99,21 @@ object AppConstant extends ZookeeperUtils {
   lazy val TemplatesZkPath = s"$BaseZkPath/templates"
   lazy val GlobalParametersZkPath = s"$BaseZkPath/globalParameters"
   lazy val GroupZkPath = s"$BaseZkPath/group"
+  lazy val IgniteDiscoveryZkPath = s"$BaseZkPath/$retrieveIgnitePathFromEnv"
+
+  //Ignite
+  val IgniteEnabled = "enabled"
+  val IgniteInstanceName = "instance.name"
+  val IgniteCacheName = "cache.name"
+  val IgniteCommunicationSpi = "communication.spiPort"
+  val IgniteCommunicationSpiPortRange = "communication.spiPortRange"
+  val IgniteSecurityEnabled = "security.enabled"
+  val IgniteClusterEnabled = "cluster.enabled"
+  val IgnitePersistenceEnabled = "persistence.enabled"
+  val IgnitePersistenceWalPath = "persistence.walPath"
+  val IgnitePersistencePath = "persistence.persistencePath"
+  val IgniteMemoryInitialSize ="memory.initialSizeMB"
+  val IgniteMemoryMaxSize ="memory.maxSizeMB"
 
   //Marathon
   val marathonInstanceName = AppConstant.instanceName.fold("sparta-server") { x => x }
@@ -144,7 +160,7 @@ object AppConstant extends ZookeeperUtils {
     new ParameterVariable("DEFAULT_OUTPUT_FIELD", "raw"),
     new ParameterVariable("DEFAULT_DELIMITER", ","),
     new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE","qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428"),
-    new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS","-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
+    new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS","-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml"),
     new ParameterVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
     new ParameterVariable("SPARK_STREAMING_CHECKPOINT_PATH","sparta/checkpoint"),
     new ParameterVariable("SPARK_STREAMING_WINDOW","2s"),

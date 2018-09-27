@@ -65,7 +65,6 @@ object MarathonConstant {
   val AppRoleNameEnv = "APPROLENAME"
   val CalicoEnableEnv = "CALICO_ENABLED"
   val CalicoNetworkEnv = "CALICO_NETWORK"
-  val SparkUIPort = "PORT_SPARKUI"
   val MesosRoleEnv = "SPARK_MESOS_ROLE"
   val TenantEnv = "TENANT_NAME"
   val DynamicAuthEnv = "USE_DYNAMIC_AUTHENTICATION"

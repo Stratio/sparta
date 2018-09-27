@@ -10,6 +10,8 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
 import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -22,7 +24,7 @@ import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFa
 class GroupPostgresDao extends GroupDao {
 
   override val profile = PostgresProfile
-  override val db = JdbcSlickConnection.db
+  override val db = JdbcSlickConnection.getDatabase
 
   private val workflowPgService = PostgresDaoFactory.workflowPgService
 
@@ -35,19 +37,38 @@ class GroupPostgresDao extends GroupDao {
     } yield {
       log.debug("The default group initialization has been completed")
     }
+    initialCacheLoad()
   }
 
-  def findGroupByName(name: String): Future[Group] = findByNameHead(name)
+  def findAllGroups(): Future[List[Group]] = {
+    if (cacheEnabled)
+      Try {
+        cache.iterator().allAsScala()
+      }.getOrElse(super.findAll())
+    else
+      findAll()
+  }
 
+  def findGroupByName(name: String): Future[Group] = {
+    if (cacheEnabled)
+      predicateHead(ignitePredicateByName(name))(findByNameHead(name))
+    else
+      findByNameHead(name)
+  }
 
-  def findGroupById(id: String): Future[Group] = findByIdHead(id)
+  def findGroupById(id: String): Future[Group] = {
+    if (cacheEnabled)
+      cacheById(id)(findByIdHead(id))
+    else
+      findByIdHead(id)
+  }
 
   def createFromGroup(group: Group): Future[Group] =
     if (Group.isValid(group)) {
       filterByName(group.name).flatMap { groups =>
         if (groups.nonEmpty)
           throw new ServerException(s"Unable to create group ${group.name} because it already exists")
-        else createAndReturn(addID(group))
+        else createAndReturn(addID(group)).cached()
       }
     } else throw new ServerException(s"Unable to create group ${group.name} because its name is invalid")
 
@@ -81,7 +102,7 @@ class GroupPostgresDao extends GroupDao {
         updateActions.flatMap { actionsToExecute =>
           db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
         }
-      }.map(_ => group)
+      }.map(_ => group).cached(replace = true)
     } else throw new ServerException(s"Unable to update group ${group.name} because its name is invalid")
   }
 
@@ -113,7 +134,6 @@ class GroupPostgresDao extends GroupDao {
       groups <- findAll()
       result <- deleteYield(groups)
     } yield result
-
 
   /** PRIVATE METHODS **/
 
@@ -165,7 +185,8 @@ class GroupPostgresDao extends GroupDao {
 
     Future.sequence(deleteActions).map { actionsSequence =>
       val actions = actionsSequence.flatten
-      Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))) match {
+      Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))
+        .remove(groups.filterNot(_.id != DefaultGroup.id.get).map(getSpartaEntityId(_)): _*)) match {
         case Success(_) =>
           log.info(s"Groups ${groups.map(_.name).mkString(",")} deleted")
           true
@@ -175,4 +196,10 @@ class GroupPostgresDao extends GroupDao {
     }
   }
 
+  /** Ignite predicates */
+  private def ignitePredicateByName(name: String): ScanQuery[String, Group] = new ScanQuery[String, Group](
+    new IgniteBiPredicate[String, Group]() {
+      override def apply(k: String, value: Group) = value.name.equals(name)
+    }
+  )
 }

@@ -6,9 +6,13 @@
 
 package com.stratio.sparta.serving.core.dao
 
+import org.apache.ignite.IgniteCache
 import slick.ast.BaseTypedType
+
 import com.stratio.sparta.serving.core.daoTables._
 import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
+import com.stratio.sparta.serving.core.utils.SpartaIgnite
+
 //scalastyle:off
 trait GlobalParametersDao extends DaoUtils {
 
@@ -23,5 +27,7 @@ trait GlobalParametersDao extends DaoUtils {
   def $id(table: GlobalParametersTable): Rep[Id] = table.name
 
   def baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+
+  implicit lazy val cache: IgniteCache[String, ParameterVariable] = throw new UnsupportedOperationException("Cache not enabled")
 
 }

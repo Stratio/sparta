@@ -8,12 +8,7 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 
-import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Properties, Success, Try}
 import com.github.nscala_time.time.OrderingImplicits._
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.write
-import slick.jdbc.PostgresProfile
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.SparkConstant.{SubmitAppNameConf, SubmitUiProxyPrefix}
@@ -29,21 +24,37 @@ import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
 import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, NginxUtils}
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.write
+import slick.jdbc.PostgresProfile
+
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.util.{Failure, Properties, Success, Try}
 
 //scalastyle:off
 class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   override val profile = PostgresProfile
-  override val db = JdbcSlickConnection.db
-
-  import profile.api._
+  override val db = JdbcSlickConnection.getDatabase
 
   import com.stratio.sparta.serving.core.dao.CustomColumnTypes._
+  import profile.api._
 
-  def findAllExecutions(): Future[List[WorkflowExecution]] = findAll()
+  override def initializeData(): Unit = {
+    initialCacheLoad()
+  }
 
-  def createDashboardView(): Future[DashboardView] = findAll().map(getDashboardView)
+  def findAllExecutions(): Future[List[WorkflowExecution]] = {
+    if (cacheEnabled)
+      Try {
+        cache.iterator().allAsScala()
+      }.getOrElse(super.findAll())
+    else
+      findAll()
+  }
+
+  def createDashboardView(): Future[DashboardView] = findAllExecutions().map(getDashboardView)
 
   def findExecutionById(id: String): Future[WorkflowExecution] = findByIdHead(id)
 
@@ -56,16 +67,22 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
             addWorkflowId(
               addExecutionId(execution))))))
 
-    createAndReturn(executionWithExtraData)
+    createAndReturn(executionWithExtraData).cached()
   }
 
   def updateExecution(execution: WorkflowExecution): Future[WorkflowExecution] =
-    for {
+    (for {
       _ <- findByIdHead(execution.id.get)
     } yield {
       upsert(execution)
       execution
-    }
+    }).cached(replace = true)
+
+  def updateCacheExecutionStatus(execution: WorkflowExecution): Future[WorkflowExecution] = {
+    if (cache.containsKey(execution.id.get))
+      findByIdHead(execution.id.get).cached(true)
+    else findByIdHead(execution.id.get).cached()
+  }
 
   def updateStatus(
                     executionStatus: ExecutionStatusUpdate,
@@ -81,59 +98,61 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
                     error: Option[WorkflowError]
                   ): WorkflowExecution = {
     //synchronized {
-      val updateFuture = findExecutionById(executionStatus.id).flatMap { actualExecutionStatus =>
-        val actualStatus = actualExecutionStatus.lastStatus
-        val inputExecutionStatus = executionStatus.status
-        val newState = {
-          if (inputExecutionStatus.state == WorkflowStatusEnum.NotDefined)
-            actualStatus.state
-          else inputExecutionStatus.state
-        }
-        val newStatusInfo = {
-          if (inputExecutionStatus.statusInfo.isEmpty && newState != actualStatus.state)
-            Option(s"Execution state changed to $newState")
-          else if (inputExecutionStatus.statusInfo.isEmpty && newState == actualStatus.state)
-            actualStatus.statusInfo
-          else inputExecutionStatus.statusInfo
-        }
-        val newLastUpdateDate = {
-          if (newState != actualStatus.state)
-            getNewUpdateDate
-          else actualStatus.lastUpdateDate
-        }
-        val newStatus = inputExecutionStatus.copy(
-          state = newState,
-          statusInfo = newStatusInfo,
-          lastUpdateDate = newLastUpdateDate
-        )
-        val newStatuses = if (newStatus.state == actualStatus.state) {
-          newStatus +: actualExecutionStatus.statuses.drop(1)
-        } else newStatus +: actualExecutionStatus.statuses
-        val newExecutionWithStatus = actualExecutionStatus.copy(
-          statuses = newStatuses,
-          genericDataExecution = actualExecutionStatus.genericDataExecution.copy(lastError = error.orElse(actualExecutionStatus.genericDataExecution.lastError))
-        )
-        val newExInformation = new StringBuilder
-        if (actualStatus.state != newStatus.state)
-          newExInformation.append(s"\tStatus -> ${actualStatus.state} to ${newStatus.state}")
-        if (actualStatus.statusInfo != newStatus.statusInfo)
-          newExInformation.append(s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
-        if (newExInformation.nonEmpty)
-          log.info(s"Updating execution ${actualExecutionStatus.getExecutionId}: $newExInformation")
-
-        upsert(newExecutionWithStatus).map(_ => (actualExecutionStatus, newExecutionWithStatus))
+    val updateFuture = findExecutionById(executionStatus.id).flatMap { actualExecutionStatus =>
+      val actualStatus = actualExecutionStatus.lastStatus
+      val inputExecutionStatus = executionStatus.status
+      val newState = {
+        if (inputExecutionStatus.state == WorkflowStatusEnum.NotDefined)
+          actualStatus.state
+        else inputExecutionStatus.state
       }
-
-      Try {
-        Await.result(updateFuture, AppConstant.DefaultApiTimeout seconds)
-      } match {
-        case Success((actualExecutionStatus, newExecutionWithStatus)) =>
-          writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
-          newExecutionWithStatus
-        case Failure(e) =>
-          throw new Exception(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
+      val newStatusInfo = {
+        if (inputExecutionStatus.statusInfo.isEmpty && newState != actualStatus.state)
+          Option(s"Execution state changed to $newState")
+        else if (inputExecutionStatus.statusInfo.isEmpty && newState == actualStatus.state)
+          actualStatus.statusInfo
+        else inputExecutionStatus.statusInfo
       }
-   // }
+      val newLastUpdateDate = {
+        if (newState != actualStatus.state)
+          getNewUpdateDate
+        else actualStatus.lastUpdateDate
+      }
+      val newStatus = inputExecutionStatus.copy(
+        state = newState,
+        statusInfo = newStatusInfo,
+        lastUpdateDate = newLastUpdateDate
+      )
+      val newStatuses = if (newStatus.state == actualStatus.state) {
+        newStatus +: actualExecutionStatus.statuses.drop(1)
+      } else newStatus +: actualExecutionStatus.statuses
+      val newExecutionWithStatus = actualExecutionStatus.copy(
+        statuses = newStatuses,
+        genericDataExecution = actualExecutionStatus.genericDataExecution.copy(lastError = error.orElse(actualExecutionStatus.genericDataExecution.lastError))
+      )
+      val newExInformation = new StringBuilder
+      if (actualStatus.state != newStatus.state)
+        newExInformation.append(s"\tStatus -> ${actualStatus.state} to ${newStatus.state}")
+      if (actualStatus.statusInfo != newStatus.statusInfo)
+        newExInformation.append(s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
+      if (newExInformation.nonEmpty)
+        log.info(s"Updating execution ${actualExecutionStatus.getExecutionId}: $newExInformation")
+
+      val upsertResult = upsert(newExecutionWithStatus).map(_ => (actualExecutionStatus, newExecutionWithStatus))
+      upsertResult.map(_._2).cached(replace = true)
+      upsertResult
+    }
+
+    Try {
+      Await.result(updateFuture, AppConstant.DefaultApiTimeout seconds)
+    } match {
+      case Success((actualExecutionStatus, newExecutionWithStatus)) =>
+        writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
+        newExecutionWithStatus
+      case Failure(e) =>
+        throw new Exception(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
+    }
+    // }
   }
 
   def stopExecution(id: String): WorkflowExecution = {
@@ -162,6 +181,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
+    Future(executionUpdated).cached(replace = true)
     executionUpdated
   }
 
@@ -175,6 +195,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
+    Future(executionUpdated).cached(replace = true)
     executionUpdated
   }
 
@@ -188,6 +209,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
+    Future(executionUpdated).cached(replace = true)
     executionUpdated
   }
 
@@ -201,11 +223,12 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
+    Future(executionUpdated).cached(replace = true)
     executionUpdated
   }
 
   def clearLastError(executionId: String): Future[WorkflowExecution] =
-    for {
+    (for {
       execution <- findByIdHead(executionId)
       executionUpdated = execution.copy(
         genericDataExecution = execution.genericDataExecution.copy(lastError = None)
@@ -216,7 +239,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
           .update(executionUpdated.genericDataExecution)
           .transactionally
       )
-    } yield executionUpdated
+    } yield executionUpdated).cached(replace = true)
 
   def anyLocalWorkflowRunning: Future[Boolean] =
     for {
@@ -232,7 +255,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   private[services] def deleteYield(executions: Seq[WorkflowExecution]): Boolean = {
     executions.foreach { execution =>
       log.debug(s"Deleting execution ${execution.id.get}")
-      Try(deleteByID(execution.id.get)) match {
+      Try(deleteByID(execution.id.get).remove(Seq(execution.id.get): _*)) match {
         case Success(_) =>
           log.info(s"Execution with id=${execution.id.get} deleted")
         case Failure(e) =>
@@ -244,9 +267,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   private def writeExecutionStatusInZk(workflowExecutionStatusChange: WorkflowExecutionStatusChange): Unit = {
     synchronized {
-      import workflowExecutionStatusChange._
-
       import AppConstant._
+      import workflowExecutionStatusChange._
 
       Try {
         if (CuratorFactoryHolder.existsPath(ExecutionsStatusChangesZkPath))

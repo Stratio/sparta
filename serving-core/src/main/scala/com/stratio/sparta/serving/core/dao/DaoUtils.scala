@@ -6,16 +6,22 @@
 
 package com.stratio.sparta.serving.core.dao
 
-import scala.concurrent.Future
+import javax.cache.Cache
+import scala.collection.JavaConverters._
+import scala.concurrent.{Future, Promise}
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
+import org.apache.ignite.IgniteCache
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.{IgniteFuture, IgniteInClosure}
 import slick.ast.BaseTypedType
 import slick.relational.RelationalProfile
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.utils.{JdbcSlickUtils, PostgresDaoFactory}
 
@@ -183,4 +189,98 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
       case Failure(e) => DBIO.failed(e)
     })
   }
+
+  /** Cache implicits methods */
+
+  val cacheEnabled = Try(SpartaConfig.getIgniteConfig().get.getBoolean(AppConstant.IgniteEnabled)).getOrElse(false)
+
+  implicit val cache: IgniteCache[String, SpartaEntity]
+
+  def initialCacheLoad() =
+    if (cacheEnabled)
+      findAll().map(list =>
+        cache.putAll(list.map(element => (getSpartaEntityId(element), element)).toMap[String, SpartaEntity].asJava)
+      )
+
+  def cacheById(id: String)(f: => Future[SpartaEntity]): Future[SpartaEntity] = cache.getAsync(id).toScalaFuture.recoverWith { case _ => f }
+
+  //Method to be override in every daos
+  def getSpartaEntityId(entity: SpartaEntity): String = "N/A"
+
+  //Generic predicate execution over ignite cache, based in scanQuery defined in every method that performs queries over cache values
+  def predicateHead(s: ScanQuery[String, SpartaEntity])(ps: => Future[SpartaEntity]) = {
+    Future(cache.query(s).iterator().asScala.map(_.getValue).toList.headOption.getOrElse(throw new RuntimeException("Not found in cache")))
+      .recoverWith { case _ => ps }
+  }
+
+  def predicateList(s: ScanQuery[String, SpartaEntity])(ps: => Future[Seq[SpartaEntity]]) = {
+    Future(cache.query(s).iterator().asScala.map(_.getValue).toList)
+      .recoverWith { case _ => ps }
+  }
+
+  implicit class CacheIterator[K, V](iterator: java.util.Iterator[Cache.Entry[K, V]]) {
+
+    import scala.collection.JavaConverters._
+
+    def allAsScala() = Future(iterator.asScala.map(_.getValue).toList)
+  }
+
+  /** *
+    * Implicit class used in daos on insert/upsert or delete, for refresh cache entry
+    */
+
+  implicit class FutureToIgnite[A](daoFuture: Future[A]) {
+
+    def cached(replace: Boolean = false): Future[A] = {
+      if (cacheEnabled) {
+        daoFuture.onComplete { elements =>
+          elements match {
+            case Success(elems) =>
+              List(elems).flatten(List(_).asInstanceOf[List[SpartaEntity]]).foreach { entity =>
+                  Try {
+                    val entityId = getSpartaEntityId(entity)
+                    if (replace)
+                      cache.replace(entityId, entity)
+                    else
+                      cache.putIfAbsent(entityId, entity)
+                    entityId
+                  } match {
+                    case Success(entityId) =>
+                      log.debug(s"Updated entity associated to $tableName with Id $entityId")
+                    case Failure(e) =>
+                      throw e
+                  }
+                }
+            case Failure(e) =>
+              log.debug("Error updating cache keys.", e)
+          }
+        }
+      }
+      daoFuture
+    }
+
+    def remove(id: String*): Future[A] = {
+      if (cacheEnabled)
+        daoFuture.foreach(_ => cache.removeAllAsync(id.toSet.asJava))
+      daoFuture
+    }
+  }
+
+  /**
+    * Ignite async methods return java IgniteFuture, this class convert to Scala future
+    */
+  implicit class IgniteFutureUtils[T](igniteFuture: IgniteFuture[T]) {
+
+    def toScalaFuture() = {
+      val promise = Promise[T]()
+      igniteFuture.listen(new IgniteInClosure[IgniteFuture[T]] {
+        override def apply(e: IgniteFuture[T]): Unit =
+          promise.tryComplete(Try {
+            Option(e.get).getOrElse(throw new RuntimeException("Not found in cache"))
+          })
+      })
+      promise.future
+    }
+  }
+
 }

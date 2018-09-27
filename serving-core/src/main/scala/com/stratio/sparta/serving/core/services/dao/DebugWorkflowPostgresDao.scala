@@ -25,7 +25,7 @@ import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 class DebugWorkflowPostgresDao extends DebugWorkflowDao {
 
   override val profile = PostgresProfile
-  override val db = JdbcSlickConnection.db
+  override val db = JdbcSlickConnection.getDatabase
 
   import profile.api._
 

@@ -6,10 +6,12 @@
 
 package com.stratio.sparta.serving.core.dao
 
+import org.apache.ignite.IgniteCache
 import slick.ast.BaseTypedType
 
 import com.stratio.sparta.serving.core.daoTables._
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
+
 //scalastyle:off
 trait TemplateDao extends DaoUtils {
 
@@ -25,6 +27,5 @@ trait TemplateDao extends DaoUtils {
 
   def baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
-
-
+  implicit lazy val cache: IgniteCache[String, TemplateElement] = throw new UnsupportedOperationException("Cache not enabled")
 }

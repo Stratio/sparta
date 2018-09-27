@@ -18,6 +18,11 @@ trait ZookeeperUtils {
     case None => None
   }
 
+  def retrieveIgnitePathFromEnv: String = Properties.envOrNone("SPARTA_IGNITE_ZOOKEEPER_PATH") match {
+    case Some(path) if path.nonEmpty => path
+    case Some(_) => "igniteNodes"
+    case None => "igniteNodes"
+  }
 
   def retrieveFromConf: Option[String] = Try(SpartaConfig.getZookeeperConfig().get.getString("storagePath")) match {
     case Success(confPath) if confPath.nonEmpty => Option(confPath)

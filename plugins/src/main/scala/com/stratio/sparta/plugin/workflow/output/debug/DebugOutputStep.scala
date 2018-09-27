@@ -35,7 +35,7 @@ class DebugOutputStep(name: String, xDSession: XDSession, properties: Map[String
     implicit val formats = DefaultFormats
     val stepName = options.getString(DistributedMonad.StepName)
     val rowsData = dataFrame.collect().map(row => RowJsonHelper.toJSON(row, Map.empty))
-    val dataSource = JdbcSlickConnection.db
+    val dataSource = JdbcSlickConnection.getDatabase
     val resultStep = ResultStep(
       id = Some(s"$workflowId-$stepName"),
       step = stepName,

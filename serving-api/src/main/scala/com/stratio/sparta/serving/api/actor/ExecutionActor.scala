@@ -57,11 +57,12 @@ class ExecutionActor()
   }
 
   def stopExecution(id: String, user: Option[LoggedUser]): Future[Any] = {
+    val sendResponseTo = Option(sender)
     for {
       execById <- executionPgService.findExecutionById(id)
     } yield {
       val authorizationId = execById.authorizationId
-      authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, Option(sender)) {
+      authorizeActionsByResourceId[WorkflowExecution](user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
         executionPgService.stopExecution(id)
       }
     }

@@ -6,10 +6,12 @@
 
 package com.stratio.sparta.serving.core.dao
 
+import org.apache.ignite.IgniteCache
 import slick.ast.BaseTypedType
 
 import com.stratio.sparta.serving.core.daoTables._
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.utils.SpartaIgnite
 
 //scalastyle:off
 trait WorkflowDao extends DaoUtils {
@@ -28,5 +30,7 @@ trait WorkflowDao extends DaoUtils {
 
   def baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
+  implicit lazy val cache: IgniteCache[String, Workflow] = SpartaIgnite.getCache[String, Workflow]("workflows")
 
+  override def getSpartaEntityId(entity: Workflow): String = s"${entity.id.get}-${entity.version.toString}"
 }

@@ -7,15 +7,15 @@
 package com.stratio.sparta.serving.core.utils
 
 import java.util.Properties
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.{Config, ConfigFactory}
-import slick.jdbc.JdbcProfile
-
+import slick.jdbc.{JdbcBackend, JdbcProfile}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection.log
+import slick.jdbc
 
 trait JdbcSlickUtils {
 
@@ -55,16 +55,15 @@ trait JdbcSlickHelper {
 
   import slick.jdbc.JdbcBackend.Database
 
-  def tryConnection(dbconf: Database) = {
-    Try(dbconf.createSession.conn) match {
-      case Success(con) => {
+  def tryConnection(database: Database): Unit = {
+    Try(database.createSession.conn) match {
+      case Success(con) =>
         con.close
-      }
-      case Failure(f) => {
-        dbconf.close()
-        dbconf.shutdown
+      case Failure(f) =>
+        database.close()
+        database.shutdown
         log.warn(s"Unable to connect to dataSource ${f.getMessage} ")
-      }
+        throw f
     }
   }
 }
@@ -73,10 +72,17 @@ object JdbcSlickConnection extends JdbcSlickHelper with SLF4JLogging {
 
   import slick.jdbc.JdbcBackend.Database
 
-  lazy val db = synchronized {
-    val conf = SpartaConfig.getPostgresConfig().getOrElse(ConfigFactory.load())
-    val dbconf = Database.forConfig("", conf.withFallback(ConfigFactory.parseProperties(slickConnectionProperties(conf))))
-    tryConnection(dbconf)
-    dbconf
+  private var db: Option[JdbcBackend.Database] = None
+
+  def getDatabase: JdbcBackend.Database = synchronized {
+    db.getOrElse {
+      val conf = SpartaConfig.getPostgresConfig().getOrElse(ConfigFactory.load())
+      val database = Database.forConfig("", conf.withFallback(ConfigFactory.parseProperties(slickConnectionProperties(conf))))
+
+      tryConnection(database)
+
+      db = Option(database)
+      database
+    }
   }
 }

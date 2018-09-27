@@ -104,5 +104,6 @@
         <Logger name="org.apache.avro" level="${env:AVRO_LOG_LEVEL:-ERROR}"/>
         <Logger name="org.apache.http" level="${env:HTTP_LOG_LEVEL:-ERROR}"/>
         <Logger name="com.typesafe.slick" level="${env:SLICK_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.apache.ignite" level="${env:IGNITE_LOG_LEVEL:-ERROR}"/>
     </Loggers>
 </Configuration>

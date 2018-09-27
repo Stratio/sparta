@@ -125,5 +125,6 @@
         <Logger name="org.apache.avro" level="ERROR"/>
         <Logger name="org.apache.http" level="ERROR"/>
         <Logger name="com.typesafe.slick" level="ERROR"/>
+        <Logger name="org.apache.ignite" level="ERROR"/>
     </Loggers>
 </Configuration>

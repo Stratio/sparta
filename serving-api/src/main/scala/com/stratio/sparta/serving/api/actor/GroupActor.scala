@@ -60,13 +60,13 @@ class GroupActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
 
   def findAllGroups(user: Option[LoggedUser]): Unit =
     authorizeActionResultResources(user, Map(ResourceGroupType -> View)) {
-      groupPgService.findAll()
+      groupPgService.findAllGroups()
     }
 
   def deleteAllGroups(user: Option[LoggedUser]): Future[Any] = {
     val senderResponseTo = Option(sender)
     for {
-      groups <- groupPgService.findAll()
+      groups <- groupPgService.findAllGroups()
     } yield {
       val resourcesId = groups.map(_.authorizationId)
       authorizeActionsByResourcesIds(user, Map(ResourceGroupType -> Delete), resourcesId, senderResponseTo) {

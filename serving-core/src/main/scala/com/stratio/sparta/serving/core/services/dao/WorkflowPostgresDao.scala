@@ -7,13 +7,12 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.write
 import slick.jdbc.PostgresProfile
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -23,12 +22,14 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
 
 //scalastyle:off
 class WorkflowPostgresDao extends WorkflowDao {
 
   override val profile = PostgresProfile
-  override val db = JdbcSlickConnection.db
+  override val db = JdbcSlickConnection.getDatabase
 
   import profile.api._
 
@@ -38,11 +39,27 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   private val validatorService = new WorkflowValidatorService()
 
-  def findAllWorkflows(): Future[List[Workflow]] = findAll()
+  override def initializeData(): Unit = {
+    initialCacheLoad()
+  }
+
+  def findAllWorkflows(): Future[List[Workflow]] = {
+    if (cacheEnabled)
+      Try {
+        cache.iterator().allAsScala()
+      }.getOrElse(super.findAll())
+    else
+      findAll()
+  }
 
   def findWorkflowById(id: String): Future[Workflow] = findByIdHead(id)
 
-  def findByGroupID(groupId: String): Future[Seq[Workflow]] = db.run(table.filter(_.groupId === groupId).result)
+  def findByGroupID(groupId: String): Future[Seq[Workflow]] = {
+    if (cacheEnabled)
+      predicateList(ignitePredicateByGroup(groupId))(db.run(table.filter(_.groupId === groupId).result))
+    else
+      db.run(table.filter(_.groupId === groupId).result)
+  }
 
   def findByIdList(workflowIds: Seq[String]): Future[Seq[Workflow]] = db.run(table.filter(_.id.inSet(workflowIds.toSet)).result)
 
@@ -50,13 +67,13 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   def doQuery(query: WorkflowQuery): Future[Seq[Workflow]] = {
     for {
-      groupsQuery <-  query.group.fold(Future(Seq.empty[Group])){
+      groupsQuery <- query.group.fold(Future(Seq.empty[Group])) {
         groupQuery =>
           db.run(groupsTable.filter(group =>
             List(
               Some(groupQuery).map(group.name === _),
               Some(groupQuery).map(group.groupId === _)
-            ).collect({case Some(criteria: Rep[Boolean])  => criteria})
+            ).collect({ case Some(criteria: Rep[Boolean]) => criteria })
               .reduceLeftOption(_ || _)
               .getOrElse(true: Rep[Boolean])).result)
       }
@@ -65,7 +82,7 @@ class WorkflowPostgresDao extends WorkflowDao {
           Some(query.name).map(w.name === _),
           query.version.map(w.version === _),
           groupsQuery.headOption.map(w.groupId === _.id)
-        ).collect({case Some(criteria: Rep[Boolean])  => criteria})
+        ).collect({ case Some(criteria: Rep[Boolean]) => criteria })
           .reduceLeftOption(_ && _)
           .getOrElse(true: Rep[Boolean])).result
       )
@@ -91,14 +108,14 @@ class WorkflowPostgresDao extends WorkflowDao {
         throw new ServerException(
           s"Workflow with name ${workflowWithFields.name}," +
             s" version ${workflowWithFields.version} and group ${workflowWithFields.group.name} exists.")
-      else createAndReturn(workflowWithFields)
+      else createAndReturn(workflowWithFields).cached()
     }).flatMap(identity)
   }
 
   def updateWorkflow(workflow: Workflow): Future[Workflow] = {
     log.debug(s"Updating workflow with id ${workflow.id.get}")
     mandatoryValidationsWorkflow(workflow)
-    for {
+    (for {
       workflowUpdate <- findByIdHead(workflow.id.get)
     } yield {
       if (workflowUpdate.id.get != workflow.id.get)
@@ -109,10 +126,10 @@ class WorkflowPostgresDao extends WorkflowDao {
       val workflowWithFields = addParametersUsed(addUpdateDate(workflow.copy(id = workflowUpdate.id, groupId = workflowUpdate.groupId)))
       upsert(workflowWithFields)
       workflowWithFields
-    }
+    }).cached(replace = true)
   }
 
-  def createVersion(workflowVersion: WorkflowVersion): Future[Workflow] ={
+  def createVersion(workflowVersion: WorkflowVersion): Future[Workflow] = {
     log.debug(s"Creating workflow version $workflowVersion")
     (for {
       workflowById <- findByID(workflowVersion.id)
@@ -130,7 +147,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       )
       val workflowWithFields = addCreationDate(incVersion(workflowsGroup, addId(workflowWithVersionFields, force = true)))
       mandatoryValidationsWorkflow(workflowWithFields)
-      createAndReturn(workflowWithFields)
+      createAndReturn(workflowWithFields).cached()
     }).flatMap(f => f)
   }
 
@@ -141,7 +158,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       _ <- db.run(DBIO.sequence(oldWorkflow.map(w =>
         table.filter(_.id === w.id.get).map(_.name).update(workflowRename.newName))).transactionally) //Update after filter by id
     } yield {
-      db.run(table.filter(w => w.name === workflowRename.newName && w.groupId === workflowRename.groupId).result)
+      db.run(table.filter(w => w.name === workflowRename.newName && w.groupId === workflowRename.groupId).result).cached(replace = true)
     }).flatMap(f => f)
   }
 
@@ -156,12 +173,12 @@ class WorkflowPostgresDao extends WorkflowDao {
         throw new RuntimeException(
           s"Workflow with the name ${workflowMove.workflowName} already exist on the target group ${destination.name}")
       else {
-        for {
+        (for {
           _ <- upsertList(workflowsInOrigin.filter(_.name == workflowMove.workflowName).map(w => w.copy(group = destination, groupId = destination.id)))
           getUpserted <- db.run(table.filter(w => w.name === workflowMove.workflowName && w.groupId === destination.id.get).result)
         } yield {
           getUpserted
-        }
+        }).cached(replace = true)
       }
     }).flatMap(future => future)
   }
@@ -249,7 +266,7 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   private[services] def deleteYield(workflowLists: Seq[Workflow]): Boolean = {
     val ids = workflowLists.flatMap(_.id.toList)
-    Try(deleteList(ids)) match {
+    Try(deleteList(ids).remove(workflowLists.map(w => getSpartaEntityId(w)): _*)) match {
       case Success(_) =>
         log.info(s"Workflow with ids=${ids.mkString(",")} deleted")
       case Failure(e) =>
@@ -289,9 +306,9 @@ object WorkflowPostgresDao extends SpartaSerializer {
     )
 
   private[sparta] def getGroupsParametersUsed(workflow: Workflow): Seq[(String, String)] = {
-    getParametersUsed(workflow).flatMap{ parameter =>
+    getParametersUsed(workflow).flatMap { parameter =>
       val parameterSplitted = parameter.split(".")
-      if(parameterSplitted.nonEmpty)
+      if (parameterSplitted.nonEmpty)
         Option((parameterSplitted.head, parameter))
       else None
     }
@@ -305,4 +322,11 @@ object WorkflowPostgresDao extends SpartaSerializer {
       parameter.replaceAll("\\{\\{", "").replaceAll("\\}\\}", "")
     }.distinct.sortBy(parameter => parameter)
   }
+
+  /** Ignite predicates */
+  private def ignitePredicateByGroup(group: String): ScanQuery[String, Workflow] = new ScanQuery[String, Workflow](
+    new IgniteBiPredicate[String, Workflow]() {
+      override def apply(k: String, value: Workflow) = value.groupId.equals(Option(group))
+    }
+  )
 }

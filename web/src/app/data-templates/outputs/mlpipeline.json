@@ -37,7 +37,7 @@
           ],
           "default": "FILESYSTEM",
           "required": true,
-          "tooltip": "This selector controls where to save the Spark pipeline model built in workflow execution: filesystem (HDFS in 'Marathon' execution or local folder in 'Local' execution).",
+          "tooltip": "Option to determine where the Spark pipeline model should be saved: FILESYSTEM stores the model either in HDFS or in a local folder according to the chosen execution ( 'Marathon' or 'Local' ), MODELREP uploads it directly to the specified model repository and BOTH stores and uploads it at the same time.",
           "qa": ""
        },
        {

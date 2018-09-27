@@ -166,7 +166,7 @@ class WorkflowActor(
   def findAllDto(user: Option[LoggedUser]): Unit = {
     val sendTo = sender
     authorizeActionResultResources(user, Map(ResourceWorkflow -> View), Some(sendTo)) {
-      workflowPgService.findAll().map(workflows => workflows.map { workflow =>
+      workflowPgService.findAllWorkflows().map(workflows => workflows.map { workflow =>
         val workflowDto: WorkflowDto = workflow
         workflowDto
       })

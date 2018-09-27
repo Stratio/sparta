@@ -241,7 +241,9 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     val newPortMappings = {
       if (calicoEnabled)
         Option(
-          Seq(PortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = Option("tcp"))) ++
+          Seq(
+            PortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = Option("tcp"))
+          ) ++
             app.container.docker.portMappings.getOrElse(Seq.empty)
         )
       else app.container.docker.portMappings
@@ -365,7 +367,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
 
   private def intelligenceProperties: Map[String, JsString] =
     sys.env.filterKeys { key =>
-      key.startsWith("INTELLIGENCE")
+      key.contains("INTELLIGENCE")
     }.mapValues(value => JsString(value))
 
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] = {

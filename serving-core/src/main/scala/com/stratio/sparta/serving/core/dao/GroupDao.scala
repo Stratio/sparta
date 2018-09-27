@@ -6,9 +6,12 @@
 
 package com.stratio.sparta.serving.core.dao
 
-import com.stratio.sparta.serving.core.models.workflow.Group
+import org.apache.ignite.IgniteCache
 import slick.ast.BaseTypedType
+
 import com.stratio.sparta.serving.core.daoTables._
+import com.stratio.sparta.serving.core.models.workflow.Group
+import com.stratio.sparta.serving.core.utils.SpartaIgnite
 
 //scalastyle:off
 trait GroupDao extends DaoUtils {
@@ -25,4 +28,7 @@ trait GroupDao extends DaoUtils {
 
   def baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
+  implicit lazy val cache: IgniteCache[String, Group] = SpartaIgnite.getCache[String, Group]("groups")
+
+  override def getSpartaEntityId(entity: SpartaEntity): String = entity.id.get
 }
