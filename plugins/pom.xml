@@ -71,6 +71,10 @@ This software – including all its source code – contains proprietary informa
             <artifactId>crossdata-core_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stratio.crossdata.connector</groupId>
+            <artifactId>crossdata-postgresql_2.11</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.stratio.spark</groupId>
             <artifactId>spark-mllib-${apache.spark.version}_${scala.binary.version}</artifactId>
             <scope>provided</scope>
@@ -215,11 +219,11 @@ This software – including all its source code – contains proprietary informa
             <artifactId>avro</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.scalaj</groupId>
+            <groupId>org.scalaj</groupId>
             <artifactId>scalaj-http_${scala.binary.version}</artifactId>
         </dependency>
-      <dependency>
-        <groupId>com.jayway.jsonpath</groupId>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <version>${json-path.version}</version>
         </dependency>

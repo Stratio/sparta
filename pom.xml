@@ -674,6 +674,17 @@ This software – including all its source code – contains proprietary informa
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>com.stratio.crossdata.connector</groupId>
+                <artifactId>crossdata-postgresql_2.11</artifactId>
+                <version>${crossdata.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec.maven.plugin.version}</version>
