@@ -8,49 +8,49 @@
       <p class="info-text" *ngIf="environmentContext || customGroups.length">{{'DASHBOARD.CONTEXT_CONFIG' | translate}}</p>
       <form #executionForm="ngForm">
         <div class="form-container st-form-field">
-          <sp-select class="st-form-field" 
-            [forceValidations]="forceValidations" 
-            [(ngModel)]="form.environment" 
+          <sp-select class="st-form-field"
+            [forceValidations]="forceValidations"
+            [(ngModel)]="form.environment"
             name="environment"
             (change)="changeContext($event, 'Environment')"
-            *ngIf="environmentContext" 
-            placeholder="Select a context" 
-            [options]="environmentContext" 
+            *ngIf="environmentContext"
+            placeholder="Select a context"
+            [options]="environmentContext"
             [label]="'DASHBOARD.ENVIRONMENT_CONTEXT' | translate"></sp-select>
 
           <div *ngFor="let group of customGroups; let i = index;">
-            <sp-select class="st-form-field" 
-              [forceValidations]="forceValidations" 
+            <sp-select class="st-form-field"
+              [forceValidations]="forceValidations"
               (change)="changeContext($event, group.name)"
-              [(ngModel)]="form.customGroups[group.name]" 
-              name="customGroups" 
-              placeholder="Select a context" 
-              [label]="group.name" 
+              [(ngModel)]="form.customGroups[group.name]"
+              name="customGroups"
+              placeholder="Select a context"
+              [label]="group.name + ' context'"
               [options]="group.context"></sp-select>
           </div>
-          <div *ngIf="executionContexts.extraParams && executionContexts.extraParams.length">
+          <div *ngIf="executionContexts && executionContexts.extraParams && executionContexts.extraParams.length">
           <p class="info-text">{{'DASHBOARD.NO_DEFINITION_PARAMS' | translate}}</p>
-          <st-input class="st-form-field extra-param" 
-            [forceValidations]="forceValidations" 
-            [required]="true" 
-            placeholder="Type the value here" 
-            *ngFor="let param of executionContexts.extraParams" 
-            name="extraParams" 
-            [(ngModel)]="form.extraParams[param]" 
+          <st-input class="st-form-field extra-param"
+            [forceValidations]="forceValidations"
+            [required]="true"
+            placeholder="Type the value here"
+            *ngFor="let param of executionContexts.extraParams"
+            name="extraParams"
+            [(ngModel)]="form.extraParams[param]"
             [label]="param + ' value'"></st-input>
           </div>
         </div>
       </form>
       <sparta-sidebar *ngIf="sidebarPosition"
-        [style.right.px]="sidebarPosition" 
-        class="sidebar" 
-        [isVisible]="true" 
-        [showCloseButton]="false" 
+        [style.right.px]="sidebarPosition"
+        class="sidebar"
+        [isVisible]="true"
+        [showCloseButton]="false"
         (onCloseSidebar)="showWorkflowInfo()">
           {{workflowName}}
           <p class="egeo-title-giant">Parameter values</p>
           <div class="categories">
-            <div class="category" *ngIf="executionContexts.globalParameters.variables">
+            <div class="category" *ngIf="executionContexts && executionContexts.globalParameters.variables">
               <span class="toggle-category" (click)="toggleCategory('global')">
                 <span [className]="categoriesToggle.global ? 'icon icon-arrow2_down' : 'icon icon-arrow2_right'"></span>
                 <span>Global</span>
@@ -65,7 +65,7 @@
             <div class="category" *ngFor="let key of objectKeys(selectedContexts)">
               <span class="toggle-category" (click)="toggleCategory(key)">
                 <span [className]="categoriesToggle[key] ? 'icon icon-arrow2_down' : 'icon icon-arrow2_right'"></span>
-                <span>Environment</span>
+                <span>{{key}}</span>
               </span>
               <div class="params" *ngIf="categoriesToggle[key]">
                 <div class="param" *ngFor="let param of selectedContexts[key]">

@@ -45,6 +45,7 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
     extraParams: {}
   };
   public selectedContexts: any = {};
+  private groupsAndContextsDefault: any = [];
   private _nodeContainer;
   private _fn: any;
 
@@ -54,21 +55,31 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
 
   public sidebarPosition: number;
 
-  ngOnInit(): void {
-    const groups = this.executionContexts.groupsAndContexts;
-    if (groups) {
-      const envGroup = groups.find(group => group.parameterList.name === 'Environment');
-      if (envGroup) {
-        this.environmentContext = this.getGroupContext(envGroup);
-      }
-
-      const custom = groups.filter(group => group.parameterList.name !== 'Environment');
-      this.customGroups = custom.map(group => ({
-        name: group.parameterList.name,
-        context: this.getGroupContext(group)
+   ngOnInit(): void {
+      this.groupsAndContextsDefault = this.executionContexts && this.executionContexts.groupsAndContexts.map(group => ({
+         ...group, contexts: [{ ...group.parameterList, name: 'Default' }, ...group.contexts]
       }));
-    }
-  }
+
+      if (this.groupsAndContextsDefault) {
+
+         const envGroup = this.groupsAndContextsDefault.find(group => group.parameterList.name === 'Environment');
+         if (envGroup) {
+            this.environmentContext = this.getGroupContext(envGroup);
+            this.form.environment = 'Default';
+            this.changeContext('Default', 'Environment');
+         }
+
+         const custom = this.groupsAndContextsDefault.filter(group => group.parameterList.name !== 'Environment');
+         this.customGroups = custom.map(group => {
+            this.form.customGroups[group.parameterList.name] = 'Default';
+            this.changeContext('Default', group.parameterList.name);
+            return ({
+               name: group.parameterList.name,
+               context: this.getGroupContext(group)
+            });
+         });
+      }
+   }
 
   getGroupContext(group) {
     return group.contexts.map(context => ({
@@ -95,11 +106,10 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
     }
   }
 
-  changeContext(event, groupName) {
-    const groups = this.executionContexts.groupsAndContexts;
-    const eventGroup = groups.find(group => group.parameterList.name === groupName);
-    this.selectedContexts[groupName] = eventGroup.contexts.find(context => context.name === event).parameters;
-  }
+   changeContext(event, groupName) {
+      const eventGroup = this.groupsAndContextsDefault.find(group => group.parameterList.name === groupName);
+      this.selectedContexts[groupName] = eventGroup.contexts.find(context => context.name === event).parameters;
+   }
 
   ngAfterViewInit(): void {
     this._nodeContainer = document.getElementById('run-button');
