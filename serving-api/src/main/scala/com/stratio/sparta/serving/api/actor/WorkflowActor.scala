@@ -247,36 +247,36 @@ class WorkflowActor(
   }
 
   def createVersion(workflowVersion: WorkflowVersion, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
     for {
-      sendTo <- Future(sender)
       workflow <- workflowPgService.findWorkflowById(workflowVersion.id)
     } yield {
       val authorizationId = Option(workflow.authorizationId).getOrElse("N/A")
-      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Create), authorizationId, Option(sendTo)) {
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Create), authorizationId, senderResponseTo) {
         workflowPgService.createVersion(workflowVersion)
       }
     }
   }
 
   def rename(workflowRename: WorkflowRename, user: Option[LoggedUser]): Future[Any] = {
+    val senderResponseTo = Option(sender)
     for {
-      sendTo <- Future(sender)
       group <- groupPgService.findGroupById(workflowRename.groupId)
     } yield {
       val authorizationId = s"${group.name}/${workflowRename.newName}"
-      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), authorizationId, Option(sendTo)) {
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), authorizationId, senderResponseTo) {
         workflowPgService.rename(workflowRename)
       }
     }
   }
 
   def moveTo(workflowMove: WorkflowMove, user: Option[LoggedUser]): Unit = {
+    val senderResponseTo = Option(sender)
     for {
-      sendTo <- Future(sender)
       group <- groupPgService.findGroupById(workflowMove.groupTargetId)
     } yield {
       val authorizationId = s"${group.name}/${workflowMove.workflowName}"
-      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), authorizationId, Option(sendTo)) {
+      authorizeActionsByResourceId(user, Map(ResourceWorkflow -> Edit), authorizationId, senderResponseTo) {
         workflowPgService.moveTo(workflowMove).map(list => {
           val workflowsDto: Seq[WorkflowDto] = list
           workflowsDto
