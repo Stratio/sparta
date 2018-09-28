@@ -34,7 +34,7 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
   def preStopActions(): Unit = {
     log.info("Shutting down Sparta Marathon Actor system")
     //Await.ready(context.system.terminate(), 1 minute)
-    context.system.shutdown()
+    context.system.terminate()
   }
 
   //scalastyle:off

@@ -995,11 +995,6 @@ This software – including all its source code – contains proprietary informa
                 <version>${http.client.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpmime</artifactId>
-                <version>${http.client.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.scalamock</groupId>
                 <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
                 <version>${scala.mock.version}</version>

@@ -25,6 +25,7 @@ import * as parquetTemplate from './outputs/parquet.json';
 import * as postgresTemplate from './outputs/postgres.json';
 import * as printTemplate from './outputs/print.json';
 import * as redisTemplate from './outputs/redis.json';
+import * as restTemplate from './outputs/rest.json';
 import * as textTemplate from './outputs/text.json';
 import * as xmlTemplate from './outputs/xml.json';
 
@@ -48,6 +49,7 @@ export const outputs = [
     parquetTemplate,
     postgresTemplate,
     redisTemplate,
+    restTemplate,
     printTemplate,
     textTemplate,
     xmlTemplate

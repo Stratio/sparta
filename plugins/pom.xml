@@ -309,6 +309,11 @@ This software – including all its source code – contains proprietary informa
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_${scala.binary.version}</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
         <!--Test dependencies-->
         <dependency>
             <groupId>com.stratio.spark</groupId>
@@ -355,6 +360,12 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.binary.version}</artifactId>
             <version>10.0.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>2.18.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

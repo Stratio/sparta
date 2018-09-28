@@ -27,6 +27,8 @@ import * as filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import * as rabbitmqSingleTemplate from './inputs/rabbitmq-single-node.json';
 //import * as socketTemplate from './inputs/socket.json';
 //import * as twitterJsonTemplate from './inputs/twitter-json.json';
+import * as restBatchTemplate from './inputs/restBatch.json';
+import * as restStreamingTemplate from './inputs/restStreaming.json';
 import * as testStreamingTemplate from './inputs/testStreaming.json';
 import * as testBatchTemplate from './inputs/testBatch.json';
 import * as xmlBatchTemplate from './inputs/xml.json';
@@ -55,6 +57,8 @@ export const inputs = [
     //socketTemplate,
     //twitterJsonTemplate,
     parquetTemplate,
+    restBatchTemplate,
+    restStreamingTemplate,
     testBatchTemplate,
     testStreamingTemplate,
     xmlBatchTemplate,

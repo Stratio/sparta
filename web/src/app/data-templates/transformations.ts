@@ -37,6 +37,7 @@ import * as persistTemplate from './transformations/persist.json';
 import * as queryBuilderTemplate from './transformations/queryBuilder.json';
 import * as renameColumnTemplate from './transformations/renamecolumn.json';
 import * as repartitionTemplate from './transformations/repartition.json';
+import * as restTemplate from './transformations/rest.json';
 import * as selectTemplate from './transformations/select.json';
 import * as splitTemplate from './transformations/split.json';
 import * as triggerStreamingTemplate from './transformations/triggerStreaming.json';
@@ -76,6 +77,7 @@ export const transformations: any = [
     queryBuilderTemplate,
     renameColumnTemplate,
     repartitionTemplate,
+    restTemplate,
     selectTemplate,
     splitTemplate,
     triggerStreamingTemplate,

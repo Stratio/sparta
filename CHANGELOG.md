@@ -4,11 +4,13 @@
 
 * New transformations:
     - [SPARTA-2171] Coalesce
+    - [SPARTA-2122] Rest
  
 * New batch inputs:
     - [SPARTA-2215] Cassandra
     - [SPARTA-2123] ElasticSearch
     - [SPARTA-2119] Generic Datasource 
+    - [SPARTA-2122] Rest
     - XML
 
 * New outputs:
@@ -16,6 +18,7 @@
     - [SPARTA-1789] MongoDB
     - [SPARTA-2119] Generic Datasource 
     - [INTELL-1821] Mlpipeline for building and training SparkMl pipelines
+    - [SPARTA-2288] Rest
      
 * Bug fixing:
     - [SPARTA-2228] Load latest version of plugins at runtime 

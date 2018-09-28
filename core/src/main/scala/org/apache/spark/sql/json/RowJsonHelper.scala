@@ -13,7 +13,7 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.catalyst.json.JacksonUtils.nextUntil
-import org.apache.spark.sql.catalyst.json.{CreateJacksonParser, JSONOptions, JacksonGenerator, JacksonParser}
+import org.apache.spark.sql.catalyst.json._
 import org.apache.spark.sql.execution.datasources.json.JsonInferSchema.compatibleType
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
@@ -42,6 +42,23 @@ object RowJsonHelper {
     gen.close()
     json
   }
+
+  // Serialize the value of a Row with a single field as JSON.
+  def toValueAsJSON(row: Row, extraOptions: Map[String, String]): String = {
+    require(row.schema.fields.length == 1)
+    val configOptions = jsonOptions(extraOptions)
+    val rowSchema = row.schema
+    val writer = new CharArrayWriter()
+    val gen = new JacksonGeneratorCustom(rowSchema, writer, configOptions)
+    val internalRow = CatalystTypeConverters.convertToCatalyst(row).asInstanceOf[InternalRow]
+    gen.writeFieldValues(internalRow)
+    gen.flush()
+    val json = writer.toString
+    writer.reset()
+    gen.close()
+    json
+  }
+
 
   def toRow(json: String, extraOptions: Map[String, String], schema: StructType): Row = {
     val parsedOptions = jsonOptions(extraOptions)

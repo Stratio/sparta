@@ -1,0 +1,151 @@
+{
+   "name": "Rest",
+   "icon": "Rest",
+   "className": "RestInputStep",
+   "supportedEngines": ["Batch"],
+   "arity": ["NullaryToNary"],
+   "supportedDataRelations": ["ValidData"],
+   "classPrettyName": "Rest",
+   "description": "Create a RDD[String] containing the retrieved HTTP Response",
+   "properties": [
+      {
+         "propertyId": "url",
+         "propertyName": "_URL_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Insert the URL",
+         "qa": "fragment-details-rest-url"
+      },
+      {
+         "propertyId": "httpMethod",
+         "propertyName": "_HTTP_METHOD_",
+         "required": true,
+         "propertyType": "select",
+         "default": "GET",
+         "values": [
+            {
+               "label": "GET",
+               "value": "GET"
+            },
+            {
+               "label": "POST",
+               "value": "POST"
+            },
+            {
+               "label": "PUT",
+               "value": "PUT"
+            },
+            {
+               "label": "DELETE",
+               "value": "DELETE"
+            }
+         ],
+         "tooltip": "HTTP method to use",
+         "qa": "workflow-input-rest-method"
+      },
+      {
+         "propertyId": "HTTP_Body",
+         "propertyName": "_HTTP_BODY_",
+         "propertyType": "textarea",
+         "contentType": "JSON",
+         "width": 12,
+         "tooltip": "Send this body with the HTTP request",
+         "required": false,
+         "qa": "workflow-input-rest-body"
+      },
+      {
+         "propertyId": "HTTP_Body_Format",
+         "propertyName": "_HTTP_BODY_FORMAT_",
+         "tooltip": "Specify the HTTP body format",
+         "propertyType": "select",
+         "default": "JSON",
+         "values": [
+            {
+               "label": "JSON",
+               "value": "JSON"
+            },
+            {
+               "label": "String",
+               "value": "STRING"
+            }
+         ],
+         "required": false,
+         "qa": "workflow-input-rest-body-format"
+      },
+      {
+         "propertyId": "httpOutputField",
+         "propertyName": "_HTTP_OUTPUT_FIELD_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Assign a name to the generated http field",
+         "qa": "workflow-input-rest-outputField"
+      },
+      {
+         "propertyId": "requestTimeout",
+         "propertyName": "_REQUEST_TIMEOUT_",
+         "propertyType": "text",
+         "default": "30s",
+         "required": true,
+         "tooltip": "Value for the request timeout. Default to 30 seconds.",
+         "qa": "workflow-input-rest-requestTimeout"
+      },
+      {
+         "propertyId": "akkaHttpOptions",
+         "propertyName": "_AKKA_HTTP_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "Values set here will override the ones in the default configuration.",
+         "qa": "fragment-details-https-properties",
+         "fields": [
+            {
+               "propertyId": "akkaHttpOptionsKey",
+               "propertyName": "_AKKA_HTTP_PROPERTY_KEY_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-httpsPropertyKey"
+            },
+            {
+               "propertyId": "akkaHttpOptionsValue",
+               "propertyName": "_AKKA_HTTP_PROPERTY_VALUE_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-httpsPropertyValue"
+            }]
+      },
+      {
+         "propertyId": "HTTP_Header",
+         "propertyName": "_HTTP_HEADER_",
+         "propertyType": "list",
+         "required": false,
+         "fields": [
+            {
+               "propertyId": "headerOptionsKey",
+               "propertyName": "_HEADER_PROPERTY_KEY_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-headerPropertyKey"
+            },
+            {
+               "propertyId": "headerOptionsValue",
+               "propertyName": "_HEADER_PROPERTY_VALUE_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-headerPropertyValue"
+            }],
+         "tooltip": "Use these header properties for the HTTP request",
+         "qa": "workflow-input-rest-header"
+      },
+      {
+         "propertyId": "statusCodeWhiteList",
+         "propertyName": "_HTTP_STATUS_CODE_WHITELIST_",
+         "propertyType": "text",
+         "tooltip": "Insert a comma separated value of allowed HTTP status codes, for ranges put a dash. E.g. 200-250, 303",
+         "required": false,
+         "qa": "workflow-input-rest-statusWhitelist"
+      }
+   ]
+}

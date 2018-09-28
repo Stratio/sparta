@@ -1,0 +1,193 @@
+{
+   "name": "Rest",
+   "icon": "Rest",
+   "category": "Row",
+   "className": "RestTransformStep",
+   "supportedEngines": [
+      "Streaming",
+      "Batch"
+   ],
+   "supportedDataRelations": [
+      "ValidData",
+      "DiscardedData"
+   ],
+   "classPrettyName": "Rest",
+   "description": "Perform customized HTTP Requests depending on the input data",
+   "properties": [
+      {
+         "propertyId": "url",
+         "propertyName": "_URL_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Insert the URL",
+         "qa": "fragment-details-rest-url"
+      },
+      {
+         "propertyId": "httpMethod",
+         "propertyName": "_HTTP_METHOD_",
+         "required": true,
+         "propertyType": "select",
+         "default": "GET",
+         "values": [
+            {
+               "label": "GET",
+               "value": "GET"
+            },
+            {
+               "label": "POST",
+               "value": "POST"
+            },
+            {
+               "label": "PUT",
+               "value": "PUT"
+            },
+            {
+               "label": "DELETE",
+               "value": "DELETE"
+            }
+         ],
+         "tooltip": "HTTP method to use",
+         "qa": "workflow-transformation-rest-method"
+      },
+      {
+         "propertyId": "HTTP_Body",
+         "propertyName": "_HTTP_BODY_",
+         "propertyType": "textarea",
+         "contentType": "JSON",
+         "width": 12,
+         "tooltip": "Send this body with the HTTP request",
+         "required": false,
+         "qa": "workflow-transformation-rest-body"
+      },
+      {
+         "propertyId": "HTTP_Body_Format",
+         "propertyName": "_HTTP_BODY_FORMAT_",
+         "tooltip": "Specify the HTTP body format",
+         "propertyType": "select",
+         "default": "JSON",
+         "values": [
+            {
+               "label": "JSON",
+               "value": "JSON"
+            },
+            {
+               "label": "String",
+               "value": "STRING"
+            }
+         ],
+         "required": false,
+         "qa": "workflow-transformation-rest-body-format"
+      },
+      {
+         "propertyId": "fieldsPreservationPolicy",
+         "propertyName": "_FIELDS_PRESERVATION_",
+         "required": true,
+         "propertyType": "select",
+         "default": "APPEND",
+         "values": [
+            {
+               "label": "Appending extracted",
+               "value": "APPEND"
+            },
+            {
+               "label": "Keeping just extracted",
+               "value": "JUST_EXTRACTED"
+            }
+         ],
+         "tooltip": "The user can choose between two modes. 'Appending extracted' will add the data at the end of the row and lastly 'Keeping just extracted' will only keep the transformed data discarding the received.",
+         "qa": "workflow-transformation-rest-fieldsPreservationPolicy"
+      },
+      {
+         "propertyId": "httpOutputField",
+         "propertyName": "_HTTP_OUTPUT_FIELD_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Assign a name to the generated http field",
+         "qa": "workflow-transformation-rest-outputField"
+      },
+      {
+         "propertyId": "requestTimeout",
+         "propertyName": "_REQUEST_TIMEOUT_",
+         "propertyType": "text",
+         "default": "30s",
+         "required": true,
+         "tooltip": "Value for the request timeout. Default to 30 seconds.",
+         "qa": "workflow-transformation-rest-requestTimeout"
+      },
+      {
+         "propertyId": "akkaHttpOptions",
+         "propertyName": "_AKKA_HTTP_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "Values set here will override the ones in the default configuration.",
+         "qa": "fragment-details-https-properties",
+         "fields": [
+            {
+               "propertyId": "akkaHttpOptionsKey",
+               "propertyName": "_AKKA_HTTP_PROPERTY_KEY_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-httpsPropertyKey"
+            },
+            {
+               "propertyId": "akkaHttpOptionsValue",
+               "propertyName": "_AKKA_HTTP_PROPERTY_VALUE_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-httpsPropertyValue"
+            }]
+      },
+      {
+         "propertyId": "HTTP_Header",
+         "propertyName": "_HTTP_HEADER_",
+         "propertyType": "list",
+         "required": false,
+         "fields": [
+            {
+               "propertyId": "headerOptionsKey",
+               "propertyName": "_HEADER_PROPERTY_KEY_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-headerPropertyKey"
+            },
+            {
+               "propertyId": "headerOptionsValue",
+               "propertyName": "_HEADER_PROPERTY_VALUE_",
+               "propertyType": "text",
+               "width": 4,
+               "required": false,
+               "qa": "fragment-details-https-headerPropertyValue"
+            }],
+         "tooltip": "Use these header properties for the HTTP request",
+         "qa": "workflow-transformation-rest-header"
+      },
+      {
+         "propertyId": "statusCodeWhiteList",
+         "propertyName": "_HTTP_STATUS_CODE_WHITELIST_",
+         "propertyType": "text",
+         "tooltip": "Insert a comma separated value of allowed HTTP status codes, for ranges put a dash. E.g. 200-250, 303",
+         "required": false,
+         "qa": "workflow-transformation-rest-statusWhitelist"
+      },
+      {
+         "propertyId": "whenRowError",
+         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "RowError"
+            },
+            {
+               "label": "Discard",
+               "value": "RowDiscard"
+            }
+         ],
+         "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
+         "qa": "workflow-transformation-rest-whenRowError"
+      }
+   ]
+}
