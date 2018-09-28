@@ -9,6 +9,7 @@ import { formatDate } from '@utils';
 import { homeGroup } from '@app/shared/constants/global';
 import { DataDetails } from './../models/data-details';
 import { Group, GroupWorkflow } from './../models/workflows';
+import { stat } from 'fs';
 
 export interface State {
    currentLevel: any;
@@ -362,11 +363,12 @@ export function reducer(state: State = initialState, action: any): State {
             group: action.payload.group.name,
             nodes: action.payload.pipelineGraph.nodes
          };
+         const workflow = { ...state.workflowsVersionsList[0], versions: [...state.workflowsVersionsList[0].versions, newWorkflow] };
 
          return {
             ...state,
-            workflowList: [...state.workflowList, newWorkflow]
-
+            workflowList: [...state.workflowList, newWorkflow],
+            workflowsVersionsList: [workflow]
          };
 
       }

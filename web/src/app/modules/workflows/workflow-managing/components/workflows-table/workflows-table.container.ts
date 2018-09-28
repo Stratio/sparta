@@ -24,7 +24,7 @@ import { Group } from '../../models/workflows';
    selector: 'workflows-manage-table-container',
    template: `
         <workflows-manage-table [workflowList]="workflowList"
-            [workflowVersions]="workflowVersions"
+            [workflowVersions]="workflowVersions$ | async"
             [selectedGroupsList]="selectedGroupsList"
             [selectedWorkflows]="selectedWorkflows"
             [selectedVersions]="selectedVersions"

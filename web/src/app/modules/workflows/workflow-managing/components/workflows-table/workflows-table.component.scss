@@ -8,21 +8,29 @@
    }
 }
 
+
+
 .check-column {
    width: 10px;
    padding-right: 0;
 }
 
-.workflow-table, .version-table {
-   display: block;
-   margin-top: 30px;
-   user-select: none;
-   tr:hover {
-      cursor: pointer;
-   }
-
-   st-checkbox {
-    pointer-events: none;
+.workflow-table,
+.version-table {
+    display: block;
+    margin-top: 30px;
+    user-select: none;
+    tr:hover {
+        cursor: pointer;
+        .show-options {
+            color: $neutral-13;
+        }
+        .group-name {
+            color: $action-primary-default;
+        }
+    }
+    st-checkbox {
+        pointer-events: none;
     }
 }
 
@@ -107,5 +115,14 @@
 
 .show-options {
     padding: 6px 5px;
-    color: #999;
+    color: $action-secondary-04;
+}
+.workflow-row, .group-row {
+   td:first-child {
+      min-width: 460px;
+   }
+
+   td:last-child {
+      float: right;
+   }
 }

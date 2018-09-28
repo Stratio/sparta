@@ -101,7 +101,7 @@ export class WorkflowsManagingTableComponent {
          options: [
             {
                icon: 'icon-edit',
-               label: 'Edit workflow name',
+               label: 'Rename',
                id: 'workflow-name-edition'
             },
             {

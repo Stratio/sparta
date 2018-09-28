@@ -70,10 +70,14 @@ export const getCurrentGroups = createSelector(
     }));
 
 export const getWorkflowVersions = createSelector(
-    getWorkflowList,
-    getOpenedWorkflow,
-    (workflowList, openedWorkflow) => openedWorkflow ? workflowList.filter((workflow: any) =>
-        openedWorkflow.name === workflow.name && openedWorkflow.group === workflow.group) : []);
+   getWorkflowVersionsList,
+   getOpenedWorkflow,
+   (workflowList, openedWorkflow) => {
+      const workflowVersions = openedWorkflow ?
+         workflowList.filter((workflow: any) =>
+            openedWorkflow.name === workflow.name && openedWorkflow.group === workflow.group) : [];
+      return workflowVersions.length ? workflowVersions[0].versions : workflowVersions;
+   });
 
 export const getOrder = createSelector(getOrderState, state => state.sortOrder);
 export const getOrderVersions = createSelector(getOrderState, state => state.sortOrderVersions);
