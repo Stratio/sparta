@@ -24,6 +24,8 @@ import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
 import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, NginxUtils}
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.write
 import slick.jdbc.PostgresProfile
@@ -54,6 +56,17 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       findAll()
   }
 
+  def findExecutionsByQuery(workflowExecutionQuery: WorkflowExecutionQuery): Future[Seq[WorkflowExecution]] = {
+    workflowExecutionQuery.archived match {
+      case Some(archived) =>
+        if (cacheEnabled)
+          predicateList(ignitePredicateByArchived(Option(archived)))(filterByArchived(archived))
+        else filterByArchived(archived)
+      case None =>
+        findAllExecutions()
+    }
+  }
+
   def createDashboardView(): Future[DashboardView] = findAllExecutions().map(getDashboardView)
 
   def findExecutionById(id: String): Future[WorkflowExecution] = findByIdHead(id)
@@ -76,12 +89,12 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     } yield {
       upsert(execution)
       execution
-    }).cached(replace = true)
+    }).cached()
 
   def updateCacheExecutionStatus(execution: WorkflowExecution): Future[WorkflowExecution] = {
-    if (cache.containsKey(execution.id.get))
-      findByIdHead(execution.id.get).cached(true)
-    else findByIdHead(execution.id.get).cached()
+    if (cacheEnabled)
+      findByIdHead(execution.id.get).cached()
+    else Future(execution)
   }
 
   def updateStatus(
@@ -139,7 +152,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         log.info(s"Updating execution ${actualExecutionStatus.getExecutionId}: $newExInformation")
 
       val upsertResult = upsert(newExecutionWithStatus).map(_ => (actualExecutionStatus, newExecutionWithStatus))
-      upsertResult.map(_._2).cached(replace = true)
+      upsertResult.map(_._2).cached()
       upsertResult
     }
 
@@ -158,6 +171,22 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   def stopExecution(id: String): WorkflowExecution = {
     log.debug(s"Stopping workflow execution with id $id")
     updateStatus(ExecutionStatusUpdate(id, ExecutionStatus(WorkflowStatusEnum.Stopping)))
+  }
+
+  def setArchived(execution: WorkflowExecution, archived: Boolean): Future[WorkflowExecution] = {
+    val executionUpdated = execution.copy(archived = Option(archived))
+
+    Await.result(db.run(
+      table.filter(_.id === executionUpdated.getExecutionId)
+        .map(execution => execution.archived)
+        .update(executionUpdated.archived)
+        .transactionally
+    ), AppConstant.DefaultApiTimeout seconds)
+
+    if(archived) {
+      if (cacheEnabled) cache.remove(executionUpdated.getExecutionId)
+      Future(executionUpdated)
+    } else Future(executionUpdated).cached()
   }
 
   def deleteAllExecutions(): Future[Boolean] =
@@ -181,7 +210,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
-    Future(executionUpdated).cached(replace = true)
+    Future(executionUpdated).cached()
     executionUpdated
   }
 
@@ -195,7 +224,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
-    Future(executionUpdated).cached(replace = true)
+    Future(executionUpdated).cached()
     executionUpdated
   }
 
@@ -209,7 +238,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
-    Future(executionUpdated).cached(replace = true)
+    Future(executionUpdated).cached()
     executionUpdated
   }
 
@@ -223,7 +252,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .update(executionUpdated.genericDataExecution)
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
-    Future(executionUpdated).cached(replace = true)
+    Future(executionUpdated).cached()
     executionUpdated
   }
 
@@ -239,7 +268,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
           .update(executionUpdated.genericDataExecution)
           .transactionally
       )
-    } yield executionUpdated).cached(replace = true)
+    } yield executionUpdated).cached()
 
   def anyLocalWorkflowRunning: Future[Boolean] =
     for {
@@ -249,6 +278,13 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         execution.genericDataExecution.executionMode == local && execution.lastStatus.state == Started)
       executionsRunning.nonEmpty
     }
+
+  /** Ignite predicates */
+  private def ignitePredicateByArchived(archived: Option[Boolean]): ScanQuery[String, WorkflowExecution] = new ScanQuery[String, WorkflowExecution](
+    new IgniteBiPredicate[String, WorkflowExecution]() {
+      override def apply(k: String, value: WorkflowExecution) = value.archived.equals(archived)
+    }
+  )
 
   /** PRIVATE METHODS */
 
@@ -299,6 +335,9 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         workflowExecList.head
       else throw new ServerException(s"No Workflow Execution found with id $id")
     }
+
+  private[services] def filterByArchived(archived: Boolean) =
+    db.run(table.filter(_.archived === Option(archived)).result)
 
   private[services] def filterByIdReal(id: String): Future[Seq[WorkflowExecution]] =
     db.run(table.filter(_.id === id).result)

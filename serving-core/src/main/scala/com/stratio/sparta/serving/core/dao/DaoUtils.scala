@@ -236,7 +236,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
 
   implicit class FutureToIgnite[A](daoFuture: Future[A]) {
 
-    def cached(replace: Boolean = false): Future[A] = {
+    def cached(): Future[A] = {
       if (cacheEnabled) {
         daoFuture.onComplete { elements =>
           elements match {
@@ -244,10 +244,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
               List(elems).flatten(List(_).asInstanceOf[List[SpartaEntity]]).foreach { entity =>
                   Try {
                     val entityId = getSpartaEntityId(entity)
-                    if (replace)
-                      cache.replace(entityId, entity)
-                    else
-                      cache.putIfAbsent(entityId, entity)
+                    cache.put(entityId, entity)
                     entityId
                   } match {
                     case Success(entityId) =>

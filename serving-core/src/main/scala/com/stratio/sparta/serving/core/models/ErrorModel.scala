@@ -49,6 +49,9 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowExecutionCreate = "581"
   val WorkflowExecutionFindAllDto = "582"
   val WorkflowExecutionDashboard = "583"
+  val WorkflowExecutionArchived = "584"
+  val WorkflowExecutionQuery = "585"
+  val WorkflowExecutionQueryDto = "586"
 
   /* Crossdata Service 600-624 */
   val CrossdataServiceUnexpected = "600"
@@ -262,6 +265,9 @@ object ErrorModel extends SpartaSerializer {
     WorkflowExecutionFindAll -> "Error obtaining all workflow executions",
     WorkflowExecutionFindAllDto -> "Error obtaining all workflow executions dto",
     WorkflowExecutionDashboard -> "Error obtaining dashboard",
+    WorkflowExecutionArchived -> "Error archiving workflow execution",
+    WorkflowExecutionQuery -> "Error executing query over workflow execution",
+    WorkflowExecutionQueryDto -> "Error executing query over workflow execution dto",
     WorkflowExecutionFindById -> "Error obtaining workflow execution",
     WorkflowExecutionDeleteAll -> "Error deleting all workflow executions",
     WorkflowExecutionDeleteById -> "Error deleting workflow execution",

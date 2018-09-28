@@ -102,7 +102,7 @@ class GroupPostgresDao extends GroupDao {
         updateActions.flatMap { actionsToExecute =>
           db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
         }
-      }.map(_ => group).cached(replace = true)
+      }.map(_ => group).cached()
     } else throw new ServerException(s"Unable to update group ${group.name} because its name is invalid")
   }
 

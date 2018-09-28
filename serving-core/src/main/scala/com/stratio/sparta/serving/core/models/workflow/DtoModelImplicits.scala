@@ -34,7 +34,8 @@ object DtoModelImplicits {
       execution.statuses,
       execution.genericDataExecution,
       execution.marathonExecution,
-      execution.localExecution
+      execution.localExecution,
+      execution.archived
     )
 
   implicit def marathonExecutionToDto(marathonExecution: Option[MarathonExecution]): Option[MarathonExecutionDto] = {

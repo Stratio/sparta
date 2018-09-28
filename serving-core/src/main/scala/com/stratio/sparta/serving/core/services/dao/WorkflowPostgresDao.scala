@@ -126,7 +126,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       val workflowWithFields = addParametersUsed(addUpdateDate(workflow.copy(id = workflowUpdate.id, groupId = workflowUpdate.groupId)))
       upsert(workflowWithFields)
       workflowWithFields
-    }).cached(replace = true)
+    }).cached()
   }
 
   def createVersion(workflowVersion: WorkflowVersion): Future[Workflow] = {
@@ -158,7 +158,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       _ <- db.run(DBIO.sequence(oldWorkflow.map(w =>
         table.filter(_.id === w.id.get).map(_.name).update(workflowRename.newName))).transactionally) //Update after filter by id
     } yield {
-      db.run(table.filter(w => w.name === workflowRename.newName && w.groupId === workflowRename.groupId).result).cached(replace = true)
+      db.run(table.filter(w => w.name === workflowRename.newName && w.groupId === workflowRename.groupId).result).cached()
     }).flatMap(f => f)
   }
 
@@ -178,7 +178,7 @@ class WorkflowPostgresDao extends WorkflowDao {
           getUpserted <- db.run(table.filter(w => w.name === workflowMove.workflowName && w.groupId === destination.id.get).result)
         } yield {
           getUpserted
-        }).cached(replace = true)
+        }).cached()
       }
     }).flatMap(future => future)
   }

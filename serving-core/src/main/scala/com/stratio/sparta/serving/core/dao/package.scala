@@ -236,7 +236,9 @@ package object daoTables {
 
     def localExecution = column[Option[LocalExecution]]("local_execution")
 
-    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution) <>
+    def archived = column[Option[Boolean]]("archived")
+
+    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived) <>
       ((WorkflowExecution.apply _).tupled, WorkflowExecution.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)

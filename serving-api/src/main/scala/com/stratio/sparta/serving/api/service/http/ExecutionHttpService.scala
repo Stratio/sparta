@@ -13,9 +13,9 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
-import com.stratio.sparta.serving.core.models.ErrorModel._
+import com.stratio.sparta.serving.core.models.ErrorModel.{WorkflowExecutionQuery, _}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{DashboardView, WorkflowExecution, WorkflowExecutionDto}
+import com.stratio.sparta.serving.core.models.workflow._
 import com.wordnik.swagger.annotations._
 import spray.http.StatusCodes
 import spray.routing._
@@ -30,7 +30,76 @@ trait ExecutionHttpService extends BaseHttpService {
   )
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~ findAllDto(user) ~ dashboard(user) ~
-    update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user) ~ stop(user)
+    update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user) ~ stop(user) ~ archived(user) ~
+    findByQuery(user) ~ findByQueryDto(user)
+
+  @Path("/findByQuery")
+  @ApiOperation(value = "Find executions from query.",
+    notes = "Find executions from query.",
+    httpMethod = "POST",
+    response = classOf[Seq[WorkflowExecution]],
+    responseContainer = "List")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "executionQuery",
+      value = "query execution model json",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionQuery",
+      required = true,
+      paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByQuery(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.ExecutionsPath / "findByQuery") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[WorkflowExecutionQuery]) { executionQuery =>
+            complete {
+              for {
+                response <- (supervisor ? QueryExecution(executionQuery, user))
+                  .mapTo[Either[ResponseWorkflowExecutions, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowExecutionQuery, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/findByQueryDto")
+  @ApiOperation(value = "Find executions from query.",
+    notes = "Find executions from query.",
+    httpMethod = "POST",
+    response = classOf[Seq[WorkflowExecution]],
+    responseContainer = "List")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "executionQuery",
+      value = "query execution model json",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionQuery",
+      required = true,
+      paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByQueryDto(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.ExecutionsPath / "findByQueryDto") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[WorkflowExecutionQuery]) { executionQuery =>
+            complete {
+              for {
+                response <- (supervisor ? QueryExecutionDto(executionQuery, user))
+                  .mapTo[Either[ResponseWorkflowExecutionsDto, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowExecutionQueryDto, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
 
   @Path("/dashboard")
   @ApiOperation(value = "Returns the dashboard view",
@@ -258,4 +327,35 @@ trait ExecutionHttpService extends BaseHttpService {
       }
     }
   }
+
+  @Path("/archived")
+  @ApiOperation(value = "Archive a execution",
+    notes = "Archive a execution",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "archived",
+      value = "archive execution query json",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.ArchiveExecutionQuery",
+      required = true,
+      paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def archived(user: Option[LoggedUser] = None): Route = {
+    path(HttpConstant.ExecutionsPath / "archived") {
+      post {
+        entity(as[ArchivedExecutionQuery]) { request =>
+          complete {
+            for {
+              response <- (supervisor ? ArchiveExecution(request, user))
+                .mapTo[Either[ResponseWorkflowExecution, UnauthorizedResponse]]
+            } yield deletePostPutResponse(WorkflowExecutionArchived, response, genericError)
+          }
+        }
+      }
+    }
+  }
+
 }

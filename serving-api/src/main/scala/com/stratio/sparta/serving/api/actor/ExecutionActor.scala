@@ -8,13 +8,11 @@ package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.Future
 import scala.util.Try
-
 import akka.actor.Actor
-
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.ExecutionActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{DashboardView, DtoModelImplicits, WorkflowExecution, WorkflowExecutionDto}
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 
 class ExecutionActor()
@@ -37,6 +35,9 @@ class ExecutionActor()
     case DeleteAll(user) => deleteAllExecutions(user)
     case DeleteExecution(id, user) => deleteExecution(id, user)
     case Stop(id, user) => stopExecution(id, user)
+    case ArchiveExecution(query, user) => archiveExecution(query, user)
+    case QueryExecution(query, user) => findExecutionsByQuery(query, user)
+    case QueryExecutionDto(query, user) => findExecutionsDtoByQuery(query, user)
     case _ => log.info("Unrecognized message in Workflow Execution Actor")
   }
 
@@ -68,6 +69,18 @@ class ExecutionActor()
     }
   }
 
+  def archiveExecution(archiveExecutionQuery: ArchivedExecutionQuery, user: Option[LoggedUser]): Future[Any] = {
+    val sendResponseTo = Option(sender)
+    for {
+      execById <- executionPgService.findExecutionById(archiveExecutionQuery.executionId)
+    } yield {
+      val authorizationId = execById.authorizationId
+      authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
+        executionPgService.setArchived(execById, archiveExecutionQuery.archived)
+      }
+    }
+  }
+
   def createDashboardView(user: Option[LoggedUser]): Unit =
     authorizeActions(user, Map(ResourceType -> View)) {
       executionPgService.createDashboardView()
@@ -81,6 +94,21 @@ class ExecutionActor()
   def findAllExecutionsDto(user: Option[LoggedUser]): Unit =
     authorizeActionResultResources(user, Map(ResourceType -> Status), Option(sender)) {
       executionPgService.findAllExecutions().map { executions =>
+        executions.map { execution =>
+          val executionDto: WorkflowExecutionDto = execution
+          executionDto
+        }
+      }
+    }
+
+  def findExecutionsByQuery(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser]): Unit =
+    authorizeActionResultResources(user, Map(ResourceType -> Status)) {
+      executionPgService.findExecutionsByQuery(workflowExecutionQuery)
+    }
+
+  def findExecutionsDtoByQuery(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser]): Unit =
+    authorizeActionResultResources(user, Map(ResourceType -> Status)) {
+      executionPgService.findExecutionsByQuery(workflowExecutionQuery).map { executions =>
         executions.map { execution =>
           val executionDto: WorkflowExecutionDto = execution
           executionDto
@@ -137,6 +165,12 @@ object ExecutionActor {
   case class FindById(id: String, user: Option[LoggedUser])
 
   case class Stop(id: String, user: Option[LoggedUser])
+
+  case class ArchiveExecution(archiveExecution: ArchivedExecutionQuery, user: Option[LoggedUser])
+
+  case class QueryExecution(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser])
+
+  case class QueryExecutionDto(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser])
 
   type ResponseWorkflowExecution = Try[WorkflowExecution]
 

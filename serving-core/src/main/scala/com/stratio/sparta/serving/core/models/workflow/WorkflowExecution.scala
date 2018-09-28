@@ -20,7 +20,8 @@ case class WorkflowExecution(
                               sparkExecution: Option[SparkExecution] = None,
                               sparkDispatcherExecution: Option[SparkDispatcherExecution] = None,
                               marathonExecution: Option[MarathonExecution] = None,
-                              localExecution: Option[LocalExecution] = None
+                              localExecution: Option[LocalExecution] = None,
+                              archived: Option[Boolean] = Option(false)
                             ) extends EntityAuthorization {
 
   def authorizationId: String = genericDataExecution.workflow.authorizationId
@@ -85,7 +86,8 @@ case class WorkflowExecutionDto(
                                  statuses: Seq[ExecutionStatus],
                                  genericDataExecution: GenericDataExecutionDto,
                                  marathonExecution: Option[MarathonExecutionDto] = None,
-                                 localExecution: Option[LocalExecution] = None
+                                 localExecution: Option[LocalExecution] = None,
+                                 archived: Option[Boolean] = None
                                ) extends Dto
 
 case class MarathonExecutionDto(sparkURI: Option[String] = None) extends Dto
