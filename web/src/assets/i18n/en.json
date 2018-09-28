@@ -206,6 +206,9 @@
       "CANCEL": "Cancel"
    },
    "SETTINGS": {
+      "_UDF_NAME": "UDF class name",
+      "_USER_UDFS_": "Register UDFs",
+      "_USER_UDAFS_": "Register UDAFs",
       "_ERROR_WHEN_ERROR_": "Error handling policy",
       "_ERROR_WHEN_ROW_ERROR_": "Row error handling policy",
       "_ERROR_WHEN_FIELD_ERROR_": "Field error handling policy",

@@ -155,6 +155,20 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
 
     if (execute) {
+      val errorUdfMessage = s"An error was encountered while creating UDFs"
+      val okUdfMessage = s"UDFs created successfully"
+      errorManager.traceFunction(phaseEnum, okUdfMessage, errorUdfMessage) {
+        val udfsToRegister = workflow.settings.global.udfsToRegister
+        registerUdfs(udfsToRegister.map(_.name), userId)
+      }
+
+      val errorUdafMessage = s"An error was encountered while creating UDAFs"
+      val okUdafMessage = s"UDAFs created successfully"
+      errorManager.traceFunction(phaseEnum, okUdafMessage, errorUdafMessage) {
+        val udafsToRegister = workflow.settings.global.udafsToRegister
+        registerUdafs(udafsToRegister.map(_.name), userId)
+      }
+
       val errorMessage = s"An error was encountered while executing initial sql sentences"
       val okMessage = s"Initial Sql sentences executed successfully"
       errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {

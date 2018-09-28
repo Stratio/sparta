@@ -26,11 +26,7 @@ class CustomLiteOutputStep(name: String, xDSession: XDSession, properties: Map[S
   def customStep: Try[LiteCustomOutput] = Try {
     val customClassProperty = customClassType.getOrElse(throw new Exception("The class property is mandatory"))
     val classpathUtils = new ClasspathUtils
-    val (customClass, customClassAndPackage) = {
-      if (customClassProperty.contains(".")) {
-        (customClassProperty.substring(customClassProperty.lastIndexOf(".")), customClassProperty)
-      } else (customClassProperty, s"com.stratio.sparta.$customClassProperty")
-    }
+    val (customClass, customClassAndPackage) = classpathUtils.getCustomClassAndPackage(customClassProperty)
     val sparkSession = xDSession.asInstanceOf[SparkSession]
     val properties = propertiesWithCustom.mapValues(_.toString)
 

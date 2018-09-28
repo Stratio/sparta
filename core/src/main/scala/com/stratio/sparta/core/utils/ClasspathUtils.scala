@@ -18,7 +18,7 @@ import org.reflections.Reflections
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.sdk.lite.batch.{LiteCustomBatchInput, LiteCustomBatchTransform}
 import com.stratio.sparta.sdk.lite.xd.batch.{LiteCustomXDBatchInput, LiteCustomXDBatchTransform}
-import com.stratio.sparta.sdk.lite.common.LiteCustomOutput
+import com.stratio.sparta.sdk.lite.common.{LiteCustomOutput, SpartaUDAF, SpartaUDF}
 import com.stratio.sparta.sdk.lite.xd.common.LiteCustomXDOutput
 import com.stratio.sparta.sdk.lite.streaming.{LiteCustomStreamingInput, LiteCustomStreamingTransform}
 import com.stratio.sparta.sdk.lite.xd.streaming.{LiteCustomXDStreamingInput, LiteCustomXDStreamingTransform}
@@ -34,17 +34,18 @@ class ClasspathUtils extends SLF4JLogging {
         classOf[LiteCustomStreamingInput], classOf[LiteCustomStreamingTransform],
         classOf[LiteCustomXDStreamingInput], classOf[LiteCustomXDStreamingTransform],
         classOf[InputStep[RDD]], classOf[OutputStep[RDD]], classOf[TransformStep[RDD]],
-        classOf[InputStep[Dataset]], classOf[OutputStep[Dataset]], classOf[TransformStep[Dataset]]
+        classOf[InputStep[Dataset]], classOf[OutputStep[Dataset]], classOf[TransformStep[Dataset]],
+        classOf[SpartaUDF], classOf[SpartaUDAF]
       ),
       packagePath = "com.stratio.sparta",
       printClasspath = true
     )
   }
 
-  def classesInClasspath(classes: Seq[Class[_]], packagePath: String, printClasspath: Boolean) : Map[String, String] = {
+  def classesInClasspath(classes: Seq[Class[_]], packagePath: String, printClasspath: Boolean): Map[String, String] = {
     val reflections = new Reflections(packagePath)
 
-    if(printClasspath){
+    if (printClasspath) {
       Try {
         log.debug("SPARK MUTABLE_URL_CLASS_LOADER:")
         log.debug(getClass.getClassLoader.toString)
@@ -77,7 +78,7 @@ class ClasspathUtils extends SLF4JLogging {
                            inputClazzMap: Map[String, String] = Map.empty[String, String]
                          ): C = {
     //If non empty. the custom classes are added to Sparta internal classes
-    val clazMap: Map[String, String] = if(inputClazzMap.isEmpty) defaultStepsInClasspath else inputClazzMap ++ defaultStepsInClasspath
+    val clazMap: Map[String, String] = if (inputClazzMap.isEmpty) defaultStepsInClasspath else inputClazzMap ++ defaultStepsInClasspath
     val finalClazzToInstance = clazMap.getOrElse(classAndPackage, classAndPackage)
     try {
       val clazz = Class.forName(finalClazzToInstance, true, Thread.currentThread().getContextClassLoader)
@@ -92,6 +93,12 @@ class ClasspathUtils extends SLF4JLogging {
       case e: NoClassDefFoundError =>
         throw new Exception(s"Error while instantiating $classAndPackage caused by ${e.getCause.toString}", e)
     }
+  }
+
+  def getCustomClassAndPackage(name: String): (String, String) = {
+    if (name.contains("."))
+      (name.substring(name.lastIndexOf(".")), name)
+    else (name, s"com.stratio.sparta.$name")
   }
 
   private def printClassPath(cl: ClassLoader): Unit = {

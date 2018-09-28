@@ -28,7 +28,9 @@ case class GlobalSettings(
                            mesosConstraint: Option[JsoneyString] = None,
                            mesosConstraintOperator: Option[JsoneyString] = None,
                            parametersLists: Seq[String] = Seq.empty[String],
-                           parametersUsed: Seq[String] = Seq.empty[String]
+                           parametersUsed: Seq[String] = Seq.empty[String],
+                           udfsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
+                           udafsToRegister: Seq[UserUDF] = Seq.empty[UserUDF]
                          )
 
 case class GlobalSettingsDto(
@@ -108,6 +110,8 @@ case class UserSubmitArgument(
                              )
 
 case class UserJar(jarPath: JsoneyString)
+
+case class UserUDF(name: String)
 
 case class SqlSentence(sentence: JsoneyString)
 

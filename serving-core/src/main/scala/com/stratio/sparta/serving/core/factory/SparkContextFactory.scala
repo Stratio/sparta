@@ -9,9 +9,12 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
 
+import org.apache.spark.sql.functions.udf
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.utils.ClasspathUtils
+import com.stratio.sparta.sdk.lite.common.{SpartaUDAF, SpartaUDF}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
@@ -20,6 +23,7 @@ import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService
 import org.apache.spark.scheduler.KerberosUser
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -68,6 +72,7 @@ object SparkContextFactory extends SLF4JLogging {
       Seq(("spark.ui.proxyBase", proxyPath))
     } else Seq.empty[(String, String)]
   }
+  private lazy val classpathUtils = new ClasspathUtils
 
 
   /* PUBLIC METHODS */
@@ -115,7 +120,7 @@ object SparkContextFactory extends SLF4JLogging {
             case Some(sparkContext) =>
               val sparkConf = sparkContext.getConf
 
-              if (withStandAloneExtraConf){
+              if (withStandAloneExtraConf) {
                 log.debug("Adding StandAlone configuration to Spark Session")
                 addStandAloneExtraConf(sparkConf)
               }
@@ -131,7 +136,7 @@ object SparkContextFactory extends SLF4JLogging {
             case None =>
               val sparkConf = new SparkConf()
 
-              if (withStandAloneExtraConf){
+              if (withStandAloneExtraConf) {
                 log.debug("Adding StandAlone configuration to Spark Session")
                 addStandAloneExtraConf(sparkConf)
               }
@@ -165,6 +170,42 @@ object SparkContextFactory extends SLF4JLogging {
         sqlSentences.filter(_.nonEmpty).foreach { sentence =>
           val trimSentence = sentence.trim
           session.sql(trimSentence)
+        }
+      }
+    }
+  }
+
+  def registerUdfs(udfsToRegister: Seq[String], userId: Option[String] = None): Unit = {
+    maybeWithHdfsUgiService {
+      val sessionId = getSessionIdFromUserId(userId)
+      xdSession.get(sessionId).foreach { session =>
+        udfsToRegister.foreach { udfName =>
+          val (customClass, customClassAndPackage) = classpathUtils.getCustomClassAndPackage(udfName)
+          val udfToRegister = classpathUtils.tryToInstantiate[SpartaUDF](
+            classAndPackage = customClass,
+            block = (c) => c.newInstance().asInstanceOf[SpartaUDF],
+            inputClazzMap = Map(customClass -> customClassAndPackage)
+          )
+
+          session.udf.register(udfToRegister.name, udfToRegister.userDefinedFunction)
+        }
+      }
+    }
+  }
+
+  def registerUdafs(udafsToRegister: Seq[String], userId: Option[String] = None): Unit = {
+    maybeWithHdfsUgiService {
+      val sessionId = getSessionIdFromUserId(userId)
+      xdSession.get(sessionId).foreach { session =>
+        udafsToRegister.foreach { udafName =>
+          val (customClass, customClassAndPackage) = classpathUtils.getCustomClassAndPackage(udafName)
+          val udafToRegister = classpathUtils.tryToInstantiate[SpartaUDAF](
+            classAndPackage = customClass,
+            block = (c) => c.newInstance().asInstanceOf[SpartaUDAF],
+            inputClazzMap = Map(customClass -> customClassAndPackage)
+          )
+
+          session.udf.register(udafToRegister.name, udafToRegister.userDefinedAggregateFunction)
         }
       }
     }

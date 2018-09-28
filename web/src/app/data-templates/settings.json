@@ -128,6 +128,38 @@
           }]
         },
          {
+            "propertyId": "udfsToRegister",
+            "propertyName": "SETTINGS._USER_UDFS_",
+            "propertyType": "list",
+            "tooltip": "Custom UDFS created by the user",
+            "qa": "workflow-user-udfs",
+            "fields": [{
+               "propertyId": "name",
+               "propertyName": "SETTINGS._UDF_NAME",
+               "propertyType": "text",
+               "regexp": "",
+               "default": "",
+               "required": false,
+               "qa": "workflow-udf-name"
+            }]
+         },
+         {
+            "propertyId": "udafsToRegister",
+            "propertyName": "SETTINGS._USER_UDAFS_",
+            "propertyType": "list",
+            "tooltip": "Custom UDAFS created by the user",
+            "qa": "workflow-user-udafs",
+            "fields": [{
+               "propertyId": "name",
+               "propertyName": "SETTINGS._UDF_NAME",
+               "propertyType": "text",
+               "regexp": "",
+               "default": "",
+               "required": false,
+               "qa": "workflow-udaf-name"
+            }]
+         },
+         {
             "propertyId": "userPluginsJars",
             "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
             "propertyType": "list",
