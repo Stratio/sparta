@@ -35,6 +35,11 @@ st-input, sp-select {
 
 .categories{
   padding-top:2em;
+  overflow-y: auto;
+  height: 85%;
+  .bold {
+     font-weight: bold;
+  }
 }
 
 .params {

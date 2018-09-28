@@ -57,7 +57,7 @@
               </span>
               <div class="params" *ngIf="categoriesToggle.global">
                 <div class="param" *ngFor="let param of executionContexts.globalParameters.variables">
-                  <div>{{param.name}}: {{param.value}}</div>
+                  <div><span class="bold">{{param.name}}:</span>{{param.value}}</div>
                 </div>
               </div>
             </div>
@@ -69,7 +69,7 @@
               </span>
               <div class="params" *ngIf="categoriesToggle[key]">
                 <div class="param" *ngFor="let param of selectedContexts[key]">
-                  <div>{{param.name}}: {{param.value}}</div>
+                  <div><span class="bold">{{param.name}}:</span> {{param.value}}</div>
                 </div>
               </div>
             </div>
@@ -81,7 +81,7 @@
               </span>
               <div class="params" *ngIf="categoriesToggle.undefined">
                 <div class="param" *ngFor="let key of objectKeys(form.extraParams)">
-                  <div>{{key}}: {{form.extraParams[key]}}</div>
+                  <div><span class="bold">{{key}:</span> {{form.extraParams[key]}}</div>
                 </div>
               </div>
             </div>
