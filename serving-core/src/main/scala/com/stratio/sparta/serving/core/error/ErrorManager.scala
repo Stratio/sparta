@@ -88,7 +88,7 @@ trait ErrorManager extends SLF4JLogging {
       case e => log.error(s"Error while persisting error: $workflowError", e)
     }
 
-    ErrorManagerException(s"$message. Message: ${exception.getLocalizedMessage}", exception, message)
+    ErrorManagerException(s"$message. Message: ${ExceptionHelper.toPrintableException(exception)}", exception, message)
   }
 }
 

@@ -50,8 +50,6 @@ package object daoTables {
     def * = (name, value) <> ((ParameterVariable.apply _).tupled , ParameterVariable.unapply)
 
     def pk = primaryKey(s"pk_$tableName", name)
-
-    def parametersTableIndex = index(s"idx_$tableName", name, unique = true)
   }
 
   class GroupTable(tag: Tag) extends Table[Group](tag, dbSchemaName, GroupTableName) {
@@ -64,7 +62,7 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", groupId)
 
-    def groupIndex = index(s"idx_$tableName", groupId, unique = true)
+    def groupNameIndex = index(s"idx_${tableName}_name", name, unique = true)
   }
 
   class WorkflowTable(tag: Tag) extends Table[Workflow](tag, dbSchemaName, WorkflowTableName) {
@@ -110,9 +108,7 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", id)
 
-    def workflowIndex = index(s"idx_$tableName", id, unique = true)
-
-    def groupIndex = index(s"idx_${tableName}_groups", groupId)
+    def groupIndex = index(s"idx_${tableName}_group", groupId)
   }
 
   class DebugWorkflowTable(tag: Tag) extends Table[DebugWorkflow](tag, dbSchemaName, DebugWorkflowTableName) {
@@ -128,8 +124,6 @@ package object daoTables {
     def * = (id.?, workflowOriginal, workflowDebug, result) <> ((DebugWorkflow.apply _).tupled, DebugWorkflow.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
-
-    def debugIndex = index(s"idx_$tableName", id, unique = true)
   }
 
   class DebugResultStepTable(tag: Tag) extends Table[ResultStep](tag, dbSchemaName, DebugResultStepTableName) {
@@ -148,7 +142,7 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", id)
 
-    def debugIndex = index(s"idx_$tableName", id, unique = true)
+    def stepIndex = index(s"idx_${tableName}_step", step)
   }
 
   class ParameterListTable(tag: Tag) extends Table[ParameterList](tag, dbSchemaName, ParameterListTableName) {
@@ -213,7 +207,7 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", id)
 
-    def templateIndex = index(s"idx_$tableName", id, unique = true)
+    def templateNameIndex = index(s"idx_${tableName}_name", name, unique = true)
   }
 
   class WorkflowExecutionTable(tag: Tag) extends Table[WorkflowExecution](tag, dbSchemaName, WorkflowExecutionTableName) {
@@ -243,7 +237,7 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", id)
 
-    def workflowExecutionIndex = index(s"idx_$tableName", id, unique = true)
+    def workflowExecutionArchivedIndex = index(s"idx_${tableName}_archived", archived)
   }
 
 }
