@@ -312,12 +312,10 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.binary.version}</artifactId>
-            <version>${akka.http.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-stream_${scala.binary.version}</artifactId>
-            <version>${akka.version}</version>
         </dependency>
         <!--Test dependencies-->
         <dependency>

@@ -8,9 +8,9 @@
  source /sparta-server-utils.sh
  INFO "[SPARTA-SERVER] Loaded Sparta server functions"
 
- INFO "[SPARTA-SERVER] Creating Akka paths ... "
- initAkkaPaths
- INFO "[SPARTA-SERVER] Created Akka paths"
+ INFO "[SPARTA-SERVER] Creating Akka network variables ... "
+ initAkkaNetwork
+ INFO "[SPARTA-SERVER] Created Akka network variables"
 
  INFO "[SPARTA-MARATHON] Creating persistence paths ... "
  initPersistencePaths

@@ -49,7 +49,7 @@ class ExecutionStatusChangeListenerActor()
     case ExecutionStatusChange(_, executionStatusChange) =>
       import executionStatusChange._
       if (originalExecution.lastStatus.state != newExecution.lastStatus.state && isThisNodeClusterLeader(cluster)) {
-        log.info("Sparta Akka Cluster execute StatusChange Actions")
+        log.debug(s"Executing execution status change actions over execution ${executionStatusChange.newExecution.getExecutionId}")
         doExecutionStatusChange(executionStatusChange)
       }
   }

@@ -28,28 +28,29 @@ class SpartaClusterNodeActor extends Actor with SpartaClusterUtils with SLF4JLog
 
   val cluster = Cluster(context.system)
 
-  val latchTimeout = SpartaConfig.getZookeeperConfig().get.getLong("connectionTimeout")
-  val latchAttempts = SpartaConfig.getZookeeperConfig().get.getLong("retryAttempts")
+  lazy val latchTimeout = SpartaConfig.getZookeeperConfig().get.getLong("connectionTimeout")
+  lazy val latchAttempts = SpartaConfig.getZookeeperConfig().get.getLong("retryAttempts")
 
   lazy val seedNode = createSeedNode(cluster.selfAddress)
 
   override def preStart(): Unit = {
     Try {
+      log.debug(s"Executing Zookeeper Latch in the sparta cluster initialization")
       val latch = new LeaderLatch(curatorFramework, SeedPath)
       latch.start()
-      log.info(s"Cluster Node Zookeeper Latch started")
+      log.debug(s"Started Zookeeper Latch in the sparta cluster initialization")
       var count = 1
       Breaks.breakable {
         while (count <= latchAttempts) {
           if (latch.await(latchTimeout, TimeUnit.MILLISECONDS)) {
-            log.info(s"Cluster Node acquired Zookeeper Latch")
+            log.info(s"Acquired Zookeeper Latch in the sparta cluster initialization")
             val currentSeeds = findSeedNodes()
             currentSeeds.foreach(seed => log.info(s"Existing seed node = ${seed.toString}"))
             if (!currentSeeds.exists(_.description == seedNode.description)) {
               curatorFramework.create.creatingParentsIfNeeded.withProtection.withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(s"$SeedPath/${seedNode.id}", write(seedNode).getBytes)
               log.info(s"Seed node created as ephemeral node ${seedNode.toString}")
             }
-            val seeds = currentSeeds.map(s => Address(s.protocol, s.system, Option(s.host), Option(s.port))) :+ (cluster.selfAddress)
+            val seeds = currentSeeds.map(s => Address(s.protocol, s.system, Option(s.host), Option(s.port))) :+ cluster.selfAddress
             cluster.joinSeedNodes(seeds.distinct.asJava)
             cluster.subscribe(self, initialStateMode = InitialStateAsEvents, classOf[LeaderChanged], classOf[MemberEvent], classOf[MemberLeft], classOf[MemberJoined], classOf[UnreachableMember])
             Breaks.break
@@ -61,27 +62,22 @@ class SpartaClusterNodeActor extends Actor with SpartaClusterUtils with SLF4JLog
         if (count == latchAttempts) throw new ServerException("Timeout acquiring subscription leadership")
       }
       latch.close()
-      log.info(s"Cluster Node close zookeeperLatch")
+      log.debug(s"Close Zookeeper Latch in the sparta cluster initialization")
     }
   }
 
   override def receive: Receive = {
     case MemberJoined(member) =>
       log.info(s"Member Joined ${member.address}")
-    case MemberUp(member) ⇒ {
+    case MemberUp(member) ⇒
       log.info(s"Member Up, welcome to SpartaCluster ${member.address} ")
-      if (isThisNodeClusterLeader(cluster)) {
-        forceUpsertZkNode(member.address)
-      }
-    }
-    case UnreachableMember(member) ⇒ {
+      if (isThisNodeClusterLeader(cluster)) forceUpsertZkNode(member.address)
+    case UnreachableMember(member) ⇒
       log.info(s"Member detected as unreachable ${member.address}")
       context.actorOf(Props(new SpartaClusterWorkerActor(member)))
-    }
-    case MemberLeft(member) ⇒ {
+    case MemberLeft(member) ⇒
       log.info(s"Member left cluster ${member.address}")
       context.actorOf(Props(new SpartaClusterWorkerActor(member)))
-    }
     case MemberExited(member) ⇒
       log.info(s"Member exit ${member.address}")
     case MemberRemoved(member, previousStatus) ⇒
@@ -98,8 +94,11 @@ class SpartaClusterNodeActor extends Actor with SpartaClusterUtils with SLF4JLog
     forceRemoveZkNode(cluster.selfAddress)
   }
 
+
+  /** PRIVATE METHODS */
+
   private def forceRemoveZkNode(memberAddress: Address) = {
-    log.info(s"Force Remove zkNode for member ${memberAddress}")
+    log.info(s"Force Remove zkNode for member $memberAddress")
     Try {
       findSeedNodes().find(node => node.id == memberAddress.hashCode.toString
         && node.host == memberAddress.host.getOrElse("")).
@@ -107,7 +106,6 @@ class SpartaClusterNodeActor extends Actor with SpartaClusterUtils with SLF4JLog
     }.recover { case e => log.error(s"Error deleting zkNode $SeedPath/${memberAddress.hashCode.toString} on post Stop", e) }
   }
 
-  /** PRIVATE METHODS */
   private def forceUpsertZkNode(memberAddress: Address) = {
     Try {
       val memberUpNode = createSeedNode(memberAddress)

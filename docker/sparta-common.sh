@@ -5,11 +5,9 @@ function loadVariables() {
  source "${VARIABLES}"
  source "${SYSTEM_VARIABLES}"
 
-  INFO "[SPARTA-AKKA] SPARTA_AKKA_HOST = ${SPARTA_AKKA_HOST} "
-  INFO "[SPARTA-AKKA] SPARTA_AKKA_BIND_HOST = ${SPARTA_AKKA_BIND_HOST} "
 }
 
-function initAkkaPaths() {
+function initAkkaNetwork() {
 
   HOST_IN_USE=$HOST
   if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
@@ -24,7 +22,6 @@ function initAkkaPaths() {
 
   echo "export SPARTA_AKKA_HOST=${HOST_IN_USE}" >> ${VARIABLES}
   echo "export SPARTA_AKKA_BIND_HOST=${HOST_IN_USE}" >> ${VARIABLES}
-
   echo "export SPARTA_AKKA_HOST=${HOST_IN_USE}" >> ${SYSTEM_VARIABLES}
   echo "export SPARTA_AKKA_BIND_HOST=${HOST_IN_USE}" >> ${SYSTEM_VARIABLES}
 
