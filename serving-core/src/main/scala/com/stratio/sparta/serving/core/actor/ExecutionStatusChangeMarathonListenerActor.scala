@@ -5,37 +5,30 @@
  */
 package com.stratio.sparta.serving.core.actor
 
+import scala.concurrent.{Future, blocking}
+
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 
-import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.{ClusterTopicExecutionStatus, ExecutionStatusChange}
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionStatusChange
-import scala.concurrent._
-
-import akka.cluster.Cluster
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
-
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
 
-class ExecutionStatusChangeListenerActor()
-  extends Actor with SpartaClusterUtils with SpartaSerializer with SLF4JLogging {
+class ExecutionStatusChangeMarathonListenerActor   extends Actor with SpartaClusterUtils with SpartaSerializer with SLF4JLogging {
 
   import ExecutionStatusChangeListenerActor._
 
-  val cluster = Cluster(context.system)
-  val mediator = DistributedPubSub(context.system).mediator
 
   private val executionStatusActions = scala.collection.mutable.Map[String, List[ExecutionStatusChangeAction]]()
   private val genericActions = scala.collection.mutable.Map[String, List[ExecutionStatusChangeAction]]()
 
   override def preStart(): Unit = {
-    mediator ! Subscribe(ClusterTopicExecutionStatus, self)
+    context.system.eventStream.subscribe(self, classOf[ExecutionStatusChange])
   }
 
   override def postStop(): Unit = {
-    mediator ! Unsubscribe(ClusterTopicExecutionStatus, self)
+    context.system.eventStream.unsubscribe(self, classOf[ExecutionStatusChange])
   }
 
   override def receive: Receive = {
@@ -48,8 +41,8 @@ class ExecutionStatusChangeListenerActor()
       executionStatusActions -= id
     case ExecutionStatusChange(_, executionStatusChange) =>
       import executionStatusChange._
-      if (originalExecution.lastStatus.state != newExecution.lastStatus.state && isThisNodeClusterLeader(cluster)) {
-        log.info("Sparta Akka Cluster execute StatusChange Actions")
+      if (originalExecution.lastStatus.state != newExecution.lastStatus.state) {
+        log.info("MarathonDriver execute StatusChange Actions")
         doExecutionStatusChange(executionStatusChange)
       }
   }
@@ -81,17 +74,5 @@ class ExecutionStatusChangeListenerActor()
       }
     }
   }
-
-}
-
-object ExecutionStatusChangeListenerActor {
-
-  type ExecutionStatusChangeAction = WorkflowExecutionStatusChange => Unit
-
-  case class OnExecutionStatusChangeDo(executionId: String)(val action: ExecutionStatusChangeAction)
-
-  case class OnExecutionStatusesChangeDo(key: String)(val action: ExecutionStatusChangeAction)
-
-  case class ForgetExecutionStatusActions(id: String)
 
 }

@@ -7,25 +7,25 @@
 package com.stratio.sparta.serving.core.dao
 
 import javax.cache.Cache
-import scala.collection.JavaConverters._
-import scala.concurrent.{Future, Promise}
-import scala.concurrent.{Await, Future}
-import scala.language.postfixOps
-import scala.util.{Failure, Success, Try}
+
 import akka.event.slf4j.SLF4JLogging
-import slick.ast.BaseTypedType
-import slick.relational.RelationalProfile
-import org.apache.ignite.IgniteCache
-import org.apache.ignite.cache.query.ScanQuery
-import org.apache.ignite.lang.{IgniteFuture, IgniteInClosure}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.utils.{JdbcSlickUtils, PostgresDaoFactory}
+import org.apache.ignite.IgniteCache
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.{IgniteFuture, IgniteInClosure}
+import slick.ast.BaseTypedType
 import slick.jdbc.meta.MTable
+import slick.relational.RelationalProfile
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future, Promise}
+import scala.language.postfixOps
+import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
 trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
@@ -238,25 +238,26 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
 
     def cached(): Future[A] = {
       if (cacheEnabled) {
-        daoFuture.onComplete { elements =>
-          elements match {
-            case Success(elems) =>
-              List(elems).flatten(List(_).asInstanceOf[List[SpartaEntity]]).foreach { entity =>
-                  Try {
-                    val entityId = getSpartaEntityId(entity)
-                    cache.put(entityId, entity)
-                    entityId
-                  } match {
-                    case Success(entityId) =>
-                      log.debug(s"Updated entity associated to $tableName with Id $entityId")
-                    case Failure(e) =>
-                      throw e
-                  }
-                }
-            case Failure(e) =>
-              log.debug("Error updating cache keys.", e)
-          }
+        daoFuture.onComplete {
+
+          case Success(elems) =>
+            List(elems).flatten(List(_).asInstanceOf[List[SpartaEntity]]).foreach { entity =>
+              Try {
+                val entityId = getSpartaEntityId(entity)
+                cache.put(entityId, entity)
+                entityId
+              } match {
+                case Success(entityId) =>
+                  log.debug(s"Updated entity associated to $tableName with Id $entityId")
+                case Failure(e) =>
+                  throw e
+              }
+            }
+
+          case Failure(e) =>
+            log.debug("Error updating cache keys.", e)
         }
+
       }
       daoFuture
     }

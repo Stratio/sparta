@@ -10,10 +10,6 @@ import scala.io.Source
 import scala.util.{Failure, Properties, Success, Try}
 
 import akka.actor.{Actor, ActorRef, Cancellable, Props}
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.impl.client.HttpClientBuilder
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.read
 
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
@@ -30,13 +26,38 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
 import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.impl.client.HttpClientBuilder
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.read
+import scala.concurrent._
+import scala.io.Source
+import scala.util.{Failure, Properties, Success, Try}
+import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
+import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
+import com.stratio.sparta.serving.core.utils.{SchedulerUtils, SpartaClusterUtils}
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.impl.client.HttpClientBuilder
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.read
+import scala.concurrent._
+import scala.io.Source
+import scala.util.{Failure, Properties, Success, Try}
 
-class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSerializer {
+import akka.cluster.Cluster
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+
+class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaClusterUtils with SpartaSerializer {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
   import SchedulerMonitorActor._
+
+  val cluster = Cluster(context.system)
+  val mediator = DistributedPubSub(context.system).mediator
 
   lazy val executionService = PostgresDaoFactory.executionPgService
 
@@ -66,16 +87,14 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
     //Trigger check only if run in Marathon
     if (marathonApiUri.isDefined) checkTaskMarathon
 
-    context.system.eventStream.subscribe(self, classOf[ExecutionStatusChange])
-
+    mediator ! Subscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
     onStatusChangeActions += manageStopAction
     onStatusChangeActions += manageCacheAction
     invalidStartupStateActions += manageStartupStateAction
   }
 
   override def postStop(): Unit = {
-    context.system.eventStream.unsubscribe(self, classOf[ExecutionStatusChange])
-
+    mediator ! Unsubscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
     scheduledActions.foreach { case (_, task) => if (!task.isCancelled) task.cancel() }
 
     if (marathonApiUri.isDefined) checkTaskMarathon.cancel()
@@ -98,16 +117,19 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaSeriali
                       workflowExecution: WorkflowExecution,
                       actions: scala.collection.mutable.Buffer[SchedulerAction]
                     ): Unit = {
-    actions.foreach { callback =>
-      Future {
-        try {
-          blocking(callback(workflowExecution))
-        } catch {
-          case e: Exception =>
-            log.error(s"Error executing action for workflow execution ${workflowExecution.getExecutionId}." +
-              s" With exception: ${e.getLocalizedMessage}")
-        }
-      }(context.dispatcher)
+    if (isThisNodeClusterLeader(cluster)) {
+      log.debug("Executing schedulerMonitor actions")
+      actions.foreach { callback =>
+        Future {
+          try {
+            blocking(callback(workflowExecution))
+          } catch {
+            case e: Exception =>
+              log.error(s"Error executing action for workflow execution ${workflowExecution.getExecutionId}." +
+                s" With exception: ${e.getLocalizedMessage}")
+          }
+        }(context.dispatcher)
+      }
     }
   }
 

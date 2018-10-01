@@ -11,6 +11,10 @@
  source /sparta-marathon-utils.sh
  INFO "[SPARTA-MARATHON] Loaded Sparta marathon functions"
 
+ INFO "[SPARTA-SERVER] Creating Akka paths ... "
+ initAkkaPaths
+ INFO "[SPARTA-SERVER] Created Akka paths"
+
  INFO "[SPARTA-MARATHON] Creating persistence paths ... "
  initPersistencePaths
  INFO "[SPARTA-MARATHON] Created persistence paths"

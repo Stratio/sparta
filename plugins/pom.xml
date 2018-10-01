@@ -311,6 +311,11 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http_${scala.binary.version}</artifactId>
+            <version>${akka.http.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-stream_${scala.binary.version}</artifactId>
             <version>${akka.version}</version>
         </dependency>
@@ -354,12 +359,6 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.github.sstone</groupId>
             <artifactId>amqp-client_${scala.binary.version}</artifactId>
             <version>1.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http_${scala.binary.version}</artifactId>
-            <version>10.0.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>

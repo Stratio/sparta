@@ -8,18 +8,17 @@ package com.stratio.sparta.serving.core.actor
 
 import scala.util.Try
 
-import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.json4s.jackson.Serialization.read
 
-import com.stratio.sparta.serving.core.actor.ListenerPublisher.ClusterTopicNodeListener
+import com.stratio.sparta.serving.core.actor.BusNotification.InitNodeListener
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionStatusChange
 
-class ExecutionStatusChangePublisherActor() extends ListenerPublisher {
+class ExecutionStatusChangeMarathonPublisherActor extends MarathonListenerPublisher {
 
   import ExecutionStatusChangePublisherActor._
 
@@ -29,7 +28,7 @@ class ExecutionStatusChangePublisherActor() extends ListenerPublisher {
     if(!CuratorFactoryHolder.existsPath(AppConstant.ExecutionsStatusChangesZkPath))
       CuratorFactoryHolder.getInstance().createContainers(AppConstant.ExecutionsStatusChangesZkPath)
 
-    mediator ! Subscribe(ClusterTopicNodeListener, self)
+    context.system.eventStream.subscribe(self, classOf[InitNodeListener])
 
     initNodeListener()
   }
@@ -58,16 +57,6 @@ class ExecutionStatusChangePublisherActor() extends ListenerPublisher {
 
   def executionStatusChangeReceive: Receive = {
     case executionStatusChange: ExecutionStatusChange =>
-      mediator ! Publish(ClusterTopicExecutionStatus, executionStatusChange)
+      context.system.eventStream.publish(executionStatusChange)
   }
-}
-
-object ExecutionStatusChangePublisherActor {
-
-  val ClusterTopicExecutionStatus = "ExecutionStatus"
-
-  trait Notification
-
-  case class ExecutionStatusChange(path: String, executionChange: WorkflowExecutionStatusChange) extends Notification
-
 }

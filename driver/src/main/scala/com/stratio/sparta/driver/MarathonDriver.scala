@@ -18,6 +18,7 @@ import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate}
+
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 import scala.concurrent.Await
@@ -41,8 +42,8 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
       val execution = Await.result(executionService.findExecutionById(executionId), Duration.Inf)
 
       Try {
-        val executionStatusListenerActor = system.actorOf(Props(new ExecutionStatusChangeListenerActor))
-        system.actorOf(Props(new ExecutionStatusChangePublisherActor()))
+        val executionStatusListenerActor = system.actorOf(Props(new ExecutionStatusChangeMarathonListenerActor()))
+        system.actorOf(Props(new ExecutionStatusChangeMarathonPublisherActor()))
         val marathonAppActor = system.actorOf(Props(
           new MarathonAppActor(executionStatusListenerActor)), MarathonAppActorName)
 

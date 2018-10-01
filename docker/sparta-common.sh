@@ -5,6 +5,29 @@ function loadVariables() {
  source "${VARIABLES}"
  source "${SYSTEM_VARIABLES}"
 
+  INFO "[SPARTA-AKKA] SPARTA_AKKA_HOST = ${SPARTA_AKKA_HOST} "
+  INFO "[SPARTA-AKKA] SPARTA_AKKA_BIND_HOST = ${SPARTA_AKKA_BIND_HOST} "
+}
+
+function initAkkaPaths() {
+
+  HOST_IN_USE=$HOST
+  if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
+       DOCKER_HOST="hostname -f"
+       if [[ "$(hostname -f)" =~ \. ]]; then
+          DOCKER_HOST="$(hostname -f)"
+       else
+          DOCKER_HOST="$(hostname -i)"
+       fi
+      HOST_IN_USE=$DOCKER_HOST
+  fi
+
+  echo "export SPARTA_AKKA_HOST=${HOST_IN_USE}" >> ${VARIABLES}
+  echo "export SPARTA_AKKA_BIND_HOST=${HOST_IN_USE}" >> ${VARIABLES}
+
+  echo "export SPARTA_AKKA_HOST=${HOST_IN_USE}" >> ${SYSTEM_VARIABLES}
+  echo "export SPARTA_AKKA_BIND_HOST=${HOST_IN_USE}" >> ${SYSTEM_VARIABLES}
+
 }
 
 function initPersistencePaths() {
@@ -18,7 +41,6 @@ function initPersistencePaths() {
   mkdir -p /var/sds/sparta/spark-driver/persistence
   mkdir -p /var/sds/sparta/spark-driver/persistence/journal
   mkdir -p /var/sds/sparta/spark-driver/persistence/snapshots
-
 }
 
 function initSpark() {

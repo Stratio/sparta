@@ -8,15 +8,16 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
-import com.stratio.sparta.core.models.WorkflowValidationMessage
-import com.stratio.sparta.core.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionMode, WorkflowStatusEnum}
-import com.stratio.sparta.serving.core.models.files.SpartaFile
-import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
-import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
+
+import com.stratio.sparta.core.models.WorkflowValidationMessage
+import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
+import com.stratio.sparta.serving.core.models.files.SpartaFile
+import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
+import com.stratio.sparta.serving.core.models.workflow._
 
 /**
  * Common operations for http service specs. All of them must extend from this class.
@@ -25,6 +26,8 @@ trait HttpServiceBaseTest extends WordSpec
   with Matchers
   with BeforeAndAfterEach
   with ScalatestRouteTest {
+
+  override def cleanUp(): Unit = { system.terminate() }
 
   val testProbe: TestProbe = TestProbe()
 

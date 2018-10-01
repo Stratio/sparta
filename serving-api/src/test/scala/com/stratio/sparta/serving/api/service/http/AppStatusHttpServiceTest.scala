@@ -20,6 +20,8 @@ class AppStatusHttpServiceTest extends WordSpec
                               with HttpServiceBaseTest
 with MockFactory {
 
+  override def cleanUp(): Unit = { system.terminate() }
+
   override implicit val actors: Map[String, ActorRef] = Map()
   override val supervisor: ActorRef = testProbe.ref
 

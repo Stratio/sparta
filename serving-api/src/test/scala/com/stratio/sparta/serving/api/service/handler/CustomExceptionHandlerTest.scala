@@ -25,6 +25,7 @@ with Json4sJacksonSupport with HttpService with SpartaSerializer {
 
   def actorRefFactory: ActorSystem = system
 
+  override def cleanUp(): Unit = { system.terminate() }
   trait MyTestRoute {
 
     val exception: Throwable

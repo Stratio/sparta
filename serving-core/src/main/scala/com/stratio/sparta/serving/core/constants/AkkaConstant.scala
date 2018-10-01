@@ -32,7 +32,7 @@ object AkkaConstant {
   val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
   val ParameterListActorName = "ParameterListActorName"
 
-  val DefaultInstances = 3
+  val DefaultInstances = Runtime.getRuntime.availableProcessors()
 
   def cleanActorName(initialName: String): String = initialName.replace(" ", "_")
 }

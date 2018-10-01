@@ -67,18 +67,6 @@ This software – including all its source code – contains proprietary informa
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-remote_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http-experimental_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-http-core_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-stream_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
@@ -92,6 +80,18 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-cluster-tools_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-cluster-metrics_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.iq80.leveldb</groupId>
@@ -267,6 +267,16 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.stratio.tikitakka</groupId>
             <artifactId>core</artifactId>
             <version>0.4.0-RC3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-http-core_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.scalaj</groupId>

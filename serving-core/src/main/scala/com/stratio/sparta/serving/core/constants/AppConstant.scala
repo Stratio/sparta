@@ -118,6 +118,8 @@ object AppConstant extends ZookeeperUtils {
   //Marathon
   val marathonInstanceName = AppConstant.instanceName.fold("sparta-server") { x => x }
 
+  lazy val ClusterSeedNodesZkPath = s"$BaseZkPath/seedNodes"
+
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
   val CustomTypeKey = "customClassType"

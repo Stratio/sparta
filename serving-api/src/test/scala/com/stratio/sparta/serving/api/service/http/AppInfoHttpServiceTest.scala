@@ -21,6 +21,8 @@ class AppInfoHttpServiceTest extends WordSpec
 
   val dummyUser = Some(LoggedUserConstant.AnonymousUser)
 
+  override def cleanUp(): Unit = { system.terminate() }
+
   override implicit val actors: Map[String, ActorRef] = Map.empty[String, ActorRef]
 
   override val supervisor: ActorRef = testProbe.ref
