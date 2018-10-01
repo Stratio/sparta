@@ -82,9 +82,10 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
    }
 
   getGroupContext(group) {
-    return group.contexts.map(context => ({
+     const { parameterList: { name }, contexts } = group;
+    return contexts.map((context, i) => ({
       label: context.name,
-      value: context.name
+      value: i === 0 ? name : context.name
     }));
   }
 
@@ -107,6 +108,9 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
   }
 
    changeContext(event, groupName) {
+      if (event === groupName) {
+         event = 'Default';
+      }
       const eventGroup = this.groupsAndContextsDefault.find(group => group.parameterList.name === groupName);
       this.selectedContexts[groupName] = eventGroup.contexts.find(context => context.name === event).parameters;
    }
