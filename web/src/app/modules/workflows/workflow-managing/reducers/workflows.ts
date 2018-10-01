@@ -309,10 +309,7 @@ export function reducer(state: State = initialState, action: any): State {
          };
       }
       case workflowActions.RUN_WORKFLOW_COMPLETE: {
-         return {
-            ...state,
-            showExecutionConfig: false
-         };
+         return { ...state };
       }
       case workflowActions.SAVE_JSON_WORKFLOW: {
          return {

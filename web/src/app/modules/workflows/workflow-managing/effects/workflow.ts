@@ -28,6 +28,7 @@ import { generateJsonFile } from '@utils';
 import { FOLDER_SEPARATOR } from './../workflow.constants';
 import { Group, GroupWorkflow } from '../models/workflows';
 import { homeGroup } from '@app/shared/constants/global';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class WorkflowEffect {
@@ -184,7 +185,10 @@ export class WorkflowEffect {
             }), this.workflowService.runWorkflowWithParams({
                 workflowId: data.payload.workflowId,
                 executionContext: data.payload.executionContext
-            }))).map(() => new workflowActions.RunWorkflowCompleteAction(data.payload.workflowName))
+            }))).map(() => {
+               this.router.navigate(['executions']);
+               return new workflowActions.RunWorkflowCompleteAction(data.payload.workflowName);
+            })
         .catch(error => Observable.of(new workflowActions.RunWorkflowErrorAction(error))));
 
     @Effect()
@@ -284,6 +288,7 @@ export class WorkflowEffect {
     constructor(
         private actions$: Actions,
         private store: Store<fromRoot.State>,
-        private workflowService: WorkflowService
+        private workflowService: WorkflowService,
+        private router: Router
     ) { }
 }
