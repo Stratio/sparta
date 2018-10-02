@@ -6,13 +6,15 @@
 
 import * as executionActions from '../actions/executions';
 import { formatDate } from '@utils';
-import { isEqual} from 'lodash';
 
-const icons = {
-   running: 'icon-play',
-   failed: 'icon-arrow-down',
-   stopped: 'icon-pause',
-   archived: 'icon-folder'
+import { isEqual } from 'lodash';
+import { Order } from '@stratio/egeo';
+
+const images = {
+   running: 'runIcon',
+   failed: 'failIcon',
+   stopped: 'stopIcon',
+   archived: 'archiveIcon'
 };
 
 export interface State {
@@ -20,13 +22,18 @@ export interface State {
    executionInfo: any;
    loading: boolean;
    filters: Array<any>;
+   order: Order;
 }
 
 const initialState: State = {
    executionList: [],
    executionInfo: null,
    loading: true,
-   filters: []
+   filters: [],
+    order: {
+      orderBy: 'startDateWithStatus',
+      type: 0
+   }
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -36,11 +43,11 @@ export function reducer(state: State = initialState, action: any): State {
          const { executionList, executionsSummary: summary } = action.payload;
 
          const filters = Object.keys(summary)
-            .map(key => ({ name: key, value: summary[key], icon: icons[key] }));
+            .map(key => ({ name: key, value: summary[key], image: images[key] }));
          return {
             ...state,
             executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList,
-            filters };
+            filters:  state.filters.length ? state.filters : filters};
       }
 
       default:

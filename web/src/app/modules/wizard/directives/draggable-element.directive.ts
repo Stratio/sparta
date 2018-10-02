@@ -21,9 +21,9 @@ import { event as d3Event } from 'd3-selection';
 import { drag as d3Drag } from 'd3-drag';
 import { select as d3Select } from 'd3-selection';
 
-import * as wizardActions from './../../actions/wizard';
-import * as fromWizard from './../../reducers';
-import { WizardNodePosition } from './../../models/node';
+import * as wizardActions from './../actions/wizard';
+import * as fromWizard from './../reducers';
+import { WizardNodePosition } from './../models/node';
 
 @Directive({ selector: '[svg-draggable]' })
 export class DraggableSvgDirective implements AfterContentInit, OnInit {

@@ -25,10 +25,12 @@
    <div class="row">
       <div class="col-sm-12">
          <div class="filters">
-            <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters" (click)="showExecutions(filter.name)">
-               <span class="number">{{ filter.value }}</span>
-               <span class="label">{{ filter.name }}</span>
-               <i class="icon {{filter.icon}}"></i>
+            <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters;" (click)="showExecutions(filter.name)">
+                <img class="filter__image" [attr.src]="'/assets/images/' + filter.image + '.svg'"/>
+                <div class="filter-value">
+                    <span class="number">{{ filter.value }}</span>
+                    <span class="label">{{ filter.name }}</span>
+                </div>
             </div>
          </div>
       </div>

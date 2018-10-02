@@ -44,7 +44,7 @@ export const getTypeFilter = createSelector(getExecutionsState, state => state.t
 export const getTimeIntervalFilter = createSelector(getExecutionsState, state => state.timeIntervalFilter);
 export const getSearchQuery = createSelector(getExecutionsState, state => state.searchQuery);
 export const getExecutionsList = createSelector(getExecutionsState, state => state.executionList);
-export const getCurrentPage = createSelector(getExecutionsState, state => state.pagination.pageNumber);
+export const getCurrentPage = createSelector(getExecutionsState, state => state.pagination.currentPage);
 export const getPerPageElements = createSelector(getExecutionsState, state => state.pagination.perPage);
 export const getTableOrder = createSelector(getExecutionsState, state => state.order);
 
@@ -56,7 +56,7 @@ export const getFilteredExecutionsList = createSelector(
   (executions, statusFilter, typeFilter, timeIntervalFilter) => {
     const filters = [];
     if (statusFilter.length) {
-      filters.push((execution) => execution.status === statusFilter);
+      filters.push((execution) => execution.filterStatus === statusFilter);
     }
     if (typeFilter.length) {
       filters.push((execution) => execution.executionEngine === typeFilter);
@@ -76,7 +76,7 @@ export const getFilteredSearchExecutionsList = createSelector(
   (executions, searchQuery, order) => {
     const query = searchQuery.toLowerCase();
     return orderBy(searchQuery.length ? executions.filter(execution => {
-      return execution.name.toLowerCase().indexOf(query) > -1 || execution.status.toLowerCase().indexOf(query) > -1;
+      return execution.name.toLowerCase().indexOf(query) > -1 || execution.filterStatus.toLowerCase().indexOf(query) > -1;
     }) : executions, order.orderBy, order.type ? true : false);
   });
 
@@ -85,4 +85,11 @@ export const getSelectedExecutions = createSelector(
   state => state.selectedExecutionsIds
 );
 
-
+export const getLastSelectedExecution = createSelector(
+  getSelectedExecutions,
+  getFilteredSearchExecutionsList,
+  (selectedIds, executions) => {
+    const lastId = selectedIds[0];
+    return lastId ? executions.find(execution => execution.id === lastId) : null;
+  }
+);

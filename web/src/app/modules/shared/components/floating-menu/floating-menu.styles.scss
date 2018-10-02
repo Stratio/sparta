@@ -16,15 +16,11 @@
 .menu-options {
    position: absolute;
    z-index: 10000;
-   display:none;
    top: 100%;
    margin-left: 3px;
    margin-top: 5px;
 
    &.right-position {
        right: 0;
-   }
-   &.active {
-      display:block;
    }
 }

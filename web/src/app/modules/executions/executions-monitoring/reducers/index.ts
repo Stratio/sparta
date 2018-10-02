@@ -8,7 +8,7 @@ import { createSelector } from 'reselect';
 import { ActionReducerMap, combineReducers, createFeatureSelector } from '@ngrx/store';
 import { InjectionToken } from '@angular/core';
 
-import { reduceReducers } from '@utils';
+import { reduceReducers, orderBy } from '@utils';
 
 import * as fromRoot from 'reducers';
 import * as fromExecutionsList from './executions';
@@ -38,10 +38,17 @@ export const getExecutionsState = createSelector(
    getExecutionsMonitoringState,
    state => state.executionsMonitoring
 );
+export const getTableOrder = createSelector(getExecutionsState, state => state.order);
 
 export const getExecutionsList = createSelector(
    getExecutionsState,
    state => state.executionList
+);
+
+export const getExecutionOrderedList = createSelector(
+  getExecutionsList,
+  getTableOrder,
+  (list, order) => orderBy(list, order.orderBy, order.type ? true : false)
 );
 
 export const getExecutionsFilters = createSelector(

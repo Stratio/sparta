@@ -58,7 +58,7 @@
             </div>
 
             <form-generator *ngIf="config.editionType.stepType !== 'Output'" [showVars]="true" [hidden]="activeOption !== 'Writer'"
-               [forceValidations]="submitted" name="writer" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
+               [forceValidations]="submitted" name="writer" [valueDictionary]="valueDictionary" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
 
             <form-generator *ngIf="!isTemplate" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
                [forceValidations]="submitted" name="global" [formData]="basicSettings" [valueDictionary]="valueDictionary" [(ngModel)]="entityFormModel.configuration"></form-generator>

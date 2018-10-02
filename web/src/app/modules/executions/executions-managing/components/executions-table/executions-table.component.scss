@@ -14,11 +14,6 @@
    }
 }
 
-.check-column {
-   width: 10px;
-   padding-right: 0;
-}
-
 .execution-table {
    display: block;
    tr:hover {
@@ -81,7 +76,7 @@ hr {
    border-radius: 50%;
    display: inline-block;
    &.Stopped {
-   background-color: $status-success-default;
+   background-color: $neutral-06;
    }
    &.Failed {
       background-color: $status-critical-default;
@@ -91,6 +86,8 @@ hr {
 .status-field {
    font-family: $egeo-nunito-sans-semiBold;
    color: $neutral-11;
+   min-width: 80px;
+   display: block;
 }
 
 .all-executions button{
@@ -104,4 +101,10 @@ hr {
     line-height: 7px;
     margin-top: 5px;
     padding-left: 28px;
+}
+
+hr {
+    height: 1px;
+    background: #dedede;
+    margin: 24px 0;
 }

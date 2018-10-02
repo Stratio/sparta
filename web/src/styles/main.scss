@@ -45,7 +45,7 @@ button.selected-button {
     display:block!important;
 }
 
-.workflow-table .st-table__header th:nth-child(5) label, .workflow-table tr td:nth-child(5) label {
+.execution-table .st-table__header th:nth-child(5) label, .execution-table tr td:nth-child(5) label {
     transition:0.3s all;
     white-space: nowrap;
     overflow: hidden;
@@ -53,7 +53,7 @@ button.selected-button {
     display:block;
 }
 
-.compressed  .workflow-table .st-table__header th:nth-child(5) label, .compressed .workflow-table tr td:nth-child(5) label {
+.compressed  .execution-table .st-table__header th:nth-child(5) label, .compressed .execution-table tr td:nth-child(5) label {
     width: 0;
     padding:0;
     opacity: 0;
@@ -115,4 +115,11 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
     height: 14px;
     display: inline-block;
     background-size: cover;
+}
+
+.checkbox-table{
+    th:nth-child(1), td:nth-child(1)  {
+        width: 5px!important;
+        padding-right: 0px!important;
+    }
 }

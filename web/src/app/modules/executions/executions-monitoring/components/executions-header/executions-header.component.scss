@@ -33,9 +33,18 @@
    flex: 1;
    border-radius: 5px;
    position: relative;
+   height: 100px;
    overflow: hidden;
+
    &:hover {
-      border-color: $input-field-onfocus;
+     box-shadow: 0 0 20px 0 rgba(30, 30, 30, 0.12);
+   }
+
+   &__image {
+    width: 42px;
+    right: 28px;
+    margin-top:5px;
+    float: left;
    }
    &:last-child {
       margin-right: 0px;
@@ -44,21 +53,29 @@
       margin-left: 0px;
    }
    .number {
-      color: #282d32;
+      color: $action-primary-default;
       font-size: $egeo-font-size-xxxlarge;
-      font-family: $egeo-nunito-sans;
+      font-family: $egeo-nunito-sans-bold;
+   }
+
+   .filter-value{
+     float:left;
+         padding-left: 30px;
+
+     
    }
    .label {
-      color: #282d32;
+      color: $action-primary-default;;
       margin-left: 3px;
       font-size: $egeo-font-size-medium;
       font-family: $egeo-nunito-sans;
       display: block;
+      line-height: 10px;
    }
    .icon {
       font-size: $egeo-line-height-giant;
       font-family: $egeo-nunito-sans-light;
-      position: absolute;
+      float: left;
       top: 25px;
       right: 40px;
    }

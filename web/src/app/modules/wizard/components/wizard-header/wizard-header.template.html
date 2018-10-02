@@ -79,7 +79,7 @@
             </button>
           </div>
           <div class="" style="float:right">
-            <button  [disabled]="isWorkflowDebugging" class="button multi-button" id="debug-mode">
+            <div [attr.disabled]="isWorkflowDebugging ? '' : null" class="button multi-button" id="debug-mode">
               <div class="button-options"><!--
                   --><i (click)="debugWorkflow()" spTitle="Run debug mode" class="primary-option icon-debug"></i><!--
                   --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="selectedDebug($event)">
@@ -88,7 +88,7 @@
                       </div>
                   </menu-options-list><!--
               --></div>
-          </button>
+          </div>
             <button spTitle="Show node info" [ngClass]="{'selected-button': isShowedEntityDetails$ | async, 'errors' : (!validations.valid && validations.messages && validations.messages.length) || genericError}"
               class="button button-toolbar" id="show-info-button" (click)="toggleEntityInfo()">
                 <i class="icon-info1"></i>

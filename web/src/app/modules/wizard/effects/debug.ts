@@ -19,6 +19,8 @@ import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/timer';
 import 'rxjs/add/observable/throw';
 import { of } from 'rxjs/observable/of';
+import { from } from 'rxjs/observable/from';
+
 import { Observable } from 'rxjs/Observable';
 
 import { Injectable } from '@angular/core';
@@ -28,6 +30,8 @@ import { Effect, Actions, toPayload } from '@ngrx/effects';
 import * as fromWizard from './../reducers';
 import * as wizardActions from './../actions/wizard';
 import * as debugActions from './../actions/debug';
+import * as errorActions from 'actions/errors';
+
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { WizardApiService } from 'app/services';
 import { getWorkflowId } from './../reducers';
@@ -84,7 +88,7 @@ export class DebugEffect {
                   ... workflow.id && workflow.id.length ? [] : [
                         new wizardActions.SetWorkflowIdAction(response.workflowDebug.id || response.workflowOriginal.id)
                   ]]))
-            .catch(error => of(new debugActions.InitDebugWorkflowErrorAction()));
+            .catch(error => from([new debugActions.InitDebugWorkflowErrorAction(), new errorActions.ServerErrorAction(error)]));
 
       });
 

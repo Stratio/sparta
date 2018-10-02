@@ -8,8 +8,8 @@
                 <input type="text" id="search-menu-box" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
                 <span class="delete icon-cross"  id="delete-search-content" *ngIf="searchOption.length"></span>
             </li>
-            <li class="item" *ngFor="let item of menuOptions; let i = index;" [attr.id]="item.value + '-option'" (click)="!item.subMenus && selectOption(item)" 
-                (mouseenter)="showMenu(i, item, $event)" (mouseleave)="hideMenu(item)" [ngClass]="{'active' : item.active}">
+            <li class="item" *ngFor="let item of menuOptions; let i = index; trackBy: trackByFn" [attr.id]="(item.icon || '') + item.name + '-option'" (click)="!item.subMenus && selectedOption.emit(item)" 
+                (mouseenter)="showMenu($event, item)" [ngClass]="{'active' : openedItem === item.name + (item.icon || '')}">
                 <!--<i class="icon-arrow2_left has-submenu left-menu" *ngIf="item.subMenus && item.subMenus.length && position === 'right'"></i>-->
                 <span>
                     <i [ngClass]="item.icon" *ngIf="item.icon" class="item-icon"></i>
@@ -18,12 +18,11 @@
                 <i class="icon-arrow2_right has-submenu" *ngIf="item.subMenus && item.subMenus.length"></i>
                 <menu-options 
                     [menuOptions]="item.subMenus" 
-                    [active]="item.active" 
-                    [position]="position" 
+                    [position]="position"
                     [maxHeight]="maxHeightChild" 
                     [style.top.px]="menuPosition"  
                     (selectedOption)="selectedOption.emit($event)" 
-                    *ngIf="item.subMenus && item.subMenus.length"
+                    *ngIf="item.subMenus && item.subMenus.length && openedItem === item.name + (item.icon || '')"
                     class="submenu"></menu-options>
             </li>
         </ul>

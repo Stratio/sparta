@@ -15,6 +15,8 @@ export const DESELECT_EXECUTIONS_ACTION = '[Executions Managing] Deselect execut
 export const STOP_EXECUTIONS_ACTION = '[Executions Managing] Stop execution';
 export const STOP_EXECUTIONS_ACTION_COMPLETE = '[Executions Managing] Stop execution complete';
 
+export const CHANGE_PAGINATION = '[Executions Managing] Change pagination';
+
 export const SELECT_TYPE_FILTER = '[Executions Managing] Select type filter';
 export const SELECT_STATUS_FILTER = '[Executions Managing] Select status filter';
 export const SELECT_TIME_INTERVAL_FILTER = '[Executions Managing] Select time interval filter';
@@ -24,6 +26,10 @@ export const SEARCH_EXECUTION = '[Executions Managing] Search execution';
 export const CHANGE_ORDER = '[Executions Managing] Change order';
 
 export const RESET_VALUES = '[Executions Managing] Reset values';
+
+export const GET_WORKFLOW_EXECUTION_INFO = '[Worflow] Get Workflow execution info';
+export const GET_WORKFLOW_EXECUTION_INFO_COMPLETE = '[Worflow] Get Workflow execution info complete';
+export const GET_WORKFLOW_EXECUTION_INFO_ERROR = '[Worflow] Get Workflow execution info error';
 
 export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS;
@@ -85,6 +91,11 @@ export class ResetValuesAction implements Action {
   readonly type = RESET_VALUES;
 }
 
+export class ChangePaginationAction implements Action {
+  readonly type = CHANGE_PAGINATION;
+  constructor(public payload: any) {}
+}
+
 export type Actions = ListExecutionsAction
    | ListExecutionsFailAction
    | ListExecutionsCompleteAction
@@ -95,4 +106,5 @@ export type Actions = ListExecutionsAction
    | SelectTimeIntervalFilterAction
    | SearchExecutionAction
    | ChangeExecutionsOrderAction
-   | ResetValuesAction;
+   | ResetValuesAction
+   | ChangePaginationAction;

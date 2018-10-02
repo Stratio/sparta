@@ -1,6 +1,6 @@
 @import '~@stratio/egeo/theme/constants';
 :host {
-   display: block;
+  
 }
 
 .menu {
@@ -63,11 +63,14 @@ ul {
 }
 
 .submenu {
-   visibility: hidden;
    position: absolute;
    width: 100%;
    left: 0;
    top: 0;
+
+   &.active {
+       visibility: visible;
+   }
 }
 
 li.search {
@@ -121,6 +124,7 @@ li.item {
    }
    &.active {
       background-color: #e7f3fb;
+      visibility: visible;
       &>.item-icon {
          color: #07a0e4;
       }

@@ -25,13 +25,13 @@
          <label class="context-field" [ngClass]="execution.context">{{execution.context || '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label>{{execution.startDateFormatted}}</label>
+         <label>{{execution.startDateFormatted ? execution.startDateFormatted : '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label>{{execution.endDateFormatted}}</label>
+         <label>{{execution.endDateFormatted ? execution.endDateFormatted : '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label class="status-field"><span class="oval" [ngClass]="execution.status"></span> {{execution.status}}</label>
+         <label class="status-field"><span class="oval" [ngClass]="execution.filterStatus"></span> {{execution.filterStatus}}</label>
       </td>
       <td st-table-cell st-table-row-content class="spark-link">
          <i class="icon-globe" (click)="showSparkUI(execution.sparkURI)" *ngIf="execution.sparkURI && execution.sparkURI.length && execution.status === 'Started'"></i>

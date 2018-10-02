@@ -19,7 +19,7 @@ export interface State {
    searchQuery: string;
    pagination: {
       perPage: number;
-      pageNumber: number;
+      currentPage: number;
    };
    order: Order;
 }
@@ -35,10 +35,10 @@ const initialState: State = {
    searchQuery: '',
    pagination: {
       perPage: 10,
-      pageNumber: 0
+      currentPage: 1
    },
    order: {
-      orderBy: 'startDateMillis',
+      orderBy: 'startDateWithStatus',
       type: 0
    }
 };
@@ -47,7 +47,6 @@ export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
          const executionList = action.payload;
-
          return { ...state, executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList };
       }
 
@@ -84,13 +83,21 @@ export function reducer(state: State = initialState, action: any): State {
       case executionActions.SEARCH_EXECUTION: {
          return {
             ...state,
-            searchQuery: action.searchQuery
+            searchQuery: action.searchQuery,
+            selectedExecutionsIds: []
          };
       }
       case executionActions.CHANGE_ORDER: {
          return {
             ...state,
             order: action.order
+         };
+      }
+      case executionActions.CHANGE_PAGINATION: {
+         return {
+            ...state,
+            pagination: action.payload,
+            selectedExecutionsIds: []
          };
       }
       case executionActions.RESET_VALUES: {

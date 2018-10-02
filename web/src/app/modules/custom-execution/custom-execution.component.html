@@ -8,9 +8,9 @@
       <p class="info-text" *ngIf="environmentContext || customGroups.length">{{'DASHBOARD.CONTEXT_CONFIG' | translate}}</p>
       <form #executionForm="ngForm">
         <div class="form-container st-form-field">
-          <sp-select class="st-form-field"
-            [forceValidations]="forceValidations"
-            [(ngModel)]="form.environment"
+          <sp-select class="st-form-field" 
+            [forceValidations]="forceValidations" 
+            [(ngModel)]="form.environment" 
             name="environment"
             (change)="changeContext($event, 'Environment')"
             *ngIf="environmentContext"
@@ -19,8 +19,8 @@
             [label]="'DASHBOARD.ENVIRONMENT_CONTEXT' | translate"></sp-select>
 
           <div *ngFor="let group of customGroups; let i = index;">
-            <sp-select class="st-form-field"
-              [forceValidations]="forceValidations"
+            <sp-select class="st-form-field" 
+              [forceValidations]="forceValidations" 
               (change)="changeContext($event, group.name)"
               [(ngModel)]="form.customGroups[group.name]"
               name="customGroups"

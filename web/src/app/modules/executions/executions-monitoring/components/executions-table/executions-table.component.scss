@@ -28,7 +28,7 @@ hr {
    border-radius: 50%;
    display: inline-block;
    &.Stopped {
-      background-color: $misc-peach;
+      background-color: $neutral-06;
    }
    &.Failed {
       background-color: $status-critical-default;

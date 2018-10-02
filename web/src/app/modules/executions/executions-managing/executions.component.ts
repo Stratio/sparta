@@ -16,8 +16,11 @@ import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/takeUntil';
+
 import { Subscription } from 'rxjs/Subscription';
 import { StModalService } from '@stratio/egeo';
+import { Subject } from 'rxjs';
 
 import {
    State
@@ -45,9 +48,10 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
    public executionInfo: any;
    public showInitialMode: Observable<boolean>;
    public executionsList$: Observable<any>;
+   public selectedExecution: any;
+   public showDebugConsole = false;
 
-   private _selectedExecutions: Subscription;
-
+   private _componentDestroyed = new Subject();
 
    private _intervalHandler;
 
@@ -61,22 +65,42 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
       this._intervalHandler = setInterval(() => this._store.dispatch(new executionsActions.ListExecutionsAction()), 3000);
       this.executionsList$ = this._store.select(fromRoot.getFilteredSearchExecutionsList);
 
-      this._selectedExecutions = this._store.select(fromRoot.getSelectedExecutions).subscribe((selectedIds: any) => {
-         this.selectedExecutionsIds = selectedIds;
-         this._cd.markForCheck();
-      });
+      this._store.select(fromRoot.getSelectedExecutions)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((selectedIds: any) => {
+            this.selectedExecutionsIds = selectedIds;
+            this._cd.markForCheck();
+         });
+
+      this._store.select(fromRoot.getLastSelectedExecution)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(selectedExecution => {
+            this.selectedExecution = selectedExecution;
+            this._cd.markForCheck();
+         });
+
    }
 
    onShowExecutionInfo() {
       this.showDetails = !this.showDetails;
    }
 
-   showWorkflowExecutionInfo(ev) { }
+   showWorkflowExecutionInfo(ev) {
 
-   showConsole(ev) { }
+    }
+
+   showConsole(ev) {
+      this.showDebugConsole = true;
+   }
+
+   onCloseConsole() {
+      this.showDebugConsole = false;
+   }
 
    ngOnDestroy(): void {
       clearInterval(this._intervalHandler);
+      this._componentDestroyed.next();
+      this._componentDestroyed.unsubscribe();
    }
 
 }

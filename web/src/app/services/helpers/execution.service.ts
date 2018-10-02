@@ -10,35 +10,81 @@ import { formatDate } from '@utils';
 @Injectable()
 export class ExecutionHelperService {
 
-  public normalizeExecution(execution) {
-    const { id, statuses, marathonExecution, localExecution, genericDataExecution: { endDate, startDate, workflow: { name, group, version, executionEngine }, executionContext: { paramsLists: context } } } = execution;
-    let startDateMillis = 0;
-    let startDateFormatted = '-';
-    try {
-      startDateMillis = new Date(startDate).getTime();
-      startDateFormatted = formatDate(startDate);
-    } catch (error) { }
-    let endDateMillis = 0;
-    let endDateFormatted = '-';
-    try {
-      endDateMillis = new Date(endDate).getTime();
-      endDateFormatted = formatDate(endDate);
-    } catch (error) { }
-    return {
-      id,
-      name,
-      version,
-      sparkURI: localExecution ? localExecution.sparkURI : marathonExecution && marathonExecution.sparkURI || '',
-      endDate,
-      endDateMillis,
-      endDateFormatted,
-      startDate,
-      startDateMillis,
-      startDateFormatted,
-      group,
-      executionEngine,
-      context: context.join(),
-      status: statuses.length && statuses[0].state
-    };
-  }
+   public normalizeExecution(execution) {
+      const { id, statuses, marathonExecution, localExecution, genericDataExecution: { lastError, endDate, startDate, workflow: { name, group, tags, version, executionEngine }, executionContext: { paramsLists: context } } } = execution;
+      let startDateMillis = 0;
+      let startDateFormatted = '-';
+      try {
+         startDateMillis = new Date(startDate).getTime();
+         startDateFormatted = formatDate(startDate);
+      } catch (error) { }
+      let endDateMillis = 0;
+      let endDateFormatted = '-';
+      try {
+         endDateMillis = new Date(endDate).getTime();
+         endDateFormatted = formatDate(endDate);
+      } catch (error) { }
+      const status = statuses.length && statuses[0].state;
+      let executionTime = '';
+      if (endDateMillis > 0 && endDateMillis > 0) {
+         executionTime = this._msToTime(endDateMillis - startDateMillis);
+      }
+      const filterStatus = this._getFilterStatus(status)
+      return {
+         id,
+         name,
+         version,
+         sparkURI: localExecution ? localExecution.sparkURI : marathonExecution && marathonExecution.sparkURI || '',
+         endDate,
+         endDateMillis,
+         endDateFormatted,
+         startDate,
+         startDateMillis,
+         startDateFormatted,
+         group,
+         executionEngine,
+         executionTime,
+         lastError,
+         genericDataExecution: execution.genericDataExecution,
+         tagsAux: tags ? tags.join() : '',
+         context: context.join(),
+         status,
+         startDateWithStatus: filterStatus === 'Running' ?  9007199254740992 : startDateMillis,
+         statusData: statuses.length && statuses[0],
+         filterStatus
+      };
+   }
+
+   private _getFilterStatus(status: string) {
+      switch (status) {
+         case 'Stopping': case 'Stopped': case 'Finished': case 'NotDefined': case 'Created': case 'NotStarted': case 'Killed':
+            return 'Stopped';
+         case 'Running': case 'Launched': case 'Starting': case 'Started': case 'Uploaded':
+            return 'Running';
+         default:
+            return status;
+      }
+   }
+
+   private _msToTime(duration: number) {
+      let seconds = duration / 1000;
+      const hours = parseInt((seconds / 3600).toString()); // 3,600 seconds in 1 hour
+      seconds = seconds % 3600; // seconds remaining after extracting hours
+      const minutes = parseInt((seconds / 60).toString()); // 60 seconds in 1 minute
+      seconds = seconds % 60;
+      let res = '';
+      if (hours > 0) {
+         res += hours + ' hour';
+         res += hours === 1 ? '' : 's';
+         res += ', ';
+      }
+      if (minutes > 0) {
+         res += minutes + ' minute';
+         res += minutes === 1 ? '' : 's';
+         res += ', ';
+      }
+      res += seconds + ' second';
+      res += seconds === 1 ? '' : 's';
+      return res;
+   }
 }

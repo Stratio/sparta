@@ -4,13 +4,10 @@
    display: block;
 }
 
-.execution-detail {
-  margin-top: -28px;
-}
-
 .not-selected {
    text-align: center;
    min-height: 230px;
+   margin-top: 20px;
    .execution-detail-image {
       width: 140px;
    }
@@ -21,6 +18,10 @@
   }
 }
 
+.execution-id {
+  color: $action-secondary-06;
+  font-size: 14px;
+}
 .description {
    display: block;
    font-size: $egeo-font-size-xxsmall;

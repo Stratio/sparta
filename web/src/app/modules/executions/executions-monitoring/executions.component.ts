@@ -34,10 +34,11 @@ export class ExecutionsComponent implements OnInit, OnDestroy {
 
    ngOnInit() {
       this._store.dispatch(new executionsActions.ListExecutionsAction());
-      this._intervalHandler = setInterval(() => this._store.dispatch(new executionsActions.ListExecutionsAction()), 3000);
+      this._intervalHandler = setInterval(() => this._store.dispatch(new executionsActions.ListExecutionsAction()), 30000);
 
-      this.executionsList$ = this._store.select(fromRoot.getExecutionsList);
+      this.executionsList$ = this._store.select(fromRoot.getExecutionOrderedList);
       this.executionsSummary$ = this._store.select(fromRoot.getExecutionsFilters);
+
    }
 
     ngOnDestroy(): void {

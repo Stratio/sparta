@@ -23,7 +23,7 @@ import * as debugActions from './../../actions/debug';
 
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
-import { MenuOptionListGroup } from "@app/shared/components/menu-options-list/menu-options-list.component";
+import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
 
 @Component({
   selector: 'wizard-header',

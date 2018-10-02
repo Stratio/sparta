@@ -22,7 +22,7 @@
    </div>
    <div general-tools>
       <div class="selection-actions">
-        <button class="button options-button"
+        <div class="button options-button"
             id="new-execution"
             *ngIf="selectedVersionsInner.length && selectedVersionsInner.length === 1 && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
             <div class="button-options"><!--
@@ -33,7 +33,7 @@
                     </div>
                 </menu-options-list><!--
             --></div>
-        </button>
+        </div>
             
          <button class="button button-toolbar"
             spTitle="Download selected version"

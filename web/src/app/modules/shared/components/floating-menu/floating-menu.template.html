@@ -3,7 +3,7 @@
       <div class="action-link" (click)="activateMenu($event)">
          <ng-content select="[menu-action]"></ng-content>
       </div>
-      <div class="menu-options" [ngClass]="{'active': showMenu, 'right-position': position === 'right'}">
+      <div class="menu-options" *ngIf="showMenu" [ngClass]="{'right-position': position === 'right'}">
          <menu-options (searchChange)="searchChange.emit($event)" [search]="search" [menuOptions]="menuOptions" [position]="position" (selectedOption)="selectedMenuOption($event)"></menu-options>
       </div>
    </div>

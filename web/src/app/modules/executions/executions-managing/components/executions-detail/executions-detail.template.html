@@ -9,64 +9,64 @@
 -->
 
 <div class="execution-detail">
-  <div class="not-selected" *ngIf="!executionData || !executionData.name">
-    <img src="assets/images/workflow-detail.png" class="execution-detail-image" />
-    <div class="execution-info">{{'DASHBOARD.EXECUTION_INFO' | translate}}</div>
-  </div>
-  <div class="selected" *ngIf="executionData">
-    <span class="status" [ngClass]="executionData.filterStatus.toLowerCase()">
+   <div class="not-selected" *ngIf="!executionData || !executionData.name">
+      <img src="assets/images/workflow-detail.png" class="execution-detail-image" />
+      <div class="execution-info">{{'DASHBOARD.EXECUTION_INFO' | translate}}</div>
+   </div>
+   <div class="selected" *ngIf="executionData">
+      <span class="status" [ngClass]="executionData.filterStatus.toLowerCase()">
         {{('DASHBOARD.' + (executionData.filterStatus | uppercase)) | translate}}
-        <span class="status-advaced" *ngIf="executionData.status.status !== (('DASHBOARD.' + (executionData.filterStatus | uppercase)) | translate)">
-           / {{executionData.status.status}}</span>
-    </span>
-    <h3 class="egeo-title-medium">{{executionData.name}} - v{{executionData.version}}</h3>
-    <span *ngIf="executionData.lastUpdate && executionData.lastUpdate.length" class="date">Last status update: {{executionData.lastUpdate}}</span>
-    <span class="description">{{executionData.description}}</span>
-    <div *ngIf="executionData.tagsAux && executionData.tagsAux.length">
-      <span class="egeo-title-mini title2">{{'DASHBOARD.TAGS' | translate}}</span>
-      <span class="values">{{executionData.tagsAux}}</span>
-    </div>
-    <div *ngIf="executionData.status && executionData.status.statusInfo && executionData.status.statusInfo.length">
-      <span class="egeo-title-mini title2">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
-      <span class="values">{{executionData.status.statusInfo}}</span>
-    </div>
-
-    <div *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode">
-      <span class="egeo-title-mini title2">Execution mode</span>
-      <span class="values">
-           {{execution.genericDataExecution.executionMode}}
+        <span class="status-advaced" *ngIf="executionData.status !== (('DASHBOARD.' + (executionData.filterStatus | uppercase)) | translate)">
+           / {{executionData.status}}</span>
+      </span>
+      <h3 class="egeo-title-medium">{{executionData.name}} - v{{executionData.version}}</h3>
+      <span class="execution-id">{{executionData.id}}</span>
+      <span *ngIf="executionData.lastUpdate && executionData.lastUpdate.length" class="date">Last status update: {{executionData.lastUpdate}}</span>
+      <span class="description">{{executionData.description}}</span>
+      <div *ngIf="executionData.tagsAux && executionData.tagsAux.length">
+         <span class="egeo-title-mini title2">{{'DASHBOARD.TAGS' | translate}}</span>
+         <span class="values">{{executionData.tagsAux}}</span>
+      </div>
+      <div *ngIf="executionData.statusData && executionData.statusData.statusInfo && executionData.statusData.statusInfo.length">
+         <span class="egeo-title-mini title2">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
+         <span class="values">{{executionData.statusData.statusInfo}}</span>
+      </div>
+      <div *ngIf="executionData.genericDataExecution && executionData.genericDataExecution.executionMode">
+         <span class="egeo-title-mini title2">Execution mode</span>
+         <span class="values">
+           {{executionData.genericDataExecution.executionMode}}
            <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:executionData.id, name:executionData.name})"
-        *ngIf="execution && execution.genericDataExecution && execution.genericDataExecution.executionMode &&  execution.genericDataExecution.executionMode === 'marathon'">Show execution info</a>
+        *ngIf="executionData.genericDataExecution && executionData.genericDataExecution.executionMode &&  executionData.genericDataExecution.executionMode === 'marathon'">Show execution info</a>
         </span>
-    </div>
-    <div *ngIf="executionData.launchDate || executionData.startDate || executionData.endDate">
-      <span class="egeo-title-mini title2">Execution dates</span>
+      </div>
+      <div *ngIf="executionData.launchDate || executionData.startDate || executionData.endDate">
+         <span class="egeo-title-mini title2">Execution dates</span>
 
-      <div *ngIf="executionData.launchDate">
-        <span class="values"><span class="date-title">Launch date:</span> {{executionData.launchDate}}</span>
+         <div *ngIf="executionData.launchDate">
+            <span class="values"><span class="date-title">Launch date:</span> {{executionData.launchDate}}</span>
+         </div>
+         <div *ngIf="executionData.startDate">
+            <span class="values"><span class="date-title">Start date:</span> {{executionData.startDateFormatted}}</span>
+         </div>
+         <div *ngIf="executionData.endDate">
+            <span class="values"><span class="date-title">End date:</span> {{executionData.endDateFormatted}}</span>
+         </div>
       </div>
-      <div *ngIf="executionData.startDate">
-        <span class="values"><span class="date-title">Start date:</span> {{executionData.startDate}}</span>
+      <div *ngIf="executionData.executionTime">
+         <span class="egeo-title-mini title2">Last execution time</span>
+         <span class="values">{{executionData.executionTime}}</span>
       </div>
-      <div *ngIf="executionData.endDate">
-        <span class="values"><span class="date-title">End date:</span> {{executionData.endDate}}</span>
+      <div class="last-error" *ngIf="lastError">
+         <span class="egeo-title-mini title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
+         <div class="errors">
+            <div>
+               <span class="phase">Phase: {{lastError.phase}}</span>
+               <span class="step" *ngIf="lastError.step">Step: {{lastError.step}}</span>
+               <span class="val">Error date: {{executionData.lastErrorDate}}</span>
+            </div>
+            <span class="message">{{(lastError.localizedMsg.length>100)? (lastError.localizedMsg | slice:0:100)+'..':(lastError.localizedMsg) }}</span>
+            <div class="details" (click)="onShowConsole()">View details</div>
+         </div>
       </div>
-    </div>
-    <div *ngIf="executionData.executionTime">
-      <span class="egeo-title-mini title2">Last execution time</span>
-      <span class="values">{{executionData.executionTime}}</span>
-    </div>
-    <div class="last-error" *ngIf="lastError">
-      <span class="egeo-title-mini title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
-      <div class="errors">
-        <div>
-          <span class="phase">Phase: {{lastError.phase}}</span>
-          <span class="step" *ngIf="lastError.step">Step: {{lastError.step}}</span>
-          <span class="val">Error date: {{executionData.lastErrorDate}}</span>
-        </div>
-        <span class="message">{{(lastError.localizedMsg.length>100)? (lastError.localizedMsg | slice:0:100)+'..':(lastError.localizedMsg) }}</span>
-        <div class="details" (click)="onShowConsole()" >View details</div>
-      </div>
-    </div>
-  </div>
+   </div>
 </div>

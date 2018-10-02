@@ -6,36 +6,38 @@
 import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input, OnChanges } from '@angular/core';
 
 @Component({
-    selector: 'executions-detail',
-    templateUrl: './executions-detail.template.html',
-    styleUrls: ['./executions-detail.styles.scss']
+   selector: 'executions-detail',
+   templateUrl: './executions-detail.template.html',
+   styleUrls: ['./executions-detail.styles.scss']
 })
 export class ExecutionsDetailComponent implements OnInit, OnChanges {
 
-    @Input() executionData: any;
-    @Output() showWorkflowExecutionInfo = new EventEmitter<any>();
-    @Output() showConsole = new EventEmitter<any>();
+   @Input() executionData: any;
+   @Output() showWorkflowExecutionInfo = new EventEmitter<any>();
+   @Output() showConsole = new EventEmitter<any>();
 
 
-    public inputs: Array<string> = [];
-    public outputs: Array<string> = [];
-    public transformations: Array<string> = [];
+   public inputs: Array<string> = [];
+   public outputs: Array<string> = [];
+   public transformations: Array<string> = [];
 
-    public lastError: any;
-    public execution: any;
+   public lastError: any;
+   public execution: any;
 
-    ngOnChanges() {
-        this.execution = this.executionData && this.executionData.execution ? this.executionData.execution : null;
-        this.lastError = this.execution && this.execution.genericDataExecution ?
-            this.executionData.execution.genericDataExecution.lastError : null;
-        this._cd.detectChanges();
-    }
+   ngOnChanges() {
+      if (this.executionData) {
+         this.execution = this.executionData && this.executionData.execution ? this.executionData.execution : null;
+         this.lastError = this.executionData.lastError;
+         this._cd.detectChanges();
+      }
 
-    constructor(private _cd: ChangeDetectorRef) { }
+   }
 
-    ngOnInit() { }
+   constructor(private _cd: ChangeDetectorRef) { }
 
-    onShowConsole() {
-       this.showConsole.emit();
-    }
+   ngOnInit() { }
+
+   onShowConsole() {
+      this.showConsole.emit();
+   }
 }

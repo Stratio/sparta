@@ -19,9 +19,9 @@ import { Observable } from 'rxjs/Observable';
             [selectedExecutionsIds]="selectedExecutionsIds"
             [perPage]="perPage$ | async"
             [currentOrder]="currentOrder$ | async"
-            [pageNumber]="pageNumber$ | async"
+            [currentPage]="pageNumber$ | async"
             (onChangeOrder)="changeOrder($event)"
-            (onChangePage)="changePage()"
+            (onChangePage)="changePage($event)"
             (selectExecution)="selectExecution($event)"
             (deselectExecution)="deselectExecution($event)"></executions-managing-table>
     `,
@@ -40,7 +40,7 @@ export class ExecutionsTableContainer implements OnInit, OnDestroy {
    constructor(private _store: Store<State>, private _modalService: StModalService) { }
 
    ngOnInit(): void {
-     this.perPage$ = this._store.select(fromRoot.getCurrentPage);
+     this.pageNumber$ = this._store.select(fromRoot.getCurrentPage);
      this.perPage$ = this._store.select(fromRoot.getPerPageElements);
     }
 
@@ -60,7 +60,9 @@ export class ExecutionsTableContainer implements OnInit, OnDestroy {
       this._store.dispatch(new executionActions.ChangeExecutionsOrderAction(event));
    }
 
-   changePage() { }
+   changePage($event) {
+      this._store.dispatch(new executionActions.ChangePaginationAction($event));
+   }
 
 
 
