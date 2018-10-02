@@ -81,6 +81,7 @@ object ErrorModel extends SpartaSerializer {
   val TemplateServiceDeleteByType = "659"
   val TemplateServiceDeleteAll = "660"
   val TemplateMigration = "661"
+  val TemplateServiceFindById = "662"
 
   /* Driver Service 675-684 */
   val DriverServiceUnexpected = "675"
@@ -251,7 +252,8 @@ object ErrorModel extends SpartaSerializer {
     WorkflowStatusDeleteById -> "Error deleting workflow status",
     WorkflowStatusUpdate -> "Error updating workflow status",
     TemplateServiceUnexpected -> "Unexpected behaviour in templates service",
-    TemplateServiceFindByTypeId -> "Error obtaining template by ID",
+    TemplateServiceFindByTypeId -> "Error obtaining template by type and ID",
+    TemplateServiceFindById -> "Error obtaining template by ID",
     TemplateServiceFindByTypeName -> "Error obtaining template by name",
     TemplateServiceFindAllByType -> "Error obtaining templates by type",
     TemplateServiceFindAll -> "Error obtaining templates",

@@ -7,17 +7,16 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-
 import org.joda.time.DateTime
 import slick.jdbc.PostgresProfile
-
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.TemplateDao
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.workflow.TemplateElement
-import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
+import com.stratio.sparta.serving.core.models.workflow.{NodeTemplateInfo, TemplateElement, Workflow}
+import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
 
 class TemplatePostgresDao extends TemplateDao {
 
@@ -26,7 +25,11 @@ class TemplatePostgresDao extends TemplateDao {
 
   import profile.api._
 
+  lazy val workflowService = PostgresDaoFactory.workflowPgService
+
   def findAllTemplates(): Future[Seq[TemplateElement]] = findAll()
+
+  def findById(id: String): Future[TemplateElement] = findByIdHead(id)
 
   def findByType(templateType: String): Future[Seq[TemplateElement]] =
     for {
@@ -57,70 +60,87 @@ class TemplatePostgresDao extends TemplateDao {
     }
 
   //scalastyle:off
-  def updateTemplate(template: TemplateElement): Future[TemplateElement] = {
-    for {
-      exists <- findByOtherTemplate(template)
-    } yield {
-      if (exists.isDefined)
-        throw new ServerException(s"Cannot update template with id ${template.id.get}" +
-          s" because a template of the same type and name ${template.name} already exists")
-      else {
-        //TODO traer los workflows que tengan al template y actualizarlos
-        val templateToUpdate = addSpartaVersion(addUpdateDate(addId(template)))
-        upsert(templateToUpdate)
-        templateToUpdate
+  def updateTemplate(template: TemplateElement): Future[Unit] = {
+    val newTemplate = addSpartaVersion(addUpdateDate(addId(template)))
+    val id = newTemplate.id.getOrElse(
+      throw new ServerException(s"No template by id ${newTemplate.id}"))
+
+    findById(id).flatMap { _ =>
+      val workflowTemplateActions = for {
+        workflowsActions <- updateWorkflowsTemplate(newTemplate)
+      } yield workflowsActions
+
+      workflowTemplateActions.flatMap { actions =>
+        val actionsToExecute = actions :+ upsertAction(newTemplate)
+        db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
       }
     }
   }
-
-  //TODO que hacer con los templates que esten dentro de workflows
 
   def deleteAllTemplates(): Future[Boolean] =
     for {
       templates <- findAll()
-    } yield {
-      templates.foreach { template =>
-        log.debug(s"Deleting template ${template.name} with id ${template.id.get}")
-        Try(deleteByID(template.id.get)) match {
-          case Success(_) =>
-            log.info(s"Template ${template.name} with id ${template.id.get} deleted")
-          case Failure(e) =>
-            throw e
-        }
-      }
-      true
-    }
+      result <- deleteYield(templates)
+    } yield result
+
+  def deleteById(id: String): Future[Boolean] =
+    for {
+      template <- findById(id)
+      result <- deleteYield(Seq(template))
+    } yield result
 
   def deleteByType(templateType: String): Future[Boolean] =
     for {
       templates <- filterByType(templateType)
-    } yield deleteYield(templates)
+      result <- deleteYield(templates)
+    } yield result
 
   def deleteByTypeAndId(templateType: String, id: String): Future[Boolean] =
     for {
       templates <- filterByTypeId(templateType, id)
-    } yield deleteYield(templates)
+      result <- deleteYield(templates)
+    } yield result
 
   def deleteByTypeAndName(templateType: String, name: String): Future[Boolean] =
     for {
       templates <- filterByTypeName(templateType, name)
-    } yield deleteYield(templates)
+      result <- deleteYield(templates)
+    } yield result
 
 
   /** PRIVATE METHODS */
 
-  private[services] def deleteYield(templates: Seq[TemplateElement]) : Boolean = {
-    templates.foreach { template =>
-      log.debug(s"Deleting template ${template.name} with id ${template.id.get}")
-      Try(deleteByID(template.id.get)) match {
+  private[services] def deleteYield(templates: Seq[TemplateElement]): Future[Boolean] = {
+    val updateDeleteActions = templates.map { template =>
+      val workflowTemplateActions = for {
+        workflowsActions <- removeWorkflowsTemplate(template)
+      } yield workflowsActions
+
+      workflowTemplateActions.map { actions =>
+        actions :+ deleteByIDAction(template.id.get)
+      }
+    }
+
+    Future.sequence(updateDeleteActions).map { actionsSequence =>
+      val actions = actionsSequence.flatten
+      Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))) match {
         case Success(_) =>
-          log.info(s"Template ${template.name} with id ${template.id.get} deleted")
+          log.info(s"Templates ${templates.map(_.name).mkString(",")} deleted")
+          true
         case Failure(e) =>
           throw e
       }
     }
-    true
   }
+
+  private[services] def findByIdHead(id: String): Future[TemplateElement] =
+    for {
+      templates <- db.run(filterById(id).result)
+    } yield {
+      if (templates.nonEmpty)
+        templates.head
+      else throw new ServerException(s"No template found by id $id")
+    }
 
   private[services] def filterByType(templateType: String): Future[Seq[TemplateElement]] =
     db.run(table.filter(t => t.templateType === templateType).result)
@@ -136,9 +156,6 @@ class TemplatePostgresDao extends TemplateDao {
 
   private[services] def findByTypeName(templateType: String, name: String): Future[Option[TemplateElement]] =
     db.run(table.filter(t => t.templateType === templateType && t.name === name).result.headOption)
-
-  private[services] def findByOtherTemplate(template: TemplateElement): Future[Option[TemplateElement]] =
-    db.run(table.filter(t => t.templateType === template.templateType && t.name === template.name && t.id =!= template.id.get).result.headOption)
 
   private[services] def addId(template: TemplateElement): TemplateElement =
     template.id match {
@@ -160,4 +177,56 @@ class TemplatePostgresDao extends TemplateDao {
       case None => template.copy(versionSparta = Some(AppConstant.version))
       case Some(_) => template
     }
+
+  private[services] def updateWorkflowsTemplate(templateElement: TemplateElement) = {
+    workflowService.findAll().map { workflows =>
+      val workflowsToUpdate = replaceWorkflowsWithTemplate(templateElement, workflows)
+      workflowsToUpdate.map(workflow => workflowService.upsertAction(workflow))
+    }
+  }
+
+  private[services] def removeWorkflowsTemplate(templateElement: TemplateElement) = {
+    workflowService.findAll().map { workflows =>
+      val workflowsToUpdate = updateWorkflowsWithRemovedTemplate(templateElement, workflows)
+      workflowsToUpdate.map(workflow => workflowService.upsertAction(workflow))
+    }
+  }
+
+  private[services] def replaceWorkflowsWithTemplate(
+                                                      templateElement: TemplateElement,
+                                                      workflows: Seq[Workflow]
+                                                    ): Seq[Workflow] = {
+    workflows.flatMap { workflow =>
+      val nodesWithTemplate = workflow.pipelineGraph.nodes.filter { node =>
+        node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateElement.id.get
+      }
+      if (nodesWithTemplate.nonEmpty) {
+        val newNodes = workflow.pipelineGraph.nodes.map { node =>
+          if (node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateElement.id.get)
+            node.copy(nodeTemplate = Option(NodeTemplateInfo(name = templateElement.name, id = templateElement.id.get)))
+          else node
+        }
+        Option(workflow.copy(pipelineGraph = workflow.pipelineGraph.copy(nodes = newNodes)))
+      } else None
+    }
+  }
+
+  private[services] def updateWorkflowsWithRemovedTemplate(
+                                                      templateElement: TemplateElement,
+                                                      workflows: Seq[Workflow]
+                                                    ): Seq[Workflow] = {
+    workflows.flatMap { workflow =>
+      val nodesWithTemplate = workflow.pipelineGraph.nodes.filter { node =>
+        node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateElement.id.get
+      }
+      if (nodesWithTemplate.nonEmpty) {
+        val newNodes = workflow.pipelineGraph.nodes.map { node =>
+          if (node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateElement.id.get)
+            node.copy(nodeTemplate = None)
+          else node
+        }
+        Option(workflow.copy(pipelineGraph = workflow.pipelineGraph.copy(nodes = newNodes)))
+      } else None
+    }
+  }
 }

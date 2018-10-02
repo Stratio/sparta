@@ -30,10 +30,12 @@ class TemplateActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   def receiveApiActions(action: Any): Any = action match {
     case FindAllTemplates(user) => findAll(user)
     case FindByType(templateType, user) => findByType(templateType, user)
+    case FindById(templateType, user) => findById(templateType, user)
     case FindByTypeAndId(templateType, id, user) => findByTypeAndId(templateType, id, user)
     case FindByTypeAndName(templateType, name, user) => findByTypeAndName(templateType, name, user)
     case DeleteAllTemplates(user) => deleteAll(user)
     case DeleteByType(templateType, user) => deleteByType(templateType, user)
+    case DeleteById(id, user) => deleteById(id, user)
     case DeleteByTypeAndId(templateType, id, user) => deleteByTypeAndId(templateType, id, user)
     case DeleteByTypeAndName(templateType, name, user) => deleteByTypeAndName(templateType, name, user)
     case CreateTemplate(fragment, user) => create(fragment, user)
@@ -47,6 +49,11 @@ class TemplateActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   def findAll(user: Option[LoggedUser]): Unit =
     authorizeActionResultResources(user, Map(ResourceType -> View)) {
       templatePgService.findAllTemplates()
+    }
+
+  def findById(id: String, user: Option[LoggedUser]): Unit =
+    authorizeActionResultResources(user, Map(ResourceType -> View)) {
+      templatePgService.findById(id)
     }
 
   def findByType(templateType: String, user: Option[LoggedUser]): Unit =
@@ -87,6 +94,19 @@ class TemplateActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
       val resourcesId = templates.map(_.authorizationId)
       authorizeActionsByResourcesIds(user, Map(ResourceType -> Delete), resourcesId, senderResponseTo) {
         templatePgService.deleteAllTemplates()
+      }
+    }
+  }
+
+  def deleteById(id: String, user: Option[LoggedUser]): Future[Unit] = {
+    val senderResponseTo = sender
+    for {
+      template <- templatePgService.findById(id)
+    } yield {
+      val resourceId = template.authorizationId
+      val actions = Map(ResourceType -> Delete)
+      authorizeActionsByResourceId(user, actions, resourceId, Option(senderResponseTo)) {
+        templatePgService.deleteById(id)
       }
     }
   }
@@ -143,6 +163,8 @@ object TemplateActor {
 
   case class FindByType(templateType: String, user: Option[LoggedUser])
 
+  case class FindById(id: String, user: Option[LoggedUser])
+
   case class FindByTypeAndId(templateType: String, id: String, user: Option[LoggedUser])
 
   case class FindByTypeAndName(templateType: String, name: String, user: Option[LoggedUser])
@@ -150,6 +172,8 @@ object TemplateActor {
   case class DeleteAllTemplates(user: Option[LoggedUser])
 
   case class DeleteByType(templateType: String, user: Option[LoggedUser])
+
+  case class DeleteById(id: String, user: Option[LoggedUser])
 
   case class DeleteByTypeAndId(templateType: String, id: String, user: Option[LoggedUser])
 

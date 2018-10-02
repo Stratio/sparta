@@ -33,9 +33,37 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   )
 
   override def routes(user: Option[LoggedUser] = None): Route =
-    findAll(user) ~ findByTypeAndId(user) ~ findByTypeAndName(user) ~
-      findAllByType(user) ~ create(user) ~ update(user) ~ deleteByTypeAndId(user) ~
+    findAll(user) ~ findByTypeAndId(user) ~ findByTypeAndName(user) ~ //findById(user) ~
+  findAllByType(user) ~ create(user) ~ update(user) ~ deleteByTypeAndId(user) ~
       deleteByType(user) ~ deleteByTypeAndName(user) ~ deleteAll(user) ~ migrate(user)
+
+  @Path("/id/{id}")
+  @ApiOperation(value = "Finds a template depending on its id.",
+    notes = "Finds a template depending on its id.",
+    httpMethod = "GET",
+    response = classOf[TemplateElement])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the template",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findById(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.TemplatePath / "id" / Segment) { (id) =>
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindById(id, user))
+              .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
+          } yield getResponse(context, TemplateServiceFindById, response, genericError)
+      }
+    }
+  }
 
   @Path("/{templateType}/id/{templateId}")
   @ApiOperation(value = "Finds a template depending on its type and id.",
@@ -194,8 +222,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
           complete {
             for {
               response <- (supervisor ? Update(template, user))
-                .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
-            } yield deletePostPutResponse(TemplateServiceUpdate, response, genericError)
+                .mapTo[Either[Response, UnauthorizedResponse]]
+            } yield deletePostPutResponse(TemplateServiceUpdate, response, genericError, StatusCodes.OK)
           }
         }
       }
