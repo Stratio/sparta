@@ -32,5 +32,5 @@ trait WorkflowDao extends DaoUtils {
 
   implicit lazy val cache: IgniteCache[String, Workflow] = SpartaIgnite.getCache[String, Workflow]("workflows")
 
-  override def getSpartaEntityId(entity: Workflow): String = s"${entity.id.get}-${entity.version.toString}"
+  override def getSpartaEntityId(entity: Workflow): String = entity.id.get
 }

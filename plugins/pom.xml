@@ -82,6 +82,12 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>com.stratio</groupId>
             <artifactId>ml-repository-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>

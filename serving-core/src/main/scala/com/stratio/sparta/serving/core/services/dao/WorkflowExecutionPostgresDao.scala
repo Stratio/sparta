@@ -183,7 +183,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
 
-    if(archived) {
+    if (archived) {
       if (cacheEnabled) cache.remove(executionUpdated.getExecutionId)
       Future(executionUpdated)
     } else Future(executionUpdated).cached()
@@ -192,13 +192,15 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   def deleteAllExecutions(): Future[Boolean] =
     for {
       executions <- findAllExecutions()
-    } yield deleteYield(executions)
+      result <- deleteYield(executions)
+    } yield result
 
 
   def deleteExecution(id: String): Future[Boolean] =
     for {
       execution <- findByIdHead(id)
-    } yield deleteYield(Seq(execution))
+      result <- deleteYield(Seq(execution))
+    } yield result
 
   def setLaunchDate(execution: WorkflowExecution, date: DateTime): WorkflowExecution = {
     val executionUpdated = execution.copy(
@@ -288,17 +290,14 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   /** PRIVATE METHODS */
 
-  private[services] def deleteYield(executions: Seq[WorkflowExecution]): Boolean = {
-    executions.foreach { execution =>
-      log.debug(s"Deleting execution ${execution.id.get}")
-      Try(deleteByID(execution.id.get).remove(Seq(execution.id.get): _*)) match {
-        case Success(_) =>
-          log.info(s"Execution with id=${execution.id.get} deleted")
-        case Failure(e) =>
-          throw e
-      }
+  private[services] def deleteYield(executions: Seq[WorkflowExecution]): Future[Boolean] = {
+    val ids = executions.flatMap(_.id.toList)
+    for {
+      _ <- deleteList(ids).removeInCache(ids: _*)
+    } yield {
+      log.info(s"Executions with ids: ${ids.mkString(",")} deleted")
+      true
     }
-    true
   }
 
   private def writeExecutionStatusInZk(workflowExecutionStatusChange: WorkflowExecutionStatusChange): Unit = {
@@ -461,10 +460,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
     val running = executions.count { execution =>
       execution.statuses.headOption match {
-        case Some(status) =>
-          Seq(Launched, Starting, Started, Uploaded).contains(status.state)
-        case None =>
-          false
+        case Some(status) => Seq(Launched, Starting, Started, Uploaded).contains(status.state)
+        case None => false
       }
     }
     val stopped = executions.count { execution =>
@@ -477,13 +474,16 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
     val failed = executions.count { execution =>
       execution.statuses.headOption match {
-        case Some(status) =>
-          Seq(Failed).contains(status.state)
-        case None =>
-          false
+        case Some(status) => Seq(Failed).contains(status.state)
+        case None => false
       }
     }
-    val archived = 0
+    val archived = executions.count { execution =>
+      execution.archived match {
+        case Some(exArchived) => exArchived
+        case None => false
+      }
+    }
     val summary = ExecutionsSummary(running, stopped, failed, archived)
 
     DashboardView(lastExecutions, summary)

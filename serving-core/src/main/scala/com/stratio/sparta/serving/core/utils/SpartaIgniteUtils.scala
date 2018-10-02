@@ -44,12 +44,15 @@ trait SpartaIgniteUtils {
     igniteConfig.setDataStorageConfiguration(dataStoreConfiguration())
     igniteConfig.setDiscoverySpi(cacheDiscoverSpi.cacheDiscovery())
     igniteConfig.setGridLogger(new Log4J2Logger(this.getClass.getClassLoader.getResource("log4j2.xml")))
-    igniteConfig.setCommunicationSpi(cacheDiscoverSpi.cacheComunicationSpi(config.getInt(AppConstant.IgniteCommunicationSpi), config.getInt(AppConstant.IgniteCommunicationSpiPortRange)))
+    igniteConfig.setCommunicationSpi(cacheDiscoverSpi.cacheComunicationSpi(
+      config.getString(AppConstant.IgniteCommunicationSpiAddress),
+      config.getInt(AppConstant.IgniteCommunicationSpiPort),
+      config.getInt(AppConstant.IgniteCommunicationSpiPortRange)
+    ))
 
     if (Try(config.getBoolean(AppConstant.IgniteSecurityEnabled)).getOrElse(false)) {
       igniteConfig.setSslContextFactory(securityConfiguration())
     }
-
     igniteConfig
   }
 
@@ -91,7 +94,7 @@ trait CacheDiscoverySpi {
 
   def cacheDiscovery(): Spi
 
-  def cacheComunicationSpi(port: Int, range: Int = 0): TcpCommunicationSpi
+  def cacheComunicationSpi(address: String, port: Int, range: Int = 0): TcpCommunicationSpi
 }
 
 trait ZkDiscoverySpiComponent extends CacheDiscoverySpiComponent {
@@ -109,13 +112,14 @@ trait ZkDiscoverySpiComponent extends CacheDiscoverySpiComponent {
       zkSpi.setZkConnectionString(Try(config.getString(ZKConnection)).getOrElse(DefaultZKConnection))
       zkSpi.setSessionTimeout(Try(config.getLong(ZKSessionTimeout)).getOrElse(DefaultZKSessionTimeout))
       zkSpi.setZkRootPath(AppConstant.IgniteDiscoveryZkPath)
-      zkSpi.setJoinTimeout(Try(config.getLong(ZKRetryInterval)).getOrElse(DefaultZKRetryInterval))
+      zkSpi.setJoinTimeout(Try(config.getLong(ZKConnectionTimeout)).getOrElse(DefaultZKConnectionTimeout))
       zkSpi.setClientReconnectDisabled(false)
       zkSpi
     }
 
-    override def cacheComunicationSpi(port: Int, range: Int = 0): TcpCommunicationSpi = {
+    override def cacheComunicationSpi(address: String, port: Int, range: Int = 0): TcpCommunicationSpi = {
       val tcpSpi = new TcpCommunicationSpi()
+      tcpSpi.setLocalAddress(address)
       tcpSpi.setLocalPort(port)
       tcpSpi.setLocalPortRange(range)
       tcpSpi
@@ -128,47 +132,52 @@ object SpartaIgnite extends SpartaIgniteUtils with ZkDiscoverySpiComponent with 
 
   private var igniteSparta: Option[Ignite] = None
 
-  private def stopOrphanedNodes(ignite: Ignite): Unit = {
-    if (Try(SpartaConfig.getIgniteConfig().get.getBoolean(AppConstant.IgniteClusterEnabled)).getOrElse(false)) {
-      val cluster = ignite.cluster
-      val nodes = cluster.nodes().toSeq
-      nodes.foreach(node => log.debug(s"Ignite cluster node detected with Id ${node.id()} and Address ${node.addresses().toSeq.mkString(",")}"))
-      val nodesToStop = nodes.flatMap { node =>
-        if (!cluster.pingNode(node.id()))
-          Option(node.id())
-        else None
-      }
-      if (nodesToStop.nonEmpty) {
-        log.info(s"Stopping lost ignite nodes: ${nodesToStop.mkString(",")}")
-        cluster.stopNodes(nodesToStop)
-        log.info(s"Ignite nodes stopped :${nodesToStop.mkString(",")}")
+  def stopOrphanedNodes(): Unit = {
+    igniteSparta.foreach { ignite =>
+      if (Try(SpartaConfig.getIgniteConfig().get.getBoolean(AppConstant.IgniteClusterEnabled)).getOrElse(false)) {
+        log.info(s"Checking orphaned nodes in Ignite cluster")
+        val cluster = ignite.cluster
+        val nodes = cluster.nodes().toSeq
+        log.info(s"Getting Ignite cluster nodes")
+        nodes.foreach(node => log.info(s"Ignite cluster node detected with Id ${node.id()} and Address ${node.addresses().toSeq.mkString(",")}"))
+        val nodesToStop = nodes.flatMap { node =>
+          if (!cluster.pingNode(node.id()))
+            Option(node.id())
+          else None
+        }
+        if (nodesToStop.nonEmpty) {
+          log.info(s"Stopping lost ignite nodes: ${nodesToStop.mkString(",")}")
+          cluster.stopNodes(nodesToStop)
+          log.info(s"Ignite nodes stopped :${nodesToStop.mkString(",")}")
+        } else log.info("No ignite nodes to stop")
       }
     }
   }
 
-  def closeIgniteConnection() = {
+  def closeIgniteConnection(): Unit = {
     igniteSparta.foreach(_.close())
     igniteSparta = None
   }
 
-  def getCache[K, V](name: String): IgniteCache[K, V] = synchronized {
-    val igniteInstance = igniteSparta match {
-      case Some(instance) =>
-        stopOrphanedNodes(instance)
-        instance
-      case None =>
-        val ignite = Ignition.start(getIgniteConfiguration())
-        if (Try(SpartaConfig.getIgniteConfig().get.getBoolean(AppConstant.IgniteClusterEnabled)).getOrElse(false)) {
-          stopOrphanedNodes(ignite)
-          log.info("Starting Ignite cluster instance")
-          val cluster = ignite.cluster()
-          if (!cluster.active()) cluster.active(true)
-          stopOrphanedNodes(ignite)
-        } else log.info("Starting Ignite local instance")
-        log.info(s"Ignite instance started ${ignite.name()}")
-        igniteSparta = Option(ignite)
-        ignite
+  def getAndOrCreateInstance() : Ignite = {
+    igniteSparta.getOrElse{
+      log.info("Starting Ignite instance")
+      val ignite = Ignition.start(getIgniteConfiguration())
+      if (Try(SpartaConfig.getIgniteConfig().get.getBoolean(AppConstant.IgniteClusterEnabled)).getOrElse(false)) {
+        log.info("Starting Ignite cluster instance")
+        val cluster = ignite.cluster()
+        if (Try(config.getBoolean(AppConstant.IgnitePersistenceEnabled)).getOrElse(false) && !cluster.active())
+          cluster.active(true)
+      } else log.info("Starting Ignite local instance")
+      log.info(s"Ignite instance started ${ignite.name()}")
+      igniteSparta = Option(ignite)
+      stopOrphanedNodes()
+      ignite
     }
+  }
+
+  def getCache[K, V](name: String): IgniteCache[K, V] = synchronized {
+    val igniteInstance = getAndOrCreateInstance()
     val cachesCreated = igniteInstance.cacheNames().toSeq
     log.info(s"Caches created in Ignite: ${cachesCreated.mkString(",")}")
 

@@ -15,6 +15,7 @@ import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
 import com.stratio.sparta.serving.core.factory.PostgresFactory
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
@@ -45,6 +46,12 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         SpartaConfig.getCrossdataConfig().isDefined && SpartaConfig.getOauth2Config().isDefined &&
         SpartaConfig.getZookeeperConfig().isDefined && SpartaConfig.getApiConfig().isDefined &&
         SpartaConfig.getSprayConfig().isDefined) {
+
+      if(Try(SpartaConfig.getIgniteConfig().get.getBoolean(AppConstant.IgniteEnabled)).getOrElse(false)) {
+        log.info("Initializing Sparta cache instance ...")
+        SpartaIgnite.getAndOrCreateInstance()
+      }
+
       log.info("Initializing Sparta Postgres schemas and data ...")
       PostgresFactory.invokeInitializationMethods()
 
@@ -96,6 +103,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
 
     Runtime.getRuntime.addShutdownHook(new Thread() {
       override def run(): Unit = {
+        SpartaIgnite.stopOrphanedNodes()
         SpartaIgnite.closeIgniteConnection()
         //Sure stopped?
         Ignition.stop(true)

@@ -183,15 +183,14 @@ class GroupPostgresDao extends GroupDao {
       } else Future(Seq.empty)
     }
 
-    Future.sequence(deleteActions).map { actionsSequence =>
+    Future.sequence(deleteActions).flatMap { actionsSequence =>
       val actions = actionsSequence.flatten
-      Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))
-        .remove(groups.filterNot(_.id != DefaultGroup.id.get).map(getSpartaEntityId(_)): _*)) match {
-        case Success(_) =>
-          log.info(s"Groups ${groups.map(_.name).mkString(",")} deleted")
-          true
-        case Failure(e) =>
-          throw e
+      for {
+        _ <- db.run(txHandler(DBIO.seq(actions: _*).transactionally))
+          .removeInCache(groups.filter(_.id != DefaultGroup.id.get).map(getSpartaEntityId): _*)
+      } yield {
+        log.info(s"Groups ${groups.map(_.name).mkString(",")} deleted")
+        true
       }
     }
   }

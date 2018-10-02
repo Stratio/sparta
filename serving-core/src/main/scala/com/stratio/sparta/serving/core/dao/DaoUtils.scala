@@ -9,6 +9,7 @@ package com.stratio.sparta.serving.core.dao
 import javax.cache.Cache
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -238,34 +239,33 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
 
     def cached(): Future[A] = {
       if (cacheEnabled) {
-        daoFuture.onComplete {
-
-          case Success(elems) =>
-            List(elems).flatten(List(_).asInstanceOf[List[SpartaEntity]]).foreach { entity =>
-              Try {
-                val entityId = getSpartaEntityId(entity)
-                cache.put(entityId, entity)
-                entityId
-              } match {
-                case Success(entityId) =>
-                  log.debug(s"Updated entity associated to $tableName with Id $entityId")
-                case Failure(e) =>
-                  throw e
-              }
-            }
-
-          case Failure(e) =>
-            log.debug("Error updating cache keys.", e)
+        for {
+          result <- daoFuture
+        } yield {
+          Try {
+            val entities = List(result).flatten(List(_).asInstanceOf[List[SpartaEntity]]).map { entity =>
+              getSpartaEntityId(entity) -> entity
+            }.toMap
+            cache.putAll(entities.asJava)
+          } match {
+            case Success(_) => result
+            case Failure(e) => throw new Exception(s"Error updating cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+          }
         }
-
-      }
-      daoFuture
+      } else daoFuture
     }
 
-    def remove(id: String*): Future[A] = {
-      if (cacheEnabled)
-        daoFuture.foreach(_ => cache.removeAllAsync(id.toSet.asJava))
-      daoFuture
+    def removeInCache(id: String*): Future[A] = {
+      if (cacheEnabled) {
+        for {
+          result <- daoFuture
+        } yield {
+          Try(cache.removeAll(id.toSet.asJava)) match {
+            case Success(_) => result
+            case Failure(e) => throw new Exception(s"Error deleting cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+          }
+        }
+      } else daoFuture
     }
   }
 

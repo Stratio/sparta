@@ -37,7 +37,7 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
       debugWorkflow <- findDebugWorkflowById(id)
     } yield {
       debugWorkflow.result match {
-        case Some(result) if  result.endExecutionDate.isDefined =>
+        case Some(result) if result.endExecutionDate.isDefined =>
           val map = resultStep.flatMap { element => Map(element.step -> element) }.toMap
           result.copy(stepResults = map)
         case _ => throw new ServerException(s"No results for workflow id=$id")
@@ -127,13 +127,9 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
   def removeDebugStepData(id: String): Future[Boolean] = {
     for {
       resultStep <- db.run(resultTable.filter(_.id startsWith id).result)
+      _ <- deleteResultList(resultStep.flatMap(_.id.toList))
     } yield {
-      Try(deleteResultList(resultStep.flatMap(_.id.toList))) match {
-        case Success(_) =>
-          log.info(s"DebugStep data for workflow $id  deleted")
-        case Failure(e) =>
-          throw e
-      }
+      log.info(s"DebugStep data for workflow $id  deleted")
       true
     }
   }
@@ -141,13 +137,15 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
   def deleteDebugWorkflowByID(id: String): Future[Boolean] = {
     for {
       debug <- findByIdHead(id)
-    } yield deleteYield(Seq(debug))
+      result <- deleteYield(Seq(debug))
+    } yield result
   }
 
   def deleteAllDebugWorkflows(): Future[Boolean] = {
     for {
       all <- findAll()
-    } yield deleteYield(all)
+      result <- deleteYield(all)
+    } yield result
   }
 
   /** PRIVATE METHODS */
@@ -171,15 +169,14 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
       else throw new ServerException(s"No DebugWorkflow  found with  id $id")
     }
 
-  private[services] def deleteYield(debugWorkflowLists: Seq[DebugWorkflow]): Boolean = {
+  private[services] def deleteYield(debugWorkflowLists: Seq[DebugWorkflow]): Future[Boolean] = {
     val ids = debugWorkflowLists.flatMap(_.id.toList)
-    Try(deleteList(ids)) match {
-      case Success(_) =>
-        log.info(s"Debug Workflows with ids=${ids.mkString(",")} deleted")
-      case Failure(e) =>
-        throw e
+    for {
+      _ <- deleteList(ids)
+    } yield {
+      log.info(s"Debug Workflows with ids = ${ids.mkString(",")} deleted")
+      true
     }
-    true
   }
 
   private[services] def getDebugStepData(id: String) = {

@@ -9,13 +9,12 @@ package com.stratio.sparta.serving.api.actor
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Try
-
 import akka.actor.{Actor, Address, PoisonPill}
 import akka.cluster.{Cluster, Member}
 import akka.event.slf4j.SLF4JLogging
-
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
+import com.stratio.sparta.serving.core.utils.{SpartaClusterUtils, SpartaIgnite}
 
 class SpartaClusterWorkerActor(member: Member) extends Actor with SpartaClusterUtils with SLF4JLogging {
 
@@ -41,7 +40,7 @@ class SpartaClusterWorkerActor(member: Member) extends Actor with SpartaClusterU
 
   private def forceStopZkNode(memberAddress: Address) = {
     Try {
-      if (findSeedNodes.exists(node => node.id == memberAddress.hashCode.toString && node.host == memberAddress.host.getOrElse(""))) {
+      if (findSeedNodes().exists(node => node.id == memberAddress.hashCode.toString && node.host == memberAddress.host.getOrElse(""))) {
         if(isThisNodeClusterLeader(cluster)) {
           log.info(s"Zk seedNode to remove ${memberAddress.toString}")
           deleteZkNode(memberAddress)
@@ -49,7 +48,13 @@ class SpartaClusterWorkerActor(member: Member) extends Actor with SpartaClusterU
       } else {
         if(isThisNodeClusterLeader(cluster)) {
           log.info(s"Zk seedNode already removed ${memberAddress.toString}, down member from cluster")
-          Try(cluster.down(memberAddress))
+          try {
+            cluster.down(memberAddress)
+            SpartaIgnite.stopOrphanedNodes()
+          } catch {
+            case e: Exception => log.warn(s"Error stopping node ${memberAddress.toString}" +
+              s" in Akka cluster or Ignite cluster. ${ExceptionHelper.toPrintableException(e)}")
+          }
         }
         self ! PoisonPill
       }

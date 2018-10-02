@@ -190,14 +190,13 @@ class ParameterListPostgresDao extends ParameterListDao {
       }
     }
 
-    Future.sequence(updateDeleteActions).map { actionsSequence =>
+    Future.sequence(updateDeleteActions).flatMap { actionsSequence =>
       val actions = actionsSequence.flatten
-      Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))) match {
-        case Success(_) =>
-          log.info(s"Parameter lists ${parametersLists.map(_.name).mkString(",")} deleted")
-          true
-        case Failure(e) =>
-          throw e
+      for {
+        _ <- db.run(txHandler(DBIO.seq(actions: _*).transactionally))
+      } yield {
+        log.info(s"Parameter lists ${parametersLists.map(_.name).mkString(",")} deleted")
+        true
       }
     }
   }

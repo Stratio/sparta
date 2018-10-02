@@ -186,21 +186,24 @@ class WorkflowPostgresDao extends WorkflowDao {
   def deleteWorkflowById(id: String): Future[Boolean] = {
     for {
       workflow <- findByIdHead(id)
-    } yield deleteYield(Seq(workflow))
+      result <- deleteYield(Seq(workflow))
+    } yield result
   }
 
   def deleteWithAllVersions(workflowDelete: WorkflowDelete): Future[Boolean] = {
     log.info(s"Deleting workflow with name ${workflowDelete.name} belonging to " + s"the group ${workflowDelete.groupId} and all its version.")
     for {
       workflows <- db.run(table.filter(w => w.name === workflowDelete.name && w.groupId === workflowDelete.groupId).result)
-    } yield deleteYield(workflows)
+      result <- deleteYield(workflows)
+    } yield result
   }
 
   def deleteWorkflowList(workflowIds: Seq[String]): Future[Boolean] = {
     log.debug(s"Deleting existing workflows from id list: $workflowIds")
     for {
       workflows <- db.run(table.filter(_.id.inSet(workflowIds)).result)
-    } yield deleteYield(workflows)
+      result <- deleteYield(workflows)
+    } yield result
   }
 
   def validateWorkflow(workflow: Workflow): Unit = {
@@ -257,22 +260,20 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   private[sparta] def incVersion(workflows: Seq[Workflow], workflow: Workflow, userVersion: Option[Long] = None): Workflow =
     userVersion match {
-      case None => {
-        val maxVersion = Try(workflows.map(_.version).max + 1).getOrElse(0L)
-        workflow.copy(version = maxVersion)
-      }
-      case Some(usrVersion) => workflow.copy(version = usrVersion)
+      case None =>
+        workflow.copy(version = Try(workflows.map(_.version).max + 1).getOrElse(0L))
+      case Some(usrVersion) =>
+        workflow.copy(version = usrVersion)
     }
 
-  private[services] def deleteYield(workflowLists: Seq[Workflow]): Boolean = {
+  private[services] def deleteYield(workflowLists: Seq[Workflow]): Future[Boolean] = {
     val ids = workflowLists.flatMap(_.id.toList)
-    Try(deleteList(ids).remove(workflowLists.map(w => getSpartaEntityId(w)): _*)) match {
-      case Success(_) =>
-        log.info(s"Workflow with ids=${ids.mkString(",")} deleted")
-      case Failure(e) =>
-        throw e
+    for {
+      _ <- deleteList(ids).removeInCache(ids: _*)
+    } yield {
+      log.info(s"Workflows with ids: ${ids.mkString(",")} deleted")
+      true
     }
-    true
   }
 }
 
