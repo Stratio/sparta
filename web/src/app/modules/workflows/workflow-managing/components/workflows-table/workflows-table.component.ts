@@ -227,7 +227,6 @@ export class WorkflowsManagingTableComponent {
    }
 
    selectVersionAction(event: string, version: any) {
-      console.log(version)
       // this.generateVersion.emit();
       switch (event) {
          case 'version-new-workflow':
@@ -265,7 +264,6 @@ export class WorkflowsManagingTableComponent {
          { label: 'Cancel', classes: 'button-secondary-gray', responseValue: StModalResponse.NO },
          { label: 'Delete', classes: 'button-critical', responseValue: StModalResponse.YES, closeOnClick: true }
       ];
-      console.log(title)
       this._modalSubscription = this._modalService.show({
          messageTitle: this.deleteWorkflowModalMessage,
          modalTitle: title,

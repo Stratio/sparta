@@ -64,174 +64,175 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
          ]
       }
    ];
-  public isShowedEntityDetails$: Observable<boolean>;
-  public menuOptions$: Observable<Array<FloatingMenuModel>>;
-  public isLoading$: Observable<boolean>;
-  public workflowType = '';
+   public isShowedEntityDetails$: Observable<boolean>;
+   public menuOptions$: Observable<Array<FloatingMenuModel>>;
+   public isLoading$: Observable<boolean>;
+   public workflowType = '';
 
-  public notification: any;
+   public notification: any;
 
-  public undoEnabled = false;
-  public redoEnabled = false;
-  public isPristine = true;
-  public genericError: any;
-  public validations: any = {};
+   public undoEnabled = false;
+   public redoEnabled = false;
+   public isPristine = true;
+   public genericError: any;
+   public validations: any = {};
 
-  private _componentDestroyed = new Subject();
+   private _componentDestroyed = new Subject();
 
-  constructor(private route: Router,
-    private _store: Store<fromWizard.State>,
-    private _cd: ChangeDetectorRef,
-    private _modalService: StModalService,
-    private _location: Location) { }
+   constructor(private route: Router,
+      private _store: Store<fromWizard.State>,
+      private _cd: ChangeDetectorRef,
+      private _modalService: StModalService,
+      private _location: Location) { }
 
-  ngOnInit(): void {
-    this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
-    this.isLoading$ = this._store.select(fromWizard.isLoading);
+   ngOnInit(): void {
+      this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
+      this.isLoading$ = this._store.select(fromWizard.isLoading);
 
-    this._store.select(fromWizard.areUndoRedoEnabled)
-      .takeUntil(this._componentDestroyed)
-      .subscribe((actions: any) => {
-        this.undoEnabled = actions.undo;
-        this.redoEnabled = actions.redo;
-        this._cd.markForCheck();
-      });
-
-    this._store.select(fromWizard.getValidationErrors)
-      .takeUntil(this._componentDestroyed)
-      .subscribe((validations: any) => {
-        this.validations = validations;
-        this._cd.markForCheck();
-      });
-
-    this._store.select(fromWizard.isPristine).distinctUntilChanged()
-      .takeUntil(this._componentDestroyed)
-      .subscribe((isPristine: boolean) => {
-        this.isPristine = isPristine;
-        this._cd.markForCheck();
-      });
-
-    this._store.select(fromWizard.getWorkflowType)
-      .takeUntil(this._componentDestroyed)
-      .subscribe((type) => this.workflowType = type);
-
-    this._store.select(fromWizard.getDebugResult)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(debugResult => {
-        this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
-        this._cd.markForCheck();
-      });
-
-    let handler;
-    this._store.select(fromWizard.getWizardNofications)
-      .takeUntil(this._componentDestroyed)
-      .subscribe((notification) => {
-        if ((notification.message && notification.message.length) || notification.templateType) {
-          this.notification = {
-            ...this.notification,
-            visible: false
-          };
-          this._cd.markForCheck();
-          clearTimeout(handler);
-          setTimeout(() => {
-            this.notification = {
-              ...notification,
-              visible: true
-            };
+      this._store.select(fromWizard.areUndoRedoEnabled)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((actions: any) => {
+            this.undoEnabled = actions.undo;
+            this.redoEnabled = actions.redo;
             this._cd.markForCheck();
-            handler = setTimeout(() => {
-              this.notification = {
-                ...this.notification,
-                visible: false
-              };
-              this._cd.markForCheck();
-            }, notification.time === 0 ? 10000000 : (notification.time || 4000));
-          });
-        } else {
-          this.notification = {};
-        }
-      });
+         });
 
-    this.menuOptions$ = this._store.select(fromWizard.getMenuOptions);
-  }
+      this._store.select(fromWizard.getValidationErrors)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((validations: any) => {
+            this.validations = validations;
+            this._cd.markForCheck();
+         });
 
-  selectedMenuOption($event: any): void {
-    this._store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
-  }
+      this._store.select(fromWizard.isPristine).distinctUntilChanged()
+         .takeUntil(this._componentDestroyed)
+         .subscribe((isPristine: boolean) => {
+            this.isPristine = isPristine;
+            this._cd.markForCheck();
+         });
 
-  showSettings() {
-    this._store.dispatch(new wizardActions.ShowSettingsAction());
-  }
+      this._store.select(fromWizard.getWorkflowType)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((type) => this.workflowType = type);
 
-  filterOptions($event: any) {
-    this._store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
-  }
+      this._store.select(fromWizard.getDebugResult)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(debugResult => {
+            this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
+            this._cd.markForCheck();
+         });
 
-  toggleEntityInfo() {
-    this._store.dispatch(new wizardActions.ToggleDetailSidebarAction());
-  }
+      let handler;
+      this._store.select(fromWizard.getWizardNofications)
+         .takeUntil(this._componentDestroyed)
+         .subscribe((notification) => {
+            if ((notification.message && notification.message.length) || notification.templateType) {
+               this.notification = {
+                  ...this.notification,
+                  visible: false
+               };
+               this._cd.markForCheck();
+               clearTimeout(handler);
+               setTimeout(() => {
+                  this.notification = {
+                     ...notification,
+                     visible: true
+                  };
+                  this._cd.markForCheck();
+                  handler = setTimeout(() => {
+                     this.notification = {
+                        ...this.notification,
+                        visible: false
+                     };
+                     this._cd.markForCheck();
+                  }, notification.time === 0 ? 10000000 : (notification.time || 4000));
+               });
+            } else {
+               this.notification = {};
+            }
+         });
 
-  debugWorkflow() {
-    this._store.dispatch(new debugActions.InitDebugWorkflowAction());
-  }
+      this.menuOptions$ = this._store.select(fromWizard.getMenuOptions);
+   }
 
-  showGlobalErrors() {
-    this._store.dispatch(new wizardActions.ShowGlobalErrorsAction());
-  }
+   selectedMenuOption($event: any): void {
+      this._store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
+   }
 
-  selectedDebug(event) {
-    if (event === 'simple') {
-      this.debugWorkflow();
-    } else {
-      this._store.dispatch(new debugActions.ShowDebugConfigAction());
-    }
-  }
+   showSettings() {
+      this._store.dispatch(new wizardActions.ShowSettingsAction());
+   }
 
-  public showConfirmModal(): void {
-    if (this.isPristine) {
-      this.redirectPrevious();
-      return;
-    }
-    this._modalService.container = this.target;
-    this._modalService.show({
-      modalTitle: 'Exit workflow',
-      outputs: {
-        onCloseConfirmModal: this.onCloseConfirmationModal.bind(this)
+   filterOptions($event: any) {
+      this._store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
+   }
+
+   toggleEntityInfo() {
+      this._store.dispatch(new wizardActions.ToggleDetailSidebarAction());
+   }
+
+   debugWorkflow() {
+      this._store.dispatch(new debugActions.InitDebugWorkflowAction());
+   }
+
+   showGlobalErrors() {
+      this._store.dispatch(new wizardActions.ShowGlobalErrorsAction());
+   }
+
+   selectedDebug(event) {
+      if (event === 'simple') {
+         this.debugWorkflow();
+      } else {
+         this._store.dispatch(new debugActions.ShowDebugConfigAction());
       }
-    }, WizardModalComponent);
-  }
+   }
 
-  public saveWorkflow(): void {
-    this.onSaveWorkflow.emit();
-  }
+   public showConfirmModal(): void {
+      if (this.isPristine) {
+         this.redirectPrevious();
+         return;
+      }
+      this._modalService.container = this.target;
+      this._modalService.show({
+         modalTitle: 'You will lose your changes',
+         outputs: {
+            onCloseConfirmModal: this.onCloseConfirmationModal.bind(this)
+         },
+         maxWidth: 600
+      }, WizardModalComponent);
+   }
 
-  onCloseConfirmationModal(event: any) {
-    this._modalService.close();
-    if (event === '1') {
-      this.onSaveWorkflow.emit(true);
-    } else {
-      this.redirectPrevious();
-    }
-  }
+   public saveWorkflow(): void {
+      this.onSaveWorkflow.emit();
+   }
 
-  redirectPrevious() {
-    if (window.history.length > 2) {
-      this._location.back();
-    } else {
-      this.route.navigate(['repository']);
-    }
-  }
+   onCloseConfirmationModal(event: any) {
+      this._modalService.close();
+      if (event === '0') {
+         this.onSaveWorkflow.emit(true);
+      } else if (event === '1') {
+         this.redirectPrevious();
+      }
+   }
 
-  undoAction() {
-    this._store.dispatch(new wizardActions.UndoChangesAction());
-  }
+   redirectPrevious() {
+      if (window.history.length > 2) {
+         this._location.back();
+      } else {
+         this.route.navigate(['repository']);
+      }
+   }
 
-  redoAction() {
-    this._store.dispatch(new wizardActions.RedoChangesAction());
-  }
+   undoAction() {
+      this._store.dispatch(new wizardActions.UndoChangesAction());
+   }
 
-  ngOnDestroy(): void {
-    this._componentDestroyed.next();
-    this._componentDestroyed.unsubscribe();
-  }
+   redoAction() {
+      this._store.dispatch(new wizardActions.RedoChangesAction());
+   }
+
+   ngOnDestroy(): void {
+      this._componentDestroyed.next();
+      this._componentDestroyed.unsubscribe();
+   }
 }

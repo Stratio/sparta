@@ -11,11 +11,11 @@
 }
 
 .advice {
-    font-family: $egeo-nunito-sans;   
+    font-family: $egeo-nunito-sans;
     font-size:15px;
     display: block;
     color: $action-secondary-07;
-    margin-top:4px; 
+    margin-top:4px;
 }
 
 .action-buttons{
@@ -27,5 +27,6 @@
     }
     .save-button {
         float:right;
+        margin-left: 15px;
     }
 }
