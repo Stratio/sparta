@@ -37,14 +37,12 @@ export class ParametersGroupSelectorComponent implements OnInit {
 
   private _groupsSubscription: Subscription;
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void { }
 
   constructor(private _eref: ElementRef, private _store: Store<fromWizard.State>) {
     this._groupsSubscription = this._store.select(fromWizard.getCustomGroups)
       .subscribe(customGroups => {
-        this.customGroups = customGroups;
+        this.customGroups = customGroups.filter(g => !g.parent);
         this.filteredCustomGroups = customGroups;
       });
   }
