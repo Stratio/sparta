@@ -76,6 +76,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
          this.item[field.propertyId] = this.addItemValidation(field);
          this.getDisabledConditions(field);
       });
+
    }
 
    initForm() {
@@ -101,6 +102,16 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
             conditions: field.visibleOR[0]
          });
       }
+   }
+
+   getVariableList(field: any) {
+      if (this.valueDictionary && (this.formListData.showSchemaFields || field.showSchemaFields) && this.valueDictionary.formFieldsVariables) {
+        return this.valueDictionary.formFieldsVariables;
+      }
+      if (this.valueDictionary && (this.formListData.showInputSteps || field.showInputSteps) && this.valueDictionary.inputStepsVariables) {
+        return this.valueDictionary.inputStepsVariables;
+      }
+      return this.variableList;
    }
 
    addItemValidation(field: any) {

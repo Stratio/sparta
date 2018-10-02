@@ -15,6 +15,7 @@ import { SpSelectModule } from '../sp-select/sp-select.module';
 import { FormListComponent } from './form-list.component';
 import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
+import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-column-input.module';
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
       StCheckboxModule,
       StSwitchModule,
       HighlightTextareaModule,
-      TranslateModule
+      TranslateModule,
+      SpColumnInputModule
    ],
    declarations: [
       FormListComponent

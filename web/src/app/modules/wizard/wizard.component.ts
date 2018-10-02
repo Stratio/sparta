@@ -33,6 +33,7 @@ export class WizardComponent implements OnInit, OnDestroy {
    public showSettings = false;
    public creationMode: CreationMode;
    public isEdit = false;
+   public environmentList: Array<any> = [];
    public parameters: any = [];
    public showDebugConfig$: Observable<boolean>;
    private _componentDestroyed = new Subject();
@@ -94,6 +95,12 @@ export class WizardComponent implements OnInit, OnDestroy {
          .takeUntil(this._componentDestroyed)
          .subscribe(parameters => {
             this.parameters = parameters;
+            this._cd.markForCheck();
+         });
+      this._store.select(fromWizard.getEnvironmentList)
+         .takeUntil(this._componentDestroyed)
+         .subscribe(environmentList => {
+            this.environmentList = environmentList;
             this._cd.markForCheck();
          });
 

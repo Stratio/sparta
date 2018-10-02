@@ -26,6 +26,7 @@ import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box
 import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
 import { FormFileModule } from '@app/shared/components/form-file/form-file.module';
 import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
+import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-column-input.module';
 
 @NgModule({
    exports: [
@@ -44,7 +45,8 @@ import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/spart
       FormListModule,
       TableNotificationModule,
       SpartaSidebarModule,
-      ConsoleBoxModule
+      ConsoleBoxModule,
+      SpColumnInputModule
    ],
    imports: [
       CommonModule,
@@ -64,7 +66,8 @@ import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/spart
       TranslateModule,
       TableNotificationModule,
       EgeoModule,
-      ConsoleBoxModule
+      ConsoleBoxModule,
+      SpColumnInputModule
    ],
    declarations: [
       ...shareComponents

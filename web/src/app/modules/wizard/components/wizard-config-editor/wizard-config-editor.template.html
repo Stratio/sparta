@@ -57,10 +57,10 @@
                </div>
             </div>
 
-            <form-generator *ngIf="config.editionType.stepType !== 'Output'" [showVars]="true" [hidden]="activeOption !== 'Writer'"
+            <form-generator *ngIf="config.editionType.stepType !== 'Output'" [variableList]="formVariables" [showVars]="true" [hidden]="activeOption !== 'Writer'"
                [forceValidations]="submitted" name="writer" [valueDictionary]="valueDictionary" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
 
-            <form-generator *ngIf="!isTemplate" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
+            <form-generator *ngIf="!isTemplate" [variableList]="formVariables" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
                [forceValidations]="submitted" name="global" [formData]="basicSettings" [valueDictionary]="valueDictionary" [(ngModel)]="entityFormModel.configuration"></form-generator>
 
             <div class="mocks-tab" *ngIf="config.editionType.stepType === 'Input'" [hidden]="activeOption !== 'Mocks'">

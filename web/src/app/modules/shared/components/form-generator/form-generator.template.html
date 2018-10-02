@@ -7,25 +7,33 @@
             </div>
             <form-generator [valueDictionary]="valueDictionary"
                   [subFormNumber]="subFormNumber+1"
-                  [formControl]="prop.formControl" 
+                  [showVars]="showVars"
+                  [variableList]="variableList"
+                  [formControl]="prop.formControl"
                   class="col-sm-12"
-                  [forceValidations]="submitted" 
+                  [forceValidations]="submitted"
                   [formData]="prop.field.properties"></form-generator>
          </div>
          <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="prop.field.classed">
             <form-field [disabledForm]="disabledForm"
                   [valueDictionary]="valueDictionary"
                   [field]="prop.field"
-                  [forceValidations]="forceValidations" 
-                  [formControl]="prop.formControl" 
-                  [stFormGroup]="stFormGroup"></form-field>
+                  [showVars]="showVars"
+                  [variableList]="variableList"
+                  [field]="prop.field"
+                  [formControl]="prop.formControl"
+                  [stFormGroup]="stFormGroup"
+                  [forceValidations]="forceValidations"></form-field>
          </div>
          <div *ngIf="!prop.field.properties && prop.field.propertyType === 'list'" class="prop-container">
             <form-field [disabledForm]="disabledForm"
                   [valueDictionary]="valueDictionary"
-                  [field]="prop.field" 
-                  [forceValidations]="forceValidations" 
-                  [formControl]="prop.formControl" 
+                  [showVars]="showVars"
+                  [variableList]="variableList"
+                  [valueDictionary]="valueDictionary"
+                  [field]="prop.field"
+                  [forceValidations]="forceValidations"
+                  [formControl]="prop.formControl"
                   [stFormGroup]="stFormGroup"
                   class="list-field"></form-field>
          </div>
