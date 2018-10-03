@@ -20,7 +20,7 @@
           "propertyName": "_DELIMITER_",
           "propertyType": "text",
           "tooltip": "Any character is accepted except: \\ \" #",
-          "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
+          "default": "{{{Global.DEFAULT_DELIMITER}}}",
           "trim": false,
           "required": true,
           "qa": "fragment-details-csv-delimiter"
