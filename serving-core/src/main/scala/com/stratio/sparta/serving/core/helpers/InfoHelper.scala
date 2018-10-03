@@ -17,7 +17,7 @@ object InfoHelper extends SLF4JLogging {
 
   val devContact = "sparta@stratio.com"
   val supportContact = "support@stratio.com"
-  val description = " Real Time Analytics and Data Pipelines based on Spark Streaming"
+  val description = " Data Analytics and Data Pipelines based on Spark"
   val license = Try {
     Source.fromInputStream(InfoHelper.getClass.getClassLoader.getResourceAsStream("LICENSE.txt")).mkString
   }.getOrElse("")
