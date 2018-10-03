@@ -18,7 +18,8 @@ object DtoModelImplicits {
       lastUpdateDate = workflow.lastUpdateDate,
       version = workflow.version,
       group = workflow.group.name,
-      tags = workflow.tags
+      tags = workflow.tags,
+      parametersUsedInExecution = workflow.parametersUsedInExecution
     )
 
   implicit def globalSettingsToDto(globalSettings: GlobalSettings): GlobalSettingsDto =
