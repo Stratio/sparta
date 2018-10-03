@@ -17,6 +17,7 @@ import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessa
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import org.apache.kafka.clients.producer.ProducerConfig._
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer

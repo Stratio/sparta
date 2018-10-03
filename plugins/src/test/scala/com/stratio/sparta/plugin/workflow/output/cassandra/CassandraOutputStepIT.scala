@@ -9,6 +9,7 @@ import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.SparkConf
 import org.junit.runner.RunWith
@@ -75,7 +76,7 @@ class CassandraOutputStepIT extends TemporalSparkContext with ShouldMatchers wit
       )
     }
 
-    cassandraOutput.save(data, SaveModeEnum.Append, Map(cassandraOutput.TableNameKey -> "sparta"))
+    cassandraOutput.save(data, SaveModeEnum.Append, Map(TableNameKey -> "sparta"))
 
     val loadData = xdSession.read.format(cassandraOutput.CassandraClass)
       .options(Map("cluster" -> "spartacluster", "keyspace" -> "spartakeyspace", "table" -> "sparta"))

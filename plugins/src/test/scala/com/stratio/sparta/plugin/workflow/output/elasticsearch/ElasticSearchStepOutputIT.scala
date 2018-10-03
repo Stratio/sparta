@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.elasticsearch
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
@@ -64,8 +65,8 @@ class ElasticSearchStepOutputIT extends TemporalSparkContext
 
   "ElasticSearch" should "save a dataFrame and read the same information" in new WithEventData {
     elasticOutput.save(data, SaveModeEnum.Upsert, Map(
-      elasticOutput.TableNameKey -> "sparta",
-      elasticOutput.PrimaryKey -> "age"
+      TableNameKey -> "sparta",
+      PrimaryKey -> "age"
     ))
 
     val loadData = xdSession.read.format(elasticOutput.ElasticSearchClass)

@@ -9,6 +9,7 @@ import java.io.File
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -44,7 +45,7 @@ class TextOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
   val textStep = new TextOutputStep("key", sparkSession, properties)
 
   "Given a DataFrame, a directory" should "be created with the data written inside" in new CommonValues {
-    textStep.save(inputDataFrame, SaveModeEnum.Append, Map(textStep.TableNameKey -> "test"))
+    textStep.save(inputDataFrame, SaveModeEnum.Append, Map(TableNameKey -> "test"))
     fileExists(textStep.path) should equal(true)
     val read = xdSession.read.text(s"$tempPath/test")
     read.count should be(3)

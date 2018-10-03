@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.json
 import java.io.File
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.Row
@@ -43,7 +44,7 @@ class JsonOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
   val jsonStep = new JsonOutputStep("key", sparkSession, properties)
 
   "Given a DataFrame, a directory" should "be created with the data inside in JSON format" in new CommonValues {
-    jsonStep.save(inputDataFrame, SaveModeEnum.Append, Map(jsonStep.TableNameKey -> "test"))
+    jsonStep.save(inputDataFrame, SaveModeEnum.Append, Map(TableNameKey -> "test"))
     fileExists(jsonStep.path) should equal(true)
     val read = xdSession.read.json(s"$tempPath/test")
     read.count should be(3)

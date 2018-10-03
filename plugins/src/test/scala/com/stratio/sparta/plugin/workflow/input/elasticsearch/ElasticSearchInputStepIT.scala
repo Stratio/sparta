@@ -11,6 +11,7 @@ import java.time.Instant
 import com.github.nscala_time.time.Imports.DateTime
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.workflow.output.elasticsearch.ElasticSearchOutputStep
@@ -71,8 +72,8 @@ class ElasticSearchInputStepIT extends TemporalSparkContext with ShouldMatchers 
 
     val elasticOutput = new ElasticSearchOutputStep("ES.out", sparkSession, outputProperties)
     elasticOutput.save(data, SaveModeEnum.Upsert, Map(
-      elasticOutput.TableNameKey -> "esinput",
-      elasticOutput.PrimaryKey -> "age"
+      TableNameKey -> "esinput",
+      PrimaryKey -> "age"
     ))
 
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)

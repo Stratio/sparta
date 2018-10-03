@@ -6,6 +6,7 @@
 package com.stratio.sparta.plugin.workflow.output.generic
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.spark.sql.crossdata.XDSession
 import org.junit.runner.RunWith
@@ -56,7 +57,7 @@ class GenericDatasourceOutputStepIT extends TemporalSparkContext with Matchers w
   it should "save a DataFrame using 'Append' mode" in new WithEventData {
     val genericDSOutput = new GenericDatasourceOutputStep("genericdatasource-test", sparkSession, properties)
     genericDSOutput.validate().valid shouldBe true
-    genericDSOutput.save(data, SaveModeEnum.Append, Map(genericDSOutput.TableNameKey -> "person"))
+    genericDSOutput.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
     val read = xdSession.read.parquet(s"$tempPath/person")
     read.count should be(3)
     File(tempPath).deleteRecursively()

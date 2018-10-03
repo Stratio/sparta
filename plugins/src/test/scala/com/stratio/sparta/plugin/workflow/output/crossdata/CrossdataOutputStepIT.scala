@@ -6,6 +6,7 @@
 package com.stratio.sparta.plugin.workflow.output.crossdata
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.crossdata.XDSession
@@ -46,7 +47,7 @@ class CrossdataOutputStepIT extends TemporalSparkContext
     crossdataOutput.save(
       newData,
       SaveModeEnum.Append,
-      Map(crossdataOutput.TableNameKey -> tableName, crossdataOutput.PartitionByKey -> "age")
+      Map(TableNameKey -> tableName, PartitionByKey -> "age")
     )
 
     val read = sparkSession.table(tableName)

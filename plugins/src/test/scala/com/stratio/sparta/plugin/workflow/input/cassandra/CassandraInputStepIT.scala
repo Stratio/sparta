@@ -8,14 +8,15 @@ package com.stratio.sparta.plugin.workflow.input.cassandra
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.core.properties.JsoneyString
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.workflow.output.cassandra.CassandraOutputStep
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.crossdata.XDSession
 import org.junit.runner.RunWith
-import org.scalatest.{BeforeAndAfterAll, _}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterAll, _}
 
 import scala.util.{Failure, Success, Try}
 
@@ -38,8 +39,8 @@ class CassandraInputStepBatchIT extends TemporalSparkContext with ShouldMatchers
 
     val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
 
-    import xdSession.implicits._
     import com.datastax.spark.connector.cql.CassandraConnector
+    import xdSession.implicits._
 
     val outputProperties = Map(
       "nodes" -> JsoneyString(
@@ -91,7 +92,7 @@ class CassandraInputStepBatchIT extends TemporalSparkContext with ShouldMatchers
       )
     }
 
-    cassandraOutput.save(data, SaveModeEnum.Append, Map(cassandraOutput.TableNameKey -> "sparta"))
+    cassandraOutput.save(data, SaveModeEnum.Append, Map(TableNameKey -> "sparta"))
 
     cassandraInput.initWithSchema()._1.ds.count() should be(3)
   }

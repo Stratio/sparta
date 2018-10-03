@@ -23,15 +23,11 @@ abstract class OutputStep[Underlying[Row]](
                            properties: Map[String, JSerializable]
                          ) extends Parameterizable(properties) with GraphStep with SLF4JLogging {
 
-  override lazy val customKey = "saveOptions"
-  override lazy val customPropertyKey = "saveOptionsKey"
-  override lazy val customPropertyValue = "saveOptionsValue"
+  import OutputStep._
 
-  val PrimaryKey = "primaryKey"
-  val TableNameKey = "tableName"
-  val PartitionByKey = "partitionBy"
-  val UniqueConstraintName = "uniqueConstraintName"
-  val UniqueConstraintFields = "uniqueConstraintFields"
+  override lazy val customKey = DefaultCustomKey
+  override lazy val customPropertyKey = DefaultCustomPropertyKey
+  override lazy val customPropertyValue = DefaultCustomPropertyValue
 
   /**
     * Generic write function that receives the stream data and passes it to the dataFrame, calling the save
@@ -40,7 +36,7 @@ abstract class OutputStep[Underlying[Row]](
     * @param inputData     Input stream data to save
     * @param outputOptions Options to save
     */
-  def writeTransform(
+  private[sparta] def writeTransform(
                       inputData: DistributedMonad[Underlying],
                       outputOptions: OutputOptions,
                       errorsManagement: ErrorsManagement,
@@ -85,6 +81,9 @@ abstract class OutputStep[Underlying[Row]](
   private[sparta] def getPrimaryKeyOptions(options: Map[String, String]): Option[String] =
     options.get(PrimaryKey).notBlank
 
+  private[sparta] def getPartitionByKeyOptions(options: Map[String, String]): Option[String] =
+    options.get(PartitionByKey).notBlank
+
   private[sparta] def getUniqueConstraintNameOptions(options: Map[String, String]): Option[String] =
     options.get(UniqueConstraintName).notBlank
 
@@ -117,5 +116,16 @@ abstract class OutputStep[Underlying[Row]](
 
 object OutputStep {
 
-  val StepType = "output"
+  private[sparta] val StepType = "output"
+
+  private[sparta] val PrimaryKey = "primaryKey"
+  private[sparta] val TableNameKey = "tableName"
+  private[sparta] val PartitionByKey = "partitionBy"
+  private[sparta] val UniqueConstraintName = "uniqueConstraintName"
+  private[sparta] val UniqueConstraintFields = "uniqueConstraintFields"
+
+  private[sparta] val DefaultCustomKey = "saveOptions"
+  private[sparta] val DefaultCustomPropertyKey = "saveOptionsKey"
+  private[sparta] val DefaultCustomPropertyValue = "saveOptionsValue"
+
 }

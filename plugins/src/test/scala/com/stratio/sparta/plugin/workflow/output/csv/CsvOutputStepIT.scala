@@ -9,6 +9,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
@@ -47,7 +48,7 @@ class CsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
   }
 
   it should "save a dataframe " in new WithEventData {
-    output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
     val read = sparkSession.read.csv(s"$tmpPath/person.csv")
     read.count should be(3)
     read should be eq data

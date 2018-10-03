@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.xml
 import java.sql.Timestamp
 import java.time.Instant
 
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.spark.sql.Row
@@ -51,7 +52,7 @@ class XMLOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
   }
 
   it should "save a dataframe" in new WithEventData {
-    output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
     val read = sparkSession.read.format("xml").options(properties).load(s"$tmpPath/person.xml")
     read.schema should be(StructType(schema.fields.sortBy(_.name)))
     read.count should be(3)
@@ -62,6 +63,6 @@ class XMLOutputStepIT extends TemporalSparkContext with ShouldMatchers with Befo
 
   it should "raise an exception if rowTag is not defined" in new WithoutMandatoryOption {
     an[Exception] should be thrownBy
-      output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
+      output.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
   }
 }

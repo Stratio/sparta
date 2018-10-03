@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.mongodb
 
 import com.stratio.datasource.mongodb.config.MongodbConfig
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.typesafe.config.ConfigException.Missing
@@ -78,7 +79,7 @@ class MongoOutputStepIT extends TemporalSparkContext with Matchers with BeforeAn
     val validations = mongoOutput.validate()
     validations.valid shouldBe true
 
-    mongoOutput.save(data, SaveModeEnum.Append, Map(mongoOutput.TableNameKey -> "sparta"))
+    mongoOutput.save(data, SaveModeEnum.Append, Map(TableNameKey -> "sparta"))
 
     val loadData = xdSession.read.format(MongoDbOutputStep.MongoDbSparkDatasource)
       .options(Map(
@@ -95,7 +96,7 @@ class MongoOutputStepIT extends TemporalSparkContext with Matchers with BeforeAn
     validations.valid shouldBe true
 
     val collection = "spartaupsert"
-    mongoOutput.save(data, SaveModeEnum.Upsert, Map(mongoOutput.TableNameKey -> collection, mongoOutput.PrimaryKey -> "pkid"))
+    mongoOutput.save(data, SaveModeEnum.Upsert, Map(TableNameKey -> collection, PrimaryKey -> "pkid"))
 
     val loadData = xdSession.read.format(MongoDbOutputStep.MongoDbSparkDatasource)
       .options(Map(
@@ -109,7 +110,7 @@ class MongoOutputStepIT extends TemporalSparkContext with Matchers with BeforeAn
     import xdSession.implicits._
 
     val dataUpdate = sc.parallelize(Seq(Person(2L, "Juana", 21), Person(4L, "Juan", 90))).toDS().toDF
-    mongoOutput.save(dataUpdate, SaveModeEnum.Upsert, Map(mongoOutput.TableNameKey -> collection, mongoOutput.PrimaryKey -> "pkid"))
+    mongoOutput.save(dataUpdate, SaveModeEnum.Upsert, Map(TableNameKey -> collection, PrimaryKey -> "pkid"))
 
     loadData.count() shouldBe 4
     loadData.as[Person].collect().to should contain allOf (Person(2L, "Juana", 21), Person(4L, "Juan", 90))

@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.parquet
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import org.apache.spark.sql.crossdata.XDSession
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -49,7 +50,7 @@ class ParquetOutputStepIT extends TemporalSparkContext
   }
 
   "ParquetOutputStepIT" should "save a dataFrame" in new WithEventData {
-    parquetOutput.save(data, SaveModeEnum.Append, Map(parquetOutput.TableNameKey -> "person"))
+    parquetOutput.save(data, SaveModeEnum.Append, Map(TableNameKey -> "person"))
     val read = xdSession.read.parquet(s"$tempPath/person")
     read.count should be(3)
     File(tempPath).deleteRecursively()

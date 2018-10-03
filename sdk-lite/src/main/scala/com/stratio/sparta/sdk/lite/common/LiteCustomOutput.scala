@@ -6,14 +6,19 @@
 package com.stratio.sparta.sdk.lite.common
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.lite.validation.Validator
+import com.stratio.sparta.sdk.lite.common.models.OutputOptions
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 abstract class LiteCustomOutput(
                                  @transient sparkSession: SparkSession,
                                  properties: Map[String, String]
-                               ) extends Validator with SLF4JLogging {
+                               ) extends SDKCustomOutput with SLF4JLogging {
 
+  @deprecated("this method will become internal. Use overloaded version of 'save' with OutputOptions instead. " +
+    "It will be invoked if the overloaded version is not overridden")
   def save(data: DataFrame, saveMode: String, saveOptions: Map[String, String]): Unit
+
+  def save(dataFrame: DataFrame, outputOptions: OutputOptions): Unit =
+    save(dataFrame, outputOptions.saveMode.toString, properties ++ outputOptions.customProperties)
 
 }
