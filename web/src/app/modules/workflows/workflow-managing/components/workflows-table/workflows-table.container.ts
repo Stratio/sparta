@@ -39,7 +39,9 @@ import { Group } from '../../models/workflows';
             (generateVersion)="generateVersion($event)"
             (onDeleteWorkflow)="onDeleteWorkflow($event)"
             (selectGroup)="selectGroup($event)"
-            (selectVersion)="selectVersion($event)"></workflows-manage-table>
+            (selectVersion)="selectVersion($event)"
+            (onSimpleRun)="simpleRun($event)"
+            (showExecutionConfig)="showExecutionConfig($event)"></workflows-manage-table>
     `,
    changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -54,6 +56,9 @@ export class WorkflowsManagingTableContainer implements OnInit {
    @Input() workflowVersions: Array<any> = [];
 
    @Output() showWorkflowInfo = new EventEmitter<void>();
+   @Output() showExecution = new EventEmitter<any>();
+
+
 
    public workflowVersions$: Observable<Array<any>>;
 
@@ -106,6 +111,15 @@ export class WorkflowsManagingTableContainer implements OnInit {
 
    generateVersion(versionId: string): void {
       this._store.dispatch(new workflowActions.GenerateNewVersionAction(versionId));
+   }
+
+   showExecutionConfig(version: any) {
+      this.showExecution.emit(version);
+
+   }
+
+   simpleRun(version: any) {
+      this._store.dispatch(new workflowActions.RunWorkflowAction(version));
    }
 
    constructor(private _store: Store<State>) { }

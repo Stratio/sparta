@@ -138,6 +138,7 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
 
   ngOnDestroy(): void {
     window.removeEventListener('resize', this._fn);
+    this.closeCustomExecution.emit();
   }
 
   private _calculatePosition() {

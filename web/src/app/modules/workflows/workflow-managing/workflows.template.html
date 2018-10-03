@@ -26,7 +26,8 @@
                     [selectedGroupsList]="selectedGroupsList$ | async"
                     [selectedVersions]="selectedVersions$ | async"
                     [workflowVersions]="workflowVersions$ | async"
-                    [selectedWorkflows]="selectedWorkflows$ | async"></workflows-manage-table-container>
+                    [selectedWorkflows]="selectedWorkflows$ | async"
+                    (showExecution)="showExecutionConfiguration($event)"></workflows-manage-table-container>
             </div>
             <div class="workflow-detail-container">
                 <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
@@ -38,8 +39,8 @@
       </div>
    </div>
 </div>
-<custom-execution-container (executeWorkflow)="executeWorkflow($event)" 
-    (closeCustomExecution)="closeCustomExecution()" 
+<custom-execution-container (executeWorkflow)="executeWorkflow($event)"
+    (closeCustomExecution)="closeCustomExecution()"
     [executionContexts]="executionContexts$ | async"
-    [workflowName]="selectedVersion.data.name"
+    [workflowName]="selectedVersion && selectedVersion.data ? selectedVersion.data.name : ''"
     *ngIf="showExecutionConfig$ | async"></custom-execution-container>

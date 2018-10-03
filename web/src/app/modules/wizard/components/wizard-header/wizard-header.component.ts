@@ -58,7 +58,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
                id: 'simple'
             },
             {
-               label: 'Debug with custom params',
+               label: 'Debug with parameters',
                id: 'advanced'
             }
          ]

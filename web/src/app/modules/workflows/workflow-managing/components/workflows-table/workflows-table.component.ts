@@ -51,6 +51,9 @@ export class WorkflowsManagingTableComponent {
 
    @Output() generateVersion = new EventEmitter<string>();
 
+   @Output() showExecutionConfig = new EventEmitter<string>();
+   @Output() onSimpleRun = new EventEmitter<any>();
+
    /* modal titles */
    public deleteWorkflowModalTitle: string;
    public deleteVersionModalTitle: string;
@@ -126,6 +129,16 @@ export class WorkflowsManagingTableComponent {
    public versionOptions: MenuOptionListGroup[] = [
       {
          options: [
+            {
+               icon: 'icon-play',
+               label: 'Run',
+               id: 'version-run-workflow'
+            },
+            {
+               icon: 'icon-play',
+               label: 'Run with parameters',
+               id: 'version-run-params-workflow'
+            },
             {
                icon: 'icon-square-plus',
                label: 'New workflow from this version',
@@ -232,6 +245,12 @@ export class WorkflowsManagingTableComponent {
          case 'version-new-workflow':
             this._duplicateWorkflow(version);
             break;
+         case 'version-run-workflow':
+            this.simpleRun(version);
+            break;
+         case 'version-run-params-workflow':
+            this.showExecutionParams(version);
+            break;
          case 'version-new-version':
             this.generateVersion.emit(version.id);
             break;
@@ -242,6 +261,17 @@ export class WorkflowsManagingTableComponent {
             this._deleteConfirmModal(this.deleteVersionModalTitle, () => this.onDeleteVersion.emit(version.id));
             break;
       }
+   }
+
+   private showExecutionParams(version) {
+      this.showExecutionConfig.emit(version);
+   }
+
+   private simpleRun(version) {
+      this.onSimpleRun.emit({
+         workflowId: version.id,
+         workflowName: version.name
+      });
    }
 
    private _duplicateWorkflow(version) {

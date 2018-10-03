@@ -68,7 +68,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
                id: 'simple'
             },
             {
-               label: 'Run with custom params',
+               label: 'Run with parameters',
                id: 'advanced'
             }
          ]

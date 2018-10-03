@@ -126,6 +126,10 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
             executionContext: event
         }));
     }
+    showExecutionConfiguration(data) {
+       this.selectedVersion = { type: 'version', data };
+      this._store.dispatch(new workflowActions.ConfigAdvancedExecutionAction(data.id));
+    }
 
     public ngOnDestroy(): void {
         this._workflowList$ && this._workflowList$.unsubscribe();
