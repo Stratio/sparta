@@ -20,19 +20,18 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper
 import org.json4s.DefaultFormats
+import slick.lifted.TableQuery
 
 class DebugOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
   lazy val workflowId = properties.getString(WorkflowIdKey)
 
-  import slick.jdbc.PostgresProfile.api._
-
-  lazy val table = TableQuery[DebugResultStepTable]
-
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
 
     implicit val formats = DefaultFormats
+    import slick.jdbc.PostgresProfile.api._
+
     val stepName = options.getString(DistributedMonad.StepName)
     val rowsData = dataFrame.collect().map(row => RowJsonHelper.toJSON(row, Map.empty))
     val dataSource = JdbcSlickConnection.getDatabase
@@ -43,6 +42,11 @@ class DebugOutputStep(name: String, xDSession: XDSession, properties: Map[String
       schema = Option(dataFrame.schema.json),
       data = Option(rowsData)
     )
-    dataSource.run((table += resultStep).transactionally)
+    dataSource.run((DebugOutputStep.table += resultStep).transactionally)
   }
+}
+
+object DebugOutputStep {
+
+  lazy val table = TableQuery[DebugResultStepTable]
 }

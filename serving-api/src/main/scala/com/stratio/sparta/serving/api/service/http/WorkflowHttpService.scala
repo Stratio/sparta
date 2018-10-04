@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.models.workflow.migration.WorkflowCassiopeia
+import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -45,7 +45,8 @@ trait WorkflowHttpService extends BaseHttpService {
       removeList(user) ~ findList(user) ~ validate(user) ~ validateWithoutContext(user) ~
       createVersion(user) ~ findAllByGroup(user) ~
       findAllDto(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
-      migrate(user) ~ validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user)
+      migrate(user) ~ validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user) ~
+      migrateFromAndromeda(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -759,6 +760,38 @@ trait WorkflowHttpService extends BaseHttpService {
               for {
                 response <- (supervisor ? MigrateFromCassiopeia(workflow, user))
                   .mapTo[Either[ResponseWorkflowAndromeda, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceMigration, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/andromedaMigration")
+  @ApiOperation(value = "Migrate workflow between sparta versions.",
+    notes = "Migrate workflow between sparta versions.",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "workflow andromeda",
+      defaultValue = "",
+      value = "workflow json",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.migration.WorkflowAndromeda",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def migrateFromAndromeda(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "andromedaMigration") {
+      pathEndOrSingleSlash {
+        put {
+          entity(as[WorkflowAndromeda]) { workflow =>
+            complete {
+              for {
+                response <- (supervisor ? MigrateFromAndromeda(workflow, user))
+                  .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceMigration, response, genericError)
             }
           }

@@ -127,12 +127,12 @@ trait PostgresDebugError extends ErrorManager {
 
   def traceError(error: WorkflowError): Unit =
     workflow.id.foreach { id =>
-      Await.result(debugService.setError(id, Option(error)), AppConstant.maxDebugTimeout milliseconds)
+      Await.result(debugService.setError(id, Option(error)), AppConstant.maxDebugWriteErrorTimeout milliseconds)
     }
 
   def clearError(): Unit =
     workflow.id.foreach { id =>
-      Await.result(debugService.clearLastError(id), AppConstant.maxDebugTimeout milliseconds)
+      Await.result(debugService.clearLastError(id), AppConstant.maxDebugWriteErrorTimeout milliseconds)
     }
 
 }

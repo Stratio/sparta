@@ -151,7 +151,7 @@ class LauncherActor(
       debug <- debugPgService.findDebugWorkflowById(workflowId)
       response <- (parametersStateActor ? ValidateExecutionContextToWorkflow(
         workflowExecutionContext = WorkflowExecutionContext(
-          debug.workflowDebug.getOrElse(debug.workflowOriginal),
+          debug.workflowDebug.getOrElse(throw new Exception(s"Workflow debug not found with id ${workflowId}")),
           executionContext
         ),
         ignoreCustomParams = false

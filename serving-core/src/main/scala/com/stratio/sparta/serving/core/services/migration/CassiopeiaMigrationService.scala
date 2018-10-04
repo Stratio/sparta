@@ -7,14 +7,14 @@
 package com.stratio.sparta.serving.core.services.migration
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration._
-import org.apache.curator.framework.CuratorFramework
-import org.json4s.jackson.Serialization.{read, write}
+import org.json4s.jackson.Serialization.read
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -22,115 +22,71 @@ import scala.util.{Failure, Success, Try}
 //scalastyle:off
 class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
 
-  private val templateService = new TemplateService(CuratorFactoryHolder.getInstance())
+  import MigrationModelImplicits._
+
+  private val templateService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
 
   /** TEMPLATES **/
 
   lazy val explodeFields = List("schema.fromRow", "schema.inputMode", "schema.fields", "schema.sparkSchema")
 
-  def migrateTemplateFromCassiopeia(cassiopeiaTemplate: TemplateElement): TemplateElement = {
-    cassiopeiaTemplate match {
-      case cassiopeiaTemplate: TemplateElement if cassiopeiaTemplate.classPrettyName == "Select" => migrateSelect(cassiopeiaTemplate)
-      case cassiopeiaTemplate: TemplateElement if cassiopeiaTemplate.classPrettyName == "Explode" => migrateExplode(cassiopeiaTemplate)
-      case cassiopeiaTemplate: TemplateElement => cassiopeiaTemplate //no changes
-    }
-  }
-
   private def migrateSelect(cassiopeiaTemplate: TemplateElement): TemplateElement = {
     cassiopeiaTemplate.copy(configuration = cassiopeiaTemplate.configuration.filterNot(kv => kv._1 == "delimiter") ++ Map("selectType" -> JsoneyString("EXPRESSION")),
-      versionSparta = Some(AppConstant.version))
+      versionSparta = Some(AppConstant.AndromedaVersion))
   }
 
   private def migrateExplode(cassiopeiaTemplate: TemplateElement): TemplateElement = {
     val newConfig =
       cassiopeiaTemplate.configuration.get("schema.inputMode") match {
-        case (Some(mode)) if mode.isInstanceOf[JsoneyString] && mode.toString.equals("SPARKFORMAT") => {
+        case (Some(mode)) if mode.isInstanceOf[JsoneyString] && mode.toString.equals("SPARKFORMAT") =>
           cassiopeiaTemplate.configuration.filterNot(kv => explodeFields.contains(kv._1)) ++
-            Map("inputSchemas" -> List(Map("stepName" -> "", "schema" -> cassiopeiaTemplate.configuration.get("schema.sparkSchema").get)))
-        }
+            Map("inputSchemas" -> List(Map("stepName" -> "", "schema" -> cassiopeiaTemplate.configuration("schema.sparkSchema"))))
         case _ => cassiopeiaTemplate.configuration.filterNot(kv => explodeFields.contains(kv._1))
       }
-    cassiopeiaTemplate.copy(configuration = newConfig.asInstanceOf[Map[String, JsoneyString]], versionSparta = Some(AppConstant.version))
+    cassiopeiaTemplate.copy(configuration = newConfig.asInstanceOf[Map[String, JsoneyString]], versionSparta = Some(AppConstant.AndromedaVersion))
   }
 
-  def migrateCassiopeiaTemplates(): Unit = {
-    log.info(s"Migrating templates from cassiopeia")
+  def cassiopeiaTemplatesMigrated(): Try[Seq[TemplateElement]] = {
+    log.info(s"Migrating templates from Cassiopeia")
     Try {
-      val templatesToMigrate = templateService.findByType("transformation").filterNot(_.versionSparta.isDefined)
-      templatesToMigrate.find(template => template.classPrettyName == "Select")
-        .foreach(cassiopeiaTemplate =>
-          Try {
-            //TODO remove!!!
-            //templateService.update(migrateSelect(cassiopeiaTemplate))
-          } match {
-            case Success(_) => log.info(s"Template (Select) ${cassiopeiaTemplate.name} migrated")
-            case Failure(f) => log.error(s"Template (Select) ${cassiopeiaTemplate.name} migration error", f)
-          }
-        )
-      templatesToMigrate.find(template => template.classPrettyName == "Explode")
-        .foreach(old =>
-          Try {
-            //TODO remove!!!
-            //templateService.update(migrateExplode(old))
-          } match {
-            case Success(_) => log.info(s"Template (Explode) ${old.name} migrated")
-            case Failure(f) => log.error(s"Template (Explode) ${old.name} migration error", f)
-          }
-        )
+      if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
+        templateService.findAll.filterNot(_.versionSparta.isDefined).map { template =>
+          if (template.classPrettyName == "Select")
+            migrateSelect(template)
+          else if (template.classPrettyName == "Explode")
+            migrateExplode(template)
+          else template.copy(versionSparta = Some(AppConstant.AndromedaVersion))
+        }
+      } else Seq.empty
     }
   }
 
   /** WORKFLOWS **/
-  def migrateCassiopeiaWorkflows(): Unit = {
-    log.info(s"Migrating workflows from cassiopeia")
-    Option(CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath))
-      .fold(log.info("There are no workflows to migrate")) { _ =>
+
+  def cassiopeaWorkflowsMigrated(): Try[Seq[WorkflowAndromeda]] = {
+    log.info(s"Migrating workflows from Cassiopeia")
+    Try {
+      if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         val children = CuratorFactoryHolder.getInstance().getChildren.forPath(AppConstant.WorkflowsZkPath)
-        val cassiopeiaWorkflows: List[Option[WorkflowCassiopeia]] = JavaConversions.asScalaBuffer(children).toList.map(id => cassiopieaWorkflowExistsById(id))
-        cassiopeiaWorkflows.filter(_.isDefined).foreach(cassiopeiaWorkFlow => {
-          Try {
-            val workflowAndromeda = cassiopieaWorkflowToAndromeda(cassiopeiaWorkFlow.get)
-            val workflowtoUpdate = write(workflowAndromeda)
-            //TODO remove!!!!
-            //workflowService.update(read[Workflow](workflowtoUpdate))
-          } match {
-            case Success(_) => log.info(s"Workflow ${cassiopeiaWorkFlow.get.name} migrated")
-            case Failure(f) => log.error(s"Workflow ${cassiopeiaWorkFlow.get.name} migration error", f)
+        val cassiopeiaWorkflows = JavaConversions.asScalaBuffer(children).toList.map(id =>
+          cassiopieaWorkflowExistsById(id)
+        )
+        cassiopeiaWorkflows.flatMap { cassiopeiaWorkFlow =>
+          cassiopeiaWorkFlow.map { workflow =>
+            Try {
+              val andromedaWorkflow : WorkflowAndromeda = workflow
+              andromedaWorkflow
+            } match {
+              case Success(andromedaWorkflow) =>
+                andromedaWorkflow
+              case Failure(e) =>
+                log.error(s"Workflow ${workflow.name} Cassiopea migration error. ${ExceptionHelper.toPrintableException(e)}", e)
+                throw e
+            }
           }
         }
-        )
-      }
-  }
-
-  def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia): WorkflowAndromeda = {
-    log.info(s"Migrate workflowCassiopeia with id = ${workflowCassiopeia.id}")
-    cassiopieaWorkflowToAndromeda(workflowCassiopeia)
-  }
-
-  private[sparta] def addAndromedaSpartaVersion(workflowAndromeda: WorkflowAndromeda): WorkflowAndromeda =
-    workflowAndromeda.versionSparta match {
-      case None => workflowAndromeda.copy(versionSparta = Some(AppConstant.version))
-      case Some(_) => workflowAndromeda
+      } else Seq.empty
     }
-
-  private[sparta] def cassiopieaWorkflowToAndromeda(workflowCassiopeia: WorkflowCassiopeia): WorkflowAndromeda = {
-    addAndromedaSpartaVersion(
-      WorkflowAndromeda(id = workflowCassiopeia.id,
-        name = workflowCassiopeia.name,
-        description = workflowCassiopeia.name,
-        settings = workflowCassiopeia.settings,
-        pipelineGraph = workflowCassiopeia.pipelineGraph,
-        executionEngine = workflowCassiopeia.executionEngine,
-        uiSettings = workflowCassiopeia.uiSettings,
-        creationDate = workflowCassiopeia.creationDate,
-        lastUpdateDate = workflowCassiopeia.lastUpdateDate,
-        version = workflowCassiopeia.version,
-        group = workflowCassiopeia.group,
-        tags = workflowCassiopeia.tags,
-        status = None,
-        execution = None
-      )
-    )
   }
 
   private[sparta] def cassiopieaWorkflowExistsById(id: String): Option[WorkflowCassiopeia] =

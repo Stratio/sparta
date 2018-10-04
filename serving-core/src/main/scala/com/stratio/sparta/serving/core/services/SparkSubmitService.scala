@@ -95,7 +95,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     )
   }
 
-  def getSparkLocalWorkflowConfig: Map[String, String] = getUserSparkConfig
+  def getSparkLocalWorkflowConfig: Map[String, String] = Map(
+    SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
+    SubmitGracefullyStopTimeoutConf -> workflow.settings.streamingSettings.stopGracefulTimeout.notBlank,
+    SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString)
+  ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
 
   /** Private Methods **/
 

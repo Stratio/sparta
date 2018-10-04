@@ -35,7 +35,6 @@ object PostgresFactory extends SLF4JLogging {
         System.exit(-1)
     }
 
-
     Try(invokeDaoMethod(AppConstant.PostgresDaos, tableSchemaMethod)) match {
       case Success(_) =>
         log.info("Sparta Postgres table schemas created correctly")
@@ -44,8 +43,9 @@ object PostgresFactory extends SLF4JLogging {
           s" with exception ${ExceptionHelper.toPrintableException(e)}", e)
         System.exit(-1)
     }
+  }
 
-
+  def invokeInitializationDataMethods(): Unit = {
     Try(invokeDaoMethod(AppConstant.PostgresDaos, initializeMethod)) match {
       case Success(_) =>
         log.info("Sparta Postgres data created correctly")
@@ -54,7 +54,6 @@ object PostgresFactory extends SLF4JLogging {
           s" with exception ${ExceptionHelper.toPrintableException(e)}", e)
         System.exit(-1)
     }
-
   }
 
   private def invokeDaoMethod(packageDao: String, method: String): Unit = {

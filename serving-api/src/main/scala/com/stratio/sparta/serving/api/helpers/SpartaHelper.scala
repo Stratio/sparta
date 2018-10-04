@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
 import com.stratio.sparta.serving.core.factory.PostgresFactory
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
-import com.stratio.sparta.serving.core.services.migration.CassiopeiaMigrationService
+import com.stratio.sparta.serving.core.services.migration.{CassiopeiaMigrationService, OrionMigrationService}
 import com.stratio.sparta.serving.core.utils.SpartaIgnite
 import com.typesafe.config.ConfigFactory
 import org.apache.ignite.Ignition
@@ -52,14 +52,16 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         SpartaIgnite.getAndOrCreateInstance()
       }
 
-      log.info("Initializing Sparta Postgres schemas and data ...")
+      log.info("Initializing Sparta Postgres schemas ...")
       PostgresFactory.invokeInitializationMethods()
 
       if (Try(SpartaConfig.getDetailConfig().get.getBoolean("migration.enable")).getOrElse(true)) {
-        val migration = new CassiopeiaMigrationService()
-        migration.migrateCassiopeiaWorkflows()
-        migration.migrateCassiopeiaTemplates()
+        val migration = new OrionMigrationService()
+        migration.executeMigration()
       }
+
+      log.info("Initializing Sparta Postgres data ...")
+      PostgresFactory.invokeInitializationDataMethods()
 
       log.info("Initializing Dyplon authorization plugins ...")
       implicit val secManager = SecurityManagerHelper.securityManager

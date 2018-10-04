@@ -5,7 +5,7 @@
   "args": null,
   "user": null,
   "env": {
-    "SPARTA_MIGRATION_CASSIOPEIA": "true",
+    "SPARTA_MIGRATION_ENABLE": "true",
     "HDFS_KEYTAB_RELOAD_TIME": "23h",
     "SPARTA_PLUGIN_LDAP_SCHEMA": "RFC2307bis",
     "CROSSDATA_SERVER_CONFIG_SPARK_EXECUTOR_CORES": "1",

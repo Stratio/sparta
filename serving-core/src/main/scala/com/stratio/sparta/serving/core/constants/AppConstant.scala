@@ -51,13 +51,16 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20
-  val DefaultVersion = "2.2.0"
+  val DefaultVersion = "2.4.0"
   lazy val version = Try(SpartaConfig.getDetailConfig().get.getString("version"))
     .toOption.notBlank.getOrElse(DefaultVersion)
+  val CassiopeaVersion = ""
+  val AndromedaVersion = "2.3.0"
 
   //Debug Options
-  val DebugSparkWindow = 100
-  val maxDebugTimeout = 5000
+  val DebugSparkWindow = 120000
+  val maxDebugTimeout = 10000
+  val maxDebugWriteErrorTimeout = 5000
 
   //Workflow
   val defaultWorkflowRelationSettings = WorkflowRelationSettings(DataType.ValidData)
@@ -94,12 +97,19 @@ object AppConstant extends ZookeeperUtils {
     case (_, _, Some(confPath)) if checkIfValidPath(confPath) => confPath
     case _ => DefaultZKPath
   }
-  lazy val WorkflowsZkPath = s"$BaseZkPath/workflows"
   lazy val ExecutionsStatusChangesZkPath = s"$BaseZkPath/executionStatusChanges"
-  lazy val TemplatesZkPath = s"$BaseZkPath/templates"
-  lazy val GlobalParametersZkPath = s"$BaseZkPath/globalParameters"
-  lazy val GroupZkPath = s"$BaseZkPath/group"
   lazy val IgniteDiscoveryZkPath = s"$BaseZkPath/$retrieveIgnitePathFromEnv"
+
+  //Migration
+  lazy val WorkflowsZkPath = s"$BaseZkPath/workflows"
+  lazy val WorkflowsOldZkPath = s"$BaseZkPath-old/workflows"
+  lazy val TemplatesZkPath = s"$BaseZkPath/templates"
+  lazy val TemplatesOldZkPath = s"$BaseZkPath-old/templates"
+  lazy val EnvironmentZkPath = s"$BaseZkPath/environment"
+  lazy val EnvironmentOldZkPath = s"$BaseZkPath-old/environment"
+  lazy val GroupZkPath = s"$BaseZkPath/group"
+  lazy val GroupOldZkPath = s"$BaseZkPath-old/group"
+
 
   //Ignite
   val IgniteEnabled = "enabled"
@@ -148,6 +158,7 @@ object AppConstant extends ZookeeperUtils {
 
   //Example Custom Group parameters
   val CustomExampleParameterList = "Default"
+  val CustomExampleParameterListId = Option("1b8d86a8-c7d5-11e8-a8d5-f2801f1b9fd1")
   val DefaultCustomExampleParameters = Seq(
     new ParameterVariable("CASSANDRA_KEYSPACE", "sparta"),
     new ParameterVariable("CASSANDRA_CLUSTER", "sparta"),

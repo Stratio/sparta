@@ -32,6 +32,7 @@ class WorkflowActor(
 
   import DtoModelImplicits._
   import WorkflowActor._
+  import com.stratio.sparta.serving.core.models.workflow.migration.MigrationModelImplicits._
 
   val ResourceWorkflow = "Workflows"
   val ResourceGlobalParameters = "GlobalParameters"
@@ -66,6 +67,7 @@ class WorkflowActor(
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
     case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
     case MigrateFromCassiopeia(workflowCassiopeia, user) => migrateWorkflowFromCassiopeia(workflowCassiopeia, user)
+    case MigrateFromAndromeda(workflowAndromeda, user) => migrateWorkflowFromAndromeda(workflowAndromeda, user)
     case RunWithParametersView(workflow, user) => runWithParametersView(workflow, user)
     case RunWithParametersViewId(workflowId, user) => runWithParametersViewById(workflowId, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
@@ -298,7 +300,17 @@ class WorkflowActor(
   def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser]): Unit = {
     authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceBackup -> View)) {
       Try {
-        migrationService.migrateWorkflowFromCassiopeia(workflowCassiopeia)
+        val workflow : WorkflowAndromeda = workflowCassiopeia
+        workflow
+      }
+    }
+  }
+
+  def migrateWorkflowFromAndromeda(workflowAndromeda: WorkflowAndromeda, user: Option[LoggedUser]): Unit = {
+    authorizeActions[ResponseWorkflow](user, Map(ResourceBackup -> View)) {
+      Try {
+        val workflow : Workflow = workflowAndromeda
+        workflow
       }
     }
   }
@@ -366,6 +378,8 @@ object WorkflowActor extends SLF4JLogging {
   case class MoveWorkflow(query: WorkflowMove, user: Option[LoggedUser])
 
   case class MigrateFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser])
+
+  case class MigrateFromAndromeda(workflowAndromeda: WorkflowAndromeda, user: Option[LoggedUser])
 
   case class RunWithParametersView(workflow: Workflow, user: Option[LoggedUser])
 

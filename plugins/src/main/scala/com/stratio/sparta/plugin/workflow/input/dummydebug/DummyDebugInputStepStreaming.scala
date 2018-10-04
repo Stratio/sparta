@@ -46,8 +46,9 @@ class DummyDebugInputStepStreaming(
     lastFinishTask = Option(schedulerSystem.scheduler.schedule(0 milli, 50 milli)({
       if (stopApplication) {
         log.info("Stopping Spark contexts")
-        ssc.get.stop(stopSparkContext = false, stopGracefully = true)
-        lastFinishTask.foreach(_.cancel())}
+        lastFinishTask.foreach(_.cancel())
+        ssc.get.stop(stopSparkContext = false, stopGracefully = false)
+      }
     }))
 
     debugDStream
@@ -56,9 +57,7 @@ class DummyDebugInputStepStreaming(
 
   class StreamingListenerStop extends StreamingListener {
     override def onBatchCompleted(batchCompleted: StreamingListenerBatchCompleted): Unit = {
-      if (batchCompleted.batchInfo.numRecords == 0) {
-        stopApplication = true
-      }
+      stopApplication = true
     }
   }
 }

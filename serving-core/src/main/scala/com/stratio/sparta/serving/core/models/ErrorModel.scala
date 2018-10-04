@@ -247,6 +247,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceRename -> "Error renaming all workflow versions",
     WorkflowServiceMove -> "Error moving workflow between groups",
     WorkflowServiceRunWithExecutionContextView -> "Error creating run with parameters view",
+    WorkflowServiceMigration -> "Error migrating workflow",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",

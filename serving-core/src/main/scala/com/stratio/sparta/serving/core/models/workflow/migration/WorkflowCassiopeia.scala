@@ -19,7 +19,7 @@ case class WorkflowCassiopeia(
                         id: Option[String] = None,
                         name: String,
                         description: String = "Default description",
-                        settings: Settings,
+                        settings: SettingsCassiopea,
                         pipelineGraph: PipelineGraph,
                         executionEngine: ExecutionEngine = WorkflowExecutionEngine.Streaming,
                         uiSettings: Option[UiSettings] = None,

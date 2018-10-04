@@ -40,6 +40,7 @@ class ParameterListPostgresDao extends ParameterListDao {
       log.debug("Initializing custom defaults list")
       for {
         _ <- createFromParameterList(ParameterList(
+          id = CustomExampleParameterListId,
           name = CustomExampleParameterList,
           parameters = DefaultCustomExampleParameters
         ))

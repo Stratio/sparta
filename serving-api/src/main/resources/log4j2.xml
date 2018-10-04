@@ -90,13 +90,13 @@
             <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
         <Console name="stderrDevelopmentLogging" target="SYSTEM_ERR">
-            <PatternLayout alwaysWriteExceptions="false">
+            <PatternLayout alwaysWriteExceptions="true">
                 <Pattern>${basePattern}</Pattern>
             </PatternLayout>
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
         <Console name="stdoutDevelopmentLogging" target="SYSTEM_OUT">
-            <PatternLayout alwaysWriteExceptions="false">
+            <PatternLayout alwaysWriteExceptions="true">
                 <Pattern>${basePattern}</Pattern>
             </PatternLayout>
             <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
