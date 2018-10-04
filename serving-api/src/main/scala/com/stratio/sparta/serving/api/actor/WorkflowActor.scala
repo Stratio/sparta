@@ -60,6 +60,7 @@ class WorkflowActor(
     case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
+    case ValidateWorkflowWithoutExContext(workflow, user) => validateWithoutExecutionContext(workflow, user)
     case ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user) => validateWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
@@ -104,6 +105,15 @@ class WorkflowActor(
           ignoreCustomParams = true
         )).mapTo[Try[ValidationContextResult]]
       } yield manageValidationResult(response)
+    }
+  }
+
+  def validateWithoutExecutionContext(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowRaw.authorizationId
+    val action = Map(ResourceWorkflow -> Edit)
+
+    authorizeActionsByResourceId(user, action, authorizationId, Option(sender)) {
+      workflowValidatorService.validateAll(workflowRaw)
     }
   }
 
@@ -319,6 +329,8 @@ object WorkflowActor extends SLF4JLogging {
                                               )
 
   case class ValidateWorkflow(workflow: Workflow, user: Option[LoggedUser])
+
+  case class ValidateWorkflowWithoutExContext(workflow: Workflow, user: Option[LoggedUser])
 
   case class ValidateWorkflowIdWithExContext(
                                               workflowExecutionContext: WorkflowIdExecutionContext,

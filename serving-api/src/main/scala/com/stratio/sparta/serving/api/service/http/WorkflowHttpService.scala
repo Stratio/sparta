@@ -42,7 +42,7 @@ trait WorkflowHttpService extends BaseHttpService {
   override def routes(user: Option[LoggedUser] = None): Route =
     find(user) ~ findAll(user) ~ create(user) ~ run(user) ~
       update(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
-      removeList(user) ~ findList(user) ~ validate(user) ~
+      removeList(user) ~ findList(user) ~ validate(user) ~ validateWithoutContext(user) ~
       createVersion(user) ~ findAllByGroup(user) ~
       findAllDto(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
       migrate(user) ~ validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user)
@@ -370,7 +370,7 @@ trait WorkflowHttpService extends BaseHttpService {
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "Workflow",
       defaultValue = "",
-      value = "workflow in json and the execution context for the workflow",
+      value = "workflow in json",
       dataType = "Workflow",
       required = true,
       paramType = "body")
@@ -412,6 +412,36 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user))
+                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/validateWithoutExecutionContext")
+  @ApiOperation(value = "Validate a workflow without context validation.",
+    notes = "Validate a workflow without context validation.",
+    httpMethod = "POST",
+    response = classOf[WorkflowValidation])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "Workflow",
+      defaultValue = "",
+      value = "workflow in json",
+      dataType = "Workflow",
+      required = true,
+      paramType = "body")
+  ))
+  def validateWithoutContext(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "validateWithoutExecutionContext") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[Workflow]) { workflow =>
+            complete {
+              for {
+                response <- (supervisor ? ValidateWorkflowWithoutExContext(workflow, user))
                   .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }
