@@ -187,11 +187,10 @@ export class SpColumnInputComponent implements ControlValueAccessor, OnChanges, 
       event.preventDefault();  //prevent default DOM action
       event.stopPropagation();   //stop bubbling
       this.vc.first.nativeElement.focus();
-      this.selectVarMode = true;
-
-      this.filterVarListValue(this.internalControl.value);
-
-      this.defaultList = !!this.internalControl.value;
+      if (!this.selectVarMode) {
+         this.selectVarMode = true;
+         this.filterVarListValue(this.internalControl.value);
+      }
 
 
    }
@@ -310,7 +309,6 @@ export class SpColumnInputComponent implements ControlValueAccessor, OnChanges, 
    }
 
    onKeydown(event) {
-      console.log(event);
          if (event.key === 'Backspace') {
             this.internalControl.setValue('');
             this.selectVarMode = false;

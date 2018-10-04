@@ -23,9 +23,6 @@
       </ul>
       <div *ngIf="!defaultList" class="var-mode__list height-size" >
          <ul class="group" *ngFor="let type of filteredVariableGroupList" >
-            <div class="navigation" (mousedown)="toggleVarType($event, type.filter)">
-               <span class="icon icon-arrow4_down" [ngClass]=" { 'right-icon' : type.filter === selectedFilter}"></span>{{type.filter}}
-            </div>
             <ng-container *ngIf="type.filter === selectedFilter">
                <li *ngFor="let variable of type.list; let i = index;" (mousedown)="selectVar($event, variable)" [ngClass]="{hover: i === selectedIndex}" >
                   <div class="var-mode__list-label">{{variable.valueType}}</div>

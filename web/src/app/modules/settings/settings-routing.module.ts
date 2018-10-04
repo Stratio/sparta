@@ -19,10 +19,10 @@ const settingsRoutes: Routes = [
                 path: '',
                 component: SettingsHomeComponent
             },
-            {
+            /* {
                 path: 'backups',
                 loadChildren: './backups/backups.module#BackupsModule'
-            },
+            }, */
             {
                 path: 'plugins',
                 loadChildren: './plugins/plugins.module#PluginsModule'
