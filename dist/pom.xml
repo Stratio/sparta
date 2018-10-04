@@ -83,6 +83,39 @@ This software – including all its source code – contains proprietary informa
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>copy CROSSDATA PLUGIN</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+                                    <artifactId>dyplon-crossdata</artifactId>
+                                    <version>0.16.0-cda4e11</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+                                    <artifactId>dyplon-crossdata</artifactId>
+                                    <version>0.15.1-eff78cb</version>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>
+                                target/appassembler/crossdata
+                            </outputDirectory>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>appassembler-maven-plugin</artifactId>
                         <version>1.10</version>
@@ -242,6 +275,9 @@ This software – including all its source code – contains proprietary informa
                                 <mkdirs>
                                     <path>/opt/sds/sparta/backups</path>
                                 </mkdirs>
+                                <mkdirs>
+                                    <path>/opt/sds/sparta/crossdata</path>
+                                </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>
                                     <to>/opt/sds/sparta/bin</to>
@@ -261,6 +297,10 @@ This software – including all its source code – contains proprietary informa
                                 <copyDirectory>
                                     <from>src/main/unix/files_and_dirs/bin</from>
                                     <to>/opt/sds/sparta/bin</to>
+                                </copyDirectory>
+                                <copyDirectory>
+                                    <from>target/appassembler/crossdata</from>
+                                    <to>/opt/sds/sparta/crossdata</to>
                                 </copyDirectory>
                             </assembly>
                         </configuration>

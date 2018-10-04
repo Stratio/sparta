@@ -20,6 +20,10 @@
  initJavaOptions
  INFO "[SPARTA-SERVER] Loaded Sparta Java options"
 
+ INFO "[SPARTA-SERVER] Loading Crossdata plugin ... "
+ initPluginCrossdata
+ INFO "[SPARTA-SERVER] Loaded Crossdata plugin "
+
  INFO "[SPARTA-SERVER] Loading Sparta Spark options ... "
  initSpark
  initSparkEnvOptions

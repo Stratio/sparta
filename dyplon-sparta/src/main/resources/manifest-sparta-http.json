@@ -1,6 +1,4 @@
 {
-  "type": "${service.name}",
-  "version": "${pom.version}",
   "scope": [
     {
       "type": "Groups",
@@ -29,7 +27,7 @@
       ]
     },
     {
-      "type": "Environment",
+      "type": "GlobalParameters",
       "actions": [
         "view",
         "create",
@@ -37,16 +35,6 @@
         "edit",
         "upload",
         "download"
-      ]
-    },
-    {
-      "type": "Backup",
-      "actions": [
-        "view",
-        "create",
-        "delete",
-        "upload",
-        "execute"
       ]
     },
     {
@@ -74,7 +62,16 @@
       ]
     },
     {
-      "type": "History",
+      "type": "ParameterList",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit"
+      ]
+    },
+    {
+      "type": "MlModels",
       "actions": [
         "view"
       ]

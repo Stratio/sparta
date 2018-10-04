@@ -3,18 +3,20 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.helpers
 
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
+import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.models.workflow.Workflow
-import com.stratio.sparta.serving.core.services.{HdfsFilesService, HdfsService}
 import org.apache.commons.io.FileUtils
 
-import scala.util.Try
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.services.{HdfsFilesService, HdfsService}
 
 object JarsHelper extends JarsHelper
 
@@ -79,6 +81,20 @@ trait JarsHelper extends SLF4JLogging {
       else None
     }
 
+  def addDyplonCrossdataPluginsToClassPath(): Unit =
+    addJarsToClassPath(getDyplonCrossdataPluginsPaths)
+
+  def getDyplonCrossdataPluginsPaths(): Seq[String] = {
+    val xdDrivers = new File(Try(SpartaConfig.getCrossdataConfig().get.getString("session.sparkjars-path"))
+      .getOrElse("/opt/sds/sparta/repo"))
+    if (xdDrivers.exists && xdDrivers.isDirectory) {
+      xdDrivers.listFiles()
+        .filter(file => file.isFile && file.getName.startsWith("dyplon-crossdata") && file.getName.endsWith("jar")
+          && file.getName.contains(SpartaConfig.getCrossdataConfig().get.getString("security.plugin.version")))
+        .map(file => file.getAbsolutePath)
+    } else Seq.empty[String]
+  }
+
   private def pathFromLocal(filePath: String): String = filePath.replace("file://", "")
 
   private def addJarToClasspath(file: File): Unit = {
@@ -136,5 +152,4 @@ trait JarsHelper extends SLF4JLogging {
 
     (uploadedPlugins ++ userPlugins).filter(_.nonEmpty).distinct
   }
-
 }

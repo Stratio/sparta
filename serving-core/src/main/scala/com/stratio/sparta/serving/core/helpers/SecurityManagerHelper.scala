@@ -3,21 +3,21 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.helpers
 
+import scala.util.{Failure, Success, Try}
+
+import spray.http.StatusCodes
+
 import com.stratio.crossdata.security.CrossdataSecurityManager
-import com.stratio.gosec.dyplon.plugins.crossdata.GoSecCrossdataSecurityManager
-import com.stratio.gosec.dyplon.plugins.sparta.GoSecSpartaSecurityManager
+import com.stratio.gosec.dyplon.plugins.sparta.{GoSecSpartaSecurityManager, GoSecSpartaSecurityManagerFacade}
 import com.stratio.sparta.security._
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.config.SpartaConfig._
-import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.typesafe.config.Config
-import spray.http.StatusCodes
-
-import scala.util.{Failure, Success, Try}
 
 object SecurityManagerHelper {
 
@@ -27,8 +27,13 @@ object SecurityManagerHelper {
       None
     } else {
       log.debug("Starting Gosec Sparta Dyplon security manager")
-      val secManager = new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
+      val secManager = if (Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)) {
+        new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager]
+      } else {
+        new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
+      }
       secManager.start()
+      log.debug("Started Gosec Sparta Dyplon security manager")
       Some(secManager)
     }
 
@@ -38,7 +43,15 @@ object SecurityManagerHelper {
       None
     } else{
       log.debug("Starting Gosec Crossdata Dyplon security manager")
-      new GoSecCrossdataSecurityManager().asInstanceOf[CrossdataSecurityManager].start
+      JarsHelper.addDyplonCrossdataPluginsToClassPath()
+      val finalClazzToInstance = Try(SpartaConfig.getCrossdataConfig().get.getString("security.manager.class"))
+        .getOrElse("com.stratio.gosec.dyplon.plugins.crossdata.GoSecCrossdataSecurityManager")
+      val securityManagerClass =
+        Class.forName(finalClazzToInstance, true, Thread.currentThread().getContextClassLoader)
+      val constr = securityManagerClass.getConstructor()
+      val secManager = constr.newInstance().asInstanceOf[CrossdataSecurityManager]
+      secManager.start()
+      log.debug("Started Gosec Crossdata Dyplon security manager")
     }
 
 

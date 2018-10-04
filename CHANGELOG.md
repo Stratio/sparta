@@ -2,6 +2,9 @@
 
 ## 2.4.0 (upcoming)
 
+* Dyplon Facade integration
+    - [SPARTA-2253] Crossdata plugin compatibility
+     
 * New transformations:
     - [SPARTA-2171] Coalesce
     - [SPARTA-2122] Rest
