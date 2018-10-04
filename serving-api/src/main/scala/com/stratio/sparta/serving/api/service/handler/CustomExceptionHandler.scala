@@ -6,6 +6,7 @@
 package com.stratio.sparta.serving.api.service.handler
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.json4s.jackson.Serialization._
 import spray.http.{MediaTypes, StatusCodes}
@@ -26,9 +27,33 @@ object CustomExceptionHandler extends MiscDirectives
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler = {
     ExceptionHandler {
+      case exception: akka.pattern.AskTimeoutException =>
+        requestUri { _ =>
+          val messageParsed = ExceptionHelper.toPrintableException(exception)
+            .split("type")
+            .lastOption
+            .getOrElse("")
+            .replaceAll("\"", "")
+            .replaceAll("com.stratio.sparta.serving.api.actor.", "")
+            .replaceAll("com.stratio.sparta.serving.core.actor.", "")
+            .replaceAll("\\$", " and method ").trim
+          val errorMessage = if(messageParsed.nonEmpty) {
+            val finalMessage = s"Ask timed out in actor $messageParsed"
+            log.warn(finalMessage, exception)
+            Option(finalMessage)
+          } else None
+          val error = new ErrorModel(
+            StatusCodes.InternalServerError.intValue,
+            ErrorModel.TimeoutErrorCode,
+            ErrorModel.TimeoutError,
+            None,
+            errorMessage
+          )
+          complete(StatusCodes.InternalServerError, write(error))
+        }
       case exception: Throwable =>
         requestUri { _ =>
-          log.warn(exception.toString, exception)
+          log.warn(ExceptionHelper.toPrintableException(exception), exception)
           respondWithMediaType(MediaTypes.`application/json`) {
             Try(ErrorModel.toErrorModel(exception.getLocalizedMessage)) match {
               case Success(error) =>
@@ -39,7 +64,7 @@ object CustomExceptionHandler extends MiscDirectives
                   ErrorModel.UnknownErrorCode,
                   ErrorModel.UnknownError,
                   None,
-                  Option(exception.getLocalizedMessage)
+                  Option(ExceptionHelper.toPrintableException(exception))
                 )
                 complete(StatusCodes.InternalServerError, write(error))
             }

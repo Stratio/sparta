@@ -21,12 +21,14 @@ object ErrorModel extends SpartaSerializer {
   /* Generic error messages */
   val UnknownError = "Unknown error"
   val UnAuthorizedError = "Unauthorized error"
+  val TimeoutError = "Timeout error"
 
   /* Authorization Service 550-559 */
   val UserNotFound = "550"
 
   /* Unkown error */
   val UnknownErrorCode = "560"
+  val TimeoutErrorCode = "565"
 
   /* App Info Service */
   val AppInfo = "561"

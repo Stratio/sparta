@@ -39,7 +39,9 @@ with Json4sJacksonSupport with HttpService with SpartaSerializer {
       val exception = new MockException
       Get() ~> sealRoute(route) ~> check {
         status should be(StatusCodes.InternalServerError)
-        response.entity.asString should be(ErrorModel.toString(new ErrorModel(500, "560", "Unknown error")))
+        val result = ErrorModel.toString(
+          new ErrorModel(500, "560", "Unknown error", None, Option("com.stratio.sparta.core.exception.MockException")))
+        response.entity.asString should be(result)
       }
     }
     "encapsulate a serving api error in an error model and response with a 333 code" in new MyTestRoute {
