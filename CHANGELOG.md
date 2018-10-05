@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.4.0 (upcoming)
+## 2.5.0 (upcoming)
+
+* Pending changelog
+
+## 2.4.0-c2ce643 (Built: October 05, 2018 | Pre-release)
 
 * Sparta metadata datastore migration from Zookeeper to Postgres
 * [SPARTA-2153] Fix Crossdata logs, update formats and integrate Async appender
@@ -46,7 +50,6 @@
     - [SPARTA-2190] Fix show input fields in select transform
     - [SPARTA-2140] Fix error sinks with wrong schema
     - Fix for env variables and JsoneyString parsing
-
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
