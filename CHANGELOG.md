@@ -2,6 +2,22 @@
 
 ## 2.4.0 (upcoming)
 
+* Sparta metadata datastore migration from Zookeeper to Postgres
+* [SPARTA-2153] Fix Crossdata logs, update formats and integrate Async appender
+* [SPARTA-2119] Generic Datasource for Input&Output
+* Post workflow execution SQL sentences
+* [SPARTA-2204] Integrated SpartaUDFs in the SDK  
+* [SPARTA-2219] Refactor Marathon deployment
+* [SPARTA-2064] [SPARTA-2068] [SPARTA-2066] [SPARTA-2067] [SPARTA-2070] Refactor environment to apply lists parameters 
+* [SPARTA-2252] Data Governance catalog in Crossdata
+* [SPARTA-2253] Ignite final integration to cache Sparta metadata
+* [SPARTA-2247] Upgrade Crossdata to 2.14.0
+* [SPARTA-2287] Upgrade Spark to 2.2.0-2.0.0
+* Upgrade Mongo datasource to 0.13.1
+* [SPARTA-2157] Sparta cluster: multiple Sparta instances can be deployed
+* [SPARTA-2297] Orion migration process
+
+
 * Dyplon Facade integration
     - [SPARTA-2253] Crossdata plugin compatibility
      
@@ -24,15 +40,13 @@
     - [SPARTA-2288] Rest
      
 * Bug fixing:
-    - [SPARTA-2228] Load latest version of plugins at runtime 
+    - [SPARTA-2228] Load latest version of plugins at runtime
+    - [SPARTA-2319] Update workflows in cascade with templates updates and deletes 
+    - [SPARTA-2246] Fix for groups not being renamed inside workflows
+    - [SPARTA-2190] Fix show input fields in select transform
+    - [SPARTA-2140] Fix error sinks with wrong schema
+    - Fix for env variables and JsoneyString parsing
 
-* [SPARTA-2153] Fix Crossdata logs, update formats and integrate Async appender
-* Post workflow execution SQL sentences 
-* [SPARTA-2252] Data Governance catalog in Crossdata
-* [SPARTA-2247] Upgrade Crossdata to 2.14.0
-* [SPARTA-2287] Upgrade Spark to 2.2.0-2.0.0
-* Upgrade Mongo datasource to 0.13.1
-* [SPARTA-2157] Sparta cluster: multiple Sparta instances can be deployed
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
