@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.stratio.gosec</groupId>
             <artifactId>dyplon-facade</artifactId>
-            <version>0.1.0-5a09c47</version>
+            <version>0.1.0-3aabf87</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.gosec.dyplon</groupId>
