@@ -15,11 +15,12 @@
    <button class="button button-link-secondary" (click)="onCloseConfirmModal.emit('2')">
       <span>{{'WIZARD.CANCEL' | translate}}</span>
    </button>
-
-   <button class="button button-secondary-line cancel-button small" (click)="onCloseConfirmModal.emit('0')">
-      <span>{{'WIZARD.SAVE_EXIT' | translate}}</span>
-   </button>
-   <button class="button button-primary save-button small" (click)="onCloseConfirmModal.emit('1')">
+   <button class="button button-secondary-line cancel-button small" (click)="onCloseConfirmModal.emit('1')">
       <span>{{'WIZARD.NOT_SAVE_EXIT' | translate}}</span>
    </button>
+
+   <button class="button button-primary save-button small" (click)="onCloseConfirmModal.emit('0')">
+      <span>{{'WIZARD.SAVE_EXIT' | translate}}</span>
+   </button>
+
 </div>

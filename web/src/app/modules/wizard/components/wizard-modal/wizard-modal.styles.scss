@@ -1,32 +1,37 @@
 @import '~@stratio/egeo/theme/constants';
 
 :host {
-    min-width:500px;
+   min-width: 500px;
 }
+
 .confirmation {
-    font-family: $egeo-nunito-sans-light;
-    font-size: 23px;
-    display:block;
-    color: #000;
+   font-family: $egeo-nunito-sans-light;
+   font-size: 23px;
+   display: block;
+   color: #000;
 }
 
 .advice {
-    font-family: $egeo-nunito-sans;
-    font-size:15px;
-    display: block;
-    color: $action-secondary-07;
-    margin-top:4px;
+   font-family: $egeo-nunito-sans;
+   font-size: 15px;
+   display: block;
+   color: $action-secondary-07;
+   margin-top: 4px;
 }
 
-.action-buttons{
-    margin-top:35px;
-    overflow: hidden;
-    .button {
-        padding: .925rem 1.875rem;
-        min-width:9rem;
-    }
-    .save-button {
-        float:right;
-        margin-left: 15px;
-    }
+.action-buttons {
+   margin-top: 35px;
+   overflow: hidden;
+   .button {
+      padding: .925rem 1.875rem;
+      min-width: 9rem;
+   }
+   .cancel-button {
+      font-weight: bold;
+   }
+   .save-button {
+      font-weight: bold;
+      float: right;
+      margin-left: 15px;
+   }
 }
