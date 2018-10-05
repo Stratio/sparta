@@ -240,15 +240,19 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
     def cached(): Future[A] = {
       if (cacheEnabled) {
         for {
-          result <- daoFuture
+          daoResult <- daoFuture
         } yield {
           Try {
-            val entities = List(result).flatten(List(_).asInstanceOf[List[SpartaEntity]]).map { entity =>
+            val result = daoResult match {
+              case vectorResult if vectorResult.isInstanceOf[Vector[A]] => vectorResult.asInstanceOf[Vector[A]].toList
+              case singleResult => Seq(singleResult)
+            }
+            val entities = result.flatten(Seq(_).asInstanceOf[List[SpartaEntity]]).map { entity =>
               getSpartaEntityId(entity) -> entity
             }.toMap
             cache.putAll(entities.asJava)
           } match {
-            case Success(_) => result
+            case Success(_) => daoResult
             case Failure(e) => throw new Exception(s"Error updating cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
           }
         }

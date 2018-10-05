@@ -7,12 +7,17 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
-
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
+
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.write
 import slick.jdbc.PostgresProfile
+
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -21,9 +26,7 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
-import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
-import org.apache.ignite.cache.query.ScanQuery
-import org.apache.ignite.lang.IgniteBiPredicate
+import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
 
 //scalastyle:off
 class WorkflowPostgresDao extends WorkflowDao {
@@ -33,11 +36,12 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   import profile.api._
 
-  import com.stratio.sparta.serving.core.dao.CustomColumnTypes._
-
   import WorkflowPostgresDao._
 
   private val validatorService = new WorkflowValidatorService()
+
+  lazy val parameterListDao = PostgresDaoFactory.parameterListPostgresDao
+  lazy val templateDao = PostgresDaoFactory.templatePgService
 
   override def initializeData(): Unit = {
     initialCacheLoad()
@@ -56,10 +60,12 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   def findByGroupID(groupId: String): Future[Seq[Workflow]] = {
     if (cacheEnabled)
-      predicateList(ignitePredicateByGroup(groupId))(db.run(table.filter(_.groupId === groupId).result))
+      predicateList(ignitePredicateByGroup(groupId))(findByGroup(groupId))
     else
-      db.run(table.filter(_.groupId === groupId).result)
+      findByGroup(groupId)
   }
+
+  private def findByGroup(groupId: String): Future[Seq[Workflow]] = db.run(table.filter(_.groupId === groupId).result)
 
   def findByIdList(workflowIds: Seq[String]): Future[Seq[Workflow]] = db.run(table.filter(_.id.inSet(workflowIds.toSet)).result)
 
@@ -222,6 +228,75 @@ class WorkflowPostgresDao extends WorkflowDao {
       throw new ServerException(s"Workflow is not valid. Cause: ${validationResult.messages.mkString("-")}")
   }
 
+  /** CACHE METHODS */
+  def deleteFromCacheByGroupId(groupId: String): Future[Boolean] = {
+    for {
+      workflows <- db.run(table.filter(_.groupId === groupId).result)
+    } yield {
+      Try(cache.removeAll(workflows.map(_.id.get).toSet.asJava)) match {
+        case Success(_) =>
+          log.info(s"Deleting from cache : ${workflows.map(_.id.get).mkString(",")}")
+          true
+        case Failure(e) => throw new Exception(s"Error deleting cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+      }
+    }
+  }
+
+  def upsertFromCacheByParameterList(oldName: String, newName: String, workflows: Seq[Workflow]): Boolean = {
+    val workflowsToUpdate = workflows.map { entity => getSpartaEntityId(entity) -> entity }.toMap
+    Try(cache.putAll(workflowsToUpdate.asJava)) match {
+      case Success(_) =>
+        log.info(s"Updating workflows from cache for parameterList: $newName")
+        true
+      case Failure(e) =>
+        log.error(s"Error deleting cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+        false
+    }
+  }
+
+  def updateFromCacheByTemplate(template: TemplateElement): Future[Boolean] = {
+    for {
+      workflows <- findAll()
+    } yield {
+      val workflowsToUpdate = templateDao.replaceWorkflowsWithTemplate(template, workflows)
+        .map { entity => getSpartaEntityId(entity) -> entity }.toMap
+      Try(cache.putAll(workflowsToUpdate.asJava)) match {
+        case Success(_) =>
+          log.info(s"Updating workflows from cache for template: ${template.name}")
+          true
+        case Failure(e) => throw new Exception(s"Error deleting cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+      }
+    }
+  }
+
+  def deleteFromCacheByTemplate(template: TemplateElement): Future[Boolean] = {
+    for {
+      workflows <- findAll()
+    } yield {
+      val workflowsToUpdate = templateDao.updateWorkflowsWithRemovedTemplate(template, workflows)
+        .map { entity => getSpartaEntityId(entity) -> entity }.toMap
+      Try(cache.putAll(workflowsToUpdate.asJava)) match {
+        case Success(_) =>
+          log.info(s"Updating workflows from cache for template: ${template.name}")
+          true
+        case Failure(e) => throw new Exception(s"Error deleting cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+      }
+    }
+  }
+
+  def updateFromCacheByGroupId(groupId: String): Future[Boolean] = {
+    Future {
+      Try {
+        db.run(table.filter(_.groupId === groupId).result).cached()
+      } match {
+        case Success(_) =>
+          log.info(s"Updating workflows from cache for group: $groupId")
+          true
+        case Failure(e) => throw new Exception(s"Error updating cache keys with error: ${ExceptionHelper.toPrintableException(e)}", e)
+      }
+    }
+  }
+
   /** PRIVATE METHODS **/
 
   private[dao] def findWorkflowsVersion(name: String, groupId: String): Future[Seq[Workflow]] =
@@ -271,7 +346,9 @@ class WorkflowPostgresDao extends WorkflowDao {
     for {
       _ <- deleteList(ids).removeInCache(ids: _*)
     } yield {
-      log.info(s"Workflows with ids: ${ids.mkString(",")} deleted")
+      log.info(s"Workflows with ids: ${
+        ids.mkString(",")
+      } deleted")
       true
     }
   }

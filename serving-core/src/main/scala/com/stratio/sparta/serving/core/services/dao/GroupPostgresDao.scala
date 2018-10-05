@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.lang.IgniteBiPredicate
@@ -84,10 +84,11 @@ class GroupPostgresDao extends GroupDao {
             groupsToUpdate.map { groupToUpdate =>
               workflowPgService.findByGroupID(groupToUpdate.id.get).map { workflows =>
                 workflows.map { workflow =>
-                  val newWorkflow = workflow.copy(
-                    groupId = Option(id),
-                    group = group
-                  )
+                  val newWorkflow = WorkflowPostgresDao.addUpdateDate(
+                    workflow.copy(
+                      groupId = Option(id),
+                      group = group
+                    ))
                   workflowPgService.upsertAction(newWorkflow)
                 }
               }
@@ -102,7 +103,11 @@ class GroupPostgresDao extends GroupDao {
         updateActions.flatMap { actionsToExecute =>
           db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
         }
-      }.map(_ => group).cached()
+      }.map(_ => {
+        if (cacheEnabled)
+          workflowPgService.updateFromCacheByGroupId(id)
+        group
+      }).cached()
     } else throw new ServerException(s"Unable to update group ${group.name} because its name is invalid")
   }
 
@@ -174,12 +179,9 @@ class GroupPostgresDao extends GroupDao {
     val deleteActions = groups.map { currentGroup =>
       if (currentGroup.id.isDefined && currentGroup.id.get != DefaultGroup.id.get && currentGroup.name != DefaultGroup.name) {
         log.debug(s"Deleting group ${currentGroup.id} ${currentGroup.name}")
-        for {
-          workflowsToUpdate <- workflowPgService.findByGroupID(currentGroup.id.get)
-          workflowActions = workflowsToUpdate.map { workflow =>
-            workflowPgService.deleteByIDAction(workflow.id.get)
-          }
-        } yield workflowActions :+ deleteByIDAction(currentGroup.id.get)
+        if (cacheEnabled)
+          workflowPgService.deleteFromCacheByGroupId(currentGroup.id.get)
+        Future(Seq(deleteByIDAction(currentGroup.id.get)))
       } else Future(Seq.empty)
     }
 

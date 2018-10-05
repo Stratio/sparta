@@ -36,14 +36,12 @@ class TemplatePostgresDao extends TemplateDao {
       templates <- filterByType(templateType)
     } yield templates
 
-
   def findByTypeAndId(templateType: String, id: String): Future[TemplateElement] =
     for {
       template <- findByTypeId(templateType, id)
     } yield template.getOrElse(
       throw new ServerException(s"Template type: $templateType and id: $id does not exist")
     )
-
 
   def findByTypeAndName(templateType: String, name: String): Future[TemplateElement] =
     for {
@@ -72,7 +70,10 @@ class TemplatePostgresDao extends TemplateDao {
 
       workflowTemplateActions.flatMap { actions =>
         val actionsToExecute = actions :+ upsertAction(newTemplate)
-        db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
+        db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally)).map(_ =>
+          if (cacheEnabled)
+            workflowService.updateFromCacheByTemplate(template)
+        )
       }
     }
   }
@@ -107,7 +108,6 @@ class TemplatePostgresDao extends TemplateDao {
       result <- deleteYield(templates)
     } yield result
 
-
   /** PRIVATE METHODS */
 
   private[services] def deleteYield(templates: Seq[TemplateElement]): Future[Boolean] = {
@@ -126,6 +126,8 @@ class TemplatePostgresDao extends TemplateDao {
       Try(db.run(txHandler(DBIO.seq(actions: _*).transactionally))) match {
         case Success(_) =>
           log.info(s"Templates ${templates.map(_.name).mkString(",")} deleted")
+          if (cacheEnabled)
+            templates.foreach(template => workflowService.deleteFromCacheByTemplate(template))
           true
         case Failure(e) =>
           throw e
@@ -206,15 +208,15 @@ class TemplatePostgresDao extends TemplateDao {
             node.copy(nodeTemplate = Option(NodeTemplateInfo(name = templateElement.name, id = templateElement.id.get)))
           else node
         }
-        Option(workflow.copy(pipelineGraph = workflow.pipelineGraph.copy(nodes = newNodes)))
+        Option(WorkflowPostgresDao.addUpdateDate(workflow.copy(pipelineGraph = workflow.pipelineGraph.copy(nodes = newNodes))))
       } else None
     }
   }
 
   private[services] def updateWorkflowsWithRemovedTemplate(
-                                                      templateElement: TemplateElement,
-                                                      workflows: Seq[Workflow]
-                                                    ): Seq[Workflow] = {
+                                                            templateElement: TemplateElement,
+                                                            workflows: Seq[Workflow]
+                                                          ): Seq[Workflow] = {
     workflows.flatMap { workflow =>
       val nodesWithTemplate = workflow.pipelineGraph.nodes.filter { node =>
         node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateElement.id.get

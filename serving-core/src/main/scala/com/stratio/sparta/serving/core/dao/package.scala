@@ -108,6 +108,8 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", id)
 
+    def fk = foreignKey(s"fk_${tableName}_group", groupId.get, TableQuery[GroupTable])(_.groupId, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
+
     def groupIndex = index(s"idx_${tableName}_group", groupId)
   }
 

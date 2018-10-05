@@ -8,14 +8,12 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
 
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.ParameterListDao
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -76,7 +74,6 @@ class ParameterListPostgresDao extends ParameterListDao {
       log.debug(s"Variables not present in the environment list: $variablesToAdd")
       update(envList.copy(parameters = variablesToAdd ++ envList.parameters))
     }
-
   }
 
   def findByParentWithContexts(parent: String): Future[ParameterListAndContexts] = {
@@ -143,14 +140,17 @@ class ParameterListPostgresDao extends ParameterListDao {
     findById(id).flatMap { oldParameterList =>
       val workflowContextActions = if (newParameterList.parent.notBlank.isEmpty) {
         for {
-          workflowsActions <- updateWorkflowsWithNewParamListName(oldParameterList.name, newParameterList.name)
+          (workflowsActions, workflowsToUpdate) <- updateWorkflowsWithNewParamListName(oldParameterList.name, newParameterList.name)
           contextsActions <- updateContextsWithParent(oldParameterList, newParameterList)
-        } yield workflowsActions ++ contextsActions
-      } else Future(Seq.empty)
+        } yield (workflowsActions ++ contextsActions, workflowsToUpdate)
+      } else Future((Seq.empty, Seq.empty))
 
-      workflowContextActions.flatMap { actions =>
+      workflowContextActions.flatMap { case (actions, workflowsToUpdate) =>
         val actionsToExecute = actions :+ upsertAction(newParameterList)
-        db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally))
+        db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally)).map(_ =>
+          if (cacheEnabled)
+            workflowService.upsertFromCacheByParameterList(oldParameterList.name, newParameterList.name, workflowsToUpdate)
+        )
       }
     }
   }
@@ -179,25 +179,29 @@ class ParameterListPostgresDao extends ParameterListDao {
     val updateDeleteActions = parametersLists.map { parameterList =>
       val workflowContextActions = if (parameterList.parent.notBlank.isEmpty) {
         for {
-          workflowsActions <- updateWorkflowsWithNewParamListName(parameterList.name, "")
+          (workflowsActions, workflowsToUpdate) <- updateWorkflowsWithNewParamListName(parameterList.name, "")
           contextsActions <- findByParent(parameterList.name).map(contexts =>
             contexts.map(context => deleteByIDAction(context.id.get))
           )
-        } yield workflowsActions ++ contextsActions
-      } else Future(Seq.empty)
+        } yield (workflowsActions ++ contextsActions, workflowsToUpdate)
+      } else Future((Seq.empty, Seq.empty))
 
-      workflowContextActions.map { actions =>
-        actions :+ deleteByIDAction(parameterList.id.get)
+      workflowContextActions.map { case (actions, workflowsToUpdate) =>
+        (actions :+ deleteByIDAction(parameterList.id.get), workflowsToUpdate)
       }
     }
 
     Future.sequence(updateDeleteActions).flatMap { actionsSequence =>
-      val actions = actionsSequence.flatten
+      val actions = actionsSequence.flatMap(_._1)
+      val workflowsToUpdate = actionsSequence.flatMap(_._2)
       for {
         _ <- db.run(txHandler(DBIO.seq(actions: _*).transactionally))
       } yield {
         log.info(s"Parameter lists ${parametersLists.map(_.name).mkString(",")} deleted")
-        true
+        if (cacheEnabled)
+          parametersLists.forall(parameterList => workflowService.upsertFromCacheByParameterList(parameterList.name, "", workflowsToUpdate))
+        else
+          true
       }
     }
   }
@@ -270,9 +274,9 @@ class ParameterListPostgresDao extends ParameterListDao {
     if (oldName != newName) {
       workflowService.findAll().map { workflows =>
         val workflowsToUpdate = replaceWorkflowsWithNewParamListName(oldName, newName, workflows)
-        workflowsToUpdate.map(workflow => workflowService.upsertAction(workflow))
+        (workflowsToUpdate.map(workflow => workflowService.upsertAction(workflow)), workflowsToUpdate)
       }
-    } else Future(Seq.empty)
+    } else Future((Seq.empty, Seq.empty))
   }
 
   private[services] def replaceWorkflowsWithNewParamListName(
@@ -286,19 +290,20 @@ class ParameterListPostgresDao extends ParameterListDao {
         val newNameToReplace = if (newName.nonEmpty) newName + "." else ""
         val newWorkflowStr = workflowStr.replaceAll(s"\\{\\{$oldName.", s"\\{\\{$newNameToReplace")
         val newWorkflow = read[Workflow](newWorkflowStr)
-        Option(newWorkflow.copy(settings = newWorkflow.settings.copy(
-          global = newWorkflow.settings.global.copy(
-            parametersLists = newWorkflow.settings.global.parametersLists.flatMap { list =>
-              if (list == oldName && newName.nonEmpty)
-                Option(newName)
-              else if (list == oldName && newName.isEmpty)
-                None
-              else Option(list)
-            }
-          )
-        )))
+        Option(WorkflowPostgresDao.addParametersUsed(
+          WorkflowPostgresDao.addUpdateDate(
+            newWorkflow.copy(settings = newWorkflow.settings.copy(
+              global = newWorkflow.settings.global.copy(
+                parametersLists = newWorkflow.settings.global.parametersLists.flatMap { list =>
+                  if (list == oldName && newName.nonEmpty)
+                    Option(newName)
+                  else if (list == oldName && newName.isEmpty)
+                    None
+                  else Option(list)
+                }
+              )
+            )))))
       } else None
     }
   }
-
 }
