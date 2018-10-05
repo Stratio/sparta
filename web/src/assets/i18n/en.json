@@ -706,7 +706,7 @@
       "NOT_SAVE_EXIT": "Don't save and Exit",
       "RETURN_WORKFLOW": "Return to workflow list",
       "CONFIRM_EXIT": "Save changes to the workflow?",
-      "LOSE_CHANGES_EXIT": "If you leave this page without saving, your changes will be lost and will be impossible to recover them.",
+      "LOSE_CHANGES_EXIT": "If you leave this page without saving, your changes will be lost and it will not be possible to recover them.",
       "DELETE_WORKFLOW_MESSAGE": "Are you sure?",
       "CONFIRM_EXIT_ADVICE": "If you don´t save the changes, they will be lost.",
       "SUBMITARGUMENTS": "Submit Arguments",
