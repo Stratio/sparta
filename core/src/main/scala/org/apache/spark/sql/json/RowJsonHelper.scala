@@ -18,6 +18,8 @@ import org.apache.spark.sql.execution.datasources.json.JsonInferSchema.compatibl
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 
+import scala.util.Try
+
 
 object RowJsonHelper {
 
@@ -29,12 +31,19 @@ object RowJsonHelper {
   @volatile private var jsonParserOptions: Option[JSONOptions] = None
   private lazy val factory = new JsonFactory()
 
-  def toJSON(row: Row, extraOptions: Map[String, String]): String = {
+  def toJSON(row: Row, extraOptions: Map[String, String], useTypedConverters: Boolean = false): String = {
     val configOptions = jsonOptions(extraOptions)
     val rowSchema = row.schema
     val writer = new CharArrayWriter()
     val gen = new JacksonGenerator(rowSchema, writer, configOptions)
-    val internalRow = CatalystTypeConverters.convertToCatalyst(row).asInstanceOf[InternalRow]
+
+    val internalRow = if (useTypedConverters){
+      val toCatalystConverter = CatalystTypeConverters.createToCatalystConverter(rowSchema)
+      toCatalystConverter(row).asInstanceOf[InternalRow]
+    } else {
+      CatalystTypeConverters.convertToCatalyst(row).asInstanceOf[InternalRow]
+    }
+
     gen.write(internalRow)
     gen.flush()
     val json = writer.toString

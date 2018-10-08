@@ -71,7 +71,7 @@ class CrossdataService() extends SLF4JLogging {
             val oldValue = row.get(index)
             val newValue = oldValue match {
               case v: java.math.BigDecimal => BigDecimal(v)
-              case v: GenericRowWithSchema => toJSON(v, Map.empty[String, String])
+              case v: GenericRowWithSchema => toJSON(v, Map.empty)
               case _ => oldValue
             }
             field.name -> newValue
