@@ -7,11 +7,9 @@
 package com.stratio.sparta.serving.core.config
 
 import akka.event.slf4j.SLF4JLogging
-
-import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.typesafe.config.{Config, ConfigFactory}
 
-import com.stratio.sparta.serving.core.config.SpartaConfig.initIgniteConfig
+import com.stratio.sparta.serving.core.constants.AppConstant._
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
@@ -23,7 +21,7 @@ object SpartaConfig extends SLF4JLogging {
   private var crossdataConfig: Option[Config] = None
   private var apiConfig: Option[Config] = None
   private var oauth2Config: Option[Config] = None
-  private var postgresConfig: Option[Config] = None
+  private[core] var postgresConfig: Option[Config] = None
   private var zookeeperConfig: Option[Config] = None
   private var hdfsConfig: Option[Config] = None
   private var detailConfig: Option[Config] = None

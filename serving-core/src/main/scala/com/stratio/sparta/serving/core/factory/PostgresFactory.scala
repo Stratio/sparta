@@ -6,18 +6,17 @@
 
 package com.stratio.sparta.serving.core.factory
 
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.core.helpers.ExceptionHelper
-import com.stratio.sparta.serving.core.constants.AppConstant
-
 import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
+
+import akka.event.slf4j.SLF4JLogging
 import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 import org.reflections.util.ClasspathHelper
-import com.stratio.sparta.serving.core.dao.DaoUtils
 
-import scala.concurrent.blocking
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.core.helpers.ExceptionHelper
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.dao.DaoUtils
 
 object PostgresFactory extends SLF4JLogging {
 
@@ -62,9 +61,13 @@ object PostgresFactory extends SLF4JLogging {
       new SubTypesScanner()
     )
     reflections.getSubTypesOf(classOf[DaoUtils]).filterNot(_.isInterface)
-      .foreach { daoClazz =>
+      .map { daoClazz =>
         val postgresDao = daoClazz.newInstance()
-        daoClazz.getMethod(method).invoke(postgresDao)
-      }
+        (daoClazz, postgresDao)
+      }.toList.sortWith {
+      case ((_, firstDao), (_, secondDao)) => firstDao.initializationOrder < secondDao.initializationOrder
+    }.foreach {
+      case (daoClazz, postgresDao) => daoClazz.getMethod(method).invoke(postgresDao)
+    }
   }
 }

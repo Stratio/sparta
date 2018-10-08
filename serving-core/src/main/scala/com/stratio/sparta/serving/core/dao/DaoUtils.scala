@@ -44,6 +44,8 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
   val table: TableQuery[SpartaTable] // The table itself
   private lazy val tableName = table.baseTableRow.tableName
 
+  val initializationOrder = 1
+
   // Check if the property is defined in the schemaName configuration (sparta.postgres.schemaName),
   // if not, check if currentSchema is defined in the extraParameters otherwise set to public
   val dbSchemaName: Option[String] = {
