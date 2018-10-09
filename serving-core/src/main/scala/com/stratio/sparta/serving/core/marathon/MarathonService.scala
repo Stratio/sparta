@@ -383,6 +383,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
       PluginFiles -> Option(submitExecution.pluginFiles.mkString(",")),
       ExecutionIdEnv -> submitExecution.driverArguments.get(SparkSubmitService.ExecutionIdKey),
       DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
+      SpartaFileEncoding -> Some(Properties.envOrElse(SpartaFileEncoding, DefaultFileEncodingSystemProperty)),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
       DatastoreCaNameEnv -> Properties.envOrSome(DatastoreCaNameEnv, Option("ca")),

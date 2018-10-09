@@ -37,6 +37,7 @@ object MarathonConstant {
   val DefaultSparkUIPort = 4040
   val DefaultSOMemSize = 512
   val MinSOMemSize = 256
+  val DefaultFileEncodingSystemProperty= "-Dfile.encoding=UTF-8"
 
   /* Environment variables to Marathon Application */
 
@@ -53,6 +54,7 @@ object MarathonConstant {
   val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
   val PluginFiles = "SPARTA_PLUGIN_FILES"
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
+  val SpartaFileEncoding = "SPARTA_FILE_ENCODING"
   val SpartaOSMemoryEnv = "SPARTA_MARATHON_OS_MEMORY"
   val SparkHomeEnv = "SPARK_HOME"
   val DcosServiceName = "MARATHON_APP_LABEL_DCOS_SERVICE_NAME"
