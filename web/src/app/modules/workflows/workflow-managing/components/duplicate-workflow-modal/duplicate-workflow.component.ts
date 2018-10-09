@@ -37,7 +37,7 @@ export class DuplicateWorkflowComponent implements OnInit, OnDestroy {
    public forceValidations = false;
    public name = '';
    public currentGroup = '';
-   public parentGroup = '';
+   public parentGroup: any;
    public groups: any = [];
    public selectedFolder = '';
 

@@ -14,9 +14,9 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+import { FloatingMenuModel } from './../floating-menu.model';
 
 @Component({
    selector: 'menu-options',
@@ -86,13 +86,13 @@ export class MenuOptionsComponent implements OnInit {
 
    scrollTop() {
       this._scrollHandler = setInterval(() => {
-         this.scrollList.scrollTop -= 1;
+         this.scrollList.scrollTo(0, this.scrollList.scrollTop - 1);
       }, 5);
    }
 
    scrollBottom() {
       this._scrollHandler = setInterval(() => {
-         this.scrollList.scrollTop += 1;
+         this.scrollList.scrollTo(0, this.scrollList.scrollTop + 1);
       }, 4);
    }
 

@@ -59,8 +59,9 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     public menuOptions: any = [];
 
     public groupList: Array<any>;
-    public currentLevel: string;
     public selectedVersion: DataDetails;
+
+    public sidebarPosition: number = 0;
 
     private _modalOpen$: Subscription;
     private _selectedWorkflows$: Subscription;
@@ -68,12 +69,16 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     private _workflowList$: Subscription;
     private _selectedVersion: Subscription;
 
+    private _nodeContainer;
+
     private timer: any;
 
     constructor(private _store: Store<State>,
         private _modalService: StModalService,
         public workflowsService: WorkflowsManagingService,
-        private _cd: ChangeDetectorRef) { }
+        private _cd: ChangeDetectorRef) {
+        this._calculatePosition = this._calculatePosition.bind(this);
+    }
 
     ngOnInit() {
         this._modalService.container = this.target;
@@ -126,9 +131,22 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
             executionContext: event
         }));
     }
+
     showExecutionConfiguration(data) {
-       this.selectedVersion = { type: 'version', data };
-      this._store.dispatch(new workflowActions.ConfigAdvancedExecutionAction(data.id));
+        this.selectedVersion = { type: 'version', data };
+        this._store.dispatch(new workflowActions.ConfigAdvancedExecutionAction(data.id));
+    }
+
+    ngAfterViewInit(): void {
+        this._nodeContainer = document.getElementById('rightbar-ref');
+        this._calculatePosition();
+        window.addEventListener('resize', this._calculatePosition);
+    }
+
+    private _calculatePosition() {
+        const rect = this._nodeContainer.getBoundingClientRect();
+        this.sidebarPosition = window.innerWidth - rect.left - rect.width - 13;
+        this._cd.markForCheck();
     }
 
     public ngOnDestroy(): void {
@@ -137,8 +155,9 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
         this._selectedWorkflows$ && this._selectedWorkflows$.unsubscribe();
         this._groupList$ && this._groupList$.unsubscribe();
         this._selectedVersion && this._selectedVersion.unsubscribe();
-
+        window.removeEventListener('resize', this._calculatePosition);
         //clearInterval(this.timer); // stop status requests
         this._store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
     }
+
 }

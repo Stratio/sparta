@@ -36,6 +36,7 @@ export class WorkflowsManagingTableComponent {
    @Input() selectedGroupsList: Array<string> = [];
    @Input() selectedVersions: Array<string> = [];
    @Input() workflowVersions: Array<any> = [];
+   @Input() previousLevel: any;
 
    @Output() onChangeOrder = new EventEmitter<Order>();
    @Output() onChangeOrderVersions = new EventEmitter<Order>();
@@ -128,6 +129,14 @@ export class WorkflowsManagingTableComponent {
 
    public versionOptions: MenuOptionListGroup[] = [
       {
+         options: [{
+            icon: 'icon-edit-3',
+            label: 'Edit',
+            id: 'version-edit'
+         }]
+      },
+      {
+
          options: [
             {
                icon: 'icon-play',
@@ -138,7 +147,9 @@ export class WorkflowsManagingTableComponent {
                icon: 'icon-play',
                label: 'Run with parameters',
                id: 'version-run-params-workflow'
-            },
+            }]
+      }, {
+         options: [
             {
                icon: 'icon-square-plus',
                label: 'New workflow from this version',
@@ -149,11 +160,7 @@ export class WorkflowsManagingTableComponent {
                label: 'New version',
                id: 'version-new-version'
             },
-            {
-               icon: 'icon-edit',
-               label: 'Edit',
-               id: 'version-edit'
-            }
+
          ]
       },
       {
@@ -275,18 +282,19 @@ export class WorkflowsManagingTableComponent {
    }
 
    private _duplicateWorkflow(version) {
+
       this._modalService.show({
-            modalTitle: this.duplicateWorkflowTitle,
-            maxWidth: 500,
-            inputs: {
-               version
-            },
-            outputs: {
-               onCloseDuplicateModal: (response: any) => {
-                  this._modalService.close();
-               }
-            },
-         }, DuplicateWorkflowComponent);
+         modalTitle: this.duplicateWorkflowTitle,
+         maxWidth: 500,
+         inputs: {
+            version
+         },
+         outputs: {
+            onCloseDuplicateModal: (response: any) => {
+               this._modalService.close();
+            }
+         },
+      }, DuplicateWorkflowComponent);
    }
 
    private _deleteConfirmModal(title: string, onSuccesHander: Function) {

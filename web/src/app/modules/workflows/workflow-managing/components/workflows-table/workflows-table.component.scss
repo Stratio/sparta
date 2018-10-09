@@ -15,6 +15,21 @@
    padding-right: 0;
 }
 
+.return-link {
+    color:$action-primary-hover;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+    .label {
+        margin-left: 5px;
+    }
+}
+
+.history-row {
+    cursor: default;
+    border-bottom: 1px solid #eaeff5;
+}
+
 .workflow-table,
 .version-table {
     display: block;
@@ -24,6 +39,7 @@
         cursor: pointer;
         .show-options {
             color: $neutral-13;
+            font-weight: bold;
         }
         .group-name {
             color: $action-primary-default;
@@ -115,14 +131,16 @@
 
 .show-options {
     padding: 6px 5px;
-    color: $action-secondary-04;
 }
 .workflow-row, .group-row {
-   td:first-child {
-      min-width: 460px;
-   }
 
    td:last-child {
       float: right;
    }
+}
+
+.version-title-name {
+    font-size: $egeo-font-size-large;
+    color: $neutral-13;
+    font-family: $egeo-nunito-sans-bold;
 }

@@ -129,18 +129,17 @@ export class WizardEditorComponent implements OnInit {
       this.drawConnector(event);
    }
 
-   drawConnector(event: any) {
-      const $event = event.event;
-      this.newOrigin = event.name;
+   drawConnector(evnt: any) {
+      this.newOrigin = evnt.name;
       const connector: NodeConnector = {
-         x1: $event.clientX,
-         y1: $event.clientY - 135,
+         x1: evnt.event.clientX,
+         y1: evnt.event.clientY - 135,
          x2: 0,
          y2: 0
       };
       this.drawingConnectionStatus = {
          status: true,
-         name: event.name
+         name: evnt.name
       };
       this._connectorElement.attr('d', ''); // reset connector position
       this.showConnector = true;
@@ -148,7 +147,7 @@ export class WizardEditorComponent implements OnInit {
          .on('mousemove', drawConnector.bind(this))
          .on('mouseup', mouseup.bind(this));
       function mouseup() {
-         $event.target.parentNode.classList.remove('over2');
+         evnt.event.target.parentNode.classList.remove('over2');
          this.showConnector = false;
          this.newOrigin = '';
          this.drawingConnectionStatus = {

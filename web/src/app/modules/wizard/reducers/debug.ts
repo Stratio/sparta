@@ -13,7 +13,8 @@ export interface State {
   showDebugConsole: boolean;
   debugConsoleSelectedTab: string;
   showedDebugDataEntity: string;
-  showDebugConfig: boolean;
+  showExecutionConfig: boolean;
+  executionContexts: any;
 };
 
 const initialState: State = {
@@ -22,7 +23,8 @@ const initialState: State = {
   showDebugConsole: false,
   debugConsoleSelectedTab: 'Exceptions',
   showedDebugDataEntity: '',
-  showDebugConfig: false
+  showExecutionConfig: false,
+  executionContexts: null
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -33,7 +35,8 @@ export function reducer(state: State = initialState, action: any): State {
     case debugActions.INIT_DEBUG_WORKFLOW_COMPLETE: {
       return {
         ...state,
-        isDebugging: true
+        isDebugging: true,
+        showExecutionConfig: false
       };
     }
     case debugActions.GET_DEBUG_RESULT_COMPLETE: {
@@ -54,10 +57,10 @@ export function reducer(state: State = initialState, action: any): State {
         for (const nodeResult in debug.stepResults) {
           const step: any = debugResult.steps[nodeResult] || {};
           step.result = debug.stepResults[nodeResult]
-          if(step.result.schema) {
+          if (step.result.schema) {
             const schema = step.result.schema;
             try {
-               step.result.schema = JSON.parse(schema);
+              step.result.schema = JSON.parse(schema);
             } catch (error) {
               step.result.schema = {};
             }
@@ -71,7 +74,8 @@ export function reducer(state: State = initialState, action: any): State {
       }
       return {
         ...state,
-        lastDebugResult: debugResult
+        lastDebugResult: debugResult,
+        showExecutionConfig: false
       };
     }
     case debugActions.SHOW_ENTITY_DEBUG_SCHEMA: {
@@ -114,13 +118,26 @@ export function reducer(state: State = initialState, action: any): State {
     case debugActions.SHOW_DEBUG_CONFIG: {
       return {
         ...state,
-        showDebugConfig: true
+        showExecutionConfig: true
       };
     }
     case debugActions.HIDE_DEBUG_CONFIG: {
       return {
         ...state,
-        showDebugConfig: false
+        showExecutionConfig: false
+      };
+    }
+    case debugActions.CONFIG_ADVANCED_EXECUTION_COMPLETE: {
+      return {
+        ...state,
+        showExecutionConfig: true,
+        executionContexts: action.config
+      };
+    }
+    case debugActions.CANCEL_ADVANCED_EXECUTION: {
+      return {
+        ...state,
+        showExecutionConfig: false
       };
     }
     default:

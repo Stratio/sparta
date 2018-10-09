@@ -16,6 +16,10 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/timer';
+import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/operator/concatMap';
+import 'rxjs/add/observable/from';
 import { Observable } from 'rxjs/Observable';
 
 import * as executionsActions from '../actions/executions';
@@ -32,12 +36,14 @@ export class ExecutionsEffect {
    @Effect()
    getExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_EXECUTIONS)
-      .switchMap( () => this._executionService.getDashboardExecutions()
+      .switchMap(() => Observable.timer(0, 5000)
+         .takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING))
+         .concatMap(() => this._executionService.getDashboardExecutions()
          .map(executions => new executionsActions.ListExecutionsCompleteAction({
              executionsSummary: executions.executionsSummary,
              executionList: executions.lastExecutions.map(execution => this._executionHelperService.normalizeExecution(execution))
          }))
-         .catch(err => of(new executionsActions.ListExecutionsFailAction())));
+         .catch(err => of(new executionsActions.ListExecutionsFailAction()))));
 
    constructor(
       private actions$: Actions,

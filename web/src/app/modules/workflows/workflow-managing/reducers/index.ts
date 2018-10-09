@@ -75,7 +75,7 @@ export const getWorkflowVersions = createSelector(
    (workflowList, openedWorkflow) => {
       const workflowVersions = openedWorkflow ?
          workflowList.filter((workflow: any) =>
-            openedWorkflow.name === workflow.name && openedWorkflow.group === workflow.group) : [];
+            openedWorkflow.name === workflow.name && openedWorkflow.group && openedWorkflow.group.id === workflow.group.id) : [];
       return workflowVersions.length ? workflowVersions[0].versions : workflowVersions;
    });
 

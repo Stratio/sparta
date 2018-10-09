@@ -11,7 +11,7 @@
 <st-fullscreen-layout [title]="executionInfo.name">
    <div class="st-fullscreen-layout-buttons">
       <div class="return-link">
-         <a class="link" (click)="closeWorkflowExecutinInfo()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
+         <a class="link" (click)="closeExecutionInfo.emit()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
       </div>
    </div>
    <div class="st-fullscreen-layout-content">

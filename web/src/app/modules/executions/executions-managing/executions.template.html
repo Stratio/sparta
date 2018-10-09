@@ -9,7 +9,7 @@
 -->
 <div #newExecutionsModalMonitoring qaTag="executions-modal"></div>
 <div [hidden]="executionInfo" *ngIf="!(showInitialMode | async)">
-   <executions-managing-header-container [showDetails]="showDetails" [selectedExecutions]="selectedExecutionsIds"
+   <executions-managing-header-container [isArchivedPage]="isArchivedPage" [showDetails]="showDetails" [selectedExecutions]="selectedExecutionsIds"
       (showExecutionInfo)="onShowExecutionInfo()"></executions-managing-header-container>
    <div class="container">
       <div class="table-container" [ngClass]="{'compressed' : showDetails}">
@@ -26,4 +26,5 @@
    </div>
 </div>
 <executions-console *ngIf="showDebugConsole" [execution]="selectedExecution" (closeConsole)="onCloseConsole()"></executions-console>
+<execution-info *ngIf="executionInfo" [executionInfo]="executionInfo" (closeExecutionInfo)="closeExecutionInfo()"></execution-info>
 

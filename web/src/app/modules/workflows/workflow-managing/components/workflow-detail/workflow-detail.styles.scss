@@ -1,9 +1,14 @@
 @import '~@stratio/egeo/theme/constants';
 :host {
-   display: block;
-}
-.selected {
-   margin-top: -10px;
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 20px;
+    max-height: calc(100% - 150px);
+    margin-top: 18px;
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: normal;
 }
 
 .version-title {

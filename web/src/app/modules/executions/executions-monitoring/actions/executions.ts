@@ -9,6 +9,7 @@ import { Action } from '@ngrx/store';
 export const LIST_EXECUTIONS = '[Executions Monitoring] List executions';
 export const LIST_EXECUTIONS_COMPLETE = '[Executions Monitoring] List executions complete';
 export const LIST_EXECUTIONS_FAIL = '[Executions Monitoring] List executions fail';
+export const CANCEL_EXECUTION_POLLING = '[Executions Monitoring] Cancel execution polling';
 
 export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS;
@@ -22,7 +23,12 @@ export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS_COMPLETE;
    constructor(public payload: any) { }
  }
+ export class CancelExecutionPollingAction implements Action {
+   readonly type = CANCEL_EXECUTION_POLLING;
+ }
+
 
  export type Actions = ListExecutionsAction
   | ListExecutionsFailAction
-  | ListExecutionsCompleteAction;
+  | ListExecutionsCompleteAction
+  | CancelExecutionPollingAction;

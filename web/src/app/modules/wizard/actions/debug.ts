@@ -29,8 +29,31 @@ export const SHOW_ENTITY_DEBUG_SCHEMA = '[Wizard] Show entity debug schema';
 export const SHOW_DEBUG_CONFIG = '[Wizard] Show debug config';
 export const HIDE_DEBUG_CONFIG = '[Wizard] Hide debug config';
 
+export const CONFIG_ADVANCED_EXECUTION = '[Workflow-Managing] Config advanced execution';
+export const CONFIG_ADVANCED_EXECUTION_COMPLETE = '[Workflow-Managing] Config advanced execution complete';
+export const CONFIG_ADVANCED_EXECUTION_ERROR = '[Workflow-Managing] Config advanced execution error';
+export const CANCEL_ADVANCED_EXECUTION = '[Workflow-Managing] Cancel advanced execution';
+
+export class CancelAdvancedExecutionAction implements Action {
+    readonly type = CANCEL_ADVANCED_EXECUTION;
+}
+
+export class ConfigAdvancedExecutionAction implements Action {
+    readonly type = CONFIG_ADVANCED_EXECUTION;
+}
+
+export class ConfigAdvancedExecutionCompleteAction implements Action {
+    readonly type = CONFIG_ADVANCED_EXECUTION_COMPLETE;
+    constructor(public config: any) { }
+}
+
+export class ConfigAdvancedExecutionErrorAction implements Action {
+    readonly type = CONFIG_ADVANCED_EXECUTION_ERROR;
+}
+
 export class InitDebugWorkflowAction implements Action {
     readonly type = INIT_DEBUG_WORKFLOW;
+    constructor(public config?: any) { }
 }
 
 export class InitDebugWorkflowCompleteAction implements Action {
@@ -103,7 +126,7 @@ export class DownloadDebugFileErrorAction implements Action {
 
 export class DeleteDebugFileAction implements Action {
     readonly type = DELETE_DEBUG_FILE;
-    constructor(public fileName: string) {}
+    constructor(public fileName: string) { }
 }
 
 export class DeleteDebugFileCompleteAction implements Action {
@@ -116,7 +139,7 @@ export class DeleteDebugFileErrorAction implements Action {
 
 export class ShowEntityDebugSchema implements Action {
     readonly type = SHOW_ENTITY_DEBUG_SCHEMA;
-     constructor(public entityName: string) {}
+    constructor(public entityName: string) { }
 }
 
 export class ShowDebugConfigAction implements Action {
@@ -149,4 +172,8 @@ export type Actions =
     DeleteDebugFileErrorAction |
     ShowEntityDebugSchema |
     ShowDebugConfigAction |
-    HideDebugConfigAction;
+    HideDebugConfigAction |
+    ConfigAdvancedExecutionAction |
+    ConfigAdvancedExecutionCompleteAction |
+    ConfigAdvancedExecutionErrorAction |
+    CancelAdvancedExecutionAction;

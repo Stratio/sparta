@@ -9,7 +9,7 @@ import { StoreModule } from '@ngrx/store';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule,
-    StModalService, StProgressBarModule, StTextareaModule, StForegroundNotificationsModule, StFullscreenLayoutModule, StInputModule
+    StModalService, StProgressBarModule, StTextareaModule, StForegroundNotificationsModule, StInputModule
 } from '@stratio/egeo';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 
@@ -21,6 +21,8 @@ import {
     WorkflowsManagingTableComponent, WorkflowsManagingTableContainer, WorkflowRenameModal,
     MoveGroupModal, GroupTreeComponent, DuplicateWorkflowComponent, GroupSelectorComponent
 } from '.';
+import { WorkflowTableHeaderModule } from './components/workflow-table-header/workflow-table-header.module';
+
 
 import { reducers } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
@@ -68,6 +70,7 @@ import { CustomExecutionModule } from '@app/custom-execution/custom-execution.mo
         StBreadcrumbsModule,
         MenuOptionsListModule,
         WorkflowManagingRouterModule,
+        WorkflowTableHeaderModule,
         SharedModule,
         StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal,
         WorkflowGroupModal, WorkflowRenameModal, MoveGroupModal, GroupTreeComponent,

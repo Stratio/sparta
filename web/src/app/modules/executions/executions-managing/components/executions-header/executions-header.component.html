@@ -35,7 +35,7 @@
                     </st-dropdown-menu>
                 </span>
                 <span class="item">
-                    <st-dropdown-menu [items]="timeIntervals"
+                    <st-dropdown-menu *ngIf="!isArchivedPage" [items]="timeIntervals"
                         [active]="showedFilter === 'time'"
                         [selectedItem]="timeIntervalFilterItem"
                         (change)="onChangeTimeIntervalFilter.emit($event.value)">
@@ -52,17 +52,20 @@
         <div class="col-sm-3">
             <div class="global-actions">
                 <div class="selection-tools">
-                    <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
+                <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
                   <i class="icon-trash"></i>
                </button>
-                    <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
+                <button *ngIf="showArchiveButton" spTitle="Archive selected executions" class="button button-toolbar" id="archive-button" (click)="archiveExecutions.emit()">
                   <i class="icon-archive"></i>
                </button>
-                    <button *ngIf="false" spTitle="Run selected execution" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
+                <button *ngIf="showUnarchiveButton" spTitle="Unarchive selected executions" class="button button-toolbar" id="unarchive-button" (click)="unarchiveExecutions.emit()">
+                  <i class="icon-archive"></i>
+               </button>
+                <button *ngIf="false" spTitle="Run selected executions" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
                   <i class="icon-play"></i>
                </button>
-                    <button *ngIf="selectedExecutions && selectedExecutions.length" spTitle="Stop selected execution" class="button button-toolbar"
-                        id="run-button" (click)="onStopExecution.emit()">
+                <button *ngIf="showStopButton" spTitle="Stop selected executions" class="button button-toolbar"
+                    id="run-button" (click)="onStopExecution.emit()">
                   <i class="icon-stop"></i>
                </button>
                     <div class="separator"></div>

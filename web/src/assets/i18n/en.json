@@ -74,6 +74,7 @@
       "WORKFLOW_NAME": "Name",
       "WORKFLOW_DESCRIPTION": "Description",
       "DELETE_WORKFLOW_TITLE": "Delete Workflow",
+      "DELETE_WORKFLOW_MESSAGE": "Are you sure?",
       "DELETE_FOLDER_TITLE": "Delete Folder",
       "DELETE_VERSION_TITLE": "Delete Version",
       "DELETE_TITLE": "Delete",

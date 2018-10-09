@@ -229,7 +229,9 @@ export const isWorkflowDebugging = createSelector(getDebugState, state => state.
 export const getDebugConsoleSelectedTab = createSelector(getDebugState, state => state.debugConsoleSelectedTab);
 export const getEnvironmentList = createSelector(getExternalDataState, state => state.environmentVariables);
 export const getCustomGroups = createSelector(getExternalDataState, state => state.customGroups);
-export const isShowingDebugConfig = createSelector(getDebugState, state => state.showDebugConfig);
+export const isShowingDebugConfig = createSelector(getDebugState, state => state.showExecutionConfig);
+export const getExecutionContexts = createSelector(getDebugState, state => state.executionContexts);
+
 export const getParameters = createSelector(getExternalDataState, state => ({
   globalVariables: state.globalVariables,
   environmentVariables: state.environmentVariables,

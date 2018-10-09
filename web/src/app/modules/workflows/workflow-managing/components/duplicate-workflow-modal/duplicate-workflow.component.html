@@ -10,7 +10,7 @@
 
 <group-selector [blockChilds]="false"
     [groups]="groups"
-    [parentGroup]="parentGroup"
+    [parentGroup]="parentGroup.name"
     [currentGroup]="currentGroup"
     [selectedFolder]="selectedFolder"
     (onSelectFolder)="selectFolder($event)"></group-selector>

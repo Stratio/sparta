@@ -10,6 +10,19 @@ import { Order } from '@stratio/egeo';
 export const LIST_EXECUTIONS = '[Executions Managing] List executions';
 export const LIST_EXECUTIONS_COMPLETE = '[Executions Managing] List executions complete';
 export const LIST_EXECUTIONS_FAIL = '[Executions Managing] List executions fail';
+
+export const LIST_ARCHIVED_EXECUTIONS = '[Executions Managing] List archived executions';
+export const LIST_ARCHIVED_EXECUTIONS_COMPLETE = '[Executions Managing] List archived executions complete';
+export const LIST_ARCHIVED_EXECUTIONS_FAIL = '[Executions Managing] List archived executions fail';
+
+export const ARCHIVE_EXECUTIONS = '[Executions Managing] Archive executions';
+export const ARCHIVE_EXECUTIONS_COMPLETE = '[Executions Managing] Archive executions complete';
+export const ARCHIVE_EXECUTIONS_FAIL = '[Executions Managing] Archive executions fail';
+
+export const UNARCHIVE_EXECUTIONS = '[Executions Managing] Unarchive executions';
+export const UNARCHIVE_EXECUTIONS_COMPLETE = '[Executions Managing] Unarchive executions complete';
+export const UNARCHIVE_EXECUTIONS_FAIL = '[Executions Managing] Unarchive executions fail';
+
 export const SELECT_EXECUTIONS_ACTION = '[Executions Managing] Select execution';
 export const DESELECT_EXECUTIONS_ACTION = '[Executions Managing] Deselect execution';
 export const STOP_EXECUTIONS_ACTION = '[Executions Managing] Stop execution';
@@ -30,6 +43,11 @@ export const RESET_VALUES = '[Executions Managing] Reset values';
 export const GET_WORKFLOW_EXECUTION_INFO = '[Worflow] Get Workflow execution info';
 export const GET_WORKFLOW_EXECUTION_INFO_COMPLETE = '[Worflow] Get Workflow execution info complete';
 export const GET_WORKFLOW_EXECUTION_INFO_ERROR = '[Worflow] Get Workflow execution info error';
+export const CLOSE_WORKFLOW_EXECUTION_INFO = '[Worflow] Close workflow execution info';
+
+export const CANCEL_EXECUTION_POLLING = '[Workflow] Cancel execution polling';
+
+export const SET_ARCHIVED_PAGE = '[Workflow] Set archived page';
 
 export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS;
@@ -42,6 +60,43 @@ export class ListExecutionsFailAction implements Action {
 export class ListExecutionsCompleteAction implements Action {
    readonly type = LIST_EXECUTIONS_COMPLETE;
    constructor(public payload: any) { }
+}
+
+export class ListArchivedExecutionsAction implements Action {
+   readonly type = LIST_ARCHIVED_EXECUTIONS;
+}
+
+export class ListArchivedExecutionsFailAction implements Action {
+   readonly type = LIST_ARCHIVED_EXECUTIONS_FAIL;
+}
+
+export class ListArchivedExecutionsCompleteAction implements Action {
+   readonly type = LIST_ARCHIVED_EXECUTIONS_COMPLETE;
+   constructor(public payload: any) { }
+}
+
+export class ArchiveExecutionsAction implements Action {
+   readonly type = ARCHIVE_EXECUTIONS;
+}
+
+export class ArchiveExecutionsFailAction implements Action {
+   readonly type = ARCHIVE_EXECUTIONS_FAIL;
+}
+
+export class ArchiveExecutionsCompleteAction implements Action {
+   readonly type = ARCHIVE_EXECUTIONS_COMPLETE;
+}
+
+export class UnarchiveExecutionsAction implements Action {
+   readonly type = UNARCHIVE_EXECUTIONS;
+}
+
+export class UnarchiveExecutionsFailAction implements Action {
+   readonly type = UNARCHIVE_EXECUTIONS_FAIL;
+}
+
+export class UnarchiveExecutionsCompleteAction implements Action {
+   readonly type = UNARCHIVE_EXECUTIONS_COMPLETE;
 }
 
 export class SelectExecutionAction implements Action {
@@ -96,9 +151,50 @@ export class ChangePaginationAction implements Action {
   constructor(public payload: any) {}
 }
 
+export class CancelExecutionPolling implements Action {
+  readonly type = CANCEL_EXECUTION_POLLING;
+}
+
+export class GetExecutionInfoAction implements Action {
+  readonly type = GET_WORKFLOW_EXECUTION_INFO;
+
+  constructor(public payload: any) { }
+}
+
+export class GetExecutionInfoCompleteAction implements Action {
+  readonly type = GET_WORKFLOW_EXECUTION_INFO_COMPLETE;
+
+  constructor(public payload: any) { }
+}
+export class GetExecutionInfoErrorAction implements Action {
+  readonly type = GET_WORKFLOW_EXECUTION_INFO_ERROR;
+
+  constructor() { }
+}
+
+export class CloseWorkflowExecutionInfoAction implements Action {
+  readonly type = CLOSE_WORKFLOW_EXECUTION_INFO;
+
+  constructor() { };
+}
+
+export class SetArchivedPageAction implements Action {
+  readonly type = SET_ARCHIVED_PAGE;
+  constructor(public payload) {}
+}
+
 export type Actions = ListExecutionsAction
    | ListExecutionsFailAction
    | ListExecutionsCompleteAction
+   | ListArchivedExecutionsAction
+   | ListArchivedExecutionsCompleteAction
+   | ListArchivedExecutionsFailAction
+   | ArchiveExecutionsAction
+   | ArchiveExecutionsCompleteAction
+   | ArchiveExecutionsFailAction
+   | UnarchiveExecutionsAction
+   | UnarchiveExecutionsCompleteAction
+   | UnarchiveExecutionsFailAction
    | SelectExecutionAction
    | DeselectExecutionAction
    | SelectTypeFilterAction
@@ -107,4 +203,10 @@ export type Actions = ListExecutionsAction
    | SearchExecutionAction
    | ChangeExecutionsOrderAction
    | ResetValuesAction
-   | ChangePaginationAction;
+   | ChangePaginationAction
+   | CancelExecutionPolling
+   | GetExecutionInfoAction
+   | GetExecutionInfoCompleteAction
+   | GetExecutionInfoErrorAction
+   | CloseWorkflowExecutionInfoAction
+   | SetArchivedPageAction;

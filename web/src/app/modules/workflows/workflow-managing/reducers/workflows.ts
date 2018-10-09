@@ -9,7 +9,6 @@ import { formatDate } from '@utils';
 import { homeGroup } from '@app/shared/constants/global';
 import { DataDetails } from './../models/data-details';
 import { Group, GroupWorkflow } from './../models/workflows';
-import { stat } from 'fs';
 
 export interface State {
    currentLevel: any;
@@ -357,7 +356,7 @@ export function reducer(state: State = initialState, action: any): State {
       case workflowActions.GENERATE_NEW_VERSION_COMPLETE: {
          const newWorkflow = {
             ...action.payload,
-            group: action.payload.group.name,
+            group: action.payload.group,
             nodes: action.payload.pipelineGraph.nodes
          };
          const workflow = { ...state.workflowsVersionsList[0], versions: [...state.workflowsVersionsList[0].versions, newWorkflow] };
@@ -390,8 +389,14 @@ export function reducer(state: State = initialState, action: any): State {
             ...action.payload,
             group: action.payload.group.name,
             nodes: action.payload.pipelineGraph.nodes,
-            type: action.payload.executionEngine
+            type: action.payload.executionEngine,
          };
+         newWorkflow.versions = [{
+            ...action.payload,
+            group: action.payload.group.name,
+            nodes: action.payload.pipelineGraph.nodes,
+            type: action.payload.executionEngine,
+         }];
          const workflowList = [...state.workflowList, newWorkflow];
          const workflowsVersionsList = [...state.workflowsVersionsList, newWorkflow];
 

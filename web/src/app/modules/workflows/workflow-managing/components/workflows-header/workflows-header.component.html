@@ -10,15 +10,15 @@
 
 <tool-bar>
    <div breadcrumb>
-      <st-breadcrumbs [options]="levelOptions" (select)="selectLevel($event)" qaTag="workflows-breadcrumb"></st-breadcrumbs>
+      <st-breadcrumbs [options]="levelOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="repository-breadcrumb"></st-breadcrumbs>
    </div>
    <div selection-tools>
-        <st-foreground-notifications *ngIf="notificationMessage" 
-            [status]="notificationMessage.status" 
-            [text]="('DASHBOARD.' + notificationMessage.text) | translate"
-            (visibleChange)="changeNotificationVisibility($event)"
-            [autoCloseTime]="notificationMessage.autoCloseTime"
-            [visible]="notificationMessage.visible"></st-foreground-notifications>
+    <st-foreground-notifications *ngIf="notificationMessage" 
+        [status]="notificationMessage.status" 
+        [text]="('DASHBOARD.' + notificationMessage.text) | translate"
+        (visibleChange)="changeNotificationVisibility($event)"
+        [autoCloseTime]="notificationMessage.autoCloseTime"
+        [visible]="notificationMessage.visible"></st-foreground-notifications>
    </div>
    <div general-tools>
       <div class="selection-actions">
@@ -29,7 +29,7 @@
                 --><i class="primary-option icon-play" (click)="simpleRun()"></i><!--
                 --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="selectedExecution($event)">
                     <div class="options">
-                        <i class="icon-arrow2_down"></i>
+                        <i class="icon-arrow4_down"></i>
                     </div>
                 </menu-options-list><!--
             --></div>

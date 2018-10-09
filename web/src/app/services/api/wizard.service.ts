@@ -28,6 +28,16 @@ export class WizardApiService extends ApiService {
     return this.request('debug', 'post', options);
   }
 
+  debugWithExecutionContext(workflowId: string, executionContext: any): Observable<any> {
+    const options = {
+      body: {
+        workflowId,
+        executionContext
+      }
+    };
+    return this.request('debug/runWithExecutionContext', 'post', options);
+  }
+
   runDebug(workflowId: string): Observable<any> {
     const options: any = {};
     return this.request('debug/run/' + workflowId, 'post', options);

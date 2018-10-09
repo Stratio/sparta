@@ -26,4 +26,7 @@
    [workflowType]="workflowType"
    *ngIf="workflowType.length && showSettings"></wizard-settings>
 
-<custom-execution-container (closeCustomExecution)="closeCustomExecution()" *ngIf="showDebugConfig$ | async"></custom-execution-container>
+<custom-execution-container (closeCustomExecution)="closeCustomExecution()"
+    (executeWorkflow)="executeWorkflow($event)"
+    [executionContexts]="executionContexts$ | async"
+    *ngIf="showDebugConfig$ | async"></custom-execution-container>

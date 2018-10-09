@@ -42,6 +42,7 @@ export const DOWNLOAD_WORKFLOWS_ERROR = '[Workflow-Managing] Download workflows 
 export const RUN_WORKFLOW = '[Workflow-Managing] Run workflow';
 export const RUN_WORKFLOW_COMPLETE = '[Workflow-Managing] Run workflow complete';
 export const RUN_WORKFLOW_ERROR = '[Workflow-Managing] Run workflow error';
+export const RUN_WORKFLOW_VALIDATION_ERROR = '[Workflow-Managing] Run workflow validation error';
 
 export const CONFIG_ADVANCED_EXECUTION = '[Workflow-Managing] Config advanced execution';
 export const CONFIG_ADVANCED_EXECUTION_COMPLETE = '[Workflow-Managing] Config advanced execution complete';
@@ -282,6 +283,11 @@ export class RunWorkflowCompleteAction implements Action {
 
 export class RunWorkflowErrorAction implements Action {
   readonly type = RUN_WORKFLOW_ERROR;
+  constructor(public payload: any) { }
+}
+
+export class RunWorkflowValidationErrorAction implements Action {
+  readonly type = RUN_WORKFLOW_VALIDATION_ERROR;
   constructor(public payload: any) { }
 }
 
@@ -548,6 +554,9 @@ export type Actions =
   DuplicateWorkflowCompleteAction |
   DuplicateWorkflowErrorAction |
   RunWorkflowAction |
+  RunWorkflowCompleteAction |
+  RunWorkflowErrorAction |
+  RunWorkflowValidationErrorAction |
   StopWorkflowAction |
   DownloadWorkflowsAction |
   DownloadWorkflowsCompleteAction |

@@ -21,9 +21,9 @@ import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import * as debugActions from './../../actions/debug';
 
-import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
 import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
+import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.model';
 
 @Component({
   selector: 'wizard-header',
@@ -183,7 +183,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       if (event === 'simple') {
          this.debugWorkflow();
       } else {
-         this._store.dispatch(new debugActions.ShowDebugConfigAction());
+         this._store.dispatch(new debugActions.ConfigAdvancedExecutionAction());
       }
    }
 

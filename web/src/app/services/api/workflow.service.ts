@@ -182,4 +182,10 @@ export class WorkflowService extends ApiService {
         return this.request('workflows/runWithParametersViewById/' + workflowId, 'post', options);
     }
 
+    getRunParametersFromWorkflow(workflow: any) {
+        const options: any = {
+            body: workflow
+        };
+        return this.request('workflows/runWithParametersView', 'post', options);
+    }
 }

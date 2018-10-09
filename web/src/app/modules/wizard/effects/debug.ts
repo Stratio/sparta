@@ -24,8 +24,8 @@ import { from } from 'rxjs/observable/from';
 import { Observable } from 'rxjs/Observable';
 
 import { Injectable } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Effect, Actions, toPayload } from '@ngrx/effects';
+import { Action, Store } from '@ngrx/store';
+import { Effect, Actions} from '@ngrx/effects';
 
 import * as fromWizard from './../reducers';
 import * as wizardActions from './../actions/wizard';
@@ -33,19 +33,27 @@ import * as debugActions from './../actions/debug';
 import * as errorActions from 'actions/errors';
 
 import { WizardService } from '@app/wizard/services/wizard.service';
-import { WizardApiService } from 'app/services';
+import { WizardApiService, WorkflowService } from 'app/services';
 import { getWorkflowId } from './../reducers';
 
 @Injectable()
 export class DebugEffect {
 
    @Effect()
+   getExecutionContexts$: Observable<Action> = this._actions$
+      .ofType<debugActions.ConfigAdvancedExecutionAction>(debugActions.CONFIG_ADVANCED_EXECUTION)
+      .withLatestFrom(this._store.select(state => state))
+      .switchMap(([action, state]) => this._workflowService.getRunParametersFromWorkflow(this._wizardService.getWorkflowModel(state))
+         .map(response => new debugActions.ConfigAdvancedExecutionCompleteAction(response))
+         .catch(error => Observable.of(new debugActions.ConfigAdvancedExecutionErrorAction())));
+
+   @Effect()
    debugWorkflow$: Observable<any> = this._actions$
       .ofType(debugActions.INIT_DEBUG_WORKFLOW)
-      .map(toPayload)
+      .map((action: any) => action.config)
       // Retrieve part of the current state
       .withLatestFrom(this._store.select(state => state))
-      .switchMap(([redirectOnSave, state]: [any, any]) => {
+      .switchMap(([config, state]: [any, any]) => {
          let workflow = this._wizardService.getWorkflowModel(state);
          const nodes = workflow.pipelineGraph.nodes.map(node => {
             const actualNode = workflow.pipelineGraph.nodes.filter(n => n.name === node.name)[0];
@@ -77,7 +85,9 @@ export class DebugEffect {
             }
          };
          return this._wizardApiService.debug(workflow)
-            .flatMap((response) => this._wizardApiService.runDebug(response.workflowDebug.id || response.workflowOriginal.id)
+            .flatMap((response) => (config ? 
+                  this._wizardApiService.debugWithExecutionContext(response.workflowDebug.id || response.workflowOriginal.id, config) :
+                  this._wizardApiService.runDebug(response.workflowDebug.id || response.workflowOriginal.id))
                .mergeMap(res => [
                   new debugActions.InitDebugWorkflowCompleteAction(response.workflowDebug.id || response.workflowOriginal.id),
                   new wizardActions.ShowNotificationAction({
@@ -157,6 +167,7 @@ export class DebugEffect {
       private _actions$: Actions,
       private _store: Store<fromWizard.State>,
       private _wizardService: WizardService,
+      private _workflowService: WorkflowService,
       private _wizardApiService: WizardApiService
    ) { }
 

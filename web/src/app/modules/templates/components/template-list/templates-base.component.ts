@@ -13,7 +13,6 @@ import { icons } from '@app/shared/constants/icons';
 
 import * as fromRoot from 'reducers';
 import { BreadcrumbMenuService } from 'services';
-import { take } from 'rxjs/operator/take';
 
 export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
 

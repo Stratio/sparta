@@ -36,6 +36,8 @@ export class WizardComponent implements OnInit, OnDestroy {
    public environmentList: Array<any> = [];
    public parameters: any = [];
    public showDebugConfig$: Observable<boolean>;
+   public executionContexts$: Observable<any>;
+
    private _componentDestroyed = new Subject();
 
    constructor(
@@ -62,6 +64,8 @@ export class WizardComponent implements OnInit, OnDestroy {
          this._store.dispatch(new wizardActions.SetWorkflowTypeAction(type)); // Set workflow type from the url param
          this._store.dispatch(new wizardActions.GetMenuTemplatesAction());    // Get menu templates
       }
+      this.executionContexts$ = this._store.select(fromWizard.getExecutionContexts);
+
       // Retrieves the workflow type from store (in edition mode, is updated after the get workflow data request)
       this._store.select(fromWizard.getWorkflowType)
          .takeUntil(this._componentDestroyed)
@@ -110,6 +114,10 @@ export class WizardComponent implements OnInit, OnDestroy {
    closeCustomExecution() {
       this._store.dispatch(new debugActions.HideDebugConfigAction());
    }
+
+   executeWorkflow(event) {
+      this._store.dispatch(new debugActions.InitDebugWorkflowAction(event));
+  }
 
    ngOnDestroy(): void {
       this._componentDestroyed.next();

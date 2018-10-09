@@ -483,7 +483,9 @@ export const areUndoRedoEnabled = (state: State) => ({
 });
 
 export const getEditionConfigMode = (state: State) => ({
-  isEdition: state.editionConfig,
-  editionType: state.editionConfigType
+    isEdition: state.editionConfig,
+    editionType: state.editionConfigType,
+    isPipeline: state.editionConfigType && state.editionConfigType.data.className === 'MlPipelineOutputStep',
 });
+
 

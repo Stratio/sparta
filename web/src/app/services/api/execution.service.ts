@@ -10,7 +10,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Store } from '@ngrx/store';
 
-import { ApiService} from './api.service';
+import { ApiService } from './api.service';
 import * as fromRoot from 'reducers';
 
 @Injectable()
@@ -35,9 +35,32 @@ export class ExecutionService extends ApiService {
       return this.request('workflowExecutions/findAllDto', 'get', options);
    }
 
+   getExecutionsByQuery(query: any): Observable<any> {
+      const options = {
+         body: query
+      };
+      return this.request('workflowExecutions/findByQuery', 'post', options);
+   }
+
+   archiveExecution(executionId: string, archived: boolean): Observable<any> {
+      const options = {
+         body: {
+            executionId,
+            archived
+         }
+      };
+      return this.request('workflowExecutions/archived', 'post', options);
+   }
+
    stopExecutionsById(id: string): Observable<any> {
       const options: any = {};
       return this.request(`workflowExecutions/stop/${id}`, 'post', options);
+   }
+
+
+   getWorkflowExecutionInfo(id: string) {
+      const options: any = {};
+      return this.request('workflowExecutions/' + id, 'get', options);
    }
 
 

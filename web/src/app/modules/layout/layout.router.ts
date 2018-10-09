@@ -21,6 +21,13 @@ const layoutRoutes: Routes = [
             loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule'
          },
          {
+            path: 'archived',
+            loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule',
+            data : {
+              archived : true
+            }
+         },
+         {
             path: 'repository',
             loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
          },

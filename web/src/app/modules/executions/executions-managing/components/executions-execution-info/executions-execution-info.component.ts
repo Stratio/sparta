@@ -3,14 +3,14 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { Component, ChangeDetectionStrategy, Input, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
 import { Store } from '@ngrx/store';
 
 import * as fromRoot from 'reducers';
 
 @Component({
-    selector: 'executions-execution-info',
+    selector: 'execution-info',
     templateUrl: './executions-execution-info.template.html',
     styleUrls: ['./executions-execution-info.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,6 +18,7 @@ import * as fromRoot from 'reducers';
 export class ExecutionsExecutionInfoComponent {
 
     @Input() executionInfo: any;
+    @Output() closeExecutionInfo = new EventEmitter<void>();
 
     public sortOrderConfig = false;
     public orderByConfig = 'key';
@@ -57,6 +58,4 @@ export class ExecutionsExecutionInfoComponent {
         this.selectedOption = event.id;
     }
 
-    closeWorkflowExecutinInfo() {
-    }
 }

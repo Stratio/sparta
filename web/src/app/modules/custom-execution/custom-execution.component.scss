@@ -34,9 +34,15 @@ st-input, sp-select {
 }
 
 .categories{
-  padding-top:2em;
-  overflow-y: auto;
-  height: 85%;
+    padding-top: 2em;
+    overflow-y: auto;
+    width: calc(100% + 10px);
+    overflow-x: hidden;
+    padding-right: 20px;
+    max-height: calc(100% - 120px);
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    word-break: break-all;
+    white-space: normal;
   .bold {
      font-weight: bold;
   }

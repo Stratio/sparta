@@ -13,9 +13,10 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Order } from '@stratio/egeo';
+import { Subscription } from 'rxjs/Subscription';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getVersionsOrderedList } from './../../reducers';
+import { State, getVersionsOrderedList, getCurrentGroupLevel } from './../../reducers';
 import { Observable } from 'rxjs/Observable';
 import { Group } from '../../models/workflows';
 
@@ -28,6 +29,7 @@ import { Group } from '../../models/workflows';
             [selectedGroupsList]="selectedGroupsList"
             [selectedWorkflows]="selectedWorkflows"
             [selectedVersions]="selectedVersions"
+            [previousLevel]="previousLevel"
             [groupList]="groupList"
             (onChangeOrder)="changeOrder($event)"
             (onChangeOrderVersions)="changeOrderVersions($event)"
@@ -58,12 +60,29 @@ export class WorkflowsManagingTableContainer implements OnInit {
    @Output() showWorkflowInfo = new EventEmitter<void>();
    @Output() showExecution = new EventEmitter<any>();
 
-
-
+   public previousLevel: any;
    public workflowVersions$: Observable<Array<any>>;
+   private _currentLevelSubscription: Subscription;
 
    ngOnInit(): void {
       this.workflowVersions$ = this._store.select(getVersionsOrderedList);
+      this._currentLevelSubscription = this._store.select(getCurrentGroupLevel).subscribe((currentLevel: any) => {
+          const levelSplitted = currentLevel.group.name.split('/');
+          if (currentLevel.workflow.length) {
+            this.previousLevel = {
+                label: currentLevel.group.label,
+                value: currentLevel.group.name
+            };
+          } else if (levelSplitted.length < 3) {
+            this.previousLevel = null;
+          } else {
+            this.previousLevel = {
+                label: levelSplitted[levelSplitted.length - 2],
+                value: levelSplitted.slice(0, levelSplitted.length - 1).join('/')
+            };
+          }
+
+      });
    }
 
    changeOrder(event: Order) {

@@ -47,7 +47,8 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList,
-            filters:  state.filters.length ? state.filters : filters};
+            filters: isEqual(filters, state.filters) ? state.filters : filters
+         }
       }
 
       default:

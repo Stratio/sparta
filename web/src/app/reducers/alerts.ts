@@ -207,6 +207,16 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
+      case workflowActions.RUN_WORKFLOW_VALIDATION_ERROR: {
+         return Object.assign({}, state, {
+            currentAlert: [{
+               type: STALERT_SEVERITY.ERROR,
+               title: 'ERROR',
+               text: action.payload.map(error => error.message).join('.    '),
+               duration: 4000
+            }]
+         });
+      }
       case workflowActions.STOP_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{

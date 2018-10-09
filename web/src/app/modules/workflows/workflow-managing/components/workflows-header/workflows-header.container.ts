@@ -11,8 +11,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getCurrentGroupLevel, getVersionsOrderedList, getSelectedVersionsData, getNotificationMessage } from './../../reducers';
-import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';
+import { State,  getVersionsOrderedList, getSelectedVersionsData, getNotificationMessage } from './../../reducers';
 
 
 @Component({
@@ -25,7 +24,6 @@ import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';
             [versionsListMode]="versionsListMode"
             [notificationMessage]="notificationMessage$ | async"
             [showDetails]="showDetails"
-            [levelOptions]="levelOptions"
             (onEditVersion)="editVersion($event)"
             (downloadWorkflows)="downloadWorkflows()" 
             (showWorkflowInfo)="showWorkflowInfo.emit()"
@@ -33,8 +31,7 @@ import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';
             (hideNotification)="hideNotification()"
             (showExecutionConfig)="showExecutionConfig($event)"
             (onSimpleRun)="simpleRun($event)"
-            (onDeleteVersions)="deleteVersions()"
-            (changeFolder)="changeFolder($event)"></workflows-manage-header>
+            (onDeleteVersions)="deleteVersions()">
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -62,19 +59,6 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
         this.selectedVersionsData$ = this._store.select(getSelectedVersionsData);
         this.workflowVersions$ = this._store.select(getVersionsOrderedList);
         this.notificationMessage$ = this._store.select(getNotificationMessage);
-        this.currentLevelSubscription = this._store.select(getCurrentGroupLevel).subscribe((levelGroup: any) => {
-            const level = levelGroup.group;
-            const levelOptions = ['Home'];
-
-            let levels = [];
-            if (level.name === DEFAULT_FOLDER) {
-                levels = levelOptions;
-            } else {
-                levels = levelOptions.concat(level.name.split(FOLDER_SEPARATOR).slice(2));
-            }
-            this.levelOptions = levelGroup.workflow && levelGroup.workflow.length ? [...levels, levelGroup.workflow] : levels;
-            this._cd.markForCheck();
-        });
     }
 
     constructor(private _store: Store<State>, private _cd: ChangeDetectorRef, private route: Router) { }
@@ -97,12 +81,6 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
 
     deleteVersions(): void {
         this._store.dispatch(new workflowActions.DeleteVersionAction());
-    }
-
-    changeFolder(position: number) {
-        const level = position === 0 ? DEFAULT_FOLDER : DEFAULT_FOLDER +
-            FOLDER_SEPARATOR + this.levelOptions.slice(1, position + 1).join(FOLDER_SEPARATOR);
-        this._store.dispatch(new workflowActions.ChangeGroupLevelAction(level));
     }
 
     showExecutionConfig(id: string) {

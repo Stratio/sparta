@@ -25,6 +25,8 @@ import { WorkflowsManagingService } from './../../workflows.service';
 import { DuplicateWorkflowComponent } from './../duplicate-workflow-modal/duplicate-workflow.component';
 import { isWorkflowRunning } from '@utils';
 import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
+import { MENU_OPTIONS, RUN_OPTIONS, MENU_OPTIONS_DUPLICATE } from './workflows-header-menus.model';
+import { BreadcrumbMenuService } from "app/services";
 
 @Component({
    selector: 'workflows-manage-header',
@@ -41,7 +43,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    @Input() selectedVersionsData: Array<any>;
    @Input() selectedGroupsList: Array<string>;
    @Input() showDetails = false;
-   @Input() levelOptions: Array<string>;
    @Input() notificationMessage: any;
    @Input() versionsListMode = false;
 
@@ -49,7 +50,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    @Output() showWorkflowInfo = new EventEmitter();
    @Output() onDeleteWorkflows = new EventEmitter();
    @Output() onDeleteVersions = new EventEmitter();
-   @Output() changeFolder = new EventEmitter();
    @Output() generateVersion = new EventEmitter();
    @Output() onEditVersion = new EventEmitter<any>();
    @Output() hideNotification = new EventEmitter();
@@ -60,54 +60,11 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    public selectedWorkflowsInner: Array<string> = [];
    public selectedGroupsListInner: Array<string> = [];
    public visibleNotification = true;
-   public runOptions: MenuOptionListGroup[] = [
-      {
-         options: [
-            {
-               label: 'Run',
-               id: 'simple'
-            },
-            {
-               label: 'Run with parameters',
-               id: 'advanced'
-            }
-         ]
-      }
-   ];
-   public menuOptions: MenuOptionListGroup[] = [
-      {
-         options: [
-            {
-               icon: 'icon-folder',
-               label: 'New folder',
-               id: 'group'
-            }
-         ]
-      },
-      {
-         options: [
-            {
-               icon: 'icon-streaming-workflow',
-               label: 'Streaming workflow',
-               id: 'streaming'
-            },
-            {
-               icon: 'icon-batch-workflow',
-               label: 'Batch workflow',
-               id: 'batch'
-            }
-         ]
-      },
-      {
-         options: [
-            {
-               icon: 'icon-json',
-               label: 'Import from JSON',
-               id: 'file'
-            }
-         ]
-      },
-   ];
+
+   public runOptions: MenuOptionListGroup[] = RUN_OPTIONS;
+   public menuOptions: MenuOptionListGroup[] = MENU_OPTIONS;
+   public menuOptionsDuplicate: any = MENU_OPTIONS_DUPLICATE;
+
    public isRunning = isWorkflowRunning;
    public deleteWorkflowModalTitle: string;
    public deleteModalTitle: string;
@@ -119,16 +76,8 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    public renameWorkflowTitle: string;
 
    public moveGroupTitle: string;
+   public levelOptions: Array<string> = [];
 
-   public menuOptionsDuplicate: any = [
-      {
-         name: 'Generate new version',
-         value: 'version'
-      }, {
-         name: 'New workflow from this version',
-         value: 'workflow'
-      }
-   ];
 
    private _modalSubscription: Subscription;
    private _notificationHandler;
@@ -154,7 +103,9 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
    constructor(private _modalService: StModalService,
       private translate: TranslateService,
       private route: Router,
-      public workflowsService: WorkflowsManagingService) {
+      public workflowsService: WorkflowsManagingService,
+      public breadcrumbMenuService: BreadcrumbMenuService) {
+        this.levelOptions = breadcrumbMenuService.getOptions();
 
       const deleteWorkflowModalTitle = 'DASHBOARD.DELETE_WORKFLOW_TITLE';
       const deleteWorkflowModalMessage = 'DASHBOARD.DELETE_WORKFLOW_MESSAGE';
@@ -190,10 +141,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges, OnDestroy {
          clearInterval(this._notificationHandler);
          this._notificationHandler = setTimeout(() => this.hideNotification.emit(), 5000);
       }
-   }
-
-   public selectLevel(event: number): void {
-      this.changeFolder.emit(event);
    }
 
    public deleteWorkflowConfirmModal() {

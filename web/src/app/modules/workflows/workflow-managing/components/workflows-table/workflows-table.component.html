@@ -11,6 +11,14 @@
 <!---- groups & workflows ----- -->
 <st-table *ngIf="!workflowVersions || !workflowVersions.length" [fields]="fields" [sortable]="true" qaTag="table-qa-tag"
     class="workflow-table custom-table" (changeOrder)="changeOrder($event)">
+    <tr *ngIf="previousLevel">
+        <td st-table-cell st-table-row-content colspan="4" class="history-row">
+            <div class="return-link" (click)="changeFolder.emit(previousLevel.value)">
+                <i class="icon icon-arrow-left"></i>
+                <span class="label">{{previousLevel.label}}</span>
+            </div>
+        </td>
+    </tr>
     <tr st-table-row *ngFor="let group of groupList; let i = index;" class="group-row" [selected]="selectedGroupsList.indexOf(group.name) > -1">
         <td st-table-cell st-table-row-content (click)="checkGroup(group)">
             <label (click)="openGroup($event,group)" class="group-name">
@@ -49,7 +57,6 @@
         </td>
     </tr>
 </st-table>
-
 <!--- versions TODO: separate in another component  -- -->
 <div *ngIf="workflowVersions && workflowVersions.length">
     <div class="version-header">
@@ -57,7 +64,7 @@
         />
         <img src="assets/images/iconBatch.svg" class="icon-title batch-icon" *ngIf="workflowVersions[0].executionEngine === 'Batch'"
         />
-        <span class="egeo-title-giant">{{workflowVersions[0].name}}</span>
+        <span class="version-title-name">{{workflowVersions[0].name}}</span>
     </div>
     <st-table [fields]="versionFields" [sortable]="true" qaTag="table-qa-tag" class="version-table" (changeOrder)="changeOrderVersions($event)">
         <tr st-table-row *ngFor="let version of workflowVersions; let i = index;" [selected]="selectedVersions && selectedVersions.indexOf(version.id) > -1"
