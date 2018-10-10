@@ -84,3 +84,6 @@ nexus
 web/npm.tar.gz
 
 application.conf
+
+#gatling test results
+**/sparta-test-results

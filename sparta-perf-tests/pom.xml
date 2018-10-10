@@ -1,0 +1,114 @@
+<!--
+  ~ © 2017. Stratio Big Data Inc., Sucursal en España. All rights reserved.
+  ~
+  ~ This software – including all its source code – contains proprietary information of Stratio Big Data Inc.,
+  ~ Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made
+  ~ available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled
+  ~ without express written authorization from Stratio Big Data Inc., Sucursal en España.
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.stratio</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.11.0</version>
+        <relativePath></relativePath>
+    </parent>
+
+    <artifactId>sparta-perf-tests</artifactId>
+    <packaging>pom</packaging>
+    <version>0.1.0-SNAPSHOT</version>
+
+    <name>${project.artifactId}</name>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <encoding>UTF-8</encoding>
+        <scala.version>2.11.2</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <json4s.version>3.2.11</json4s.version>
+        <gatling.version>2.1.7</gatling.version>
+        <gatling-maven-plugin.version>2.1.7</gatling-maven-plugin.version>
+        <akka.version>2.4.8</akka.version>
+
+        <sparta.version>2.5.0-SNAPSHOT</sparta.version>
+        <!--
+            The first property specifies the Gatling simulation that is to be run.
+            The second property specifies the Gatling destination folder for the test results.
+            Both these properties can be overridden when running a simulation with Maven.
+            This example will run the simulation with name Perf10Users30MinutesLowActivityHBase in the default simulations package:
+            mvn -Dgatling.simulationClass=com.stratio.performance.sparta.CreateWorkflowScenario gatling:execute
+        -->
+        <gatling.simulationClass>com.stratio.performance.sparta.CreateWorkflowScenario</gatling.simulationClass>
+        <gatling.resultFolder>sparta-test-results</gatling.resultFolder>
+        <gatling.dataFolder>src/test/resources/data</gatling.dataFolder>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency><!--make sure resolve to older akka version-->
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_${scala.binary.version}</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparta</groupId>
+            <artifactId>serving-core</artifactId>
+            <version>${sparta.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparta</groupId>
+            <artifactId>core</artifactId>
+            <version>${sparta.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-native_${scala.binary.version}</artifactId>
+            <version>${json4s.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>${gatling.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>${gatling-maven-plugin.version}</version>
+                <configuration>
+                    <failOnError>true</failOnError>
+                    <simulationClass>${gatling.simulationClass}</simulationClass>
+                    <dataFolder>${gatling.dataFolder}</dataFolder>
+                    <resultsFolder>${gatling.resultFolder}</resultsFolder>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
