@@ -47,7 +47,7 @@ package object daoTables {
 
     def value = column[Option[String]]("value")
 
-    def * = (name, value) <> ((ParameterVariable.apply _).tupled , ParameterVariable.unapply)
+    def * = (name, value) <> ((ParameterVariable.apply _).tupled, ParameterVariable.unapply)
 
     def pk = primaryKey(s"pk_$tableName", name)
   }
@@ -61,6 +61,8 @@ package object daoTables {
     def * = (groupId.?, name) <> ((Group.apply _).tupled, Group.unapply)
 
     def pk = primaryKey(s"pk_$tableName", groupId)
+
+    def groupIdIndex = index(s"idx_${tableName}_id", groupId, unique = true)
 
     def groupNameIndex = index(s"idx_${tableName}_name", name, unique = true)
   }
@@ -109,6 +111,8 @@ package object daoTables {
     def pk = primaryKey(s"pk_$tableName", id)
 
     def fk = foreignKey(s"fk_${tableName}_group", groupId.get, TableQuery[GroupTable])(_.groupId, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
+
+    def idIndex = index(s"idx_${tableName}_id", id, unique = true)
 
     def groupIndex = index(s"idx_${tableName}_group", groupId)
   }
