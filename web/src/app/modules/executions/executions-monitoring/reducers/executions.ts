@@ -46,9 +46,10 @@ export function reducer(state: State = initialState, action: any): State {
             .map(key => ({ name: key, value: summary[key], image: images[key] }));
          return {
             ...state,
+            loading: false,
             executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList,
             filters: isEqual(filters, state.filters) ? state.filters : filters
-         }
+         };
       }
 
       default:

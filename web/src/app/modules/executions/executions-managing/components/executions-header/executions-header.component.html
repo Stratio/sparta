@@ -13,7 +13,7 @@
         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="templates-breadcrumb"></st-breadcrumbs>
     </div>
 </tool-bar>
-<div class="container">
+<div class="container" *ngIf="emptyTable">
 
     <div class="row tool-bar">
         <div class="col-sm-4">

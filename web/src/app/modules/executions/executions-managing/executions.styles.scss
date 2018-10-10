@@ -112,6 +112,19 @@
    }
 }
 
+.empty-wrapper {
+   background: $neutral-00;
+   box-shadow: 0 0 20px 0 rgba(30, 30, 30, 0.05);
+   &.full {
+       background-color: $neutral-01;
+       box-shadow: none;
+   }
+}
+empty-table-box {
+   width: 100%;
+   padding-top: 100px;
+}
+
 @media screen and (max-height: 750px) {
     .execution-starter {
         top: 95px;

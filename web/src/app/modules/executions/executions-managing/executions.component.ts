@@ -48,6 +48,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
    public executionInfo: any;
    public showInitialMode: Observable<boolean>;
    public executionsList$: Observable<any>;
+   public isLoading$: Observable<boolean>;
    public selectedExecution: any;
    public showDebugConsole = false;
    public isArchivedPage = false;
@@ -74,6 +75,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
             }
          });
       this.executionsList$ = this._store.select(fromRoot.getFilteredSearchExecutionsList);
+      this.isLoading$ = this._store.select(fromRoot.getIsLoading);
 
       this._store.select(fromRoot.getSelectedExecutions)
          .takeUntil(this._componentDestroyed)
@@ -122,6 +124,10 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
       this._componentDestroyed.next();
       this._componentDestroyed.unsubscribe();
       this._store.dispatch(new executionsActions.CancelExecutionPolling());
+   }
+
+   goToRepository() {
+      this._route.navigate(['repository']);
    }
 
 }

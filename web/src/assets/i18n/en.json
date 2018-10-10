@@ -774,5 +774,10 @@
          "MAX": "The number has to be minor than: ",
          "PATTERN": "The value is invalid"
       }
+   },
+   "EXECUTIONS": {
+      "EMPTY_TITLE": "There are no Executions created yet",
+      "EMPTY_TEXT": "Executions can be launched from the repository. Try to select a version of a workflow and run it.",
+      "EMPTY_LINK": "Go to Repository"
    }
 }

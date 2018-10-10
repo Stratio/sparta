@@ -1,0 +1,39 @@
+@import '~@stratio/egeo/theme/constants';
+
+.box-container {
+   width: 100%;
+   display: flex;
+   flex-flow: column;
+   align-items: center;
+   padding: 50px;
+   .title {
+      font-size: $egeo-font-size-xlarge;
+      color: $neutral-13;
+      font-family: $egeo-nunito-sans-bold;
+      padding: 8px;
+   }
+
+   .text {
+      font-size: $egeo-font-size-small;
+      color: $neutral-08;
+      font-family: $egeo-nunito-sans;
+      padding: 8px;
+      max-width: 380px;
+      text-align: center;
+   }
+
+   .repository-link {
+      padding-top: 12px;
+      button {
+         font-size: $egeo-font-size-medium;
+         color: $neutral-00;
+         font-family: $egeo-nunito-sans;
+         padding: 16px 40px;
+         font-weight: 600;
+      }
+   }
+   .image {
+      font-size: 90px;
+      margin-bottom: 50px;
+   }
+}

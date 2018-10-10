@@ -34,6 +34,7 @@ export class ExecutionsHeaderComponent implements OnInit {
   @Input() showArchiveButton: boolean;
   @Input() showUnarchiveButton: boolean;
   @Input() isArchivedPage: boolean;
+   @Input() emptyTable = false;
 
   @Input() get statusFilter() {
     return this._statusFilter;

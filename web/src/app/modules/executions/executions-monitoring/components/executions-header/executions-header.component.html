@@ -14,7 +14,7 @@
          <div class="monitoring-header">
             <h1 class="egeo-title-large monitoring-title">{{'DASHBOARD.HOME.MONITORING_TITLE' | translate}}</h1>
             <span class="monitoring-link button button-link-primary" routerLink="executions">
-               View all executions 
+               View all executions
                <i class="icon icon-arrow2_right"></i>
             </span>
          </div>
@@ -27,8 +27,8 @@
          <div class="filters">
             <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters;" (click)="showExecutions(filter.name)">
                 <img class="filter__image" [attr.src]="'/assets/images/' + filter.image + '.svg'"/>
-                <div class="filter-value">
-                    <span class="number">{{ filter.value }}</span>
+                <div class="filter-value" [ngClass]="{'empty': !filter.value}">
+                    <span class="number" >{{ filter.value || '-' }}</span>
                     <span class="label">{{ filter.name }}</span>
                 </div>
             </div>

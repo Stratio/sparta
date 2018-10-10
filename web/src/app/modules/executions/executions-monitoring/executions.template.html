@@ -9,13 +9,20 @@
 -->
 <div>
    <executions-header [filters]="executionsSummary$ | async"></executions-header>
-   <div class="container table-wrapper">
+   <div *ngIf="(executionsList$ | async)?.length" class="container table-wrapper">
       <span class="table-title">Latest executions</span>
       <div class="table-container">
          <div class="executions-list">
             <executions-table [executionList]="executionsList$ | async"></executions-table>
          </div>
       </div>
+   </div>
+   <div *ngIf="!(executionsList$ | async)?.length && !(isLoading$ | async)" class="container empty-wrapper">
+      <empty-table-box
+         (redirectTo)="goToRepository()"
+         [title]="'EXECUTIONS.EMPTY_TITLE' | translate"
+         [text]="'EXECUTIONS.EMPTY_TEXT' | translate"
+         [button]="'EXECUTIONS.EMPTY_LINK' | translate"></empty-table-box>
    </div>
 </div>
 

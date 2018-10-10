@@ -1,24 +1,33 @@
 @import '~@stratio/egeo/theme/constants';
 
 .executions-list {
-   flex: 1;
+    flex: 1;
 }
 
-.table-wrapper {
+.table-wrapper,
+.empty-wrapper {
     background: $neutral-00;
     box-shadow: 0 0 20px 0 rgba(30, 30, 30, 0.05);
+    &.full {
+        background-color: $neutral-01;
+        box-shadow: none;
+    }
 }
 
 .container {
-   margin-top: 10px;
+    margin-top: 10px;
 }
 
 .table-title {
-   font-size: $egeo-font-size-xxlarge;
-   padding: 10px 0px 10px 15px;
+    font-size: $egeo-font-size-xxlarge;
+    padding: 10px 0px 10px 15px;
 }
+
 .table-container {
     display: flex;
     width: 100%;
 }
 
+empty-table-box {
+    width: 100%;
+}

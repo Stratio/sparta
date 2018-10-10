@@ -58,8 +58,10 @@ export function reducer(state: State = initialState, action: any): State {
       case executionActions.LIST_ARCHIVED_EXECUTIONS_COMPLETE: {
          return {
             ...state,
+            loading: false,
             archivedExecutionList: action.payload
          };
+
       }
       case executionActions.SELECT_EXECUTIONS_ACTION: {
          const { execution: { id } } = action;

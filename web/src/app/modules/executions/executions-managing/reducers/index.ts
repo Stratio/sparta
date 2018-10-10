@@ -50,6 +50,8 @@ export const getTableOrder = createSelector(getExecutionsState, state => state.o
 export const getExecutionInfo = createSelector(getExecutionsState, state => state.executionInfo);
 export const getArchivedExecutions = createSelector(getExecutionsState, state => state.archivedExecutionList);
 export const isArchivedPage = createSelector(getExecutionsState, state => state.isArchivedPage);
+export const getIsLoading = createSelector(getExecutionsState, state => state.loading );
+
 export const getFilteredExecutionsList = createSelector(
   getExecutionsList,
   isArchivedPage,
@@ -146,3 +148,4 @@ export const showUnarchiveButton = createSelector(
     }
     return false;
   });
+

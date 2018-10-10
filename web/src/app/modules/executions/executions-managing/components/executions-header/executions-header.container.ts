@@ -48,6 +48,7 @@ export class ExecutionsHeaderContainer implements OnInit {
 
    @Input() selectedExecutions: Array<any>;
    @Input() showDetails: boolean;
+   @Input() emptyTable: boolean;
    @Input() isArchivedPage: boolean;
 
    @Output() showExecutionInfo = new EventEmitter<void>();

@@ -15,6 +15,7 @@ import {
 import * as executionsActions from './actions/executions';
 
 import * as fromRoot from './reducers';
+import { Router } from '@angular/router';
 
 @Component({
    selector: 'sparta-executions',
@@ -29,18 +30,24 @@ export class ExecutionsComponent implements OnInit, OnDestroy {
 
    public executionsSummary$: Observable<any>;
 
+   public isLoading$: Observable<boolean>;
+
    private _intervalHandler;
-   constructor(private _store: Store<State>) { }
+   constructor(private _store: Store<State>, private _router: Router) { }
 
    ngOnInit() {
       this._store.dispatch(new executionsActions.ListExecutionsAction());
 
       this.executionsList$ = this._store.select(fromRoot.getExecutionOrderedList);
       this.executionsSummary$ = this._store.select(fromRoot.getExecutionsFilters);
-
+      this.isLoading$ = this._store.select(fromRoot.getIsLoading);
    }
 
-    ngOnDestroy(): void {
+   goToRepository() {
+      this._router.navigate(['repository']);
+   }
+
+   ngOnDestroy(): void {
       clearInterval(this._intervalHandler);
       this._store.dispatch(new executionsActions.CancelExecutionPollingAction());
     }
