@@ -1,10 +1,10 @@
 <div class="container">
    <div class="row">
-      <div class="right col-sm-9">
-         <st-search class="search-input" [placeholder]="listMode ? ('DASHBOARD.FILTER_LIST'  | translate) : ('DASHBOARD.FILTER_ENVIRONMENT' | translate)"
+      <div class="right col-sm-10">
+         <st-search class="search-input" [placeholder]="'Search...'"
             [debounce]="200" [minLength]="0" [value]="searchValue" (search)="onSearch.emit($event)" qaTag="filter-parameters"></st-search>
       </div>
-      <div class="col-sm-3 right">
+      <div class="col-sm-2 right">
          <!-- <form-file class="form-file" type="button-toolbar" title="Upload environment variables" icon="icon-upload" (onFileUpload)="onUploadParams.emit($event)"></form-file>
          <button class="button button-toolbar" id="download-params" (click)="onDownloadParams.emit()">
             <i class="icon-download"></i>

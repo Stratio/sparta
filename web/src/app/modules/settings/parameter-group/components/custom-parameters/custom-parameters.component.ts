@@ -68,7 +68,7 @@ export class CustomParametersComponent implements OnInit {
    }
 
    addParam() {
-      if (this.customList.length) {
+      if (this.customList) {
          this.addCustomList.emit();
       } else {
          this.addCustomParam.emit();

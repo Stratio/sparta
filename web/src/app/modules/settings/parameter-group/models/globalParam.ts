@@ -8,4 +8,5 @@ export interface GlobalParam {
   name: string;
   value: string;
   contexts?: string[];
+  defaultValue?: string;
 }

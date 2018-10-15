@@ -75,7 +75,17 @@
             }
             &.value {
                font-weight: normal;
+               &.gray {
+                  color: $action-secondary-04;
+                  font-size: $egeo-font-size-xxsmall;
+                  &:before {
+                     content: 'default: ';
+                     position: relative;
+                     top: -1px;
+                  }
+               }
             }
+
             .icon.arrow {
                color: $neutral-11;
             }
@@ -86,6 +96,14 @@
             border: solid 1px $neutral-04;
             cursor: pointer;
             text-align: left;
+            &.empty {
+               text-align: center;
+               width: 100%;
+               td{
+                  text-align: center;
+                  color: $action-secondary-05;
+               }
+            }
          }
          .edit {
             cursor: initial;
@@ -142,6 +160,13 @@
                }
                .context-container {
                   margin-top: 20px;
+                  position: relative;
+                  .icon {
+                     position: absolute;
+                     top: 35px;
+                     right: -30px;
+                     cursor: pointer;
+                  }
                }
                .add-context-container {
                   cursor: pointer;

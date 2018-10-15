@@ -17,6 +17,7 @@ export class ParameterGroupHeaderComponent implements OnInit {
   @Input() listMode: boolean;
   @Input() withContext: boolean;
   @Input() creationMode: boolean;
+  @Input() configContext: boolean;
 
   @Output() onCreateParam: EventEmitter<void> = new EventEmitter<void>();
   @Output() onUploadParams: EventEmitter<any> = new EventEmitter<any>();

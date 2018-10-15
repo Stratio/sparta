@@ -7,15 +7,14 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-
 <div id="parametersTable">
    <table>
       <thead>
-         <tr *ngIf="inputList && inputList.length">
+         <tr *ngIf="inputList && inputList.length >= 0">
             <th>Name</th>
             <th></th>
          </tr>
-         <tr *ngIf="inputParameters && inputParameters.length">
+         <tr *ngIf="inputParameters && inputParameters.length >= 0">
             <th>Name</th>
             <th>
                <span *ngIf="!withContext">Value</span>
@@ -40,7 +39,7 @@
          <ng-container *ngIf="inputList && inputList.length">
             <ng-container *ngFor="let list of inputList">
                <tr (click)="selectedList(list)">
-                  <td><span (click)="navigateList(list, $event)">{{list[header[0]]}}</span></td>
+                  <td><span (click)="navigateList(list, $event)">{{list[header[0]] || '-'}}</span></td>
                   <td><i class="icon icon-arrow2_down arrow"></i></td>
                </tr>
                <tr class="edit" *ngIf="selectedParameterList && list.name === selectedParameterList.name">
@@ -49,7 +48,7 @@
                         <div class="edit-container">
                            <div class="defaultContainer">
                               <div class="col-sm-10">
-                                 <st-input label="Name" class="st-form-field" placeholder="List name" formControlName="name" name="name"></st-input>
+                                 <st-input label="Name" class="st-form-field" placeholder="Group name" formControlName="name" name="name"></st-input>
                               </div>
                               <div class="col-sm-2">
                                  <button [disabled]="!myListForm.valid || myListForm.pristine" class="button button-primary save-button" (click)="onSaveList(list)">Save</button>
@@ -68,7 +67,7 @@
          <ng-container *ngIf="inputParameters && inputParameters.length">
             <ng-container *ngFor="let parameter of inputParameters; let i = index;">
                <tr (click)="selectedRow(parameter, i)">
-                  <td *ngFor="let element of header" [ngClass]="element">{{parameter[element]}} </td>
+                  <td *ngFor="let element of header" [ngClass]="selectedContext !== 'default' && parameter.value === parameter.defaultValue && 'gray' + ' ' + element">{{parameter[element] || '-'}} </td>
                   <td><i class="icon icon-arrow2_down arrow"></i></td>
                </tr>
                <tr class="edit" *ngIf="selectedParameter && parameter.name === selectedParameter.name">
@@ -85,23 +84,24 @@
                                  <div formArrayName="contexts" *ngIf="myForm.get('contexts').controls.length">
                                     <div [formGroupName]="i" *ngFor="let context of myForm.get('contexts').controls; let i = index;" class="context-container">
                                        <st-input label="{{ context.controls.name.value }} value" formControlName="value" placeholder="Context" [errors]="[]" name="description"></st-input>
+                                       <span class="icon icon-trash" (click)="onDeleteContext(context.controls.name.value)"></span>
                                     </div>
                                  </div>
                                  <!-- Add context en environment y custom -->
-                                 <div *ngIf="withContext" class="add-context-container">
+                                 <div *ngIf="withContext && uncheckedContextList.length" class="add-context-container">
                                     <span (click)="onSelectContext()">
                                        <span class="icon icon-circle-plus"></span>
                                        Add context value
                                     </span>
                                     <div *ngIf="showContextMenu && !creatingContext" class="context-menu">
                                        <ul>
-                                          <li class="option" *ngFor="let context of selectedContextList">
+                                          <li class="option" *ngFor="let context of uncheckedContextList">
                                              <st-checkbox name="context.name" [value]="context.name" class="st-form-field" [checked]="context.checked" (change)="checkValue($event)">
                                                 <span>{{context.name}}</span>
                                              </st-checkbox>
                                           </li>
                                        </ul>
-                                        <div class="line" (click)="addContext()">Add context</div>
+                                        <div class="line" (click)="addContext()">Add</div>
                                     </div>
                                  </div>
                               </div>
@@ -119,6 +119,10 @@
                </tr>
             </ng-container>
          </ng-container>
+         <tr *ngIf="(inputParameters && !inputParameters.length) || (inputList && !inputList.length)" class="empty">
+            <td *ngIf="configContext" colspan="2">{{ configContext ? 'This context list is empty yet.' : 'This list is empty yet.'}}</td>
+            <td *ngIf="!configContext" colspan="3">{{ configContext ? 'This context list is empty yet.' : 'This list is empty yet.'}}</td>
+         </tr>
       </tbody>
    </table>
 

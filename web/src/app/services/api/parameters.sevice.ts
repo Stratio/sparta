@@ -38,6 +38,11 @@ export class ParametersService extends ApiService {
       return this.request('globalParameters', 'put', options);
    }
 
+   deleteGlobalParameter(param: any): Observable<any> {
+      const options: any = {};
+      return this.request(`globalParameters/variable/${param}`, 'delete', options);
+   }
+
    getEnvironmentParameters(): Observable<any> {
       const options: any = {};
       return this.request('paramList/environment', 'get', options);

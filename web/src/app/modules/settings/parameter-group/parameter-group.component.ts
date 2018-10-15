@@ -36,11 +36,11 @@ export class ParameterGroupComponent implements OnInit {
       }, {
          id: 'environment',
          text: 'Environment',
-      },
+      }/* ,
       {
          id: 'custom',
          text: 'Custom'
-      }
+      } */
    ];
    public isLoading$: Observable<boolean>;
    public showAlert$: Observable<string>;
