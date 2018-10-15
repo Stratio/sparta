@@ -35,8 +35,6 @@ class WorkflowActor(
   import com.stratio.sparta.serving.core.models.workflow.migration.MigrationModelImplicits._
 
   val ResourceWorkflow = "Workflows"
-  val ResourceGlobalParameters = "GlobalParameters"
-  val ResourceBackup = "Backup"
 
   private val workflowPgService = PostgresDaoFactory.workflowPgService
   private val groupPgService = PostgresDaoFactory.groupPgService
@@ -298,7 +296,7 @@ class WorkflowActor(
   }
 
   def migrateWorkflowFromCassiopeia(workflowCassiopeia: WorkflowCassiopeia, user: Option[LoggedUser]): Unit = {
-    authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceBackup -> View)) {
+    authorizeActions[ResponseWorkflowAndromeda](user, Map(ResourceWorkflow -> View)) {
       Try {
         val workflow : WorkflowAndromeda = workflowCassiopeia
         workflow
@@ -307,7 +305,7 @@ class WorkflowActor(
   }
 
   def migrateWorkflowFromAndromeda(workflowAndromeda: WorkflowAndromeda, user: Option[LoggedUser]): Unit = {
-    authorizeActions[ResponseWorkflow](user, Map(ResourceBackup -> View)) {
+    authorizeActions[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
       Try {
         val workflow : Workflow = workflowAndromeda
         workflow
