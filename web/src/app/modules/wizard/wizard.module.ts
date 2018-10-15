@@ -34,7 +34,7 @@ import { ExternalDataEffect } from './effects/externalData';
 
 import { reducers } from './reducers/';
 import { WizardEditorContainer } from './containers/wizard-editor-container/wizard-editor-container.component';
-import { CrossdataModule } from '@app/crossdata/crossdata.module';
+import { CrossdataModule } from '@app/catalog/crossdata.module';
 import { EdgeOptionsComponent } from '@app/wizard/components/edge-options/edge-options.component';
 import { MocksConfigComponent } from '@app/wizard/components/wizard-config-editor/mocks-config/mocks-config.component';
 import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';

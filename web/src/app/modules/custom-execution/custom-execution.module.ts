@@ -17,23 +17,23 @@ import { CustomExecutionComponent } from './custom-execution.component';
 import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
 
 @NgModule({
-  exports: [
-    CustomExecutionContainer
-  ],
-  declarations: [
-    CustomExecutionContainer,
-    CustomExecutionComponent
-  ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    StSearchModule,
-    StInputModule,
-    StFullscreenLayoutModule,
-    SpSelectModule,
-    SpartaSidebarModule,
-    TranslateModule
-  ]
+   exports: [
+      CustomExecutionContainer
+   ],
+   declarations: [
+      CustomExecutionContainer,
+      CustomExecutionComponent
+   ],
+   imports: [
+      CommonModule,
+      FormsModule,
+      StSearchModule,
+      StInputModule,
+      StFullscreenLayoutModule,
+      SpSelectModule,
+      SpartaSidebarModule,
+      TranslateModule
+   ]
 })
 
 export class CustomExecutionModule { }

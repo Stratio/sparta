@@ -51,6 +51,8 @@ export const getExecutionInfo = createSelector(getExecutionsState, state => stat
 export const getArchivedExecutions = createSelector(getExecutionsState, state => state.archivedExecutionList);
 export const isArchivedPage = createSelector(getExecutionsState, state => state.isArchivedPage);
 export const getIsLoading = createSelector(getExecutionsState, state => state.loading );
+export const isEmptyList = createSelector(getExecutionsState, state => state.isArchivedPage ?
+  !state.archivedExecutionList.length && !state.loadingArchived : !state.executionList.length && !state.loading);
 
 export const getFilteredExecutionsList = createSelector(
   getExecutionsList,

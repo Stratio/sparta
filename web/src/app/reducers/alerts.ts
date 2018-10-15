@@ -7,8 +7,7 @@ import * as backupsActions from './../modules/settings/backups/actions/backups';
 import * as inputActions from './../modules/templates/actions/input';
 import * as outputActions from './../modules/templates/actions/output';
 import * as transformationActions from './../modules/templates/actions/transformation';
-import * as workflowActions from './../modules/workflows/workflow-managing/actions/workflow-list';
-import * as workflowMonitoringActions from './../modules/workflows/workflow-monitoring/actions/workflows';
+import * as repositoryActions from './../modules/repository/actions/workflow-list';
 import * as wizardActions from './../modules/wizard/actions/wizard';
 import * as errorsActions from 'actions/errors';
 import * as environmentActions from './../modules/settings/environment/actions/environment';
@@ -160,7 +159,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
+      case repositoryActions.SAVE_JSON_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -169,7 +168,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.DUPLICATE_WORKFLOW_COMPLETE: {
+      case repositoryActions.DUPLICATE_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -178,7 +177,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.RUN_WORKFLOW_COMPLETE: {
+      case repositoryActions.RUN_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -190,7 +189,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.RUN_WORKFLOW_ERROR: {
+      case repositoryActions.RUN_WORKFLOW_ERROR: {
          let message = '';
          try {
             const error = JSON.parse(action.payload.error);
@@ -207,7 +206,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.RUN_WORKFLOW_VALIDATION_ERROR: {
+      case repositoryActions.RUN_WORKFLOW_VALIDATION_ERROR: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.ERROR,
@@ -217,7 +216,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.STOP_WORKFLOW_COMPLETE: {
+      case repositoryActions.STOP_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -226,28 +225,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowMonitoringActions.RUN_WORKFLOW_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'RUN_WORKFLOW',
-               params: {
-                  name: action.payload
-               }
-            }]
-         });
-      }
-      case workflowMonitoringActions.STOP_WORKFLOW_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'STOP_WORKFLOW'
-            }]
-         });
-      }
-      case workflowActions.DELETE_WORKFLOW_COMPLETE: {
+      case repositoryActions.DELETE_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -255,9 +233,9 @@ export function reducer(state: State = initialState, action: any): State {
                description: 'DELETE_WORKFLOW',
 
             }]
-         })
+         });
       }
-      case workflowActions.DELETE_GROUP_COMPLETE: {
+      case repositoryActions.DELETE_GROUP_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -267,7 +245,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.GENERATE_NEW_VERSION: {
+      case repositoryActions.GENERATE_NEW_VERSION: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.SUCCESS,
@@ -286,16 +264,7 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case workflowActions.LIST_GROUP_WORKFLOWS_FAIL: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.ERROR,
-               title: 'ERROR',
-               description: 'LIST_WORKFLOW_ERROR'
-            }]
-         });
-      }
-      case workflowMonitoringActions.LIST_WORKFLOW_FAIL: {
+      case repositoryActions.LIST_GROUP_WORKFLOWS_FAIL: {
          return Object.assign({}, state, {
             currentAlert: [{
                type: STALERT_SEVERITY.ERROR,

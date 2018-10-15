@@ -33,16 +33,18 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case inputActions.LIST_INPUT: {
-            return Object.assign({}, state, {});
-
-        }
         case inputActions.LIST_INPUT_COMPLETE: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 inputList: action.payload,
                 loaded: true
-            });
-
+            };
+        }
+        case inputActions.LIST_INPUT_FAIL: {
+            return {
+                ...state,
+                loaded: true
+            };
         }
         case inputActions.GET_EDITED_INPUT_COMPLETE: {
             return Object.assign({}, state, {

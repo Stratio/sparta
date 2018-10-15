@@ -17,12 +17,13 @@ import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
+import { take, takeUntil } from 'rxjs/operators';
+
 import { cloneDeep as _cloneDeep } from 'lodash';
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { Environment } from '../../../../models/environment';
-import { SpInputVariable } from '@app/shared/components/sp-input/sp-input.models';
 
 import { Subscription } from 'rxjs/Subscription';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
@@ -32,7 +33,6 @@ import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 import { StepType } from 'app/models/enums';
 
 import * as fromQueryBuilder from '../query-builder/reducers';
-import { join } from 'path';
 
 
 @Component({
@@ -113,13 +113,13 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       }
       this._getMenuTabs();
       this.validatedNameSubcription = this._store.select(fromWizard.getValidatedEntityName)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((validation: boolean) => {
             this.validatedName = validation;
          });
 
       this.saveSubscription = this._store.select(fromWizard.isEntitySaved)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((isEntitySaved) => {
             if (isEntitySaved) {
                // hide edition when its saved
@@ -127,14 +127,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             }
          });
       this._store.select(fromWizard.isShowedCrossdataCatalog)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((showed: boolean) => {
             this.isShowedInfo = showed;
             this._cd.markForCheck();
          });
 
       this._store.select(fromQueryBuilder.getQueryBuilderInnerState)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((queryBuilder: any) => {
             this.queryBuilder = queryBuilder;
          });
@@ -226,7 +226,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
          this.isTemplate = true;
          const nodeTemplate = this.entityFormModel.nodeTemplate;
-         this._store.select(fromWizard.getTemplates).take(1).subscribe((templates: any) => {
+         this._store.select(fromWizard.getTemplates).pipe(take(1)).subscribe((templates: any) => {
             this.templateData = templates[this.config.editionType.stepType.toLowerCase()]
                .find((templateD: any) => templateD.id === nodeTemplate.id);
          });

@@ -11,6 +11,7 @@ import { batchOutputsObject, streamingOutputsObject } from 'data-templates/outpu
 import { batchTransformationsObject, streamingTransformationsObject } from 'data-templates/transformations';
 
 import { homeGroup } from '@app/shared/constants/global';
+import { Engine } from '@models/enums';
 
 @Injectable()
 export class WizardService {
@@ -28,27 +29,27 @@ export class WizardService {
      * Return input list form schemas
      */
     getInputs() {
-        return this._workflowType === 'Streaming' ? streamingInputsObject : batchInputsObject;
+        return this._workflowType === Engine.Streaming ? streamingInputsObject : batchInputsObject;
     }
 
     getOutputs() {
-        return this._workflowType === 'Streaming' ? streamingOutputsObject : batchOutputsObject;
+        return this._workflowType === Engine.Streaming ? streamingOutputsObject : batchOutputsObject;
     }
 
     getTransformations() {
-        return this._workflowType === 'Streaming' ? streamingTransformationsObject : batchTransformationsObject;
+        return this._workflowType === Engine.Streaming ? streamingTransformationsObject : batchTransformationsObject;
     }
 
     getInputsNames() {
-        return this._workflowType === 'Streaming' ? streamingInputsObject : batchInputsObject;
+        return this._workflowType === Engine.Streaming ? streamingInputsObject : batchInputsObject;
     }
 
     getOutputsNames() {
-        return this._workflowType === 'Streaming' ? streamingOutputsObject : batchOutputsObject;
+        return this._workflowType === Engine.Streaming ? streamingOutputsObject : batchOutputsObject;
     }
 
     getTransformationsNames() {
-        return this._workflowType === 'Streaming' ? streamingTransformationsObject : batchTransformationsObject;
+        return this._workflowType === Engine.Streaming ? streamingTransformationsObject : batchTransformationsObject;
     }
 
     getWorkflowModel(state: any) {

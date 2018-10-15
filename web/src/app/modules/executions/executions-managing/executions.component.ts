@@ -14,13 +14,12 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/takeUntil';
 
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subject } from 'rxjs';
+import { isEmpty, take, takeUntil } from 'rxjs/operators';
+
+
 import { StModalService } from '@stratio/egeo';
-import { Subject } from 'rxjs';
 
 import {
    State
@@ -52,7 +51,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
    public selectedExecution: any;
    public showDebugConsole = false;
    public isArchivedPage = false;
-
+   public isEmptyList: boolean;
    private _componentDestroyed = new Subject();
 
    private _intervalHandler;
@@ -65,7 +64,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
 
    ngOnInit() {
       this._activatedRoute.pathFromRoot[this._activatedRoute.pathFromRoot.length - 1]
-         .data.take(1).subscribe(v => {
+         .data.pipe(take(1)).subscribe(v => {
             this.isArchivedPage = v.archived ? true : false;
             this._store.dispatch(new executionsActions.SetArchivedPageAction(this.isArchivedPage));
             if (this.isArchivedPage) {
@@ -75,24 +74,32 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
             }
          });
       this.executionsList$ = this._store.select(fromRoot.getFilteredSearchExecutionsList);
-      this.isLoading$ = this._store.select(fromRoot.getIsLoading);
+      this.isLoading$ = this._store.select(fromRoot.getIsLoading)
+
+
+      this._store.select(fromRoot.isEmptyList)
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe(isEmptyList => {
+            this.isEmptyList = isEmptyList;
+            this._cd.markForCheck();
+         });
 
       this._store.select(fromRoot.getSelectedExecutions)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((selectedIds: any) => {
             this.selectedExecutionsIds = selectedIds;
             this._cd.markForCheck();
          });
 
       this._store.select(fromRoot.getLastSelectedExecution)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(selectedExecution => {
             this.selectedExecution = selectedExecution;
             this._cd.markForCheck();
          });
 
       this._store.select(fromRoot.getExecutionInfo)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(executionInfo => {
             this.executionInfo = executionInfo;
             this._cd.markForCheck();
@@ -124,6 +131,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
       this._componentDestroyed.next();
       this._componentDestroyed.unsubscribe();
       this._store.dispatch(new executionsActions.CancelExecutionPolling());
+      this._store.dispatch(new executionsActions.ResetValuesAction());
    }
 
    goToRepository() {

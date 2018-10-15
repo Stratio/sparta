@@ -7,6 +7,7 @@ import { Component, OnDestroy, OnInit, Input, ChangeDetectionStrategy, HostListe
 import { streamingInputsObject, batchInputsObject } from 'data-templates/inputs';
 import { streamingOutputsObject, batchOutputsObject } from 'data-templates/outputs';
 import { streamingTransformationsObject, batchTransformationsObject } from 'data-templates/transformations';
+import { Engine } from '@models/enums';
 
 @Component({
     selector: 'info-fragment',
@@ -16,7 +17,7 @@ import { streamingTransformationsObject, batchTransformationsObject } from 'data
 })
 export class InfoFragmentComponent implements OnInit, OnDestroy {
 
-    @Input() templateType = 'Streaming';
+    @Input() templateType = Engine.Streaming;
     @Input() stepType: string;
     @Input() classPrettyName: string;
 

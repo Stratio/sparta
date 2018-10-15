@@ -1,0 +1,144 @@
+@import '~@stratio/egeo/theme/constants';
+
+.workflow-link {
+   cursor: pointer;
+   user-select: none;
+   &:hover {
+      color: $action-secondary-07;
+   }
+}
+
+.check-column {
+   width: 10px;
+   padding-right: 0;
+}
+
+.return-link {
+    color:$action-primary-hover;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+    .label {
+        margin-left: 5px;
+    }
+}
+
+.history-row {
+    cursor: default;
+    border-bottom: 1px solid #eaeff5;
+}
+
+.workflow-table,
+.version-table {
+    display: block;
+    margin-top: 30px;
+    user-select: none;
+    tr:hover {
+        cursor: pointer;
+        .show-options {
+            color: $neutral-13;
+            font-weight: bold;
+        }
+        .group-name {
+            color: $action-primary-default;
+        }
+    }
+    st-checkbox {
+        pointer-events: none;
+    }
+}
+
+.tag-column {
+   label {
+      display: inline-block;
+      span {
+         max-width: 100px;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+         display: inline-block;
+      }
+   }
+}
+
+.version-table {
+    margin-top: 20px;
+}
+
+.workflow-arrow{
+    font-size:0.8rem;
+    margin-left:0.3em;
+}
+
+.workflow-versions td:first-child{
+    padding-left:40px;
+}
+
+.spark-link {
+   max-width: 10px;
+   padding-left: 0;
+   padding-right: 30px;
+   i {
+      color: $action-primary-default;
+      font-size: 20px;
+      line-height: 9px;
+   }
+}
+
+.status-field {
+   font-family: $egeo-nunito-sans-semiBold;
+   &.Started {
+      color: $status-success-hover;
+   }
+   &.Failed {
+      color: $status-critical-default;
+   }
+}
+
+.icon-row {
+    margin-right: 8px;
+    width: 20px;
+    float: left;
+}
+
+.icon-title {
+    width: 19px;
+    float: left;
+    margin-top: 8px;
+    margin-right: 12px;
+}
+
+.version-header {
+   margin: 25px 0;
+}
+
+.icon-solid-folder {
+    font-size: 19px;
+    float: left;
+    font-weight: 100;
+    margin-top: -2px;
+    color: $action-secondary-03;
+}
+
+
+.group-name:hover, .workflow-name:hover, .version-name:hover{
+    text-decoration: underline;
+    cursor:pointer;
+    overflow:hidden;
+}
+
+.show-options {
+    padding: 6px 5px;
+}
+.workflow-row, .group-row {
+
+   td:last-child {
+      float: right;
+   }
+}
+
+.version-title-name {
+    font-size: $egeo-font-size-large;
+    color: $neutral-13;
+    font-family: $egeo-nunito-sans-bold;
+}

@@ -16,7 +16,7 @@ import {
 import { Store } from '@ngrx/store';
 
 import 'rxjs/add/operator/do';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import * as errorsActions from 'actions/errors';
 import * as fromRoot from 'reducers';

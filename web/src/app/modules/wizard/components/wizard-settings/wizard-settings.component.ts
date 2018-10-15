@@ -8,7 +8,9 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
+
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
@@ -56,7 +58,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
       this.fadeActive = true;
     });
     // get all error management outputs
-    this.store.select(fromWizard.getErrorsManagementOutputs).take(1).subscribe((errorManagementOutputs: Array<string>) => {
+    this.store.select(fromWizard.getErrorsManagementOutputs).pipe(take(1)).subscribe((errorManagementOutputs: Array<string>) => {
       this.errorManagementOutputs = errorManagementOutputs;
     });
     this.getFormTemplate();

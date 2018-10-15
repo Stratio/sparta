@@ -40,6 +40,10 @@ export class ExecutionsDetailComponent implements OnInit, OnChanges {
    ];
    public activeOption = this.options[0];
 
+   constructor(private _cd: ChangeDetectorRef) { }
+
+   ngOnInit() { }
+
    ngOnChanges() {
       if (this.executionData) {
          this.execution = this.executionData && this.executionData.execution ? this.executionData.execution : null;
@@ -53,10 +57,6 @@ export class ExecutionsDetailComponent implements OnInit, OnChanges {
    changedOption(event: StHorizontalTab) {
      this.activeOption = event;
    }
-
-   constructor(private _cd: ChangeDetectorRef) { }
-
-   ngOnInit() { }
 
    onShowConsole() {
       this.showConsole.emit();

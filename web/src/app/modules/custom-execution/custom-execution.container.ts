@@ -5,33 +5,33 @@
  */
 
 import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnInit,
-  Output,
-  EventEmitter
+   ChangeDetectionStrategy,
+   Component,
+   Input,
+   OnInit,
+   Output,
+   EventEmitter
 } from '@angular/core';
 
 @Component({
-  selector: 'custom-execution-container',
-  template: `
+   selector: 'custom-execution-container',
+   template: `
     <custom-execution [workflowName]="workflowName"
-      [executionContexts]="executionContexts" 
-      (executeWorkflow)="executeWorkflow.emit($event)" 
+      [executionContexts]="executionContexts"
+      (executeWorkflow)="executeWorkflow.emit($event)"
       (closeCustomExecution)="closeCustomExecution.emit()"></custom-execution>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class CustomExecutionContainer implements OnInit {
-    @Input() executionContexts: any;
-    @Input() workflowName: string;
-    @Output() closeCustomExecution = new EventEmitter();
-    @Output() executeWorkflow = new EventEmitter<any>();
-    ngOnInit(): void {
+   @Input() executionContexts: any;
+   @Input() workflowName: string;
+   @Output() closeCustomExecution = new EventEmitter();
+   @Output() executeWorkflow = new EventEmitter<any>();
+   ngOnInit(): void {
 
-    }
+   }
 
 
 }

@@ -14,9 +14,9 @@
          <label [attr.id]="execution.id + '-link'">
             <div class="execution-link">
                <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="execution.executionEngine"
-                  *ngIf="execution.executionEngine === 'Streaming'" />
+                  *ngIf="execution.executionEngine === Engine.Streaming" />
                <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="execution.executionEngine"
-                  *ngIf="execution.executionEngine === 'Batch'" />
+                  *ngIf="execution.executionEngine === Engine.Batch" />
                {{execution.name}} - v{{execution.version}}
             </div>
          </label>

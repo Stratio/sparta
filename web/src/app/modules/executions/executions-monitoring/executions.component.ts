@@ -5,8 +5,6 @@
  */
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/distinctUntilChanged';
 
 import {
    State
@@ -16,6 +14,7 @@ import * as executionsActions from './actions/executions';
 
 import * as fromRoot from './reducers';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
    selector: 'sparta-executions',
@@ -27,9 +26,7 @@ import { Router } from '@angular/router';
 export class ExecutionsComponent implements OnInit, OnDestroy {
 
    public executionsList$: Observable<any>;
-
    public executionsSummary$: Observable<any>;
-
    public isLoading$: Observable<boolean>;
 
    private _intervalHandler;

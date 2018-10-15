@@ -5,38 +5,52 @@
  */
 
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    Output,
-    ChangeDetectorRef
+   AfterViewInit,
+   ChangeDetectionStrategy,
+   ChangeDetectorRef,
+   Component,
+   ElementRef,
+   EventEmitter,
+   Input,
+   OnDestroy,
+   Output
 } from '@angular/core';
 
 @Component({
-    selector: 'sparta-sidebar',
-    templateUrl: './sparta-sidebar.template.html',
-    styleUrls: ['./sparta-sidebar.styles.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+   selector: 'sparta-sidebar',
+   templateUrl: './sparta-sidebar.template.html',
+   styleUrls: ['./sparta-sidebar.styles.scss'],
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpartaSidebarComponent implements AfterViewInit {
+export class SpartaSidebarComponent implements AfterViewInit, OnDestroy {
 
-    @Input() isVisible = false;
-    @Input() showCloseButton = true;
-    @Input() showScrollBar = false;
-    @Output() onCloseSidebar = new EventEmitter();
+   @Input() isVisible = false;
+   @Input() showCloseButton = true;
+   @Input() showScrollBar = false;
+   @Input() fullHeight: boolean;
+   @Output() onCloseSidebar = new EventEmitter();
 
-    public loaded = false;
-    public minHeight: number;
+   public loaded = false;
+   public minHeight: number;
 
-    constructor(private _element: ElementRef, private _cd: ChangeDetectorRef) { }
+   constructor(private _element: ElementRef, private _cd: ChangeDetectorRef) {
+      this._calculateFullHeight = this._calculateFullHeight.bind(this);
+   }
 
-    ngAfterViewInit(): void {
-        this.loaded =  true;
-        const rect = this._element.nativeElement.getBoundingClientRect();
-        this.minHeight = window.innerHeight - rect.top - 30;
-        this._cd.detectChanges();
-    }
+   ngAfterViewInit(): void {
+      if (this.fullHeight) {
+         this._calculateFullHeight();
+         window.addEventListener('resize', this._calculateFullHeight);
+      }
+
+   }
+   ngOnDestroy(): void {
+      window.removeEventListener('resize', this._calculateFullHeight);
+   }
+
+   private _calculateFullHeight() {
+      const rect = this._element.nativeElement.getBoundingClientRect();
+      this.minHeight = window.innerHeight - rect.top - 30;
+      this._cd.detectChanges();
+   }
 }

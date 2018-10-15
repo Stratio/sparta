@@ -10,8 +10,8 @@ import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/observable/if';
 import 'rxjs/add/observable/throw';
-import { of } from 'rxjs/observable/of';
-import { Observable } from 'rxjs/Observable';
+
+import { forkJoin, of, Observable } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import { Store, Action } from '@ngrx/store';
@@ -88,7 +88,7 @@ export class EnviromentParametersEffect {
             observables.push(this._parametersService.updateParamList(context));
          });
 
-         return Observable.forkJoin(observables)
+         return forkJoin(observables)
             .mergeMap((results: any) => {
                const actions: Array<Action> = [];
                if (results.length) {

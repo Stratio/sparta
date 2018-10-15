@@ -43,7 +43,7 @@ export interface State {
   isShowedCrossdataCatalog: boolean;
   edgeOptions: EdgeOption;
   debugFile: string;
-};
+}
 
 const initialState: State = {
   editionMode: false,

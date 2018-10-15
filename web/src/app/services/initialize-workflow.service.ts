@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { batchInputsObject, streamingInputsObject } from 'data-templates/inputs';
 import { batchOutputsObject, streamingOutputsObject } from 'data-templates/outputs';
 import { batchTransformationsObject, streamingTransformationsObject } from 'data-templates/transformations';
-import { StepType } from '@models/enums';
+import { StepType, Engine } from '@models/enums';
 
 @Injectable()
 export class InitializeWorkflowService {
@@ -57,7 +57,7 @@ export class InitializeWorkflowService {
 
 
   private _getNodeSchema(workflowType: string, nodeElement: any) {
-    if (workflowType === 'Streaming') {
+    if (workflowType === Engine.Streaming) {
       switch (nodeElement.stepType) {
         case StepType.Input:
           return streamingInputsObject[nodeElement.classPrettyName];

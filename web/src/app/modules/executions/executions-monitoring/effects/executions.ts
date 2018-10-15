@@ -8,26 +8,14 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions } from '@ngrx/effects';
 import {  Store } from '@ngrx/store';
 
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
-import 'rxjs/add/observable/timer';
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/concatMap';
-import 'rxjs/add/observable/from';
-import { Observable } from 'rxjs/Observable';
+import { Observable, timer, of } from 'rxjs';
 
 import * as executionsActions from '../actions/executions';
 import * as fromRoot from '../reducers';
 import { ExecutionService } from 'services/execution.service';
 
-import { of } from 'rxjs/observable/of';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
+import { switchMap, takeUntil, concatMap, catchError } from 'rxjs/operators';
 
 
 @Injectable()
@@ -36,14 +24,14 @@ export class ExecutionsEffect {
    @Effect()
    getExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_EXECUTIONS)
-      .switchMap(() => Observable.timer(0, 5000)
-         .takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING))
-         .concatMap(() => this._executionService.getDashboardExecutions()
+      .pipe(switchMap(() => timer(0, 5000)))
+         .pipe(takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING)))
+         .pipe(concatMap(() => this._executionService.getDashboardExecutions()
          .map(executions => new executionsActions.ListExecutionsCompleteAction({
              executionsSummary: executions.executionsSummary,
-             executionList: executions.lastExecutions.map(execution => this._executionHelperService.normalizeExecution(execution))
-         }))
-         .catch(err => of(new executionsActions.ListExecutionsFailAction()))));
+             executionList: executions.lastExecutions.map(execution =>
+                this._executionHelperService.normalizeExecution(execution))
+         })))).pipe(catchError(err => of(new executionsActions.ListExecutionsFailAction())));
 
    constructor(
       private actions$: Actions,

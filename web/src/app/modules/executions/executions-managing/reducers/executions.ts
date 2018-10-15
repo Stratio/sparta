@@ -14,6 +14,7 @@ export interface State {
    archivedExecutionList: Array<any>;
    executionInfo: any;
    loading: boolean;
+   loadingArchived: boolean;
    selectedExecutionsIds: Array<string>;
    statusFilter: string;
    typeFilter: string;
@@ -32,6 +33,7 @@ const initialState: State = {
    archivedExecutionList: [],
    executionInfo: null,
    loading: true,
+   loadingArchived: true,
    selectedExecutionsIds: [],
    statusFilter: '',
    typeFilter: '',
@@ -52,13 +54,20 @@ export function reducer(state: State = initialState, action: any): State {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
          return {
             ...state,
-            executionList: action.payload
+            executionList: action.payload,
+            loading: false
+         };
+      }
+      case executionActions.LIST_EXECUTIONS_EMPTY: {
+         return {
+            ...state,
+            loading: false
          };
       }
       case executionActions.LIST_ARCHIVED_EXECUTIONS_COMPLETE: {
          return {
             ...state,
-            loading: false,
+            loadingArchived: false,
             archivedExecutionList: action.payload
          };
 
@@ -72,8 +81,10 @@ export function reducer(state: State = initialState, action: any): State {
       }
       case executionActions.DESELECT_EXECUTIONS_ACTION: {
          const { execution: { id } } = action;
-         return { ...state,
-            selectedExecutionsIds: state.selectedExecutionsIds.filter(e => e !== id) };
+         return {
+            ...state,
+            selectedExecutionsIds: state.selectedExecutionsIds.filter(e => e !== id)
+         };
       }
       case executionActions.SELECT_STATUS_FILTER: {
          return {

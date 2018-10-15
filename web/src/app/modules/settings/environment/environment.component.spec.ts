@@ -10,6 +10,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { cloneDeep as _cloneDeep } from 'lodash';
 import { Observable } from 'rxjs/Observable';
 import { StModalService, StModalResponse, StSearchModule } from '@stratio/egeo';
+import { of } from 'rxjs';
 
 import { MockStore } from '@test/store-mock';
 import { EnvironmentComponent } from '@app/settings/environment/environment.component';
@@ -31,7 +32,7 @@ describe('[EnvironmentComponent]', () => {
 
    beforeEach(async(() => {
       modalServiceMock = jasmine.createSpyObj('StModalService', ['show']);
-      (<jasmine.Spy> modalServiceMock.show).and.returnValue(Observable.of(StModalResponse.YES));
+      (<jasmine.Spy> modalServiceMock.show).and.returnValue(of(StModalResponse.YES));
       breadcrumbMenuServiceMock = jasmine.createSpyObj('BreadcrumbMenuService', ['getOptions']);
       errorMessagesServiceMock = { errors: { inputErrors: [] } };
 

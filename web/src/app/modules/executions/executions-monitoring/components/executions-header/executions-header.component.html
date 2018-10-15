@@ -25,7 +25,7 @@
    <div class="row">
       <div class="col-sm-12">
          <div class="filters">
-            <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters;" (click)="showExecutions(filter.name)">
+            <div class="filter" [attr.id]="filter.name + '-filter'" *ngFor="let filter of filters;" (click)="filter.value && showExecutions(filter.name)">
                 <img class="filter__image" [attr.src]="'/assets/images/' + filter.image + '.svg'"/>
                 <div class="filter-value" [ngClass]="{'empty': !filter.value}">
                     <span class="number" >{{ filter.value || '-' }}</span>

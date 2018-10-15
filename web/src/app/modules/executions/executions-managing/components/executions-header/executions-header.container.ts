@@ -12,7 +12,7 @@ import {
    OnInit
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { State } from './../../reducers';
 import * as executionActions from '../../actions/executions';
@@ -29,6 +29,7 @@ import * as fromRoot from './../../reducers';
             [showArchiveButton]="showArchiveButton$ | async"
             [showUnarchiveButton]="showUnarchiveButton$ | async"
             [typeFilter]="typeFilter$ | async"
+            [emptyTable]="emptyTable"
             [timeIntervalFilter]="timeIntervalFilter$ | async"
             (downloadExecutions)="downloadExecutions()"
             (archiveExecutions)="archiveExecutions()"

@@ -6,7 +6,7 @@
 import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { StDropDownMenuItem } from '@stratio/egeo';
 
@@ -15,6 +15,7 @@ import * as fromTemplates from './../../reducers';
 import * as inputsTemplate from 'data-templates/inputs';
 import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
 import { CreateTemplateComponent } from './create-template.component';
+import { Engine } from '@models/enums';
 
 
 @Component({
@@ -85,7 +86,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
    changeWorkflowType(event: any): void {
       this.inputFormModel.executionEngine = event.value;
-      this.listData = event.value === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
+      this.listData = event.value === Engine.Batch ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
       this.changeTemplateType(this.listData[0].name);
       this.fragmentTypes = this.listData.map((fragmentData: any) => {
          return {

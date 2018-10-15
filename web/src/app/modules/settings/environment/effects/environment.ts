@@ -16,7 +16,8 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
-import { Observable } from 'rxjs/Observable';
+
+import { from, Observable } from 'rxjs';
 
 import { generateJsonFile } from '@utils';
 import * as errorActions from 'actions/errors';
@@ -32,7 +33,7 @@ export class EnvironmentEffect {
       .ofType(environmentActions.LIST_ENVIRONMENT)
       .switchMap((response: any) => this.environmentService.getEnvironment()
          .map((environmentList: any) => new environmentActions.ListEnvironmentCompleteAction(environmentList))
-         .catch(error => Observable.from([
+         .catch(error => from([
             new environmentActions.ListEnvironmentErrorAction(''),
             new errorActions.ServerErrorAction(error)
          ]))
@@ -44,7 +45,7 @@ export class EnvironmentEffect {
       .ofType(environmentActions.SAVE_ENVIRONMENT)
       .switchMap((response: any) => this.environmentService.updateEnvironment(response.payload)
          .map(environmentList => new environmentActions.ListEnvironmentAction())
-         .catch(error => Observable.from([
+         .catch(error => from([
             new environmentActions.SaveEnvironmentErrorAction(''),
             new errorActions.ServerErrorAction(error)
          ]))
@@ -58,7 +59,7 @@ export class EnvironmentEffect {
             new environmentActions.ImportEnvironmentCompleteAction(),
             new environmentActions.ListEnvironmentAction()
          ])
-         .catch(error => Observable.from([
+         .catch(error => from([
             new environmentActions.ImportEnvironmentErrorAction(),
             new errorActions.ServerErrorAction(error)
          ]))
@@ -71,7 +72,7 @@ export class EnvironmentEffect {
          .map(envData => {
             generateJsonFile('environment-data', envData);
             return new environmentActions.ExportEnvironmentCompleteAction();
-         }).catch(error => Observable.from([
+         }).catch(error => from([
             new environmentActions.ExportEnvironmentErrorAction(),
             new errorActions.ServerErrorAction(error)
          ]))

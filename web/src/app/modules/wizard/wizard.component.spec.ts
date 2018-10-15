@@ -56,7 +56,7 @@ describe('[WizardComponent]', () => {
   });
 
   it('should get the environment list on init', () => {
-    expect(store.dispatch).toHaveBeenCalledWith(new externalDataActions.GetEnvironmentListAction());
+    expect(store.dispatch).toHaveBeenCalledWith(new externalDataActions.GetParamsListAction());
   });
 
 

@@ -7,102 +7,88 @@ import { TemplatesService } from 'services/templates.service';
 import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
 
-import { Effect, Actions } from '@ngrx/effects';
-
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
-import { Observable } from 'rxjs/Observable';
+import { Effect, Actions, ofType } from '@ngrx/effects';
+import { Observable, of, iif, from, forkJoin } from 'rxjs';
 
 import * as transformationActions from './../actions/transformation';
 import * as errorActions from 'actions/errors';
+import { switchMap, map, mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class TransformationEffect {
 
-    @Effect()
-    getTransformationList$: Observable<Action> = this.actions$
-        .ofType(transformationActions.LIST_TRANSFORMATION)
-        .switchMap((response: any) => this.templatesService.getTemplateList('transformation')
-        .map((transformationList: any) => new transformationActions.ListTransformationCompleteAction(transformationList))
-        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
-            Observable.of(new transformationActions.ListTransformationFailAction('')),
-            Observable.of(new errorActions.ServerErrorAction(error))
-        )));
+   @Effect()
+   getTransformationList$: Observable<Action> = this.actions$
+      .pipe(ofType(transformationActions.LIST_TRANSFORMATION))
+      .pipe(switchMap((response: any) => this.templatesService.getTemplateList('transformation')
+         .pipe(map((transformationList: any) => new transformationActions.ListTransformationCompleteAction(transformationList)))
+         .catch(error => iif(() => error.statusText === 'Unknown Error',
+            of(new transformationActions.ListTransformationFailAction('')),
+            of(new errorActions.ServerErrorAction(error))
+         ))));
 
-    @Effect()
-    getTransformationTemplate$: Observable<Action> = this.actions$
-        .ofType(transformationActions.GET_EDITED_TRANSFORMATION)
-        .map((action: any) => action.payload)
-        .switchMap((param: any) => this.templatesService.getTemplateById('transformation', param)
-        .map((transformation: any) => new transformationActions.GetEditedTransformationCompleteAction(transformation))
-        .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
-            Observable.of(new transformationActions.GetEditedTransformationErrorAction('')),
-            Observable.of(new errorActions.ServerErrorAction(error))
-        )));
+   @Effect()
+   getTransformationTemplate$: Observable<Action> = this.actions$
+      .pipe(ofType(transformationActions.GET_EDITED_TRANSFORMATION))
+      .pipe(map((action: any) => action.payload))
+      .pipe(switchMap((param: any) => this.templatesService.getTemplateById('transformation', param)
+         .pipe(map((transformation: any) => new transformationActions.GetEditedTransformationCompleteAction(transformation)))
+         .catch(error => iif(() => error.statusText === 'Unknown Error',
+            of(new transformationActions.GetEditedTransformationErrorAction('')),
+            of(new errorActions.ServerErrorAction(error))
+         ))));
 
-    @Effect()
-    deleteTransformation$: Observable<Action> = this.actions$
-        .ofType(transformationActions.DELETE_TRANSFORMATION)
-        .map((action: any) => action.payload.selected)
-        .switchMap((transformations: any) => {
-            const joinObservables: Observable<any>[] = [];
-            transformations.map((transformation: any) => {
-                joinObservables.push(this.templatesService.deleteTemplate('transformation', transformation.id));
-            });
-            return Observable.forkJoin(joinObservables).mergeMap(results => {
-                return [new transformationActions.DeleteTransformationCompleteAction(transformations), new transformationActions.ListTransformationAction()];
-            }).catch(function (error) {
-                return Observable.from([
-                    new transformationActions.DeleteTransformationErrorAction(''),
-                    new errorActions.ServerErrorAction(error)
-                ]);
-            });
-        });
+   @Effect()
+   deleteTransformation$: Observable<Action> = this.actions$
+      .pipe(ofType(transformationActions.DELETE_TRANSFORMATION))
+      .pipe(map((action: any) => action.payload.selected))
+      .pipe(switchMap((transformations: any) => {
+         const joinObservables: Observable<any>[] = [];
+         transformations.map((transformation: any) => {
+            joinObservables.push(this.templatesService.deleteTemplate('transformation', transformation.id));
+         });
+         return forkJoin(joinObservables).mergeMap(results => [
+            new transformationActions.DeleteTransformationCompleteAction(transformations),
+            new transformationActions.ListTransformationAction()]
+         ).catch(error => from([
+            new transformationActions.DeleteTransformationErrorAction(''),
+            new errorActions.ServerErrorAction(error)
+         ]));
+      }));
 
-    @Effect()
-    duplicateTransformation$: Observable<Action> = this.actions$
-        .ofType(transformationActions.DUPLICATE_TRANSFORMATION)
-        .switchMap((data: any) => {
-            let transformation = Object.assign(data.payload);
-            delete transformation.id;
-            return this.templatesService.createTemplate(transformation).mergeMap((data: any) => {
-                return [new transformationActions.DuplicateTransformationCompleteAction(), new transformationActions.ListTransformationAction];
-            }).catch(function (error: any) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   duplicateTransformation$: Observable<Action> = this.actions$
+      .pipe(ofType(transformationActions.DUPLICATE_TRANSFORMATION))
+      .pipe(switchMap((data: any) => {
+         const transformation = Object.assign(data.payload);
+         delete transformation.id;
+         return this.templatesService.createTemplate(transformation).mergeMap(() => [
+            new transformationActions.DuplicateTransformationCompleteAction(),
+            new transformationActions.ListTransformationAction
+         ]).catch(error => of(new errorActions.ServerErrorAction(error)));
+      }));
 
-    @Effect()
-    createTransformation$: Observable<Action> = this.actions$
-        .ofType(transformationActions.CREATE_TRANSFORMATION)
-        .switchMap((data: any) => {
-            return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
-                return [new transformationActions.CreateTransformationCompleteAction(), new transformationActions.ListTransformationAction];
-            }).catch(function (error: any) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   createTransformation$: Observable<Action> = this.actions$
+      .pipe(ofType(transformationActions.CREATE_TRANSFORMATION))
+      .pipe(switchMap((data: any) => this.templatesService.createTemplate(data.payload)
+      .pipe(mergeMap(() => [
+         new transformationActions.CreateTransformationCompleteAction(),
+         new transformationActions.ListTransformationAction
+      ])).catch(error => of(new errorActions.ServerErrorAction(error)))));
 
-    @Effect()
-    updateTransformation$: Observable<Action> = this.actions$
-        .ofType(transformationActions.UPDATE_TRANSFORMATION)
-        .switchMap((data: any) => {
-            return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
-                return [new transformationActions.UpdateTransformationCompleteAction(), new transformationActions.ListTransformationAction];
-            }).catch(function (error: any) {
-                return Observable.of(new errorActions.ServerErrorAction(error));
-            });
-        });
+   @Effect()
+   updateTransformation$: Observable<Action> = this.actions$
+      .pipe(ofType(transformationActions.UPDATE_TRANSFORMATION))
+      .pipe(switchMap((data: any) => this.templatesService.updateFragment(data.payload)
+         .pipe(mergeMap(() => [
+            new transformationActions.UpdateTransformationCompleteAction(),
+            new transformationActions.ListTransformationAction
+         ])).catch(error => of(new errorActions.ServerErrorAction(error)))));
 
-    constructor(
-        private actions$: Actions,
-        private templatesService: TemplatesService
-    ) { }
+   constructor(
+      private actions$: Actions,
+      private templatesService: TemplatesService
+   ) { }
 
 }

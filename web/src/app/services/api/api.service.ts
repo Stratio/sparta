@@ -10,10 +10,11 @@ import { Store } from '@ngrx/store';
 
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
-import { Observable } from 'rxjs/Observable';
+import { Observable, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpErrorAction } from 'app/actions/errors';
 import * as fromRoot from 'reducers';
+import { catchError, map } from 'rxjs/operators';
 
 
 export interface ApiRequestOptions {
@@ -43,7 +44,7 @@ export class ApiService {
       this.requestOptions.responseType = 'text';
       this.requestOptions.headers = new HttpHeaders({ timeout: `${20000}` });
 
-      return this.http.request(method, url, this.requestOptions).map((res: any) => {
+      return this.http.request(method, url, this.requestOptions).pipe(map((res: any) => {
          try {
             if (res === 'OK') {
                return JSON.parse(JSON.stringify(res));
@@ -57,7 +58,7 @@ export class ApiService {
             return res;
          }
 
-      }).catch(this.handleError);
+      })).pipe(catchError(this.handleError));
 
    }
 
@@ -73,6 +74,6 @@ export class ApiService {
    }
 
    private handleError(error: any): Observable<any> {
-      return Observable.throw(error);
+      return throwError(error);
    }
 }

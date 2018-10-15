@@ -10,6 +10,7 @@ import { Order } from '@stratio/egeo';
 export const LIST_EXECUTIONS = '[Executions Managing] List executions';
 export const LIST_EXECUTIONS_COMPLETE = '[Executions Managing] List executions complete';
 export const LIST_EXECUTIONS_FAIL = '[Executions Managing] List executions fail';
+export const LIST_EXECUTIONS_EMPTY = '[Executions Managing] List executions empty';
 
 export const LIST_ARCHIVED_EXECUTIONS = '[Executions Managing] List archived executions';
 export const LIST_ARCHIVED_EXECUTIONS_COMPLETE = '[Executions Managing] List archived executions complete';
@@ -60,6 +61,10 @@ export class ListExecutionsFailAction implements Action {
 export class ListExecutionsCompleteAction implements Action {
    readonly type = LIST_EXECUTIONS_COMPLETE;
    constructor(public payload: any) { }
+}
+
+export class ListExecutionsEmptyAction implements Action {
+  readonly type = LIST_EXECUTIONS_EMPTY;
 }
 
 export class ListArchivedExecutionsAction implements Action {
@@ -186,6 +191,7 @@ export class SetArchivedPageAction implements Action {
 export type Actions = ListExecutionsAction
    | ListExecutionsFailAction
    | ListExecutionsCompleteAction
+   | ListExecutionsEmptyAction
    | ListArchivedExecutionsAction
    | ListArchivedExecutionsCompleteAction
    | ListArchivedExecutionsFailAction
