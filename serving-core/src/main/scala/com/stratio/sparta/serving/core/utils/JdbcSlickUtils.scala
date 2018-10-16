@@ -38,7 +38,7 @@ trait JdbcSlickHelper {
       props
     }
 
-    val urlConnection = config.getString("host")
+    val urlConnection = s"jdbc:postgresql://${config.getString("host")}"
     val user = config.getString("user")
     val urlWithDatabase = urlConnection.concat(s"/${config.getString("database")}").concat(s"?user=$user")
     if (config.getBoolean("sslenabled")) {

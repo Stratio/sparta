@@ -28,12 +28,12 @@ class PostgresFactoryIT extends WordSpec with Matchers with BeforeAndAfterAll wi
 
   val host = Try(config.getString("postgresql.host")) match {
     case Success(configHost) =>
-      val hostUrl = s""""jdbc:postgresql://$configHost:5432""""
+      val hostUrl = s""""$configHost:5432""""
       log.info(s"Postgres host from config: $hostUrl")
       s"host = $hostUrl\n"
     case Failure(e) =>
       log.info(s"Postgres host from default")
-      val hostUrl =s""""jdbc:postgresql://localhost:5432""""
+      val hostUrl =s""""localhost:5432""""
       s"host = $hostUrl\n"
   }
 
