@@ -51,12 +51,6 @@ abstract class SelectTransformStep[Underlying[Row]](
     SelectType.withName(properties.getString("selectType", "EXPRESSION").toUpperCase())
   }.getOrElse(SelectType.EXPRESSION)
 
-  def requireValidateSql(): Unit = {
-    val sql = s"select ${selectExpression.getOrElse("dummyCol")} from dummyTable"
-    require(sql.nonEmpty, "The input query can not be empty")
-    require(validateSql, "The input query is invalid")
-  }
-
   def validateSql: Boolean =
     Try {
       val expression = selectType match {
@@ -110,11 +104,15 @@ abstract class SelectTransformStep[Underlying[Row]](
         messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify a select expression, such as colA, abs(colC).", name)
       )
 
-    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && !validateSql)
+    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && (selectExpression.get.endsWith(",") || !validateSql)) {
+      val errorMessage = if (selectExpression.get.endsWith(","))
+        "The select expression is invalid because it has a trailing comma ','."
+      else "The select expression is invalid."
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"The select expression is invalid.", name)
+        messages = validation.messages :+ WorkflowValidationMessage(errorMessage, name)
       )
+    }
 
     if (selectType == SelectType.COLUMNS && columns.nonEmpty && !validateSql)
       validation = ErrorValidations(
