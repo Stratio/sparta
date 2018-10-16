@@ -6,7 +6,10 @@
 </tool-bar>
 <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
 <section class="container">
-   <st-horizontal-tabs class="parameter-group-categories" [options]="tabsOptions" qaTag="parameter-group-categories" (changedOption)="changeTabOption($event)"></st-horizontal-tabs>
+   <div class="tab-container">
+      <st-horizontal-tabs class="parameter-group-categories" [options]="tabsOptions" qaTag="parameter-group-categories" (changedOption)="changeTabOption($event)"></st-horizontal-tabs>
+   </div>
+
 
    <div class="section-content" [ngSwitch]="selectedOption">
       <global-parameters-container *ngSwitchCase="'global'"></global-parameters-container>

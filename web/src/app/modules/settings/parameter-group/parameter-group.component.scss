@@ -1,19 +1,38 @@
-.parameter-group-categories{
-  width: 490px;
-  margin-top: 2em;
+/**
+ * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+ *
+ * This software – including all its source code – contains proprietary
+ * information of Stratio Big Data Inc., Sucursal en España and
+ * may not be revealed, sold, transferred, modified, distributed or
+ * otherwise made available, licensed or sublicensed to third parties;
+ * nor reverse engineered, disassembled or decompiled, without express
+ * written authorization from Stratio Big Data Inc., Sucursal en España.
+ */
+
+ @import '~@stratio/egeo/theme/constants';
+ 
+.tab-container {
+    width: 100%;
+    margin-top: 2em;
+    display: flex;
+    border-bottom: 1px solid $neutral-06;
+    .parameter-group-categories {
+        width: 490px;
+    }
 }
+
 .section-content {
-  width: 100%;
-  padding-top: 15px;
+    width: 100%;
+    padding-top: 15px;
 }
 
 sp-foreground-notifications {
-   position: absolute;
-   left: 0;
-   right: 0;
-   max-width: 450px;
-   margin-left: auto;
-   margin-right: auto;
-   margin-top: 10px;
-   z-index: 99999;
+    position: absolute;
+    left: 0;
+    right: 0;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    z-index: 99999;
 }

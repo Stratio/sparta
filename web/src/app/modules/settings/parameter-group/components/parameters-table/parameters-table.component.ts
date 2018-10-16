@@ -126,7 +126,7 @@ export class ParametersTableComponent implements OnInit, OnChanges, OnDestroy {
             if (parameter.contexts) {
                parameter.contexts.map(context => this.contexts.push(this.fb.group({
                   name: new FormControl(context.name),
-                  value: new FormControl(context.value),
+                  value: new FormControl(context.value, [Validators.required]),
                   id: new FormControl(context.id)
                })));
             }
@@ -203,7 +203,7 @@ export class ParametersTableComponent implements OnInit, OnChanges, OnDestroy {
       });
       added.map(context => this.contexts.push(this.fb.group({
          name: new FormControl(context.name),
-         value: new FormControl(context.value),
+         value: new FormControl(context.value, [Validators.required]),
          id: new FormControl(context.id)
       })));
 

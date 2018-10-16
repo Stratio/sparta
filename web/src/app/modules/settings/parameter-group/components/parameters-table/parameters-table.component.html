@@ -26,7 +26,8 @@
                         [active]="contextOptionActive"
                         [attr.id]="'contextOptions'"
                         [offset]="{ x: 0, y: 15 }"
-                        (change)="onChangeContext($event)">
+                        (change)="onChangeContext($event)"
+                        class="parameter-dropdown">
                      </st-dropdown-menu>
                   </span>
                </ng-container>
@@ -67,7 +68,7 @@
          <ng-container *ngIf="inputParameters && inputParameters.length">
             <ng-container *ngFor="let parameter of inputParameters; let i = index;">
                <tr (click)="selectedRow(parameter, i)">
-                  <td *ngFor="let element of header" [ngClass]="selectedContext !== 'default' && parameter.value === parameter.defaultValue && 'gray' + ' ' + element">{{parameter[element] || '-'}} </td>
+                  <td *ngFor="let element of header" [ngClass]="(selectedContext !== 'default' && parameter.value === parameter.defaultValue ? 'gray ' : '') + element">{{parameter[element] || '-'}} </td>
                   <td><i class="icon icon-arrow2_down arrow"></i></td>
                </tr>
                <tr class="edit" *ngIf="selectedParameter && parameter.name === selectedParameter.name">
@@ -84,7 +85,7 @@
                                  <div formArrayName="contexts" *ngIf="myForm.get('contexts').controls.length">
                                     <div [formGroupName]="i" *ngFor="let context of myForm.get('contexts').controls; let i = index;" class="context-container">
                                        <st-input label="{{ context.controls.name.value }} value" formControlName="value" placeholder="Context" [errors]="[]" name="description"></st-input>
-                                       <span class="icon icon-trash" (click)="onDeleteContext(context.controls.name.value)"></span>
+                                       <span class="icon icon-cross" (click)="onDeleteContext(context.controls.name.value)"></span>
                                     </div>
                                  </div>
                                  <!-- Add context en environment y custom -->
