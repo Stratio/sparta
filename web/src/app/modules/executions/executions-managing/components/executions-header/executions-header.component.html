@@ -56,10 +56,10 @@
                   <i class="icon-trash"></i>
                </button>
                 <button *ngIf="showArchiveButton" spTitle="Archive selected executions" class="button button-toolbar" id="archive-button" (click)="archiveExecutions.emit()">
-                  <i class="icon-archive"></i>
+                  <i class="icon-chip"></i>
                </button>
                 <button *ngIf="showUnarchiveButton" spTitle="Unarchive selected executions" class="button button-toolbar" id="unarchive-button" (click)="unarchiveExecutions.emit()">
-                  <i class="icon-archive"></i>
+                  <i class="icon-lego"></i>
                </button>
                 <button *ngIf="false" spTitle="Run selected executions" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
                   <i class="icon-play"></i>
