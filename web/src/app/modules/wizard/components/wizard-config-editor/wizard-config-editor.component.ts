@@ -76,6 +76,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    public queryBuilder: any;
    public visualQueryBuilder = false;
 
+   public parametersLists: any;
+
    private _componentDestroyed = new Subject();
    private _allOptions: StHorizontalTab[] = [{
       id: 'Global',
@@ -90,12 +92,13 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    }];
    private saveSubscription: Subscription;
    private validatedNameSubcription: Subscription;
+   private settingsSubscription: Subscription;
 
    ngOnInit(): void {
       setTimeout(() => {
          this.fadeActive = true;
       });
-      this.valueDictionary.parameters = this.parameters;
+      this.valueDictionary.parameters = { ...this.parameters, customGroups: [] };
       if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
          let attrs = [];
          this.config.schemas.inputs.forEach(input => attrs = attrs.concat(this._getInputSchema(input)));
@@ -124,6 +127,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             if (isEntitySaved) {
                // hide edition when its saved
                this._store.dispatch(new wizardActions.HideEditorConfigAction());
+            }
+         });
+        this.settingsSubscription = this._store.select(fromWizard.getWorkflowSettings)
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe((settings) => {
+             const { advancedSettings : { global : { parametersLists } } } = settings;
+            if (!parametersLists.find(e => e === 'Environment')) {
+              this.valueDictionary.parameters = { ...this.valueDictionary.parameters, environmentVariables: [] };
             }
          });
       this._store.select(fromWizard.isShowedCrossdataCatalog)

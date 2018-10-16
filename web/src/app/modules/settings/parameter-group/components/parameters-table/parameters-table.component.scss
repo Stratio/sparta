@@ -170,10 +170,9 @@
                   position: relative;
                   .icon {
                      position: absolute;
-                     top: 35px;
+                     top: 30px;
                      right: -30px;
-                     cursor: pointer;
-                     font-size: $egeo-font-size-xxsmall;
+                     font-size: $egeo-font-size-large;
                      color: $action-secondary-04;
                      cursor: pointer;
                      &:hover {

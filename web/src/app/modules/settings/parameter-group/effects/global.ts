@@ -63,8 +63,7 @@ export class GlobalParametersEffect {
       .pipe(ofType(globalParametersActions.DELETE_GLOBAL_PARAMS))
       .pipe(map((action: any) => action.payload))
       .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.global)))
-      .pipe(switchMap(([param, state]) => {
-          console.log(param, state);        
+      .pipe(switchMap(([param, state]) => {   
          return this._parametersService.deleteGlobalParameter(param.name)
             .pipe(mergeMap(res => [
                new globalParametersActions.ListGlobalParamsAction(),

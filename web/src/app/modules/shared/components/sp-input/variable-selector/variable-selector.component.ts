@@ -31,9 +31,6 @@ export class VariableSelectorComponent implements OnInit {
       label: 'Global',
       value: 'Global'
     }, {
-      label: 'Environment',
-      value: 'Environment'
-    }, {
       label: 'Undefined parameter',
       value: 'Undefined'
     }
@@ -64,10 +61,21 @@ export class VariableSelectorComponent implements OnInit {
         this.paramName = this.currentParameter.value;
       }
     }
-    this.sourceOptions = this.sourceOptions.concat(this.parameters.customGroups.map(group => ({
-      label: group.name,
-      value: group.name
-    })));
+    if (this.parameters.environmentVariables.length) {
+        this.sourceOptions = this.sourceOptions.concat({
+            label: 'Environment',
+            value: 'Environment'
+        });
+    }
+    if (this.parameters.customGroups) {
+        this.sourceOptions = this.sourceOptions.concat(this.parameters.customGroups.filter(g => !g.parent).map(group => ({
+            label: group.name,
+            value: group.name
+          })));
+    }
+
+
+    
   }
 
   loadVariables(groupType) {
