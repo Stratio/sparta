@@ -25,10 +25,9 @@ import com.stratio.sparta.serving.core.models.workflow._
   * Utilitary object for dg-workflows methods
   */
 //scalastyle:off
-//TODO refactor lineage with new architecture
 object LineageUtils {
 
-/*  val tenantName = Properties.envOrElse(MarathonConstant.DcosServiceName, "sparta")
+  val tenantName = Properties.envOrElse(MarathonConstant.DcosServiceName, "sparta")
 
   implicit def writerToMap(writer: WriterGraph): Map[String, String] = {
     writer.tableName match {
@@ -44,7 +43,7 @@ object LineageUtils {
         )
         m.filter(p => p._2.isDefined && p._2.get.nonEmpty).map(p => (p._1, p._2.get))
       }
-      case _ =>  Map.empty[String, String]
+      case _ => Map.empty[String, String]
     }
   }
 
@@ -83,17 +82,18 @@ object LineageUtils {
   def inputMetadataLineage(
                             workflow: Workflow,
                             graph: Graph[NodeGraph, LDiEdge],
+                            executionId: String,
                             operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
                           ): List[InputMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(InputStep.StepType)).map(
       n => {
-        val metadataPath = workflowMetadataPathString(workflow, n.name)
+        val metadataPath = workflowMetadataPathString(workflow, executionId, n.name)
         val input = InputMetadata(
           name = n.name,
           key = workflow.id.get,
           metadataPath = metadataPath,
           outcomingNodes = graph.get(n).diSuccessors.map(s =>
-            workflowMetadataPathString(workflow, s.name)).toSeq,
+            workflowMetadataPathString(workflow, executionId, s.name)).toSeq,
           agentVersion = SpartaType.agentVersion,
           serverVersion = SpartaType.serverVersion,
           tags = workflow.tags.getOrElse(Seq.empty).toList,
@@ -112,17 +112,18 @@ object LineageUtils {
   def outputMetadataLineage(
                              workflow: Workflow,
                              graph: Graph[NodeGraph, LDiEdge],
+                             executionId: String,
                              operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
                            ): List[OutputMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(OutputStep.StepType)).map(
       n => {
-        val metadataPath = workflowMetadataPathString(workflow, n.name)
+        val metadataPath = workflowMetadataPathString(workflow, executionId, n.name)
         val output = OutputMetadata(
           name = n.name,
           key = workflow.id.get,
           metadataPath = metadataPath,
           incomingNodes = graph.get(n).diPredecessors.map(pred =>
-            workflowMetadataPathString(workflow, pred.name)).toSeq,
+            workflowMetadataPathString(workflow, executionId, pred.name)).toSeq,
           agentVersion = SpartaType.agentVersion,
           serverVersion = SpartaType.serverVersion,
           tags = workflow.tags.getOrElse(Seq.empty).toList,
@@ -140,11 +141,12 @@ object LineageUtils {
   def transformationMetadataLineage(
                                      workflow: Workflow,
                                      graph: Graph[NodeGraph, LDiEdge],
+                                     executionId: String,
                                      operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
                                    ): List[TransformationMetadata] = {
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
       n => {
-        val metadataPath = workflowMetadataPathString(workflow, n.name)
+        val metadataPath = workflowMetadataPathString(workflow, executionId, n.name)
         val transformation = TransformationMetadata(
           name = n.name,
           key = workflow.id.get,
@@ -152,7 +154,7 @@ object LineageUtils {
           outcomingNodes = graph.get(n).diSuccessors.map(s =>
             workflowMetadataPathString(workflow, s.name)).toSeq,
           incomingNodes = graph.get(n).diPredecessors.map(pred =>
-            workflowMetadataPathString(workflow, pred.name)).toSeq,
+            workflowMetadataPathString(workflow, executionId, pred.name)).toSeq,
           agentVersion = SpartaType.agentVersion,
           serverVersion = SpartaType.serverVersion,
           tags = workflow.tags.getOrElse(Seq.empty).toList,
@@ -195,21 +197,18 @@ object LineageUtils {
     tenantList
   }
 
-  def statusMetadataLineage(workflowExecutionChange: WorkflowExecutionChange): Option[List[WorkflowStatusMetadata]] = {
-    import WorkflowStatusUtils._
-    import workflowExecutionChange.execution._
-
-    if (checkIfProcessableStatus(workflowExecutionChange)) {
-      val wfError = genericDataExecution.lastError
-      val workflow = getWorkflowToExecute
-      val lastStatus = workflowExecutionChange.execution.lastStatus
+  def executionStatusMetadataLineage(executionStatusChange: WorkflowExecutionStatusChange): Option[List[WorkflowStatusMetadata]] = {
+    if (checkIfProcessableStatus(executionStatusChange)) {
+      val wfError = executionStatusChange.newExecution.genericDataExecution.lastError
+      val workflow = executionStatusChange.newExecution.getWorkflowToExecute
+      val lastStatus = executionStatusChange.newExecution.lastStatus
       val metadataSerialized = new WorkflowStatusMetadata(
         name = workflow.name,
         status = mapSparta2GovernanceStatuses(lastStatus.state),
         error = if (lastStatus.state == Failed && wfError.isDefined)
-          Some(genericDataExecution.lastError.get.message) else Some(""),
-        key = getExecutionId,
-        metadataPath = workflowMetadataPathString(workflow, getExecutionId, "status"),
+          Some(executionStatusChange.newExecution.genericDataExecution.lastError.get.message) else Some(""),
+        key = executionStatusChange.newExecution.getExecutionId,
+        metadataPath = workflowMetadataPathString(workflow, executionStatusChange.newExecution.getExecutionId, "status"),
         agentVersion = SpartaType.agentVersion,
         serverVersion = SpartaType.serverVersion,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
@@ -226,6 +225,7 @@ object LineageUtils {
 
   def workflowMetadataLineage(
                                workflow: Workflow,
+                               executionId: String,
                                operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
                              ): List[WorkflowMetadata] = {
 
@@ -233,7 +233,7 @@ object LineageUtils {
       name = workflow.name,
       key = workflow.id.get,
       description = workflow.description,
-      metadataPath = workflowMetadataPathString(workflow),
+      metadataPath = workflowMetadataPathString(workflow, executionId),
       agentVersion = SpartaType.agentVersion,
       serverVersion = SpartaType.serverVersion,
       tags = workflow.tags.getOrElse(Seq.empty).toList,
@@ -249,7 +249,7 @@ object LineageUtils {
       "tlsEnabled" -> workflow.settings.sparkSettings.sparkKerberos.toString,
       "mesosSecurityEnabled" -> workflow.settings.sparkSettings.sparkMesosSecurity.toString)
 
-    workflowMetadata.properties ++= props.map(kv => WorkflowMetadataProperties(workflowMetadataPathString(workflow), kv._1, kv._2))
+    workflowMetadata.properties ++= props.map(kv => WorkflowMetadataProperties(workflowMetadataPathString(workflow, executionId), kv._1, kv._2))
     val workflowList = List(workflowMetadata)
 
     workflowList
@@ -258,9 +258,8 @@ object LineageUtils {
   def fromDatetimeToLongWithDefault(dateTime: Option[DateTime]): Option[Long] =
     dateTime.fold(Some(System.currentTimeMillis())) { dt => Some(dt.getMillis) }
 
-  def checkIfProcessableStatus(workflowExecutionChange: WorkflowExecutionChange): Boolean = {
-    val eventStatus = workflowExecutionChange.execution.lastStatus.state
-
+  def checkIfProcessableStatus(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
+    val eventStatus = executionStatusChange.newExecution.lastStatus.state
     eventStatus == Started || eventStatus == Finished || eventStatus == Failed
   }
 
@@ -269,7 +268,7 @@ object LineageUtils {
       case Started => EventType.Running
       case Finished => EventType.Success
       case Failed => EventType.Failed
-    }*/
+    }
 }
 
 object LineageItem extends Enumeration {

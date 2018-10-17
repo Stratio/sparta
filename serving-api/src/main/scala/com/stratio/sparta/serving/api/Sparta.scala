@@ -7,7 +7,6 @@ package com.stratio.sparta.serving.api
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.helpers.SpartaHelper
-import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 
 /**

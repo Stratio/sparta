@@ -110,7 +110,7 @@ This software – including all its source code – contains proprietary informa
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
         <crossdata.version>2.14.0-M1</crossdata.version>
-        <postgres.version>42.1.1</postgres.version>
+        <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
         <json-path.version>2.2.0</json-path.version>

@@ -34,6 +34,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigMarathon = "sparta.marathon"
   val ConfigIntelligence = "sparta.intelligence"
   val ConfigIgnite = "sparta.ignite"
+  val ConfigLineage = "lineage.postgres"
   val HdfsKey = "hdfs"
   val DefaultOauth2CookieName = "user"
   val DriverPackageLocation = "driverPackageLocation"

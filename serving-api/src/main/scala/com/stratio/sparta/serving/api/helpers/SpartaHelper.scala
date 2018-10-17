@@ -10,6 +10,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
@@ -24,8 +25,9 @@ import com.stratio.sparta.serving.core.utils.SpartaIgnite
 import com.typesafe.config.ConfigFactory
 import org.apache.ignite.Ignition
 import spray.can.Http
-
 import scala.util.{Properties, Try}
+
+import com.stratio.sparta.dg.agent.lineage.LineageService
 
 
 /**
@@ -80,8 +82,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
 
         if (Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)) {
           log.info("Initializing lineage service ...")
-          //TODO lineage
-          //system.actorOf(LineageService.props(executionListenerActor, workflowListenerActor))
+          system.actorOf(LineageService.props(executionStatusChangeListenerActor))
         }
 
         val controllerActor = system.actorOf(Props(new ControllerActor(
