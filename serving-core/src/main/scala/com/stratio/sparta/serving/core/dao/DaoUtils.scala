@@ -78,7 +78,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
 
   def createSchema(): Unit = {
     dbSchemaName.foreach { schemaName =>
-      val createSchemaSql = s"create schema if not exists $schemaName;"
+      val createSchemaSql = s"""create schema if not exists "$schemaName";"""
       Try(Await.result(db.run(sqlu"#$createSchemaSql"), AppConstant.DefaultApiTimeout seconds)) match {
         case Success(_) =>
           log.debug(s"Schema $schemaName created if not exists")
