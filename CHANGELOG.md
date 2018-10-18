@@ -4,8 +4,9 @@
 
 * Pending changelog
 
-## 2.4.0-d89a291 (Built: October 08, 2018 | Pre-release)
+## 2.4.0-907a569 (Built: October 18, 2018 | Pre-release)
 
+* [SPARTA-2300] Lineage with N-executions model
 * Sparta metadata datastore migration from Zookeeper to Postgres
 * [SPARTA-2153] Fix Crossdata logs, update formats and integrate Async appender
 * [SPARTA-2119] Generic Datasource for Input&Output
@@ -51,6 +52,7 @@
     - [SPARTA-2140] Fix error sinks with wrong schema
     - Fix for env variables and JsoneyString parsing
     - [SPARTA-2347] Fix MLModel transformation debug mode
+    - [SPARTA-2245] Set encoding to UTF-8 by default
 
 ## 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
