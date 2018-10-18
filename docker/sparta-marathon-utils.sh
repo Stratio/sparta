@@ -28,10 +28,11 @@ function initJavaOptions() {
 
 function initPluginCrossdata() {
 
- if [ -v CROSSDATA_SECURITY_MANAGER_ENABLED ] && [ CROSSDATA_SECURITY_MANAGER_ENABLED == "true" ]; then
+ if [ -v CROSSDATA_SECURITY_MANAGER_ENABLED ] && [ $CROSSDATA_SECURITY_MANAGER_ENABLED == "true" ]; then
     INFO "[GOSEC-CROSSDATA-CONFIG] Choose version: OK"
-    PLUGIN_FILES=(`ls -d -1  /opt/sds/crossdata/plugins{*,.*} | grep -e "dyplon-crossdata-${GOSEC_CROSSDATA_VERSION//./\\.}.*\.jar"`)
-    INFO "[GOSEC-CROSSDATA-CONFIG] Version choosed: OK"
+    INFO "[GOSEC-CROSSDATA-CONFIG] dyplon-crossdata-${GOSEC_CROSSDATA_VERSION//./\\.}.*\.jar"
+    PLUGIN_FILES=(`ls -d -1  /opt/sds/sparta/crossdata/{*,.*} | grep -e "dyplon-crossdata-${GOSEC_CROSSDATA_VERSION//./\\.}.*\.jar"`)
+    INFO "[GOSEC-CROSSDATA-CONFIG] Version choosed: ${PLUGIN_FILES} OK"
 
     case "${#PLUGIN_FILES[*]}" in
             0)

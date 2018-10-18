@@ -6,11 +6,19 @@
 package com.stratio.sparta.serving.core.marathon
 
 import java.util.{Calendar, UUID}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.io.Source
+import scala.util.{Properties, Try}
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
+import com.typesafe.config.Config
+import org.json4s.jackson.Serialization._
+import play.api.libs.json._
+
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
@@ -20,7 +28,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
@@ -29,14 +37,6 @@ import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
-import com.typesafe.config.Config
-import org.json4s.jackson.Serialization._
-import play.api.libs.json._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.io.Source
-import scala.util.{Properties, Try}
 
 //scalastyle:off
 case class MarathonService(context: ActorContext, execution: Option[WorkflowExecution]) extends SpartaSerializer {
@@ -218,7 +218,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     }
     val newEnv = Option(
       envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
-        gosecPluginProperties ++ xdProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
+        gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
         calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
         intelligenceProperties
     )
@@ -349,6 +349,16 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
         key.startsWith("CROSSDATA_STORAGE") ||
         key.startsWith("CROSSDATA_SECURITY")
     }.mapValues(value => JsString(value))
+
+  private def xdGosecProperties: Map[String, JsString] = {
+    sys.env.filterKeys { key =>
+      key.startsWith("CROSSDATA_SECURITY_MANAGER_ENABLED") ||
+        key.startsWith("GOSEC_CROSSDATA_VERSION") ||
+        key.startsWith("CROSSDATA_PLUGIN_SERVICE_NAME") ||
+        key.startsWith("DYPLON_SYSTEM_TENANT") ||
+        key.startsWith("DYPLON_TENANT_NAME")
+    }.mapValues(value => JsString(value))
+  }
 
   private def postgresProperties: Map[String, JsString] =
     sys.env.filterKeys { key =>
