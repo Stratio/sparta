@@ -16,6 +16,7 @@ export const SAVE_GLOBAL_PARAMS = '[Global Params] Save global params';
 export const SAVE_GLOBAL_PARAMS_COMPLETE = '[Global Params] Save global params complete';
 export const DELETE_GLOBAL_PARAMS = '[Global Params] Delete global params';
 export const SEARCH_GLOBAL_PARAMS = '[Global Params] Search global params';
+export const DELETE_NEW_GLOBAL_PARAMS = '[Global Params] Delete new global params';
 
 export class ListGlobalParamsAction implements Action {
    readonly type = LIST_GLOBAL_PARAMS;
@@ -60,6 +61,10 @@ export class SearchGlobalAction implements Action {
    constructor(public text: string) {}
 }
 
+export class DeleteNewGlobalParamsAction implements Action {
+    readonly type = DELETE_NEW_GLOBAL_PARAMS;
+    constructor() { }
+ }
 
 export type Actions = ListGlobalParamsAction
   | ListGlobalParamsCompleteAction
@@ -67,4 +72,5 @@ export type Actions = ListGlobalParamsAction
   | SaveGlobalAction
   | SaveGlobalActionComplete
   | DeleteGlobalAction
-  | SearchGlobalAction;
+  | SearchGlobalAction
+  | DeleteNewGlobalParamsAction;

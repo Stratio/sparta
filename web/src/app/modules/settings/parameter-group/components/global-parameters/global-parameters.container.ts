@@ -61,7 +61,9 @@ export class GlobalParametersContainer implements OnInit {
    }
 
    onDeleteParam(param) {
-      this.initRequest();
+      if (!param.creation) {
+         this.initRequest();
+      }
       this._store.dispatch(new globalParamsActions.DeleteGlobalAction(param));
    }
 

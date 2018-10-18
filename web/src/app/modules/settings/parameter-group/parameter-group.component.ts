@@ -66,7 +66,7 @@ export class ParameterGroupComponent implements OnInit {
    }
 
    closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 30000);
+      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 10000);
    }
 
    changeTabOption(event: StHorizontalTab) {

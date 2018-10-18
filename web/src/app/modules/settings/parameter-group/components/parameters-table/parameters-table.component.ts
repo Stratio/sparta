@@ -173,7 +173,7 @@ export class ParametersTableComponent implements OnInit, OnChanges, OnDestroy {
    }
 
    onDeleteParameter(parameter) {
-      this.deleteParam.emit(parameter);
+      this.deleteParam.emit({ param: parameter, creation: this.creationMode });
    }
 
    onSelectContext() {
