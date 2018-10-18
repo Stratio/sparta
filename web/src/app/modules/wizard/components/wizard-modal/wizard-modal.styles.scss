@@ -22,16 +22,16 @@
 .action-buttons {
    margin-top: 35px;
    overflow: hidden;
-   .button {
-      padding: .925rem 1.875rem;
-      min-width: 9rem;
+   button {
+     float: right;
    }
+
    .cancel-button {
-      font-weight: bold;
+      margin-top: 10px;
+      margin-right: 20px;
    }
-   .save-button {
-      font-weight: bold;
-      float: right;
-      margin-left: 15px;
+
+   .not-save-button {
+     margin: 0 1em;
    }
 }

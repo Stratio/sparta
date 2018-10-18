@@ -48,6 +48,8 @@ export const getCurrentLevel = createSelector(getWorkflowsEntityState, state => 
 export const getWorkflowList = createSelector(getWorkflowsEntityState, state => state.workflowList);
 export const getWorkflowVersionsList = createSelector(getWorkflowsEntityState, state => state.workflowsVersionsList);
 export const getGroupsList = createSelector(getWorkflowsEntityState, state => state.groups);
+export const getSearchQuery = createSelector(getWorkflowsEntityState, state => state.searchQuery);
+
 export const getOpenedWorkflow = createSelector(
     getWorkflowsEntityState,
     (state) => state.openedWorkflow ? state.openedWorkflow : undefined);
@@ -78,24 +80,38 @@ export const getWorkflowVersions = createSelector(
             openedWorkflow.name === workflow.name && openedWorkflow.group && openedWorkflow.group.id === workflow.group.id) : [];
       return workflowVersions.length ? workflowVersions[0].versions : workflowVersions;
    });
-
 export const getOrder = createSelector(getOrderState, state => state.sortOrder);
 export const getOrderVersions = createSelector(getOrderState, state => state.sortOrderVersions);
 
 export const getWorkflowsOrderedList = createSelector(
     getWorkflowVersionsList,
     getOrder,
-    (workflows, order) => orderBy([...workflows], order.orderBy, order.type ? true : false));
+    getSearchQuery,
+    (workflows, order, searchQuery) => {
+        searchQuery = searchQuery.toLowerCase();
+        return orderBy([...(searchQuery.length ?
+            workflows.filter(workflow => workflow.name.toLowerCase().indexOf(searchQuery) > -1) : workflows)], order.orderBy, order.type ? true : false)
+    });
 
 export const getGroupsOrderedList = createSelector(
     getCurrentGroups,
     getOrder,
-    (groups, order) => orderBy([...groups], order.orderBy, order.type ? true : false));
+    getSearchQuery,
+    (groups, order, searchQuery) => {
+        searchQuery = searchQuery.toLowerCase();
+        return orderBy([...(searchQuery.length ?
+            groups.filter(group => group.name.toLowerCase().indexOf(searchQuery) > -1) : groups)], order.orderBy, order.type ? true : false)
+    });
 
 export const getVersionsOrderedList = createSelector(
     getWorkflowVersions,
     getOrderVersions,
-    (versions, order) => orderBy([...versions], order.orderBy, order.type ? true : false));
+    getSearchQuery,
+    (versions, order, searchQuery) => {
+        searchQuery = searchQuery.toLowerCase();
+        return orderBy([...(searchQuery.length ?
+            versions.filter(version => ('v' + version.version).indexOf(searchQuery) > -1) : versions)], order.orderBy, order.type ? true : false)
+    });
 
 export const getWorkflowStatuses: any = createSelector(getWorkflowsEntityState, (state) => state.workflowsStatus);
 export const getSelectedEntity: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSelectedEntity);

@@ -63,6 +63,10 @@ export class ExecutionService extends ApiService {
       return this.request('workflowExecutions/' + id, 'get', options);
    }
 
+   deleteExecution(id: string) {
+     const options: any = {};
+     return this.request('workflowExecutions/' + id, 'delete', options);
+   }
 
 
 }

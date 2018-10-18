@@ -49,6 +49,10 @@ module.exports = function (config) {
       logLevel: config.LOG_INFO,
       autoWatch: true,
       browsers: ['PhantomJS'],
-      singleRun: false
+      singleRun: false,
+      captureTimeout: 210000,
+      browserDisconnectTolerance: 3, 
+      browserDisconnectTimeout : 210000,
+      browserNoActivityTimeout : 210000
    })
 }

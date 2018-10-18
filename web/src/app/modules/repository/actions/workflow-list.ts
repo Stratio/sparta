@@ -53,9 +53,6 @@ export const RUN_ADVANCED_WORKFLOW = '[Workflow-Managing] Run advanced workflow'
 export const RUN_ADVANCED_WORKFLOW_COMPLETE = '[Workflow-Managing] Run advanced workflow complete';
 export const RUN_ADVANCED_WORKFLOW_ERROR = '[Workflow-Managing] Run advanced workflow error';
 
-export const STOP_WORKFLOW = '[Workflow-Managing] Stop workflow';
-export const STOP_WORKFLOW_COMPLETE = '[Workflow-Managing] Stop workflow complete';
-export const STOP_WORKFLOW_ERROR = '[Workflow-Managing] Stop workflow error';
 export const FILTER_WORKFLOWS = '[Workflow-Managing] Search workflows';
 export const DISPLAY_MODE = '[Workflow-Managing] Display mode workflows';
 export const VALIDATE_WORKFLOW_NAME = '[Workflow-Managing] Validate workflow name';
@@ -100,6 +97,7 @@ export const DELETE_SINGLE_VERSION_COMPLETE = '[Workflow-Managing] Delete single
 export const DELETE_SINGLE_VERSION_ERROR = '[Workflow-Managing] Delete single version error';
 
 export const HIDE_NOTIFICATION = '[Workflow-Managing] Hide notification';
+export const SEARCH_CURRENT_FOLDER = '[Workflows-Managing] Search in current folder';
 
 export class ListGroupWorkflowsAction implements Action {
   readonly type = LIST_GROUP_WORKFLOWS;
@@ -154,8 +152,6 @@ export class ListGroupsAction implements Action {
   readonly type = LIST_GROUPS;
   constructor() { }
 }
-
-
 
 export class ListGroupsCompleteAction implements Action {
   readonly type = LIST_GROUPS_COMPLETE;
@@ -289,20 +285,6 @@ export class RunWorkflowErrorAction implements Action {
 export class RunWorkflowValidationErrorAction implements Action {
   readonly type = RUN_WORKFLOW_VALIDATION_ERROR;
   constructor(public payload: any) { }
-}
-
-export class StopWorkflowAction implements Action {
-  readonly type = STOP_WORKFLOW;
-  constructor(public payload: any) { }
-}
-
-export class StopWorkflowCompleteAction implements Action {
-  readonly type = STOP_WORKFLOW_COMPLETE;
-  constructor(public payload: any) { }
-}
-
-export class StopWorkflowErrorAction implements Action {
-  readonly type = STOP_WORKFLOW_ERROR;
 }
 
 export class SearchAction implements Action {
@@ -441,8 +423,6 @@ export class MoveWorkflowGroup implements Action {
    constructor(public payload: any) { }
  }
 
-
-
 export class MoveWorkflowCompleteAction implements Action {
   readonly type = MOVE_WORKFLOW_COMPLETE;
   constructor(public payload: any) { }
@@ -496,7 +476,6 @@ export class DeleteSingleVersionErrorAction implements Action {
   readonly type = DELETE_SINGLE_VERSION_ERROR;
 }
 
-
 export class HideNotificationAction implements Action {
   readonly type = HIDE_NOTIFICATION;
 }
@@ -517,6 +496,11 @@ export class ConfigAdvancedExecutionErrorAction implements Action {
 
 export class CancelAdvancedExecutionAction implements Action {
   readonly type = CANCEL_ADVANCED_EXECUTION;
+}
+
+export class SearchCurrentFolderAction implements Action {
+  readonly type = SEARCH_CURRENT_FOLDER;
+  constructor(public query: string) {}
 }
 
 export type Actions =
@@ -557,7 +541,6 @@ export type Actions =
   RunWorkflowCompleteAction |
   RunWorkflowErrorAction |
   RunWorkflowValidationErrorAction |
-  StopWorkflowAction |
   DownloadWorkflowsAction |
   DownloadWorkflowsCompleteAction |
   DownloadWorkflowsErrorAction |
@@ -599,4 +582,5 @@ export type Actions =
   DeleteSingleVersionErrorAction |
   HideNotificationAction |
   ConfigAdvancedExecutionAction |
-  CancelAdvancedExecutionAction;
+  CancelAdvancedExecutionAction |
+  SearchCurrentFolderAction;

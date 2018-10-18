@@ -8,22 +8,29 @@ import { Component, DebugElement, OnInit } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
+import { of } from 'rxjs';
 
 import { SpInputComponent } from './sp-input.component';
 import { SpInputModule } from './sp-input.module';
-import { StLabelModule } from '@stratio/egeo';
+import { StLabelModule, StModalService, StModalResponse } from '@stratio/egeo';
 import { SpInputError } from '@app/shared/components/sp-input/sp-input.models';
 
 
 let component: SpInputComponent;
 let fixture: ComponentFixture<SpInputComponent>;
 let input: HTMLInputElement;
+let modalServiceMock: StModalService;
 
 describe('SpInputComponent', () => {
    beforeEach(async(() => {
+         modalServiceMock = jasmine.createSpyObj('StModalService', ['show']);
+      (<jasmine.Spy> modalServiceMock.show).and.returnValue(of(StModalResponse.YES));
       TestBed.configureTestingModule({
          imports: [FormsModule, ReactiveFormsModule, StLabelModule],
-         declarations: [SpInputComponent]
+         declarations: [SpInputComponent],
+         providers: [
+               { provide: StModalService, useValue: modalServiceMock },
+         ]
       })
          .compileComponents();  // compile template and css
    }));
@@ -83,12 +90,6 @@ describe('SpInputComponent', () => {
       component.setDisabledState(false);
       fixture.detectChanges();
       expect(input.disabled).toBe(false);
-   });
-
-   it('Input should be focused naturally', () => {
-      fixture.detectChanges();
-      input.focus();
-      expect(component.focus).toBe(true);
    });
 
 });

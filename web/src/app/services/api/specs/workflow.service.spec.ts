@@ -7,40 +7,46 @@
 
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { Store } from '@ngrx/store';
 
 import { WorkflowService } from './../workflow.service';
 
 describe('[WorkflowService]', () => {
+   const mockStoreInstance = jasmine.createSpyObj('store', ['dispatch']);
 
-    beforeEach(() => TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule],
-        providers: [WorkflowService]
-    }));
+   beforeEach(() => TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+         WorkflowService,
+         {
+            provide: Store, useValue: mockStoreInstance
+         }]
+   }));
 
-    describe('should be able to retrieve a list of ip pools', () => {
+   describe('should be able to retrieve a list of ip pools', () => {
 
-        let service: WorkflowService;
-        let http: HttpTestingController;
+      let service: WorkflowService;
+      let http: HttpTestingController;
 
-        beforeEach(inject([WorkflowService], (_workflowService: WorkflowService) => {
-            service = TestBed.get(WorkflowService);
-            http = TestBed.get(HttpTestingController);
+      beforeEach(inject([WorkflowService], (_workflowService: WorkflowService) => {
+         service = TestBed.get(WorkflowService);
+         http = TestBed.get(HttpTestingController);
 
-        }));
+      }));
 
-        afterEach(() => {
-            http.verify();
-        });
+      afterEach(() => {
+         http.verify();
+      });
 
-        it('should create group', () => {
-            const url = 'groups';
-            const groupName = 'group-name';
-            service.createGroup(groupName).subscribe(response => {
-                expect(response).toEqual('OK');
-            });
-            const req = http.expectOne(url);
-            expect(req.request.method).toBe('POST');
-            req.flush('OK');
-        });
-    });
+      it('should create group', () => {
+         const url = 'groups';
+         const groupName = 'group-name';
+         service.createGroup(groupName).subscribe(response => {
+            expect(response).toEqual('OK');
+         });
+         const req = http.expectOne(url);
+         expect(req.request.method).toBe('POST');
+         req.flush('OK');
+      });
+   });
 });

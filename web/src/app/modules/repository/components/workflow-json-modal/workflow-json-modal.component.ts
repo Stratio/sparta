@@ -69,7 +69,7 @@ export class WorkflowJsonModal implements OnInit {
                 if (description.length) {
                     parsedJson.description = description;
                 }
-
+                delete this.model.id;
                 this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(parsedJson));
             } catch (error) {
                 this.workflowValidationError = true;

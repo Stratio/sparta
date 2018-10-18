@@ -190,7 +190,7 @@ export class WorkflowEffect {
       .pipe(switchMap((data: any) => this.workflowService.validateWithExecutionContext({
          workflowId: data.payload.workflowId,
          executionContext: data.payload.executionContext
-      }).pipe(mergeMap((result) =>
+      }).pipe(mergeMap((result: any) =>
          iif(() => result && result.valid,
             this.workflowService.runWorkflowWithParams({
                workflowId: data.payload.workflowId,
@@ -201,16 +201,6 @@ export class WorkflowEffect {
             })).catch((error) => of(new workflowActions.RunWorkflowErrorAction(error))),
             of(new workflowActions.RunWorkflowValidationErrorAction(result.messages)))
             .catch(error => of(new workflowActions.RunWorkflowErrorAction(error)))))));
-
-   @Effect()
-   stopWorkflow$: Observable<Action> = this.actions$
-      .ofType(workflowActions.STOP_WORKFLOW)
-      .pipe(switchMap((data: any) => this.workflowService.stopWorkflow(data.payload)
-         .pipe(map((response: any) => new workflowActions.StopWorkflowCompleteAction(data.payload)))))
-      .catch(error => from([
-         new workflowActions.StopWorkflowErrorAction(),
-         new errorActions.ServerErrorAction(error)
-      ]));
 
 
    @Effect()
@@ -238,10 +228,10 @@ export class WorkflowEffect {
          .pipe(map((response: any) =>
             new workflowActions.GetExecutionInfoCompleteAction(Object.assign(response, { name: data.payload.name })
             ))
-         ))).catch(error => from([
+         ))).pipe(catchError(error => from([
             new workflowActions.GetExecutionInfoErrorAction(),
             new errorActions.ServerErrorAction(error)
-         ]));
+         ])));
 
    @Effect()
    createGroup$: Observable<Action> = this.actions$

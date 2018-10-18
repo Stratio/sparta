@@ -10,7 +10,7 @@ import { FormListComponent } from '@app/shared/components/form-list/form-list.co
 import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
-import { EgeoModule, StCheckboxModule, StTextareaModule } from '@stratio/egeo';
+import { StCheckboxModule, StTextareaModule } from '@stratio/egeo';
 
 import { SpSelectModule } from '../sp-select/sp-select.module';
 import { ErrorMessagesService } from '../../../../services';
@@ -20,6 +20,7 @@ import { By } from '@angular/platform-browser';
 import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
 import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textarea.module';
 import { SpInputError } from '@app/shared/components/sp-input/sp-input.models';
+import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-column-input.module';
 
 let component: FormListComponent;
 let fixture: ComponentFixture<FormListComponent>;
@@ -73,6 +74,7 @@ describe('FormListComponent', () => {
                 HighlightTextareaModule,
                 SpTextareaModule,
                 SpInputModule,
+                SpColumnInputModule,
                 SpSelectModule,
                 StCheckboxModule,
                 StTextareaModule

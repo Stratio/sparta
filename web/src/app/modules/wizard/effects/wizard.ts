@@ -45,7 +45,6 @@ export class WizardEffect {
     @Effect()
     saveEntity$: Observable<Action> = this.actions$
         .pipe(ofType(wizardActions.SAVE_ENTITY))
-        .pipe(map((action: any) => action.payload))
         .pipe(withLatestFrom(this._store.select(state => state.wizard.wizard)))
         .pipe(map(([payload, wizard]: [any, any]) => {
             if (payload.oldName === payload.data.name) {
@@ -64,7 +63,7 @@ export class WizardEffect {
     @Effect()
     saveWorkflow$: Observable<any> = this.actions$
         .pipe(ofType(wizardActions.SAVE_WORKFLOW))
-        // Retrieve part of the current state
+        .pipe(map((action: any) => action.payload))
         .pipe(withLatestFrom(this._store.select(state => state)))
         .pipe(switchMap(([redirectOnSave, state]: [any, any]) => {
             const wizard = state.wizard.wizard;
@@ -110,7 +109,6 @@ export class WizardEffect {
     @Effect()
     createEdge$: Observable<Action> = this.actions$
         .pipe(ofType(wizardActions.CREATE_NODE_RELATION))
-        .pipe(map((action: any) => action.payload))
         .pipe(withLatestFrom(this._store.select(state => state.wizard.wizard)))
         .pipe(map(([payload, wizard]: [any, any]) => {
             let relationExist = false;
@@ -171,4 +169,3 @@ export class WizardEffect {
         private _location: Location
     ) { }
 }
-

@@ -15,7 +15,8 @@ import {
   Output,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { FloatingMenuModel } from './../floating-menu.model';
 
 @Component({
@@ -108,7 +109,7 @@ export class MenuOptionsComponent implements OnInit {
 
       this.subscriptionSearch = this.searchBox
          .valueChanges
-         .debounceTime(this.debounce)
+         .pipe(debounceTime(this.debounce))
          .subscribe((event) => this.searchChange.emit(this.searchBox.value));
    }
 

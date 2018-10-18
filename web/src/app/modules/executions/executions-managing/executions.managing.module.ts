@@ -10,7 +10,7 @@ import { EffectsModule } from '@ngrx/effects';
 import {
    StBreadcrumbsModule, StTableModule,
    StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-   StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StDropdownMenuModule
+   StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StDropdownMenuModule, StSpinnerModule
 } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
@@ -48,6 +48,7 @@ import { ExecutionHelperService } from 'app/services/helpers/execution.service';
       StFullscreenLayoutModule,
       StTableModule,
       StTooltipModule,
+      StSpinnerModule,
       StBreadcrumbsModule,
       StDropdownMenuModule,
       StSearchModule,

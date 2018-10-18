@@ -14,143 +14,178 @@ import * as workflowActions from './../../../actions/workflow-list';
 
 import { MockStore } from '@test/store-mock';
 import { Group } from '../../../models/workflows';
+import { homeGroup } from '@app/shared/constants/global';
 
 let component: RepositoryTableContainer;
 let fixture: ComponentFixture<RepositoryTableContainer>;
 
 describe('[RepositoryTableContainer]', () => {
-   const fakeWorkflowList = [
-      {
-         name: 'workflow1',
-         group: '/home',
-         version: 1
-      },
-      {
-         name: 'workflow1',
-         group: '/home',
-         version: 0
-      },
-      {
-         name: 'workflow3',
-         group: '/home'
-      }
-   ];
-   const mockStoreInstance: MockStore<any> = new MockStore({
+  const fakeWorkflowList = [
+    {
+      name: 'workflow1',
+      group: '/home',
+      version: 1,
+      versions: [
+        {
+          name: 'workflow1',
+          group: '/home',
+          version: 0
+        },
+        {
+          name: 'workflow1',
+          group: '/home',
+          version: 1
+        },
+      ]
+    },
+    {
+      name: 'workflow1',
+      group: '/home',
+      version: 0
+    },
+    {
+      name: 'workflow3',
+      group: '/home/a'
+    }
+  ];
+
+const fakeVersions = [{
+      name: 'workflow1',
+      group: '/home',
+      version: 1
+    },
+    {
+      name: 'workflow1',
+      group: '/home',
+      version: 0
+    },
+    {
+      name: 'workflow3',
+      group: '/home/a',
+      version: 0
+    }
+  ];
+
+  const mockStoreInstance: MockStore<any> = new MockStore({
+    workflowsManaging: {
       workflowsManaging: {
-         workflowsManaging: {
-            workflowList: fakeWorkflowList,
-            openedWorkflow: fakeWorkflowList[0]
-         },
-         order: {
-            sortOrder: {
-               orderBy: 'name',
-               type: 1
-            },
-            sortOrderVersions: {
-               orderBy: 'version',
-               type: 1
-            }
-         }
+        workflowList: fakeVersions,
+        workflowsVersionsList: fakeWorkflowList,
+        openedWorkflow: fakeWorkflowList[0],
+        currentLevel: homeGroup,
+        searchQuery: ''
+      },
+      order: {
+        sortOrder: {
+          orderBy: 'name',
+          type: 1
+        },
+        sortOrderVersions: {
+          orderBy: 'version',
+          type: 1
+        }
       }
-   });
+    }
+  });
 
-   beforeEach(async(() => {
-      TestBed.configureTestingModule({
-         declarations: [RepositoryTableContainer],
-         schemas: [NO_ERRORS_SCHEMA],
-         providers: [
-            { provide: Store, useValue: mockStoreInstance }
-         ],
-      }).compileComponents();  // compile template and css
-   }));
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [RepositoryTableContainer],
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        { provide: Store, useValue: mockStoreInstance }
+      ],
+    }).compileComponents();  // compile template and css
+  }));
 
-   beforeEach(() => {
-      fixture = TestBed.createComponent(RepositoryTableContainer);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
+  beforeEach(() => {
+    fixture = TestBed.createComponent(RepositoryTableContainer);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
 
-   });
+  });
 
-   it('should get OnInit the current versions list', () => {
-      component.workflowVersions$.pipe(take(1)).subscribe((versions) => {
-         expect(versions.length).toBe(2);
-         expect(versions[0]).toEqual(fakeWorkflowList[1]);
-         expect(versions[1]).toEqual(fakeWorkflowList[0]);
+  it('should get OnInit the current versions list', () => {
+    component.workflowVersions$.pipe(take(1)).subscribe((versions: Array<any>) => {
+      expect(versions.length).toBe(2);
+      versions.forEach((version: any) => {
+        expect(version.group).toBe('/home');
       });
-   });
+    });
+  });
 
-   describe('should can display managing table actions', () => {
+  describe('should can display managing table actions', () => {
 
-      beforeEach(() => {
-         spyOn(mockStoreInstance, 'dispatch');
+    beforeEach(() => {
+      spyOn(mockStoreInstance, 'dispatch');
+    });
+
+    it('can dispatch change order action', () => {
+      const event = {
+        orderBy: 'name',
+        type: 0
+      };
+      const expectedAction = new workflowActions.ChangeOrderAction(event);
+      component.changeOrder(event);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+
+
+    it('can dispatch change versions order action', () => {
+      const event = {
+        orderBy: 'name',
+        type: 0
+      };
+      const expectedAction = new workflowActions.ChangeVersionsOrderAction(event);
+      component.changeOrderVersions(event);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+
+    it('can dispatch select workflow action', () => {
+      const name = 'workflow-name';
+      const expectedAction = new workflowActions.SelectWorkflowAction(name);
+      component.selectWorkflow(name);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+
+    it('can dispatch select group action', () => {
+      const name = 'group-name';
+      const expectedAction = new workflowActions.SelectGroupAction(name);
+      component.selectGroup(name);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+
+    it('can dispatch select version action', () => {
+      const id = 'version-id';
+      const expectedAction = new workflowActions.SelectVersionAction(id);
+      component.selectVersion(id);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+
+
+    it('can dispatch change group level action', () => {
+      const group: Group = {
+        id: 'id',
+        name: 'name',
+        label: 'label'
+      };
+      const expectedAction = new workflowActions.ChangeGroupLevelAction(group);
+      component.changeFolder(group);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+
+    it('can dispatch show workflow versions action', () => {
+      const fakeWorkflow = {
+        id: 'worfklow-id',
+        name: 'workflow-name',
+        group: 'workflow-group'
+      };
+      const expectedAction = new workflowActions.ShowWorkflowVersionsAction({
+        name: fakeWorkflow.name,
+        group: fakeWorkflow.group
       });
-
-      it('can dispatch change order action', () => {
-         const event = {
-            orderBy: 'name',
-            type: 0
-         };
-         const expectedAction = new workflowActions.ChangeOrderAction(event);
-         component.changeOrder(event);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-
-
-      it('can dispatch change versions order action', () => {
-         const event = {
-            orderBy: 'name',
-            type: 0
-         };
-         const expectedAction = new workflowActions.ChangeVersionsOrderAction(event);
-         component.changeOrderVersions(event);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-
-      it('can dispatch select workflow action', () => {
-         const name = 'workflow-name';
-         const expectedAction = new workflowActions.SelectWorkflowAction(name);
-         component.selectWorkflow(name);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-
-      it('can dispatch select group action', () => {
-         const name = 'group-name';
-         const expectedAction = new workflowActions.SelectGroupAction(name);
-         component.selectGroup(name);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-
-      it('can dispatch select version action', () => {
-         const id = 'version-id';
-         const expectedAction = new workflowActions.SelectVersionAction(id);
-         component.selectVersion(id);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-
-
-      it('can dispatch change group level action', () => {
-         const group: Group = {
-            id: 'id',
-            name: 'name',
-            label: 'label'
-         };
-         const expectedAction = new workflowActions.ChangeGroupLevelAction(group);
-         component.changeFolder(group);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-
-      it('can dispatch show workflow versions action', () => {
-         const fakeWorkflow = {
-            id: 'worfklow-id',
-            name: 'workflow-name',
-            group: 'workflow-group'
-         };
-         const expectedAction = new workflowActions.ShowWorkflowVersionsAction({
-            name: fakeWorkflow.name,
-            group: fakeWorkflow.group
-         });
-         component.showWorkflowVersions(fakeWorkflow);
-         expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
-      });
-   });
+      component.showWorkflowVersions(fakeWorkflow);
+      expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
+    });
+  });
 });

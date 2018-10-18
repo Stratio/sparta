@@ -216,15 +216,6 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case repositoryActions.STOP_WORKFLOW_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'STOP_WORKFLOW'
-            }]
-         });
-      }
       case repositoryActions.DELETE_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{

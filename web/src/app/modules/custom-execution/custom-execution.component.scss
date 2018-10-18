@@ -45,6 +45,12 @@ st-input, sp-select {
     white-space: normal;
   .bold {
      font-weight: bold;
+     display: block;
+     font-size: 12px;
+  }
+
+  .val {
+    font-size: 12px;
   }
 }
 
@@ -64,4 +70,8 @@ st-input, sp-select {
 
 .param {
   margin: 8px 0;
+}
+
+.cancel-button{
+  margin-right: 1em;
 }

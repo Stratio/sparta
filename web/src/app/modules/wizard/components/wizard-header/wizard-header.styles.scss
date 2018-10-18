@@ -215,18 +215,18 @@ $cloudy-black: #cdd6df;
 
 .multi-button{
     overflow: visible;
-    border: 1px solid #777;
+    border: 1px solid $neutral-03;
     display: inline-block;
     outline: 0;
     color: #555;
 
     &[disabled] {
-        background: #ededed;
+        background: $neutral-03;
         border-color: transparent;
     }
     
     &:hover {
-        border-color: #b5b5b5;
+        border-color: $neutral-03;
     }
 
     .execution-options {
@@ -242,7 +242,7 @@ $cloudy-black: #cdd6df;
     }
 
     .options {
-        border-left: 1px solid #777;
+        border-left: 1px solid $neutral-03;
         height: 38px;
         display: table-cell;
         vertical-align: middle;

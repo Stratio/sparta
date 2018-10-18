@@ -7,17 +7,14 @@ import {
    ChangeDetectionStrategy,
    ChangeDetectorRef,
    Component,
-   EventEmitter,
-   Input,
-   Output,
    OnInit,
    OnDestroy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getVersionsOrderedList, getCurrentGroupLevel } from './../../reducers';
+import { State, getSearchQuery, getCurrentGroupLevel } from './../../reducers';
 
 import { DEFAULT_FOLDER, FOLDER_SEPARATOR } from './../../workflow.constants';
 import { WorkflowBreadcrumbItem } from './workflow-breadcrumb/workflow-breadcrumb.model';
@@ -26,19 +23,24 @@ import { WorkflowBreadcrumbItem } from './workflow-breadcrumb/workflow-breadcrum
 @Component({
    selector: 'workflow-table-header-container',
    template: `
-        <workflow-table-header [levelOptions]="levelOptions" (changeFolder)="changeFolder($event)"></workflow-table-header>
+        <workflow-table-header [levelOptions]="levelOptions"
+            [searchValue]="searchValue$ | async"
+            (onSearch)="onSearch($event)"
+            (changeFolder)="changeFolder($event)"></workflow-table-header>
     `,
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class WorkflowTableHeaderContainer implements OnInit, OnDestroy {
 
+   public searchValue$: Observable<string>;
    public levelOptions: Array<WorkflowBreadcrumbItem> = [];
    private _currentLevelSubscription: Subscription;
 
    constructor(private _store: Store<State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit(): void {
+      this.searchValue$ = this._store.select(getSearchQuery);
       this._currentLevelSubscription = this._store.select(getCurrentGroupLevel).subscribe((levelGroup: any) => {
          const level = levelGroup.group;
          const levelOptions = [{
@@ -68,6 +70,10 @@ export class WorkflowTableHeaderContainer implements OnInit, OnDestroy {
       const level = position === 0 ? DEFAULT_FOLDER : DEFAULT_FOLDER +
          FOLDER_SEPARATOR + this.levelOptions.slice(1, position + 1).map(option => option.label).join(FOLDER_SEPARATOR);
       this._store.dispatch(new workflowActions.ChangeGroupLevelAction(level));
+   }
+
+   onSearch(event: string) {
+       this._store.dispatch(new workflowActions.SearchCurrentFolderAction(event));
    }
 
    ngOnDestroy() {

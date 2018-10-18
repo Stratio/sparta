@@ -5,7 +5,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Effect, Actions } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store, Action } from '@ngrx/store';
 import { Observable, timer, of, forkJoin, from } from 'rxjs';
 
@@ -16,7 +16,7 @@ import { ExecutionService } from 'services/execution.service';
 import { isEqual } from 'lodash';
 
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
-import { switchMap, takeUntil, concatMap, catchError, withLatestFrom, mergeMap } from 'rxjs/operators';
+import { switchMap, takeUntil, concatMap, catchError, withLatestFrom, mergeMap, map } from 'rxjs/operators';
 
 
 @Injectable()
@@ -39,6 +39,7 @@ export class ExecutionsEffect {
                   executions.map(execution => this._executionHelperService.normalizeExecution(execution)));
             }).catch(err => of(new executionsActions.ListExecutionsFailAction()))))));
 
+
    @Effect()
    getArhivedExecutionsList: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_ARCHIVED_EXECUTIONS)
@@ -46,6 +47,16 @@ export class ExecutionsEffect {
          .map((archived: Array<any>) => new executionsActions.ListArchivedExecutionsCompleteAction(archived.map(execution =>
             this._executionHelperService.normalizeExecution(execution))))))
       .pipe(catchError(error => of(new executionsActions.ListArchivedExecutionsFailAction())));
+
+   @Effect()
+   deleteExecution: Observable<any> = this.actions$
+      .ofType(executionsActions.DELETE_EXECUTION)
+      .pipe(map((action: any) => action.executionId))
+      .pipe(switchMap((executionId: string) => this._executionService.deleteExecution(executionId)
+         .pipe(mergeMap((() => [new executionsActions.DeleteExecutionCompleteAction, new executionsActions.ListExecutionsAction()])))))
+      .catch((error) => of(new executionsActions.DeleteExecutionErrorAction()));
+
+
 
    @Effect()
    archiveExecutions: Observable<any> = this.actions$

@@ -39,6 +39,11 @@ export function reducer(state: State = initialState, action: any): State {
         showExecutionConfig: false
       };
     }
+    case debugActions.GET_DEBUG_RESULT_ERROR: {
+      return {
+        ...state
+      };
+    }
     case debugActions.GET_DEBUG_RESULT_COMPLETE: {
       const debug = action.payload;
       const debugResult = {

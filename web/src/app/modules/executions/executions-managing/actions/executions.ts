@@ -50,6 +50,11 @@ export const CANCEL_EXECUTION_POLLING = '[Workflow] Cancel execution polling';
 
 export const SET_ARCHIVED_PAGE = '[Workflow] Set archived page';
 
+export const DELETE_EXECUTION = '[Workflow] Delete execution';
+export const DELETE_EXECUTION_COMPLETE = '[Workflow] Delete execution complete';
+export const DELETE_EXECUTION_ERROR = '[Workflow] Delete execution error';
+
+
 export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS;
 }
@@ -188,6 +193,19 @@ export class SetArchivedPageAction implements Action {
   constructor(public payload) {}
 }
 
+export class DeleteExecutionAction implements Action {
+  readonly type = DELETE_EXECUTION;
+  constructor(public executionId: string) {}
+}
+
+export class DeleteExecutionCompleteAction implements Action {
+  readonly type = DELETE_EXECUTION_COMPLETE;
+}
+
+export class DeleteExecutionErrorAction implements Action {
+  readonly type = DELETE_EXECUTION_ERROR;
+}
+
 export type Actions = ListExecutionsAction
    | ListExecutionsFailAction
    | ListExecutionsCompleteAction
@@ -215,4 +233,7 @@ export type Actions = ListExecutionsAction
    | GetExecutionInfoCompleteAction
    | GetExecutionInfoErrorAction
    | CloseWorkflowExecutionInfoAction
-   | SetArchivedPageAction;
+   | SetArchivedPageAction
+   | DeleteExecutionAction
+   | DeleteExecutionCompleteAction
+   | DeleteExecutionErrorAction;

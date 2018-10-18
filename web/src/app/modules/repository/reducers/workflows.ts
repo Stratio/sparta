@@ -40,6 +40,7 @@ export interface State {
    };
    showExecutionConfig: boolean;
    executionContexts: any;
+   searchQuery: string;
 }
 
 const initialState: State = {
@@ -70,11 +71,18 @@ const initialState: State = {
       status: ''
    },
    showExecutionConfig: false,
-   executionContexts: null
+   executionContexts: null,
+   searchQuery: ''
 };
 
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
+      case workflowActions.LIST_GROUP_WORKFLOWS: {
+         return {
+            ...state,
+            searchQuery: ''
+         };
+      }
       case workflowActions.LIST_GROUP_WORKFLOWS_COMPLETE: {
          const workflows: any = {};
          action.payload.forEach((version: any) => {
@@ -129,6 +137,12 @@ export function reducer(state: State = initialState, action: any): State {
             groups: action.payload
          };
       }
+      case workflowActions.SEARCH_CURRENT_FOLDER: {
+         return {
+            ...state,
+            searchQuery: action.query
+         };
+      }
       case workflowActions.CHANGE_GROUP_LEVEL: {
          return {
             ...state,
@@ -146,7 +160,8 @@ export function reducer(state: State = initialState, action: any): State {
             selectedVersions: [],
             selectedVersionsData: [],
             selectedEntities: [],
-            selectedGroups: []
+            selectedGroups: [],
+            searchQuery: ''
          };
       }
       case workflowActions.REMOVE_WORKFLOW_SELECTION: {
@@ -174,6 +189,7 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             openedWorkflow: action.payload,
+            searchQuery: '',
             selectedWorkflows: [],
             selectedVersions: [],
             selectedVersionsData: [],

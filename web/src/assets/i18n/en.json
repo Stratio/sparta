@@ -739,7 +739,7 @@
       "VIEW_ERROR_DETAILS": "View details",
       "GENERIC_ERROR": "Oops!. Data not flowing correctly. There are one or more generic errors",
       "QUERY_BUILDER": {
-        "NO_INPUT_SCHEMAS": "You must either add at least one input or run a debug execution to use this query builder."
+        "NO_INPUT_SCHEMAS": "You must add at least one input and run a debug execution to use this query builder."
       },
       "RELATIONS": {
         "DEFAULT": "Default relation",

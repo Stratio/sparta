@@ -34,7 +34,7 @@
     "@ngrx/store-log-monitor": "^3.0.2",
     "@ngx-translate/core": "10.0.2",
     "@ngx-translate/http-loader": "3.0.1",
-    "@stratio/egeo": "11.5.1",
+    "@stratio/egeo": "13.1.1",
     "@tweenjs/tween.js": "16.7.0",
     "@types/underscore": "^1.8.7",
     "codemirror": "^5.31.0",

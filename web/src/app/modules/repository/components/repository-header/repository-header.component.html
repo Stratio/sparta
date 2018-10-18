@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<tool-bar>
+<tool-bar [fullToolbar]="false">
    <div breadcrumb>
       <st-breadcrumbs [options]="levelOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="repository-breadcrumb"></st-breadcrumbs>
    </div>

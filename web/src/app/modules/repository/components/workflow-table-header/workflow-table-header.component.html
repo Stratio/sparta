@@ -1,2 +1,2 @@
 <workflow-breadcrumb class="breadcrumb" (changeFolder)="changeFolder.emit($event)" [levelOptions]="levelOptions"></workflow-breadcrumb>
-<st-search class="search-form" (search)="onSearchResult($event)"></st-search>
+<st-search class="search-form" [value]="searchValue" (search)="onSearch.emit($event.text)"></st-search>

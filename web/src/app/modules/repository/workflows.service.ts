@@ -42,10 +42,6 @@ export class WorkflowsManagingService {
         }));
     }
 
-    public stopWorkflow(workflowStatus: any): void {
-        this.store.dispatch(new workflowActions.StopWorkflowAction(workflowStatus));
-    }
-
     public onCloseJsonModal(action: any) {
         this._modalService.close();
     }

@@ -157,6 +157,12 @@ export function reducer(state: State = initialState, action: any): State {
             isArchivedPage: action.payload
          };
       }
+      case executionActions.DELETE_EXECUTION_COMPLETE: {
+         return {
+            ...state,
+            selectedExecutionsIds: []
+         };
+      }
       default:
          return state;
    }

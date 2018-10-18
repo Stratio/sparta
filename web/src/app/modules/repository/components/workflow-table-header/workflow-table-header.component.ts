@@ -14,14 +14,11 @@ import { WorkflowBreadcrumbItem } from './workflow-breadcrumb/workflow-breadcrum
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class WorkflowTableHeaderComponent implements  OnDestroy {
+export class WorkflowTableHeaderComponent {
 
   @Input() levelOptions: Array<WorkflowBreadcrumbItem>;
+  @Input() searchValue: string;
   @Output() changeFolder = new EventEmitter<number>();
+  @Output() onSearch = new EventEmitter<string>();
 
-   ngOnDestroy(): void {
-
-   }
-
-   onSearchResult($event) {}
 }

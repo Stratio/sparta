@@ -15,7 +15,7 @@ import * as fromRoot from '../reducers';
 import { ExecutionService } from 'services/execution.service';
 
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
-import { switchMap, takeUntil, concatMap, catchError } from 'rxjs/operators';
+import { switchMap, takeUntil, concatMap } from 'rxjs/operators';
 
 
 @Injectable()
@@ -24,14 +24,16 @@ export class ExecutionsEffect {
    @Effect()
    getExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_EXECUTIONS)
-      .pipe(switchMap(() => timer(0, 5000)))
+      .pipe(switchMap(() => timer(0, 5000)
          .pipe(takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING)))
          .pipe(concatMap(() => this._executionService.getDashboardExecutions()
-         .map(executions => new executionsActions.ListExecutionsCompleteAction({
+            .map(executions => {
+               return new executionsActions.ListExecutionsCompleteAction({
              executionsSummary: executions.executionsSummary,
              executionList: executions.lastExecutions.map(execution =>
                 this._executionHelperService.normalizeExecution(execution))
-         })))).pipe(catchError(err => of(new executionsActions.ListExecutionsFailAction())));
+         });
+        }).catch(err => of(new executionsActions.ListExecutionsFailAction()))))));
 
    constructor(
       private actions$: Actions,

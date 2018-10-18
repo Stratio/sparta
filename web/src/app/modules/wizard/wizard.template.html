@@ -12,7 +12,7 @@
     <div class="wizard-content">
         <wizard-editor-container [hiddenContent]="editionConfigMode.isEdition || showSettings" [workflowType]="workflowType"></wizard-editor-container>
     </div>
-    <selected-entity *ngIf="creationMode.active"></selected-entity>
+    <selected-entity *ngIf="creationMode && creationMode.active"></selected-entity>
 </section>
 <wizard-config-editor *ngIf="editionConfigMode.isEdition"
    [workflowType]="workflowType"

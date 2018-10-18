@@ -94,7 +94,7 @@ export class DebugEffect {
       .pipe(switchMap((workflowId: string) => timer(0, 2000)
          .takeUntil(this._actions$.ofType(debugActions.CANCEL_DEBUG_POLLING))
          .pipe(concatMap(() => this._wizardApiService.getDebugResult(workflowId)
-            .pipe(mergeMap(result => [
+            .pipe(mergeMap((result: any) => [
                new debugActions.CancelDebugPollingAction(),
                new debugActions.GetDebugResultCompleteAction(result),
                new wizardActions.ShowNotificationAction(result.debugSuccessful ? {
@@ -107,7 +107,7 @@ export class DebugEffect {
                         type: 'default',
                         templateType: 'debugFail'
                      })
-            ])))).catch(error => of(new debugActions.GetDebugResultErrorAction()))
+            ])).catch(error => of(new debugActions.GetDebugResultErrorAction()))))
       ));
 
 

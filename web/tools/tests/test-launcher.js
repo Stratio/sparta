@@ -5,7 +5,6 @@
  */
 
 var spawn = require('cross-spawn');
-
 function parseTestPattern(argv) {
    var found = false;
    var pattern = argv.map(function(v) {
