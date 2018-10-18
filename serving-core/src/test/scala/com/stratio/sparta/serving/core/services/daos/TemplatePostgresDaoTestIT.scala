@@ -32,7 +32,7 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
   val profile = PostgresProfile
   import profile.api._
   var db1: profile.api.Database = _
-  val queryTimeout: Int = 500
+  val queryTimeout: Int = 2000
   val postgresConf: Config = SpartaConfig.getPostgresConfig().get
 
   val templateElement_1 = TemplateElement(
@@ -174,7 +174,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
       val templateID = templatePostgresDao.findByTypeAndName(templateElement_2.templateType,
         templateElement_2.name).futureValue.id
-      whenReady(templatePostgresDao.deleteByTypeAndId(TemplateType.TransformationValue, templateID.get)) {
+      whenReady(templatePostgresDao.deleteByTypeAndId(TemplateType.TransformationValue, templateID.get),
+        timeout(Span(queryTimeout, Milliseconds))) {
         res =>
           if (res) {
             whenReady(db.run(table.filter(_.templateType === templateElement_2.templateType).result).map(_.toList),
@@ -187,7 +188,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
     "be deleted if its type and name matches with the ones specified in the method" in new TemplateDaoTrait {
 
-      whenReady(templatePostgresDao.deleteByTypeAndName(TemplateType.OutputValue, templateElement_3.name)) {
+      whenReady(templatePostgresDao.deleteByTypeAndName(TemplateType.OutputValue, templateElement_3.name),
+        timeout(Span(queryTimeout, Milliseconds))) {
         res =>
           if (res) {
             whenReady(db.run(table.filter(_.name === templateElement_3.name).result).map(_.toList),
@@ -199,7 +201,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     }
 
     "be deleted if its type matches with the one specified in the method" in new TemplateDaoTrait {
-      whenReady(templatePostgresDao.deleteByType(TemplateType.OutputValue)) {
+      whenReady(templatePostgresDao.deleteByType(TemplateType.OutputValue),
+        timeout(Span(queryTimeout, Milliseconds))) {
         res =>
           if (res) {
             whenReady(db.run(table.filter(_.templateType === TemplateType.OutputValue).result).map(_.toList),
@@ -213,12 +216,12 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
   "All templates" must {
     "be deleted disregarding its type" in new TemplateDaoTrait {
-
-      val res = templatePostgresDao.deleteAllTemplates().futureValue
-
-      if (res) {
-        whenReady(db.run(table.result).map(_.toList)){
-          query => query.isEmpty shouldBe true
+      whenReady(templatePostgresDao.deleteAllTemplates(),
+        timeout(Span(queryTimeout, Milliseconds))) { res =>
+        if (res) {
+          whenReady(db.run(table.result).map(_.toList)) {
+            query => query.isEmpty shouldBe true
+          }
         }
       }
     }

@@ -21,8 +21,6 @@ import scala.util.{Failure, Success, Try}
 
 class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
 
-  import com.stratio.sparta.serving.core.models.workflow.migration.MigrationModelImplicits._
-
   private val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
   private val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
   private val environmentZkService = new ZkEnvironmentService(CuratorFactoryHolder.getInstance())
@@ -56,7 +54,6 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
   }
 
   /** WORKFLOWS **/
-
   def andromedaWorkflowsMigrated(cassiopeaWorkflowsToAndromeda: Seq[WorkflowAndromeda]): Try[Seq[Workflow]] = {
     log.info(s"Migrating workflows from Andromeda")
     Try {
@@ -67,8 +64,7 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
         } ++ cassiopeaWorkflowsToAndromeda
         andromedaWorkflows.map { workflow =>
           Try {
-            val orionWorkflow: Workflow = workflow
-            orionWorkflow
+            MigrationUtils.migrationStart.fromAndromedaToOrionWorkflow(workflow)
           } match {
             case Success(orionWorkflow) =>
               orionWorkflow

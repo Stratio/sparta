@@ -23,7 +23,7 @@
                "propertyId": "node",
                "propertyName": "_HOST_",
                "propertyType": "text",
-               "default": "{{{CASSANDRA_HOST}}}",
+               "default": "{{{Environment.CASSANDRA_HOST}}}",
                "required": true,
                "qa": "fragment-details-cassandra-node"
             }

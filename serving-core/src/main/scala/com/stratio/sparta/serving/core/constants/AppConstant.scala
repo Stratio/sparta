@@ -16,8 +16,8 @@ import com.stratio.sparta.serving.core.utils.ZookeeperUtils
 import scala.util.{Properties, Try}
 
 /**
- * Global constants of the application.
- */
+  * Global constants of the application.
+  */
 object AppConstant extends ZookeeperUtils {
 
   val ConfigAppName = "sparta"
@@ -138,6 +138,7 @@ object AppConstant extends ZookeeperUtils {
 
   //Parameters
   val parametersTwoBracketsPattern = "\\{\\{[\\w\\.\\-\\_]*\\}\\}".r
+  val regexMatchingMoustacheVariable = "(?<=\\{{2,3})([\\s*\\w\\-.+\\s]*)(?=\\}{2,3})".r
 
   //Environment Parameters
   val EnvironmentParameterListName = "Environment"
@@ -148,27 +149,31 @@ object AppConstant extends ZookeeperUtils {
     new ParameterVariable("KAFKA_BROKER_HOST", "localhost"),
     new ParameterVariable("KAFKA_BROKER_PORT", "9092"),
     new ParameterVariable("CASSANDRA_HOST", "localhost"),
+    new ParameterVariable("CASSANDRA_PORT", "9042"),
     new ParameterVariable("ES_HOST", "localhost"),
     new ParameterVariable("ES_PORT", "9200"),
+    new ParameterVariable("ES_INDEX_MAPPING", "sparta"),
+    new ParameterVariable("ES_CLUSTER", "elasticsearch"),
     new ParameterVariable("JDBC_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
     new ParameterVariable("JDBC_DRIVER", "org.postgresql.Driver"),
     new ParameterVariable("POSTGRES_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
+    new ParameterVariable("MONGODB_DB", "sparta"),
     new ParameterVariable("MONGODB_HOST", "localhost"),
-    new ParameterVariable("MONGODB_PORT", "27017")
-  )
-
-  //Example Custom Group parameters
-  val CustomExampleParameterList = "Default"
-  val CustomExampleParameterListId = Option("1b8d86a8-c7d5-11e8-a8d5-f2801f1b9fd1")
-  val DefaultCustomExampleParameters = Seq(
+    new ParameterVariable("MONGODB_PORT", "27017"),
     new ParameterVariable("CASSANDRA_KEYSPACE", "sparta"),
     new ParameterVariable("CASSANDRA_CLUSTER", "sparta"),
     new ParameterVariable("KAFKA_GROUP_ID", "sparta"),
     new ParameterVariable("KAFKA_MAX_POLL_TIMEOUT", "512"),
     new ParameterVariable("KAFKA_MAX_RATE_PER_PARTITION", "0"),
-    new ParameterVariable("ES_INDEX_MAPPING", "sparta"),
-    new ParameterVariable("MONGODB_DB", "sparta")
+    new ParameterVariable("WEBSOCKET_URL", "ws://stream.meetup.com/2/rsvps"),
+    new ParameterVariable("REDIS_HOST", "localhost"),
+    new ParameterVariable("REDIS_PORT", "6379")
   )
+
+  //Example Custom Group parameters
+  val CustomExampleParameterList = "Default"
+  val CustomExampleParameterListId = Option("1b8d86a8-c7d5-11e8-a8d5-f2801f1b9fd1")
+  val DefaultCustomExampleParameters = Seq.empty[ParameterVariable]
 
   lazy val spartaFileEncoding: String =
     Properties.envOrElse(MarathonConstant.SpartaFileEncoding, MarathonConstant.DefaultFileEncodingSystemProperty)

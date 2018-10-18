@@ -39,7 +39,6 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
     orionTemplatesMigration()
     orionGroupsMigration()
     orionWorkflowsMigration()
-
   }
 
   private def orionTemplatesMigration(): Unit = {
