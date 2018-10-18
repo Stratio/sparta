@@ -14,3 +14,19 @@
   margin-top: 1.4em;
   margin-left: 1em;
 }
+
+.default-value {
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 100%;
+    white-space: nowrap;
+    color: $action-secondary-06;
+    font-size: $egeo-font-size-xxxsmall;
+    font-family: $egeo-nunito-sans-semiBold;
+    margin-top: 2px;
+    margin-left: 5px;
+    span {
+        font-family: $egeo-nunito-sans-bold;
+    }
+}
