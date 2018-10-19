@@ -19,7 +19,12 @@ object ValidationErrorMessages {
 
   // => Json pipeline descriptor
   val emptyJsonPipelineDescriptor = "The pipeline descriptor is mandatory."
-  val invalidJsonFormatPipelineDescriptor = "Unable to parse pipeline json descriptor."
+  val invalidJsonFormatPipelineDescriptor = "Unable to parse AI pipeline json descriptor."
+  val invalidJsonFormatPipelineGraphDescriptor = "Unable to parse pipelineGraph json descriptor."
+
+  // => Pipeline Graph validation Errors
+  val invalidPipelineGraph = "Pipeline is invalid"
+
 
   // => Building pipeline
   val errorBuildingPipelineInstance = "The pipeline has not been built correctly."
