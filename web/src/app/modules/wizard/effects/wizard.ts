@@ -110,6 +110,7 @@ export class WizardEffect {
     @Effect()
     createEdge$: Observable<Action> = this.actions$
         .pipe(ofType(wizardActions.CREATE_NODE_RELATION))
+        .pipe(map((action: any) => action.payload))
         .pipe(withLatestFrom(this._store.select(state => state.wizard.wizard)))
         .pipe(map(([payload, wizard]: [any, any]) => {
             let relationExist = false;
