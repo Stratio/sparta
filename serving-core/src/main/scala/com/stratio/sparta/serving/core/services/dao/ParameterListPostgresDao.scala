@@ -7,13 +7,14 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import slick.jdbc.PostgresProfile
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.ParameterListDao
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -152,6 +153,31 @@ class ParameterListPostgresDao extends ParameterListDao {
             workflowService.upsertFromCacheByParameterList(oldParameterList.name, newParameterList.name, workflowsToUpdate)
         )
       }
+    }
+  }
+
+  def updateList(parameterLists: Seq[ParameterList]): Future[Unit] = Future {
+    parameterLists.sortBy(_.parent.isEmpty).map(element => addCreationDate(addUpdateDate(element))).foreach {
+      newParameterList =>
+        val id = newParameterList.id.getOrElse(
+          throw new ServerException(s"No parameter list found by id ${newParameterList.id}"))
+        import scala.concurrent.duration._
+        val oldParameterList = Await.result(findById(id), AppConstant.DefaultApiTimeout seconds)
+        log.info(s"Updating parameterList ${newParameterList.name} with parent ${newParameterList.parent.getOrElse("No parent")}")
+        val workflowContextActions = if (newParameterList.parent.notBlank.isEmpty) {
+          for {
+            (workflowsActions, workflowsToUpdate) <- updateWorkflowsWithNewParamListName(oldParameterList.name, newParameterList.name)
+            contextsActions <- updateContextsWithParent(oldParameterList, newParameterList)
+          } yield (workflowsActions ++ contextsActions, workflowsToUpdate)
+        } else Future((Seq.empty, Seq.empty))
+
+        workflowContextActions.flatMap { case (actions, workflowsToUpdate) =>
+          val actionsToExecute = actions :+ upsertAction(newParameterList)
+          db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally)).map(_ =>
+            if (cacheEnabled)
+              workflowService.upsertFromCacheByParameterList(oldParameterList.name, newParameterList.name, workflowsToUpdate)
+          )
+        }
     }
   }
 

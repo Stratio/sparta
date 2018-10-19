@@ -84,6 +84,7 @@ nexus
 web/npm.tar.gz
 
 application.conf
+web/package-lock.json
 
 #gatling test results
 **/sparta-test-results

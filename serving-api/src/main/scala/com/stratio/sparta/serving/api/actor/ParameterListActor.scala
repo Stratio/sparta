@@ -34,6 +34,7 @@ class ParameterListActor()(implicit val secManagerOpt: Option[SpartaSecurityMana
     case CreateParameterList(parameterList, user) => create(parameterList, user)
     case CreateParameterListFromWorkflow(parameterListFromWorkflow, user) => createFromWorkflow(parameterListFromWorkflow, user)
     case UpdateParameterList(parameterList, user) => update(parameterList, user)
+    case UpdateList(parameterLists, user) => updateList(parameterLists, user)
     case _ => log.info("Unrecognized message in Parameter list Actor")
   }
 
@@ -89,6 +90,14 @@ class ParameterListActor()(implicit val secManagerOpt: Option[SpartaSecurityMana
     }
   }
 
+  def updateList(parameterLists: Seq[ParameterList], user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceType -> View, ResourceType -> Edit)
+    val authorizationIds =  parameterLists.map(_.authorizationId)
+    authorizeActionsByResourcesIds(user, actions, authorizationIds) {
+      parameterListPostgresDao.updateList(parameterLists)
+    }
+  }
+
   def deleteAll(user: Option[LoggedUser]): Future[Any] = {
     val senderResponseTo = Option(sender)
     for {
@@ -140,6 +149,7 @@ object ParameterListActor {
                                             )
 
   case class UpdateParameterList(parameterList: ParameterList, user: Option[LoggedUser])
+  case class UpdateList(parameterList: Seq[ParameterList], user: Option[LoggedUser])
 
   case class FindAllParameterList(user: Option[LoggedUser])
 

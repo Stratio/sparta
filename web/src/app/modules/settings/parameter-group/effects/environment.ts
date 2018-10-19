@@ -9,7 +9,7 @@ import { Injectable } from '@angular/core';
 import { Store, Action } from '@ngrx/store';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { Observable, of, forkJoin, iif } from 'rxjs';
-import { withLatestFrom, switchMap, mergeMap, map, catchError } from 'rxjs/operators';
+import { withLatestFrom, switchMap, mergeMap, map, catchError, delay } from 'rxjs/operators';
 import * as fromParameters from './../reducers';
 import * as environmentParametersActions from './../actions/environment';
 import * as alertParametersActions from './../actions/alert';
@@ -66,7 +66,7 @@ export class EnviromentParametersEffect {
             [...environmentVariables.slice(0, index), { ...environmentVariables[index], ...param.value }, ...environmentVariables.slice(index + 1)] :
             [...environmentVariables, param.value];
          const updatedList = { name, id, parameters };
-         observables.push(this._parametersService.updateParamList(updatedList));
+
 
 
          const oldContextsList = environmentVariables[index] && environmentVariables[index].contexts;
@@ -100,17 +100,9 @@ export class EnviromentParametersEffect {
             };
          });
 
+         const updatedLists = [...updateContextList, ...contextsList, updatedList];
 
-
-         updateContextList.forEach((context: any) => {
-            observables.push(this._parametersService.updateParamList(context));
-         });
-
-         contextsList.forEach((context: any) => {
-            observables.push(this._parametersService.updateParamList(context));
-         });
-
-
+         observables.push(this._parametersService.updateParamList(updatedLists));
          return iif(() => exist ,
             of(new alertParametersActions.ShowAlertAction('Params already exist')),
             forkJoin(observables)
