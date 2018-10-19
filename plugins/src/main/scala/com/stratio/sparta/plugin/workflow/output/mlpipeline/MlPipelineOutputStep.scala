@@ -20,6 +20,7 @@ import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization._
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PipelineGraph}
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
 import org.apache.spark.sql.DataFrame
@@ -55,6 +56,9 @@ class MlPipelineOutputStep(
   // => Pipeline related
   // · Pipeline Json descriptor --> deserialized into Array[PipelineStageDescriptor]
   lazy val pipelineJson: Option[String] = properties.getString("pipeline", None)
+  // Pipeline Graph --> represents arcs and nodes as they comes form the fron editor
+  lazy val pipelineGraph: Try[PipelineGraph] = getPipelineGraph
+  // Pipeline descriptor --> Descriptor object that can be easily converted into a SparkML Pipeline
   lazy val pipelineDescriptor: Try[Array[PipelineStageDescriptor]] = getPipelineDescriptor
   // · SparkMl Pipeline (built using Array[PipelineStageDescriptor])
   lazy val pipeline: Try[Pipeline] = getPipelineFromDescriptor(pipelineDescriptor.get)
@@ -114,7 +118,25 @@ class MlPipelineOutputStep(
       validation = addValidationError(validation, ValidationErrorMessages.emptyJsonPipelineDescriptor)
 
     // · Error de-serializing pipeline Json descriptor
-    if (pipelineJson.isDefined && pipelineDescriptor.isFailure) {
+    if (pipelineJson.isDefined && pipelineGraph.isFailure) {
+      val error = pipelineGraph match {
+        case Failure(f) => f
+      }
+      validation = addValidationError(validation,
+        ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor + s" ${error.getMessage}")
+    }
+
+    //validate the PipelineGraph
+    if (pipelineGraph.isSuccess && isValidAIPipelineGraph(pipelineGraph).isFailure){
+      val error = isValidAIPipelineGraph(pipelineGraph) match {
+        case Failure(f) => f
+      }
+      validation = addValidationError(validation,
+        ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor + s" ${error.getMessage}")
+    }
+
+    //create the pipelineDescriptors array
+    if (isValidAIPipelineGraph(pipelineGraph).isSuccess && pipelineDescriptor.isFailure) {
       val error = pipelineDescriptor match {
         case Failure(f) => f
       }
@@ -195,14 +217,49 @@ class MlPipelineOutputStep(
   }
 
   /**
-    * Deserialize the pipeline descriptor in Json format provided in input properties map
+    * Deserialize the pipeline graph descriptor in Json format provided in input properties map
+    *
+    * @return An instance of PipelineGraph
+    */
+  def getPipelineGraph: Try[PipelineGraph] = Try {
+    // Getting pipeline descriptor object
+    // unescape JSON first
+    read[PipelineGraph](
+      pipelineJson.getOrElse(throw new Exception("The pipeline graph JSON descriptor is not provided.")))
+  }
+
+  /**
+    * Validate the Graph Pipeline provided
+    *
+    * @return A Boolean (True: valid, False invalid)
+    */
+  def isValidAIPipelineGraph(aiPipelineGraph: Try[PipelineGraph]) : Try[Boolean] = Try {
+    // TODO implement this, for the moment we assume that a valid pipeline always arrives from Front
+    // TODO validar pipeline que sea endo to end unico con un solo camino posible
+
+    true
+  }
+
+  /**
+    * Deserialize the AI pipeline descriptor in Json format provided in input properties map
     *
     * @return An array of PipelineStageDescriptor instances
     */
-  def getPipelineDescriptor: Try[Array[PipelineStageDescriptor]] = Try {
+  def getPipelineDescriptor(): Try[Array[PipelineStageDescriptor]] = Try {
+    // name: String,
+    // uid: String,
+    // className: String,
+    // properties: Map[String, String]
+  //TODO order nodes according to edges
+
+    for (e <- pipelineGraph.getOrElse(throw new Exception("The pipeline graph is not provided.")).nodes.asInstanceOf[Array[NodeGraph]])
+      yield PipelineStageDescriptor(
+        e.classPrettyName,
+        e.name,
+        e.className,
+        Map()
+    )
     // Getting pipeline descriptor object
-    read[Array[PipelineStageDescriptor]](
-      pipelineJson.getOrElse(throw new Exception("The pipeline JSON descriptor is not provided.")))
   }
 
   /**
