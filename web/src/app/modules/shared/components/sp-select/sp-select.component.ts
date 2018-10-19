@@ -221,6 +221,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
         if (errors.hasOwnProperty('max')) {
             return this.errors.max || this.errors.generic || '';
         }
+
         return '';
     }
 }

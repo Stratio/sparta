@@ -99,6 +99,12 @@ export function reducer(state: State = initialState, action: any): State {
             selectedExecutionsIds: []
          };
       }
+      case executionActions.UNARCHIVE_EXECUTIONS_COMPLETE: {
+         return {
+            ...state,
+            selectedExecutionsIds: []
+         };
+      }
       case executionActions.SELECT_TYPE_FILTER: {
          return {
             ...state,

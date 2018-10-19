@@ -199,8 +199,8 @@ export class WorkflowEffect {
                this.router.navigate(['executions']);
                return new workflowActions.RunWorkflowCompleteAction(data.payload.workflowName);
             })).catch((error) => of(new workflowActions.RunWorkflowErrorAction(error))),
-            of(new workflowActions.RunWorkflowValidationErrorAction(result.messages)))
-            .catch(error => of(new workflowActions.RunWorkflowErrorAction(error)))))));
+            of(new workflowActions.RunWorkflowValidationErrorAction(result.messages)))))
+            .catch(error => of(new workflowActions.RunWorkflowErrorAction(error)))));
 
 
    @Effect()
