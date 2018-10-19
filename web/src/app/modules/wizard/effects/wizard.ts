@@ -45,6 +45,7 @@ export class WizardEffect {
     @Effect()
     saveEntity$: Observable<Action> = this.actions$
         .pipe(ofType(wizardActions.SAVE_ENTITY))
+        .pipe(map((action: any) => action.payload))
         .pipe(withLatestFrom(this._store.select(state => state.wizard.wizard)))
         .pipe(map(([payload, wizard]: [any, any]) => {
             if (payload.oldName === payload.data.name) {

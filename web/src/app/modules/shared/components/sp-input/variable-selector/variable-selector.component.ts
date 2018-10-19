@@ -82,6 +82,9 @@ export class VariableSelectorComponent implements OnInit {
     }
 
     loadVariables(groupType) {
+        if (!this.currentParameter) {
+            this.currentParameter = { value: '' };
+        }
         const variableValue = groupType === 'undefined' ?
             this.currentParameter.value : this.currentParameter.value.substr(this.currentParameter.value.indexOf('.') + 1);
         this.setParamValue = false;
