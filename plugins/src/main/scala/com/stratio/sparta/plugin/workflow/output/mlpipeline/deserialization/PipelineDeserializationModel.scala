@@ -6,6 +6,7 @@
 
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization
 
+import com.stratio.sparta.core.properties.JsoneyString
 import org.apache.spark.ml.param.Param
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JBool
@@ -39,24 +40,24 @@ case class PipelineStageDescriptor(
                                     name: String,
                                     uid: String,
                                     className: String,
-                                    properties: Map[String, String]
+                                    properties: Map[String, JsoneyString]
                                   )
 
 
 //noinspection ScalaStyle
 object MlPipelineDeserializationUtils {
 
-  def decodeParamValue(param: Param[Any], value: String = null): Try[Any] = Try {
+  def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
     param.getClass().getSimpleName match {
-      case "BooleanParam" => if (value == null) "Boolean" else value.toBoolean
-      case "LongParam" => if (value == null) "Long" else value.toLong
-      case "DoubleParam" => if (value == null) "Double" else value.toDouble
-      case "FloatParam" => if (value == null) "Float" else value.toFloat
-      case "IntParam" => if (value == null) "Int" else value.toInt
-      case "StringArrayParam" => if (value == null) "Array[String] (comma separated values)" else value.split(",").map(_.trim)
-      case "DoubleArrayParam" => if (value == null) "Array[Double] (comma separated values)" else value.split(",").map(_.trim.toDouble)
-      case "IntArrayParam" => if (value == null) "Array[Int] (comma separated values)" else value.split(",").map(_.trim.toInt)
-      case "Param" => if (value == null) "String" else value
+      case "BooleanParam" => if (value == null) "Boolean" else value.toString.toBoolean
+      case "LongParam" => if (value == null) "Long" else value.toString.toLong
+      case "DoubleParam" => if (value == null) "Double" else value.toString.toDouble
+      case "FloatParam" => if (value == null) "Float" else value.toString.toFloat
+      case "IntParam" => if (value == null) "Int" else value.toString.toInt
+      case "StringArrayParam" => if (value == null) "Array[String] (comma separated values)" else value.toString.split(",").map(_.trim)
+      case "DoubleArrayParam" => if (value == null) "Array[Double] (comma separated values)" else value.toString.split(",").map(_.trim.toDouble)
+      case "IntArrayParam" => if (value == null) "Array[Int] (comma separated values)" else value.toString.split(",").map(_.trim.toInt)
+      case "Param" => if (value == null) "String" else value.toString
       case _ => throw new Exception("Unknown parameter type")
     }
   }
