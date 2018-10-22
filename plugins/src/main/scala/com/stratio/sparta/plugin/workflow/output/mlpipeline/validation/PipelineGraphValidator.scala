@@ -51,14 +51,14 @@ class PipelineGraphValidator(val graph: PipelineGraph) {
         if (nodeSeq.head.name == endNodes.head.name)
           nodeSeq.reverse
         else
-          throw new Exception("Pipeline Graph has more thant one End Node")
+          throw new Exception("Pipeline Graph has more than one End Node")
       }
       // we continue iterating
       case Some(next) => getOrderedNodeSeq(next +: nodeSeq)
     }
   }
 
-  def validate: Try[Seq[NodeGraph]] = {
+  def validate: Try[Seq[NodeGraph]] = Try {
     // check there is only one start node
     if (startNodes.size != 1)
       throw new Exception("Pipeline Graph has more than one start node")
@@ -68,10 +68,9 @@ class PipelineGraphValidator(val graph: PipelineGraph) {
       throw new Exception("Pipeline Graph has more than one end node")
 
     // build ordered sequence of nodes. While building we validate there is only one output per node
-    else
-      Try {
+    else {
         val nodeSeq = getOrderedNodeSeq(startNodes)
-        // sanity check -- this should never happen...
+        // sanity check
         if (nodeSeq.size != nodes.size)
           throw new Exception("There are some not connected nodes")
         else
