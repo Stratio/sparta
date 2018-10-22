@@ -82,8 +82,7 @@
       "regParam": "0.0",
       "solver": "auto",
       "standardization": true,
-      "tol": "1.0E-6",
-      "weightCol": ""
+      "tol": "1.0E-6"
     },
     "supportedEngines": ["Batch"],
     "classPrettyName": "LinearRegression",
