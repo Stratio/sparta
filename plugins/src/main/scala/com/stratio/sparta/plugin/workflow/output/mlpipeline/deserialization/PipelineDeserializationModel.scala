@@ -47,7 +47,7 @@ case class PipelineStageDescriptor(
 //noinspection ScalaStyle
 object MlPipelineDeserializationUtils {
 
-  def nullOrEmpty(value: JsoneyString): Boolean =  (value == null)||(value.toString.trim == "")
+  def nullOrEmpty(value: JsoneyString): Boolean = (value == null)||(value.toString.trim == "")
 
   def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
     param.getClass().getSimpleName match {

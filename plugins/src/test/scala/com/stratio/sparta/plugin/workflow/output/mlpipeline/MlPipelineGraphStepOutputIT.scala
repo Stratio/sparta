@@ -155,7 +155,7 @@ class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatche
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor))
     }
   // · On execution
   "MlPipeline" should "throw an error with a JSON descriptor without a required property when executing workflow" in
@@ -174,8 +174,8 @@ class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatche
         JsoneyString(getJsonDescriptor("nlp_pipeline_bad_property_name.json")))
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
+      assert(validation.get.messages.length==2)
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
     }
   // · On execution
   "MlPipeline" should "throw an error with a JSON descriptor with a bad property name when executing workflow" in
@@ -284,7 +284,7 @@ class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatche
         JsoneyString(getJsonDescriptor("nlp_pipeline_bad_params_values.json")))
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==4)
+      assert(validation.get.messages.length==3)
       assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
     }
   // · On execution
@@ -313,8 +313,8 @@ class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatche
         JsoneyString(getJsonDescriptor("nlp_pipeline_bad_multi_definition_error.json")))
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==7)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
+      assert(validation.get.messages.length==1)
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
     }
   // · On execution
   "MlPipeline" should "throw an error with multiple errors in definition when executing workflow" in
