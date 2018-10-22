@@ -233,13 +233,16 @@ class MlPipelineOutputStep(
   def getPipelineDescriptor(): Try[Seq[PipelineStageDescriptor]] = Try {
     // Convert to pipeline descriptor object
     val validationResult: Try[Seq[NodeGraph]] = getValidOrderedPipelineGraph(pipelineGraph)
-    for (e <-validationResult.getOrElse(throw new Exception("Error")))
+    validationResult match {
+      case Success(stages) => for (e <-stages)
         yield PipelineStageDescriptor(
         e.classPrettyName,
         e.name,
         e.className,
         e.configuration
     )
+      case Failure(t) => throw new Exception(t.getMessage)
+    }
   }
 
   /**
