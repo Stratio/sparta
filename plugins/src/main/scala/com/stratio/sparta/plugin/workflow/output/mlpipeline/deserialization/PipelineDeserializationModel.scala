@@ -49,6 +49,9 @@ object MlPipelineDeserializationUtils {
 
   def nullOrEmpty(value: JsoneyString): Boolean = (value == null)||(value.toString.trim == "")
 
+  //TODO filter out only optional parameters
+  def okParam(value: JsoneyString): Boolean = (value != null)&&(value.toString.trim != "")
+
   def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
     param.getClass().getSimpleName match {
       case "BooleanParam" => if (nullOrEmpty(value)) "Boolean" else value.toString.toBoolean
