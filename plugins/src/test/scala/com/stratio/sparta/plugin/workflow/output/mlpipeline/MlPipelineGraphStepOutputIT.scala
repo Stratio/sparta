@@ -28,7 +28,7 @@ class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatche
 
   trait ReadDescriptorResource{
     def getJsonDescriptor(filename:String): String = {
-      Source.fromInputStream(getClass.getResourceAsStream("/mlpipelineGraph/" + filename)).mkString
+      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/" + filename)).mkString
     }
   }
 

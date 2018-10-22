@@ -1,30 +1,124 @@
-[
-    {
-        "name": "Tokenizer",
-        "className": "org.apache.spark.ml.feature.Tokenizer",
-        "uid": "t1",
-        "properties": {
-            "inputCol": "text",
-            "outputCol": "words"
-        }
-    },
-    {
-        "name": "HashingTF",
-        "className": "org.apache.spark.ml.feature.HashingTF",
-        "uid": "h1",
-        "properties": {
-            "numFeatures": "1000",
-            "outputCol": "features"
-        }
-    },
-    {
-        "name": "LogisticRegression",
-        "uid": "l1",
-        "className": "org.apache.spark.ml.classification.LogisticRegression",
-        "proper": {
-            "maxIter": "10",
-            "regParam": "0.001",
-            "fitIntercept": false
-        }
+{
+    "nodes": [
+        {
+            "configuration": {
+                "inputCol": "text",
+                "outputCol": "tokens"
+            },
+            "supportedEngines": ["Batch"],
+            "classPrettyName": "Tokenizer",
+            "className": "org.apache.spark.ml.feature.Tokenizer",
+            "arity": ["NullaryToNullary", "NaryToNullary"],
+            "stepType": "Preprocessing",
+            "writer": {
+                "tableName": null,
+                "errorTableName": null,
+                "saveMode": "Append",
+                "constraintType": "primaryKey",
+                "primaryKey": null,
+                "uniqueConstraintName": null,
+                "uniqueConstraintFields": null,
+                "partitionBy": null
+            },
+            "name": "Tokenizer",
+            "hasErrors": true,
+            "errors": [{
+                "propertyName": "inputCol",
+                "type": "required"
+            }],
+            "createdNew": false,
+            "created": true,
+            "uiConfiguration": {
+                "position": {
+                    "x": 167,
+                    "y": 106
+                }
+            }
+        }, {
+            "configuration": {
+                "binary": false,
+                "numFeatures": "262144",
+                "outputCol": "hashing"
+            },
+            "supportedEngines": ["Batch"],
+            "classPrettyName": "HashingTF",
+            "className": "org.apache.spark.ml.feature.HashingTF",
+            "arity": ["NullaryToNullary", "NaryToNullary"],
+            "stepType": "Preprocessing",
+            "writer": {
+                "tableName": null,
+                "errorTableName": null,
+                "saveMode": "Append",
+                "constraintType": "primaryKey",
+                "primaryKey": null,
+                "uniqueConstraintName": null,
+                "uniqueConstraintFields": null,
+                "partitionBy": null
+            },
+            "name": "HashingTF",
+            "hasErrors": true,
+            "errors": [{
+                "propertyName": "inputCol",
+                "type": "required"
+            }],
+            "createdNew": false,
+            "created": true,
+            "uiConfiguration": {
+                "position": {
+                    "x": 407,
+                    "y": 101
+                }
+            }
+        }, {
+            "configuration": {
+                "aggregationDepth": "2",
+                "elasticNetParam": "0.0",
+                "featuresCol": "hashing",
+                "fitIntercept": true,
+                "labelCol": "label",
+                "maxIter": "100",
+                "predictionCol": "prediction",
+                "regParam": "0.0",
+                "solver": "auto",
+                "standardization": true,
+                "tol": "1.0E-6",
+                "weightCol": ""
+            },
+            "supportedEngines": ["Batch"],
+            "classPrettyName": "LinearRegression",
+            "className": "org.apache.spark.ml.regression.LinearRegression",
+            "arity": ["NullaryToNullary", "NaryToNullary"],
+            "stepType": "Algorithm",
+            "writer": {
+                "tableName": null,
+                "errorTableName": null,
+                "saveMode": "Append",
+                "constraintType": "primaryKey",
+                "primaryKey": null,
+                "uniqueConstraintName": null,
+                "uniqueConstraintFields": null,
+                "partitionBy": null
+            },
+            "name": "LinearRegression",
+            "created": true,
+            "uiConfiguration": {
+                "position": {
+                    "x": 609,
+                    "y": 103
+                }
+            },
+            "createdNew": false
+        }],
+    "edges": [{
+        "origin": "Tokenizer",
+        "destination": "HashingTF"
+    }, {
+        "origin": "HashingTF",
+        "destination": "LinearRegression"
+    }],
+    "svgPosition": {
+        "k": 1,
+        "x": -1,
+        "y": 1
     }
-]
+}
