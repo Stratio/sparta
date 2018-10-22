@@ -6,9 +6,11 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation
 
 import com.stratio.sparta.serving.core.models.workflow.{EdgeGraph, NodeGraph, PipelineGraph}
+
 import scala.annotation.tailrec
 import scala.util.Try
 
+import ValidationErrorMessages.{moreThanOneEnd, moreThanOneStart, unconnectedNodes, moreThanOneOutput}
 class PipelineGraphValidator(val graph: PipelineGraph) {
 
   private val nodes: Seq[NodeGraph] = graph.nodes
@@ -39,7 +41,7 @@ class PipelineGraphValidator(val graph: PipelineGraph) {
     else if (outs.size == 1)
       Some(outs.head)
     else
-      throw new Exception(s"node '${node.name}' has more than one output")
+      throw new Exception(moreThanOneOutput(node.name))
   }
 
   @tailrec
@@ -51,7 +53,7 @@ class PipelineGraphValidator(val graph: PipelineGraph) {
         if (nodeSeq.head.name == endNodes.head.name)
           nodeSeq.reverse
         else
-          throw new Exception("Pipeline Graph has more than one End Node")
+          throw new Exception(moreThanOneEnd)
       }
       // we continue iterating
       case Some(next) => getOrderedNodeSeq(next +: nodeSeq)
@@ -61,18 +63,18 @@ class PipelineGraphValidator(val graph: PipelineGraph) {
   def validate: Try[Seq[NodeGraph]] = Try {
     // check there is only one start node
     if (startNodes.size != 1)
-      throw new Exception("Pipeline Graph has more than one start node")
+      throw new Exception(moreThanOneStart)
 
     // check there is only one end node
     else if (endNodes.size != 1)
-      throw new Exception("Pipeline Graph has more than one end node")
+      throw new Exception(moreThanOneEnd)
 
     // build ordered sequence of nodes. While building we validate there is only one output per node
     else {
         val nodeSeq = getOrderedNodeSeq(startNodes)
         // sanity check
         if (nodeSeq.size != nodes.size)
-          throw new Exception("There are some not connected nodes")
+          throw new Exception(unconnectedNodes)
         else
           nodeSeq
       }

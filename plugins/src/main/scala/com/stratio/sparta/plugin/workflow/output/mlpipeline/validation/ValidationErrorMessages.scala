@@ -24,7 +24,11 @@ object ValidationErrorMessages {
 
   // => Pipeline Graph validation Errors
   val invalidPipelineGraph = "Pipeline is invalid"
-
+  val moreThanOneEnd = "Pipeline Graph has more than one end node"
+  val moreThanOneStart = "Pipeline Graph has more than one start node"
+  val unconnectedNodes = "Pipeline Graph have some non-connected nodes"
+  def moreThanOneOutput(nodeName: String): String =
+    s"node '$nodeName' in Pipeline Graph has more than one output"
 
   // => Building pipeline
   val errorBuildingPipelineInstance = "The pipeline has not been built correctly."

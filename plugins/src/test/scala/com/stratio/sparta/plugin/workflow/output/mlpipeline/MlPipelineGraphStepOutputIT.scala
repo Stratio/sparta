@@ -98,6 +98,54 @@ class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatche
     }
 
   /* -------------------------------------------------------------
+     => Incorrect Pipeline Graphs
+      ------------------------------------------------------------- */
+  "MlPipeline" should "show a validation error with graph with two inputs" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_two_inputs.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+          .contains(ValidationErrorMessages.moreThanOneStart))
+    }
+
+  "MlPipeline" should "show a validation error with graph with two outputs" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_two_outputs.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+        .contains(ValidationErrorMessages.moreThanOneEnd))
+    }
+
+  "MlPipeline" should "show a validation error with graph with a loop" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_with_loop.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+        .contains(ValidationErrorMessages.moreThanOneOutput("HashingTF")))
+    }
+
+  "MlPipeline" should "show a validation error with graph with a floating node" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_floating_node.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+        .contains(ValidationErrorMessages.moreThanOneStart))
+    }
+
+
+  /* -------------------------------------------------------------
      => Incorrect Pipeline construction and execution
       ------------------------------------------------------------- */
 

@@ -3,17 +3,17 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.output.mlpipeline
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.PipelineGraphValidator
+package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation
+import ValidationErrorMessages.{moreThanOneEnd, moreThanOneStart, unconnectedNodes, moreThanOneOutput}
 import com.stratio.sparta.serving.core.models.workflow.{EdgeGraph, NodeGraph, PipelineGraph, WriterGraph}
 import org.junit.runner.RunWith
-import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
-class MlPipelineGraphValidationTests extends FlatSpec with Matchers {
+class PipelineGraphValidatorUT extends FlatSpec with Matchers {
   import ExampleGraphs._
 
 
@@ -46,7 +46,7 @@ class MlPipelineGraphValidationTests extends FlatSpec with Matchers {
       assert(validationResult.get.size == 1)
     }
 
-  "PipelineGraphValidator" should "return success from a graph with a two nodes" in
+  "PipelineGraphValidator" should "return success from a graph with two nodes" in
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = twoNodesGraph
       assert(validationResult.isSuccess)
@@ -57,18 +57,14 @@ class MlPipelineGraphValidationTests extends FlatSpec with Matchers {
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = twoStartsGraph
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "Pipeline Graph has more than one start node"
-      )
+      assert(validationResult.failed.get.getMessage == moreThanOneStart)
     }
 
   "PipelineGraphValidator" should "return a failure from a graph with two end nodes" in
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = twoEndsGraph
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "Pipeline Graph has more than one end node"
-      )
+      assert(validationResult.failed.get.getMessage == moreThanOneEnd)
     }
 
 
@@ -76,18 +72,14 @@ class MlPipelineGraphValidationTests extends FlatSpec with Matchers {
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = diamondGraph
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "node '1' has more than one output"
-      )
+      assert(validationResult.failed.get.getMessage == moreThanOneOutput("1"))
     }
 
   "PipelineGraphValidator" should "return a failure from a graph with a floating node" in
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = floatingNodeGraph
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "Pipeline Graph has more than one start node"
-      )
+      assert(validationResult.failed.get.getMessage == moreThanOneStart)
     }
 
   "PipelineGraphValidator"should
@@ -95,27 +87,21 @@ class MlPipelineGraphValidationTests extends FlatSpec with Matchers {
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = floatingSelfConnected
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "There are some not connected nodes"
-      )
+      assert(validationResult.failed.get.getMessage == unconnectedNodes)
     }
 
   "PipelineGraphValidator" should "return a failure from a graph with two linear pipelines" in
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = doubleGraph
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "Pipeline Graph has more than one start node"
-      )
+      assert(validationResult.failed.get.getMessage == moreThanOneStart)
     }
 
   "PipelineGraphValidator" should "return a failure from a graph containing a loop" in
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = loopGraph
       assert(validationResult.isFailure)
-      assert(validationResult.failed.get.getMessage ==
-        "node '3' has more than one output"
-      )
+      assert(validationResult.failed.get.getMessage == moreThanOneOutput("3"))
     }
 }
 
@@ -135,7 +121,7 @@ object ExampleGraphs {
     PipelineGraph(nodesFromNames(names), edgesFromTuples(edges))
 
   val validGraph: PipelineGraph = makeGraph(
-    Seq("1", "2", "3", "4"),
+    Seq("2", "4", "1", "3"),
     Seq("1"->"2", "2"->"3", "3"->"4")
   )
   val singleNodeGraph: PipelineGraph = makeGraph(Seq("1"), Seq())
