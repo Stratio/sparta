@@ -19,7 +19,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization._
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.{PipelineGraphValidator, ValidationErrorMessages}
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PipelineGraph}
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
@@ -231,14 +231,11 @@ class MlPipelineOutputStep(
   /**
     * Validate the Graph Pipeline provided
     *
-    * @return A Boolean (True: valid, False invalid)
+    * @return A Try of Seq[NodeGraph] with the ordered nodes if pipeline is valid
+    *         or an error if the pipeline is not valid
     */
-  def isValidAIPipelineGraph(aiPipelineGraph: Try[PipelineGraph]) : Try[Boolean] = Try {
-    // TODO implement this, for the moment we assume that a valid pipeline always arrives from Front
-    // TODO validar pipeline que sea endo to end unico con un solo camino posible
-
-    true
-  }
+  def isValidAIPipelineGraph(aiPipelineGraph: Try[PipelineGraph]) : Try[Seq[NodeGraph]] =
+    aiPipelineGraph flatMap { new PipelineGraphValidator(_).validate }
 
   /**
     * Deserialize the AI pipeline descriptor in Json format provided in input properties map
