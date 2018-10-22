@@ -47,17 +47,19 @@ case class PipelineStageDescriptor(
 //noinspection ScalaStyle
 object MlPipelineDeserializationUtils {
 
+  def nullOrEmpty(value: JsoneyString): Boolean =  (value == null)||(value.toString.trim == "")
+
   def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
     param.getClass().getSimpleName match {
-      case "BooleanParam" => if (value == null) "Boolean" else value.toString.toBoolean
-      case "LongParam" => if (value == null) "Long" else value.toString.toLong
-      case "DoubleParam" => if (value == null) "Double" else value.toString.toDouble
-      case "FloatParam" => if (value == null) "Float" else value.toString.toFloat
-      case "IntParam" => if (value == null) "Int" else value.toString.toInt
-      case "StringArrayParam" => if (value == null) "Array[String] (comma separated values)" else value.toString.split(",").map(_.trim)
-      case "DoubleArrayParam" => if (value == null) "Array[Double] (comma separated values)" else value.toString.split(",").map(_.trim.toDouble)
-      case "IntArrayParam" => if (value == null) "Array[Int] (comma separated values)" else value.toString.split(",").map(_.trim.toInt)
-      case "Param" => if (value == null) "String" else value.toString
+      case "BooleanParam" => if (nullOrEmpty(value)) "Boolean" else value.toString.toBoolean
+      case "LongParam" => if (nullOrEmpty(value)) "Long" else value.toString.toLong
+      case "DoubleParam" => if (nullOrEmpty(value)) "Double" else value.toString.toDouble
+      case "FloatParam" => if (nullOrEmpty(value)) "Float" else value.toString.toFloat
+      case "IntParam" => if (nullOrEmpty(value)) "Int" else value.toString.toInt
+      case "StringArrayParam" => if (nullOrEmpty(value)) "Array[String] (comma separated values)" else value.toString.split(",").map(_.trim)
+      case "DoubleArrayParam" => if (nullOrEmpty(value)) "Array[Double] (comma separated values)" else value.toString.split(",").map(_.trim.toDouble)
+      case "IntArrayParam" => if (nullOrEmpty(value)) "Array[Int] (comma separated values)" else value.toString.split(",").map(_.trim.toInt)
+      case "Param" => if (nullOrEmpty(value)) "String" else value.toString
       case _ => throw new Exception("Unknown parameter type")
     }
   }
