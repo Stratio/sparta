@@ -14,19 +14,19 @@ import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.JsoneyStringSerializer
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization._
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.{PipelineGraphValidator, ValidationErrorMessages}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PipelineGraph}
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 import org.json4s.jackson.Serialization.read
-import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.{Failure, Success, Try}
 
@@ -35,9 +35,7 @@ class MlPipelineOutputStep(
                             name: String,
                             xDSession: XDSession,
                             properties: Map[String, JSerializable]
-                          ) extends OutputStep(name, xDSession, properties) {
-
-  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer() + BooleanToString
+                          ) extends OutputStep(name, xDSession, properties) with SpartaSerializer {
 
   lazy val outputMode: Option[MlPipelineSaveMode.Value] =
     Try(MlPipelineSaveMode.withName(properties.getString("output.mode").toUpperCase)).toOption
@@ -59,7 +57,7 @@ class MlPipelineOutputStep(
   // Pipeline Graph --> represents arcs and nodes as they comes form the fron editor
   lazy val pipelineGraph: Try[PipelineGraph] = getPipelineGraph
   // Pipeline descriptor --> Descriptor object that can be easily converted into a SparkML Pipeline
-  lazy val pipelineDescriptor: Try[Array[PipelineStageDescriptor]] = getPipelineDescriptor
+  lazy val pipelineDescriptor: Try[Seq[PipelineStageDescriptor]] = getPipelineDescriptor
   // · SparkMl Pipeline (built using Array[PipelineStageDescriptor])
   lazy val pipeline: Try[Pipeline] = getPipelineFromDescriptor(pipelineDescriptor.get)
 
@@ -127,16 +125,7 @@ class MlPipelineOutputStep(
     }
 
     //validate the PipelineGraph
-    if (pipelineGraph.isSuccess && isValidAIPipelineGraph(pipelineGraph).isFailure){
-      val error = isValidAIPipelineGraph(pipelineGraph) match {
-        case Failure(f) => f
-      }
-      validation = addValidationError(validation,
-        ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor + s" ${error.getMessage}")
-    }
-
-    //create the pipelineDescriptors array
-    if (isValidAIPipelineGraph(pipelineGraph).isSuccess && pipelineDescriptor.isFailure) {
+    if (pipelineGraph.isSuccess && pipelineDescriptor.isFailure) {
       val error = pipelineDescriptor match {
         case Failure(f) => f
       }
@@ -224,8 +213,7 @@ class MlPipelineOutputStep(
   def getPipelineGraph: Try[PipelineGraph] = Try {
     // Getting pipeline descriptor object
     // unescape JSON first
-    read[PipelineGraph](
-      pipelineJson.getOrElse(throw new Exception("The pipeline graph JSON descriptor is not provided.")))
+    read[PipelineGraph](pipelineJson.getOrElse(throw new Exception("The pipeline graph JSON descriptor is not provided.")))
   }
 
   /**
@@ -234,7 +222,7 @@ class MlPipelineOutputStep(
     * @return A Try of Seq[NodeGraph] with the ordered nodes if pipeline is valid
     *         or an error if the pipeline is not valid
     */
-  def isValidAIPipelineGraph(aiPipelineGraph: Try[PipelineGraph]) : Try[Seq[NodeGraph]] =
+  def getValidOrderedPipelineGraph(aiPipelineGraph: Try[PipelineGraph]) : Try[Seq[NodeGraph]] =
     aiPipelineGraph flatMap { new PipelineGraphValidator(_).validate }
 
   /**
@@ -242,21 +230,16 @@ class MlPipelineOutputStep(
     *
     * @return An array of PipelineStageDescriptor instances
     */
-  def getPipelineDescriptor(): Try[Array[PipelineStageDescriptor]] = Try {
-    // name: String,
-    // uid: String,
-    // className: String,
-    // properties: Map[String, String]
-  //TODO order nodes according to edges
-
-    for (e <- pipelineGraph.getOrElse(throw new Exception("The pipeline graph is not provided.")).nodes.asInstanceOf[Array[NodeGraph]])
-      yield PipelineStageDescriptor(
+  def getPipelineDescriptor(): Try[Seq[PipelineStageDescriptor]] = Try {
+    // Convert to pipeline descriptor object
+    val validationResult: Try[Seq[NodeGraph]] = getValidOrderedPipelineGraph(pipelineGraph)
+    for (e <-validationResult.getOrElse(throw new Exception("Error")))
+        yield PipelineStageDescriptor(
         e.classPrettyName,
         e.name,
         e.className,
-        Map()
+        e.configuration
     )
-    // Getting pipeline descriptor object
   }
 
   /**
@@ -265,10 +248,10 @@ class MlPipelineOutputStep(
     * @param pipelineDescriptor == array of PipelineStageDescriptor instances
     * @return Pipeline instance
     */
-  def getPipelineFromDescriptor(pipelineDescriptor: Array[PipelineStageDescriptor]): Try[Pipeline] = {
+  def getPipelineFromDescriptor(pipelineDescriptor: Seq[PipelineStageDescriptor]): Try[Pipeline] = {
 
     // · Traversing the array of PipelineStageDescriptor for constructing an array of SparkML PipelineStages
-    val stages: Array[Try[PipelineStage]] = for (stageDescriptor <- pipelineDescriptor) yield {
+    val stages: Seq[Try[PipelineStage]] = for (stageDescriptor <- pipelineDescriptor) yield {
       Try {
         // · Instantiate SparkML PipelineStage class
         val stage = Try {
@@ -304,9 +287,9 @@ class MlPipelineOutputStep(
         stage.asInstanceOf[PipelineStage]
       }
     }
-
+    val stagesArray = stages.toArray[Try[PipelineStage]]
     val validatedStages: Either[Array[Throwable], Pipeline] = Try(
-      Right(new Pipeline().setStages(stages.map(_.get)))).getOrElse(Left(stages.collect { case Failure(t) => t }))
+      Right(new Pipeline().setStages(stagesArray.map(_.get)))).getOrElse(Left(stagesArray.collect { case Failure(t) => t }))
 
     validatedStages match {
       case Left(errors) => Failure(new Exception(errors.map(_.getMessage).mkString("\n")))
