@@ -109,6 +109,7 @@ export const getVersionsOrderedList = createSelector(
     getSearchQuery,
     (versions, order, searchQuery) => {
         searchQuery = searchQuery.toLowerCase();
+        console.log(versions)
         return orderBy([...(searchQuery.length ?
             versions.filter(version => ('v' + version.version).indexOf(searchQuery) > -1) : versions)], order.orderBy, order.type ? true : false)
     });

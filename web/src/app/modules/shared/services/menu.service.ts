@@ -20,12 +20,6 @@ export class MenuService {
         },
         {
             icon: 'icon-record',
-            label: 'Executions',
-            link: DASHBOARD_ROUTES.EXECUTIONS_MANAGING,
-            subMenus: []
-         },
-        {
-            icon: 'icon-record',
             label: 'Templates',
             link: DASHBOARD_ROUTES.TEMPLATES,
             subMenus: [

@@ -50,7 +50,7 @@ export class WorkflowTableHeaderContainer implements OnInit, OnDestroy {
 
          let levels = [];
          if (level.name === DEFAULT_FOLDER) {
-            levels = levelOptions;
+            levels = levelOptions; // set default folder as current directory
          } else {
             levels = levelOptions.concat(level.name.split(FOLDER_SEPARATOR).slice(2)
                .map(option => ({
@@ -67,6 +67,9 @@ export class WorkflowTableHeaderContainer implements OnInit, OnDestroy {
    }
 
    changeFolder(position: number) {
+      if (position + 1 === this.levelOptions.length) {
+        return;
+      }
       const level = position === 0 ? DEFAULT_FOLDER : DEFAULT_FOLDER +
          FOLDER_SEPARATOR + this.levelOptions.slice(1, position + 1).map(option => option.label).join(FOLDER_SEPARATOR);
       this._store.dispatch(new workflowActions.ChangeGroupLevelAction(level));

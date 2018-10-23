@@ -32,6 +32,9 @@ export class BreadcrumbMenuService {
     public setRoute(routeIndex: number) {
         const routeParams = this.getOptions();
         let route = '';
+        if (routeParams.length === routeIndex) {
+            return;
+        }
         for (let i = 1; i < routeIndex + 1; i++) {
             route += '/' + routeParams[i].id.replace(' ', '-');
         }

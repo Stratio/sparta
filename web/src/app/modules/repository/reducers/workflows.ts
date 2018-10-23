@@ -119,6 +119,17 @@ export function reducer(state: State = initialState, action: any): State {
             workflowsVersionsList: Object.keys(workflows).map(function (key) {
                return workflows[key];
             }),
+            openedWorkflow: (() => {
+               if (state.openedWorkflow) {
+                  const workflowVersions = workflows[state.openedWorkflow.name];
+                  if (!workflowVersions || workflowVersions.versions.length === 0) {
+                     return null;
+                  } else {
+                     return state.openedWorkflow;
+                  }
+               }
+               return null;
+            })(),
             selectedVersions: [...state.selectedVersions],
             selectedVersionsData: state.selectedVersions.length ?
                action.payload.filter((version: any) => state.selectedVersions.indexOf(version.id) > -1) : [],
@@ -329,7 +340,13 @@ export function reducer(state: State = initialState, action: any): State {
       case workflowActions.SAVE_JSON_WORKFLOW: {
          return {
             ...state,
-            saving: true
+            saving: true,
+            notification: {
+               text: 'CREATED_WORKFLOW',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
       case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
@@ -375,15 +392,21 @@ export function reducer(state: State = initialState, action: any): State {
             group: action.payload.group,
             nodes: action.payload.pipelineGraph.nodes
          };
+         const workflowWithVersions = state.workflowsVersionsList.find(workflow => workflow.name === newWorkflow.name);
          const workflow = {
-            ...state.workflowsVersionsList[0],
-            versions: [...state.workflowsVersionsList[0].versions, newWorkflow]
+            ...workflowWithVersions,
+            versions: [...workflowWithVersions.versions, newWorkflow]
          };
-
          return {
             ...state,
             workflowList: [...state.workflowList, newWorkflow],
-            workflowsVersionsList: [workflow]
+            workflowsVersionsList: [workflow],
+            notification: {
+               text: 'GENERATE_NEW_VERSION',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
 
       }

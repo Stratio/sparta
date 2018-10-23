@@ -159,15 +159,6 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
-      case repositoryActions.SAVE_JSON_WORKFLOW_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'CREATED_WORKFLOW'
-            }]
-         });
-      }
       case repositoryActions.DUPLICATE_WORKFLOW_COMPLETE: {
          return Object.assign({}, state, {
             currentAlert: [{
@@ -232,16 +223,6 @@ export function reducer(state: State = initialState, action: any): State {
                type: STALERT_SEVERITY.SUCCESS,
                title: 'SUCCESS',
                description: 'DELETE_GROUP',
-
-            }]
-         });
-      }
-      case repositoryActions.GENERATE_NEW_VERSION: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'GENERATE_NEW_VERSION',
 
             }]
          });

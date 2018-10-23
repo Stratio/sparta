@@ -43,7 +43,7 @@ export class WorkflowEffect {
       .ofType(workflowActions.LIST_GROUPS)
       .pipe(switchMap((data: any) =>
          this.workflowService.getGroups()
-            .pipe(switchMap(groups => [
+            .pipe(switchMap((groups: any) => [
                new workflowActions.ListGroupsCompleteAction(groups.find(group => group.name === '/home') ?
                   groups : [...groups, homeGroup]), new workflowActions.ListGroupWorkflowsAction()]))
             .catch(error => from([
@@ -130,7 +130,7 @@ export class WorkflowEffect {
    deleteSingleVersion$: Observable<Action> = this.actions$
       .ofType<workflowActions.DeleteSingleVersionAction>(workflowActions.DELETE_SINGLE_VERSION)
       .pipe(map((action: any) => action.versionId))
-      .pipe(switchMap(versionId => this.workflowService.deleteWorkflowList([versionId])
+      .pipe(switchMap((versionId: any) => this.workflowService.deleteWorkflowList([versionId])
          .pipe(mergeMap(() => [new workflowActions.DeleteSingleVersionCompleteAction(), new workflowActions.ListGroupsAction()]))
          .catch(error => from([
             new workflowActions.DeleteSingleVersionErrorAction(),
