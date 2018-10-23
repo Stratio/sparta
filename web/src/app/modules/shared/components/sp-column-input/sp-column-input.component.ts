@@ -135,10 +135,13 @@ export class SpColumnInputComponent implements ControlValueAccessor, OnChanges, 
          }
       });
 
-      this.addOptions(_uniq(this.variableList.map(variable => variable.valueType)).map(item => ({ label: item, value: item })));
+      this.addOptions(this.variableList ? _uniq(this.variableList.map(variable => variable.valueType)).map(item => ({ label: item, value: item })) : []);
       this.groupFilteredVariableList();
       this.filteredVariableList = this.variableList;
       this.defaultList = !!this.internalControl.value.length;
+      if (!this.variableList) {
+          this.showVars = false;
+      }
    }
 
    private addOptions(options) {
@@ -156,9 +159,8 @@ export class SpColumnInputComponent implements ControlValueAccessor, OnChanges, 
 
    filterVarListValue(value: string): void {
       const compval = value.toUpperCase();
-      const selectedOption = this.selectedOption;
-      this.filteredVariableList = this.variableList.filter((variable: SpColumnInputVariable) =>
-            variable.name.toUpperCase().indexOf(compval) > -1 || (variable.valueType && variable.valueType.toUpperCase().indexOf(compval) > -1));
+      this.filteredVariableList = this.variableList ? this.variableList.filter((variable: SpColumnInputVariable) =>
+            variable.name.toUpperCase().indexOf(compval) > -1 || (variable.valueType && variable.valueType.toUpperCase().indexOf(compval) > -1)) : [];
       this.emptyVariables = !this.filteredVariableList.length;
       this.defaultList = !this.emptyVariables || !!value.length;
 
@@ -309,12 +311,12 @@ export class SpColumnInputComponent implements ControlValueAccessor, OnChanges, 
    }
 
    onKeydown(event) {
-         if (event.key === 'Backspace') {
+         if (event.key === 'Backspace' && this.showVars) {
             this.internalControl.setValue('');
             this.selectVarMode = false;
             this.isVarValue = false;
             this.selectedIndex = 0;
-         } else if (navigates.includes(event.key) && this.filteredVariableList.length ) {
+         } else if (navigates.includes(event.key) && this.variableList && this.filteredVariableList.length ) {
             this.scrollList = this._element.querySelector('ul');
             switch (event.key) {
                case 'ArrowUp':
@@ -371,6 +373,7 @@ export class SpColumnInputComponent implements ControlValueAccessor, OnChanges, 
       event.preventDefault();
       this.internalControl.setValue('');
       this.selectedFilter = undefined;
+      this.filterVarListValue('');
    }
 
    onChangeEvent(event: Event): void {

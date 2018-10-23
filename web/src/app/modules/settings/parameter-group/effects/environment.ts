@@ -16,6 +16,7 @@ import * as alertParametersActions from './../actions/alert';
 
 import { ParametersService } from 'app/services';
 import { CATCH_ERROR_VAR } from '@angular/compiler/src/output/output_ast';
+import { CONTEXT } from '@angular/core/src/render3/interfaces/view';
 
 @Injectable()
 export class EnviromentParametersEffect {
@@ -67,38 +68,27 @@ export class EnviromentParametersEffect {
             [...environmentVariables, param.value];
          const updatedList = { name, id, parameters };
 
-
-
          const oldContextsList = environmentVariables[index] && environmentVariables[index].contexts;
-         const defaultValue = environmentVariables[index] && environmentVariables[index].defaultValue;
 
          const updateContextList = oldContextsList
             .filter(c => !contexts.find(a => c.name === a.name))
-            .map(context => {
-                const { value: val, ...formatContext } = context;
-                return {
-                   ...formatContext,
-                   parameters: [
-                      ...state.environmentVariables.slice(0, index),
-                      { name: paramName, value: defaultValue },
-                      ...state.environmentVariables.slice(index + 1)
-                   ],
-                   parent: name
-                };
-             });
+            .map(context => ({
+                ...context,
+                parameters: parameters.map(p => {
+                    const defaultContext = p.contexts.find(c => c.name === context.name);
+                    return { name: p.name, value: defaultContext ? defaultContext.value : p.value };
+                }),
+                parent: name
+            }));
 
-         const contextsList = contexts.map(context => {
-            const { value: val, ...formatContext } = context;
-            return {
-               ...formatContext,
-               parameters: [
-                  ...state.environmentVariables.slice(0, index),
-                  { name: paramName, value: context.value },
-                  ...state.environmentVariables.slice(index + 1)
-               ],
+         const contextsList = contexts.map(context => ({
+               ...context,
+               parameters: parameters.map(p => {
+                    const defaultContext = p.contexts.find(c => c.name === context.name);
+                    return { name: p.name, value: defaultContext ? defaultContext.value : p.value };
+                }),
                parent: name
-            };
-         });
+         }));
 
          const updatedLists = [...updateContextList, ...contextsList, updatedList];
 

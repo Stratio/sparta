@@ -62,7 +62,8 @@
         left: 0;
         border-radius: 0px 0px 4px 4px;
         .empty-vars {
-            padding: 20px 0px 0px 40px;
+            padding: 20px 0px 20px 0px;
+            text-align: center;
             span {
                 font-family: $egeo-nunito-sans;
                 font-size: 13px;
