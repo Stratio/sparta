@@ -2,13 +2,13 @@
     "nodes": [
         {
             "configuration": {
-                "inputCol": "text",
+                "inputCol": "non_exist",
                 "outputCol": "tokens"
             },
             "supportedEngines": ["Batch"],
             "classPrettyName": "Tokenizer",
             "className": "org.apache.spark.ml.feature.Tokenizer",
-            "arity": ["NullaryToNullary", "NaryToNullary"],
+            "arity": ["NullaryToNullary", "NullarytoNary"],
             "stepType": "Preprocessing",
             "writer": {
                 "tableName": null,
@@ -44,7 +44,7 @@
             "supportedEngines": ["Batch"],
             "classPrettyName": "HashingTF",
             "className": "org.apache.spark.ml.feature.HashingTF",
-            "arity": ["NullaryToNullary", "NaryToNullary"],
+            "arity": ["NullaryToNullary", "NullarytoNary"],
             "stepType": "Preprocessing",
             "writer": {
                 "tableName": null,
@@ -88,7 +88,7 @@
             "supportedEngines": ["Batch"],
             "classPrettyName": "LinearRegression",
             "className": "org.apache.spark.ml.regression.LinearRegression",
-            "arity": ["NullaryToNullary", "NaryToNullary"],
+            "arity": ["NullaryToNullary", "UnaryToNullary"],
             "stepType": "Algorithm",
             "writer": {
                 "tableName": null,
