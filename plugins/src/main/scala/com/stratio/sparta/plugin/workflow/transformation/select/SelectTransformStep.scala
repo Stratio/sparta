@@ -6,8 +6,10 @@
 package com.stratio.sparta.plugin.workflow.transformation.select
 
 import java.io.{Serializable => JSerializable}
+import scala.util.matching.Regex
 
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.plugin.enumerations.SelectType
 import com.stratio.sparta.plugin.enumerations.SelectType.SelectType
 import com.stratio.sparta.plugin.helper.SchemaHelper._
@@ -26,7 +28,6 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.jackson.Serialization.read
-
 import scala.util.{Failure, Success, Try}
 
 abstract class SelectTransformStep[Underlying[Row]](
@@ -50,6 +51,8 @@ abstract class SelectTransformStep[Underlying[Row]](
   lazy val selectType: SelectType = Try {
     SelectType.withName(properties.getString("selectType", "EXPRESSION").toUpperCase())
   }.getOrElse(SelectType.EXPRESSION)
+
+  val sqlCommentsRegex: Regex = "--[0-9a-zA-Z-#()]+".r
 
   def validateSql: Boolean =
     Try {
@@ -134,7 +137,8 @@ abstract class SelectTransformStep[Underlying[Row]](
             case SelectType.COLUMNS => columns.mkString(",")
             case SelectType.EXPRESSION => selectExpression.getOrElse("*")
           }
-          val newDataFrame = xDSession.sql(s"select $expression from $inputStep")
+
+          val newDataFrame = xDSession.sql(s"select ${sqlCommentsRegex.replaceAllIn(expression,"")} from $inputStep")
           (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
           (rdd.filter(_ => false), None, inputSchema)

@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.plugin.workflow.transformation.select
 
 import com.stratio.sparta.plugin.TemporalSparkContext
@@ -90,6 +91,39 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
 
     if (batchRegisters.nonEmpty)
       batchRegisters.foreach(row => assert(dataSelect.contains(row)))
+
+    assert(batchEvents === 3)
+  }
+
+  "A SelectTransformStepBatch" should "select fields ignoring comments" in {
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
+    val dataDistinct = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schemaResult),
+      new GenericRowWithSchema(Array("red", 12.2), schemaResult),
+      new GenericRowWithSchema(Array("red", 12.2), schemaResult)
+    )
+    val inputRdd1 = sc.parallelize(data1)
+    val inputData = Map("step1" -> inputRdd1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val result = new SelectTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map("selectExp" -> "color --comment1 ,price --comment2")
+    ).transformWithDiscards(inputData)._1
+    val batchEvents = result.ds.count()
+    val batchRegisters = result.ds.collect()
+
+    if (batchRegisters.nonEmpty)
+      batchRegisters.foreach(row => assert(dataDistinct.contains(row)))
 
     assert(batchEvents === 3)
   }
