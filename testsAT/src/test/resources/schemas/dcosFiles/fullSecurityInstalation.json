@@ -129,7 +129,7 @@
     "HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN": "hdfs/*@DEMO.STRATIO.COM",
     "HADOOP_CONF_URI": "http://10.200.0.74:8085/",
     "SPARTA_ZOOKEEPER_RETRY_ATEMPTS": "5",
-    "SPARTA_MARATHON_OS_MEMORY": "512",
+    "SPARTA_MARATHON_OS_MEMORY": "1024",
     "MARATHON_TIKI_TAKKA_MARATHON_API_VERSION": "v2",
     "SPARTA_PLUGIN_KAFKA_BOOTSTRAP": "gosec1.node.paas.labs.stratio.com:9092,gosec2.node.paas.labs.stratio.com:9092,gosec3.node.paas.labs.stratio.com:9092",
     "SPARTA_API_MAX_FILE_SIZE_UPLOAD": "150m",

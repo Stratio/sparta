@@ -202,8 +202,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     val submitExecution = execution.sparkSubmitExecution.get
     val newCpus = submitExecution.sparkConfigurations.get("spark.driver.cores")
       .map(_.toDouble).getOrElse(app.cpus)
-    val newMem = submitExecution.sparkConfigurations.get("spark.driver.memory")
-      .map(transformMemoryToInt).getOrElse(app.mem)
+    val newMem = Try(getSOMemory / 2).getOrElse(512)
     val envFromSubmit = submitExecution.sparkConfigurations.flatMap { case (key, value) =>
       if (key.startsWith("spark.mesos.driverEnv.")) {
         Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
@@ -294,7 +293,8 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     app.copy(
       id = execution.marathonExecution.get.marathonId,
       cpus = newCpus,
-      mem = newMem + getSOMemory,
+      mem = submitExecution.sparkConfigurations.get("spark.driver.memory")
+        .map(transformMemoryToInt).getOrElse(app.mem) + getSOMemory,
       env = newEnv,
       container = newDockerContainerInfo,
       healthChecks = newHealthChecks,

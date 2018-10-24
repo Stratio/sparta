@@ -49,5 +49,4 @@
 
  # Run Sparta Marathon jar
  INFO "[SPARTA-MARATHON] Running Sparta marathon application ... "
- export SPARTA_OPTS="$SPARTA_OPTS -Dconfig.file=$SPARTA_CONF_FILE"
  source /run-marathon-app.sh

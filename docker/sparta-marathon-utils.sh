@@ -14,11 +14,11 @@ function initClusterSparkIp() {
 function initJavaOptions() {
 
  if [[ ! -v MARATHON_APP_HEAP_SIZE ]]; then
-   export MARATHON_APP_HEAP_SIZE=-Xmx2048m
+   export MARATHON_APP_HEAP_SIZE=-Xmx512m
  fi
 
  if [[ ! -v MARATHON_APP_HEAP_MINIMUM_SIZE ]]; then
-   export MARATHON_APP_HEAP_MINIMUM_SIZE=-Xms1024m
+   export MARATHON_APP_HEAP_MINIMUM_SIZE=-Xms256m
  fi
 
  if [ -v SPARTA_JAAS_FILE ] && [ ${#SPARTA_JAAS_FILE} != 0 ]; then

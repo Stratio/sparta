@@ -35,8 +35,8 @@ object MarathonConstant {
   val DefaultIncludeCommonVolumes = true
   val DefaultIncludeCertVolumes = true
   val DefaultSparkUIPort = 4040
-  val DefaultSOMemSize = 512
-  val MinSOMemSize = 256
+  val DefaultSOMemSize = 1024
+  val MinSOMemSize = 512
   val DefaultFileEncodingSystemProperty= "-Dfile.encoding=UTF-8"
 
   /* Environment variables to Marathon Application */
