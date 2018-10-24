@@ -211,13 +211,14 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 upsert(dataFrame, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, txSaveMode, isNewTable, dialect)
               }
               else if (postgresSaveMode == TransactionTypes.COPYIN) {
+                val schemaFieldsCount = dataFrame.schema.fields.length
                 dataFrame.foreachPartition { rows =>
                   val conn = getConnection(connectionProperties, name)
                   val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
                   cm.copyIn(
                     s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
-                    rowsToInputStream(rows)
+                    rowsToInputStream(rows, schemaFieldsCount)
                   )
                 }
               } else {
@@ -294,9 +295,12 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
   //scalastyle:on
 
-  def rowsToInputStream(rows: Iterator[Row]): InputStream = {
+  def rowsToInputStream(rows: Iterator[Row], fieldsCount: Int): InputStream = {
     val bytes: Iterator[Byte] = rows.flatMap { row =>
-      (row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n").getBytes(encoding)
+      val text = (row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n")
+      if (text.split(delimiter).length != fieldsCount)
+        throw new RuntimeException(s"Row [$text] contains selected delimiter $delimiter in one or more fields")
+      text.getBytes(encoding)
     }
 
     new InputStream {
