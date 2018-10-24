@@ -32,7 +32,7 @@ trait DebugResultDao extends DaoUtils {
 
   implicit lazy val cache: IgniteCache[String, ResultStep] = throw new UnsupportedOperationException("")
 
-  override def getSpartaEntityId(entity: ResultStep): String = entity.id.get
+  override def getSpartaEntityId(entity: ResultStep): String = entity.id
 
 }
 

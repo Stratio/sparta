@@ -42,6 +42,7 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   lazy val parameterListDao = PostgresDaoFactory.parameterListPostgresDao
   lazy val templateDao = PostgresDaoFactory.templatePgService
+  lazy val debugDao = PostgresDaoFactory.debugWorkflowPgService
 
   override def initializeData(): Unit = {
     initialCacheLoad()
@@ -345,6 +346,7 @@ class WorkflowPostgresDao extends WorkflowDao {
     val ids = workflowLists.flatMap(_.id.toList)
     for {
       _ <- deleteList(ids).removeInCache(ids: _*)
+      _ <- Future.sequence(ids.map(debugDao.deleteDebugWorkflowByID))
     } yield {
       log.info(s"Workflows with ids: ${
         ids.mkString(",")
