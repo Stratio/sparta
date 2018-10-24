@@ -19,7 +19,7 @@ export class InitializeSchemaService {
          name: 'workflow-name',
          description: ''
       };
-      model.advancedSettings = {};
+      model.advancedSettings = { global: { parametersLists: ['Environment'] }};
       value.advancedSettings.map((category: any) => {
          model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
       });

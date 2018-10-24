@@ -45,7 +45,7 @@ export class EnviromentParametersEffect {
                new environmentParametersActions.AddContextCompleteAction({ name: context.name, id: context.id }),
                new alertParametersActions.ShowAlertAction('Context saved')
             ]))
-            .pipe(catchError(error => { 
+            .pipe(catchError(error => {
                 return of(new alertParametersActions.ShowAlertAction(error.errorCode && error.message ? error.message : 'Context can not save'));
             }));
       }));

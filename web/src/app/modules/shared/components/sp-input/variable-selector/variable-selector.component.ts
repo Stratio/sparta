@@ -45,16 +45,13 @@ export class VariableSelectorComponent implements OnInit {
     public sourceValue;
 
     ngOnInit(): void {
+        if (this.parameters.environmentVariables.length) {
+            this.sourceOptions = this.sourceOptions.concat({
+                label: 'Environment',
+                value: 'Environment'
+            });
+        }
         if (this.currentParameter) {
-
-
-
-            if (this.parameters.environmentVariables.length) {
-                this.sourceOptions = this.sourceOptions.concat({
-                    label: 'Environment',
-                    value: 'Environment'
-                });
-            }
             if (this.parameters.customGroups) {
                 this.sourceOptions = this.sourceOptions.concat(this.parameters.customGroups.filter(g => !g.parent).map(group => ({
                     label: group.name,
@@ -78,7 +75,6 @@ export class VariableSelectorComponent implements OnInit {
                 this.paramName = existList ? this.currentParameter.value.substr(this.currentParameter.value.indexOf('.') + 1) : undefined;
             }
         }
-
     }
 
     loadVariables(groupType) {

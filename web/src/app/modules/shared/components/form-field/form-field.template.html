@@ -1,6 +1,6 @@
 <div class="form-field">
    <!-- input text -->
-   <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
+   <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible && (!field.showInputSteps && !field.showSchemaFields)"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       fieldType="{{field.propertyType}}"
       class="st-form-field"
@@ -15,6 +15,23 @@
       [showVars]="showVars"
       [minlength]="field.minlength"
       [maxlength]="field.maxlength"></sp-input>
+      
+      <sp-column-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'number') && isVisible  && (field.showInputSteps || field.showSchemaFields)"
+        label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
+        fieldType="{{field.propertyType}}"
+        class="st-form-field"
+        [formControl]="stFormControl"
+        [placeholder]="field.placeholder ? field.placeholder : ''"
+        pattern="{{field.regexp}}"
+        [name]="field.propertyId"
+        [errors]="errorsService.errors.inputErrors"
+        [forceValidations]="forceValidations"       
+        [variableList]="getVariableList(field)"
+        [showVars]="showVars"
+        [minlength]="field.minlength"
+        [maxlength]="field.maxlength"
+        qaTag="field.qa" 
+        [required]="field.required" ></sp-column-input>
 
     <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
 

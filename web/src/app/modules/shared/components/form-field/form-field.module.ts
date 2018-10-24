@@ -17,6 +17,7 @@ import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textar
 import { FormListModule } from '../form-list/form-list.module';
 import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
+import { SpColumnInputModule } from '../sp-column-input/sp-column-input.module';
 
 @NgModule({
    exports: [
@@ -36,7 +37,8 @@ import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
       StInputModule,
       SpInputModule,
       StTagInputModule,
-      TranslateModule
+      TranslateModule,
+      SpColumnInputModule
    ],
    declarations: [
       FormFieldComponent
