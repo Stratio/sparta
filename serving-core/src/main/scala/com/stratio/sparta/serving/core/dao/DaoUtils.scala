@@ -61,7 +61,9 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
             .map(_.replace("currentSchema=", ""))
         }.notBlank
 
-    schemaNameFromConfig.orElse(schemaNameFromExtraParams).orElse(Some("public"))
+    lazy val defaultSchema = AppConstant.instanceName.getOrElse("sparta-server")
+
+    schemaNameFromConfig.orElse(schemaNameFromExtraParams).orElse(Some(defaultSchema))
   }
 
   // The method finds automagically a BaseTypedType[Id]  in the context...

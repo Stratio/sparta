@@ -14,6 +14,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import slick.jdbc.{JdbcBackend, JdbcProfile}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection.log
 import slick.jdbc
 
@@ -39,7 +40,9 @@ trait JdbcSlickHelper {
     }
 
     val urlConnection = s"jdbc:postgresql://${config.getString("host")}"
-    val user = config.getString("user")
+    val user = Try {
+      config.getString("user")
+    }.toOption.notBlank.getOrElse(AppConstant.instanceName.getOrElse("sparta-server"))
     val urlWithDatabase = urlConnection.concat(s"/${config.getString("database")}").concat(s"?user=$user")
     if (config.getBoolean("sslenabled")) {
       val sslCert = config.getString("sslcert")
