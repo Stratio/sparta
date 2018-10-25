@@ -24,50 +24,55 @@ import { GlobalParam } from './../../models/globalParam';
       (deleteParam)="onDeleteParam($event)"
       (search)="searchGlobal($event)"
       [creationMode]="creationMode"
+      (onDownloadParams)="downloadParams()"
       ></global-parameters>
   `
 })
 export class GlobalParametersContainer implements OnInit {
 
-   public globalParams$: Observable<GlobalParam[]>;
-   public creationMode = false;
+    public globalParams$: Observable<GlobalParam[]>;
+    public creationMode = false;
 
-   constructor(private _store: Store<fromParameters.State>) { }
+    constructor(private _store: Store<fromParameters.State>) { }
 
 
 
-   ngOnInit(): void {
-      this._init();
-   }
+    ngOnInit(): void {
+        this._init();
+    }
 
-   private _init() {
-      this._store.dispatch(new globalParamsActions.ListGlobalParamsAction());
-      this.initRequest();
-      this.globalParams$ = this._store.select(fromParameters.getGlobalVariables);
-      this._store.select(fromParameters.getIsCreating)
-         .subscribe((isCreating: boolean) =>  this.creationMode = isCreating );
-   }
+    private _init() {
+        this._store.dispatch(new globalParamsActions.ListGlobalParamsAction());
+        this.initRequest();
+        this.globalParams$ = this._store.select(fromParameters.getGlobalVariables);
+        this._store.select(fromParameters.getIsCreating)
+            .subscribe((isCreating: boolean) => this.creationMode = isCreating);
+    }
 
-   initRequest() {
-      this._store.dispatch(new alertParametersActions.ShowLoadingAction());
-   }
-   onAddGlobalParam() {
-      this._store.dispatch(new globalParamsActions.AddGlobalParamsAction());
-   }
+    initRequest() {
+        this._store.dispatch(new alertParametersActions.ShowLoadingAction());
+    }
+    onAddGlobalParam() {
+        this._store.dispatch(new globalParamsActions.AddGlobalParamsAction());
+    }
 
-   onSaveParam(param) {
-      this.initRequest();
-      this._store.dispatch(new globalParamsActions.SaveGlobalAction(param));
-   }
+    onSaveParam(param) {
+        this.initRequest();
+        this._store.dispatch(new globalParamsActions.SaveGlobalAction(param));
+    }
 
-   onDeleteParam(param) {
-      if (!param.creation) {
-         this.initRequest();
-      }
-      this._store.dispatch(new globalParamsActions.DeleteGlobalAction(param));
-   }
+    onDeleteParam(param) {
+        if (!param.creation) {
+            this.initRequest();
+        }
+        this._store.dispatch(new globalParamsActions.DeleteGlobalAction(param));
+    }
 
-   searchGlobal(global) {
-      this._store.dispatch(new globalParamsActions.SearchGlobalAction(global));
-   }
+    searchGlobal(global) {
+        this._store.dispatch(new globalParamsActions.SearchGlobalAction(global));
+    }
+
+    downloadParams() {
+        this._store.dispatch(new globalParamsActions.ExportGlobalParamsAction());
+    }
 }

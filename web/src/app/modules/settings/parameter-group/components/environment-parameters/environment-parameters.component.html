@@ -1,4 +1,4 @@
-<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [withContext]="true" [creationMode]="creationMode" ></parameter-group-header>
+<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [withContext]="true" [creationMode]="creationMode" (onDownloadParams)="downloadParams()"></parameter-group-header>
 <parameters-table [inputParameters]="environmentParams" [contextList]="environmentContexts" [withContext]="true" (onAddNewContext)="addNewContext($event)"
    (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)" [creationMode]="creationMode"></parameters-table>
 <st-fullscreen-layout *ngIf="showConfigContext" [title]="'Environment - Contexts'">

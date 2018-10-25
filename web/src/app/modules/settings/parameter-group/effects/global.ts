@@ -16,6 +16,7 @@ import * as globalParametersActions from './../actions/global';
 import * as alertParametersActions from './../actions/alert';
 
 import { ParametersService } from 'app/services';
+import { generateJsonFile } from '@utils';
 
 @Injectable()
 export class GlobalParametersEffect {
@@ -73,10 +74,25 @@ export class GlobalParametersEffect {
                 .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Param can not delete'))));
         }));
 
+    @Effect()
+    exportGlobal$: Observable<any> = this._actions$
+        .pipe(ofType(globalParametersActions.EXPORT_GLOBAL_PARAMS))
+        .pipe(switchMap((response: any) =>
+            this._parametersService.getGlobalParameters()
+            .pipe(map(envData => {
+                generateJsonFile('global-parameters', envData);
+                return new globalParametersActions.ExportGlobalParamsCompleteAction();
+            }))
+            .pipe(catchError(error => from([
+                new globalParametersActions.ExportGlobalParamsErrorAction(),
+                new alertParametersActions.ShowAlertAction(error)
+            ]))))
+        );
+
    constructor(
       private _actions$: Actions,
       private _store: Store<fromParameters.State>,
       private _parametersService: ParametersService
-   ) { }  
+   ) { }
 }
 

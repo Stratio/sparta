@@ -8,7 +8,7 @@
 import { Injectable } from '@angular/core';
 import { Store, Action } from '@ngrx/store';
 import { Effect, Actions, ofType } from '@ngrx/effects';
-import { Observable, of, forkJoin, iif } from 'rxjs';
+import { Observable, of, forkJoin, iif, from } from 'rxjs';
 import { withLatestFrom, switchMap, mergeMap, map, catchError, delay } from 'rxjs/operators';
 import * as fromParameters from './../reducers';
 import * as environmentParametersActions from './../actions/environment';
@@ -17,6 +17,7 @@ import * as alertParametersActions from './../actions/alert';
 import { ParametersService } from 'app/services';
 import { CATCH_ERROR_VAR } from '@angular/compiler/src/output/output_ast';
 import { CONTEXT } from '@angular/core/src/render3/interfaces/view';
+import { generateJsonFile } from '@utils';
 
 @Injectable()
 export class EnviromentParametersEffect {
@@ -160,6 +161,21 @@ export class EnviromentParametersEffect {
                ]))
                .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Context can not delete'))));
          }));
+
+    @Effect()
+    exportGlobal$: Observable<any> = this._actions$
+        .pipe(ofType(environmentParametersActions.EXPORT_ENVIRONMENT_PARAMS))
+        .pipe(switchMap((response: any) =>
+            this._parametersService.getEnvironmentAndContext()
+                .pipe(map(envData => {
+                    generateJsonFile('environment-parameters', envData);
+                    return new environmentParametersActions.ExportEnvironmentParamsCompleteAction();
+                }))
+                .pipe(catchError(error => from([
+                    new environmentParametersActions.ExportEnvironmentParamsErrorAction(),
+                    new alertParametersActions.ShowAlertAction(error)
+                ]))))
+        );
 
 
    constructor(

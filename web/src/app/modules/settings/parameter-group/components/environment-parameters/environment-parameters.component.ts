@@ -36,6 +36,8 @@ export class EnvironmentParametersComponent implements OnInit {
    @Output() changeContext = new EventEmitter<any>();
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
    @Output() deleteContext = new EventEmitter<any>();
+   @Output() onDownloadParams = new EventEmitter<void>();
+
 
   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
 
@@ -93,4 +95,8 @@ export class EnvironmentParametersComponent implements OnInit {
    closeAlert() {
       setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 3000);
    }
+
+   downloadParams() {
+    this.onDownloadParams.emit();
+}
 }

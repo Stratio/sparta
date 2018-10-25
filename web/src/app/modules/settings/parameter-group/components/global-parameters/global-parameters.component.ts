@@ -21,6 +21,7 @@ export class GlobalParametersComponent implements OnInit {
    @Output() addGlobalParam =  new EventEmitter<any>();
    @Output() saveParam = new EventEmitter<any>();
    @Output() deleteParam = new EventEmitter<any>();
+   @Output() onDownloadParams = new EventEmitter<void>();
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
 
    constructor() { }
@@ -37,5 +38,9 @@ export class GlobalParametersComponent implements OnInit {
 
    deleteGlobalParam(param) {
       this.deleteParam.emit(param);
+   }
+
+   downloadParams() {
+       this.onDownloadParams.emit();
    }
 }

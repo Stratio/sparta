@@ -30,7 +30,7 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (saveEnvironmentContext)="onSaveEnvironmentContext($event)"
       [creationMode]="creationMode"
       (deleteContext)="onDeleteContext($event)"
-       ></environment-parameters>
+      (onDownloadParams)="downloadParams()"></environment-parameters>
   `
 })
 export class EnvironmentParametersContainer implements OnInit {
@@ -105,5 +105,9 @@ export class EnvironmentParametersContainer implements OnInit {
    initRequest() {
       this._store.dispatch(new alertParametersActions.ShowLoadingAction());
    }
+
+   downloadParams() {
+    this._store.dispatch(new environmentParamsActions.ExportEnvironmentParamsAction());
+}
 
 }
