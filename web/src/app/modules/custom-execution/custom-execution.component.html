@@ -77,7 +77,7 @@
             <div class="category" *ngIf="objectKeys(form.extraParams).length">
               <span class="toggle-category" (click)="toggleCategory('undefined')">
                 <span [className]="categoriesToggle.undefined ? 'icon icon-arrow2_down' : 'icon icon-arrow2_right'"></span>
-                <span>Undefined parameters</span>
+                <span>User defined parameter</span>
               </span>
               <div class="params" *ngIf="categoriesToggle.undefined">
                 <div class="param" *ngFor="let key of objectKeys(form.extraParams)">

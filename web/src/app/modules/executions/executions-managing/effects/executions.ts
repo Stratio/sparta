@@ -52,8 +52,9 @@ export class ExecutionsEffect {
    deleteExecution: Observable<any> = this.actions$
       .ofType(executionsActions.DELETE_EXECUTION)
       .pipe(map((action: any) => action.executionId))
-      .pipe(switchMap((executionId: string) => this._executionService.deleteExecution(executionId)
-         .pipe(mergeMap((() => [new executionsActions.DeleteExecutionCompleteAction, new executionsActions.ListExecutionsAction()])))))
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions.isArchivedPage)))
+      .pipe(switchMap(([executionId, isArchivedPage]: [string, boolean]) => this._executionService.deleteExecution(executionId)
+         .pipe(mergeMap((() => [new executionsActions.DeleteExecutionCompleteAction, isArchivedPage ? new executionsActions.ListArchivedExecutionsAction() : new executionsActions.ListExecutionsAction()])))))
       .catch((error) => of(new executionsActions.DeleteExecutionErrorAction()));
 
 

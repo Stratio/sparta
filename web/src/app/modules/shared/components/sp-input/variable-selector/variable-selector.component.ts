@@ -31,7 +31,7 @@ export class VariableSelectorComponent implements OnInit {
             label: 'Global',
             value: 'Global'
         }, {
-            label: 'Undefined parameter',
+            label: 'User defined parameter',
             value: 'Undefined'
         }
     ];
