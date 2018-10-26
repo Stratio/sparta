@@ -23,9 +23,11 @@ class RepartitionLiteTransformStepStreaming(
 
   override def transform(inputData: Map[String, ResultStreamingData]): OutputStreamingTransformData = {
     val newStream = inputData.head._2.data.transform { rdd =>
+      logger.info("Repartition to 5")
       rdd.repartition(5)
     }
 
+    logger.info("Repartitioned to 5")
     OutputStreamingTransformData(newStream)
   }
 }

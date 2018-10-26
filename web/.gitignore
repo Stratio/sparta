@@ -30,4 +30,4 @@ coverage/
 yarn.lock
 
 # NPM
-package.lock.json
+package-lock.json

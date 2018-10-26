@@ -10,12 +10,15 @@ import com.stratio.sparta.sdk.lite.streaming.models.ResultStreamingData
 import com.stratio.sparta.sdk.lite.validation.Validator
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.StreamingContext
+import org.slf4j.Logger
 
 abstract class LiteCustomStreamingInput(
                                          @transient sparkSession: SparkSession,
                                          @transient streamingContext: StreamingContext,
                                          properties: Map[String, String]
-                                       ) extends Validator with SLF4JLogging {
+                                       ) extends Validator with SLF4JLogging with Serializable {
+
+  val logger: Logger = log
 
   def init(): ResultStreamingData
 
