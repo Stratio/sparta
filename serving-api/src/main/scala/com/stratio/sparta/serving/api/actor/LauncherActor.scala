@@ -235,8 +235,9 @@ class LauncherActor(
                                                    workflowParameterList: Seq[String],
                                                    executionContext: ExecutionContext
                                                  ): ExecutionContext = {
+    //In a future refactor this must be added -> executionContext.copy(paramsLists = workflowParameterList)
     if(executionContext.paramsLists.isEmpty)
-      executionContext.copy(paramsLists = workflowParameterList)
+      executionContext.copy(paramsLists = Seq("-"))
     else executionContext
   }
 

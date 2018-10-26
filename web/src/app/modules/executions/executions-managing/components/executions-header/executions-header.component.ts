@@ -117,7 +117,7 @@ export class ExecutionsHeaderComponent implements OnInit {
    ];
    public timeIntervals: StDropDownMenuItem[] = [
       {
-         label: 'launch time',
+         label: 'launch date',
          value: 0
       },
       {
