@@ -225,7 +225,6 @@ class NginxUtilsTest extends BaseUtilsTest {
                 |          "SPARTA_MARATHON_FORCE_PULL_IMAGE": "false",
                 |          "ZOOKEEPER_LOG_LEVEL": "OFF",
                 |          "SPARTA_PLUGIN_LDAP_HOST": "idp.integration.labs.stratio.com",
-                |          "HDFS_SECURITY_ENABLED": "true",
                 |          "OAUTH2_SSL_AUTHORIZE": "https://megadev.labs.stratio.com:9005/sso/oauth2.0/authorize",
                 |          "OAUTH2_URL_PROFILE": "https://megadev.labs.stratio.com:9005/sso/oauth2.0/profile",
                 |          "CROSSDATA_SERVER_CONFIG_SPARK_IMAGE": "qa.stratio.com/stratio/stratio-spark:2.2.0.5",
