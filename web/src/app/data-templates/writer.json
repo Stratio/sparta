@@ -128,7 +128,23 @@
       ],
       "tooltip": "If a table is created for the first time, the value inside this field will be used to compose its 'UNIQUE constraint' property. During the upsert, if this field is empty, the above Unique Constraint Name property will be used instead.",
       "qa": "constraint-by-writer"
-   },
+   }, 
+    {
+        "propertyId": "updateFields",
+        "propertyName": "_UPDATE_FIELDS_",
+        "propertyType": "text",
+        "required": false,
+        "visible": [
+            [
+                {
+                    "propertyId": "saveMode",
+                    "value": "Upsert"
+                }
+            ]
+        ],
+        "tooltip": "These fields are the only one that will be updated on 'Upsert' operation",
+        "qa": "constraint-by-writer"
+    },
    {
       "propertyId": "partitionBy",
       "propertyName": "_PARTITION_BY_",

@@ -267,6 +267,7 @@ object DistributedMonad {
   val StepName = "stepName"
   val UniqueConstraintName = "uniqueConstraintName"
   val UniqueConstraintFields = "uniqueConstraintFields"
+  val UpdateFields = "updateFields"
 
   //scalastyle:off
   trait DistributedMonadImplicits {
@@ -503,7 +504,10 @@ object DistributedMonad {
       } ++
     outputOptions.uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
       Map(UniqueConstraintFields -> key)
-    }
+    } ++
+      outputOptions.updateFields.notBlank.fold(Map.empty[String, String]) { key =>
+        Map(UpdateFields -> key)
+      }
   }
 }
 

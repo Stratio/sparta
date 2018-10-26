@@ -115,6 +115,7 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
                 .map( value => andromedaMigrationNewJsoney(value) ),
               uniqueConstraintFields = node.writer.uniqueConstraintFields
                 .map( value => andromedaMigrationNewJsoney(value) ),
+              updateFields = None,
               errorTableName = node.writer.errorTableName
                 .map( value => andromedaMigrationNewJsoney(value) )
             )

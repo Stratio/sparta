@@ -90,6 +90,9 @@ abstract class OutputStep[Underlying[Row]](
   private[sparta] def getUniqueConstraintFieldsOptions(options: Map[String, String]): Option[String] =
     options.get(UniqueConstraintFields).notBlank
 
+  private[sparta] def getUpdateFieldsOptions(options: Map[String, String]): Option[String] =
+    options.get(UpdateFields).notBlank
+
   private[sparta] def getTableNameFromOptions(options: Map[String, String]): String =
     options.getOrElse(TableNameKey, {
       log.error("Table name not defined")
@@ -123,6 +126,7 @@ object OutputStep {
   private[sparta] val PartitionByKey = "partitionBy"
   private[sparta] val UniqueConstraintName = "uniqueConstraintName"
   private[sparta] val UniqueConstraintFields = "uniqueConstraintFields"
+  private[sparta] val UpdateFields = "updateFields"
 
   private[sparta] val DefaultCustomKey = "saveOptions"
   private[sparta] val DefaultCustomPropertyKey = "saveOptionsKey"

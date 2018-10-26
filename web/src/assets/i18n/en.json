@@ -452,6 +452,7 @@
    "_UNIQUE_CONSTRAINT_NAME_" : "Unique Constraint Name",
    "_UNIQUE_CONSTRAINT_FIELDS_" : "Unique Constraint Fields",
    "_CONSTRAINT_TYPE_" : "Constraint type",
+    "_UPDATE_FIELDS_" : "Update fields (',' separated)",
    "_TRIGGER_PARTITION_BY_HELP_": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
    "_INFER_SCHEMA_": "Infer schema",
    "_DELIMITER_": "Delimiter",

@@ -17,18 +17,16 @@ import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.apache.spark.sql.jdbc._
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
-
-import com.stratio.sparta.plugin.enumerations.TransactionTypes
-import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.plugin.helper.SecurityHelper._
-import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import org.apache.spark.sql.functions._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.enumerators.SaveModeEnum.SpartaSaveMode
-import com.stratio.sparta.core.models.ErrorValidations
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.enumerators.ConstraintType
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.plugin.enumerations.TransactionTypes
+import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.helper.SecurityHelper._
 
 class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
@@ -87,11 +85,13 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
   //scalastyle:off
   private[postgres] def constraintSql(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: String, outputName: String,
-                                      isNewTable: Boolean, dialect: JdbcDialect)(placeHolders: String) = {
+                                      isNewTable: Boolean, dialect: JdbcDialect)(placeHolders: String, upsertFields: Option[Seq[String]]) = {
     val schema = df.schema
-    val columns = schema.fields.map(field => dialect.quoteIdentifier(field.name)).mkString(",")
 
-    val valuesPlaceholders = schema.fields.map(field => s"${dialect.quoteIdentifier(field.name)} = EXCLUDED.${dialect.quoteIdentifier(field.name)}").mkString(",")
+    val (columns, valuesPlaceholders) = {
+      val fields = upsertFields.getOrElse(schema.fields.map(_.name).toSeq)
+      (fields.map(dialect.quoteIdentifier(_)).mkString(","), fields.map(field => s"${dialect.quoteIdentifier(field)} = EXCLUDED.${dialect.quoteIdentifier(field)}").mkString(","))
+    }
 
     if (uniqueConstraintName.nonEmpty) {
       //If is a new table OR constraint does not exists, constraint is created with constraint fields
@@ -118,14 +118,19 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
   //scalastyle:off
   private def upsert(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: String, outputName: String, txSaveMode: TxSaveMode,
-                     isNewTable: Boolean, dialect: JdbcDialect): Unit = {
+                     isNewTable: Boolean, dialect: JdbcDialect, upsertFields: Option[Seq[String]]): Unit = {
     //only pk
     val schema = df.schema
     val nullTypes = schema.fields.map { field =>
       SpartaJdbcUtils.getJdbcType(field.dataType, dialect).jdbcNullType
     }
-    val placeHolders = s"VALUES(${schema.fields.map(_ => "?").mkString(",")})"
-    val upsertSql = constraintSql(df, properties, searchFields, uniqueConstraintName, uniqueConstraintFields, outputName, isNewTable, dialect)(placeHolders)
+
+    val placeHolders = upsertFields match {
+      case None => s"VALUES(${schema.fields.map(_ => "?").mkString(",")})"
+      case Some(fields) => s"VALUES(${fields.map(_ => "?").mkString(",")})"
+    }
+
+    val upsertSql = constraintSql(df, properties, searchFields, uniqueConstraintName, uniqueConstraintFields, outputName, isNewTable, dialect)(placeHolders, upsertFields)
 
     val repartitionedDF = properties.numPartitions match {
       case Some(n) if n <= 0 => throw new IllegalArgumentException(
@@ -192,7 +197,10 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 case Some(pk) => pk.split(",").map(f => dialect.quoteIdentifier(f.trim)).mkString(",").trim
                 case None => ""
               }
-
+              val upsertFields = getUpdateFieldsOptions(options) match {
+                case Some(fields) => Some(fields.split(",").map(f => f.trim).toSeq)
+                case None => None
+              }
               val txSaveMode = TxSaveMode(postgresSaveMode, failFast)
               if (saveMode == SaveModeEnum.Delete) {
                 require(updatePrimaryKeyFields.nonEmpty, "The primary key fields must be provided")
@@ -208,7 +216,20 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                   require(updatePrimaryKeyFields.nonEmpty, "The primary key fields must be provided")
                   require(updatePrimaryKeyFields.forall(dataFrame.schema.fieldNames.contains(_)), "All the primary key fields should be present in the dataFrame schema")
                 }
-                upsert(dataFrame, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, txSaveMode, isNewTable, dialect)
+
+                val dfUpsert = upsertFields match {
+                  case None => dataFrame
+                  case Some(fields) => dataFrame.select(fields.map(col): _*)
+                }
+                if (updatePrimaryKeyFields.nonEmpty && upsertFields.nonEmpty) {
+                  require(upsertFields.get.forall(dfUpsert.schema.fieldNames.contains(_)), "All the update fields should be present in the dataFrame schema")
+                  require(upsertFields.get.mkString(",").contains(getPrimaryKeyOptions(options).get), "The update fields should contains the primary key fields")
+                } else if (uniqueConstraintName.nonEmpty && upsertFields.nonEmpty) {
+                  require(upsertFields.get.forall(dfUpsert.schema.fieldNames.contains(_)), "All the update fields should be present in the dataFrame schema")
+                  require(upsertFields.get.mkString(",").contains(getUniqueConstraintFieldsOptions(options).get), "The update fields should contains the unique constraint fields")
+                }
+
+                upsert(dfUpsert, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, txSaveMode, isNewTable, dialect, upsertFields)
               }
               else if (postgresSaveMode == TransactionTypes.COPYIN) {
                 val schemaFieldsCount = dataFrame.schema.fields.length
@@ -236,7 +257,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                         val sqlUpsert =
                           if (saveMode == SaveModeEnum.Upsert) {
                             val placeHolders = s" SELECT * FROM ${txOne.map(_.temporalTableName).get} "
-                            constraintSql(dataFrame, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, isNewTable, dialect)(placeHolders)
+                            constraintSql(dataFrame, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, isNewTable, dialect)(placeHolders, None)
                           }
                           else
                             s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT DO NOTHING"
