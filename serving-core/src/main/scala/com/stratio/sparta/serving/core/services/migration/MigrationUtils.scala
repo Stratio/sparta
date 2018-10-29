@@ -3,34 +3,33 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.services.migration
 
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.constants.AppConstant.regexMatchingMoustacheVariable
+import com.stratio.sparta.serving.core.constants.AppConstant.{regexMatchingMoustacheVariable, version}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration.WorkflowAndromeda
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
-
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex.Match
 
-
 object MigrationUtils {
+
   val migrationStart = new MigrationUtils(false, 20)
   val migrationEndpoint = new MigrationUtils(true, 5)
 }
 
-class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
+class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
 
   import com.stratio.sparta.serving.core.models.workflow.migration.MigrationModelImplicits._
   import scala.concurrent.ExecutionContext.Implicits.global
 
   private val paramListPostgresService = PostgresDaoFactory.parameterListPostgresDao
   private val globalParameterPostgresService = PostgresDaoFactory.globalParametersService
-
 
   private def movedToEnvironment: Set[String] = {
     if (refreshDB)
@@ -58,9 +57,9 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
       movedToGlobalStart
   }
 
-  private lazy val movedToGlobalStart : Set[String] = findGlobalPostgres
+  private lazy val movedToGlobalStart: Set[String] = findGlobalPostgres
 
-  private def findGlobalPostgres : Set[String] = {
+  private def findGlobalPostgres: Set[String] = {
     val list: Future[Set[String]] = for {
       globalList <- globalParameterPostgresService.find()
     } yield globalList.variables.map(_.name).toSet
@@ -72,11 +71,10 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
   }
 
   private val defaultEnvironment = Set(
-      "CROSSDATA_ZOOKEEPER_CONNECTION", "CROSSDATA_ZOOKEEPER_PATH", "KAFKA_BROKER_HOST", "KAFKA_BROKER_PORT", "CASSANDRA_HOST", "CASSANDRA_PORT", "ES_HOST", "ES_PORT", "JDBC_URL","JDBC_DRIVER", "POSTGRES_URL","MONGODB_DB", "MONGODB_HOST", "MONGODB_PORT", "CASSANDRA_KEYSPACE", "CASSANDRA_CLUSTER", "KAFKA_GROUP_ID", "KAFKA_MAX_POLL_TIMEOUT", "KAFKA_MAX_RATE_PER_PARTITION","ES_INDEX_MAPPING", "WEBSOCKET_URL", "REDIS_HOST", "REDIS_PORT")
+    "CROSSDATA_ZOOKEEPER_CONNECTION", "CROSSDATA_ZOOKEEPER_PATH", "KAFKA_BROKER_HOST", "KAFKA_BROKER_PORT", "CASSANDRA_HOST", "CASSANDRA_PORT", "ES_HOST", "ES_PORT", "JDBC_URL", "JDBC_DRIVER", "POSTGRES_URL", "MONGODB_DB", "MONGODB_HOST", "MONGODB_PORT", "CASSANDRA_KEYSPACE", "CASSANDRA_CLUSTER", "KAFKA_GROUP_ID", "KAFKA_MAX_POLL_TIMEOUT", "KAFKA_MAX_RATE_PER_PARTITION", "ES_INDEX_MAPPING", "WEBSOCKET_URL", "REDIS_HOST", "REDIS_PORT")
 
-  private val defaultGlobal = Set("DEFAULT_OUTPUT_FIELD", "DEFAULT_DELIMITER", "SPARK_EXECUTOR_BASE_IMAGE", "SPARK_DRIVER_JAVA_OPTIONS","SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS", "SPARK_STREAMING_CHECKPOINT_PATH",
-      "SPARK_STREAMING_WINDOW", "SPARK_STREAMING_BLOCK_INTERVAL", "SPARK_LOCAL_PATH", "SPARK_CORES_MAX", "SPARK_EXECUTOR_MEMORY", "SPARK_EXECUTOR_CORES", "SPARK_DRIVER_CORES", "SPARK_DRIVER_MEMORY", "SPARK_LOCALITY_WAIT", "SPARK_TASK_MAX_FAILURES", "SPARK_MEMORY_FRACTION")
-
+  private val defaultGlobal = Set("DEFAULT_OUTPUT_FIELD", "DEFAULT_DELIMITER", "SPARK_EXECUTOR_BASE_IMAGE", "SPARK_DRIVER_JAVA_OPTIONS", "SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS", "SPARK_STREAMING_CHECKPOINT_PATH",
+    "SPARK_STREAMING_WINDOW", "SPARK_STREAMING_BLOCK_INTERVAL", "SPARK_LOCAL_PATH", "SPARK_CORES_MAX", "SPARK_EXECUTOR_MEMORY", "SPARK_EXECUTOR_CORES", "SPARK_DRIVER_CORES", "SPARK_DRIVER_MEMORY", "SPARK_LOCALITY_WAIT", "SPARK_TASK_MAX_FAILURES", "SPARK_MEMORY_FRACTION")
 
   private def matchEnvironmentVariables: Match => String = { matchFromRegex =>
     def matchAnonymous(matchFromRegex: Match): String = {
@@ -85,17 +83,26 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
       else if (movedToGlobal.contains(oldValue)) s"Global.$oldValue"
       else oldValue
     }
+
     matchAnonymous(matchFromRegex)
   }
 
-  private def andromedaMigrationNewJsoney(value : JsoneyString): JsoneyString =
+  private def andromedaMigrationNewJsoney(value: JsoneyString): JsoneyString =
     JsoneyString(regexMatchingMoustacheVariable.replaceAllIn(value.toString, matchEnvironmentVariables))
 
+  def fromAndromedaToOrionTemplate(template: TemplateElement): TemplateElement = {
+    val newConfig: Map[String, JsoneyString] = for {
+      (key, value: JsoneyString) <- template.configuration
+    } yield {
+      key -> andromedaMigrationNewJsoney(value)
+    }
+    template.copy(versionSparta = Some(version), configuration = newConfig)
+  }
 
-  def fromAndromedaToOrionWorkflow( workflow: WorkflowAndromeda) : Workflow = {
+  def fromAndromedaToOrionWorkflow(workflow: WorkflowAndromeda): Workflow = {
     val workflowWithJsoneySubstitution: WorkflowAndromeda = workflow.copy(
       pipelineGraph =
-        workflow.pipelineGraph.copy( nodes =
+        workflow.pipelineGraph.copy(nodes =
           workflow.pipelineGraph.nodes.map { node =>
             val newConfig: Map[String, JsoneyString] = for {
               (key, value: JsoneyString) <- node.configuration
@@ -104,20 +111,20 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
             }
             val newWriter = node.writer.copy(
               tableName = node.writer.tableName
-                .map( value => andromedaMigrationNewJsoney(value) ),
-              partitionBy= node.writer.partitionBy
-                .map( value => andromedaMigrationNewJsoney(value) ),
-              constraintType =node.writer.constraintType
-                .map( value => andromedaMigrationNewJsoney(value) ),
+                .map(value => andromedaMigrationNewJsoney(value)),
+              partitionBy = node.writer.partitionBy
+                .map(value => andromedaMigrationNewJsoney(value)),
+              constraintType = node.writer.constraintType
+                .map(value => andromedaMigrationNewJsoney(value)),
               primaryKey = node.writer.primaryKey
-                .map( value => andromedaMigrationNewJsoney(value) ),
-              uniqueConstraintName= node.writer.uniqueConstraintName
-                .map( value => andromedaMigrationNewJsoney(value) ),
+                .map(value => andromedaMigrationNewJsoney(value)),
+              uniqueConstraintName = node.writer.uniqueConstraintName
+                .map(value => andromedaMigrationNewJsoney(value)),
               uniqueConstraintFields = node.writer.uniqueConstraintFields
-                .map( value => andromedaMigrationNewJsoney(value) ),
+                .map(value => andromedaMigrationNewJsoney(value)),
               updateFields = None,
               errorTableName = node.writer.errorTableName
-                .map( value => andromedaMigrationNewJsoney(value) )
+                .map(value => andromedaMigrationNewJsoney(value))
             )
             node.copy(configuration = newConfig, writer = newWriter)
           }
@@ -125,9 +132,9 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
       settings = {
         val newGlobalSettings = workflow.settings.global.copy(
           userPluginsJars = workflow.settings.global.userPluginsJars
-            .map{ case UserJar(jarPathJsoney) => UserJar(andromedaMigrationNewJsoney(jarPathJsoney))},
-          initSqlSentences =  workflow.settings.global.initSqlSentences
-            .map{ case SqlSentence(jarPathJsoney) => SqlSentence(andromedaMigrationNewJsoney(jarPathJsoney))},
+            .map { case UserJar(jarPathJsoney) => UserJar(andromedaMigrationNewJsoney(jarPathJsoney)) },
+          initSqlSentences = workflow.settings.global.initSqlSentences
+            .map { case SqlSentence(sentence) => SqlSentence(andromedaMigrationNewJsoney(sentence)) },
           mesosConstraint =
             workflow.settings.global.mesosConstraint.fold(Option.empty[JsoneyString]) {
               value =>
@@ -146,13 +153,13 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
             value => Option(andromedaMigrationNewJsoney(value))
           },
           backpressureInitialRate = workflow.settings.streamingSettings.backpressureInitialRate
-            .map( value => andromedaMigrationNewJsoney(value) ),
+            .map(value => andromedaMigrationNewJsoney(value)),
           backpressureMaxRate = workflow.settings.streamingSettings.backpressureMaxRate
-            .map( value => andromedaMigrationNewJsoney(value) ),
+            .map(value => andromedaMigrationNewJsoney(value)),
           blockInterval = workflow.settings.streamingSettings.blockInterval
-            .map( value => andromedaMigrationNewJsoney(value) ),
+            .map(value => andromedaMigrationNewJsoney(value)),
           stopGracefulTimeout = workflow.settings.streamingSettings.stopGracefulTimeout
-            .map( value => andromedaMigrationNewJsoney(value) ),
+            .map(value => andromedaMigrationNewJsoney(value)),
           checkpointSettings = workflow.settings.streamingSettings.checkpointSettings
             .copy(checkpointPath = andromedaMigrationNewJsoney(
               workflow.settings.streamingSettings.checkpointSettings.checkpointPath))
@@ -160,52 +167,59 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
 
         val newSparkSettings = workflow.settings.sparkSettings.copy(
           master = andromedaMigrationNewJsoney(workflow.settings.sparkSettings.master),
-          submitArguments = { workflow.settings.sparkSettings.submitArguments.copy(
-            driverJavaOptions = workflow.settings.sparkSettings.submitArguments.driverJavaOptions
-              .map( value => andromedaMigrationNewJsoney(value) ),
-            userArguments = workflow.settings.sparkSettings.submitArguments.userArguments.map{
-              case UserSubmitArgument(keyJsoney, valueJsoney) =>
-                UserSubmitArgument(andromedaMigrationNewJsoney(keyJsoney),andromedaMigrationNewJsoney(valueJsoney))}
-          )},
-          sparkConf = { workflow.settings.sparkSettings.sparkConf.copy(
-            sparkResourcesConf = {
-              val sparkResConf= workflow.settings.sparkSettings.sparkConf.sparkResourcesConf
-              sparkResConf.copy(
-                coresMax = sparkResConf.coresMax
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                executorMemory = sparkResConf.executorMemory
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                executorCores = sparkResConf.executorCores
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                driverCores = sparkResConf.driverCores
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                driverMemory = sparkResConf.driverMemory
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                mesosExtraCores = sparkResConf.mesosExtraCores
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                localityWait = sparkResConf.localityWait
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                taskMaxFailures = sparkResConf.taskMaxFailures
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                sparkMemoryFraction = sparkResConf.sparkMemoryFraction
-                  .map( value => andromedaMigrationNewJsoney(value) ),
-                sparkParallelism = sparkResConf.sparkParallelism
-                  .map( value => andromedaMigrationNewJsoney(value) )
-              )},
-            userSparkConf =  workflow.settings.sparkSettings.sparkConf.userSparkConf.map{
-              case SparkProperty(keyJsoney, valueJsoney) =>
-                SparkProperty(andromedaMigrationNewJsoney(keyJsoney),andromedaMigrationNewJsoney(valueJsoney))},
-            sparkUser = workflow.settings.sparkSettings.sparkConf.sparkUser
-              .map( value => andromedaMigrationNewJsoney(value) ),
-            sparkLocalDir = workflow.settings.sparkSettings.sparkConf.sparkLocalDir
-              .map( value => andromedaMigrationNewJsoney(value) ),
-            executorDockerImage = workflow.settings.sparkSettings.sparkConf.executorDockerImage
-              .map( value => andromedaMigrationNewJsoney(value) ),
-            executorExtraJavaOptions = workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions
-              .map( value => andromedaMigrationNewJsoney(value) )
-          )},
+          submitArguments = {
+            workflow.settings.sparkSettings.submitArguments.copy(
+              driverJavaOptions = workflow.settings.sparkSettings.submitArguments.driverJavaOptions
+                .map(value => andromedaMigrationNewJsoney(value)),
+              userArguments = workflow.settings.sparkSettings.submitArguments.userArguments.map {
+                case UserSubmitArgument(keyJsoney, valueJsoney) =>
+                  UserSubmitArgument(andromedaMigrationNewJsoney(keyJsoney), andromedaMigrationNewJsoney(valueJsoney))
+              }
+            )
+          },
+          sparkConf = {
+            workflow.settings.sparkSettings.sparkConf.copy(
+              sparkResourcesConf = {
+                val sparkResConf = workflow.settings.sparkSettings.sparkConf.sparkResourcesConf
+                sparkResConf.copy(
+                  coresMax = sparkResConf.coresMax
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  executorMemory = sparkResConf.executorMemory
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  executorCores = sparkResConf.executorCores
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  driverCores = sparkResConf.driverCores
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  driverMemory = sparkResConf.driverMemory
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  mesosExtraCores = sparkResConf.mesosExtraCores
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  localityWait = sparkResConf.localityWait
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  taskMaxFailures = sparkResConf.taskMaxFailures
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  sparkMemoryFraction = sparkResConf.sparkMemoryFraction
+                    .map(value => andromedaMigrationNewJsoney(value)),
+                  sparkParallelism = sparkResConf.sparkParallelism
+                    .map(value => andromedaMigrationNewJsoney(value))
+                )
+              },
+              userSparkConf = workflow.settings.sparkSettings.sparkConf.userSparkConf.map {
+                case SparkProperty(keyJsoney, valueJsoney) =>
+                  SparkProperty(andromedaMigrationNewJsoney(keyJsoney), andromedaMigrationNewJsoney(valueJsoney))
+              },
+              sparkUser = workflow.settings.sparkSettings.sparkConf.sparkUser
+                .map(value => andromedaMigrationNewJsoney(value)),
+              sparkLocalDir = workflow.settings.sparkSettings.sparkConf.sparkLocalDir
+                .map(value => andromedaMigrationNewJsoney(value)),
+              executorDockerImage = workflow.settings.sparkSettings.sparkConf.executorDockerImage
+                .map(value => andromedaMigrationNewJsoney(value)),
+              executorExtraJavaOptions = workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions
+                .map(value => andromedaMigrationNewJsoney(value))
+            )
+          },
           killUrl = workflow.settings.sparkSettings.killUrl
-            .map( value => andromedaMigrationNewJsoney(value) )
+            .map(value => andromedaMigrationNewJsoney(value))
         )
 
         workflow.settings.copy(
@@ -216,6 +230,7 @@ class MigrationUtils private (private val refreshDB: Boolean, timeout : Int) {
       }
     )
     val orionWorkflow: Workflow = workflowWithJsoneySubstitution
-    orionWorkflow
+    val globalSetting = orionWorkflow.settings.global.copy(preExecutionSqlSentences = workflowWithJsoneySubstitution.settings.global.initSqlSentences)
+    orionWorkflow.copy(settings = orionWorkflow.settings.copy(global = globalSetting))
   }
 }

@@ -49,7 +49,7 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
   def cassiopeiaTemplatesMigrated(): Try[Seq[TemplateElement]] = {
     log.info(s"Migrating templates from Cassiopeia")
     Try {
-      if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
+      if (CuratorFactoryHolder.existsPath(AppConstant.TemplatesZkPath)) {
         templateService.findAll.filterNot(_.versionSparta.isDefined).map { template =>
           if (template.classPrettyName == "Select")
             migrateSelect(template)
@@ -74,7 +74,7 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
         cassiopeiaWorkflows.flatMap { cassiopeiaWorkFlow =>
           cassiopeiaWorkFlow.map { workflow =>
             Try {
-              val andromedaWorkflow : WorkflowAndromeda = workflow
+              val andromedaWorkflow: WorkflowAndromeda = workflow
               andromedaWorkflow
             } match {
               case Success(andromedaWorkflow) =>

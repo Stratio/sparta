@@ -6,7 +6,12 @@
 
 package com.stratio.sparta.serving.core.services.migration
 
+import scala.collection.JavaConversions
+import scala.util.{Failure, Success, Try}
+
 import akka.event.slf4j.SLF4JLogging
+import org.json4s.jackson.Serialization.read
+
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -14,10 +19,6 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow.migration.{EnvironmentAndromeda, WorkflowAndromeda}
 import com.stratio.sparta.serving.core.models.workflow.{Group, TemplateElement, Workflow}
-import org.json4s.jackson.Serialization.read
-
-import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
 
 class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
 
@@ -32,13 +33,12 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
     Try {
       val templates = if (CuratorFactoryHolder.existsPath(TemplatesZkPath)) {
         templateZkService.findAll.filter { template =>
-          template.versionSparta.isDefined && template.versionSparta.get == AndromedaVersion
+          template.versionSparta.isDefined &&
+            template.versionSparta.get.split('.')(1).forall(x => x.asDigit >= 2 && x.asDigit <= 3) //2.2.X-asdads 2.3.X.asdads
         } ++ cassiopeaTemplates
       } else cassiopeaTemplates
 
-      templates.map { template =>
-        template.copy(versionSparta = Some(version))
-      }
+      templates.map(MigrationUtils.migrationStart.fromAndromedaToOrionTemplate(_))
     }
   }
 
