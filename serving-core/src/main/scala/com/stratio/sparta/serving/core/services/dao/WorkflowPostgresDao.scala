@@ -347,6 +347,7 @@ class WorkflowPostgresDao extends WorkflowDao {
     for {
       _ <- deleteList(ids).removeInCache(ids: _*)
       _ <- Future.sequence(ids.map(debugDao.deleteDebugWorkflowByID))
+        .recover { case e: Exception => log.warn("Error deleting debugData", e) }
     } yield {
       log.info(s"Workflows with ids: ${
         ids.mkString(",")
