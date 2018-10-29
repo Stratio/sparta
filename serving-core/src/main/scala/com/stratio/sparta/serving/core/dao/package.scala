@@ -134,7 +134,7 @@ package object daoTables {
 
     def id = column[String]("id")
 
-    def workflowId = column[String]("workflowId")
+    def workflowId = column[String]("workflow_id")
 
     def step = column[String]("step")
 

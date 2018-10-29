@@ -82,7 +82,7 @@ class ExecutionActor()
   }
 
   def createDashboardView(user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> Status)) {
       executionPgService.createDashboardView()
     }
 

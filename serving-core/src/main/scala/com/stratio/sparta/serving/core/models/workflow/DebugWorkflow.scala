@@ -149,7 +149,7 @@ case class DebugWorkflow(
     val nodesNames = nodesInGraph.flatMap { node =>
       val nodes = Seq(
         node.name -> s"${index}_${debugOutputNode.name}_${node.name}",
-        SdkSchemaHelper.discardTableName(node.name) -> s"${index}_${debugOutputNode.name}_${node.name}")
+        SdkSchemaHelper.discardTableName(node.name) -> s"${index}_${debugOutputNodeDiscard.name}_${node.name}")
       index = index + "a"
       nodes
     }.toMap
