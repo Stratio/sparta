@@ -59,8 +59,7 @@ object AppConstant extends ZookeeperUtils {
   val AndromedaVersion = "2.3.0"
 
   //Debug Options
-  val DebugSparkWindow = 120000
-  val maxDebugTimeout = 10000
+  val DebugSparkWindow = 1000
   val maxDebugWriteErrorTimeout = 5000
 
   //Workflow

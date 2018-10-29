@@ -33,7 +33,9 @@ import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFa
 
 class LauncherActor(
                     statusListenerActor: ActorRef,
-                    parametersStateActor: ActorRef
+                    parametersStateActor: ActorRef,
+                    localLauncherActor: ActorRef,
+                    debugLauncherActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -104,11 +106,7 @@ class LauncherActor(
           log.info(s"Launching workflow: ${workflowWithContext.name} in cluster mode")
           clusterLauncherActor
         case WorkflowExecutionMode.local =>
-          val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflowWithContext.name}")
-          val childLauncherActor = context.children.find(children => children.path.name == actorName)
-          log.info(s"Launching workflow: ${workflowWithContext.name} in local mode")
-          childLauncherActor.getOrElse(
-            context.actorOf(Props(new LocalLauncherActor()), actorName))
+          localLauncherActor
         case _ =>
           throw new Exception(
             s"Invalid execution mode in workflow ${workflowWithContext.name}: " +
@@ -201,12 +199,7 @@ class LauncherActor(
       val dummyExecution = WorkflowExecution(
         genericDataExecution = GenericDataExecution(workflow, workflow, local, executionContext)
       )
-      val actorName = AkkaConstant.cleanActorName(s"DebugActor-${workflow.name}")
-      val childLauncherActor = context.children.find(children => children.path.name == actorName)
-      log.info(s"Debugging workflow: ${workflow.name}")
-      val workflowLauncherActor = childLauncherActor.getOrElse {
-        context.actorOf(Props(new DebugLauncherActor()), actorName)
-      }
+      val workflowLauncherActor = debugLauncherActor
 
       workflowLauncherActor ! StartDebug(dummyExecution)
       (workflow, workflowLauncherActor)

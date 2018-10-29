@@ -158,8 +158,6 @@ class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
             .map(value => andromedaMigrationNewJsoney(value)),
           blockInterval = workflow.settings.streamingSettings.blockInterval
             .map(value => andromedaMigrationNewJsoney(value)),
-          stopGracefulTimeout = workflow.settings.streamingSettings.stopGracefulTimeout
-            .map(value => andromedaMigrationNewJsoney(value)),
           checkpointSettings = workflow.settings.streamingSettings.checkpointSettings
             .copy(checkpointPath = andromedaMigrationNewJsoney(
               workflow.settings.streamingSettings.checkpointSettings.checkpointPath))

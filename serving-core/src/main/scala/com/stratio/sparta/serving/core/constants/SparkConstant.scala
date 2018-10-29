@@ -39,7 +39,6 @@ object SparkConstant {
   val SubmitDriverCalicoNetworkConf = "spark.mesos.driver.docker.network.name"
   val SubmitExecutorCalicoNetworkConf = "spark.mesos.executor.docker.network.name"
   val SubmitGracefullyStopConf = "spark.streaming.stopGracefullyOnShutdown"
-  val SubmitGracefullyStopTimeoutConf = "spark.streaming.gracefulStopTimeout"
   val SubmitAppNameConf = "spark.app.name"
   val SubmitSparkUserConf = "spark.mesos.driverEnv.SPARK_USER"
   val SubmitExecutorLogLevelConf = "spark.executorEnv.SPARK_LOG_LEVEL"

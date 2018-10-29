@@ -14,6 +14,8 @@ object AkkaConstant {
   val ClusterLauncherActorName = "clusterLauncherActor"
   val LauncherActorName = "launcherActor"
   val MarathonLauncherActorName = "marathonLauncherActor"
+  val LocalLauncherActorName = "localLauncherActor"
+  val DebugLauncherActorName = "debugLauncherActor"
   val PluginActorName = "pluginActor"
   val DriverActorName = "driverActor"
   val ControllerActorName = "controllerActor"

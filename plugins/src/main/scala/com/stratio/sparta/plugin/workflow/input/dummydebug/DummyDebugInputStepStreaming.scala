@@ -15,6 +15,7 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted}
 import org.apache.spark.streaming.test.DebugDStream
@@ -45,9 +46,8 @@ class DummyDebugInputStepStreaming(
     import scala.concurrent.ExecutionContext.Implicits.global
     lastFinishTask = Option(schedulerSystem.scheduler.schedule(0 milli, 50 milli)({
       if (stopApplication) {
-        log.info("Stopping Spark contexts")
+        SparkContextFactory.stopStreamingContext()
         lastFinishTask.foreach(_.cancel())
-        ssc.get.stop(stopSparkContext = false, stopGracefully = false)
       }
     }))
 

@@ -54,7 +54,6 @@ case class StreamingSettings(
                               backpressureMaxRate: Option[JsoneyString] = None,
                               blockInterval: Option[JsoneyString] = Option(JsoneyString("100ms")),
                               stopGracefully: Option[Boolean] = None,
-                              stopGracefulTimeout: Option[JsoneyString] = None,
                               checkpointSettings: CheckpointSettings = CheckpointSettings()
                             )
 
