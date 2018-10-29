@@ -90,16 +90,16 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
 
   private def orionWorkflowsMigration(): Unit = {
 
-    val cassiopeaWorkflows = cassiopeiaMigrationService.cassiopeaWorkflowsMigrated().getOrElse(Seq.empty)
-    val andromedaWorkflows = andromedaMigrationService.andromedaWorkflowsMigrated(cassiopeaWorkflows).getOrElse(Seq.empty)
+    val andromedaWorkflows = cassiopeiaMigrationService.cassiopeaWorkflowsMigrated().getOrElse(Seq.empty)
+    val orionWorkflows = andromedaMigrationService.andromedaWorkflowsMigrated(andromedaWorkflows).getOrElse(Seq.empty)
 
     Try {
-      Await.result(workflowPostgresService.upsertList(andromedaWorkflows), 20 seconds)
+      Await.result(workflowPostgresService.upsertList(orionWorkflows), 20 seconds)
     } match {
       case Success(_) =>
         log.info("Workflows migrated to Orion")
         Try {
-          andromedaWorkflows.foreach(workflow => workflowZkService.create(workflow))
+          orionWorkflows.foreach(workflow => workflowZkService.create(workflow))
           workflowZkService.deletePath()
         } match {
           case Success(_) =>
