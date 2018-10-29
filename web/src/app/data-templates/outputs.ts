@@ -29,7 +29,6 @@ import restTemplate from './outputs/rest.json';
 import textTemplate from './outputs/text.json';
 import xmlTemplate from './outputs/xml.json';
 
-
 export const outputs = [
     avroTemplate,
     cassandraTemplate,

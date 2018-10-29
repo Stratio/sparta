@@ -29,6 +29,7 @@ import filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import twitterJsonTemplate from './inputs/twitter-json.json';
 import restBatchTemplate from './inputs/restBatch.json';
 import restStreamingTemplate from './inputs/restStreaming.json';
+import sftpTemplate from './inputs/sftp.json';
 import testStreamingTemplate from './inputs/testStreaming.json';
 import testBatchTemplate from './inputs/testBatch.json';
 import xmlBatchTemplate from './inputs/xml.json';
@@ -62,7 +63,8 @@ export const inputs = [
     testBatchTemplate,
     testStreamingTemplate,
     xmlBatchTemplate,
-    websocketTemplate
+    websocketTemplate,
+    sftpTemplate
 ];
 
 

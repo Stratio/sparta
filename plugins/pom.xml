@@ -365,5 +365,38 @@ This software – including all its source code – contains proprietary informa
             <version>2.18.0</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.springml</groupId>
+            <artifactId>spark-sftp_${scala.binary.version}</artifactId>
+            <version>1.1.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-nop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.databricks</groupId>
+                    <artifactId>spark-avro_${scala.binary.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.databricks</groupId>
+                    <artifactId>spark-xml_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.springml</groupId>
+            <artifactId>sftp.client</artifactId>
+            <version>1.0.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

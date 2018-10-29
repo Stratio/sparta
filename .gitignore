@@ -12,6 +12,7 @@ syntax: glob
 *.swp
 *.lock
 *.st
+.attach_pid**
 *.flattened-pom.xml
 output.txt
 

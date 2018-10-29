@@ -50,5 +50,6 @@ export const icons: any = {
     DropNulls: '\ue084',
     QueryBuilder: '\uE932',
     Xml: '\ue969',
-    Rest: '\ue650'
+    Rest: '\ue650',
+    SFTP: '\uE97E'
 };

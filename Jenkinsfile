@@ -63,6 +63,14 @@ hose {
               'sleep': 20,
               'healthcheck': 27017
              ]
+            ],
+            ['SFTP': [
+               'image': 'atmoz/sftp',
+               'sleep': 20,
+               'healthcheck': 22,
+               'volumes': [
+               '/home/foo/upload:/home/foo/upload'],
+              ]
             ]
     ]
 
@@ -76,6 +84,9 @@ hose {
       |    -Dcassandra.hosts.0=%%CASSANDRA#0
       |    -Dcassandra.port=9042
       |    -Dmongo.host=%%MONGODB
+      |    -Dsftp.host=%%SFTP
+      |    -Dsftp.port=22
+      |    -Dsftp.volume=/home/foo/upload
       | """
 
     DEV = { config ->
