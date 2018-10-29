@@ -219,7 +219,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
       envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
         calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
-        intelligenceProperties
+        intelligenceProperties ++ marathonAppProperties
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -379,6 +379,10 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     sys.env.filterKeys { key =>
       key.contains("INTELLIGENCE")
     }.mapValues(value => JsString(value))
+
+  private def marathonAppProperties: Map[String, JsString] =
+    sys.env.filterKeys(key => key.startsWith("MARATHON_APP")).mapValues(value => JsString(value))
+
 
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] = {
     val submitExecution = execution.sparkSubmitExecution.get
