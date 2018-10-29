@@ -10,7 +10,7 @@ import { Action } from '@ngrx/store';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 
 import { iif, of, forkJoin, Observable } from 'rxjs';
-import { map, switchMap, mergeMap } from 'rxjs/operators';
+import { map, switchMap, mergeMap, catchError } from 'rxjs/operators';
 
 import * as inputActions from './../actions/input';
 import * as errorActions from 'actions/errors';
@@ -72,10 +72,10 @@ export class InputEffect {
    @Effect()
    createInput$: Observable<Action> = this.actions$
       .pipe(ofType(inputActions.CREATE_INPUT))
-      .pipe(switchMap((data: any) => this.templatesService.createTemplate(data.payload).mergeMap(() => [
+      .pipe(switchMap((data: any) => this.templatesService.createTemplate(data.payload).pipe(mergeMap(() => [
          new inputActions.CreateInputCompleteAction(),
          new inputActions.ListInputAction
-      ]).catch((error: any) => of(new errorActions.ServerErrorAction(error)))));
+      ])).pipe(catchError((error: any) => of(new errorActions.ServerErrorAction(error))))));
 
    @Effect()
    updateInput$: Observable<Action> = this.actions$

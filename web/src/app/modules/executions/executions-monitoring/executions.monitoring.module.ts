@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StTableModule,
     StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-    StPaginationModule, StTooltipModule, StFullscreenLayoutModule
+    StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StSpinnerModule
 } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
@@ -44,6 +44,7 @@ import { TranslateModule } from '@ngx-translate/core';
         StFullscreenLayoutModule,
         StTableModule,
         StTooltipModule,
+        StSpinnerModule,
         StBreadcrumbsModule,
         StSearchModule,
         ExecutionsRouterModule,

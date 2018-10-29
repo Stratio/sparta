@@ -40,6 +40,9 @@ export class ExecutionsTableComponent {
       { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
    ];
 
+   public loadingStates: string[] = ['Starting', 'Launched', 'Uploaded'];
+
+
    checkValue(event: any) {
       this.checkRow(event.checked, event.value);
    }

@@ -29,6 +29,8 @@ export class ExecutionsTableComponent {
    public fields: StTableHeader[];
    public Engine = Engine;
 
+   public loadingStates: string[] = ['Starting', 'Launched', 'Uploaded'];
+
    constructor(private route: Router, private _cd: ChangeDetectorRef) {
       this.fields = [
          { id: 'name', label: 'Name' },
