@@ -190,8 +190,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
           .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
         val window = AggregationTimeHelper.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
-        if(workflow.debugMode.isDefined && workflow.debugMode.get)
-          stopStreamingContext()
+
+        workflow.debugMode.filter(isDebug => isDebug).foreach(_ => stopStreamingContext())
+
         getOrCreateStreamingContext(Duration(window),
           workflowCheckpointPath.notBlank,
           workflow.settings.streamingSettings.remember.notBlank
