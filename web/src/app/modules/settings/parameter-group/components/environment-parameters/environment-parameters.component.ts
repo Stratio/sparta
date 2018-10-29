@@ -37,6 +37,8 @@ export class EnvironmentParametersComponent implements OnInit {
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
    @Output() deleteContext = new EventEmitter<any>();
    @Output() onDownloadParams = new EventEmitter<void>();
+   @Output() onUploadParams = new EventEmitter<any>();
+   @Output() emitAlert = new EventEmitter<any>();
 
 
   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
@@ -98,5 +100,23 @@ export class EnvironmentParametersComponent implements OnInit {
 
    downloadParams() {
     this.onDownloadParams.emit();
-}
+    }
+
+    uploadParams(params) {
+        const reader: FileReader = new FileReader();
+        reader.onload = (e) => {
+            const loadFile: any = reader.result;
+            try {
+                const environment = JSON.parse(loadFile);
+                if (!environment.parameterList || !environment.contexts) {
+                    throw new Error('JSON Environment incorrect schema');
+                } else {
+                    this.onUploadParams.emit(environment);
+                }
+            } catch (err) {
+                this.emitAlert.emit(err);
+            }
+        };
+        reader.readAsText(params[0]);
+    }
 }

@@ -25,6 +25,8 @@ import { GlobalParam } from './../../models/globalParam';
       (search)="searchGlobal($event)"
       [creationMode]="creationMode"
       (onDownloadParams)="downloadParams()"
+      (onUploadParams)="uploadParams($event)"
+      (emitAlert)="onEmitAlert($event)"
       ></global-parameters>
   `
 })
@@ -34,8 +36,6 @@ export class GlobalParametersContainer implements OnInit {
     public creationMode = false;
 
     constructor(private _store: Store<fromParameters.State>) { }
-
-
 
     ngOnInit(): void {
         this._init();
@@ -74,5 +74,13 @@ export class GlobalParametersContainer implements OnInit {
 
     downloadParams() {
         this._store.dispatch(new globalParamsActions.ExportGlobalParamsAction());
+    }
+
+    uploadParams(globals) {
+        this._store.dispatch(new globalParamsActions.ImportGlobalParamsAction(globals));
+    }
+
+    onEmitAlert(message) {
+        this._store.dispatch(new alertParametersActions.ShowAlertAction({ type: 'critical', text: message }));
     }
 }

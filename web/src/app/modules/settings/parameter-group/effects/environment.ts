@@ -15,8 +15,6 @@ import * as environmentParametersActions from './../actions/environment';
 import * as alertParametersActions from './../actions/alert';
 
 import { ParametersService } from 'app/services';
-import { CATCH_ERROR_VAR } from '@angular/compiler/src/output/output_ast';
-import { CONTEXT } from '@angular/core/src/render3/interfaces/view';
 import { generateJsonFile } from '@utils';
 
 @Injectable()
@@ -44,10 +42,10 @@ export class EnviromentParametersEffect {
          return this._parametersService.createParamList(newContext)
             .pipe(mergeMap((context: any) => [
                new environmentParametersActions.AddContextCompleteAction({ name: context.name, id: context.id }),
-               new alertParametersActions.ShowAlertAction('Context saved')
+               new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Context saved' })
             ]))
             .pipe(catchError(error => {
-                return of(new alertParametersActions.ShowAlertAction(error.errorCode && error.message ? error.message : 'Context can not save'));
+                return of(new alertParametersActions.ShowAlertAction(error.errorCode && error.message ? { type: 'critical', text: error.message } : { type: 'critical', text: 'Context can not save' } ));
             }));
       }));
 
@@ -95,19 +93,19 @@ export class EnviromentParametersEffect {
 
          observables.push(this._parametersService.updateParamList(updatedLists));
          return iif(() => exist ,
-            of(new alertParametersActions.ShowAlertAction('Params already exist')),
+            of(new alertParametersActions.ShowAlertAction({ type: 'warning', text: 'Parameters already exist' })),
             forkJoin(observables)
             .pipe(mergeMap((results: any) => {
                 const actions: Array<Action> = [];
                 if (results.length) {
                     actions.push(
                         new environmentParametersActions.ListEnvironmentParamsAction(),
-                        new alertParametersActions.ShowAlertAction('Params saved')
+                        new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameters saved' })
                     );
                 }
                 return actions;
             }))
-            .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Params can not save')))));
+            .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameters can not save' })))));
       }));
 
    @Effect()
@@ -123,9 +121,9 @@ export class EnviromentParametersEffect {
          return this._parametersService.updateParamList(updatedList)
             .pipe(mergeMap(context => [
                new environmentParametersActions.ListEnvironmentParamsAction(),
-               new alertParametersActions.ShowAlertAction('Param deleted')
+               new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameters deleted' })
             ]))
-            .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Param can not delete'))));
+            .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameters can not delete' }))));
       }));
 
    @Effect()
@@ -140,13 +138,13 @@ export class EnviromentParametersEffect {
             this._parametersService.updateParamList(context) :
             this._parametersService.createParamList(context);
             return iif(() => exist,
-                of(new alertParametersActions.ShowAlertAction('Context name already exist')),
+                of(new alertParametersActions.ShowAlertAction({ type: 'warning', text: 'Context name already exist' })),
                 saveContext
                 .pipe(mergeMap(res => [
                     new environmentParametersActions.ListEnvironmentParamsAction(),
-                    new alertParametersActions.ShowAlertAction('Context saved')
+                    new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Context saved' })
                 ]))
-                .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Context can not save')))));
+                .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Context can not save' })))));
       }));
 
       @Effect()
@@ -157,9 +155,9 @@ export class EnviromentParametersEffect {
             return this._parametersService.deleteList(context.id)
                .pipe(mergeMap(res => [
                   new environmentParametersActions.ListEnvironmentParamsAction(),
-                  new alertParametersActions.ShowAlertAction('Context deleted')
+                  new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Context deleted' })
                ]))
-               .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Context can not delete'))));
+               .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Context can not delete' }))));
          }));
 
     @Effect()
@@ -173,8 +171,24 @@ export class EnviromentParametersEffect {
                 }))
                 .pipe(catchError(error => from([
                     new environmentParametersActions.ExportEnvironmentParamsErrorAction(),
-                    new alertParametersActions.ShowAlertAction(error)
+                    new alertParametersActions.ShowAlertAction({ type: 'critical', text: error })
                 ]))))
+        );
+
+    @Effect()
+    importGlobal$: Observable<any> = this._actions$
+        .pipe(ofType(environmentParametersActions.IMPORT_ENVIRONMENT_PARAMS))
+        .pipe(map((action: any) => action.payload))
+        .pipe(switchMap((environment: any) =>
+            this._parametersService.updateParamList([environment.parameterList, ...environment.contexts])
+            .pipe(mergeMap(res => [
+                new environmentParametersActions.ListEnvironmentParamsAction(),
+                new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter upload successful' })
+             ]))
+            .pipe(catchError(error => from([
+                new environmentParametersActions.ImportEnvironmentParamsErrorAction(),
+                new alertParametersActions.ShowAlertAction({ type: 'critical', text: error })
+            ]))))
         );
 
 

@@ -14,33 +14,53 @@ import { GlobalParam } from './../../models/globalParam';
 })
 export class GlobalParametersComponent implements OnInit {
 
-   @Input() globalParams: GlobalParam[];
-   @Input() creationMode: boolean;
+    @Input() globalParams: GlobalParam[];
+    @Input() creationMode: boolean;
 
 
-   @Output() addGlobalParam =  new EventEmitter<any>();
-   @Output() saveParam = new EventEmitter<any>();
-   @Output() deleteParam = new EventEmitter<any>();
-   @Output() onDownloadParams = new EventEmitter<void>();
-   @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
+    @Output() addGlobalParam = new EventEmitter<any>();
+    @Output() saveParam = new EventEmitter<any>();
+    @Output() deleteParam = new EventEmitter<any>();
+    @Output() onDownloadParams = new EventEmitter<void>();
+    @Output() onUploadParams = new EventEmitter<any>();
+    @Output() search: EventEmitter<{ filter?: string, text: string }> = new EventEmitter<{ filter?: string, text: string }>();
+    @Output() emitAlert = new EventEmitter<any>();
 
-   constructor() { }
+    constructor() { }
 
-   ngOnInit(): void { }
+    ngOnInit(): void { }
 
-   addParam() {
-      this.addGlobalParam.emit();
-   }
+    addParam() {
+        this.addGlobalParam.emit();
+    }
 
-   saveGlobalParam(param) {
-      this.saveParam.emit(param);
-   }
+    saveGlobalParam(param) {
+        this.saveParam.emit(param);
+    }
 
-   deleteGlobalParam(param) {
-      this.deleteParam.emit(param);
-   }
+    deleteGlobalParam(param) {
+        this.deleteParam.emit(param);
+    }
 
-   downloadParams() {
-       this.onDownloadParams.emit();
-   }
+    downloadParams() {
+        this.onDownloadParams.emit();
+    }
+
+    uploadParams(params) {
+        const reader: FileReader = new FileReader();
+        reader.onload = (e) => {
+            const loadFile: any = reader.result;
+            try {
+                const global = JSON.parse(loadFile);
+                if (!global.variables) {
+                    throw new Error('JSON Global incorrect schema');
+                } else {
+                    this.onUploadParams.emit(global);
+                }
+            } catch (err) {
+                this.emitAlert.emit(err);
+            }
+        };
+        reader.readAsText(params[0]);
+    }
 }

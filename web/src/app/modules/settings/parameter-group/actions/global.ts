@@ -20,6 +20,9 @@ export const DELETE_NEW_GLOBAL_PARAMS = '[Global Params] Delete new global param
 export const EXPORT_GLOBAL_PARAMS = '[Global Params] Export global params';
 export const EXPORT_GLOBAL_PARAMS_COMPLETE = '[Global Params] Export global params complete';
 export const EXPORT_GLOBAL_PARAMS_ERROR = '[Global Params] Export global params error';
+export const IMPORT_GLOBAL_PARAMS = '[Global Params] Import global params';
+export const IMPORT_GLOBAL_PARAMS_COMPLETE = '[Global Params] Import global params complete';
+export const IMPORT_GLOBAL_PARAMS_ERROR = '[Global Params] Import global params error';
 
 export class ListGlobalParamsAction implements Action {
    readonly type = LIST_GLOBAL_PARAMS;
@@ -73,14 +76,29 @@ export class DeleteNewGlobalParamsAction implements Action {
     readonly type = EXPORT_GLOBAL_PARAMS;
     constructor() {}
   }
-  
+
   export class ExportGlobalParamsCompleteAction implements Action {
     readonly type = EXPORT_GLOBAL_PARAMS_COMPLETE;
     constructor() {}
   }
-  
+
   export class ExportGlobalParamsErrorAction implements Action {
     readonly type = EXPORT_GLOBAL_PARAMS_ERROR;
+    constructor() {}
+  }
+
+  export class ImportGlobalParamsAction implements Action {
+    readonly type = IMPORT_GLOBAL_PARAMS;
+    constructor(public payload: any) { }
+}
+
+  export class ImportGlobalParamsCompleteAction implements Action {
+    readonly type = IMPORT_GLOBAL_PARAMS_COMPLETE;
+    constructor() {}
+  }
+
+  export class ImportGlobalParamsErrorAction implements Action {
+    readonly type = IMPORT_GLOBAL_PARAMS_ERROR;
     constructor() {}
   }
 
@@ -94,4 +112,7 @@ export type Actions = ListGlobalParamsAction
   | DeleteNewGlobalParamsAction
   | ExportGlobalParamsAction
   | ExportGlobalParamsCompleteAction
-  | ExportGlobalParamsErrorAction;
+  | ExportGlobalParamsErrorAction
+  | ImportGlobalParamsAction
+  | ImportGlobalParamsCompleteAction
+  | ImportGlobalParamsErrorAction;

@@ -8,12 +8,12 @@ import * as alertParamsActions from './../actions/alert';
 
 export interface State {
    loading: boolean;
-   message: string;
+   message: any;
 }
 
 const initialState: State = {
    loading: false,
-   message: ''
+   message: { type: '', text: ''}
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -31,7 +31,7 @@ export function reducer(state: State = initialState, action: any): State {
       }
 
       case alertParamsActions.HIDE_ALERT: {
-         return { ...state, message: '' };
+         return { ...state, message: { type: '', text: ''} };
       }
 
       default:

@@ -167,7 +167,7 @@ export class CustomParametersEffect {
                     if (results.length) {
                         actions.push(
                             new customParametersActions.NavigateToListAction({ name }),
-                            new alertParametersActions.ShowAlertAction('Param saved')
+                            new alertParametersActions.ShowAlertAction('Parameter saved')
                         );
                     }
                     return actions;

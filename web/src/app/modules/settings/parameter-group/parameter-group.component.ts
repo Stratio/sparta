@@ -44,7 +44,7 @@ export class ParameterGroupComponent implements OnInit {
    ];
    public isLoading$: Observable<boolean>;
    public showAlert$: Observable<string>;
-   public alertMessage = '';
+   public alertMessage = { type: '', text: '' };
    public showAlert: boolean;
 
 
@@ -55,7 +55,7 @@ export class ParameterGroupComponent implements OnInit {
    ngOnInit() {
       this.isLoading$ = this._store.select(fromParameters.isLoading);
       this._store.select(fromParameters.showAlert).subscribe(alert => {
-         this.showAlert = !!alert;
+         this.showAlert = !!alert.text;
          if (alert) {
             this.alertMessage = alert;
             this.closeAlert();

@@ -43,12 +43,12 @@
       </form>
       <sparta-sidebar *ngIf="sidebarPosition"
         [style.right.px]="sidebarPosition"
-        class="sidebar"
+        class="sidebar egeo-title-medium"
         [isVisible]="true"
         [showCloseButton]="false"
         (onCloseSidebar)="showWorkflowInfo()">
           {{workflowName}}
-          <p class="egeo-title-giant">Parameter values</p>
+          <p class="param-value">Parameter values</p>
           <div class="categories">
             <div class="category" *ngIf="executionContexts && executionContexts.globalParameters.variables">
               <span class="toggle-category" (click)="toggleCategory('global')">

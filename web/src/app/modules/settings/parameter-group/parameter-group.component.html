@@ -2,11 +2,12 @@
    <div breadcrumb>
       <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="parameter-group-breadcrumb"></st-breadcrumbs>
    </div>
-   <sp-foreground-notifications alert class="notification" [status]="" [text]="alertMessage" [visible]="showAlert"></sp-foreground-notifications>
+   <sp-foreground-notifications alert class="notification" [status]="alertMessage.type" [text]="alertMessage.text" [visible]="showAlert"></sp-foreground-notifications>
 </tool-bar>
 <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
 <section class="container">
    <div class="tab-container">
+
       <st-horizontal-tabs class="parameter-group-categories" [options]="tabsOptions" qaTag="parameter-group-categories" (changedOption)="changeTabOption($event)"></st-horizontal-tabs>
    </div>
 

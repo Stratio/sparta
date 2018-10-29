@@ -51,11 +51,11 @@ export class GlobalParametersEffect {
             return this._parametersService.updateGlobalParameter(updateVariables)
                .pipe(mergeMap(res => [
                   new globalParametersActions.ListGlobalParamsAction(),
-                  new alertParametersActions.ShowAlertAction('Param save successful')
+                  new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter save successful' })
                ]))
-               .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Param can not save'))));
+               .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameter can not save' }))));
          } else {
-            return of(new alertParametersActions.ShowAlertAction('Param saved'));
+            return of(new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter saved' }));
          }
       }));
 
@@ -69,9 +69,9 @@ export class GlobalParametersEffect {
             return this._parametersService.deleteGlobalParameter(action.payload.param.name)
                 .pipe(mergeMap(res => from ([
                     new globalParametersActions.ListGlobalParamsAction(),
-                    new alertParametersActions.ShowAlertAction('Param delete successful')
+                    new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter delete successful' })
                 ])))
-                .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction('Param can not delete'))));
+                .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameter can not delete' }))));
         }));
 
     @Effect()
@@ -85,7 +85,23 @@ export class GlobalParametersEffect {
             }))
             .pipe(catchError(error => from([
                 new globalParametersActions.ExportGlobalParamsErrorAction(),
-                new alertParametersActions.ShowAlertAction(error)
+                new alertParametersActions.ShowAlertAction({ type: 'critical', text: error })
+            ]))))
+        );
+
+    @Effect()
+    importGlobal$: Observable<any> = this._actions$
+        .pipe(ofType(globalParametersActions.IMPORT_GLOBAL_PARAMS))
+        .pipe(map((action: any) => action.payload))
+        .pipe(switchMap((globals: any) =>
+            this._parametersService.updateGlobalParameter(globals)
+            .pipe(mergeMap(res => [
+                new globalParametersActions.ListGlobalParamsAction(),
+                new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter upload successful' })
+             ]))
+            .pipe(catchError(error => from([
+                new globalParametersActions.ImportGlobalParamsErrorAction(),
+                new alertParametersActions.ShowAlertAction({ type: 'critical', text: error })
             ]))))
         );
 

@@ -30,84 +30,94 @@ import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
       (saveEnvironmentContext)="onSaveEnvironmentContext($event)"
       [creationMode]="creationMode"
       (deleteContext)="onDeleteContext($event)"
-      (onDownloadParams)="downloadParams()"></environment-parameters>
+      (onDownloadParams)="downloadParams()"
+      (onUploadParams)="uploadParams($event)"
+      (emitAlert)="onEmitAlert($event)"
+      ></environment-parameters>
   `
 })
 export class EnvironmentParametersContainer implements OnInit {
-   public environmentParams$: Observable<GlobalParam[]>;
-   public environmentContexts$: Observable<string[]>;
-   public configContexts$: Observable<any[]>;
+    public environmentParams$: Observable<GlobalParam[]>;
+    public environmentContexts$: Observable<string[]>;
+    public configContexts$: Observable<any[]>;
 
-   public list$: Observable<any>;
-   public creationMode = false;
+    public list$: Observable<any>;
+    public creationMode = false;
 
 
-   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
+    constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
 
-   ngOnInit(): void {
-      this._init();
-   }
+    ngOnInit(): void {
+        this._init();
+    }
 
-   private _init() {
-      this._store.dispatch(new environmentParamsActions.ListEnvironmentParamsAction());
-      this.initRequest();
-      this.environmentParams$ = this._store.select(fromParameters.getEnvironmentVariables);
-      this.environmentContexts$ = this._store.select(fromParameters.getEnvironmentContexts);
+    private _init() {
+        this._store.dispatch(new environmentParamsActions.ListEnvironmentParamsAction());
+        this.initRequest();
+        this.environmentParams$ = this._store.select(fromParameters.getEnvironmentVariables);
+        this.environmentContexts$ = this._store.select(fromParameters.getEnvironmentContexts);
 
-      this.list$ = this._store.select(fromParameters.getListId);
+        this.list$ = this._store.select(fromParameters.getListId);
 
-      this._store.select(fromParameters.getEnvironmentIsCreating)
-         .subscribe((isCreating: boolean) => {
-            this.creationMode = isCreating;
-            this._cd.markForCheck();
-         });
-   }
+        this._store.select(fromParameters.getEnvironmentIsCreating)
+            .subscribe((isCreating: boolean) => {
+                this.creationMode = isCreating;
+                this._cd.markForCheck();
+            });
+    }
 
-   onAddContext(context) {
-      this._store.dispatch(new environmentParamsActions.AddContextAction(context.context));
-   }
-   onSaveParam(param) {
-      this.initRequest();
-      this._store.dispatch(new environmentParamsActions.SaveParam(param));
-   }
+    onAddContext(context) {
+        this._store.dispatch(new environmentParamsActions.AddContextAction(context.context));
+    }
+    onSaveParam(param) {
+        this.initRequest();
+        this._store.dispatch(new environmentParamsActions.SaveParam(param));
+    }
 
-   onAddEnvironmentParam() {
-      this._store.dispatch(new environmentParamsActions.AddEnvironmentParamsAction());
-   }
+    onAddEnvironmentParam() {
+        this._store.dispatch(new environmentParamsActions.AddEnvironmentParamsAction());
+    }
 
-   onDeleteParam(param) {
-      this.initRequest();
-      this._store.dispatch(new environmentParamsActions.DeleteEnviromentAction(param));
-   }
+    onDeleteParam(param) {
+        this.initRequest();
+        this._store.dispatch(new environmentParamsActions.DeleteEnviromentAction(param));
+    }
 
-   onChangeContext(context) {
-      this._store.dispatch(new environmentParamsActions.ChangeContextOptionAction(context));
-   }
+    onChangeContext(context) {
+        this._store.dispatch(new environmentParamsActions.ChangeContextOptionAction(context));
+    }
 
-   searchEnvironment(global) {
-      this._store.dispatch(new environmentParamsActions.SearchEnvironmentAction(global));
-   }
+    searchEnvironment(global) {
+        this._store.dispatch(new environmentParamsActions.SearchEnvironmentAction(global));
+    }
 
-   onAddEnvironmentContext() {
-      this._store.dispatch(new environmentParamsActions.AddEnvironmentContextAction());
-   }
+    onAddEnvironmentContext() {
+        this._store.dispatch(new environmentParamsActions.AddEnvironmentContextAction());
+    }
 
-   onSaveEnvironmentContext(context) {
-      const { list, value: { name } } = context;
-      if (list.name !== name) {
-         this._store.dispatch(new environmentParamsActions.SaveEnvironmentContext({ ...list, name }));
-      }
-   }
-   onDeleteContext(context) {
-      this._store.dispatch(new environmentParamsActions.DeleteContextAction(context));
-   }
+    onSaveEnvironmentContext(context) {
+        const { list, value: { name } } = context;
+        if (list.name !== name) {
+            this._store.dispatch(new environmentParamsActions.SaveEnvironmentContext({ ...list, name }));
+        }
+    }
+    onDeleteContext(context) {
+        this._store.dispatch(new environmentParamsActions.DeleteContextAction(context));
+    }
 
-   initRequest() {
-      this._store.dispatch(new alertParametersActions.ShowLoadingAction());
-   }
+    initRequest() {
+        this._store.dispatch(new alertParametersActions.ShowLoadingAction());
+    }
 
-   downloadParams() {
-    this._store.dispatch(new environmentParamsActions.ExportEnvironmentParamsAction());
-}
+    downloadParams() {
+        this._store.dispatch(new environmentParamsActions.ExportEnvironmentParamsAction());
+    }
 
+    uploadParams(environment) {
+        this._store.dispatch(new environmentParamsActions.ImportEnvironmentParamsAction(environment));
+    }
+
+    onEmitAlert(message) {
+        this._store.dispatch(new alertParametersActions.ShowAlertAction({ type: 'critical', text: message }));
+    }
 }
