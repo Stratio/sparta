@@ -140,7 +140,7 @@ class ExecutionActor()
     } yield {
       val authorizationId = execById.authorizationId
       authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
-        executionPgService.deleteByID(id)
+        executionPgService.deleteExecution(id)
       }
     }
   }

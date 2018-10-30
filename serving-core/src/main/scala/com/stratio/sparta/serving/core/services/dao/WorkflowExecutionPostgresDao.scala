@@ -6,6 +6,7 @@
 
 package com.stratio.sparta.serving.core.services.dao
 
+import java.lang.{Exception, RuntimeException}
 import java.util.UUID
 
 import com.github.nscala_time.time.OrderingImplicits._
@@ -192,13 +193,22 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   def deleteAllExecutions(): Future[Boolean] =
     for {
       executions <- findAllExecutions()
-      result <- deleteYield(executions)
+      canDelete = executions.forall{execution =>
+        val statuses = execution.statuses.map(_.state)
+        statuses.contains(Failed) || statuses.contains(Stopped)
+      }
+      result <- if(canDelete) {
+        deleteYield(executions)
+      } else throw new RuntimeException("Impossible to delete the executions, its statuses must be stopped or failed to perform this action")
     } yield result
 
   def deleteExecution(id: String): Future[Boolean] =
     for {
       execution <- findByIdHead(id)
-      result <- deleteYield(Seq(execution))
+      statuses = execution.statuses.map(_.state)
+      result <- if(!statuses.contains(Failed) || !statuses.contains(Stopped)) {
+        throw new RuntimeException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
+      } else deleteYield(Seq(execution))
     } yield result
 
   def setLaunchDate(execution: WorkflowExecution, date: DateTime): WorkflowExecution = {
