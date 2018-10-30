@@ -106,6 +106,7 @@ class LauncherActor(
           log.info(s"Launching workflow: ${workflowWithContext.name} in cluster mode")
           clusterLauncherActor
         case WorkflowExecutionMode.local =>
+          log.info(s"Launching workflow: ${workflowWithContext.name} in local mode")
           localLauncherActor
         case _ =>
           throw new Exception(

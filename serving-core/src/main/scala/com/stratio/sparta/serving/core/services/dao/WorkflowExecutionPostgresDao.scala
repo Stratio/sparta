@@ -6,7 +6,6 @@
 
 package com.stratio.sparta.serving.core.services.dao
 
-import java.lang.{Exception, RuntimeException}
 import java.util.UUID
 
 import com.github.nscala_time.time.OrderingImplicits._
@@ -111,7 +110,6 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
                     executionStatus: ExecutionStatusUpdate,
                     error: Option[WorkflowError]
                   ): WorkflowExecution = {
-    //synchronized {
     val updateFuture = findExecutionById(executionStatus.id).flatMap { actualExecutionStatus =>
       val actualStatus = actualExecutionStatus.lastStatus
       val inputExecutionStatus = executionStatus.status
@@ -164,9 +162,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
         newExecutionWithStatus
       case Failure(e) =>
-        throw new Exception(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
+        throw ServerException.create(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
     }
-    // }
   }
 
   def stopExecution(id: String): WorkflowExecution = {
@@ -203,16 +200,16 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     } yield result
 
   def deleteExecution(id: String): Future[Boolean] =
-    (for {
+    for {
       execution <- findByIdHead(id)
-      statuses = execution.statuses.map(_.state)
-      result = !(statuses.contains(Failed) || statuses.contains(Stopped))
-    } yield {
-      if (!result)
+      canDelete = {
+        val statuses = execution.statuses.map(_.state)
+        statuses.contains(Failed) || statuses.contains(Stopped)
+      }
+      result <- if(canDelete) {
         deleteYield(Seq(execution))
-      else
-        throw new ServerException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
-    }).flatMap(identity)
+      } else throw new ServerException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
+    } yield result
 
   def setLaunchDate(execution: WorkflowExecution, date: DateTime): WorkflowExecution = {
     val executionUpdated = execution.copy(

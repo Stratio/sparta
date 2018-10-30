@@ -61,6 +61,8 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       PostgresFactory.invokeInitializationDataMethods()
 
       if (Try(SpartaConfig.getDetailConfig().get.getBoolean("migration.enable")).getOrElse(true)) {
+        //await to data initialization in database
+        Thread.sleep(500)
         val migration = new OrionMigrationService()
         migration.executeMigration()
       }

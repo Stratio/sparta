@@ -87,6 +87,10 @@ This software – including all its source code – contains proprietary informa
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scala-library</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.scalanlp</groupId>
+                    <artifactId>breeze_${scala.binary.version}</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
