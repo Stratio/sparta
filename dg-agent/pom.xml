@@ -16,10 +16,6 @@ This software – including all its source code – contains proprietary informa
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dg-agent</artifactId>
 
-    <properties>
-        <dg.commons.version>0.8.0-e5198c1</dg.commons.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.stratio.governance</groupId>

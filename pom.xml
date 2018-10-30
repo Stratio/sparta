@@ -107,9 +107,11 @@ This software – including all its source code – contains proprietary informa
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata-auth-iface.version>0.3.0-b599046</crossdata-auth-iface.version>
         <gosec.dyplon.version>0.15.0-99ffc72</gosec.dyplon.version>
+        <gosec.dyplon.facade.version>0.1.0-3aabf87</gosec.dyplon.facade.version>
+        <dg.commons.version>0.8.0-9bf0b64</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.14.0-f72a042</crossdata.version>
+        <crossdata.version>2.14.0-a9ef60b</crossdata.version>
         <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
@@ -320,6 +322,13 @@ This software – including all its source code – contains proprietary informa
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
             </dependency>
+            <!-- Dyplon -->
+            <dependency>
+                <groupId>com.stratio.gosec</groupId>
+                <artifactId>dyplon-facade</artifactId>
+                <version>${gosec.dyplon.facade.version}</version>
+            </dependency>
+
             <!-- Spark -->
             <dependency>
                 <groupId>com.stratio.spark</groupId>
