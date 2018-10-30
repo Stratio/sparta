@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 2.4.0-20896fe (Built: October 24, 2018 | Pre-release)
+## 2.4.0-6cf5591 (Built: October 30, 2018 | Pre-release)
 
 * [SPARTA-2300] Lineage with N-executions model
 * Sparta metadata datastore migration from Zookeeper to Postgres
@@ -17,7 +17,7 @@
 * [SPARTA-2252] Data Governance catalog in Crossdata
 * [SPARTA-2253] Ignite final integration to cache Sparta metadata
 * [SPARTA-2247] Upgrade Crossdata to 2.14.0
-* [SPARTA-2287] Upgrade Spark to 2.2.0-2.0.0
+* [SPARTA-2287] Upgrade Spark to 2.2.0-2.1.0
 * Upgrade Mongo datasource to 0.13.1
 * [SPARTA-2157] Sparta cluster: multiple Sparta instances can be deployed
 * [SPARTA-2297] Orion migration process
