@@ -19,16 +19,19 @@ export class InitializeSchemaService {
          name: 'workflow-name',
          description: ''
       };
-      model.advancedSettings = {...model.advancedSettings, global: { parametersLists: ['Environment'] }};
-
-      value.advancedSettings.map((category: any) => {
+      model.advancedSettings = {};
+      value.advancedSettings.forEach((category: any) => {
          model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
       });
-      model.advancedSettings.global.parametersLists = ['Environment'];
-      console.log('setDefaultWorkflowSettings');
+      model.advancedSettings = {
+         ...model.advancedSettings,
+         global: {
+            ...model.advancedSettings.global,
+            parametersLists: ['Environment']
+         }
+      };
       return model;
    }
-
    public static getCategoryModel(value: any): any {
       const model: any = {};
       value.map((prop: any) => {

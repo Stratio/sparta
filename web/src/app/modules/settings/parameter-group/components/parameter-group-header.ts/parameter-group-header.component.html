@@ -5,7 +5,7 @@
             [debounce]="200" [minLength]="0" [value]="searchValue" (search)="onSearch.emit($event)" qaTag="filter-parameters"></st-search>
       </div>
       <div class="col-sm-2 right">
-         <form-file class="form-file" type="button-toolbar" [title]="importTitle" icon="icon-upload" (onFileUpload)="onUploadParams.emit($event)"></form-file>
+         <form-file class="form-file" type="button-toolbar" title="importTitle" icon="icon-upload" (onFileUpload)="onUploadParams.emit($event)"></form-file>
          <button class="button button-toolbar" id="download-params" (click)="onDownloadParams.emit()" [spTitle]="exportTitle">
             <i class="icon-download"></i>
          </button> 
