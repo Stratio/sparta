@@ -33,7 +33,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
    @Output() positionChange = new EventEmitter<WizardNodePosition>();
    @Output() onClickEvent = new EventEmitter();
    @Output() onDoubleClickEvent = new EventEmitter();
-   @Output() setDirty = new EventEmitter();
+
    private clicks = 0;
    private element: d3.Selection<any>;
    private lastUpdateCall: number;
@@ -52,7 +52,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
                   d3Event.sourceEvent.stopPropagation();
                   this._document.body.classList.add('dragging');
                   // set wizard state dirty (enable save button)
-                  this.setDirty.emit();
+                  this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
                }).on('end', () => {
                   this._document.body.classList.remove('dragging');
                }));

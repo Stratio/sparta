@@ -5,7 +5,7 @@
    (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)" [creationMode]="creationMode"></parameters-table>
 <st-fullscreen-layout *ngIf="showConfigContext" [title]="'Environment - Contexts'">
       <div class="st-fullscreen-layout-buttons">
-         <sp-foreground-notifications alert class="notification" [status]="" [text]="alertMessage" [visible]="showAlert"></sp-foreground-notifications>
+         <sp-foreground-notifications alert class="notification" [status]="alertMessage.type" [text]="alertMessage.text" [visible]="showAlert"></sp-foreground-notifications>
          <button class="button button-secondary-line" (click)="toggleConfigContext()">Close</button>
       </div>
 

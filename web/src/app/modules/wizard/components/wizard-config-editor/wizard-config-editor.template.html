@@ -20,7 +20,10 @@
       <button *ngIf="entityFormModel.classPrettyName === 'QueryBuilder'" class="button button-link-secondary visualQuery" [ngClass]="{'selected-button' : isShowedHelp}" (click)="visualQueryBuilder = !visualQueryBuilder">
          <i [ngClass]="visualQueryBuilder ? 'icon-spool' : 'icon-layout'"></i> {{ visualQueryBuilder ? 'Form mode' : 'Visual mode' }}
       </button>
-      <button *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'" class="button button-toolbar help-button" (click)="isShowedHelp = !isShowedHelp">
+      <button *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'" 
+        class="button button-toolbar help-button" 
+        [ngClass]="{'selected-button' : isShowedHelp}"
+        (click)="isShowedHelp = !isShowedHelp">
          <i class="icon-help2"></i>
       </button>
       <button *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'" class="show-catalog button button-toolbar" [ngClass]="{'selected-button' : isShowedInfo}" id="show-catalog-button"
@@ -33,7 +36,7 @@
       <button class="button button-primary" (click)="saveForm()" id="save-node-button">
          <span>{{'WIZARD.SAVE' | translate}}</span>
       </button>
-      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" [xPos]="-346" [yPos]="10" [helpOptions]="helpOptions"></sp-help>
+      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" [xPos]="-346" [yPos]="50" [helpOptions]="helpOptions"></sp-help>
    </div>
    <div class="st-fullscreen-layout-content">
       <div class="node-edition" >

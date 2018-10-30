@@ -51,8 +51,8 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
-                label: fragmentData.name,
-                value: fragmentData.name
+                label: fragmentData.classPrettyName,
+                value: fragmentData.classPrettyName
             };
         });
 

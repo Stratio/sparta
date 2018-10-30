@@ -47,6 +47,7 @@ export class RepositoryHeaderComponent implements OnChanges, OnDestroy {
    @Input() showDetails = false;
    @Input() notificationMessage: any;
    @Input() versionsListMode = false;
+   @Input() blockRunButton: boolean;
 
    @Output() downloadWorkflows = new EventEmitter();
    @Output() showWorkflowInfo = new EventEmitter();

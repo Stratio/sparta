@@ -24,10 +24,11 @@
       <div class="selection-actions">
         <div class="button options-button"
             id="new-execution"
+            [attr.disabled]="blockRunButton ? '' : null"
             *ngIf="selectedVersionsInner.length && selectedVersionsInner.length === 1 && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
             <div class="button-options"><!--
-                --><i class="primary-option icon-play" (click)="simpleRun()"></i><!--
-                --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="selectedExecution($event)">
+                --><i class="primary-option icon-play" (click)="!blockRunButton && simpleRun()"></i><!--
+                --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="!blockRunButton && selectedExecution($event)">
                     <div class="options">
                         <i class="icon-arrow4_down"></i>
                     </div>

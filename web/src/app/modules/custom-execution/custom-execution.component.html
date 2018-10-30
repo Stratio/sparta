@@ -1,7 +1,9 @@
 <st-fullscreen-layout [title]="'Custom Run'">
   <div class="st-fullscreen-layout-buttons">
     <button class="button button-secondary-line cancel-button" (click)="closeCustomExecution.emit()">{{'DASHBOARD.CANCEL' | translate}}</button>
-    <button class="button button-primary" [disabled]="executionForm.invalid" id="run-button" (click)="execute()">{{'DASHBOARD.RUN_NOW_BUTTON' | translate}}</button>
+    <button class="button button-primary" [attr.disabled]="blockRunButton || executionForm.invalid ? '' : null" 
+      id="run-button" 
+      (click)="execute()">{{'DASHBOARD.RUN_NOW_BUTTON' | translate}}</button>
   </div>
   <div class="st-fullscreen-layout-content">
     <div class="content">
@@ -35,7 +37,7 @@
             [required]="true"
             placeholder="Type the value here"
             *ngFor="let param of executionContexts.extraParams"
-            name="extraParams"
+            name="{{param}}"
             [(ngModel)]="form.extraParams[param]"
             [label]="param + ' value'"></st-input>
           </div>

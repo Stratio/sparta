@@ -1,4 +1,3 @@
-
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -70,6 +69,3 @@ export class ExecutionService extends ApiService {
 
 
 }
-
-
-

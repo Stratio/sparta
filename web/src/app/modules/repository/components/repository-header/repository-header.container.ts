@@ -10,7 +10,7 @@ import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State,  getVersionsOrderedList, getSelectedVersionsData, getNotificationMessage } from './../../reducers';
+import { State,  getVersionsOrderedList, getSelectedVersionsData, getNotificationMessage, getBlockRunButtonState } from './../../reducers';
 
 
 @Component({
@@ -23,6 +23,7 @@ import { State,  getVersionsOrderedList, getSelectedVersionsData, getNotificatio
             [versionsListMode]="versionsListMode"
             [notificationMessage]="notificationMessage$ | async"
             [showDetails]="showDetails"
+            [blockRunButton]="blockRunButton$ | async"
             (onEditVersion)="editVersion($event)"
             (downloadWorkflows)="downloadWorkflows()"
             (showWorkflowInfo)="showWorkflowInfo.emit()"
@@ -51,6 +52,8 @@ export class RepositoryHeaderContainer implements OnInit, OnDestroy {
     public workflowVersions$: Observable<any>;
     public selectedVersionsData$: Observable<any>;
     public notificationMessage$: Observable<any>;
+    public blockRunButton$: Observable<boolean>;
+
     private openedWorkflowSubscription: Subscription;
     private currentLevelSubscription: Subscription;
 
@@ -58,6 +61,7 @@ export class RepositoryHeaderContainer implements OnInit, OnDestroy {
         this.selectedVersionsData$ = this._store.select(getSelectedVersionsData);
         this.workflowVersions$ = this._store.select(getVersionsOrderedList);
         this.notificationMessage$ = this._store.select(getNotificationMessage);
+        this.blockRunButton$ = this._store.select(getBlockRunButtonState);
     }
 
     constructor(private _store: Store<State>, private _cd: ChangeDetectorRef, private route: Router) { }

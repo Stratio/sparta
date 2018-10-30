@@ -44,5 +44,6 @@
 <custom-execution-container (executeWorkflow)="executeWorkflow($event)"
     (closeCustomExecution)="closeCustomExecution()"
     [executionContexts]="executionContexts$ | async"
+    [blockRunButton]="blockRunButton$ | async"
     [workflowName]="selectedVersion && selectedVersion.data ? selectedVersion.data.name : ''"
     *ngIf="showExecutionConfig$ | async"></custom-execution-container>

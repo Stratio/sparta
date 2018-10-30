@@ -1,3 +1,5 @@
+@import '~@stratio/egeo/theme/constants';
+
 .separator {
    display: inline-block;
    width: 5px;
@@ -26,6 +28,10 @@ button {
     display: inline-block;
     color: #555;
     
+        &[disabled] {
+        background: $neutral-03;
+        border-color: transparent;
+    }
     &:hover {
         border-color: #b5b5b5;
     }

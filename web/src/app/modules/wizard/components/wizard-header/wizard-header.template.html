@@ -81,8 +81,8 @@
           <div class="" style="float:right">
             <div [attr.disabled]="isWorkflowDebugging ? '' : null" class="button multi-button" id="debug-mode">
               <div class="button-options"><!--
-                  --><i (click)="debugWorkflow()" spTitle="Run debug mode" class="primary-option icon-debug"></i><!--
-                  --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="selectedDebug($event)">
+                  --><i (click)="!isWorkflowDebugging && debugWorkflow()" spTitle="Run debug mode" class="primary-option icon-debug"></i><!--
+                  --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="!isWorkflowDebugging && selectedDebug($event)">
                       <div class="options">
                           <i class="icon-arrow4_down"></i>
                       </div>

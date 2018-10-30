@@ -28,6 +28,7 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
 
   @Input() executionContexts: any;
   @Input() workflowName: string;
+  @Input() blockRunButton: boolean;
 
   @Output() closeCustomExecution = new EventEmitter();
   @Output() executeWorkflow = new EventEmitter<any>();

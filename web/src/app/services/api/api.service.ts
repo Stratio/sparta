@@ -18,9 +18,9 @@ import { catchError, map } from 'rxjs/operators';
 
 
 export interface ApiRequestOptions {
-   method: string;
-   params?: Object;
-   body?: Object;
+  method: string;
+  params?: Object;
+  body?: Object;
 }
 
 let _expiredSession = false;
@@ -28,68 +28,72 @@ let _expiredSession = false;
 @Injectable()
 export class ApiService {
 
-   private requestOptions: any = {};
-   private sessionGetParam = 'refresh-session';
-   constructor(private http: HttpClient, private _store: Store<fromRoot.State>) { }
+  private requestOptions: any = {};
+  private sessionGetParam = 'refresh-session';
+  constructor(private http: HttpClient, private _store: Store<fromRoot.State>) { }
 
-   request(url: string, method: string, options: any): Observable<any> {
-      this.requestOptions = {};
-      if (options.params) {
-         this.requestOptions.search = this.generateParams(options.params);
+  request(url: string, method: string, options: any): Observable<any> {
+    this.requestOptions = {};
+    if (options.params) {
+      this.requestOptions.search = this.generateParams(options.params);
+    }
+
+    if (options.body) {
+      this.requestOptions.body = options.body;
+    }
+
+    this.requestOptions.responseType = 'text';
+    this.requestOptions.headers = new HttpHeaders({ timeout: `${20000}` });
+
+    return this.http.request(method, url, this.requestOptions).pipe(map((res: any) => {
+      try {
+        if (res === 'OK') {
+          return JSON.parse(JSON.stringify(res));
+        }
+        return JSON.parse(res);
+      } catch (error) {
+        if (res.indexOf('gosec-sso-ha') > -1) {
+          this._showLoginWindow();
+          throw new Error;
+        }
+        return res;
       }
 
-      if (options.body) {
-         this.requestOptions.body = options.body;
-      }
+    })).pipe(catchError(this.handleError.bind(this)));
 
-      this.requestOptions.responseType = 'text';
-      this.requestOptions.headers = new HttpHeaders({ timeout: `${20000}` });
+  }
 
-      return this.http.request(method, url, this.requestOptions).pipe(map((res: any) => {
-         try {
-            if (res === 'OK') {
-               return JSON.parse(JSON.stringify(res));
-            }
-            return JSON.parse(res);
-         } catch (error) {
-            if (res.indexOf('gosec-sso-ha') > -1) {
-               const refresh = this.getQueryParams(document.location.search)[this.sessionGetParam];
-               this._store.dispatch(new HttpErrorAction(''));
-               if (!refresh && !_expiredSession) {
-                  _expiredSession = true;
-                  const windowTop = (window.screen.height - 600) / 2;
-                  const windowLeft = (window.screen.width - 600) / 2;
-                  window.open('login?' + this.sessionGetParam + '=true', '_blank', `toolbar=yes,scrollbars=yes,resizable=yes, 
-                     top=${windowTop > 0 ? windowTop : 0},
-                     left=${windowLeft > 0 ? windowLeft : 0},
-                     width=600,height=600`);
-               }
-               throw new Error;
-            }
-            return res;
-         }
+  private _showLoginWindow() {
+    const refresh = this.getQueryParams(document.location.search)[this.sessionGetParam];
+    this._store.dispatch(new HttpErrorAction(''));
+    if (!refresh && !_expiredSession) {
+      _expiredSession = true;
+      const windowTop = (window.screen.height - 600) / 2;
+      const windowLeft = (window.screen.width - 600) / 2;
+      window.open('login?' + this.sessionGetParam + '=true', '_blank', `toolbar=yes,scrollbars=yes,resizable=yes, 
+        top=${windowTop > 0 ? windowTop : 0},
+        left=${windowLeft > 0 ? windowLeft : 0},
+        width=600,height=600`);
+    }
+  }
 
-      })).pipe(catchError(this.handleError));
+  private generateParams(params: any): URLSearchParams {
+    const object: URLSearchParams = new URLSearchParams();
 
-   }
+    Object.keys(params).map(function (objectKey: any, index: any): void {
+      const value: any = params[objectKey];
+      object.set(objectKey, value);
+    });
 
-   private generateParams(params: any): URLSearchParams {
-      const object: URLSearchParams = new URLSearchParams();
+    return object;
+  }
 
-      Object.keys(params).map(function (objectKey: any, index: any): void {
-         const value: any = params[objectKey];
-         object.set(objectKey, value);
-      });
-
-      return object;
-   }
-
- private getQueryParams(qs: string) {
+  private getQueryParams(qs: string) {
     qs = qs.split('+').join(' ');
 
-    let params = {},
-      tokens,
-      re = /[?&]?([^=]+)=([^&]*)/g;
+    const params = {};
+    let tokens;
+    const re = /[?&]?([^=]+)=([^&]*)/g;
 
     while (tokens = re.exec(qs)) {
       params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
@@ -99,6 +103,9 @@ export class ApiService {
   }
 
   private handleError(error: any): Observable<any> {
+    if (error && error.status && error.status === 0) {
+      this._showLoginWindow();
+    }
     return throwError(error);
   }
 }

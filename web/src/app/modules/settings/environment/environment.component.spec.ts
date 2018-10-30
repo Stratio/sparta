@@ -59,7 +59,7 @@ describe('[EnvironmentComponent]', () => {
       mockStoreInstance.next(initialStateValue);
    });
 
-   it('User can download the current version of environment variable list', () => {
+ /*   it('User can download the current version of environment variable list', () => {
       let newEnvironmentListStore = _cloneDeep(initialStateValue);
       let newEnvironmentVar = {
          name: 'NEW_ENVIRONMENT_VAR',
@@ -76,7 +76,7 @@ describe('[EnvironmentComponent]', () => {
 
       expect(aElement.href).toEqual('data:text/json;charset=utf-8,' + JSON.stringify(newEnvironmentListStore.environment.environment.environmentList));
       expect(aElement.download).toEqual(fakeDate.toString() + '.json');
-   });
+   }); */
 
    describe('User can upload a list of environment vars', () => {
       afterEach(() => {

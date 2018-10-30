@@ -18,6 +18,7 @@ import {
    template: `
     <custom-execution [workflowName]="workflowName"
       [executionContexts]="executionContexts"
+      [blockRunButton]="blockRunButton"
       (executeWorkflow)="executeWorkflow.emit($event)"
       (closeCustomExecution)="closeCustomExecution.emit()"></custom-execution>
   `,
@@ -27,6 +28,7 @@ import {
 export class CustomExecutionContainer implements OnInit {
    @Input() executionContexts: any;
    @Input() workflowName: string;
+   @Input() blockRunButton: boolean;
    @Output() closeCustomExecution = new EventEmitter();
    @Output() executeWorkflow = new EventEmitter<any>();
    ngOnInit(): void {

@@ -59,6 +59,7 @@ export class FloatingMenuComponent implements OnInit {
    selectedMenuOption($event: any) {
       this.selectedOption.emit($event);
       this.showMenu = false;
+      this.searchChange.emit('');
       this.menuOptionsComponent.searchBox.setValue('');
    }
 

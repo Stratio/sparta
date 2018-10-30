@@ -25,7 +25,8 @@ import {
    getLoadingState,
    getVersionsOrderedList,
    getShowExecutionConfig,
-   getExecutionContexts
+   getExecutionContexts,
+   getBlockRunButtonState
 } from './reducers';
 import { WorkflowsManagingService } from './workflows.service';
 import { DataDetails } from './models/data-details';
@@ -54,6 +55,7 @@ export class WorkflowsManagingComponent implements OnInit, AfterViewInit, OnDest
    public isLoading$: Observable<boolean>;
    public showExecutionConfig$: Observable<any>;
    public executionContexts$: Observable<any>;
+   public blockRunButton$: Observable<boolean>;
 
    public selectedWorkflowsIds: string[] = [];
    public breadcrumbOptions: string[] = [];
@@ -85,7 +87,7 @@ export class WorkflowsManagingComponent implements OnInit, AfterViewInit, OnDest
       this._modalService.container = this.target;
       this._store.dispatch(new workflowActions.ListGroupsAction());
       // this._store.dispatch(new workflowActions.ListGroupWorkflowsAction());
-
+      this.blockRunButton$ = this._store.select(getBlockRunButtonState);
       this.showExecutionConfig$ = this._store.select(getShowExecutionConfig);
       this.executionContexts$ = this._store.select(getExecutionContexts);
       this._workflowList$ = this._store.select(getWorkflowsOrderedList)

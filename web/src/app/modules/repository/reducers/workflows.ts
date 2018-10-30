@@ -41,6 +41,7 @@ export interface State {
    showExecutionConfig: boolean;
    executionContexts: any;
    searchQuery: string;
+   blockRun: boolean;
 }
 
 const initialState: State = {
@@ -72,7 +73,8 @@ const initialState: State = {
    },
    showExecutionConfig: false,
    executionContexts: null,
-   searchQuery: ''
+   searchQuery: '',
+   blockRun: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -520,6 +522,18 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             showExecutionConfig: false
+         };
+      }
+      case workflowActions.RUN_WORKFLOW: {
+         return {
+            ...state,
+            blockRun: true
+         };
+      }
+      case workflowActions.RUN_WORKFLOW_ERROR: case workflowActions.RUN_WORKFLOW_COMPLETE: case workflowActions.RUN_WORKFLOW_VALIDATION_ERROR: {
+         return {
+            ...state,
+            blockRun: false
          };
       }
       default:

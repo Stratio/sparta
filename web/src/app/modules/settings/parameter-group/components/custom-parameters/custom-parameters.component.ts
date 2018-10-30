@@ -52,7 +52,6 @@ export class CustomParametersComponent implements OnInit {
          this.showAlert = !!alert;
          if (alert) {
             this.alertMessage = alert;
-            this.closeAlert();
          } else {
             this._cd.markForCheck();
          }
@@ -121,7 +120,4 @@ export class CustomParametersComponent implements OnInit {
       this.deleteContext.emit(list);
    }
 
-   closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 3000);
-   }
 }

@@ -19,6 +19,7 @@ import { BackupType } from 'app/models/backup.model';
 import { ExecuteBackup } from './components/execute-backup/execute-backup.component';
 import { BreadcrumbMenuService } from 'services';
 import 'rxjs/add/operator/take';
+import { take } from 'rxjs/operators';
 
 @Component({
    selector: 'sparta-backups',
@@ -83,7 +84,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
          maxWidth: 500,
          message: this.deleteBackupModalMessage,
          messageTitle: this.deleteBackupModalMessageTitle
-      }).take(1).subscribe((response: any) => {
+      }).pipe(take(1)).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
          } else if (response === 0) {
@@ -140,7 +141,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
          maxWidth: 500,
          messageTitle: this.deleteAllBackupsModalMessageTitle,
          message: this.deleteAllBackupsModalMessage,
-      }).take(1).subscribe((response: any) => {
+      }).pipe(take(1)).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
          } else if (response === 0) {
@@ -160,7 +161,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
          buttons: buttons,
          maxWidth: 500,
          message: this.deleteMetadataModalMessage,
-      }).take(1).subscribe((response: any) => {
+      }).pipe(take(1)).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
          } else if (response === 0) {

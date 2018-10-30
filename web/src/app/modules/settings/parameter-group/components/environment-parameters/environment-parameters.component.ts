@@ -18,8 +18,8 @@ import * as environmentParametersActions from '../../actions/environment';
 export class EnvironmentParametersComponent implements OnInit {
 
    public showConfigContext = false;
-   public alertMessage = '';
-   public showAlert: boolean;
+   public alertMessage = { type: '', text: '' };
+   public showAlert = false;
 
    @Input() environmentParams: any;
    @Input() environmentContexts: string[];
@@ -45,10 +45,9 @@ export class EnvironmentParametersComponent implements OnInit {
 
    ngOnInit(): void {
       this._store.select(fromParameters.showAlert).subscribe(alert => {
-         this.showAlert = !!alert;
-         if (alert) {
+         this.showAlert = !!alert.text;
+         if (alert.text) {
             this.alertMessage = alert;
-            this.closeAlert();
          } else {
             this._cd.markForCheck();
          }
@@ -92,10 +91,6 @@ export class EnvironmentParametersComponent implements OnInit {
    }
    onDeleteContext(list) {
       this.deleteContext.emit(list);
-   }
-
-   closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 3000);
    }
 
    downloadParams() {

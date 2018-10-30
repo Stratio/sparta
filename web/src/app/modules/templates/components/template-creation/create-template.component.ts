@@ -102,6 +102,7 @@ export abstract class CreateTemplateComponent implements OnInit {
                 this.inputFormModel.classPrettyName = this.listData[i].classPrettyName;
                 this.inputFormModel.className = this.listData[i].className;
                 this.inputForm.form.markAsPristine();
+                this.helpOptions = this.initializeSchemaService.getHelpOptions(this.listData[this.fragmentIndex].properties);
                 return;
             }
         }

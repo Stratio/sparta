@@ -136,3 +136,4 @@ export const getLoadingState: any = createSelector(getWorkflowsEntityState, (sta
 export const getSavingState: any = createSelector(getWorkflowsEntityState, (state) => state.saving);
 export const getShowExecutionConfig = createSelector(getWorkflowsEntityState, state => state.showExecutionConfig);
 export const getExecutionContexts = createSelector(getWorkflowsEntityState, state => state.executionContexts);
+export const getBlockRunButtonState = createSelector(getWorkflowsEntityState, state => state.blockRun);

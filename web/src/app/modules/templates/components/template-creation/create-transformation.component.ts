@@ -88,8 +88,8 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
             transformationsTemplate.streamingTransformations;
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
-                label: fragmentData.name,
-                value: fragmentData.name
+                label: fragmentData.classPrettyName,
+                value: fragmentData.classPrettyName
             };
         });
         this.changeTemplateType(this.listData[0].name);

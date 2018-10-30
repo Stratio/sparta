@@ -58,7 +58,7 @@ export class ParameterGroupComponent implements OnInit {
          this.showAlert = !!alert.text;
          if (alert) {
             this.alertMessage = alert;
-            this.closeAlert();
+           
          } else {
             this._cd.markForCheck();
          }

@@ -25,7 +25,7 @@ export class FileReaderComponent implements OnInit {
             this.fileName = fileInput.target.files[0].name;
             this._cd.markForCheck();
             const reader = new FileReader();
-            reader.readAsText(fileInput.target.files[0]);
+            reader.readAsText(fileInput.target.files[0], 'UTF-8');
             reader.onload = (loadEvent: any) => {
                 this.changedFile.emit(loadEvent.target.result);
             };

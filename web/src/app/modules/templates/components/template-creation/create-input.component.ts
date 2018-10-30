@@ -55,8 +55,8 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
       this.fragmentTypes = this.listData.map((fragmentData: any) => {
          return {
-            label: fragmentData.name,
-            value: fragmentData.name
+            label: fragmentData.classPrettyName,
+            value: fragmentData.classPrettyName
          };
       });
 
