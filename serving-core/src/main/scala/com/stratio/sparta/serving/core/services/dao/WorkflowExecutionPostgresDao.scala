@@ -193,23 +193,26 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   def deleteAllExecutions(): Future[Boolean] =
     for {
       executions <- findAllExecutions()
-      canDelete = executions.forall{execution =>
+      canDelete = executions.forall { execution =>
         val statuses = execution.statuses.map(_.state)
         statuses.contains(Failed) || statuses.contains(Stopped)
       }
-      result <- if(canDelete) {
+      result <- if (canDelete) {
         deleteYield(executions)
-      } else throw new RuntimeException("Impossible to delete the executions, its statuses must be stopped or failed to perform this action")
+      } else throw new ServerException("Impossible to delete the executions, its statuses must be stopped or failed to perform this action")
     } yield result
 
   def deleteExecution(id: String): Future[Boolean] =
-    for {
+    (for {
       execution <- findByIdHead(id)
       statuses = execution.statuses.map(_.state)
-      result <- if(!statuses.contains(Failed) || !statuses.contains(Stopped)) {
-        throw new RuntimeException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
-      } else deleteYield(Seq(execution))
-    } yield result
+      result = !(statuses.contains(Failed) || statuses.contains(Stopped))
+    } yield {
+      if (!result)
+        deleteYield(Seq(execution))
+      else
+        throw new ServerException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
+    }).flatMap(identity)
 
   def setLaunchDate(execution: WorkflowExecution, date: DateTime): WorkflowExecution = {
     val executionUpdated = execution.copy(
