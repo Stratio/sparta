@@ -15,6 +15,7 @@ import { RepositoryHeaderComponent } from './repository-header.component';
 
 import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
 import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
+import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
 
 @NgModule({
    exports: [
@@ -30,6 +31,7 @@ import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
        MenuOptionsListModule,
        StBreadcrumbsModule,
        StForegroundNotificationsModule,
+       SpTitleModule,
        TranslateModule,
        ToolBarModule
     ]

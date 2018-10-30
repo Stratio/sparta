@@ -336,9 +336,6 @@ export function reducer(state: State = initialState, action: any): State {
             showModal: false
          };
       }
-      case workflowActions.RUN_WORKFLOW_COMPLETE: {
-         return { ...state };
-      }
       case workflowActions.SAVE_JSON_WORKFLOW: {
          return {
             ...state,
