@@ -36,7 +36,7 @@ export class EnviromentParametersEffect {
       .pipe(map((action: any) => action.payload))
       .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
       .pipe(switchMap(([name, state]) => {
-         const { environmentVariables: parameters, list: { name: parent } } = state;
+         const { allVariables: parameters, list: { name: parent } } = state;
          const newContext = { name, parent, parameters };
 
          return this._parametersService.createParamList(newContext)
@@ -56,20 +56,20 @@ export class EnviromentParametersEffect {
       .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
       .pipe(switchMap(([param, state]) => {
          const { name: oldParamName, value: { name: paramName, value, contexts } } = param;
-         const { environmentVariables, list, creationMode } = state;
-         const index = environmentVariables.findIndex(env => env.name === oldParamName);
-         const exist = environmentVariables.findIndex(env => env.name === paramName) !== -1 && creationMode;
+         const { list, creationMode, allVariables } = state;
+         const index = allVariables.findIndex(env => env.name === oldParamName);
+         const exist = allVariables.findIndex(env => env.name === paramName) !== -1 && creationMode;
          const { name, id } = list;
          const observables: any = [];
 
          const parameters = index !== -1 ?
-            [...environmentVariables.slice(0, index), { ...environmentVariables[index], ...param.value }, ...environmentVariables.slice(index + 1)] :
-            [...environmentVariables, param.value];
+            [...allVariables.slice(0, index), { ...allVariables[index], ...param.value }, ...allVariables.slice(index + 1)] :
+            [...allVariables, param.value];
          const updatedList = { name, id, parameters };
 
-         const oldContextsList = environmentVariables[index] && environmentVariables[index].contexts;
+         const oldContextsList = allVariables[index] && allVariables[index].contexts;
 
-         const updateContextList = oldContextsList
+         const updateContextList = oldContextsList ? oldContextsList
             .filter(c => !contexts.find(a => c.name === a.name))
             .map(context => ({
                 ...context,
@@ -78,16 +78,16 @@ export class EnviromentParametersEffect {
                     return { name: p.name, value: defaultContext ? defaultContext.value : p.value };
                 }),
                 parent: name
-            }));
+            })) : [];
 
-         const contextsList = contexts.map(context => ({
+         const contextsList = contexts ? contexts.map(context => ({
                ...context,
                parameters: parameters.map(p => {
                     const defaultContext = p.contexts.find(c => c.name === context.name);
                     return { name: p.name, value: defaultContext ? defaultContext.value : p.value };
                 }),
                parent: name
-         }));
+         })) : [];
 
          const updatedLists = [...updateContextList, ...contextsList, updatedList];
 
@@ -114,9 +114,9 @@ export class EnviromentParametersEffect {
       .pipe(map((action: any) => action.payload))
       .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
       .pipe(switchMap(([param, state]) => {
-         const { environmentVariables, list: { name, id } } = state;
-         const index = environmentVariables.findIndex(env => env.name === param.param.name);
-         const parameters = [...environmentVariables.slice(0, index), ...environmentVariables.slice(index + 1)];
+         const { allVariables, list: { name, id } } = state;
+         const index = allVariables.findIndex(env => env.name === param.param.name);
+         const parameters = [...allVariables.slice(0, index), ...allVariables.slice(index + 1)];
          const updatedList = { name, id, parameters };
          return this._parametersService.updateParamList(updatedList)
             .pipe(mergeMap(context => [

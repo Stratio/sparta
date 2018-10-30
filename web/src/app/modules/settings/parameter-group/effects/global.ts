@@ -37,26 +37,25 @@ export class GlobalParametersEffect {
       .pipe(map((action: any) => action.payload))
       .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.global)))
       .pipe(switchMap(([param, state]) => {
-         const { globalVariables } = state;
+          console.log('******');
+         const { allVariables } = state;
          const { name: oldName, value: { name, value } } = param;
-         const index = globalVariables.findIndex(env => env.name === oldName);
+         const index = allVariables.findIndex(env => env.name === oldName);
 
          const { contexts, ...paramWithoutContexts } = param.value;
          const parameters = index !== -1 ?
-            [...globalVariables.slice(0, index), paramWithoutContexts, ...globalVariables.slice(index + 1)] :
-            [...globalVariables, paramWithoutContexts];
+            [...allVariables.slice(0, index), paramWithoutContexts, ...allVariables.slice(index + 1)] :
+            [...allVariables, paramWithoutContexts];
          const updateVariables = { variables: parameters };
-         if (index !== -1 && (globalVariables[index].value !== value || globalVariables[index].name !== name)) {
+        
 
-            return this._parametersService.updateGlobalParameter(updateVariables)
-               .pipe(mergeMap(res => [
-                  new globalParametersActions.ListGlobalParamsAction(),
-                  new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter save successful' })
-               ]))
-               .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameter can not save' }))));
-         } else {
-            return of(new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter saved' }));
-         }
+        return this._parametersService.updateGlobalParameter(updateVariables)
+            .pipe(mergeMap(res => [
+                new globalParametersActions.ListGlobalParamsAction(),
+                new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter save successful' })
+            ]))
+            .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameter can not save' }))));
+         
       }));
 
     @Effect()

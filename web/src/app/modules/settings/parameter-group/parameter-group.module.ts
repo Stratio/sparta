@@ -33,6 +33,7 @@ import { ParametersTableComponent } from './components/parameters-table/paramete
 import { GlobalParametersEffect } from './effects/global';
 import { EnviromentParametersEffect } from './effects/environment';
 import { CustomParametersEffect } from './effects/custom';
+import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
 
 @NgModule({
    declarations: [
@@ -64,7 +65,8 @@ import { CustomParametersEffect } from './effects/custom';
       StDropdownMenuModule,
       StFullscreenLayoutModule,
       SpForegroundNotificationsModule,
-      StProgressBarModule
+      StProgressBarModule,
+      SpTitleModule
    ]
 })
 

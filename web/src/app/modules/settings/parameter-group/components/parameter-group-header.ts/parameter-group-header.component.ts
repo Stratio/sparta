@@ -25,9 +25,13 @@ export class ParameterGroupHeaderComponent implements OnInit {
   @Output() onSearch: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
   @Output() onConfigContext: EventEmitter<void> = new EventEmitter<void>();
 
-
+  public importTitle = 'Upload global variables';
+  public exportTitle = 'Download global variables';
 
   constructor() { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void { 
+      this.importTitle = this.withContext ? 'Upload environment variables' : 'Upload global variables';
+      this.exportTitle = this.withContext ? 'Download environment variables' : 'Download global variables';
+  }
 }
