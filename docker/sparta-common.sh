@@ -78,7 +78,7 @@ function initSparkEnvOptions() {
 
   if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
     HOST="$(hostname --all-ip-addresses|xargs)"
-    INFO "[COMMON] Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
+    INFO "[COMMON] Virtual network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
     export LIBPROCESS_IP=$HOST
   fi
 

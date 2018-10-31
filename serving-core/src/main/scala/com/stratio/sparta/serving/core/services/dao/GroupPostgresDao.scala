@@ -86,8 +86,8 @@ class GroupPostgresDao extends GroupDao {
                 workflows.map { workflow =>
                   val newWorkflow = WorkflowPostgresDao.addUpdateDate(
                     workflow.copy(
-                      groupId = Option(id),
-                      group = group
+                      groupId = groupToUpdate.id,
+                      group = Group(groupToUpdate.id, groupToUpdate.name.replaceFirst(oldGroup.name, group.name))
                     ))
                   workflowPgService.upsertAction(newWorkflow)
                 }

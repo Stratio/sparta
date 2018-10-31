@@ -362,17 +362,21 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
         case status if validStopStates.contains(status) =>
           val information = s"Checker: the workflow execution  stopped correctly"
           log.info(information.replace("  ", s" $id "))
-          executionService.updateStatus(ExecutionStatusUpdate(
-            id,
-            ExecutionStatus(state = NotDefined, statusInfo = Some(information))
-          ))
+          if(status != Failed) {
+            executionService.updateStatus(ExecutionStatusUpdate(
+              id,
+              ExecutionStatus(state = NotDefined, statusInfo = Some(information))
+            ))
+          }
         case _ =>
           val information = s"Checker: the workflow execution  has invalid state ${workflowExecution.lastStatus.state}"
           log.info(information.replace("  ", s" $id "))
-          executionService.updateStatus(ExecutionStatusUpdate(
-            id,
-            ExecutionStatus(state = Failed, statusInfo = Some(information))
-          ))
+          if(workflowExecution.lastStatus.state != Failed) {
+            executionService.updateStatus(ExecutionStatusUpdate(
+              id,
+              ExecutionStatus(state = Failed, statusInfo = Some(information))
+            ))
+          }
       }
 
       scheduledActions.filter(_._1 == id).foreach { task =>
