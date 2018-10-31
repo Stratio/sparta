@@ -29,10 +29,10 @@ export const SHOW_ENTITY_DEBUG_SCHEMA = '[Wizard] Show entity debug schema';
 export const SHOW_DEBUG_CONFIG = '[Wizard] Show debug config';
 export const HIDE_DEBUG_CONFIG = '[Wizard] Hide debug config';
 
-export const CONFIG_ADVANCED_EXECUTION = '[Workflow-Managing] Config advanced execution';
-export const CONFIG_ADVANCED_EXECUTION_COMPLETE = '[Workflow-Managing] Config advanced execution complete';
-export const CONFIG_ADVANCED_EXECUTION_ERROR = '[Workflow-Managing] Config advanced execution error';
-export const CANCEL_ADVANCED_EXECUTION = '[Workflow-Managing] Cancel advanced execution';
+export const CONFIG_ADVANCED_EXECUTION = '[Wizard] Config advanced execution';
+export const CONFIG_ADVANCED_EXECUTION_COMPLETE = '[Wizard] Config advanced execution complete';
+export const CONFIG_ADVANCED_EXECUTION_ERROR = '[Wizard] Config advanced execution error';
+export const CANCEL_ADVANCED_EXECUTION = '[Wizard] Cancel advanced execution';
 
 export class CancelAdvancedExecutionAction implements Action {
     readonly type = CANCEL_ADVANCED_EXECUTION;
