@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 2.4.0-6cf5591 (Built: October 30, 2018 | Pre-release)
+## 2.4.0-7175f42 (Built: October 31, 2018 | Pre-release)
 
 * [SPARTA-2300] Lineage with N-executions model
 * Sparta metadata datastore migration from Zookeeper to Postgres
