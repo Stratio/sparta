@@ -9,7 +9,7 @@ import akka.actor.ActorSystem
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.DataType
-import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
+import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow.{Group, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.ZookeeperUtils
 
@@ -168,11 +168,13 @@ object AppConstant extends ZookeeperUtils {
     new ParameterVariable("REDIS_HOST", "localhost"),
     new ParameterVariable("REDIS_PORT", "6379")
   )
+  val DefaultEnvironmentParametersMap = ParameterList.parametersToMap(DefaultEnvironmentParameters)
 
   //Example Custom Group parameters
   val CustomExampleParameterList = "Default"
   val CustomExampleParameterListId = Option("1b8d86a8-c7d5-11e8-a8d5-f2801f1b9fd1")
   val DefaultCustomExampleParameters = Seq.empty[ParameterVariable]
+  val DefaultCustomExampleParametersMap = ParameterList.parametersToMap(DefaultCustomExampleParameters)
 
   lazy val spartaFileEncoding: String =
     Properties.envOrElse(MarathonConstant.SpartaFileEncoding, MarathonConstant.DefaultFileEncodingSystemProperty)
@@ -197,4 +199,5 @@ object AppConstant extends ZookeeperUtils {
     new ParameterVariable("SPARK_TASK_MAX_FAILURES", "8"),
     new ParameterVariable("SPARK_MEMORY_FRACTION", "0.6")
   )
+  val DefaultGlobalParametersMap = ParameterList.parametersToMap(DefaultGlobalParameters)
 }

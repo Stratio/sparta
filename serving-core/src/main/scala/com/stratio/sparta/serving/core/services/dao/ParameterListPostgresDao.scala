@@ -52,7 +52,9 @@ class ParameterListPostgresDao extends ParameterListDao {
         !variablesNames.contains(variable.name)
       }
       log.debug(s"Variables not present in the custom defaults list: $variablesToAdd")
-      update(paramList.copy(parameters = variablesToAdd ++ paramList.parameters))
+      update(paramList.copy(
+        parameters = (DefaultCustomExampleParametersMap ++ ParameterList.parametersToMap(paramList.parameters)).values.toSeq
+      ))
     }
     environmentFuture.onFailure { case _ =>
       log.debug("Initializing environment list")
@@ -72,7 +74,9 @@ class ParameterListPostgresDao extends ParameterListDao {
         !variablesNames.contains(variable.name)
       }
       log.debug(s"Variables not present in the environment list: $variablesToAdd")
-      update(envList.copy(parameters = variablesToAdd ++ envList.parameters))
+      update(envList.copy(
+        parameters = (DefaultEnvironmentParametersMap ++ ParameterList.parametersToMap(envList.parameters)).values.toSeq
+      ))
     }
   }
 
