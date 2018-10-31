@@ -46,9 +46,17 @@ export class GlobalEffect {
                }
             } catch (e) { }
          }
-         return {
-            type: 'NO_ACTION'
-         };
+         if (err.error) {
+            return new errorsActions.ServerErrorCompleteAction({
+                title: 'Generic error',
+                description: err.error
+             });
+         } else {
+            return {
+                type: 'NO_ACTION'
+             };
+         }
+         
       }));
 
    constructor(

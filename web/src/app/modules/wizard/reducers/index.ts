@@ -129,7 +129,7 @@ export const getSelectedNodeSchemas = createSelector(
                 outputs: Object.keys(debugResult.steps)
                     .map(key => debugResult.steps[key])
                     .filter(output => output.error || (output.result.step && (output.result.step === selectedNode.name || output.result.step === selectedNode.name + '_Discard')))
-                    .sort((a, b) => a.result && a.result.step && a.result.step > b.result.step ? 1 : -1)
+                    .sort((a, b) => a.result && b.result  && a.result.step && a.result.step > b.result.step ? 1 : -1)
             };
         } else {
             return null;
