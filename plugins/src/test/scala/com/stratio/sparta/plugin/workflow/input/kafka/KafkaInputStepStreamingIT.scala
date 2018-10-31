@@ -17,8 +17,8 @@ import org.scalatest.junit.JUnitRunner
 class KafkaInputStepStreamingIT extends KafkaSuiteBase {
 
   val topics = Seq(
-    s"topicTest-${this.getClass.getName}-${UUID.randomUUID().toString}",
-    s"topicTest2-${this.getClass.getName}-${UUID.randomUUID().toString}"
+    s"topicTest-${UUID.randomUUID().toString}",
+    s"topicTest2-${UUID.randomUUID().toString}"
   )
 
   override def beforeAll(): Unit = {
@@ -66,9 +66,9 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
       distributedStream.ds.foreachRDD(rdd => {
         if (!rdd.isEmpty()) {
           val count = rdd.count()
-          log.info(s"EVENTS COUNT : $count")
+          log.info(s"EVENTS COUNT in read all the records: $count")
           totalEvents.add(count)
-        } else log.info("RDD is empty")
+        } else log.info("RDD is empty in read all the records")
         log.info(s"TOTAL EVENTS : $totalEvents")
       })
 
@@ -118,9 +118,9 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
       distributedStream.ds.foreachRDD(rdd => {
         if (!rdd.isEmpty()) {
           val count = rdd.count()
-          log.info(s"EVENTS COUNT : $count")
+          log.info(s"EVENTS COUNT in read all the records storing offset in kafka: $count")
           totalEvents.add(count)
-        } else log.info("RDD is empty")
+        } else log.info("RDD is empty in read all the records storing offset in kafka")
         log.info(s"TOTAL EVENTS : $totalEvents")
       })
 

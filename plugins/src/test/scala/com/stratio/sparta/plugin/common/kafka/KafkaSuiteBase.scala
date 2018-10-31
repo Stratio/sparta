@@ -35,7 +35,7 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
   /**
     * Spark Properties
     */
-  val DefaultSparkTimeOut = 3000L
+  val DefaultSparkTimeOut = 10000L
   val SparkTimeOut = DefaultSparkTimeOut
   val conf = new SparkConf()
     .setAppName("KafkaIntegrationTest")
@@ -84,7 +84,7 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
   }
 
   def stopSpark(): Unit = {
-    ssc.foreach(_.stop())
+    ssc.foreach(_.stop(false, true))
     sc.foreach(_.stop())
 
     System.gc()

@@ -22,8 +22,8 @@ import org.scalatest.junit.JUnitRunner
 class KafkaOutputStepIT extends KafkaSuiteBase {
 
   val topics = Seq(
-    s"topicTest-${this.getClass.getName}-${UUID.randomUUID().toString}",
-    s"topicTest2-${this.getClass.getName}-${UUID.randomUUID().toString}"
+    s"topicTest-${UUID.randomUUID().toString}",
+    s"topicTest2-${UUID.randomUUID().toString}"
   )
 
   override def beforeAll(): Unit = {
