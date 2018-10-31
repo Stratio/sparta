@@ -104,7 +104,7 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
           if (DefaultEnvironmentParameters.exists(parameter => parameter.name == variable.name))
             Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
+        }.map(parameter => parameter.name -> parameter).toMap
         val globalVariables = environmentAndromeda.variables.flatMap { variable =>
           if (DefaultGlobalParameters.exists(parameter => parameter.name == variable.name))
             if (variable.name == "SPARK_EXECUTOR_BASE_IMAGE" && (variable.value == "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0" || variable.value == "qa.stratio.com/stratio/stratio-spark:2.2.0.5"))
@@ -115,12 +115,12 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
               Option(ParameterVariable(variable.name, Option("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC")))
             else Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
+        }.map(parameter => parameter.name -> parameter).toMap
         val defaultCustomVariables = environmentAndromeda.variables.flatMap { variable =>
           if (DefaultCustomExampleParameters.exists(parameter => parameter.name == variable.name))
             Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
+        }.map(parameter => parameter.name -> parameter).toMap
         val orphanedVariables = environmentAndromeda.variables.flatMap { variable =>
           if (!DefaultEnvironmentParameters.exists(parameter => parameter.name == variable.name) &&
             !DefaultGlobalParameters.exists(parameter => parameter.name == variable.name) &&
@@ -128,19 +128,22 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
           )
             Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
+        }.map(parameter => parameter.name -> parameter).toMap
+        val defaultEnvParametersMap = DefaultEnvironmentParameters.map(parameter => parameter.name -> parameter).toMap
+        val defaultCustomParametersMap = DefaultCustomExampleParameters.map(parameter => parameter.name -> parameter).toMap
+        val defaultGlobalParametersMap = DefaultGlobalParameters.map(parameter => parameter.name -> parameter).toMap
         val environmentParameterList = ParameterList(
           id = EnvironmentParameterListId,
           name = EnvironmentParameterListName,
-          parameters = environmentVariables ++ orphanedVariables
+          parameters = (defaultEnvParametersMap ++ orphanedVariables ++ environmentVariables).values.toSeq
         )
         val defaultCustomParameterList = ParameterList(
           id = CustomExampleParameterListId,
           name = CustomExampleParameterList,
-          parameters = defaultCustomVariables
+          parameters = (defaultCustomParametersMap ++ defaultCustomVariables).values.toSeq
         )
 
-        (GlobalParameters(globalVariables), environmentParameterList, defaultCustomParameterList, environmentAndromeda)
+        (GlobalParameters((defaultGlobalParametersMap ++ globalVariables).values.toSeq), environmentParameterList, defaultCustomParameterList, environmentAndromeda)
       }
     }
   }
