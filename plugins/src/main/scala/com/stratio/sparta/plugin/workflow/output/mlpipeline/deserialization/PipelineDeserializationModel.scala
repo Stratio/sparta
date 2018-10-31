@@ -11,7 +11,7 @@ import org.apache.spark.ml.param.Param
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JBool
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 
 /** Custom json4s serializator/deserializator for boolean values threated as strings */
@@ -47,12 +47,24 @@ case class PipelineStageDescriptor(
 //noinspection ScalaStyle
 object MlPipelineDeserializationUtils {
 
-  def nullOrEmpty(value: JsoneyString): Boolean = (value == null)||(value.toString.trim == "")
-
-  //TODO filter out only optional parameters
-  def okParam(value: JsoneyString): Boolean = (value != null)&&(value.toString.trim != "")
+  def nullOrEmpty(value: JsoneyString): Boolean = (value == null)||(value.toString == null)||(value.toString.trim == "")
 
   def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
+      param.getClass().getSimpleName match {
+        case "BooleanParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toBoolean
+        case "LongParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toLong
+        case "DoubleParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toDouble
+        case "FloatParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toFloat
+        case "IntParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toInt
+        case "StringArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.split(",").map(_.trim)
+        case "DoubleArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.split(",").map(_.trim.toDouble)
+        case "IntArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.split(",").map(_.trim.toInt)
+        case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString
+        case _ => throw new Exception("Unknown parameter type")
+    }
+  }
+
+  def decodeParamType(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
     param.getClass().getSimpleName match {
       case "BooleanParam" => if (nullOrEmpty(value)) "Boolean" else value.toString.toBoolean
       case "LongParam" => if (nullOrEmpty(value)) "Long" else value.toString.toLong

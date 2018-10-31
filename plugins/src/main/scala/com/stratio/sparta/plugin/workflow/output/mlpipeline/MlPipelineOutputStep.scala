@@ -112,7 +112,7 @@ class MlPipelineOutputStep(
     }
 
     // · Non provided pipeline Json descriptor
-    if (pipelineJson.isEmpty)
+    if (pipelineJson.isEmpty )
       validation = addValidationError(validation, ValidationErrorMessages.emptyJsonPipelineDescriptor)
 
     // · Error de-serializing pipeline Json descriptor
@@ -124,8 +124,13 @@ class MlPipelineOutputStep(
         ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor + s" ${error.getMessage}")
     }
 
+    //pipeline graph is defined? (check is it has no nodes)
+    if (pipelineGraph.isSuccess && pipelineGraph.get.nodes.isEmpty) {
+      validation = addValidationError(validation, ValidationErrorMessages.emptyJsonPipelineDescriptor)
+    }
+
     //validate the PipelineGraph
-    if (pipelineGraph.isSuccess && pipelineDescriptor.isFailure) {
+    if (pipelineGraph.isSuccess && !pipelineGraph.get.nodes.isEmpty && pipelineDescriptor.isFailure) {
       val error = pipelineDescriptor match {
         case Failure(f) => f
       }
@@ -266,21 +271,26 @@ class MlPipelineOutputStep(
 
         // · Set parameters of SparkML PipelineStage instance
         // fiter out parameters with null or empty values
-        val parameterValidator: Seq[Try[Params]] = stageDescriptor.properties.filter((t) => MlPipelineDeserializationUtils.okParam(t._2)).map { case (paramName, paramValue) => Try {
+        val parameterValidator: Seq[Try[Params]] = stageDescriptor.properties.map { case (paramName, paramValue) => Try {
           // - Getting parameter from PipelineStage using its name
           val paramToSet: Param[Any] = Try(stage.asInstanceOf[Params].getParam(paramName)
           ).getOrElse(throw new Exception(
             s"PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})' " +
               s"don't have a parameter named '$paramName'."))
           // - Getting value of parameter decoding the string value set in PipelineStageDescriptor
-          Try {
             val valueToSet = MlPipelineDeserializationUtils.decodeParamValue(paramToSet, paramValue)
-            stage.asInstanceOf[Params].set(paramToSet, valueToSet.get)
-          }.getOrElse(throw new Exception(
-            s"Parameter '$paramName' of PipelineStage " +
-              s"'${stageDescriptor.name}@id(${stageDescriptor.uid})' has an invalid value " +
-              s"(it must be a ${MlPipelineDeserializationUtils.decodeParamValue(paramToSet).get})."
-          ))
+            valueToSet match{
+            case Failure(t) => throw new Exception(
+              t.getMessage + s" of PipelineStage " +
+                s"'${stageDescriptor.name}@id(${stageDescriptor.uid})'")
+            case Success(s) =>           Try {
+              stage.asInstanceOf[Params].set(paramToSet, s)
+            }.getOrElse(throw new Exception(
+              s"Parameter '$paramName' of PipelineStage " +
+                s"'${stageDescriptor.name}@id(${stageDescriptor.uid})' has an invalid value " +
+                s"(it must be a ${MlPipelineDeserializationUtils.decodeParamType(paramToSet).get})."
+            ))
+          }
         }
         }.toSeq
 

@@ -18,8 +18,8 @@ object ValidationErrorMessages {
   val errorUrlMessage = "It's mandatory to specify the model repository URL."
 
   // => Json pipeline descriptor
-  val emptyJsonPipelineDescriptor = "The pipeline descriptor is mandatory."
-  val invalidJsonFormatPipelineDescriptor = "Unable to parse AI pipeline json descriptor."
+  val emptyJsonPipelineDescriptor = "The Machine Learning Pipeline is empty."
+  val invalidJsonFormatPipelineDescriptor = "Unable to build Machine Learning pipeline."
   val invalidJsonFormatPipelineGraphDescriptor = "Unable to parse pipelineGraph json descriptor."
 
   // => Pipeline Graph validation Errors
@@ -31,5 +31,5 @@ object ValidationErrorMessages {
     s"node '$nodeName' in Pipeline Graph has more than one output"
 
   // => Building pipeline
-  val errorBuildingPipelineInstance = "The pipeline has not been built correctly."
+  val errorBuildingPipelineInstance = "The pipeline is not correctly defined (check Pipeline graph)."
 }
