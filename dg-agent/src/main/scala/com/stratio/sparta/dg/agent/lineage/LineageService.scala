@@ -50,15 +50,15 @@ class LineageService(executionStatusChangeListenerActor: ActorRef) extends Actor
   }
 
   override def receive: Receive = {
-    case m: StoredMetadata => log.warn(s"Receiving StoredMetadata message from lineage ${m.newMetadata.mkString(",")}")
-    case m: RemovedMetadata => log.warn(s"Receiving RemovedMetadata message from lineage ${m.removedMetadata.mkString(",")}")
-    case m: FailedMetadata => log.warn(s"Receiving FailedMetadata message from lineage ${m.failedMetadata.mkString(",")}")
+    case m: StoredMetadata => log.debug(s"Receiving StoredMetadata message from lineage ${m.newMetadata.mkString(",")}")
+    case m: RemovedMetadata => log.debug(s"Receiving RemovedMetadata message from lineage ${m.removedMetadata.mkString(",")}")
+    case m: FailedMetadata => log.error(s"Receiving FailedMetadata message from lineage ${m.failedMetadata.mkString(",")}")
     case _ => log.error("Unrecognized message in LineageService Actor")
   }
 
   private def extractTenantMetadata(): Unit = {
     if (isThisNodeClusterLeader(cluster)) {
-      log.info(s"Sending tenant lineage")
+      log.debug(s"Sending tenant lineage")
       Try(LineageUtils.tenantMetadataLineage()) match {
         case Success(tenantMetadataList) =>
           senderPostgres ! NewEvent(tenantMetadataList)
