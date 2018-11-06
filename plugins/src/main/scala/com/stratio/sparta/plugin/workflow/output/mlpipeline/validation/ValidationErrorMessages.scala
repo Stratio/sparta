@@ -14,7 +14,9 @@ object ValidationErrorMessages {
   // - Ml-Model-Repository
   val nonDefinedMlRepoConnection = "The url and the model name are mandatory in Ml-Model-Repository save mode."
   val mlModelRepConnectionError = "Error while connecting to external Ml-Model-Repository."
+  val mlModelModelName = "Model Name is mandatory in Ml-Model-Repository save mode."
   val mlModelRepModelAlreadyExistError = "There exists a model with the same name."
+  val mlModelRepModelInvalidModelName = "Model Name is invalid."
   val errorUrlMessage = "It's mandatory to specify the model repository URL."
 
   // => Json pipeline descriptor

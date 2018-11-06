@@ -76,6 +76,7 @@ class MlPipelineOutputStep(
     */
   //noinspection ScalaStyle
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    val mlModelNameRegExpr = raw"^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])|(\\.|\\.\\.)".r
     def addValidationError(validation: ErrorValidations, error: String): ErrorValidations =
       ErrorValidations(valid = false, messages = validation.messages :+ WorkflowValidationMessage(error, name))
 
@@ -92,9 +93,14 @@ class MlPipelineOutputStep(
 
       // => Ml-Model-Repository
       if ((outputMode.get == MlPipelineSaveMode.MODELREP) || (outputMode.get == MlPipelineSaveMode.BOTH)) {
-        if (externalMlModelRepositoryUrl.isEmpty || externalMlModelRepositoryModelName.isEmpty) {
-          validation = addValidationError(validation, ValidationErrorMessages.nonDefinedMlRepoConnection)
+        if (externalMlModelRepositoryModelName.isEmpty) {
+          validation = addValidationError(validation, ValidationErrorMessages.mlModelModelName)
         } else {
+          externalMlModelRepositoryModelName.get match {
+            //check if the model name is valid //TODO this check should be done in Front
+            case mlModelNameRegExpr(_*) => None
+            case _ => validation = addValidationError(validation, ValidationErrorMessages.mlModelRepModelInvalidModelName)
+          }
           // · If validate Ml-Model-repository external connection during creation time is enabled
           validation = if (validateConnectionMlModelrep) {
             mlModelRepClient match {
