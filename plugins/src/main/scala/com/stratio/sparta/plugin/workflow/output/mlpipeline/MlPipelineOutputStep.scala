@@ -156,7 +156,10 @@ class MlPipelineOutputStep(
     // · Error building SparkML Pipeline instance
     if (pipelineDescriptor.isSuccess && pipeline.isFailure) {
       val errors: Seq[WorkflowValidationMessage] = pipeline match {
-        case Failure(f) => f.getMessage.split("\\n").map(m => WorkflowValidationMessage(s"· $m", name)).toSeq
+        case Failure(f) => {
+          f.getMessage.split("\\n").map(m => WorkflowValidationMessage(m.split(errors_separator).last, m.split(errors_separator).head)).toSeq
+        }
+
       }
       validation = ErrorValidations(
         valid = false,
@@ -282,15 +285,15 @@ class MlPipelineOutputStep(
         val stage = Try {
           assert(stageDescriptor.className.startsWith("org.apache.spark.ml"))
           Class.forName(stageDescriptor.className).getConstructor(classOf[String]).newInstance(stageDescriptor.uid)
-        }.getOrElse(throw new Exception(
-                      s"Error instantiating PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})': " +
-                        s"invalid 'className=${stageDescriptor.className}'"))
+        }.getOrElse(throw new Exception(s"${stageDescriptor.uid}" + errors_separator +
+          s"Error instantiating PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})': " +
+          s"invalid 'className=${stageDescriptor.className}'"))
 
         // · validate pipeline whether is supported by mleap
         if (forbbidenStages.contains(stageDescriptor.className.split('.').toSeq.last)
           && (serializationLib == MlPipelineSerializationLibs.MLEAP
           || serializationLib == MlPipelineSerializationLibs.SPARK_AND_MLEAP)) {
-            throw new Exception(ValidationErrorMessages.stageNotSupportedMleap(stageDescriptor.className))
+          throw new Exception(ValidationErrorMessages.stageNotSupportedMleap(stageDescriptor.className))
         }
 
         // · Set parameters of SparkML PipelineStage instance
@@ -300,22 +303,24 @@ class MlPipelineOutputStep(
           .map { case (paramName, paramValue) => {
             // - Getting parameter from PipelineStage using its name
             val paramToSet: Param[Any] = Try(stage.asInstanceOf[Params].getParam(paramName))
-              .getOrElse(throw new Exception(s"PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})' " +
-                                               s"don't have a parameter named '$paramName'."))
+              .getOrElse(throw new Exception(s"${stageDescriptor.uid}" + errors_separator + s"PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})' " +
+                s"don't have a parameter named '$paramName'."))
             // - Getting value of parameter decoding the string value set in PipelineStageDescriptor
             decodeParamValue(paramToSet, paramValue)
               .transform(
                 s => Try(stage.asInstanceOf[Params].set(paramToSet, s)),
-                f => Failure(throw new Exception(f.getMessage + s" of PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})'"))
+                f => Failure(throw new Exception(
+                  s"${stageDescriptor.uid}" + errors_separator + f.getMessage +
+                    s" of PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})'"))
               ).transform(
-                s => Success(s),
-                f => Failure(
-                  throw new Exception(
-                    s"'${stageDescriptor.name}@id(${stageDescriptor.uid})' has an invalid value. Details: ${f.getMessage}"
-                  )
+              s => Success(s),
+              f => Failure(
+                throw new Exception(s"${stageDescriptor.uid}" + errors_separator +
+                  s"'${stageDescriptor.name}@id(${stageDescriptor.uid})' has an invalid value. Details: ${f.getMessage}"
                 )
               )
-            }
+            )
+          }
           }.toSeq
 
         Try(parameterValidator.map(_.get)).getOrElse(
