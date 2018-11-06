@@ -129,7 +129,7 @@ hose {
                            'healthcheck': 5000]]
     ]
     INSTALLPARAMETERS = """
-            | -DSTRATIO_SPARTA_VERSION=2.2.0
+            | -DSTRATIO_SPARTA_VERSION=2.4.0
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
@@ -138,11 +138,11 @@ hose {
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
             | -DHDFS_REALM=DEMO.STRATIO.COM
-            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8
+            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache-2.2.json
+            | -DSPARTA_JSON=spartamustache-2.4.json
             | -DWORKFLOW=testinput-to-print
             | -DAUTH_ENABLED=true
             | -DCALICOENABLED=true

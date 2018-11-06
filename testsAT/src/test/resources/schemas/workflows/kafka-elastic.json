@@ -105,7 +105,7 @@
           "group.id": "spartaElastic",
           "bootstrap.servers": [
             {
-              "host": "broker-0001.kafka-sec.mesos",
+              "host": "kafka-0-broker.eos-kafka-framework.mesos",
               "port": "9092"
             }
           ],

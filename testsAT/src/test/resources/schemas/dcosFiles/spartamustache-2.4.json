@@ -1,0 +1,228 @@
+{
+  "Framework": {
+    "name": "sparta-server",
+    "instances": 1,
+    "cpus": 3,
+    "mem": 4096,
+    "force_pull_image": false,
+    "use_dcos_new_healthchecks_and_variables": false,
+    "environment_uri": "https://nightly.labs.stratio.com",
+    "upgrade_metadata": true
+  },
+  "Server": {
+    "await_to_check_policy_status": "360s",
+    "api_calls_timeout": "20",
+    "consistency_interval": "1m",
+    "upload_max_filesize": "250m"
+  },
+  "Akka-Cluster": {
+    "min_mumber": 1,
+    "seed_timeout": "20s",
+    "grace_periods": "240s"
+  },
+  "Postgres": {
+    "host": "pg-0001.postgrestls.mesos:5432",
+    "database": "postgres",
+    "extra_params": "prepareThreshold=0&leakDetectionThreshold=10000",
+    "schema_name": "sparta-server",
+    "keep_alive": true,
+    "pool_size": 5,
+    "pool_size_workflows": 1
+  },
+  "Ignite": {
+    "enabled": false,
+    "cluster_enabled": false,
+    "persistence_enabled": false,
+    "initial_size": "128",
+    "max_size": "256"
+  },
+  "Intelligence": {},
+  "Zookeeper": {
+    "address": "zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181",
+    "connection_timeout": 15000
+  },
+  "Marathon": {
+    "sparta_docker_image": "qa.stratio.com/stratio/sparta:2.4.0",
+    "docker_forcePullImage": false,
+    "docker_privileged": false,
+    "Tasks": {
+      "gracePeriodSeconds": 240,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "memoryForOS": 1024
+    },
+    "Mesos": {
+      "enabled_mesos_constraints": false
+    }
+  },
+  "Calico": {
+    "enabled": true,
+    "calico_network": "stratio"
+  },
+  "Marathon-LB": {
+    "enabled": true,
+    "haproxy_group": "external",
+    "haproxy_host": "sparta.nightly.labs.stratio.com",
+    "nginx_proxy": true,
+    "https": true,
+    "server_side_verification": false,
+    "cert_file": "/etc/ssl/cert.pem",
+    "ca_file": "/etc/ssl/ca.bundle",
+    "verifyhost": "sparta.marathon.mesos"
+  },
+  "Hdfs": {
+    "generate_hdfs_conf_from_dfs": false,
+    "generate_hdfs_conf_from_dfs_not_secured": false,
+    "hdfs_conf_from_uri": true,
+    "core_site_from_uri": false,
+    "default_fs": "hdfs-namenode1.labs.stratio.com",
+    "conf_uri": "http://10.200.0.74:8085/"
+  },
+  "Security": {
+    "Components": {
+      "vault_enabled": true,
+      "use_dynamic_authentication": true,
+      "tls_enabled": true,
+      "trustore_enabled": true,
+      "kerberos_enabled": true,
+      "oauth2_enabled": true,
+      "ssl_enabled": true,
+      "mesos_enabled": true,
+      "gosec_enabled": true,
+      "hdfs_enabled": true,
+      "marathon_enabled": true,
+      "crossdata_security_enabled": true
+    },
+    "Vault": {
+      "host": "vault.service.paas.labs.stratio.com",
+      "port": "8200",
+      "instance_app_role": "open",
+      "ca_name": "ca"
+    },
+    "Oauth": {
+      "cookieName": "user"
+    },
+    "HDFS": {
+      "hadoop_security_auth": "kerberos",
+      "hadoop_rpc_protection": "authentication",
+      "hadoop_dfs_encrypt_data_transfer": true,
+      "hadoop_security_token_use_ip": false,
+      "hadoop_namenode_krb_principal": "hdfs/hdfs-namenode1.labs.stratio.com@DEMO.STRATIO.COM",
+      "hadoop_namnode_krb_principal_pattern": "hdfs/*@DEMO.STRATIO.COM",
+      "key_tab_reload": true,
+      "key_tab_reload_time": "23h"
+    },
+    "Marathon": {
+      "sso_clientId": "adminrouter_paas-master-1.node.paas.labs.stratio.com"
+    }
+  },
+  "Crossdata": {
+    "Catalog": {
+      "enable_catalog": true,
+      "enable_dg_catalog": false,
+      "prefix": "crossdataCluster",
+      "refresh_tables": false,
+      "refresh_time": "10m",
+      "Cache": {
+        "enable-cache": false,
+        "cache-ttl": "60",
+        "cache_full": false
+      },
+      "Zookeeper": {
+        "connection_timeout": 15000,
+        "compatibility_with_sec_mode": true
+      },
+      "Governable": {
+        "Postgresql": {
+          "connection_url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432",
+          "timeout": "10s",
+          "stratio_security": true,
+          "security_mode": "tls"
+        },
+        "StratioGovernance": {
+          "connection_endpoint": "http://dg-catalog-api.governance.marathon.mesos:10000/api/v1",
+          "timeout": "10s"
+        }
+      }
+    },
+    "Spark": {
+      "master": "local[2]",
+      "image": "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0",
+      "port": 4041,
+      "executor_memory": "1G",
+      "driver_memory": "1G",
+      "executor_cores": 1,
+      "driver_cores": 1,
+      "cores_max": 1,
+      "sql_case_sensitive": true,
+      "enable_native_queries": false
+    }
+  },
+  "Data-Governance": {
+    "dg_enabled": true,
+    "host": "pg-0001.postgrestls.mesos",
+    "port": "5432",
+    "database": "postgres"
+  },
+  "GoSec": {
+    "enable_dyplon_facade": true,
+    "enable_facade_cache": true,
+    "api_authorizer": "https://dyplon-http.marathon.mesos:8443/authorize/{user}?service={service}&version={version}&instance={instance}&action={action}&resourceType={resourceType}&value={value}&hierarchy={hierarchy}",
+    "api_register": "https://dyplon-http.marathon.mesos:8443/register",
+    "api_is_registered": "https://dyplon-http.marathon.mesos:8443/register/service/{service}/{version}/{instance}",
+    "sparta_plugin_zk_connect": "gosec1.node.paas.labs.stratio.com:2181,gosec2.node.paas.labs.stratio.com:2181,gosec3.node.paas.labs.stratio.com:2181",
+    "zk_watchers_enabled": true,
+    "enable_sparta_plugin_cache": false,
+    "sparta_plugin_name": "Sparta",
+    "sparta_plugin_ldap_size": "50",
+    "sparta_plugin_ldap_internal": "5",
+    "sparta_plugin_ldap_ttl": "30",
+    "sparta_plugin_posix_enabled": "false",
+    "sparta_plugin_enable_log_stdout": false,
+    "LDAP": {
+      "sparta_plugin_ldap_host": "idp.integration.labs.stratio.com",
+      "sparta_plugin_ldap_port": 636,
+      "sparta_plugin_ldap_user_domain": "ou=People,dc=stratio,dc=com",
+      "sparta_plugin_ldap_group_domain": "ou=Groups,dc=stratio,dc=com",
+      "sparta_plugin_ldap_schema": "RFC2307bis",
+      "sparta_plugin_ldap_mapping_user_id": "uid",
+      "sparta_plugin_ldap_mapping_user_name": "cn",
+      "sparta_plugin_ldap_mapping_group_id": "cn",
+      "sparta_plugin_ldap_mapping_group_member": "memberUid",
+      "sparta_plugin_ldap_matching_group_linkuser": "uid=%filter",
+      "sparta_plugin_ldap_queries_group_groupbyuser": "(&(objectClass=posixGroup)(!(ou=Groups))(memberUid=uid=%filter,ou=People,dc=stratio,dc=com))",
+      "sparta_plugin_ldap_queries_group_queryall": "(&(objectClass=posixGroup))",
+      "sparta_plugin_ldap_queries_user_queryall": "(&(objectClass=person))",
+      "validate_periodically": true
+    }
+  },
+  "Securized-Kafka": {
+    "secure_kafka_bootstrap": "gosec1.node.paas.labs.stratio.com:9092,gosec2.node.paas.labs.stratio.com:9092,gosec3.node.paas.labs.stratio.com:9092"
+  },
+  "Frontend": {
+    "timeout": 20000
+  },
+  "Java": {
+    "heap_size": "-Xmx3548m",
+    "heap_minimum_size": "-Xms1024m",
+    "max_open_files": 65535
+  },
+  "Log": {
+    "service_log_level": "ERROR",
+    "sparta_log_level": "INFO",
+    "sparta_redirector_log_level": "INFO",
+    "crossdata_log_level": "ERROR",
+    "spark_log_level": "ERROR",
+    "hadoop_log_level": "ERROR",
+    "zookeeper_log_level": "ERROR",
+    "parquet_log_level": "ERROR",
+    "avro_log_level": "ERROR",
+    "http_log_level": "ERROR",
+    "slick_log_level": "ERROR",
+    "stderr_size": "20MB",
+    "stdout_size": "20MB",
+    "stderr_rotate": "rotate 10",
+    "stdout_rotate": "rotate 10"
+  }
+}

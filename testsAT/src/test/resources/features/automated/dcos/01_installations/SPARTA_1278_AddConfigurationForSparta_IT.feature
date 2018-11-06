@@ -28,7 +28,7 @@ Feature: [SPARTA-1278] Add Initial Configuration for Sparta
   Scenario:[SPARTA-1278][02] Register sparta tenant in cas
     Given I run 'echo "${MASTERS_LIST}" | cut -d',' -f1' locally with exit status '0' and save the value in environment variable 'MASTER_IP'
     Given I open a ssh connection to '!{MASTER_IP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
-    Then  I run 'curl -XPOST -H "Content-Type: application/json" -d '{"clientId":"${DCOS_SERVICE_NAME}-oauth-id","clientSecret":"${CLIENTSECRET}","name":"${DCOS_SERVICE_NAME}","serviceId":"https://!{MarathonLbDns}.labs.stratio.com/${DCOS_SERVICE_NAME}/login","tenant":"NONE"}' --cert /opt/mesosphere/etc/pki/node.pem --key /opt/mesosphere/etc/pki/node.key https://master-1.node.paas.labs.stratio.com:9006/registry/services' in the ssh connection
+    Then  I run 'curl -XPUT https://master-1.node.paas.labs.stratio.com:9006/registry/services/${DCOS_SERVICE_NAME}-oauth-id -H "Content-Type: application/json" -d' { "clientId": "sparta-server-oauth-id", "clientSecret": "${CLIENTSECRET}", "name": "${DCOS_SERVICE_NAME}", "serviceId": "https://!{MarathonLbDns}.labs.stratio.com/${DCOS_SERVICE_NAME}/login", "tenant": "NONE" }' --cert /opt/mesosphere/etc/pki/node.pem --key /opt/mesosphere/etc/pki/node.key' in the ssh connection
     Then in less than '180' seconds, checking each '5' seconds, the command output 'curl https://master-1.node.paas.labs.stratio.com:9006/registry/services --cert /opt/mesosphere/etc/pki/node.pem --key /opt/mesosphere/etc/pki/node.key  | jq' contains '${DCOS_SERVICE_NAME}'
 
     # Mvn example:

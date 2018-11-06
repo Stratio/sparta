@@ -1,8 +1,13 @@
 {
-  "id": "sparta-server2",
-  "name": "sparta-server2",
+  "id": "sparta_policy",
+  "name": "sparta_policy",
   "users": [
-    "user"
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
   ],
   "groups": [],
   "services": [
@@ -18,6 +23,31 @@
           "acls": [
             {
               "resourceType": "Workflows",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit",
+                "Status"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Template",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Workflows",
               "name": "/home",
               "recursive": true,
               "actions": [
@@ -30,30 +60,21 @@
               "allActions": []
             },
             {
-              "resourceType": "Catalog",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "View",
-                "Select"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "Environment",
+              "resourceType": "GlobalParameters",
               "name": "*",
               "recursive": true,
               "actions": [
                 "View",
                 "Create",
                 "Delete",
-                "Download",
-                "Edit"
+                "Edit",
+                "Upload",
+                "Download"
               ],
               "allActions": []
             },
             {
-              "resourceType": "History",
+              "resourceType": "Configuration",
               "name": "*",
               "recursive": true,
               "actions": [
@@ -74,19 +95,6 @@
               "allActions": []
             },
             {
-              "resourceType": "Backup",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "View",
-                "Create",
-                "Delete",
-                "Upload",
-                "Execute"
-              ],
-              "allActions": []
-            },
-            {
               "resourceType": "Files",
               "name": "*",
               "recursive": true,
@@ -99,7 +107,7 @@
               "allActions": []
             },
             {
-              "resourceType": "Configuration",
+              "resourceType": "MlModels",
               "name": "*",
               "recursive": true,
               "actions": [
@@ -108,7 +116,17 @@
               "allActions": []
             },
             {
-              "resourceType": "Template",
+              "resourceType": "Catalog",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Select"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "ParameterList",
               "name": "*",
               "recursive": true,
               "actions": [
@@ -133,6 +151,15 @@
             }
           ],
           "acls": [
+            {
+              "resourceType": "column",
+              "name": "*.*",
+              "recursive": false,
+              "actions": [
+                "FilterColumn"
+              ],
+              "allActions": []
+            },
             {
               "resourceType": "database",
               "name": "*",
@@ -176,7 +203,8 @@
             }
           ]
         }
-      ]
+      ],
+      "version":"1.0"
     }
   ]
 }
