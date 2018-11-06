@@ -55,15 +55,40 @@ object MlPipelineDeserializationUtils {
 
   def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
       param.getClass().getSimpleName match {
-        case "BooleanParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toBoolean
-        case "LongParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toLong
-        case "DoubleParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toDouble
-        case "FloatParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toFloat
-        case "IntParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.toInt
-        case "StringArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.split(",").map(_.trim)
-        case "DoubleArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.split(",").map(_.trim.toDouble)
-        case "IntArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString.split(",").map(_.trim.toInt)
-        case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}") else value.toString
+        case "BooleanParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toBoolean}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Boolean")}
+
+        case "LongParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toLong}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Long")}
+
+        case "DoubleParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toDouble}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Double")}
+
+        case "FloatParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toFloat}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Float")}
+
+        case "IntParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toInt}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Int")}
+
+        case "StringArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else value.toString.split(",").map(_.trim)
+
+        case "DoubleArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.split(",").map(_.trim.toDouble)}
+          catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Double] (comma separated values)")}
+
+        case "IntArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.split(",").map(_.trim.toInt)}
+          catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Int] (comma separated values)")}
+
+        case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else value.toString
+
         case _ => throw new Exception("Unknown parameter type")
     }
   }
