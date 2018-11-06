@@ -271,7 +271,7 @@ class MlPipelineOutputStep(
 
         // · Set parameters of SparkML PipelineStage instance
         // fiter out parameters with null or empty values
-        val parameterValidator: Seq[Try[Params]] = stageDescriptor.properties.map { case (paramName, paramValue) => Try {
+        val parameterValidator: Seq[Try[Params]] = stageDescriptor.properties.filter((t) => MlPipelineDeserializationUtils.okParam(t._2)).map { case (paramName, paramValue) => Try {
           // - Getting parameter from PipelineStage using its name
           val paramToSet: Param[Any] = Try(stage.asInstanceOf[Params].getParam(paramName)
           ).getOrElse(throw new Exception(
