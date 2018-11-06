@@ -5,4 +5,4 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-case class WorkflowVersion(id: String, version: Option[Long], tags: Option[Seq[String]], group: Option[Group])
+case class WorkflowVersion(id: String, name: Option[String], version: Option[Long], tags: Option[Seq[String]], group: Option[Group])
