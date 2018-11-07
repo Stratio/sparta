@@ -76,14 +76,14 @@ object MlPipelineDeserializationUtils {
           catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Int")}
 
         case "StringArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else value.toString.split(",").map(_.trim)
+          else value.toSeq.map(_.trim)
 
         case "DoubleArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else try{value.toString.split(",").map(_.trim.toDouble)}
+          else try{value.toSeq.map(_.trim.toDouble)}
           catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Double] (comma separated values)")}
 
         case "IntArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else try{value.toString.split(",").map(_.trim.toInt)}
+          else try{value.toSeq.map(_.trim.toInt)}
           catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Int] (comma separated values)")}
 
         case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
@@ -100,9 +100,9 @@ object MlPipelineDeserializationUtils {
       case "DoubleParam" => if (nullOrEmpty(value)) "Double" else value.toString.toDouble
       case "FloatParam" => if (nullOrEmpty(value)) "Float" else value.toString.toFloat
       case "IntParam" => if (nullOrEmpty(value)) "Int" else value.toString.toInt
-      case "StringArrayParam" => if (nullOrEmpty(value)) "Array[String] (comma separated values)" else value.toString.split(",").map(_.trim)
-      case "DoubleArrayParam" => if (nullOrEmpty(value)) "Array[Double] (comma separated values)" else value.toString.split(",").map(_.trim.toDouble)
-      case "IntArrayParam" => if (nullOrEmpty(value)) "Array[Int] (comma separated values)" else value.toString.split(",").map(_.trim.toInt)
+      case "StringArrayParam" => if (nullOrEmpty(value)) "Array[String] (comma separated values)" else value.toSeq.map(_.trim)
+      case "DoubleArrayParam" => if (nullOrEmpty(value)) "Array[Double] (comma separated values)" else value.toSeq.map(_.trim.toDouble)
+      case "IntArrayParam" => if (nullOrEmpty(value)) "Array[Int] (comma separated values)" else value.toSeq.map(_.trim.toInt)
       case "Param" => if (nullOrEmpty(value)) "String" else value.toString
       case _ => throw new Exception("Unknown parameter type")
     }
