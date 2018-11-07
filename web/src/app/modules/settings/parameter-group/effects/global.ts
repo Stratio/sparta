@@ -47,7 +47,6 @@ export class GlobalParametersEffect {
             [...allVariables.slice(0, index), paramWithoutContexts, ...allVariables.slice(index + 1)] :
             [...allVariables, paramWithoutContexts];
          const updateVariables = { variables: parameters };
-        
 
         return this._parametersService.updateGlobalParameter(updateVariables)
             .pipe(mergeMap(res => [
@@ -55,7 +54,6 @@ export class GlobalParametersEffect {
                 new alertParametersActions.ShowAlertAction({ type: 'success', text: 'Parameter save successful' })
             ]))
             .pipe(catchError(error => of(new alertParametersActions.ShowAlertAction({ type: 'critical', text: 'Parameter can not save' }))));
-         
       }));
 
     @Effect()

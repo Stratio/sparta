@@ -33,14 +33,11 @@ export class ParameterGroupComponent implements OnInit {
       {
          id: 'global',
          text: 'Global'
-      }, {
+      },
+      {
          id: 'environment',
          text: 'Environment',
-      }/* ,
-      {
-         id: 'custom',
-         text: 'Custom'
-      } */
+      }
    ];
    public isLoading$: Observable<boolean>;
    public showAlert$: Observable<string>;
@@ -58,7 +55,6 @@ export class ParameterGroupComponent implements OnInit {
          this.showAlert = !!alert.text;
          if (alert) {
             this.alertMessage = alert;
-           
          } else {
             this._cd.markForCheck();
          }
@@ -66,7 +62,7 @@ export class ParameterGroupComponent implements OnInit {
    }
 
    closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 10000);
+     this._store.dispatch(new alertParametersActions.HideAlertAction());
    }
 
    changeTabOption(event: StHorizontalTab) {
