@@ -70,6 +70,7 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
       assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedPath)
     }
 
+  /* Ya no aplica este test
   "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining url" in
     new WithValidPipeline with WithValidateStep {
 
@@ -80,7 +81,7 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
       assert(validation.get.messages.length==1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedMlRepoConnection)
     }
-
+*/
   "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining the model name" in
     new WithValidPipeline with WithValidateStep {
 
@@ -89,7 +90,7 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedMlRepoConnection)
+      assert(validation.get.messages(0).message == ValidationErrorMessages.mlModelModelName)
     }
 
 }

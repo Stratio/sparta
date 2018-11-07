@@ -76,7 +76,9 @@ class MlPipelineOutputStep(
     */
   //noinspection ScalaStyle
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
-    val mlModelNameRegExpr = raw"^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])|(\\.|\\.\\.)".r
+    //Regular expression used to verify valid Model Names
+    val mlModelNameRegExpr = """^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])|(\.|\.\.)$""".r
+
     def addValidationError(validation: ErrorValidations, error: String): ErrorValidations =
       ErrorValidations(valid = false, messages = validation.messages :+ WorkflowValidationMessage(error, name))
 
@@ -97,7 +99,7 @@ class MlPipelineOutputStep(
           validation = addValidationError(validation, ValidationErrorMessages.mlModelModelName)
         } else {
           externalMlModelRepositoryModelName.get match {
-            //check if the model name is valid //TODO this check should be done in Front
+            //check if the model name is valid //TODO this check should be done also in Front
             case mlModelNameRegExpr(_*) => None
             case _ => validation = addValidationError(validation, ValidationErrorMessages.mlModelRepModelInvalidModelName)
           }
