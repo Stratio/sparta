@@ -660,13 +660,13 @@
    "TEMPLATES": {
       "NO_ITEMS_LINK": "Add one",
       "INPUTS": {
-         "NO_ITEMS": "There are no input templates created yet."
+         "NO_ITEMS": "There are no input templates created yet. "
       },
       "OUTPUTS": {
-         "NO_ITEMS": "There are no output templates created yet."
+         "NO_ITEMS": "There are no output templates created yet. "
       },
       "TRANSFORMATIONS": {
-         "NO_ITEMS": "There are no transformation templates created yet."
+         "NO_ITEMS": "There are no transformation templates created yet. "
       }
    },
    "ALERTS": {

@@ -23,18 +23,6 @@ export class MenuService {
             label: 'Templates',
             link: DASHBOARD_ROUTES.TEMPLATES,
             subMenus: [
-                {
-                    label: 'Inputs',
-                    link: DASHBOARD_ROUTES.INPUTS
-                },
-                {
-                    label: 'Transformations',
-                    link: DASHBOARD_ROUTES.TRANSFORMATIONS
-                },
-                {
-                    label: 'Outputs',
-                    link: DASHBOARD_ROUTES.OUTPUTS
-                }
             ]
         },
         {

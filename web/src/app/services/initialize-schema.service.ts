@@ -32,6 +32,7 @@ export class InitializeSchemaService {
       };
       return model;
    }
+
    public static getCategoryModel(value: any): any {
       const model: any = {};
       value.map((prop: any) => {

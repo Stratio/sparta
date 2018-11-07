@@ -14,7 +14,7 @@ export * from './api/wizard.service';
 export * from './api/backup.service';
 export * from './api/resources.service';
 export * from './api/crossdata.service';
-export * from './api/parameters.sevice';
+export * from './api/parameters.service';
 export * from './api/execution.service';
 
 
