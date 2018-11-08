@@ -23,7 +23,7 @@ import scala.io.Source
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
-class MlPipelineComplexGraphStepOutputIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
 
