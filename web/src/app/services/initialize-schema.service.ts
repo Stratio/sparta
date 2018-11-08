@@ -20,9 +20,16 @@ export class InitializeSchemaService {
          description: ''
       };
       model.advancedSettings = {};
-      value.advancedSettings.map((category: any) => {
+      value.advancedSettings.forEach((category: any) => {
          model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
       });
+      model.advancedSettings = {
+         ...model.advancedSettings,
+         global: {
+            ...model.advancedSettings.global,
+            parametersLists: ['Environment']
+         }
+      };
       return model;
    }
 

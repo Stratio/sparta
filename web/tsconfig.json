@@ -1,30 +1,58 @@
 {
-   "compileOnSave": false,
-   "compilerOptions": {
-      "baseUrl": "./src",
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "lib": ["es2016", "dom"],
-      "moduleResolution": "node",
-      "outDir": "dist",
-      "paths": {
-         "@app/*": ["app/modules/*"],
-         "reducers": ["./app/reducers"],
-         "actions/*": ["./app/actions/*"],
-         "@models/*": ["./app/models/*"],
-         "services/*": ["./app/services"],
-         "services": ["./app/services"],
-         "@utils": ["./app/utils"],
-         "data-templates/*": ["./app/data-templates/*"],
-         "assets/*": ["./assets/*"],
-         "constants/*": ["./app/modules/shared/constants/*"],
-         "@test/*": ["test/*"],
-         "@test": ["test/index.ts"]
-      },
-      "sourceMap": true,
-      "target": "es5",
-      "typeRoots": [
-         "node_modules/@types"
+  "compileOnSave": false,
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es2016",
+      "dom"
+    ],
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "paths": {
+      "@app/*": [
+        "app/modules/*"
+      ],
+      "reducers": [
+        "./app/reducers"
+      ],
+      "actions/*": [
+        "./app/actions/*"
+      ],
+      "@models/*": [
+        "./app/models/*"
+      ],
+      "services/*": [
+        "./app/services"
+      ],
+      "services": [
+        "./app/services"
+      ],
+      "@utils": [
+        "./app/utils"
+      ],
+      "data-templates/*": [
+        "./app/data-templates/*"
+      ],
+      "assets/*": [
+        "./assets/*"
+      ],
+      "constants/*": [
+        "./app/modules/shared/constants/*"
+      ],
+      "@test/*": [
+        "test/*"
+      ],
+      "@test": [
+        "test/index.ts"
       ]
-   }
+    },
+    "sourceMap": true,
+    "target": "es5",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "module": "es2015"
+  }
 }

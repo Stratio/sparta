@@ -46,11 +46,11 @@ export class SpForegroundNotificationsComponent {
    /** @Input {string} [text=''] Displayed text */
    @Input() text: string;
    /** @Input {NotificationStatus} [status='NotificationStatus.default'] Defines the criticality level of the notification */
-   @Input() status: string = 'default';
+   @Input() status = 'default';
 
    @Output() visibleChange: EventEmitter<boolean> = new EventEmitter();
 
-   private _visible: boolean = false;
+   private _visible = false;
 
    constructor() { }
 

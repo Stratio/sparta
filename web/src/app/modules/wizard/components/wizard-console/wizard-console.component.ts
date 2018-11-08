@@ -63,7 +63,6 @@ export class WizardConsoleComponent implements OnInit {
   public tableFields: Array<string> = [];
 
   private _debugData: any;
-  private _element: any;
 
   constructor(private _el: ElementRef,
     private _ngZone: NgZone,

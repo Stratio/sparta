@@ -83,7 +83,7 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
     Then I save selenium cookies in context
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
-    And the service response status must be '200' and its response must contain the text 'OK'
+    And the service response status must be '200'
 
   #*********************************
   # VERIFY batch-carrefour-workflow*

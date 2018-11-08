@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StTableModule,
     StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-    StPaginationModule, StTooltipModule, StFullscreenLayoutModule
+    StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StSpinnerModule
 } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
@@ -25,6 +25,7 @@ import { ExecutionsEffect } from './effects/executions';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -43,12 +44,14 @@ import { ExecutionHelperService } from 'app/services/helpers/execution.service';
         StFullscreenLayoutModule,
         StTableModule,
         StTooltipModule,
+        StSpinnerModule,
         StBreadcrumbsModule,
         StSearchModule,
         ExecutionsRouterModule,
         StPaginationModule,
         SharedModule,
-        ConsoleBoxModule
+        ConsoleBoxModule,
+        TranslateModule
     ],
     providers: [reducerProvider, ExecutionHelperService]
 })

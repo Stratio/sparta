@@ -6,16 +6,15 @@
 
 package com.stratio.sparta.serving.core.services.dao
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
-
-import slick.jdbc.PostgresProfile
-
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.GlobalParametersDao
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
+import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
+import slick.jdbc.PostgresProfile
+
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 //scalastyle:off
 class GlobalParametersPostgresDao extends GlobalParametersDao {
@@ -31,7 +30,7 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
     globalParametersFuture.onFailure { case _ =>
       log.debug("Initializing global parameters")
       for {
-        _ <- updateGlobalParameters(GlobalParameters(AppConstant.DefaultGlobalParameters))
+        _ <- updateGlobalParameters(GlobalParameters(DefaultGlobalParameters))
       } yield {
         log.debug("The global parameters initialization has been completed")
       }
@@ -39,11 +38,13 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
 
     globalParametersFuture.onSuccess { case globalParameters =>
       val variablesNames = globalParameters.variables.map(_.name)
-      val variablesToAdd = AppConstant.DefaultCustomExampleParameters.filter { variable =>
+      val variablesToAdd = DefaultCustomExampleParameters.filter { variable =>
         !variablesNames.contains(variable.name)
       }
       log.debug(s"Variables not present in the actual global parameters: $variablesToAdd")
-      updateGlobalParameters(globalParameters.copy(variables = variablesToAdd ++ globalParameters.variables))
+      updateGlobalParameters(globalParameters.copy(
+        variables = (DefaultCustomExampleParametersMap ++ ParameterList.parametersToMap(globalParameters.variables)).values.toSeq
+      ))
     }
 
   }

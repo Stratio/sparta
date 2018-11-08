@@ -90,7 +90,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
       val schemaFake = StructType(Seq(StructField("name", StringType, false),
         StructField("age", IntegerType, false),
         StructField("year", IntegerType, true))).json
-      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep(None,"Kafka", 0, Option(schemaFake),
+      val fakedResults = DebugResults(true, Map("Kafka" -> ResultStep(id, id, "Kafka", 0, Option(schemaFake),
         Option(Seq("Gregor Samza, 28, 1915")))))
       startAutopilot(Left(Success(fakedResults)))
       Get(s"/${HttpConstant.DebugWorkflowsPath}/resultsById/$id") ~> routes(dummyUser) ~> check {

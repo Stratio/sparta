@@ -5,44 +5,43 @@
  */
 
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  Input,
-  NgZone,
-  OnInit,
-  Output,
-  EventEmitter
+   ChangeDetectionStrategy,
+   Component,
+   ElementRef,
+   Input,
+   NgZone,
+   OnInit,
+   Output,
+   EventEmitter
 } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
 
 @Component({
-  selector: 'executions-console',
-  styleUrls: ['executions-console.styles.scss'],
-  templateUrl: 'executions-console.template.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+   selector: 'executions-console',
+   styleUrls: ['executions-console.styles.scss'],
+   templateUrl: 'executions-console.template.html',
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class ExecutionsConsoleComponent implements OnInit {
-  @Input() execution: any;
+   @Input() execution: any;
 
-  @Output() closeConsole = new EventEmitter<boolean>();
+   @Output() closeConsole = new EventEmitter<boolean>();
 
-  public options: StHorizontalTab[] = [{
-    id: 'Exceptions',
-    text: 'Exceptions'
-  }];
+   public options: StHorizontalTab[] = [{
+      id: 'Exceptions',
+      text: 'Exceptions'
+   }];
 
-  public selectedOption: StHorizontalTab;
+   public selectedOption: StHorizontalTab;
 
-  constructor(private _el: ElementRef, private _ngZone: NgZone) { }
+   constructor(private _el: ElementRef, private _ngZone: NgZone) { }
 
-  ngOnInit(): void {
-   this.selectedOption = { id: 'Exceptions', text: 'Exceptions' };
-  }
+   ngOnInit(): void {
+      this.selectedOption = { id: 'Exceptions', text: 'Exceptions' };
+   }
 
-  onCloseConsole() {
-    this.closeConsole.emit();
-  }
-
+   onCloseConsole() {
+      this.closeConsole.emit();
+   }
 }

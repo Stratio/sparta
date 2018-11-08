@@ -271,22 +271,6 @@
             "tooltip": "Gracefully stops the streaming contexts when shutting down the Spark applications",
             "qa": "workflow-spark-stopGracefully"
          },
-         {
-            "propertyId": "stopGracefulTimeout",
-            "propertyName": "SETTINGS._SPARK_STOP_GRACEFUL_TIMEOUT_",
-            "propertyType": "text",
-            "width": 4,
-            "visible": [
-               [
-                  {
-                     "propertyId": "stopGracefully",
-                     "value": true
-                  }
-               ]
-            ],
-            "tooltip": "Lowering this value prevents long  blocking intervals while shutting down the application. Value must be expressed in milliseconds.",
-            "qa": "workflow-spark-stopGracefulTimeout"
-         },
         {
           "name" : "checkpointSettings",
           "properties": [

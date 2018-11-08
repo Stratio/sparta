@@ -26,6 +26,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   # ADD POSTGRES POLICY *
   #**********************
   @skipOnEnv(POSTGRES_OLD_VERSION=TRUE)
+  @skipOnEnv(STRATIO_RELEASE=ORION)
   @skipOnEnv(SKIP_POLICY=true)
   Scenario: [SPARTA-1162][02]Add postgres policy to write in postgres
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
@@ -81,8 +82,10 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
 
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID1}'
-    And the service response status must be '200' and its response must contain the text 'OK'
-
+    And the service response status must be '200'
+    And I save element '$' in environment variable 'previousWorkflowID1'
+    When  I run 'echo !{previousWorkflowID1}' in the ssh connection
+  
   #*********************************
   # VERIFY Kafka-Postgres WORKFLOW*
   #*********************************
@@ -90,7 +93,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-postgres' contains 'kafka-postgres-v0'
     #Get ip in marathon
-    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/kafka-postgres/kafka-postgres-v0  | awk '{print $5}' | grep kafka-postgres ' in the ssh connection and save the value in environment variable 'workflowTaskId1'
+    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/kafka-postgres/kafka-postgres-v0/!{previousWorkflowID1}  | awk '{print $5}' | grep kafka-postgres ' in the ssh connection and save the value in environment variable 'workflowTaskId1'
     And I wait '2' seconds
     #Check workflow is runing in DCOS
     When  I run 'echo !{workflowTaskId1}' in the ssh connection
@@ -141,7 +144,8 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     Then I save selenium cookies in context
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     Given I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID2}'
-    Then the service response status must be '200' and its response must contain the text 'OK'
+    Then the service response status must be '200'
+    And I save element '$' in environment variable 'previousWorkflowID2'
 
   #*********************************
   # VERIFY testInput-Kafka WORKFLOW*
@@ -150,7 +154,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w testinput-kafka' contains 'testinput-kafka-v0'
     #Get ip in marathon
-    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/testinput-kafka/testinput-kafka-v0  | awk '{print $5}' | grep testinput-kafka' in the ssh connection and save the value in environment variable 'workflowTaskId2'
+    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/testinput-kafka/testinput-kafka-v0/!{previousWorkflowID2}  | awk '{print $5}' | grep testinput-kafka' in the ssh connection and save the value in environment variable 'workflowTaskId2'
     And I wait '2' seconds
     #Check workflow is runing in DCOS
     When  I run 'echo !{workflowTaskId2}' in the ssh connection

@@ -6,7 +6,7 @@
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StRadioMenuModule, StRadioModule,
-    StPaginationModule, StProgressBarModule, StFullscreenLayoutModule, StTextareaModule, StInputModule
+    StPaginationModule, StProgressBarModule, StFullscreenLayoutModule, StTextareaModule, StInputModule, StHorizontalTabsModule
 } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
@@ -53,6 +53,7 @@ import { TableNotificationModule } from '@app/shared/components/table-notificati
         StTextareaModule,
         StInputModule,
         StBreadcrumbsModule,
+        StHorizontalTabsModule,
         StTableModule,
         StCheckboxModule
     ]

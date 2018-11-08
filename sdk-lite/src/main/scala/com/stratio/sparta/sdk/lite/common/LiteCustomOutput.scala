@@ -8,11 +8,14 @@ package com.stratio.sparta.sdk.lite.common
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.lite.common.models.OutputOptions
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.slf4j.Logger
 
 abstract class LiteCustomOutput(
                                  @transient sparkSession: SparkSession,
                                  properties: Map[String, String]
-                               ) extends SDKCustomOutput with SLF4JLogging {
+                               ) extends SDKCustomOutput with SLF4JLogging with Serializable {
+
+  val logger: Logger = log
 
   @deprecated("this method will become internal. Use overloaded version of 'save' with OutputOptions instead. " +
     "It will be invoked if the overloaded version is not overridden")

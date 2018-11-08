@@ -24,6 +24,8 @@ trait GroupDao extends DaoUtils {
 
   lazy val table = TableQuery[GroupTable]
 
+  override val initializationOrder = 0
+
   def $id(table: GroupTable): Rep[Id] = table.groupId
 
   def baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]

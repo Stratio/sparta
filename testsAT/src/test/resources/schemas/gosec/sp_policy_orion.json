@@ -1,0 +1,210 @@
+{
+  "id": "sparta_policy",
+  "name": "sparta_policy",
+  "users": [
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "sparta",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "sparta-server"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Workflows",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit",
+                "Status"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Template",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Workflows",
+              "name": "/home",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit",
+                "Status"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "GlobalParameters",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit",
+                "Upload",
+                "Download"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Configuration",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Groups",
+              "name": "/home",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Files",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Delete",
+                "Upload",
+                "Download"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "MlModels",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Catalog",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Select"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "ParameterList",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Edit"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "crossdata2",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "sparta-server"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "column",
+              "name": "*.*",
+              "recursive": false,
+              "actions": [
+                "FilterColumn"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "database",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Create",
+                "Delete",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "datastore",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Write",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "table",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Other",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ],
+      "version":"1.0"
+    }
+  ]
+}

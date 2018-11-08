@@ -105,5 +105,8 @@
         <Logger name="org.apache.http" level="${env:HTTP_LOG_LEVEL:-ERROR}"/>
         <Logger name="com.typesafe.slick" level="${env:SLICK_LOG_LEVEL:-ERROR}"/>
         <Logger name="com.apache.ignite" level="${env:IGNITE_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.stratio.gosec" level="${env:GOSEC_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.stratio.governance" level="${env:LINEAGE_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.stratio.sparta.dg.agent" level="${env:LINEAGE_LOG_LEVEL:-ERROR}"/>
     </Loggers>
 </Configuration>

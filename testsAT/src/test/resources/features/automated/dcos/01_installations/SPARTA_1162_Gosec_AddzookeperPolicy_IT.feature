@@ -21,7 +21,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
     Then the service response status must be '201'
   @runOnEnv(ID_SPARTA_POLICY)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_2.json' as 'json' with:
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_orion.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_SPARTA_POLICY}     | n/a |
       |   $.name                  |  UPDATE    | ${ID_SPARTA_POLICY}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |

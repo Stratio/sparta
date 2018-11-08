@@ -33,18 +33,15 @@ export class ParameterGroupComponent implements OnInit {
       {
          id: 'global',
          text: 'Global'
-      }, {
-         id: 'environment',
-         text: 'Environment',
       },
       {
-         id: 'custom',
-         text: 'Custom'
+         id: 'environment',
+         text: 'Environment',
       }
    ];
    public isLoading$: Observable<boolean>;
    public showAlert$: Observable<string>;
-   public alertMessage = '';
+   public alertMessage = { type: '', text: '' };
    public showAlert: boolean;
 
 
@@ -55,10 +52,9 @@ export class ParameterGroupComponent implements OnInit {
    ngOnInit() {
       this.isLoading$ = this._store.select(fromParameters.isLoading);
       this._store.select(fromParameters.showAlert).subscribe(alert => {
-         this.showAlert = !!alert;
+         this.showAlert = !!alert.text;
          if (alert) {
             this.alertMessage = alert;
-            this.closeAlert();
          } else {
             this._cd.markForCheck();
          }
@@ -66,7 +62,7 @@ export class ParameterGroupComponent implements OnInit {
    }
 
    closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 30000);
+     this._store.dispatch(new alertParametersActions.HideAlertAction());
    }
 
    changeTabOption(event: StHorizontalTab) {

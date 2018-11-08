@@ -19,7 +19,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "default": "{{{MONGODB_HOST}}}",
+            "default": "{{{Environment.MONGODB_HOST}}}",
             "required": true,
             "width": 6,
             "qa": "fragment-details-mongoDb-hostName"
@@ -28,7 +28,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "default": "{{{MONGODB_PORT}}}",
+            "default": "{{{Environment.MONGODB_PORT}}}",
             "required": true,
             "width": 5,
             "qa": "fragment-details-mongoDb-port"

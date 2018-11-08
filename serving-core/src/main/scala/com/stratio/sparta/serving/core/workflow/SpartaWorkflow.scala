@@ -190,8 +190,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
           .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
         val window = AggregationTimeHelper.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
-        if(workflow.debugMode.isDefined && workflow.debugMode.get)
-          stopStreamingContext()
+
+        workflow.debugMode.filter(isDebug => isDebug).foreach(_ => stopStreamingContext())
+
         getOrCreateStreamingContext(Duration(window),
           workflowCheckpointPath.notBlank,
           workflow.settings.streamingSettings.remember.notBlank
@@ -550,6 +551,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         node.writer.primaryKey.notBlank,
         node.writer.uniqueConstraintName.notBlank,
         node.writer.uniqueConstraintFields.notBlank,
+        node.writer.updateFields.notBlank,
         node.writer.errorTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[TransformStep[Underlying]](classType, (c) =>
@@ -595,6 +597,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         node.writer.primaryKey.notBlank,
         node.writer.uniqueConstraintName.notBlank,
         node.writer.uniqueConstraintFields.notBlank,
+        node.writer.updateFields.notBlank,
         node.writer.errorTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>

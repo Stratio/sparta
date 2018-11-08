@@ -1,7 +1,9 @@
 <st-fullscreen-layout [title]="'Custom Run'">
   <div class="st-fullscreen-layout-buttons">
-    <button class="button button-secondary-line" (click)="closeCustomExecution.emit()">{{'DASHBOARD.CANCEL' | translate}}</button>
-    <button class="button button-primary" [disabled]="executionForm.invalid" id="run-button" (click)="execute()">{{'DASHBOARD.RUN_NOW_BUTTON' | translate}}</button>
+    <button class="button button-secondary-line cancel-button" (click)="closeCustomExecution.emit()">{{'DASHBOARD.CANCEL' | translate}}</button>
+    <button class="button button-primary" [attr.disabled]="blockRunButton || executionForm.invalid ? '' : null" 
+      id="run-button" 
+      (click)="execute()">{{'DASHBOARD.RUN_NOW_BUTTON' | translate}}</button>
   </div>
   <div class="st-fullscreen-layout-content">
     <div class="content">
@@ -35,7 +37,7 @@
             [required]="true"
             placeholder="Type the value here"
             *ngFor="let param of executionContexts.extraParams"
-            name="extraParams"
+            name="{{param}}"
             [(ngModel)]="form.extraParams[param]"
             [label]="param + ' value'"></st-input>
           </div>
@@ -43,12 +45,12 @@
       </form>
       <sparta-sidebar *ngIf="sidebarPosition"
         [style.right.px]="sidebarPosition"
-        class="sidebar"
+        class="sidebar egeo-title-medium"
         [isVisible]="true"
         [showCloseButton]="false"
         (onCloseSidebar)="showWorkflowInfo()">
           {{workflowName}}
-          <p class="egeo-title-giant">Parameter values</p>
+          <p class="param-value">Parameter values</p>
           <div class="categories">
             <div class="category" *ngIf="executionContexts && executionContexts.globalParameters.variables">
               <span class="toggle-category" (click)="toggleCategory('global')">
@@ -57,7 +59,7 @@
               </span>
               <div class="params" *ngIf="categoriesToggle.global">
                 <div class="param" *ngFor="let param of executionContexts.globalParameters.variables">
-                  <div><span class="bold">{{param.name}}:</span>{{param.value}}</div>
+                  <div><span class="bold">{{param.name}}:</span> <span class="val">{{param.value}}</span></div>
                 </div>
               </div>
             </div>
@@ -69,7 +71,7 @@
               </span>
               <div class="params" *ngIf="categoriesToggle[key]">
                 <div class="param" *ngFor="let param of selectedContexts[key]">
-                  <div><span class="bold">{{param.name}}:</span> {{param.value}}</div>
+                  <div><span class="bold">{{param.name}}:</span> <span class="val">{{param.value}}</span></div>
                 </div>
               </div>
             </div>
@@ -77,11 +79,11 @@
             <div class="category" *ngIf="objectKeys(form.extraParams).length">
               <span class="toggle-category" (click)="toggleCategory('undefined')">
                 <span [className]="categoriesToggle.undefined ? 'icon icon-arrow2_down' : 'icon icon-arrow2_right'"></span>
-                <span>Undefined parameters</span>
+                <span>User defined parameter</span>
               </span>
               <div class="params" *ngIf="categoriesToggle.undefined">
                 <div class="param" *ngFor="let key of objectKeys(form.extraParams)">
-                  <div><span class="bold">{{key}:</span> {{form.extraParams[key]}}</div>
+                  <div><span class="bold">{{key}}:</span> <span class="val">{{form.extraParams[key]}}</span></div>
                 </div>
               </div>
             </div>

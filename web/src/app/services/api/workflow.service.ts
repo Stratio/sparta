@@ -5,7 +5,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 
@@ -182,4 +182,10 @@ export class WorkflowService extends ApiService {
         return this.request('workflows/runWithParametersViewById/' + workflowId, 'post', options);
     }
 
+    getRunParametersFromWorkflow(workflow: any) {
+        const options: any = {
+            body: workflow
+        };
+        return this.request('workflows/runWithParametersView', 'post', options);
+    }
 }

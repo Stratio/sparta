@@ -1,0 +1,595 @@
+{
+  "id": "323ffbb7-d8e3-4973-9ae4-2a8f0849da1d",
+  "name": "kirbytransformations",
+  "description": "Automatic Workflow testinput kafka 400ev",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "preExecutionSqlSentences": [],
+      "postExecutionSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER",
+      "parametersLists": [
+        "Environment"
+      ],
+      "parametersUsed": [],
+      "udfsToRegister": [],
+      "udafsToRegister": []
+    },
+    "streamingSettings": {
+      "window": "10s",
+      "remember": "",
+      "backpressure": false,
+      "blockInterval": "100ms",
+      "stopGracefully": false,
+      "checkpointSettings": {
+        "checkpointPath": "sparta/checkpoint",
+        "enableCheckpointing": false,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "1",
+          "executorMemory": "1G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "1G",
+          "mesosExtraCores": "",
+          "localityWait": "100",
+          "taskMaxFailures": "8",
+          "sparkMemoryFraction": "0.6",
+          "sparkParallelism": ""
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "/opt/spark/dist",
+        "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.2.0.5",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": false,
+        "logStagesProgress": false,
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": false,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "Test",
+        "stepType": "Input",
+        "className": "TestInputStepStreaming",
+        "classPrettyName": "Test",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "description": "Json with ID",
+        "uiConfiguration": {
+          "position": {
+            "x": 419.5025939941406,
+            "y": 275.2865905761719
+          }
+        },
+        "configuration": {
+          "maxNumbEvents": "400",
+          "eventType": "STRING",
+          "outputField": "raw",
+          "event": "{\"id\":\"550\",\"testnull\":null}",
+          "debugOptions": "{\"userProvidedExample\":\"{\\\"id\\\":\\\"554\\\",\\\"test3\\\":\\\"22\\\",\\\"test2\\\":\\\"aaa\\\"}\"}",
+          "numEvents": "400"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "idtable",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStreaming",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "idtopic",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1001.6175537109375,
+            "y": 205.30343627929688
+          }
+        },
+        "configuration": {
+          "sql": "select * from RenameColumns",
+          "discardConditions": "[]",
+          "inputSchemas": "[]",
+          "executeSqlWhenEmpty": false
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Json",
+        "stepType": "Transformation",
+        "className": "JsonTransformStep",
+        "classPrettyName": "Json",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 661.021484375,
+            "y": 226.04859924316406
+          }
+        },
+        "configuration": {
+          "inputSchemas": "[]",
+          "schema.fromRow": true,
+          "whenFieldError": "",
+          "whenRowError": "",
+          "fieldsPreservationPolicy": "APPEND",
+          "inputField": "raw"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Print",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1540.265380859375,
+            "y": 245.1654815673828
+          }
+        },
+        "configuration": {
+          "printData": true,
+          "printSchema": false,
+          "errorSink": false,
+          "printMetadata": true,
+          "logLevel": "warn"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
+      },
+      {
+        "name": "InitNulls",
+        "stepType": "Transformation",
+        "className": "InitNullsTransformStep",
+        "classPrettyName": "InitNulls",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 775.1673583984375,
+            "y": 467.1678771972656
+          }
+        },
+        "configuration": {
+          "inputSchemas": "[]",
+          "whenFieldError": "",
+          "whenRowError": "",
+          "defaultValueToColumn": [
+            {
+              "columnName": "testnull",
+              "value": "pepito"
+            }
+          ],
+          "defaultValueToType": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "AddColumns",
+        "stepType": "Transformation",
+        "className": "AddColumnsTransformStep",
+        "classPrettyName": "AddColumns",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 987.3028672718851,
+            "y": 595.7168107234206
+          }
+        },
+        "configuration": {
+          "columns": [
+            {
+              "field": "prueba1",
+              "type": "string",
+              "query": "aaa"
+            },
+            {
+              "field": "prueba2",
+              "type": "string",
+              "query": "bbb"
+            },
+            {
+              "field": "prueba3",
+              "type": "string",
+              "query": "cccc"
+            },
+            {
+              "field": "id1",
+              "type": "string",
+              "query": "554"
+            },
+            {
+              "field": "id",
+              "type": "string",
+              "query": "3666"
+            }
+          ],
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "DropColumns",
+        "stepType": "Transformation",
+        "className": "DropColumnsTransformStep",
+        "classPrettyName": "DropColumns",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1398.595487405739,
+            "y": 480.4605976812495
+          }
+        },
+        "configuration": {
+          "schema.fields": [
+            {
+              "name": "prueba2"
+            }
+          ],
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "RenameColumns",
+        "stepType": "Transformation",
+        "className": "RenameColumnTransformStep",
+        "classPrettyName": "RenameColumns",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1147.6862792633565,
+            "y": 376.0813791417476
+          }
+        },
+        "configuration": {
+          "columns": [
+            {
+              "name": "prueba1",
+              "alias": "pruebanueva"
+            }
+          ],
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Trigger",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStep",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 848.9015559679608,
+            "y": 307.6325796990425
+          }
+        },
+        "configuration": {
+          "sql": "select id, cast(null as STRING) as testnull from Json",
+          "discardConditions": "[]",
+          "inputSchemas": "[]",
+          "executeSqlWhenEmpty": true
+        },
+        "supportedEngines": [
+          "Streaming"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "DropNulls",
+        "stepType": "Transformation",
+        "className": "DropNullsTransformStep",
+        "classPrettyName": "DropNulls",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 776.0480450012769,
+            "y": 590.1786918458927
+          }
+        },
+        "configuration": {
+          "inputSchemas": "[]",
+          "cleanMode": "ANY",
+          "columns": "[]",
+          "whenFieldError": "",
+          "whenRowError": ""
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "AddColumns_duplicate",
+        "stepType": "Transformation",
+        "className": "AddColumnsTransformStep",
+        "classPrettyName": "AddColumns",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1175.043195372992,
+            "y": 663.3671906230294
+          }
+        },
+        "configuration": {
+          "columns": [
+            {
+              "field": "id2",
+              "type": "string",
+              "query": "554"
+            }
+          ],
+          "inputSchemas": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Test",
+        "destination": "Json",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "DropColumns",
+        "destination": "RenameColumns",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "RenameColumns",
+        "destination": "idtable",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Trigger",
+        "destination": "InitNulls",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Json",
+        "destination": "Trigger",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "InitNulls",
+        "destination": "DropNulls",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "DropNulls",
+        "destination": "AddColumns",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "AddColumns",
+        "destination": "AddColumns_duplicate",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "AddColumns_duplicate",
+        "destination": "DropColumns",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "idtable",
+        "destination": "Print",
+        "dataType": "ValidData"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": -179.2419931947694,
+      "y": -88.93956549716762,
+      "k": 0.6604997863864768
+    }
+  },
+  "lastUpdateDate": "2018-07-04T12:51:08Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "versionSparta": "2.4.0-926650d",
+  "groupId": "940800b2-6d81-44a8-84d9-26913a2faea4"
+}

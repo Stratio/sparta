@@ -32,7 +32,7 @@ trait ParameterListHttpService extends BaseHttpService with OauthClient {
   )
 
   override def routes(user: Option[LoggedUser] = None): Route =
-    findAll(user) ~ findById(user) ~ findByName(user) ~ findByParent(user) ~ create(user) ~ update(user) ~
+    findAll(user) ~ findById(user) ~ findByName(user) ~ findByParent(user) ~ create(user) ~ update(user) ~ updateList(user)~
       deleteByName(user) ~ deleteById(user) ~ deleteAll(user) ~ createFromWorkflow(user) ~ findEnvironment(user) ~
       findEnvironmentAndContexts(user) ~ findEnvironmentContexts(user) ~ findContextsByGroup(user) ~
       findParentListAndContexts(user)
@@ -329,6 +329,30 @@ trait ParameterListHttpService extends BaseHttpService with OauthClient {
           complete {
             for {
               response <- (supervisor ? UpdateParameterList(parameterList, user))
+                .mapTo[Either[Response, UnauthorizedResponse]]
+            } yield deletePostPutResponse(ParameterListServiceUpdate, response, genericError, StatusCodes.OK)
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Updates list of a parameter list.",
+    notes = "Updates list of a parameter list.",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "parameterList",
+      value = "list parameter list json",
+      dataType = "List",
+      required = true,
+      paramType = "body")))
+  def updateList(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.ParameterListPath) {
+      put {
+        entity(as[Seq[ParameterList]]) { parameterLists =>
+          complete {
+            for {
+              response <- (supervisor ? UpdateList(parameterLists, user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
             } yield deletePostPutResponse(ParameterListServiceUpdate, response, genericError, StatusCodes.OK)
           }

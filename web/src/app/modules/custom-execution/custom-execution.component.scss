@@ -31,14 +31,29 @@ st-input, sp-select {
 
 .toggle-category{
   cursor: pointer;
+  font-family: $egeo-nunito-sans-bold;
+  color: $neutral-11;
+  font-size: $egeo-font-size-small;
 }
 
 .categories{
-  padding-top:2em;
-  overflow-y: auto;
-  height: 85%;
+    overflow-y: auto;
+    width: calc(100% + 10px);
+    overflow-x: hidden;
+    padding-right: 20px;
+    max-height: calc(100% - 120px);
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    word-break: break-all;
+    white-space: normal;
   .bold {
      font-weight: bold;
+     display: block;
+     font-size: $egeo-font-size-xxsmall;
+  }
+
+  .val {
+    font-size: $egeo-font-size-xxsmall;
+    font-family: $egeo-nunito-sans;
   }
 }
 
@@ -47,15 +62,25 @@ st-input, sp-select {
 }
 
 .category {
-  color: $neutral-09;
-  font-size: 14px;
+    font-size: $egeo-font-size-xxsmall;
   padding-bottom: 1em;
 
   .icon {
-    font-size: 12px;
+    font-size: $egeo-font-size-xxxsmall;
+    margin-right: 2px;
   }
 }
 
 .param {
   margin: 8px 0;
+}
+
+.param-value {
+    font-size: $egeo-font-size-xsmall;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.cancel-button{
+  margin-right: 1em;
 }

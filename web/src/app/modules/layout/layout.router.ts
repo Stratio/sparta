@@ -21,8 +21,15 @@ const layoutRoutes: Routes = [
             loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule'
          },
          {
+            path: 'archived',
+            loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule',
+            data : {
+              archived : true
+            }
+         },
+         {
             path: 'repository',
-            loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
+            loadChildren: '@app/repository/workflows.module#WorkflowsManageModule'
          },
          {
             path: 'templates',
@@ -34,7 +41,7 @@ const layoutRoutes: Routes = [
          },
          {
             path: 'catalog',
-            loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
+            loadChildren: '@app/catalog/crossdata.module#CrossdataModule'
          }
       ]
    }

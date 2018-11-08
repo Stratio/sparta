@@ -12,8 +12,6 @@ import { Store } from '@ngrx/store';
 
 import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/distinctUntilChanged';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
 
 import { StModalService } from '@stratio/egeo';
 
@@ -21,9 +19,13 @@ import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import * as debugActions from './../../actions/debug';
 
-import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from './../wizard-modal/wizard-modal.component';
 import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
+import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.model';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, distinctUntilChanged} from 'rxjs/operators';
+
+
 
 @Component({
   selector: 'wizard-header',
@@ -86,11 +88,11 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       private _location: Location) { }
 
    ngOnInit(): void {
-      this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
+      this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).pipe(distinctUntilChanged());
       this.isLoading$ = this._store.select(fromWizard.isLoading);
 
       this._store.select(fromWizard.areUndoRedoEnabled)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((actions: any) => {
             this.undoEnabled = actions.undo;
             this.redoEnabled = actions.redo;
@@ -98,25 +100,25 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
          });
 
       this._store.select(fromWizard.getValidationErrors)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((validations: any) => {
             this.validations = validations;
             this._cd.markForCheck();
          });
 
-      this._store.select(fromWizard.isPristine).distinctUntilChanged()
-         .takeUntil(this._componentDestroyed)
+      this._store.select(fromWizard.isPristine).pipe(distinctUntilChanged())
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((isPristine: boolean) => {
             this.isPristine = isPristine;
             this._cd.markForCheck();
          });
 
       this._store.select(fromWizard.getWorkflowType)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((type) => this.workflowType = type);
 
       this._store.select(fromWizard.getDebugResult)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(debugResult => {
             this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
             this._cd.markForCheck();
@@ -124,7 +126,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
       let handler;
       this._store.select(fromWizard.getWizardNofications)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((notification) => {
             if ((notification.message && notification.message.length) || notification.templateType) {
                this.notification = {
@@ -183,7 +185,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       if (event === 'simple') {
          this.debugWorkflow();
       } else {
-         this._store.dispatch(new debugActions.ShowDebugConfigAction());
+         this._store.dispatch(new debugActions.ConfigAdvancedExecutionAction());
       }
    }
 

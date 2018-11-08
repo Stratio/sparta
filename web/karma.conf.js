@@ -12,7 +12,7 @@ if (args && args.length > 0) {
 module.exports = function (config) {
    config.set({
       basePath: '',
-      frameworks: ['jasmine', '@angular/cli'],
+      frameworks: ['jasmine', '@angular-devkit/build-angular'],
       plugins: [
          require('karma-jasmine'),
          require('karma-phantomjs-launcher'),
@@ -20,18 +20,16 @@ module.exports = function (config) {
          require('karma-junit-reporter'),
          require('karma-jasmine-html-reporter'),
          require('karma-coverage-istanbul-reporter'),
-         require('@angular/cli/plugins/karma')
+         require('@angular-devkit/build-angular/plugins/karma')
       ],
       client: {
          clearContext: false // leave Jasmine Spec Runner output visible in browser
       },
       coverageIstanbulReporter: {
-         dir: require('path').join(__dirname, 'coverage'), reports: ['html', 'lcovonly'],
+         dir: require('path').join(__dirname, 'coverage'), dir: require('path').join(__dirname, 'coverage'), reports: ['html', 'lcovonly'],
          fixWebpackSourcePaths: true
       },
-      angularCli: {
-         environment: 'dev'
-      },
+      
       phantomJsLauncher: {
         exitOnResourceError: true
      },
@@ -51,6 +49,10 @@ module.exports = function (config) {
       logLevel: config.LOG_INFO,
       autoWatch: true,
       browsers: ['PhantomJS'],
-      singleRun: false
+      singleRun: false,
+      captureTimeout: 210000,
+      browserDisconnectTolerance: 3, 
+      browserDisconnectTimeout : 210000,
+      browserNoActivityTimeout : 210000
    })
 }

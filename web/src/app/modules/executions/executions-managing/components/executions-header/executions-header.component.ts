@@ -8,7 +8,8 @@ import {
    Component,
    EventEmitter,
    Input,
-   Output
+   Output,
+   OnInit
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { StModalService, StDropDownMenuItem } from '@stratio/egeo';
@@ -25,11 +26,15 @@ import { BreadcrumbMenuService } from 'services';
    }
 })
 
-export class ExecutionsHeaderComponent {
+export class ExecutionsHeaderComponent implements OnInit {
 
    @Input() selectedExecutions: Array<any> = [];
    @Input() showDetails = false;
-
+   @Input() showStopButton: boolean;
+   @Input() showArchiveButton: boolean;
+   @Input() showUnarchiveButton: boolean;
+   @Input() isArchivedPage: boolean;
+   @Input() emptyTable = false;
 
    @Input() get statusFilter() {
       return this._statusFilter;
@@ -49,7 +54,7 @@ export class ExecutionsHeaderComponent {
    }
 
 
-   @Input() get timeIntervalFilter () {
+   @Input() get timeIntervalFilter() {
       return this._timeIntervalFilter;
    }
    set timeIntervalFilter(value) {
@@ -63,6 +68,9 @@ export class ExecutionsHeaderComponent {
    @Output() onStopExecution = new EventEmitter<any>();
    @Output() onSearch = new EventEmitter<any>();
    @Output() showExecutionInfo = new EventEmitter<void>();
+   @Output() archiveExecutions = new EventEmitter<void>();
+   @Output() unarchiveExecutions = new EventEmitter<void>();
+   @Output() onDeleteExecution = new EventEmitter<void>();
 
    @Output() onChangeStatusFilter = new EventEmitter<string>();
    @Output() onChangeTypeFilter = new EventEmitter<string>();
@@ -91,10 +99,6 @@ export class ExecutionsHeaderComponent {
       {
          label: 'failed',
          value: 'Failed'
-      },
-      {
-         label: 'archived',
-         value: 'Archived'
       }
    ];
    public workflowTypes: StDropDownMenuItem[] = [
@@ -113,7 +117,7 @@ export class ExecutionsHeaderComponent {
    ];
    public timeIntervals: StDropDownMenuItem[] = [
       {
-         label: 'any time',
+         label: 'launch date',
          value: 0
       },
       {
@@ -144,7 +148,12 @@ export class ExecutionsHeaderComponent {
    private _timeIntervalFilter = 0;
 
    constructor(private _modalService: StModalService, public breadcrumbMenuService: BreadcrumbMenuService, private route: Router) {
-      this.breadcrumbOptions = ['Home', 'executions'];
+      this.breadcrumbOptions = breadcrumbMenuService.getOptions();
+   }
+   ngOnInit(): void {
+      if (this.isArchivedPage) {
+         this.statuses = this.statuses.filter(status => status.value !== 'Running');
+      }
    }
 
    selectFilter(event: any, filter: string) {

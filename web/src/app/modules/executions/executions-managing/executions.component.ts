@@ -13,14 +13,13 @@ import {
    ViewContainerRef
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/takeUntil';
+import { Router, ActivatedRoute } from '@angular/router';
 
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subject } from 'rxjs';
+import { isEmpty, take, takeUntil } from 'rxjs/operators';
+
+
 import { StModalService } from '@stratio/egeo';
-import { Subject } from 'rxjs';
 
 import {
    State
@@ -48,46 +47,72 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
    public executionInfo: any;
    public showInitialMode: Observable<boolean>;
    public executionsList$: Observable<any>;
+   public isLoading$: Observable<boolean>;
    public selectedExecution: any;
    public showDebugConsole = false;
-
+   public isArchivedPage = false;
+   public isEmptyList: boolean;
    private _componentDestroyed = new Subject();
 
    private _intervalHandler;
 
    constructor(private _store: Store<State>,
       private _route: Router,
+      private _activatedRoute: ActivatedRoute,
       private _cd: ChangeDetectorRef,
       private _modalService: StModalService) { }
 
    ngOnInit() {
-      this._store.dispatch(new executionsActions.ListExecutionsAction());
-      this._intervalHandler = setInterval(() => this._store.dispatch(new executionsActions.ListExecutionsAction()), 3000);
+      this._activatedRoute.pathFromRoot[this._activatedRoute.pathFromRoot.length - 1]
+         .data.pipe(take(1)).subscribe(v => {
+            this.isArchivedPage = v.archived ? true : false;
+            this._store.dispatch(new executionsActions.SetArchivedPageAction(this.isArchivedPage));
+            if (this.isArchivedPage) {
+               this._store.dispatch(new executionsActions.ListArchivedExecutionsAction());
+            } else {
+               this._store.dispatch(new executionsActions.ListExecutionsAction());
+            }
+         });
       this.executionsList$ = this._store.select(fromRoot.getFilteredSearchExecutionsList);
+      this.isLoading$ = this._store.select(fromRoot.getIsLoading)
+
+
+      this._store.select(fromRoot.isEmptyList)
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe(isEmptyList => {
+            this.isEmptyList = isEmptyList;
+            this._cd.markForCheck();
+         });
 
       this._store.select(fromRoot.getSelectedExecutions)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((selectedIds: any) => {
             this.selectedExecutionsIds = selectedIds;
             this._cd.markForCheck();
          });
 
       this._store.select(fromRoot.getLastSelectedExecution)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(selectedExecution => {
             this.selectedExecution = selectedExecution;
             this._cd.markForCheck();
          });
 
+      this._store.select(fromRoot.getExecutionInfo)
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe(executionInfo => {
+            this.executionInfo = executionInfo;
+            this._cd.markForCheck();
+         });
    }
 
    onShowExecutionInfo() {
       this.showDetails = !this.showDetails;
    }
 
-   showWorkflowExecutionInfo(ev) {
-
-    }
+   showWorkflowExecutionInfo(workflowEvent) {
+      this._store.dispatch(new executionsActions.GetExecutionInfoAction({ id: workflowEvent.id, name: workflowEvent.name }));
+   }
 
    showConsole(ev) {
       this.showDebugConsole = true;
@@ -97,10 +122,20 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
       this.showDebugConsole = false;
    }
 
-   ngOnDestroy(): void {
+   closeExecutionInfo() {
+      this._store.dispatch(new executionsActions.CloseWorkflowExecutionInfoAction());
+   }
+
+   ngOnDestroy() {
       clearInterval(this._intervalHandler);
       this._componentDestroyed.next();
       this._componentDestroyed.unsubscribe();
+      this._store.dispatch(new executionsActions.CancelExecutionPolling());
+      this._store.dispatch(new executionsActions.ResetValuesAction());
+   }
+
+   goToRepository() {
+      this._route.navigate(['repository']);
    }
 
 }

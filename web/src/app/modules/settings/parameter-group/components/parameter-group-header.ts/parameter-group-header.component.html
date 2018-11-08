@@ -1,18 +1,18 @@
 <div class="container">
    <div class="row">
-      <div class="right col-sm-9">
-         <st-search class="search-input" [placeholder]="listMode ? ('DASHBOARD.FILTER_LIST'  | translate) : ('DASHBOARD.FILTER_ENVIRONMENT' | translate)"
+      <div class="right col-sm-10">
+         <st-search class="search-input" [placeholder]="'Search...'"
             [debounce]="200" [minLength]="0" [value]="searchValue" (search)="onSearch.emit($event)" qaTag="filter-parameters"></st-search>
       </div>
-      <div class="col-sm-3 right">
-         <!-- <form-file class="form-file" type="button-toolbar" title="Upload environment variables" icon="icon-upload" (onFileUpload)="onUploadParams.emit($event)"></form-file>
-         <button class="button button-toolbar" id="download-params" (click)="onDownloadParams.emit()">
+      <div class="col-sm-2 right">
+         <form-file *ngIf="!configContext" class="form-file" type="button-toolbar" title="{{importTitle}}" icon="icon-upload" (onFileUpload)="onUploadParams.emit($event)"></form-file>
+         <button class="button button-toolbar" id="download-params" (click)="onDownloadParams.emit()" [spTitle]="exportTitle" *ngIf="!configContext">
             <i class="icon-download"></i>
-         </button> -->
-         <button *ngIf="withContext && !listMode" class="button button-toolbar" id="create-param" (click)="onConfigContext.emit()">
+         </button> 
+         <button *ngIf="withContext && !listMode" class="button button-toolbar" id="create-param" (click)="onConfigContext.emit()" spTitle="Context configuration">
             <i class="icon-cog"></i>
          </button>
-         <button class="button button-toolbar" id="create-param" (click)="onCreateParam.emit()" [disabled]="creationMode">
+         <button class="button button-toolbar" id="create-param" (click)="onCreateParam.emit()" [disabled]="creationMode" spTitle="Add parameter">
             <i class="icon-plus"></i>
          </button>
       </div>

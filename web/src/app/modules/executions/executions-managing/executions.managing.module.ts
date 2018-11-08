@@ -7,16 +7,17 @@ import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
-import { StBreadcrumbsModule, StTableModule,
-    StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-    StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StDropdownMenuModule
+import {
+   StBreadcrumbsModule, StTableModule,
+   StSearchModule, StCheckboxModule, StHorizontalTabsModule,
+   StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StDropdownMenuModule, StSpinnerModule
 } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
 import {
-   ExecutionsManagingComponent,  ExecutionsRouterModule, ExecutionsDetailComponent,
-    ExecutionsExecutionInfoComponent, ExecutionsHeaderContainer, ExecutionsHeaderComponent,
-    ExecutionsTableComponent, ExecutionsTableContainer, ExecutionsConsoleComponent
+   ExecutionsManagingComponent, ExecutionsRouterModule, ExecutionsDetailComponent,
+   ExecutionsExecutionInfoComponent, ExecutionsHeaderContainer, ExecutionsHeaderComponent,
+   ExecutionsTableComponent, ExecutionsTableContainer, ExecutionsConsoleComponent
 } from '.';
 
 import { reducerToken, reducerProvider } from './reducers';
@@ -27,7 +28,7 @@ import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 
 @NgModule({
-    declarations: [
+   declarations: [
       ExecutionsManagingComponent,
       ExecutionsDetailComponent,
       ExecutionsExecutionInfoComponent,
@@ -36,26 +37,27 @@ import { ExecutionHelperService } from 'app/services/helpers/execution.service';
       ExecutionsTableComponent,
       ExecutionsTableContainer,
       ExecutionsConsoleComponent
-    ],
-    imports: [
-        FormsModule,
-        SpTooltipModule,
-        StoreModule.forFeature('executions', reducerToken),
-        EffectsModule.forFeature([ExecutionsEffect]),
-        StCheckboxModule,
-        StHorizontalTabsModule,
-        StFullscreenLayoutModule,
-        StTableModule,
-        StTooltipModule,
-        StBreadcrumbsModule,
-        StDropdownMenuModule ,
-        StSearchModule,
-        ExecutionsRouterModule,
-        StPaginationModule,
-        SharedModule,
-        ConsoleBoxModule
-    ],
-    providers: [reducerProvider,ExecutionHelperService]
+   ],
+   imports: [
+      FormsModule,
+      SpTooltipModule,
+      StoreModule.forFeature('executions', reducerToken),
+      EffectsModule.forFeature([ExecutionsEffect]),
+      StCheckboxModule,
+      StHorizontalTabsModule,
+      StFullscreenLayoutModule,
+      StTableModule,
+      StTooltipModule,
+      StSpinnerModule,
+      StBreadcrumbsModule,
+      StDropdownMenuModule,
+      StSearchModule,
+      ExecutionsRouterModule,
+      StPaginationModule,
+      SharedModule,
+      ConsoleBoxModule
+   ],
+   providers: [reducerProvider, ExecutionHelperService]
 })
 
 export class ExecutionsManagingModule {

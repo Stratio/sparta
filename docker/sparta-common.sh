@@ -78,7 +78,7 @@ function initSparkEnvOptions() {
 
   if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
     HOST="$(hostname --all-ip-addresses|xargs)"
-    INFO "[COMMON] Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
+    INFO "[COMMON] Virtual network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
     export LIBPROCESS_IP=$HOST
   fi
 
@@ -234,6 +234,21 @@ function logLevelOptions() {
   sed -i "s|com.typesafe.slick.*|com.typesafe.slick= ${SLICK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   echo "export SLICK_LOG_LEVEL=${SLICK_LOG_LEVEL}" >> ${VARIABLES}
   echo "export SLICK_LOG_LEVEL=${SLICK_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
+
+  if [[ ! -v LINEAGE_LOG_LEVEL ]]; then
+    LINEAGE_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|com.stratio.sparta.dg.agent.*|com.stratio.sparta.dg.agent= ${LINEAGE_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  sed -i "s|com.stratio.governance.*|com.stratio.governance= ${LINEAGE_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export LINEAGE_LOG_LEVEL=${LINEAGE_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export LINEAGE_LOG_LEVEL=${LINEAGE_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
+
+  if [[ ! -v GOSEC_LOG_LEVEL ]]; then
+    GOSEC_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|com.stratio.gosec.*|com.stratio.gosec= ${GOSEC_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export LINEAGE_LOG_LEVEL=${GOSEC_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export LINEAGE_LOG_LEVEL=${GOSEC_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 }
 
 function logLevelAppender() {

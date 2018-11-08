@@ -126,8 +126,8 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
 
   def removeDebugStepData(id: String): Future[Boolean] = {
     for {
-      resultStep <- db.run(resultTable.filter(_.id startsWith id).result)
-      _ <- deleteResultList(resultStep.flatMap(_.id.toList))
+      resultStep <- db.run(resultTable.filter(_.workflowId === id).result)
+      _ <- deleteResultList(resultStep.map(_.id))
     } yield {
       log.info(s"DebugStep data for workflow $id  deleted")
       true
@@ -173,6 +173,7 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
     val ids = debugWorkflowLists.flatMap(_.id.toList)
     for {
       _ <- deleteList(ids)
+      _ <- Future.sequence(ids.map(removeDebugStepData))
     } yield {
       log.info(s"Debug Workflows with ids = ${ids.mkString(",")} deleted")
       true
@@ -181,7 +182,7 @@ class DebugWorkflowPostgresDao extends DebugWorkflowDao {
 
   private[services] def getDebugStepData(id: String) = {
     for {
-      resultStep <- db.run(resultTable.filter(_.id startsWith id).result)
+      resultStep <- db.run(resultTable.filter(_.workflowId === id).result)
     } yield {
       resultStep
     }

@@ -10,12 +10,21 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Injectable()
 export class BreadcrumbMenuService {
 
-    public getOptions(lastOption?: string): string[] {
-        let options = ['home'];
+    public getOptions(lastOption?: string): any[] {
+        let options = [{
+            id: 'home',
+            label: 'home'
+        }];
         const params = this.route.url.split('/');
-        options = options.concat(params.slice(1, params.length).map(param => param.replace('-', ' ')));
+        options = options.concat(params.slice(1, params.length).map(param => param.replace('-', ' ')).map(param => ({
+            id: param,
+            label: param
+        })));
         if (lastOption && lastOption.length) {
-            options[options.length - 1] = lastOption;
+            options[options.length - 1] = {
+                id: 'lastOption',
+                label: 'lastOption'
+            };
         }
         return options;
     }
@@ -23,8 +32,11 @@ export class BreadcrumbMenuService {
     public setRoute(routeIndex: number) {
         const routeParams = this.getOptions();
         let route = '';
+        if (routeParams.length === routeIndex) {
+            return;
+        }
         for (let i = 1; i < routeIndex + 1; i++) {
-            route += '/' + routeParams[i].replace(' ', '-');
+            route += '/' + routeParams[i].id.replace(' ', '-');
         }
         this.route.navigate([route], {});
     }

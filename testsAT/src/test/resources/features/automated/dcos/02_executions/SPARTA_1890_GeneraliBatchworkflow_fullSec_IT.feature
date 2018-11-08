@@ -8,8 +8,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     And I open a ssh connection to '!{marathonIP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
 
-  @skipOnEnv(POSTGRES_OLD_VERSION=TRUE)
-  @skipOnEnv(SKIP_POLICY=true)
+  @skipOnEnv(POSTGRES_OLD_VERSION=TRUE||SKIP_POLICY=true||STRATIO_RELEASE=ORION)
   Scenario: [SPARTA-1162][02]Add postgres policy to write in postgres
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
@@ -84,7 +83,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     Then I save selenium cookies in context
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
-    And the service response status must be '200' and its response must contain the text 'OK'
+    And the service response status must be '200'
 
   #********************************
   # VERIFY batch-generali-workflow*

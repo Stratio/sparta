@@ -10,7 +10,7 @@ import { StModalService, Order } from '@stratio/egeo';
 import { State } from './../../reducers';
 import * as executionActions from '../../actions/executions';
 import * as fromRoot from './../../reducers';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
    selector: 'executions-managing-table-container',
@@ -28,7 +28,7 @@ import { Observable } from 'rxjs/Observable';
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class ExecutionsTableContainer implements OnInit, OnDestroy {
+export class ExecutionsTableContainer implements OnInit {
 
    @Input() selectedExecutionsIds: Array<string> = [];
    @Input() executionList: Array<any> = [];
@@ -42,10 +42,6 @@ export class ExecutionsTableContainer implements OnInit, OnDestroy {
    ngOnInit(): void {
      this.pageNumber$ = this._store.select(fromRoot.getCurrentPage);
      this.perPage$ = this._store.select(fromRoot.getPerPageElements);
-    }
-
-    ngOnDestroy(): void {
-      this._store.dispatch(new executionActions.ResetValuesAction());
     }
 
    selectExecution(execution: any) {

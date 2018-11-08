@@ -57,12 +57,6 @@ describe('SpTextareaComponent', () => {
       expect(textarea.disabled).toBe(false);
    });
 
-   it('Textarea should be focused naturally', () => {
-      fixture.detectChanges();
-      textarea.focus();
-      expect(component.focus).toBe(true);
-   });
-
    // TODO: Review this test because something is wrong
    it('Textarea should be focused as default', async(() => {
       fixture.detectChanges();

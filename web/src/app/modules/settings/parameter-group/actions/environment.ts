@@ -23,6 +23,12 @@ export const ADD_ENVIRONMENT_CONTEXT = '[Environment Params] Add environment con
 export const SAVE_ENVIRONMENT_CONTEXT = '[Environment Params] Save environment context';
 export const SAVE_ENVIRONMENT_CONTEXT_COMPLETE = '[Environment Params] Save environment context complete';
 export const DELETE_ENVIRONMENT_CONTEXT = '[Environment Params] Delete environment context';
+export const EXPORT_ENVIRONMENT_PARAMS = '[Environment Params] Export environment params';
+export const EXPORT_ENVIRONMENT_PARAMS_COMPLETE = '[Environment Params] Export environment params complete';
+export const EXPORT_ENVIRONMENT_PARAMS_ERROR = '[Environment Params] Export environment params error';
+export const IMPORT_ENVIRONMENT_PARAMS = '[Environment Params] Import environment params';
+export const IMPORT_ENVIRONMENT_PARAMS_COMPLETE = '[Environment Params] Import environment params complete';
+export const IMPORT_ENVIRONMENT_PARAMS_ERROR = '[Environment Params] Import environment params error';
 
 export class ListEnvironmentParamsAction implements Action {
    readonly type = LIST_ENVIRONMENT_PARAMS;
@@ -109,6 +115,36 @@ export class DeleteContextAction implements Action {
    constructor(public context: any) {}
 }
 
+export class ExportEnvironmentParamsAction implements Action {
+    readonly type = EXPORT_ENVIRONMENT_PARAMS;
+    constructor() {}
+  }
+  
+  export class ExportEnvironmentParamsCompleteAction implements Action {
+    readonly type = EXPORT_ENVIRONMENT_PARAMS_COMPLETE;
+    constructor() {}
+  }
+  
+  export class ExportEnvironmentParamsErrorAction implements Action {
+    readonly type = EXPORT_ENVIRONMENT_PARAMS_ERROR;
+    constructor() {}
+  }
+
+  export class ImportEnvironmentParamsAction implements Action {
+    readonly type = IMPORT_ENVIRONMENT_PARAMS;
+    constructor(public payload: any) { }
+}
+
+  export class ImportEnvironmentParamsCompleteAction implements Action {
+    readonly type = IMPORT_ENVIRONMENT_PARAMS_COMPLETE;
+    constructor() {}
+  }
+
+  export class ImportEnvironmentParamsErrorAction implements Action {
+    readonly type = IMPORT_ENVIRONMENT_PARAMS_ERROR;
+    constructor() {}
+  }
+
 export type Actions = ListEnvironmentParamsAction
   | ListEnvironmentParamsCompleteAction
   | ListEnvironmentParamsErrorAction
@@ -123,4 +159,10 @@ export type Actions = ListEnvironmentParamsAction
   | ChangeContextOptionAction
   | SearchEnvironmentAction
   | AddEnvironmentContextAction
-  | DeleteContextAction;
+  | DeleteContextAction
+  | ExportEnvironmentParamsAction
+  | ExportEnvironmentParamsCompleteAction
+  | ExportEnvironmentParamsErrorAction
+  | ImportEnvironmentParamsAction
+  | ImportEnvironmentParamsCompleteAction
+  | ImportEnvironmentParamsErrorAction;

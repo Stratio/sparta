@@ -30,6 +30,17 @@
  }
  .st-fullscreen-layout-content {
    display: block;
+   .title {
+      width: 100%;
+      border-bottom: 1px solid #979797;
+      margin-bottom: 20px;
+      span {
+         border-bottom: 2px solid $neutral-13;
+         padding: 0px 20px;
+         font-size: $egeo-font-size-xsmall;
+         font-weight: 600;
+      }
+   }
 }
 
 sp-foreground-notifications {
@@ -40,3 +51,4 @@ sp-foreground-notifications {
    margin-right: auto;
    margin-left: auto;
 }
+

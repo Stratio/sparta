@@ -21,7 +21,7 @@
       <section class="template-creation-page">
          <div class="container">
             <div class="row">
-               <form #inputForm="ngForm" class="form-group col-sm-8" novalidate autocomplete="off">
+               <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off">
                   <div class="row" *ngIf="loaded">
                      <div class="col-xs-6">
                         <st-input name="name" 
@@ -54,7 +54,7 @@
                               name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field st-form-field"></sp-select>
                         </div>
                      </div>
-                     <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
+                     <form-generator class="col-sm-8" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
                         name="proper"></form-generator>
                   </div>
                </form>

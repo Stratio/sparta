@@ -16,55 +16,80 @@ import * as fromWizard from './reducers';
 import * as externalDataActions from './actions/externalData';
 import * as wizardActions from './actions/wizard';
 import * as debugActions from './actions/debug';
+import { MockStore } from '@test/store-mock';
+import { Engine } from 'app/models/enums';
 
 let component: WizardComponent;
 let fixture: ComponentFixture<WizardComponent>;
 let store: Store<any>;
 const fakeWorkflowId = 'fake-id';
-describe('[WizardComponent]', () => {
-  const activatedRouteInstance = {
-    snapshot: {
-      params: {
-        id: fakeWorkflowId
+
+const initialStateValue = {
+   wizard: {
+      wizard: {
+         selectedEntity: ''
+      },
+      entities: {
+         workflowType: Engine.Streaming,
+         entityCreationMode: false
+      },
+      debug: {
+
+      },
+      externalData: {
+
       }
-    }
-  };
-  const wizardServiceInstance = {};
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [
-        StoreModule.forRoot(fromRoot.reducers),
-        StoreModule.forFeature('wizard', fromWizard.reducers),
-      ],
-      declarations: [WizardComponent],
-      schemas: [NO_ERRORS_SCHEMA],
-      providers: [
-        { provide: ActivatedRoute, useValue: activatedRouteInstance },
-        { provide: WizardService, useValue: wizardServiceInstance }
-      ],
-    }).compileComponents();  // compile template and css
-  }));
+   }
+};
 
-  beforeEach(() => {
-    store = TestBed.get(Store);
-    spyOn(store, 'dispatch').and.callThrough();
-    spyOn(store, 'select').and.callThrough();
+describe('[WizardComponent]', () => {
+   const activatedRouteInstance = {
+      snapshot: {
+         params: {
+            id: fakeWorkflowId
+         }
+      }
+   };
+   const wizardServiceInstance = {};
+   const mockStoreInstance: MockStore<any> = new MockStore(initialStateValue);
+   beforeEach(async(() => {
+      TestBed.configureTestingModule({
+         imports: [
+            StoreModule.forRoot(fromRoot.reducers),
+            StoreModule.forFeature('wizard', fromWizard.reducers),
+         ],
+         schemas: [NO_ERRORS_SCHEMA],
+         providers: [
+            { provide: ActivatedRoute, useValue: activatedRouteInstance },
+            { provide: WizardService, useValue: wizardServiceInstance },
+            {
+               provide: Store, useValue: mockStoreInstance
+            }
+         ],
+          declarations: [WizardComponent]
+      }).compileComponents();  // compile template and css
+   }));
 
-    fixture = TestBed.createComponent(WizardComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+   beforeEach(() => {
+      store = TestBed.get(Store);
+      spyOn(store, 'dispatch').and.callThrough();
+      spyOn(store, 'select').and.callThrough();
 
-  it('should get the environment list on init', () => {
-    expect(store.dispatch).toHaveBeenCalledWith(new externalDataActions.GetEnvironmentListAction());
-  });
+      fixture = TestBed.createComponent(WizardComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+   });
+
+   it('should get the environment list on init', () => {
+      expect(store.dispatch).toHaveBeenCalledWith(new externalDataActions.GetParamsListAction());
+   });
 
 
-  it('should initialize the wizard with the workflow data when its in edition mode', () => {
-    expect(component.isEdit).toBeTruthy();
-    expect(store.dispatch).toHaveBeenCalledWith(new wizardActions.ResetWizardAction(true));
-    expect(store.dispatch).toHaveBeenCalledWith(new wizardActions.ModifyWorkflowAction(fakeWorkflowId));
-    expect(store.dispatch).toHaveBeenCalledWith(new debugActions.GetDebugResultAction(fakeWorkflowId));
-  });
+   it('should initialize the wizard with the workflow data when its in edition mode', () => {
+      expect(component.isEdit).toBeTruthy();
+      expect(store.dispatch).toHaveBeenCalledWith(new wizardActions.ResetWizardAction(true));
+      expect(store.dispatch).toHaveBeenCalledWith(new wizardActions.ModifyWorkflowAction(fakeWorkflowId));
+      expect(store.dispatch).toHaveBeenCalledWith(new debugActions.GetDebugResultAction(fakeWorkflowId));
+   });
 
 });

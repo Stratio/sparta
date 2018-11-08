@@ -37,9 +37,9 @@ Feature: [SPARTA-1161] Installation sparta with mustache
       |   $.Data-Governance.dg_enabled                        |  REPLACE    | true                                                                    |boolean |
       |   $.Sparta-History.history_enabled                    |  REPLACE    | true                                                                    |boolean |
       |   $.Sparta-History.host                               |  UPDATE     | jdbc:postgresql://${POSTGRES_URL:-pg-0001.postgrestls.mesos}:${POSTGRES_PORT:-5432}   |n/a |
-      |   $.Data-Governance.host                              |  UPDATE    | ${POSTGRES_URL:-pg-0001.postgrestls.mesos}                                              |n/a |
-      |   $.Data-Governance.port                              |  UPDATE    | ${POSTGRES_PORT:-5432}                                                                   |n/a |
-      |   $.Data-Governance.user                              |  UPDATE    |  ${DCOS_SERVICE_NAME}                                                                  |n/a |
+      |   $.Data-Governance.host                              |  UPDATE     | ${POSTGRES_URL:-pg-0001.postgrestls.mesos}                                              |n/a |
+      |   $.Data-Governance.port                              |  UPDATE     | ${POSTGRES_PORT:-5432}                                                                   |n/a |
+      |   $.Data-Governance.user                              |  UPDATE     |  ${DCOS_SERVICE_NAME}                                                                  |n/a |
 
     #Copy DEPLOY JSON to DCOS-CLI
     When I outbound copy 'target/test-classes/spartamustache.json' through a ssh connection to '/dcos'

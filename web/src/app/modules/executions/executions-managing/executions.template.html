@@ -9,21 +9,32 @@
 -->
 <div #newExecutionsModalMonitoring qaTag="executions-modal"></div>
 <div [hidden]="executionInfo" *ngIf="!(showInitialMode | async)">
-   <executions-managing-header-container [showDetails]="showDetails" [selectedExecutions]="selectedExecutionsIds"
-      (showExecutionInfo)="onShowExecutionInfo()"></executions-managing-header-container>
-   <div class="container">
+   <executions-managing-header-container [isArchivedPage]="isArchivedPage" [showDetails]="showDetails" [selectedExecutions]="selectedExecutionsIds"
+      (showExecutionInfo)="onShowExecutionInfo()" [emptyTable]="isEmptyList"></executions-managing-header-container>
+   <div class="container" *ngIf="!isEmptyList">
+
       <div class="table-container" [ngClass]="{'compressed' : showDetails}">
          <div class="executions-list">
             <executions-managing-table-container [executionList]="executionsList$ | async" [selectedExecutionsIds]="selectedExecutionsIds"></executions-managing-table-container>
          </div>
          <div class="execution-detail-container">
-            <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="onShowExecutionInfo()">
+            <sparta-sidebar [fullHeight]="true" [isVisible]="showDetails" (onCloseSidebar)="onShowExecutionInfo()">
                <executions-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
                   [executionData]="selectedExecution" (showConsole)="showConsole($event)"></executions-detail>
             </sparta-sidebar>
          </div>
       </div>
    </div>
+   <div *ngIf="isEmptyList && !isArchivedPage" class="container empty-wrapper full">
+         <empty-table-box
+            (redirectTo)="goToRepository()"
+            [title]="'EXECUTIONS.EMPTY_TITLE' | translate"
+            [text]="'EXECUTIONS.EMPTY_TEXT' | translate"
+            [button]="'EXECUTIONS.EMPTY_LINK' | translate"
+            [image]="'assets/images/no_execution.svg'"></empty-table-box>
+      </div>
 </div>
+
 <executions-console *ngIf="showDebugConsole" [execution]="selectedExecution" (closeConsole)="onCloseConsole()"></executions-console>
+<execution-info *ngIf="executionInfo" [executionInfo]="executionInfo" (closeExecutionInfo)="closeExecutionInfo()"></execution-info>
 

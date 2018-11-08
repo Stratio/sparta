@@ -6,100 +6,88 @@
 import { TemplatesService } from 'services/templates.service';
 import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
-import { Effect, Actions } from '@ngrx/effects';
+import { Effect, Actions, ofType } from '@ngrx/effects';
 
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
-import { Observable } from 'rxjs/Observable';
+import { iif, of, forkJoin, Observable } from 'rxjs';
 
 import * as outputActions from './../actions/output';
 import * as errorActions from 'actions/errors';
+import { switchMap, map, mergeMap } from 'rxjs/operators';
 
 @Injectable()
 export class OutputEffect {
 
    @Effect()
    getOutputList$: Observable<Action> = this.actions$
-      .ofType(outputActions.LIST_OUTPUT)
-      .switchMap((response: any) => this.templatesService.getTemplateList('output')
-         .map((outputList: any) => new outputActions.ListOutputCompleteAction(outputList))
-         .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
-            Observable.of(new outputActions.ListOutputFailAction('')),
-            Observable.of(new errorActions.ServerErrorAction(error))
-         )));
+      .pipe(ofType(outputActions.LIST_OUTPUT))
+      .pipe(switchMap((response: any) => this.templatesService.getTemplateList('output')
+         .pipe(map((outputList: any) => new outputActions.ListOutputCompleteAction(outputList)))
+         .catch(error => iif(() => error.statusText === 'Unknown Error',
+            of(new outputActions.ListOutputFailAction('')),
+            of(new errorActions.ServerErrorAction(error))
+         ))));
 
    @Effect()
    getOutputTemplate$: Observable<Action> = this.actions$
-      .ofType(outputActions.GET_EDITED_OUTPUT)
-      .map((action: any) => action.payload)
-      .switchMap((param: any) => this.templatesService.getTemplateById('output', param)
-         .map((output: any) => new outputActions.GetEditedOutputCompleteAction(output))
-         .catch(error => Observable.if(() => error.statusText === 'Unknown Error',
-            Observable.of(new outputActions.GetEditedOutputErrorAction('')),
-            Observable.of(new errorActions.ServerErrorAction(error))
-         )));
+      .pipe(ofType(outputActions.GET_EDITED_OUTPUT))
+      .pipe(map((action: any) => action.payload))
+      .pipe(switchMap((param: any) => this.templatesService.getTemplateById('output', param)
+         .pipe(map((output: any) => new outputActions.GetEditedOutputCompleteAction(output)))
+         .catch(error => iif(() => error.statusText === 'Unknown Error',
+            of(new outputActions.GetEditedOutputErrorAction('')),
+            of(new errorActions.ServerErrorAction(error))
+         ))));
 
    @Effect()
    deleteOutput$: Observable<Action> = this.actions$
-      .ofType(outputActions.DELETE_OUTPUT)
-      .map((action: any) => action.payload.selected)
-      .switchMap((outputs: any) => {
+      .pipe(ofType(outputActions.DELETE_OUTPUT))
+      .pipe(map((action: any) => action.payload.selected))
+      .pipe(switchMap((outputs: any) => {
          const joinObservables: Observable<any>[] = [];
          outputs.map((output: any) => {
             joinObservables.push(this.templatesService.deleteTemplate('output', output.id));
          });
-         return Observable.forkJoin(joinObservables).mergeMap(results => {
-            return [new outputActions.DeleteOutputCompleteAction(outputs), new outputActions.ListOutputAction()];
-         }).catch(function (error) {
-            return Observable.of(new errorActions.ServerErrorAction(error));
+         return forkJoin(joinObservables).pipe(mergeMap(results => [
+            new outputActions.DeleteOutputCompleteAction(outputs),
+            new outputActions.ListOutputAction()
+         ])).catch((error) => {
+            return of(new errorActions.ServerErrorAction(error));
          });
-      });
+      }));
 
    @Effect()
    duplicateOutput$: Observable<Action> = this.actions$
-      .ofType(outputActions.DUPLICATE_OUTPUT)
-      .switchMap((data: any) => {
-         let output = Object.assign(data.payload);
+      .pipe(ofType(outputActions.DUPLICATE_OUTPUT))
+      .pipe(switchMap((data: any) => {
+         const output = Object.assign(data.payload);
          delete output.id;
-         return this.templatesService.createTemplate(output).mergeMap((data: any) => {
-            return [new outputActions.DuplicateOutputCompleteAction(), new outputActions.ListOutputAction];
-         }).catch(function (error: any) {
-            return Observable.of(new errorActions.ServerErrorAction(error));
-         });
-      });
-
+         return this.templatesService.createTemplate(output)
+            .pipe(mergeMap(() => [
+               new outputActions.DuplicateOutputCompleteAction(),
+               new outputActions.ListOutputAction
+            ])).catch((error: any) => of(new errorActions.ServerErrorAction(error)));
+      }));
 
    @Effect()
    createOutput$: Observable<Action> = this.actions$
-      .ofType(outputActions.CREATE_OUTPUT)
-      .switchMap((data: any) => {
-         return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
-            return [new outputActions.CreateOutputCompleteAction(), new outputActions.ListOutputAction];
-         }).catch(function (error: any) {
-            return Observable.of(new errorActions.ServerErrorAction(error));
-         });
-      });
+      .pipe(ofType(outputActions.CREATE_OUTPUT))
+      .pipe(switchMap((data: any) => this.templatesService.createTemplate(data.payload)
+         .pipe(mergeMap(() => [
+            new outputActions.CreateOutputCompleteAction(),
+            new outputActions.ListOutputAction
+         ])).catch((error: any) => of(new errorActions.ServerErrorAction(error)))));
 
    @Effect()
    updateOutput$: Observable<Action> = this.actions$
-      .ofType(outputActions.UPDATE_OUTPUT)
-      .switchMap((data: any) => {
-         return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
-            return [new outputActions.UpdateOutputCompleteAction(), new outputActions.ListOutputAction];
-         }).catch(function (error: any) {
-            return Observable.of(new errorActions.ServerErrorAction(error));
-         });
-      });
+      .pipe(ofType(outputActions.UPDATE_OUTPUT))
+      .pipe(switchMap((data: any) => this.templatesService.updateFragment(data.payload)
+         .pipe(mergeMap(() => [
+            new outputActions.UpdateOutputCompleteAction(),
+            new outputActions.ListOutputAction
+         ])).catch((error: any) => of(new errorActions.ServerErrorAction(error)))));
 
    constructor(
       private actions$: Actions,
       private templatesService: TemplatesService
    ) { }
-
 }

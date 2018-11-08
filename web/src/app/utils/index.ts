@@ -18,7 +18,7 @@ export function type<T>(label: T | ''): T {
 }
 
 export function generateJsonFile(name: string, content: any) {
-  const data = 'text/json;charset=utf-8,' + JSON.stringify(content);
+  const data = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(content));
   const a = document.createElement('a');
   a.href = 'data:' + data;
   a.download = name + '.json';

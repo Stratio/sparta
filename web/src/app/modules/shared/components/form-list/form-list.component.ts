@@ -48,7 +48,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
    @Input() errors: any = {};
    @Input() tooltip = '';
    @Input() forceValidations = false;
-   @Input() valueDictionary: any;
+   @Input() valueDictionary: any = {};
    @Input() variableList: Array<any> = [];
    @Input() showVars: boolean;
 

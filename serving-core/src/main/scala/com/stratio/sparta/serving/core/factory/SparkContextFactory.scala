@@ -24,7 +24,7 @@ import org.apache.spark.scheduler.KerberosUser
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.apache.spark.streaming.{Duration, StreamingContext, StreamingContextState}
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.util.{Failure, Properties, Success, Try}
@@ -234,10 +234,9 @@ object SparkContextFactory extends SLF4JLogging {
   def getStreamingContext: StreamingContext =
     ssc.getOrElse(throw new Exception("Streaming Context not initialized"))
 
-  def stopStreamingContext(stopGracefully: Boolean = false): Unit = {
-    ssc.fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
+  def stopStreamingContext(stopGracefully: Boolean = false): Unit = synchronized {
+    ssc.orElse(StreamingContext.getActive()).fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
       try {
-        synchronized {
           log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
           Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
             case Success(_) =>
@@ -245,7 +244,6 @@ object SparkContextFactory extends SLF4JLogging {
             case Failure(error) =>
               log.debug("Streaming Context not properly stopped", error)
           }
-        }
       } finally {
         ssc = None
       }

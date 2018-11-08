@@ -13,7 +13,7 @@ hose {
     MAVEN_THREADSPERCORE = 4
     EXPOSED_PORTS = [9090,10000,11000]
     KMS_UTILS = '0.4.0'
-    BASEIMG = 'qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428'
+    BASEIMG = 'qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8'
     DOCKERFILECOMMAND = 'WORKDIR / \n RUN apt-get update -y && apt-get install -y nginx realpath coreutils krb5-user libpam-krb5 libpam-ccreds auth-client-config curl wget php5-curl make jq vim && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && wget -qO- https://www.openssl.org/source/openssl-1.0.2l.tar.gz | tar xz && cd openssl-1.0.2l && sudo ./config && sudo make && sudo make install && sudo ln -sf /usr/local/ssl/bin/openssl /usr/bin/openssl && wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && chmod +x jq-linux64 && mv jq-linux64 /usr/bin/jq'
     BUILDTOOLVERSION = '3.5.0'
     NEW_VERSIONING = 'true'
@@ -21,7 +21,7 @@ hose {
     ITSERVICES = [
             ['HDFS': [
               'image': 'stratio/hdfs:2.6.0',
-              'sleep': 30,
+              'sleep': 60,
               'healthcheck': 9000
               ]
             ],
@@ -40,13 +40,13 @@ hose {
             ],
             ['ZOOKEEPER': [
               'image': 'jplock/zookeeper:3.5.2-alpha',
-              'sleep': 30,
+              'sleep': 60,
               'healthcheck': 2181
               ]
             ],
             ['KAFKA': [
-              'image': 'confluent/kafka:0.10.0.0-cp1',
-              'sleep': 30,
+              'image': 'wurstmeister/kafka:2.11-0.10.2.2',
+              'sleep': 60,
               'healthcheck': 9092,
               'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181',
                 'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']
@@ -54,15 +54,23 @@ hose {
             ],
             ['CASSANDRA': [
               'image': 'stratio/cassandra-lucene-index:3.0.7.3',
-              'sleep': 20,
+              'sleep': 60,
               'healthcheck': 9042
               ]
             ],
             ['MONGODB': [
               'image': 'mongo:3.2',
-              'sleep': 20,
+              'sleep': 60,
               'healthcheck': 27017
              ]
+            ],
+            ['SFTP': [
+               'image': 'atmoz/sftp',
+               'sleep': 60,
+               'healthcheck': 22,
+               'volumes': [
+               '/home/foo/upload:/home/foo/upload'],
+              ]
             ]
     ]
 
@@ -76,6 +84,9 @@ hose {
       |    -Dcassandra.hosts.0=%%CASSANDRA#0
       |    -Dcassandra.port=9042
       |    -Dmongo.host=%%MONGODB
+      |    -Dsftp.host=%%SFTP
+      |    -Dsftp.port=22
+      |    -Dsftp.volume=/home/foo/upload
       | """
 
     DEV = { config ->
@@ -118,7 +129,7 @@ hose {
                            'healthcheck': 5000]]
     ]
     INSTALLPARAMETERS = """
-            | -DSTRATIO_SPARTA_VERSION=2.2.0
+            | -DSTRATIO_SPARTA_VERSION=2.4.0
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
@@ -127,11 +138,11 @@ hose {
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
             | -DHDFS_REALM=DEMO.STRATIO.COM
-            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428
+            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache-2.2.json
+            | -DSPARTA_JSON=spartamustache-2.4.json
             | -DWORKFLOW=testinput-to-print
             | -DAUTH_ENABLED=true
             | -DCALICOENABLED=true

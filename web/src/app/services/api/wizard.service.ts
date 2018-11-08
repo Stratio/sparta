@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
 import * as fromRoot from 'reducers';
 
@@ -26,6 +26,16 @@ export class WizardApiService extends ApiService {
       }
     };
     return this.request('debug', 'post', options);
+  }
+
+  debugWithExecutionContext(workflowId: string, executionContext: any): Observable<any> {
+    const options = {
+      body: {
+        workflowId,
+        executionContext
+      }
+    };
+    return this.request('debug/runWithExecutionContext', 'post', options);
   }
 
   runDebug(workflowId: string): Observable<any> {

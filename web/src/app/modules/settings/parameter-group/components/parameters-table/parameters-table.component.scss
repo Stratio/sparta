@@ -16,7 +16,7 @@
    st-dropdown-menu {
       position: absolute;
       z-index: 10000;
-      top: 30px;
+      top: 25px;
       left: -110px;
       min-width: 220px;
    }
@@ -42,6 +42,7 @@
          th {
             padding-left: 20px;
             text-align: left;
+            font-weight: 600;
             &:first-child {
                width: 400px;
             }
@@ -52,14 +53,13 @@
          .context {
             position: absolute;
             top: 9px;
-            font-size: 12px;
             margin-left: 5px;
             background-color: $action-secondary-03;
             border-radius: 4px;
             padding: 6px 7px 6px 6px;
             cursor: pointer;
             border: solid 1px $neutral-04;
-
+            font-size: $egeo-font-size-xxxsmall;
          }
       }
       tbody {
@@ -75,7 +75,17 @@
             }
             &.value {
                font-weight: normal;
+               &.gray {
+                  color: $action-secondary-04;
+                  font-size: $egeo-font-size-xxsmall;
+                  &:before {
+                     content: 'default: ';
+                     position: relative;
+                     top: -1px;
+                  }
+               }
             }
+
             .icon.arrow {
                color: $neutral-11;
             }
@@ -86,6 +96,14 @@
             border: solid 1px $neutral-04;
             cursor: pointer;
             text-align: left;
+            &.empty {
+               text-align: center;
+               width: 100%;
+               td{
+                  text-align: center;
+                  color: $action-secondary-05;
+               }
+            }
          }
          .edit {
             cursor: initial;
@@ -101,6 +119,10 @@
                   position: relative;
                   button {
                      margin-top: 20px;
+                     cursor: pointer;
+                     &:disabled {
+                        cursor: not-allowed;
+                     }
                   }
                   .icon-ellipsis {
                      margin-left: 17px;
@@ -109,6 +131,9 @@
                      font-size: 22px;
                      color: $action-secondary-04;
                      cursor: pointer;
+                     &:hover {
+                        color: $neutral-13;
+                     }
                   }
                   .option-box {
                      width: 240px;
@@ -142,6 +167,18 @@
                }
                .context-container {
                   margin-top: 20px;
+                  position: relative;
+                  .icon {
+                     position: absolute;
+                     top: 30px;
+                     right: -30px;
+                     font-size: $egeo-font-size-large;
+                     color: $action-secondary-04;
+                     cursor: pointer;
+                     &:hover {
+                        color: $neutral-13;
+                     }
+                  }
                }
                .add-context-container {
                   cursor: pointer;

@@ -176,13 +176,12 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
             value = this.getParamLabel(value);
          }
       }
-
       if (this.forceValidations) {
          this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : value);
       }
       this.internalInputModel = value;
       this._value = value;
-      this.internalControl.setValue(value);
+      setTimeout(() => this.internalControl.setValue(value));
       this.focusPristine = true;
    }
 

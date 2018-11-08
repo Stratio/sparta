@@ -1,8 +1,13 @@
 {
-  "id": "sparta-zk",
-  "name": "sparta-zk",
+  "id": "zksparta",
+  "name": "zksparta",
   "users": [
-    "user"
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
   ],
   "groups": [],
   "services": [
@@ -12,13 +17,13 @@
         {
           "instances": [
             {
-              "name": "*"
+              "name": "zkuserland"
             }
           ],
           "acls": [
             {
               "resourceType": "zkNode",
-              "name": "/stratio",
+              "name": "/",
               "recursive": true,
               "actions": [
                 "Read",
@@ -32,19 +37,19 @@
               "allActions": []
             },
             {
-            "resourceType": "zkNode",
-            "name": "/stratio/sparta",
-            "recursive": true,
-            "actions": [
-            "Read",
-            "Write",
-            "Delete",
-            "Create",
-            "Manage",
-            "Audit",
-            "ViewPolicies"
-            ],
-            "allActions": []
+              "resourceType": "zkNode",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Delete",
+                "Create",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
             },
             {
               "resourceType": "zkNode",
@@ -60,25 +65,11 @@
                 "ViewPolicies"
               ],
               "allActions": []
-            },
-            {
-              "resourceType": "zkNode",
-              "name": "/",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Delete",
-                "Create",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
             }
           ]
         }
-      ]
+      ],
+      "version":"1.0"
     }
   ]
 }

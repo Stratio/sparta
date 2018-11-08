@@ -16,5 +16,6 @@ case class WriterGraph(
                         primaryKey: Option[JsoneyString] = None,
                         uniqueConstraintName: Option[JsoneyString] = None,
                         uniqueConstraintFields: Option[JsoneyString] = None,
+                        updateFields: Option[JsoneyString] = None,
                         errorTableName: Option[JsoneyString] = None
                       )

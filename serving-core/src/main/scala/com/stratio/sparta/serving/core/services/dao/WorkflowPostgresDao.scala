@@ -42,6 +42,7 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   lazy val parameterListDao = PostgresDaoFactory.parameterListPostgresDao
   lazy val templateDao = PostgresDaoFactory.templatePgService
+  lazy val debugDao = PostgresDaoFactory.debugWorkflowPgService
 
   override def initializeData(): Unit = {
     initialCacheLoad()
@@ -144,16 +145,22 @@ class WorkflowPostgresDao extends WorkflowDao {
           workflowVersion.id
         } does not exist.")
       else
-        findWorkflowsVersion(workflowById.get.name, workflowById.get.group.id.getOrElse("N/A"))
+        findWorkflowsVersion(workflowVersion.name.getOrElse(workflowById.get.name), workflowById.get.group.id.getOrElse("N/A"))
     } yield {
-      val workflowWithVersionFields = workflowById.get.copy(
-        tags = workflowVersion.tags,
-        group = workflowVersion.group.getOrElse(workflowById.get.group),
-        groupId = workflowVersion.group.getOrElse(workflowById.get.group).id
-      )
-      val workflowWithFields = addCreationDate(incVersion(workflowsGroup, addId(workflowWithVersionFields, force = true)))
-      mandatoryValidationsWorkflow(workflowWithFields)
-      createAndReturn(workflowWithFields).cached()
+
+      workflowById.map{ originalWorkflow =>
+        val workflowWithVersionFields = originalWorkflow.copy(
+          name = workflowVersion.name.getOrElse(originalWorkflow.name),
+          tags = workflowVersion.tags,
+          group = workflowVersion.group.getOrElse(originalWorkflow.group),
+          groupId = workflowVersion.group.getOrElse(originalWorkflow.group).id
+        )
+
+        val workflowWithFields = addCreationDate(incVersion(workflowsGroup, addId(workflowWithVersionFields, force = true), workflowVersion.version))
+        mandatoryValidationsWorkflow(workflowWithFields)
+        createAndReturn(workflowWithFields).cached()
+      }.get
+
     }).flatMap(f => f)
   }
 
@@ -345,6 +352,8 @@ class WorkflowPostgresDao extends WorkflowDao {
     val ids = workflowLists.flatMap(_.id.toList)
     for {
       _ <- deleteList(ids).removeInCache(ids: _*)
+      _ <- Future.sequence(ids.map(debugDao.deleteDebugWorkflowByID))
+        .recover { case e: Exception => log.warn("Error deleting debugData", e) }
     } yield {
       log.info(s"Workflows with ids: ${
         ids.mkString(",")

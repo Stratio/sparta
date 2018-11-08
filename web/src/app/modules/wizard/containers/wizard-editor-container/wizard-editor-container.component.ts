@@ -20,21 +20,20 @@ import { Store } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 
 import 'rxjs/add/operator/takeUntil';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject } from 'rxjs';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
 import * as fromRoot from 'reducers';
 import * as errorsActions from 'actions/errors';
-
-
 import * as wizardActions from './../../actions/wizard';
+
 import { isMobile } from 'constants/global';
 import { WizardNode, WizardEdge, WizardEdgeNodes, EdgeOption } from '@app/wizard/models/node';
 import { KEYS } from '@app/wizard/wizard.constants';
 import { ZoomTransform } from '@app/wizard/models/drag';
 import { WizardEditorService, WizardEditorComponent } from '@app/wizard';
+import { takeUntil, take } from 'rxjs/operators';
 
 @Component({
    selector: 'wizard-editor-container',
@@ -115,7 +114,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
    initData() {
       this._store.select(fromWizard.getWorkflowHeaderData)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((data: any) => {
             this.workflowName = data.name;
             this.workflowVersion = data.version;
@@ -123,71 +122,71 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          });
       this.creationMode$ = this._store.select(fromWizard.isCreationMode);
       this._store.select(fromWizard.getSelectedEntityData)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(nodeModel => {
             this.selectedNodeModel = nodeModel;
             this._cd.markForCheck();
          });
       this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails);
       this._store.select(fromWizard.getSelectedEntities)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(name => {
             this.selectedNodeName = name;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getConsoleDebugEntityData)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(debugData => {
             this.consoleDebugData = debugData;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getWorkflowPosition)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(position => {
             this.svgPosition = position;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getWorkflowNodes)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((data: Array<any>) => {
             this.workflowNodes = data;
             this._store.dispatch(new wizardActions.ValidateWorkflowAction());
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getWorkflowEdges)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((data: Array<WizardEdgeNodes>) => {
             this.workflowEdges = data;
             this._cd.markForCheck();
             this._store.dispatch(new wizardActions.ValidateWorkflowAction());
          });
       this._store.select(fromWizard.getSelectedRelation)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((edge: WizardEdge) => {
             this.selectedEdge = edge;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getServerStepValidation)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((serverStepValidations: any) => {
             this.serverStepValidations = serverStepValidations;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.showDebugConsole)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((showDebugConsole: any) => {
             this.showDebugConsole = showDebugConsole;
             this._cd.markForCheck();
          });
 
       this._store.select(fromWizard.getDebugResult)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(debugResult => {
             this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getEdgeOptions)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((edgeOptions: any) => {
             if (this.edgeOptions && !edgeOptions.active && !this.edgeOptions.active) {
                return;
@@ -204,14 +203,14 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.isWorkflowDebugging)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((isDebugging => {
             this.isWorkflowDebugging = isDebugging;
             this._cd.markForCheck();
          }));
 
       this._store.select(fromWizard.getDebugResult)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((debugResult => {
             this.debugResult = debugResult && debugResult.steps ? debugResult.steps : {};
             this._cd.markForCheck();
@@ -251,7 +250,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
          maxWidth: 500,
          messageTitle: 'Are you sure?',
          message: modalMessage,
-      }).take(1).subscribe((response: any) => {
+      }).pipe(take(1)).subscribe((response: any) => {
          if (response === 1) {
             this._modalService.close();
          } else if (response === 0) {

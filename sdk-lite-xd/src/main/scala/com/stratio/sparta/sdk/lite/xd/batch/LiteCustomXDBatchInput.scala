@@ -9,11 +9,14 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.lite.batch.models.ResultBatchData
 import com.stratio.sparta.sdk.lite.validation.Validator
 import org.apache.spark.sql.crossdata.XDSession
+import org.slf4j.Logger
 
 abstract class LiteCustomXDBatchInput(
                                      @transient val xdSession: XDSession,
                                      properties: Map[String, String]
-                                   ) extends Validator with SLF4JLogging {
+                                   ) extends Validator with SLF4JLogging with Serializable {
+
+  val logger: Logger = log
 
   def init(): ResultBatchData
 

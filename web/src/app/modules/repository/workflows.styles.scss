@@ -1,0 +1,38 @@
+@import '~@stratio/egeo/theme/constants';
+
+.workflow-list {
+   width: 100%;
+   transition: width 0.3s;
+   &.compressed {
+       width: calc(100% - 410px);
+   }
+}
+
+.workflow-detail-container {
+    min-height: 100%;
+    position: fixed;
+    top: 140px;
+    right: 0;
+    bottom: 0;
+}
+
+.loading-bar{
+    display: block;
+    position: fixed;
+    height: 2px;
+    top: 143px;
+    z-index: 999;
+    overflow: hidden;
+    width: 100%;
+    background-color: #bce7fe;
+}
+
+.row-content{
+    position: relative;
+}
+
+.rightbar-ref {
+    position: absolute;
+    right:0;
+    top:0;
+}

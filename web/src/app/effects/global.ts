@@ -9,16 +9,8 @@ import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
 
 import { Effect, Actions } from '@ngrx/effects';
-
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
-import { Observable } from 'rxjs/Observable';
+import { Observable, of } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 import * as userActions from 'actions/user';
 import * as errorsActions from 'actions/errors';
@@ -26,41 +18,49 @@ import * as errorsActions from 'actions/errors';
 @Injectable()
 export class GlobalEffect {
 
-    @Effect()
-    getUserProfile$: Observable<Action> = this.actions$
-        .ofType(userActions.GET_USER_PROFILE).switchMap((response: any) => {
-            return this.configService.getConfig()
-                .map((config: any) => {
-                    return new userActions.GetUserProfileCompleteAction(config);
-                }).catch(function (error: any) {
-                    return Observable.of(new userActions.GetUserProfileErrorAction(''));
-                });
-        });
+   @Effect()
+   getUserProfile$: Observable<Action> = this.actions$
+      .ofType(userActions.GET_USER_PROFILE).pipe(switchMap((response: any) => {
+         return this.configService.getConfig()
+            .map((config: any) => {
+               return new userActions.GetUserProfileCompleteAction(config);
+            }).catch(function (error: any) {
+               return of(new userActions.GetUserProfileErrorAction(''));
+            });
+      }));
 
 
-    @Effect()
-    showAlertNotifications: Observable<Action> = this.actions$
-        .ofType(errorsActions.SERVER_ERROR).map((errorResponse: any) => {
-            const err = errorResponse.payload;
-            if (err.status !== 401 && err.error) {
-                try {
-                    const error = JSON.parse(err.error);
-                    const errorMessage = error.detailMessage && error.detailMessage.length ? error.detailMessage : error.exception;
-                    if (error.message && errorMessage) {
-                        return new errorsActions.ServerErrorCompleteAction({
-                            title: error.message,
-                            description: errorMessage
-                        });
-                    }
-                } catch (e) { }
-            }
+   @Effect()
+   showAlertNotifications: Observable<Action> = this.actions$
+      .ofType(errorsActions.SERVER_ERROR).pipe(map((errorResponse: any) => {
+         const err = errorResponse.payload;
+         if (err.status !== 401 && err.error) {
+            try {
+               const error = JSON.parse(err.error);
+               const errorMessage = error.detailMessage && error.detailMessage.length ? error.detailMessage : error.exception;
+               if (error.message && errorMessage) {
+                  return new errorsActions.ServerErrorCompleteAction({
+                     title: error.message,
+                     description: errorMessage
+                  });
+               }
+            } catch (e) { }
+         }
+         if (err.error) {
+            return new errorsActions.ServerErrorCompleteAction({
+                title: 'Generic error',
+                description: err.error
+             });
+         } else {
             return {
                 type: 'NO_ACTION'
-            };
-        });
+             };
+         }
+         
+      }));
 
-    constructor(
-        private actions$: Actions,
-        private configService: GlobalConfigService
-    ) { }
+   constructor(
+      private actions$: Actions,
+      private configService: GlobalConfigService
+   ) { }
 }

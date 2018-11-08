@@ -44,6 +44,8 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
   val table: TableQuery[SpartaTable] // The table itself
   private lazy val tableName = table.baseTableRow.tableName
 
+  val initializationOrder = 1
+
   // Check if the property is defined in the schemaName configuration (sparta.postgres.schemaName),
   // if not, check if currentSchema is defined in the extraParameters otherwise set to public
   val dbSchemaName: Option[String] = {
@@ -59,7 +61,9 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
             .map(_.replace("currentSchema=", ""))
         }.notBlank
 
-    schemaNameFromConfig.orElse(schemaNameFromExtraParams).orElse(Some("public"))
+    lazy val defaultSchema = AppConstant.instanceName.getOrElse("sparta-server")
+
+    schemaNameFromConfig.orElse(schemaNameFromExtraParams).orElse(Some(defaultSchema))
   }
 
   // The method finds automagically a BaseTypedType[Id]  in the context...
@@ -76,7 +80,7 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
 
   def createSchema(): Unit = {
     dbSchemaName.foreach { schemaName =>
-      val createSchemaSql = s"create schema if not exists $schemaName;"
+      val createSchemaSql = s"""create schema if not exists "$schemaName";"""
       Try(Await.result(db.run(sqlu"#$createSchemaSql"), AppConstant.DefaultApiTimeout seconds)) match {
         case Success(_) =>
           log.debug(s"Schema $schemaName created if not exists")

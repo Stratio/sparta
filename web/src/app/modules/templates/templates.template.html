@@ -7,5 +7,10 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-
+<div class="container">
+    <st-horizontal-tabs class="templates-categories" 
+        [options]="tabsOptions" 
+        qaTag="templates-categories" 
+        (changedOption)="changeTabOption($event)"></st-horizontal-tabs>
+</div>
 <router-outlet></router-outlet>

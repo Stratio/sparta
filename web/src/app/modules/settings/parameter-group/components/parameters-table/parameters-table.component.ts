@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, Input, ChangeDetectorRef, OnInit, EventEmitter, Output, OnChanges } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, OnInit, EventEmitter, Output, OnChanges, OnDestroy } from '@angular/core';
 import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
 import { FormGroup, FormBuilder, FormControl, FormArray, Validators } from '@angular/forms';
 
@@ -14,7 +14,7 @@ import { FormGroup, FormBuilder, FormControl, FormArray, Validators } from '@ang
    templateUrl: 'parameters-table.component.html'
 })
 
-export class ParametersTableComponent implements OnInit, OnChanges {
+export class ParametersTableComponent implements OnInit, OnChanges, OnDestroy {
    @Input() inputParameters: GlobalParam[];
    @Input() inputList: any[];
 
@@ -47,6 +47,8 @@ export class ParametersTableComponent implements OnInit, OnChanges {
 
    public selectedContextList = [];
    public checkedContextList = [];
+   public uncheckedContextList = [];
+
 
    public contextOptionActive = false;
    public contextNameList = [];
@@ -67,6 +69,7 @@ export class ParametersTableComponent implements OnInit, OnChanges {
 
    ngOnInit() {
       this.selectedContextList = this.withContext && this.contextList ? this.contextList.map(context => ({ name: context.name, checked: false, value: '' })) : [];
+      this.uncheckedContextList = this.selectedContextList.filter(e => !e.checked);
       if (this.contextList) {
          this.contextNameList = this.contextList.map(context => context.name);
       }
@@ -123,12 +126,14 @@ export class ParametersTableComponent implements OnInit, OnChanges {
             if (parameter.contexts) {
                parameter.contexts.map(context => this.contexts.push(this.fb.group({
                   name: new FormControl(context.name),
-                  value: new FormControl(context.value),
+                  value: new FormControl(context.value, [Validators.required]),
                   id: new FormControl(context.id)
                })));
             }
             this.myForm.markAsPristine();
          }
+         this.uncheckedContextList = this.selectedContextList.filter(e => !e.checked);
+
       }
 
    }
@@ -168,10 +173,11 @@ export class ParametersTableComponent implements OnInit, OnChanges {
    }
 
    onDeleteParameter(parameter) {
-      this.deleteParam.emit(parameter);
+      this.deleteParam.emit({ param: parameter, creation: this.creationMode });
    }
 
    onSelectContext() {
+      this.uncheckedContextList = this.selectedContextList.filter(e => !e.checked);
       this.showContextMenu = !this.showContextMenu;
       this.showOption = false;
    }
@@ -197,11 +203,26 @@ export class ParametersTableComponent implements OnInit, OnChanges {
       });
       added.map(context => this.contexts.push(this.fb.group({
          name: new FormControl(context.name),
-         value: new FormControl(context.value),
+         value: new FormControl(context.value, [Validators.required]),
          id: new FormControl(context.id)
       })));
 
+      this.uncheckedContextList = this.selectedContextList.filter(c => !c.checked);
+
       this.showContextMenu = false;
+      this.myForm.markAsDirty();
+   }
+
+   ngOnDestroy() {
+      this.selectedParameter = null;
+      this.contextOptionActive = false;
+   }
+
+   onDeleteContext(context) {
+      this.selectedContextList = this.selectedContextList.map(c => c.name !== context ? c : { ...c, checked: false });
+      this.uncheckedContextList = this.selectedContextList.filter(c => !c.checked);
+      const index = this.contexts.value.map(c => c.name).indexOf(context);
+      this.contexts.removeAt(index);
       this.myForm.markAsDirty();
    }
 

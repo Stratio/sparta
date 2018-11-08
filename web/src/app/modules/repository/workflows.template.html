@@ -1,0 +1,49 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<div>
+   <div #newWorkflowModal qaTag="workflow-modal"></div>
+   <repository-header-container [showDetails]="showDetails"
+        [selectedWorkflows]="selectedWorkflows$ | async"
+        [selectedGroupsList]="selectedGroupsList$ | async"
+        [versionsListMode]="(workflowVersions$ | async) && (workflowVersions$ | async).length"
+        [selectedVersions]="selectedVersions$ | async"
+        (showWorkflowInfo)="showWorkflowInfo()"></repository-header-container>
+   <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
+   <div class="container">
+       <div class="col-sm-12">
+        <div class="row row-content">
+            <div class="rightbar-ref" #rightbarRef></div>
+            <div class="workflow-list" [ngClass]="{'compressed': showDetails}">
+                <workflow-table-header-container></workflow-table-header-container>
+                <repository-table-container [groupList]="groupsList$ | async"
+                    [workflowList]="workflowList"
+                    [selectedGroupsList]="selectedGroupsList$ | async"
+                    [selectedVersions]="selectedVersions$ | async"
+                    [workflowVersions]="workflowVersions$ | async"
+                    [selectedWorkflows]="selectedWorkflows$ | async"
+                    (showExecution)="showExecutionConfiguration($event)"></repository-table-container>
+            </div>
+            <div class="workflow-detail-container" [style.right.px]="sidebarPosition">
+                <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
+                    <repository-detail class="workflow-detail"
+                        [data]="selectedVersion  ? selectedVersion  : (selectedEntity$ | async)"></repository-detail>
+                </sparta-sidebar>
+            </div>
+          </div>
+      </div>
+   </div>
+</div>
+<custom-execution-container (executeWorkflow)="executeWorkflow($event)"
+    (closeCustomExecution)="closeCustomExecution()"
+    [executionContexts]="executionContexts$ | async"
+    [blockRunButton]="blockRunButton$ | async"
+    [workflowName]="selectedVersion && selectedVersion.data ? selectedVersion.data.name : ''"
+    *ngIf="showExecutionConfig$ | async"></custom-execution-container>

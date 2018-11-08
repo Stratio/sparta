@@ -63,7 +63,6 @@ class LocalLauncherActor() extends Actor with SLF4JLogging {
     } match {
       case Success(_) =>
         log.info("Workflow executed successfully")
-        self ! PoisonPill
       case Failure(exception: ErrorManagerException) =>
         executionService.updateStatus(ExecutionStatusUpdate(
           workflowExecution.getExecutionId,
@@ -71,7 +70,6 @@ class LocalLauncherActor() extends Actor with SLF4JLogging {
             state = Failed,
             statusInfo = Option(exception.getPrintableMsg)
           )))
-        self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating the workflow"
         log.error(information, exception)
@@ -87,7 +85,6 @@ class LocalLauncherActor() extends Actor with SLF4JLogging {
             state = Failed,
             statusInfo = Option(information)
           )), error)
-        self ! PoisonPill
     }
   }
 }

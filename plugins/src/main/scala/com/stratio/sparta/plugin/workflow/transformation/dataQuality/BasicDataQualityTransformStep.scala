@@ -71,6 +71,11 @@ abstract class BasicDataQualityTransformStep[Underlying[Row]](
       }
     }
 
+    columns.filter(c => c.name.isEmpty || c.name.contains(" ")).foreach(col => validation = ErrorValidations(
+      valid = false,
+      messages = validation.messages :+ WorkflowValidationMessage(s"The column name is not valid.", name)
+    ))
+
     if (columns.isEmpty)
       validation = ErrorValidations(
         valid = false,

@@ -43,8 +43,10 @@ class ControllerActor(
 
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor())), TemplateActorName)
+  val localLauncherActor = context.actorOf(Props(new LocalLauncherActor()), LocalLauncherActorName)
+  val debugLauncherActor = context.actorOf(Props(new DebugLauncherActor()), DebugLauncherActorName)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(executionStListenerActor, envListenerActor))), LauncherActorName)
+    .props(Props(new LauncherActor(executionStListenerActor, envListenerActor, localLauncherActor, debugLauncherActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new WorkflowActor(launcherActor, envListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)

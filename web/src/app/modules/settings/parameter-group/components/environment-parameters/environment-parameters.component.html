@@ -1,16 +1,18 @@
-<parameter-group-header (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [withContext]="true" [creationMode]="creationMode"></parameter-group-header>
+<parameter-group-header 
+    (onCreateParam)="addParam()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" 
+    [withContext]="true" [creationMode]="creationMode" (onDownloadParams)="downloadParams()" (onUploadParams)="uploadParams($event)"></parameter-group-header>
 <parameters-table [inputParameters]="environmentParams" [contextList]="environmentContexts" [withContext]="true" (onAddNewContext)="addNewContext($event)"
    (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)" [creationMode]="creationMode"></parameters-table>
-<st-fullscreen-layout *ngIf="showConfigContext" [title]="'Environment - Settings'">
+<st-fullscreen-layout *ngIf="showConfigContext" [title]="'Environment - Contexts'">
       <div class="st-fullscreen-layout-buttons">
-         <sp-foreground-notifications alert class="notification" [status]="" [text]="alertMessage" [visible]="showAlert"></sp-foreground-notifications>
-         <button class="button button-secondary-line" (click)="toggleConfigContext()">Exit</button>
+         <sp-foreground-notifications alert class="notification" [status]="alertMessage.type" [text]="alertMessage.text" [visible]="showAlert"></sp-foreground-notifications>
+         <button class="button button-secondary-line" (click)="toggleConfigContext()">Close</button>
       </div>
 
       <div class="st-fullscreen-layout-content">
 
-         <div>Contexts</div>
-         <parameter-group-header (onCreateParam)="onAddEnvironmentContext()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [creationMode]="creationMode"></parameter-group-header>
+         <div class="title"><span>Contexts</span></div>
+         <parameter-group-header [configContext]="true" (onCreateParam)="onAddEnvironmentContext()" (onSearch)="search.emit($event.text)" (onConfigContext)="toggleConfigContext()" [creationMode]="creationMode"></parameter-group-header>
          <parameters-table [inputList]="environmentContexts" (onAddNewContext)="addNewContext($event)" [configContext]="true"
             (onSaveParamContexts)="saveParamContexts($event)" (deleteParam)="deleteEnvironmentParam($event)" (changeContext)="onChangeContext($event)"
             (onSaveParamList)="saveContextList($event)" [creationMode]="creationMode" (deleteList)="onDeleteContext($event)"></parameters-table>

@@ -6,18 +6,26 @@
     "global": {
       "executionMode": "marathon",
       "userPluginsJars": [],
-      "initSqlSentences": [
+      "preExecutionSqlSentences": [
         {
-          "sentence": "CREATE TABLE IF NOT EXISTS  postgres1 USING org.apache.spark.sql.jdbc OPTIONS (url 'jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/ca.crt&sslkey=/tmp/key.pkcs8', dbtable 'tabletestdate')"
+          "sentence": "CREATE TABLE IF NOT EXISTS  postgres1 USING org.apache.spark.sql.jdbc OPTIONS (url 'jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&stratiosecuritymode=tls&stratiosecurity=true', dbtable 'tabletestdate')"
         }
       ],
+      "postExecutionSqlSentences": [],
       "addAllUploadedPlugins": true,
       "mesosConstraint": "",
-      "mesosConstraintOperator": "CLUSTER"
+      "mesosConstraintOperator": "CLUSTER",
+      "parametersLists": [
+        "Environment"
+      ],
+      "parametersUsed": [],
+      "udfsToRegister": [],
+      "udafsToRegister": []
     },
     "streamingSettings": {
       "window": "10s",
       "remember": "",
+      "blockInterval": "100ms",
       "checkpointSettings": {
         "checkpointPath": "sparta/checkpoint",
         "enableCheckpointing": true,
@@ -33,14 +41,7 @@
       "submitArguments": {
         "userArguments": [],
         "deployMode": "client",
-        "jars": "",
-        "propertiesFile": "",
-        "packages": "",
-        "excludePackages": "",
-        "repositories": "",
-        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
-        "driverLibraryPath": "",
-        "driverClassPath": ""
+        "driverJavaOptions": "-XX:+UseConcMarkSweepGC"
       },
       "sparkConf": {
         "sparkResourcesConf": {
@@ -59,11 +60,27 @@
         "coarse": true,
         "sparkUser": "",
         "sparkLocalDir": "/opt/spark/dist",
+        "executorDockerImage": "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8",
         "sparkKryoSerialization": false,
         "sparkSqlCaseSensitive": false,
-        "parquetBinaryAsString": true,
         "logStagesProgress": false,
         "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": false,
+        "sendInputData": true
       }
     }
   },
@@ -91,7 +108,10 @@
         },
         "configuration": {
           "sql": "select id from JsonPath"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
       },
       {
         "name": "Print",
@@ -115,7 +135,10 @@
           "printData": true,
           "printSchema": true,
           "logLevel": "error"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
       },
       {
         "name": "Cubecrossdata",
@@ -154,7 +177,10 @@
               "inputField": "id"
             }
           ]
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
       },
       {
         "name": "Crossdata",
@@ -193,7 +219,10 @@
           ],
           "zookeeperPath": "/pathzookeeper8",
           "storageLevel": "MEMORY_ONLY_SER"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
       },
       {
         "name": "Parquet",
@@ -215,7 +244,10 @@
         "configuration": {
           "path": "hdfs://10.200.0.74:8020/user/sparta-server",
           "saveOptions": "[]"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
       },
       {
         "name": "JsonPath",
@@ -248,33 +280,42 @@
           "supportNullValues": true,
           "fieldsPreservationPolicy": "REPLACE",
           "inputField": "id"
-        }
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
       }
     ],
     "edges": [
       {
         "origin": "Crossdata",
-        "destination": "Print"
+        "destination": "Print",
+        "dataType": "ValidData"
       },
       {
         "origin": "Crossdata",
-        "destination": "Cubecrossdata"
+        "destination": "Cubecrossdata",
+        "dataType": "ValidData"
       },
       {
         "origin": "Cubecrossdata",
-        "destination": "Parquet"
+        "destination": "Parquet",
+        "dataType": "ValidData"
       },
       {
         "origin": "tabletestcrossdata",
-        "destination": "Parquet"
+        "destination": "Parquet",
+        "dataType": "ValidData"
       },
       {
         "origin": "Crossdata",
-        "destination": "JsonPath"
+        "destination": "JsonPath",
+        "dataType": "ValidData"
       },
       {
         "origin": "JsonPath",
-        "destination": "tabletestcrossdata"
+        "destination": "tabletestcrossdata",
+        "dataType": "ValidData"
       }
     ]
   },
@@ -292,11 +333,6 @@
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
     "name": "/home"
   },
-  "status": {
-    "id": "f7b36f3b-302d-41e9-833c-b847eead6378",
-    "status": "Finished",
-    "statusInfo": "Workflow correctly finished in Marathon API",
-    "lastExecutionMode": "marathon",
-    "lastUpdateDate": "2018-02-01T12:32:23Z"
-  }
+  "versionSparta": "2.4.0-926650d",
+  "groupId": "940800b2-6d81-44a8-84d9-26913a2faea4"
 }

@@ -44,6 +44,4 @@ export class UserProfileComponent {
       window.removeEventListener('click', this._clickListener);
       this._cd.markForCheck();
    }
-
-
 }

@@ -3,16 +3,17 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { APP_INITIALIZER } from '@angular/core';
-import { ConfigService } from "./config.service";
 
-export function getConfigJson(config:ConfigService):any {
+import { APP_INITIALIZER } from '@angular/core';
+import { ConfigService } from './config.service';
+
+export function getConfigJson(config: ConfigService): any {
    return () => config.load();
 }
 
-export const INITIALIZER:any = {
+export const INITIALIZER: any = {
    provide: APP_INITIALIZER,
    useFactory: getConfigJson,
-   deps: [ ConfigService ],
+   deps: [ConfigService],
    multi: true
 };

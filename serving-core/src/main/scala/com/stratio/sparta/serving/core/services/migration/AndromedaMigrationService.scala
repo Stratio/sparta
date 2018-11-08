@@ -6,7 +6,12 @@
 
 package com.stratio.sparta.serving.core.services.migration
 
+import scala.collection.JavaConversions
+import scala.util.{Failure, Success, Try}
+
 import akka.event.slf4j.SLF4JLogging
+import org.json4s.jackson.Serialization.read
+
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -14,14 +19,8 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow.migration.{EnvironmentAndromeda, WorkflowAndromeda}
 import com.stratio.sparta.serving.core.models.workflow.{Group, TemplateElement, Workflow}
-import org.json4s.jackson.Serialization.read
-
-import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
 
 class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
-
-  import com.stratio.sparta.serving.core.models.workflow.migration.MigrationModelImplicits._
 
   private val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
   private val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
@@ -34,13 +33,12 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
     Try {
       val templates = if (CuratorFactoryHolder.existsPath(TemplatesZkPath)) {
         templateZkService.findAll.filter { template =>
-          template.versionSparta.isDefined && template.versionSparta.get == AndromedaVersion
+          template.versionSparta.isDefined &&
+            template.versionSparta.get.split('.')(1).forall(x => x.asDigit >= 2 && x.asDigit <= 3) //2.2.X-asdads 2.3.X.asdads
         } ++ cassiopeaTemplates
       } else cassiopeaTemplates
 
-      templates.map { template =>
-        template.copy(versionSparta = Some(version))
-      }
+      templates.map(MigrationUtils.migrationStart.fromAndromedaToOrionTemplate(_))
     }
   }
 
@@ -56,7 +54,6 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
   }
 
   /** WORKFLOWS **/
-
   def andromedaWorkflowsMigrated(cassiopeaWorkflowsToAndromeda: Seq[WorkflowAndromeda]): Try[Seq[Workflow]] = {
     log.info(s"Migrating workflows from Andromeda")
     Try {
@@ -67,8 +64,7 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
         } ++ cassiopeaWorkflowsToAndromeda
         andromedaWorkflows.map { workflow =>
           Try {
-            val orionWorkflow: Workflow = workflow
-            orionWorkflow
+            MigrationUtils.migrationStart.fromAndromedaToOrionWorkflow(workflow)
           } match {
             case Success(orionWorkflow) =>
               orionWorkflow
@@ -104,47 +100,47 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
     log.info(s"Migrating environment from Andromeda")
     Try {
       environmentZkService.find().map { environmentAndromeda =>
-        val environmentVariables = environmentAndromeda.variables.flatMap { variable =>
+        val environmentVariables = ParameterList.parametersToMap(environmentAndromeda.variables.flatMap { variable =>
           if (DefaultEnvironmentParameters.exists(parameter => parameter.name == variable.name))
             Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
-        val globalVariables = environmentAndromeda.variables.flatMap { variable =>
+        })
+        val globalVariables = ParameterList.parametersToMap(environmentAndromeda.variables.flatMap { variable =>
           if (DefaultGlobalParameters.exists(parameter => parameter.name == variable.name))
             if (variable.name == "SPARK_EXECUTOR_BASE_IMAGE" && (variable.value == "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0" || variable.value == "qa.stratio.com/stratio/stratio-spark:2.2.0.5"))
-              Option(ParameterVariable(variable.name, Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428")))
+              Option(ParameterVariable(variable.name, Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8")))
             else if (variable.name == "SPARK_DRIVER_JAVA_OPTIONS" && variable.value == "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml")
               Option(ParameterVariable(variable.name, Option("-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml")))
             else if (variable.name == "SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS")
               Option(ParameterVariable(variable.name, Option("-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC")))
             else Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
-        val defaultCustomVariables = environmentAndromeda.variables.flatMap { variable =>
+        })
+        val defaultCustomVariables = ParameterList.parametersToMap(environmentAndromeda.variables.flatMap { variable =>
           if (DefaultCustomExampleParameters.exists(parameter => parameter.name == variable.name))
             Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
-        val orphanedVariables = environmentAndromeda.variables.flatMap { variable =>
+        })
+        val orphanedVariables = ParameterList.parametersToMap(environmentAndromeda.variables.flatMap { variable =>
           if (!DefaultEnvironmentParameters.exists(parameter => parameter.name == variable.name) &&
             !DefaultGlobalParameters.exists(parameter => parameter.name == variable.name) &&
             !DefaultCustomExampleParameters.exists(parameter => parameter.name == variable.name)
           )
             Option(ParameterVariable(variable.name, Option(variable.value)))
           else None
-        }
+        })
         val environmentParameterList = ParameterList(
           id = EnvironmentParameterListId,
           name = EnvironmentParameterListName,
-          parameters = environmentVariables ++ orphanedVariables
+          parameters = (DefaultEnvironmentParametersMap ++ orphanedVariables ++ environmentVariables).values.toSeq
         )
         val defaultCustomParameterList = ParameterList(
           id = CustomExampleParameterListId,
           name = CustomExampleParameterList,
-          parameters = defaultCustomVariables
+          parameters = (DefaultCustomExampleParametersMap ++ defaultCustomVariables).values.toSeq
         )
 
-        (GlobalParameters(globalVariables), environmentParameterList, defaultCustomParameterList, environmentAndromeda)
+        (GlobalParameters((DefaultGlobalParametersMap ++ globalVariables).values.toSeq), environmentParameterList, defaultCustomParameterList, environmentAndromeda)
       }
     }
   }

@@ -29,7 +29,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val settingsModel = Settings(
     GlobalSettings(local, Seq.empty, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2"))),
     StreamingSettings(
-      JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
       JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false,
       sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))
@@ -37,7 +37,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val wrongSettingsModel = Settings(
     GlobalSettings(local, Seq.empty, Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2"))),
     StreamingSettings(
-      JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
       JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false,
       sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))

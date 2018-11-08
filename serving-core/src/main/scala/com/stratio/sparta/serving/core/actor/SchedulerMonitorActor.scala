@@ -163,7 +163,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
 
   //scalastyle:off
   def localStop(workflowExecution: WorkflowExecution): Unit = {
-    val updatedExecution = if (workflowExecution.lastStatus.state == Stopping) {
+    val updatedExecution = if (workflowExecution.lastStatus.state == Stopping || workflowExecution.lastStatus.state == Failed) {
       log.info("Stop message received")
       scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
@@ -174,15 +174,17 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       } match {
         case Success(_) =>
           val information = "The workflow was successfully stopped"
-          val newStatus = Stopped
           val newInformation = Option(information)
           log.info(information)
-          executionService.updateStatus(ExecutionStatusUpdate(
-            workflowExecution.getExecutionId,
-            ExecutionStatus(
-              state = newStatus,
-              statusInfo = newInformation
-            )))
+          if (workflowExecution.lastStatus.state != Failed) {
+            val newStatus = Stopped
+            executionService.updateStatus(ExecutionStatusUpdate(
+              workflowExecution.getExecutionId,
+              ExecutionStatus(
+                state = newStatus,
+                statusInfo = newInformation
+              )))
+          } else workflowExecution
         case Failure(e) =>
           val error = "An error was encountered while stopping contexts"
           log.error(error, e)
@@ -199,23 +201,25 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
             , wError)
           } else workflowExecution
       }
-    } else if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == Failed) {
-      scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
+    } else workflowExecution
+
+    val finishedExecution = if (updatedExecution.lastStatus.state == Stopped || updatedExecution.lastStatus.state == Failed) {
+      scheduledActions.filter(_._1 == updatedExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
         scheduledActions -= task
       }
-      val newStatus = if (workflowExecution.lastStatus.state == Failed) NotDefined else Finished
+      val newStatus = if (updatedExecution.lastStatus.state == Failed) NotDefined else Finished
       val newStatusInfo = if (newStatus == Finished)
         Option("The workflow was successfully finished with local scheduler")
       else None
       executionService.updateStatus(ExecutionStatusUpdate(
-        workflowExecution.getExecutionId,
+        updatedExecution.getExecutionId,
         ExecutionStatus(state = newStatus, statusInfo = newStatusInfo)
       ))
-    } else workflowExecution
+    } else updatedExecution
 
-    if (updatedExecution.genericDataExecution.endDate.isEmpty) {
-      Try(executionService.setEndDate(updatedExecution, new DateTime()))
+    if (finishedExecution.genericDataExecution.endDate.isEmpty) {
+      Try(executionService.setEndDate(finishedExecution, new DateTime()))
         .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
     }
   }
@@ -358,17 +362,21 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
         case status if validStopStates.contains(status) =>
           val information = s"Checker: the workflow execution  stopped correctly"
           log.info(information.replace("  ", s" $id "))
-          executionService.updateStatus(ExecutionStatusUpdate(
-            id,
-            ExecutionStatus(state = NotDefined, statusInfo = Some(information))
-          ))
+          if(status != Failed) {
+            executionService.updateStatus(ExecutionStatusUpdate(
+              id,
+              ExecutionStatus(state = NotDefined, statusInfo = Some(information))
+            ))
+          }
         case _ =>
           val information = s"Checker: the workflow execution  has invalid state ${workflowExecution.lastStatus.state}"
           log.info(information.replace("  ", s" $id "))
-          executionService.updateStatus(ExecutionStatusUpdate(
-            id,
-            ExecutionStatus(state = Failed, statusInfo = Some(information))
-          ))
+          if(workflowExecution.lastStatus.state != Failed) {
+            executionService.updateStatus(ExecutionStatusUpdate(
+              id,
+              ExecutionStatus(state = Failed, statusInfo = Some(information))
+            ))
+          }
       }
 
       scheduledActions.filter(_._1 == id).foreach { task =>

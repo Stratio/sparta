@@ -40,6 +40,9 @@ export class ExecutionsTableComponent {
       { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
    ];
 
+   public loadingStates: string[] = ['Starting', 'Launched', 'Uploaded'];
+
+
    checkValue(event: any) {
       this.checkRow(event.checked, event.value);
    }
@@ -67,7 +70,7 @@ export class ExecutionsTableComponent {
          { id: 'isChecked', label: '', sortable: false },
          { id: 'name', label: 'Name' },
          { id: 'context', label: 'Context' },
-         { id: 'startDateMillis', label: 'Start Date' },
+         { id: 'launchDateMillis', label: 'Launch Date' },
          { id: 'endDateMillis', label: 'End Date' },
          { id: 'filterStatus', label: 'Status' },
          { id: 'spark', label: '', sortable: false }

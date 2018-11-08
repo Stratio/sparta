@@ -18,7 +18,7 @@
   }
 }
 
-.execution-id {
+.execution-group {
   color: $action-secondary-06;
   font-size: 14px;
 }
@@ -109,4 +109,22 @@
 
 .phase, .step {
   display: block;
+}
+
+.details-option{
+  width: 100%;
+  display: block;
+  padding-bottom: 25px;
+}
+
+.extraParam-name {
+    font-weight: bold;
+    display: block;
+}
+
+.execution-parameters{
+  word-break: break-all;
+}
+.parameters {
+  margin-top:10px;
 }

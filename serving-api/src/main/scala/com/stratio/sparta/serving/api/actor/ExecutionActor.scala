@@ -82,7 +82,7 @@ class ExecutionActor()
   }
 
   def createDashboardView(user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceType -> View)) {
+    authorizeActions(user, Map(ResourceType -> Status)) {
       executionPgService.createDashboardView()
     }
 
@@ -140,7 +140,7 @@ class ExecutionActor()
     } yield {
       val authorizationId = execById.authorizationId
       authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
-        executionPgService.deleteByID(id)
+        executionPgService.deleteExecution(id)
       }
     }
   }

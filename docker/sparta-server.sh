@@ -60,5 +60,7 @@
 
  INFO "[SPARTA-SERVER] Running Sparta server ... "
  export SPARTA_OPTS="$SPARTA_OPTS -Dconfig.file=$SPARTA_CONF_FILE -Djava.util.logging.config.file=file://$LOG_CONFIG_FILE"
+ INFO "[SPARTA-SERVER] Running Sparta server with java options: $SPARTA_OPTS"
+
  /opt/sds/sparta/bin/run
 

@@ -211,22 +211,23 @@ $cloudy-black: #cdd6df;
 
 .icon-green {
     color: $status-success-hover;
+    padding-right: 4px;
 }
 
 .multi-button{
     overflow: visible;
-    border: 1px solid #777;
+    border: 1px solid $neutral-03;
     display: inline-block;
     outline: 0;
     color: #555;
 
     &[disabled] {
-        background: #ededed;
+        background: $neutral-03;
         border-color: transparent;
     }
     
     &:hover {
-        border-color: #b5b5b5;
+        border-color: $neutral-03;
     }
 
     .execution-options {
@@ -242,7 +243,7 @@ $cloudy-black: #cdd6df;
     }
 
     .options {
-        border-left: 1px solid #777;
+        border-left: 1px solid $neutral-03;
         height: 38px;
         display: table-cell;
         vertical-align: middle;
@@ -250,7 +251,7 @@ $cloudy-black: #cdd6df;
             border-color: #b5b5b5;
         }
         i {
-            padding: 0 0.4rem;
+            padding: 0 0.2rem;
             font-size: 11px;
             padding-top:3px;
         }

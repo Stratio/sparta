@@ -12,5 +12,6 @@
  export const StepType = {
     Input : 'Input',
     Output : 'Output',
-    Transformation : 'Transformation'
+    Transformation : 'Transformation',
+    Pipeline: 'Pipeline'
  };

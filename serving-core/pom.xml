@@ -81,10 +81,6 @@ This software – including all its source code – contains proprietary informa
             <artifactId>akka-cluster-metrics_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-stream_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.iq80.leveldb</groupId>
             <artifactId>leveldb</artifactId>
         </dependency>

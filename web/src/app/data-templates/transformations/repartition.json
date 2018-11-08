@@ -17,7 +17,7 @@
          "propertyId": "partitions",
          "propertyName": "_PARTITIONS_",
          "propertyType": "text",
-         "required": false,
+         "required": true,
          "tooltip": "Change the number of partitions associated to the Spark RDDs",
          "qa": "fragment-details-repartition-partitions"
       },

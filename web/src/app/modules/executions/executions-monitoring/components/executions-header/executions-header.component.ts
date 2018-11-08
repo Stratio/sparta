@@ -12,20 +12,24 @@ import { State } from './../../reducers';
 import { SelectStatusFilterAction } from '@app/executions/executions-managing/actions/executions';
 
 @Component({
-   selector: 'executions-header',
-   styleUrls: ['executions-header.component.scss'],
-   templateUrl: 'executions-header.component.html',
-   changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'executions-header',
+  styleUrls: ['executions-header.component.scss'],
+  templateUrl: 'executions-header.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class ExecutionsHeaderComponent {
 
-   @Input() filters: Array<any> = [];
-  
-   constructor(private _store: Store<State>, private _router: Router) { }
+  @Input() filters: Array<any> = [];
 
-   showExecutions(status: string) {
-    this._store.dispatch(new SelectStatusFilterAction(status.charAt(0).toUpperCase() + status.slice(1)));
-    this._router.navigate(['executions']);
-   }
+  constructor(private _store: Store<State>, private _router: Router) { }
+
+  showExecutions(status: string) {
+    if (status === 'archived') {
+      this._router.navigate(['archived']);
+    } else {
+      this._store.dispatch(new SelectStatusFilterAction(status.charAt(0).toUpperCase() + status.slice(1)));
+      this._router.navigate(['executions']);
+    }
+  }
 }

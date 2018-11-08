@@ -12,15 +12,17 @@
 <span class="advice">{{'WIZARD.LOSE_CHANGES_EXIT' | translate}}</span>
 
 <div class="action-buttons">
-   <button class="button button-link-secondary" (click)="onCloseConfirmModal.emit('2')">
-      <span>{{'WIZARD.CANCEL' | translate}}</span>
-   </button>
-   <button class="button button-secondary-line cancel-button small" (click)="onCloseConfirmModal.emit('1')">
-      <span>{{'WIZARD.NOT_SAVE_EXIT' | translate}}</span>
-   </button>
 
-   <button class="button button-primary save-button small" (click)="onCloseConfirmModal.emit('0')">
+
+
+   <button class="button button-primary save-button" (click)="onCloseConfirmModal.emit('0')">
       <span>{{'WIZARD.SAVE_EXIT' | translate}}</span>
    </button>
 
+      <button class="button button-secondary-line not-save-button" (click)="onCloseConfirmModal.emit('1')">
+      <span>{{'WIZARD.NOT_SAVE_EXIT' | translate}}</span>
+   </button>
+   <button class="button button-link-secondary cancel-button" (click)="onCloseConfirmModal.emit('2')">
+      <span>{{'WIZARD.CANCEL' | translate}}</span>
+   </button>
 </div>

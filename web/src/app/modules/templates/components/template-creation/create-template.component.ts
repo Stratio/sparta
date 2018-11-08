@@ -13,6 +13,7 @@ import { HelpOptions } from '@app/shared/components/sp-help/sp-help.component';
 
 import * as fromTemplates from './../../reducers';
 import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
+import { Engine } from '@models/enums';
 
 export abstract class CreateTemplateComponent implements OnInit {
 
@@ -82,7 +83,7 @@ export abstract class CreateTemplateComponent implements OnInit {
             this.getEditedTemplate(this.currentActivatedRoute.snapshot.params.id);
         } else {
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions();
-            this.inputFormModel.executionEngine = 'Streaming';
+            this.inputFormModel.executionEngine = Engine.Streaming;
             this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.inputFormModel.executionEngine,
                 this.listData[0], this.stepType);
             this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
@@ -101,6 +102,7 @@ export abstract class CreateTemplateComponent implements OnInit {
                 this.inputFormModel.classPrettyName = this.listData[i].classPrettyName;
                 this.inputFormModel.className = this.listData[i].className;
                 this.inputForm.form.markAsPristine();
+                this.helpOptions = this.initializeSchemaService.getHelpOptions(this.listData[this.fragmentIndex].properties);
                 return;
             }
         }

@@ -7,8 +7,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { StHeaderMenuOption } from '@stratio/egeo';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Observable, Subscription } from 'rxjs';
 
 import { MenuService } from './../shared/services/menu.service';
 import * as fromRoot from 'reducers';

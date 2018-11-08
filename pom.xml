@@ -103,14 +103,16 @@ This software – including all its source code – contains proprietary informa
         <scalaj.version>2.3.0</scalaj.version>
         <commons-configuration.version>1.6</commons-configuration.version>
         <apache.spark.version>2.2.0</apache.spark.version>
-        <stratio.spark.version>2.0.0-ae1b428</stratio.spark.version>
+        <stratio.spark.version>2.1.0-f969ad8</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata-auth-iface.version>0.3.0-b599046</crossdata-auth-iface.version>
         <gosec.dyplon.version>0.15.0-99ffc72</gosec.dyplon.version>
+        <gosec.dyplon.facade.version>0.1.0-3aabf87</gosec.dyplon.facade.version>
+        <dg.commons.version>0.8.0-9bf0b64</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.14.0-M1</crossdata.version>
-        <postgres.version>42.1.1</postgres.version>
+        <crossdata.version>2.14.0-a9ef60b</crossdata.version>
+        <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
         <json-path.version>2.2.0</json-path.version>
@@ -124,7 +126,7 @@ This software – including all its source code – contains proprietary informa
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
-        <mlmodelrep.version>1.3.0-M1</mlmodelrep.version>
+        <mlmodelrep.version>1.3.0-938e36a</mlmodelrep.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -320,6 +322,13 @@ This software – including all its source code – contains proprietary informa
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
             </dependency>
+            <!-- Dyplon -->
+            <dependency>
+                <groupId>com.stratio.gosec</groupId>
+                <artifactId>dyplon-facade</artifactId>
+                <version>${gosec.dyplon.facade.version}</version>
+            </dependency>
+
             <!-- Spark -->
             <dependency>
                 <groupId>com.stratio.spark</groupId>
@@ -507,10 +516,6 @@ This software – including all its source code – contains proprietary informa
                     <exclusion>
                         <groupId>org.scalanlp</groupId>
                         <artifactId>breeze_${scala.binary.version}</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.scala-lang</groupId>
-                        <artifactId>scala-library</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

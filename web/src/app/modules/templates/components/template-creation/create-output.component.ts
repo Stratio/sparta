@@ -15,6 +15,7 @@ import * as fromTemplates from './../../reducers';
 import * as outputsTemplate from 'data-templates/outputs';
 import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
 import { CreateTemplateComponent } from './create-template.component';
+import { Engine } from '@models/enums';
 
 @Component({
     selector: 'create-output',
@@ -50,8 +51,8 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
-                label: fragmentData.name,
-                value: fragmentData.name
+                label: fragmentData.classPrettyName,
+                value: fragmentData.classPrettyName
             };
         });
 
@@ -82,7 +83,7 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
     changeWorkflowType(event: any): void {
         this.inputFormModel.executionEngine = event.value;
-        this.listData = event.value === 'Batch' ? outputsTemplate.batchOutputs : outputsTemplate.streamingOutputs;
+        this.listData = event.value === Engine.Batch ? outputsTemplate.batchOutputs : outputsTemplate.streamingOutputs;
         this.changeTemplateType(this.listData[0].name);
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
@@ -99,7 +100,7 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
                 return;
             }
             this.inputFormModel.executionEngine = editedOutput.executionEngine;
-            this.listData = editedOutput.executionEngine === 'Batch' ? outputsTemplate.batchOutputs :
+            this.listData = editedOutput.executionEngine === Engine.Batch ? outputsTemplate.batchOutputs :
                 outputsTemplate.streamingOutputs;
             this.setEditedTemplateIndex(editedOutput.classPrettyName);
             this.inputFormModel = editedOutput;

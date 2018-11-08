@@ -1,0 +1,100 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<!---- groups & workflows ----- -->
+<st-table *ngIf="!workflowVersions || !workflowVersions.length" [fields]="fields" [sortable]="true" qaTag="table-qa-tag"
+    class="workflow-table custom-table" (changeOrder)="changeOrder($event)">
+    <tr *ngIf="previousLevel">
+        <td st-table-cell st-table-row-content colspan="4" class="history-row">
+            <div class="return-link" (click)="changeFolder.emit(previousLevel.value)">
+                <i class="icon icon-arrow-left"></i>
+                <span class="label">{{previousLevel.label}}</span>
+            </div>
+        </td>
+    </tr>
+    <tr st-table-row *ngFor="let group of groupList; let i = index;" class="group-row" [selected]="selectedGroupsList.indexOf(group.name) > -1">
+        <td st-table-cell st-table-row-content (click)="checkGroup(group)">
+            <label (click)="openGroup($event,group)" class="group-name">
+             <span class="icon-solid-folder icon-row"></span>
+             {{group.label}}
+         </label>
+        </td>
+        <td st-table-cell st-table-row-content colspan="2" (click)="checkGroup(group)">
+            <label>{{'GLOBAL.FOLDER' | translate}}</label>
+        </td>
+        <td st-table-cell st-table-row-content>
+            <menu-options-list [options]="groupOptions" (selectedOption)="selectGroupAction($event, group)">
+                <span class="show-options icon-ellipsis"></span>
+            </menu-options-list>
+        </td>
+    </tr>
+    <tr st-table-row *ngFor="let workflow of workflowList; let i = index;" class="workflow-row"
+        [selected]="selectedWorkflows && selectedWorkflows.indexOf(workflow.name) > -1">
+        <td st-table-cell st-table-row-content (click)="checkWorkflow(workflow)">
+            <label class="workflow-name" (click)="openWorkflowClick($event, workflow)">
+            <img src="assets/images/iconStreaming.svg" class="icon-row streaming-icon" *ngIf="workflow.type === 'Streaming'"/>
+            <img src="assets/images/iconBatch.svg" class="icon-row batch-icon" *ngIf="workflow.type === 'Batch'"/>
+             {{workflow.name}}
+          </label>
+        </td>
+        <td st-table-cell st-table-row-content (click)="checkWorkflow(workflow)">
+            {{workflow.type}}
+        </td>
+        <td st-table-cell st-table-row-content (click)="checkWorkflow(workflow)">
+            {{workflow.lastUpdate}}
+        </td>
+        <td st-table-cell st-table-row-content>
+            <menu-options-list [options]="workflowOptions" (selectedOption)="selectedWorkflowAction($event, workflow)">
+                <span class="show-options icon-ellipsis"></span>
+            </menu-options-list>
+        </td>
+    </tr>
+</st-table>
+<!--- versions TODO: separate in another component  -- -->
+<div *ngIf="workflowVersions && workflowVersions.length">
+    <div class="version-header">
+        <img src="assets/images/iconStreaming.svg" class="icon-title streaming-icon" *ngIf="workflowVersions[0].executionEngine === 'Streaming'"
+        />
+        <img src="assets/images/iconBatch.svg" class="icon-title batch-icon" *ngIf="workflowVersions[0].executionEngine === 'Batch'"
+        />
+        <span class="version-title-name">{{workflowVersions[0].name}}</span>
+    </div>
+    <st-table [fields]="versionFields" [sortable]="true" qaTag="table-qa-tag" class="version-table" (changeOrder)="changeOrderVersions($event)">
+        <tr st-table-row *ngFor="let version of workflowVersions; let i = index;" [selected]="selectedVersions && selectedVersions.indexOf(version.id) > -1"
+            class="workflow-versions">
+            <td st-table-cell st-table-row-content (click)="checkVersion(version.id)">
+                <label class="version-name workflow-link" (click)="editVersion($event, version.id)">v{{version.version}}</label>
+            </td>
+            <td st-table-cell st-table-row-content class="tag-column" (click)="checkVersion(version.id)">
+                <label>
+                <sp-tooltip *ngIf="version.tagsAux && version.tagsAux.length">
+                    <div tooltip>
+                        <div class="workflow-group">
+                        {{version.tagsAux}}
+                        </div>
+                    </div>
+                    <div content>
+                        <span>{{version.tagsAux}}</span>
+                    </div>
+                </sp-tooltip>
+                <span *ngIf="!version.tagsAux || !version.tagsAux.length">-</span>
+              </label>
+            </td>
+            <td st-table-cell st-table-row-content (click)="checkVersion(version.id)">
+                {{version.lastUpdate}}
+            </td>
+            <td st-table-cell st-table-row-content>
+                <menu-options-list [options]="versionOptions" (selectedOption)="selectVersionAction($event, version)">
+                    <span class="show-options icon-ellipsis"></span>
+                </menu-options-list>
+            </td>
+        </tr>
+    </st-table>
+</div>

@@ -5,57 +5,121 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Effect, Actions } from '@ngrx/effects';
+import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store, Action } from '@ngrx/store';
+import { Observable, timer, of, forkJoin, from } from 'rxjs';
 
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
-import { Observable } from 'rxjs/Observable';
-
+import * as errorActions from 'actions/errors';
 import * as executionsActions from '../actions/executions';
 import * as fromRoot from '../reducers';
 import { ExecutionService } from 'services/execution.service';
+import { isEqual } from 'lodash';
 
-import { of } from 'rxjs/observable/of';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
+import { switchMap, takeUntil, concatMap, catchError, withLatestFrom, mergeMap, map } from 'rxjs/operators';
 
 
 @Injectable()
 export class ExecutionsEffect {
 
+   private _lastExecutionsValue: any;
+
    @Effect()
    getExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_EXECUTIONS)
-      .switchMap(() => this._executionService.getAllExecutions()
-         .map(executions =>  new executionsActions.ListExecutionsCompleteAction(
-               executions.map(execution => this._executionHelperService.normalizeExecution(execution))))
-         .catch(err => of(new executionsActions.ListExecutionsFailAction())));
+      .pipe(switchMap(() => timer(0, 5000)
+         .pipe(takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING)))
+         .pipe(concatMap(() => this._executionService.getExecutionsByQuery({ archived: false })
+            .map(executions => {
+               if (isEqual(executions, this._lastExecutionsValue)) {
+                  return new executionsActions.ListExecutionsEmptyAction();
+               }
+               this._lastExecutionsValue = executions;
+               return new executionsActions.ListExecutionsCompleteAction(
+                  executions.map(execution => this._executionHelperService.normalizeExecution(execution)));
+            }).catch(err => of(new executionsActions.ListExecutionsFailAction()))))));
+
+
+   @Effect()
+   getArhivedExecutionsList: Observable<any> = this.actions$
+      .ofType(executionsActions.LIST_ARCHIVED_EXECUTIONS)
+      .pipe(switchMap(executions => this._executionService.getExecutionsByQuery({ archived: true })
+         .map((archived: Array<any>) => new executionsActions.ListArchivedExecutionsCompleteAction(archived.map(execution =>
+            this._executionHelperService.normalizeExecution(execution))))))
+      .pipe(catchError(error => of(new executionsActions.ListArchivedExecutionsFailAction())));
+
+   @Effect()
+   deleteExecution: Observable<any> = this.actions$
+      .ofType(executionsActions.DELETE_EXECUTION)
+      .pipe(map((action: any) => action.executionId))
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions.isArchivedPage)))
+      .pipe(switchMap(([executionId, isArchivedPage]: [string, boolean]) => this._executionService.deleteExecution(executionId)
+         .pipe(mergeMap((() => [new executionsActions.DeleteExecutionCompleteAction, isArchivedPage ? new executionsActions.ListArchivedExecutionsAction() : new executionsActions.ListExecutionsAction()])))
+      .catch((error) => from([new executionsActions.DeleteExecutionErrorAction(), new errorActions.ServerErrorAction(error)]))));
+
+
+
+   @Effect()
+   archiveExecutions: Observable<any> = this.actions$
+      .ofType(executionsActions.ARCHIVE_EXECUTIONS)
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions.selectedExecutionsIds)))
+      .pipe(switchMap(([action, ids]) => {
+         const observables: any = [];
+         ids.forEach(id => observables.push(this._executionService.archiveExecution(id, true)));
+         return forkJoin(observables)
+            .pipe(mergeMap(() => [new executionsActions.ListExecutionsAction(), new executionsActions.ArchiveExecutionsCompleteAction()]))
+            .pipe(catchError(error => of(new executionsActions.ArchiveExecutionsFailAction())));
+      }));
+
+   @Effect()
+   unarchiveExecutions: Observable<any> = this.actions$
+      .ofType(executionsActions.UNARCHIVE_EXECUTIONS)
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions.selectedExecutionsIds)))
+      .pipe(switchMap(([action, ids]) => {
+         const observables: any = [];
+         ids.forEach(id => observables.push(this._executionService.archiveExecution(id, false)));
+         return forkJoin(observables)
+            .pipe(mergeMap(() => [
+               new executionsActions.ListArchivedExecutionsAction(),
+               new executionsActions.UnarchiveExecutionsCompleteAction()]))
+            .pipe(catchError(error => of(new executionsActions.UnarchiveExecutionsFailAction())));
+      }));
+
+
+   @Effect()
+   selectStatusFilter: Observable<any> = this.actions$
+      .ofType(executionsActions.SELECT_STATUS_FILTER)
+      .pipe(switchMap((action: any) =>
+         action.status === 'Archived' ? of(new executionsActions.ListArchivedExecutionsAction()) : of({ type: 'NO_ACTION' })));
 
    @Effect()
    stopExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.STOP_EXECUTIONS_ACTION)
-      .withLatestFrom(this.store.select(state => state.executions.executions.selectedExecutionsIds))
-      .switchMap(([action, ids]) => {
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions.selectedExecutionsIds)))
+      .pipe(switchMap(([action, ids]) => {
          const observables: any = [];
          ids.forEach(id => observables.push(this._executionService.stopExecutionsById(id)));
 
-         return Observable.forkJoin(observables)
-            .mergeMap((results: any) => {
+         return forkJoin(observables)
+            .pipe(mergeMap((results: any) => {
                const actions: Array<Action> = [];
                if (results.length) {
                   actions.push(new executionsActions.ListExecutionsAction());
                }
                return actions;
-            })
-            .catch(error => of(new executionsActions.ListExecutionsFailAction()));
-      });
+            }))
+            .pipe(catchError(error => of(new executionsActions.ListExecutionsFailAction())));
+      }));
 
+
+   @Effect()
+   getExecutionInfo$: Observable<Action> = this.actions$
+      .ofType(executionsActions.GET_WORKFLOW_EXECUTION_INFO)
+      .pipe(switchMap((data: any) => this._executionService.getWorkflowExecutionInfo(data.payload.id)
+         .map((response: any) => new executionsActions.GetExecutionInfoCompleteAction({
+            ...response,
+            name: data.payload.name
+         })).catch(error => from([new executionsActions.GetExecutionInfoErrorAction(), new errorActions.ServerErrorAction(error)]))));
 
    constructor(
       private actions$: Actions,

@@ -110,7 +110,6 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
                     executionStatus: ExecutionStatusUpdate,
                     error: Option[WorkflowError]
                   ): WorkflowExecution = {
-    //synchronized {
     val updateFuture = findExecutionById(executionStatus.id).flatMap { actualExecutionStatus =>
       val actualStatus = actualExecutionStatus.lastStatus
       val inputExecutionStatus = executionStatus.status
@@ -163,9 +162,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
         newExecutionWithStatus
       case Failure(e) =>
-        throw new Exception(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
+        throw ServerException.create(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
     }
-    // }
   }
 
   def stopExecution(id: String): WorkflowExecution = {
@@ -192,14 +190,25 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   def deleteAllExecutions(): Future[Boolean] =
     for {
       executions <- findAllExecutions()
-      result <- deleteYield(executions)
+      canDelete = executions.forall { execution =>
+        val statuses = execution.statuses.map(_.state)
+        statuses.contains(Failed) || statuses.contains(Stopped)
+      }
+      result <- if (canDelete) {
+        deleteYield(executions)
+      } else throw new ServerException("Impossible to delete the executions, its statuses must be stopped or failed to perform this action")
     } yield result
-
 
   def deleteExecution(id: String): Future[Boolean] =
     for {
       execution <- findByIdHead(id)
-      result <- deleteYield(Seq(execution))
+      canDelete = {
+        val statuses = execution.statuses.map(_.state)
+        statuses.contains(Failed) || statuses.contains(Stopped)
+      }
+      result <- if(canDelete) {
+        deleteYield(Seq(execution))
+      } else throw new ServerException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
     } yield result
 
   def setLaunchDate(execution: WorkflowExecution, date: DateTime): WorkflowExecution = {
@@ -447,7 +456,10 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   private[services] def getNewUpdateDate: Option[DateTime] = Option(new DateTime())
 
   private[services] def getDashboardView(executions: Seq[WorkflowExecution]): DashboardView = {
-    val lastExecutions = executions.sortBy { execution =>
+
+    val nonArchivedExecutions = executions.filterNot(_.archived.getOrElse(false))
+
+    val lastExecutions = nonArchivedExecutions.sortBy { execution =>
       import execution.genericDataExecution._
       val genericSettingsDate = launchDate.orElse(startDate).orElse(endDate).getOrElse(new DateTime())
       execution.statuses.headOption match {
@@ -458,34 +470,18 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       val executionDto: WorkflowExecutionDto = execution
       executionDto
     }
-    val running = executions.count { execution =>
-      execution.statuses.headOption match {
-        case Some(status) => Seq(Launched, Starting, Started, Uploaded).contains(status.state)
-        case None => false
-      }
-    }
-    val stopped = executions.count { execution =>
-      execution.statuses.headOption match {
-        case Some(status) =>
-          Seq(Stopping, Stopped, Finished, NotDefined, Created, NotStarted, Killed).contains(status.state)
-        case None =>
-          false
-      }
-    }
-    val failed = executions.count { execution =>
-      execution.statuses.headOption match {
-        case Some(status) => Seq(Failed).contains(status.state)
-        case None => false
-      }
-    }
-    val archived = executions.count { execution =>
-      execution.archived match {
-        case Some(exArchived) => exArchived
-        case None => false
-      }
-    }
-    val summary = ExecutionsSummary(running, stopped, failed, archived)
 
+    val nonArchivedSummary = nonArchivedExecutions.foldLeft(ExecutionsSummary(0, 0, 0, 0)) {
+      (summary, execution: WorkflowExecution) =>
+        execution.statuses.headOption match {
+          case Some(status) if Seq(Launched, Starting, Started, Uploaded).contains(status.state) => summary.copy(running = summary.running + 1)
+          case Some(status) if Seq(Stopping, Stopped, Finished, NotDefined, Created, NotStarted, Killed).contains(status.state) => summary.copy(stopped = summary.stopped + 1)
+          case Some(status) if Seq(Failed).contains(status.state) => summary.copy(failed = summary.failed + 1)
+          case None => summary
+        }
+    }
+
+    val summary = nonArchivedSummary.copy(archived = executions.size - nonArchivedExecutions.size)
     DashboardView(lastExecutions, summary)
   }
 }

@@ -5,13 +5,16 @@
  */
 
 import * as executionActions from '../actions/executions';
-import { isEqual } from 'lodash';
+
 import { Order } from '@stratio/egeo';
 
 export interface State {
+   isArchivedPage: boolean;
    executionList: Array<any>;
+   archivedExecutionList: Array<any>;
    executionInfo: any;
    loading: boolean;
+   loadingArchived: boolean;
    selectedExecutionsIds: Array<string>;
    statusFilter: string;
    typeFilter: string;
@@ -25,9 +28,12 @@ export interface State {
 }
 
 const initialState: State = {
+   isArchivedPage: false,
    executionList: [],
+   archivedExecutionList: [],
    executionInfo: null,
    loading: true,
+   loadingArchived: true,
    selectedExecutionsIds: [],
    statusFilter: '',
    typeFilter: '',
@@ -46,23 +52,56 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
-         const executionList = action.payload;
-         return { ...state, executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList };
+         return {
+            ...state,
+            executionList: action.payload,
+            loading: false
+         };
       }
+      case executionActions.LIST_EXECUTIONS_EMPTY: {
+         return {
+            ...state,
+            loading: false
+         };
+      }
+      case executionActions.LIST_ARCHIVED_EXECUTIONS_COMPLETE: {
+         return {
+            ...state,
+            loadingArchived: false,
+            archivedExecutionList: action.payload
+         };
 
+      }
       case executionActions.SELECT_EXECUTIONS_ACTION: {
          const { execution: { id } } = action;
-         return { ...state, selectedExecutionsIds: [id, ...state.selectedExecutionsIds] };
+         return {
+            ...state,
+            selectedExecutionsIds: [id, ...state.selectedExecutionsIds]
+         };
       }
       case executionActions.DESELECT_EXECUTIONS_ACTION: {
-
          const { execution: { id } } = action;
-         return { ...state, selectedExecutionsIds: state.selectedExecutionsIds.filter(e => e !== id) };
+         return {
+            ...state,
+            selectedExecutionsIds: state.selectedExecutionsIds.filter(e => e !== id)
+         };
       }
       case executionActions.SELECT_STATUS_FILTER: {
          return {
             ...state,
             statusFilter: action.status,
+            selectedExecutionsIds: []
+         };
+      }
+      case executionActions.ARCHIVE_EXECUTIONS_COMPLETE: {
+         return {
+            ...state,
+            selectedExecutionsIds: []
+         };
+      }
+      case executionActions.UNARCHIVE_EXECUTIONS_COMPLETE: {
+         return {
+            ...state,
             selectedExecutionsIds: []
          };
       }
@@ -100,8 +139,35 @@ export function reducer(state: State = initialState, action: any): State {
             selectedExecutionsIds: []
          };
       }
+      case executionActions.GET_WORKFLOW_EXECUTION_INFO_COMPLETE: {
+         return {
+            ...state,
+            executionInfo: action.payload
+         };
+      }
+      case executionActions.CLOSE_WORKFLOW_EXECUTION_INFO: {
+         return {
+            ...state,
+            executionInfo: null
+         };
+      }
       case executionActions.RESET_VALUES: {
-         return initialState;
+         return {
+            ...initialState,
+            executionList: state.executionList
+         };
+      }
+      case executionActions.SET_ARCHIVED_PAGE: {
+         return {
+            ...state,
+            isArchivedPage: action.payload
+         };
+      }
+      case executionActions.DELETE_EXECUTION_COMPLETE: {
+         return {
+            ...state,
+            selectedExecutionsIds: []
+         };
       }
       default:
          return state;

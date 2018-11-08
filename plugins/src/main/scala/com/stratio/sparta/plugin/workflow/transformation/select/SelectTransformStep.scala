@@ -6,8 +6,10 @@
 package com.stratio.sparta.plugin.workflow.transformation.select
 
 import java.io.{Serializable => JSerializable}
+import scala.util.matching.Regex
 
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.plugin.enumerations.SelectType
 import com.stratio.sparta.plugin.enumerations.SelectType.SelectType
 import com.stratio.sparta.plugin.helper.SchemaHelper._
@@ -26,7 +28,6 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.jackson.Serialization.read
-
 import scala.util.{Failure, Success, Try}
 
 abstract class SelectTransformStep[Underlying[Row]](
@@ -51,11 +52,7 @@ abstract class SelectTransformStep[Underlying[Row]](
     SelectType.withName(properties.getString("selectType", "EXPRESSION").toUpperCase())
   }.getOrElse(SelectType.EXPRESSION)
 
-  def requireValidateSql(): Unit = {
-    val sql = s"select ${selectExpression.getOrElse("dummyCol")} from dummyTable"
-    require(sql.nonEmpty, "The input query can not be empty")
-    require(validateSql, "The input query is invalid")
-  }
+  val sqlCommentsRegex: Regex = "--[0-9a-zA-Z-#()]+".r
 
   def validateSql: Boolean =
     Try {
@@ -110,11 +107,15 @@ abstract class SelectTransformStep[Underlying[Row]](
         messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify a select expression, such as colA, abs(colC).", name)
       )
 
-    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && !validateSql)
+    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && (selectExpression.get.endsWith(",") || !validateSql)) {
+      val errorMessage = if (selectExpression.get.endsWith(","))
+        "The select expression is invalid because it has a trailing comma ','."
+      else "The select expression is invalid."
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"The select expression is invalid.", name)
+        messages = validation.messages :+ WorkflowValidationMessage(errorMessage, name)
       )
+    }
 
     if (selectType == SelectType.COLUMNS && columns.nonEmpty && !validateSql)
       validation = ErrorValidations(
@@ -136,7 +137,8 @@ abstract class SelectTransformStep[Underlying[Row]](
             case SelectType.COLUMNS => columns.mkString(",")
             case SelectType.EXPRESSION => selectExpression.getOrElse("*")
           }
-          val newDataFrame = xDSession.sql(s"select $expression from $inputStep")
+
+          val newDataFrame = xDSession.sql(s"select ${sqlCommentsRegex.replaceAllIn(expression,"")} from $inputStep")
           (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
           (rdd.filter(_ => false), None, inputSchema)

@@ -11,7 +11,7 @@ import { formatDate } from '@utils';
 export class ExecutionHelperService {
 
    public normalizeExecution(execution) {
-      const { id, statuses, marathonExecution, localExecution, genericDataExecution: { lastError, endDate, startDate, workflow: { name, group, tags, version, executionEngine }, executionContext: { paramsLists: context } } } = execution;
+      const { id, statuses, marathonExecution, localExecution, genericDataExecution: { lastError, endDate, startDate,launchDate, workflow: { name, group, tags, version, executionEngine }, executionContext: { paramsLists: context } } } = execution;
       let startDateMillis = 0;
       let startDateFormatted = '-';
       try {
@@ -24,12 +24,18 @@ export class ExecutionHelperService {
          endDateMillis = new Date(endDate).getTime();
          endDateFormatted = formatDate(endDate);
       } catch (error) { }
+      let launchDateMillis = 0;
+      let launchDateFormatted = '-';
+      try {
+         launchDateMillis = new Date(launchDate).getTime();
+         launchDateFormatted = formatDate(launchDate);
+      } catch (error) { }
       const status = statuses.length && statuses[0].state;
       let executionTime = '';
       if (endDateMillis > 0 && endDateMillis > 0) {
          executionTime = this._msToTime(endDateMillis - startDateMillis);
       }
-      const filterStatus = this._getFilterStatus(status)
+      const filterStatus = this._getFilterStatus(status);
       return {
          id,
          name,
@@ -38,6 +44,9 @@ export class ExecutionHelperService {
          endDate,
          endDateMillis,
          endDateFormatted,
+         launchDate,
+         launchDateMillis,
+         launchDateFormatted,
          startDate,
          startDateMillis,
          startDateFormatted,
@@ -49,7 +58,7 @@ export class ExecutionHelperService {
          tagsAux: tags ? tags.join() : '',
          context: context.join(),
          status,
-         startDateWithStatus: filterStatus === 'Running' ?  9007199254740992 : startDateMillis,
+         startDateWithStatus: filterStatus === 'Running' ?  new Date().getTime() : launchDateMillis,
          statusData: statuses.length && statuses[0],
          filterStatus
       };

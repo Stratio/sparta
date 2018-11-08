@@ -26,6 +26,7 @@ hr {
    height: 12px;
    background-color: $status-success-default;
    border-radius: 50%;
+   margin-right: 4px;
    display: inline-block;
    &.Stopped {
       background-color: $neutral-06;
@@ -53,7 +54,17 @@ hr {
    i {
       color: $action-primary-default;
       font-size: 20px;
+      margin-left: -15px;
       line-height: 9px;
       cursor: pointer;
    }
+}
+
+.starting-spinner {
+    width: 16px;
+    display: inline-block;
+    margin-top: -2px;
+    margin-left: -4px;
+    margin-right: 4px;
+    float: left;
 }

@@ -6,29 +6,28 @@
 
 import { StepType, Engine } from '@models/enums';
 
-import * as avroTemplate from './outputs/avro.json';
-import * as cassandraTemplate from './outputs/cassandra.json';
-import * as crossdataTemplate from './outputs/crossdata.json';
-import * as csvTemplate from './outputs/csv.json';
-import * as customTemplate from './outputs/custom.json';
-import * as customLiteTemplate from './outputs/customLite.json';
-import * as customLiteXdTemplate from './outputs/customLiteXd.json';
-import * as elasticSearchTemplate from './outputs/elastic-search.json';
-import * as genericDatasourceTemplate from './outputs/genericDatasource.json';
-import * as httpTemplate from './outputs/http.json';
-import * as jdbcTemplate from './outputs/jdbc.json';
-import * as jsonTemplate from './outputs/json.json';
-import * as kafkaTemplate from './outputs/kafka.json';
-import * as mlPipeline from './outputs/mlpipeline.json';
-import * as mongodbTemplate from './outputs/mongodb.json';
-import * as parquetTemplate from './outputs/parquet.json';
-import * as postgresTemplate from './outputs/postgres.json';
-import * as printTemplate from './outputs/print.json';
-import * as redisTemplate from './outputs/redis.json';
-import * as restTemplate from './outputs/rest.json';
-import * as textTemplate from './outputs/text.json';
-import * as xmlTemplate from './outputs/xml.json';
-
+import avroTemplate from './outputs/avro.json';
+import cassandraTemplate from './outputs/cassandra.json';
+import crossdataTemplate from './outputs/crossdata.json';
+import csvTemplate from './outputs/csv.json';
+import customTemplate from './outputs/custom.json';
+import customLiteTemplate from './outputs/customLite.json';
+import customLiteXdTemplate from './outputs/customLiteXd.json';
+import elasticSearchTemplate from './outputs/elastic-search.json';
+import genericDatasourceTemplate from './outputs/genericDatasource.json';
+import httpTemplate from './outputs/http.json';
+import jdbcTemplate from './outputs/jdbc.json';
+import jsonTemplate from './outputs/json.json';
+import kafkaTemplate from './outputs/kafka.json';
+import mlPipeline from './outputs/mlpipeline.json';
+import mongodbTemplate from './outputs/mongodb.json';
+import parquetTemplate from './outputs/parquet.json';
+import postgresTemplate from './outputs/postgres.json';
+import printTemplate from './outputs/print.json';
+import redisTemplate from './outputs/redis.json';
+import restTemplate from './outputs/rest.json';
+import textTemplate from './outputs/text.json';
+import xmlTemplate from './outputs/xml.json';
 
 export const outputs = [
     avroTemplate,

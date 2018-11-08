@@ -11,10 +11,6 @@ sealed trait ResourceType{
   def name(): String
 }
 
-case object BackupResource extends ResourceType{
-  override def name(): String = "Backup"
-}
-
 case object CatalogResource extends ResourceType{
   override def name(): String = "Catalog"
 }
@@ -23,16 +19,24 @@ case object ConfigurationResource extends ResourceType{
   override def name(): String = "Configuration"
 }
 
-case object EnvironmentResource extends ResourceType{
-  override def name(): String = "Environment"
+case object FilesResource extends ResourceType{
+  override def name(): String = "Files"
+}
+
+case object GlobalParametersResource extends ResourceType{
+  override def name(): String = "GlobalParameters"
 }
 
 case object GroupsResource extends ResourceType{
   override def name(): String = "Groups"
 }
 
-case object FilesResource extends ResourceType{
-  override def name(): String = "Files"
+case object MlModelsResource extends ResourceType{
+  override def name(): String = "MlModels"
+}
+
+case object ParameterListResource extends ResourceType{
+  override def name(): String = "ParameterList"
 }
 
 case object TemplateResource extends ResourceType{
@@ -41,16 +45,4 @@ case object TemplateResource extends ResourceType{
 
 case object WorkflowsResource extends ResourceType{
   override def name(): String = "Workflows"
-}
-
-case object HistoryResource extends ResourceType{
-  override def name(): String = "History"
-}
-
-case object ParameterListResource extends ResourceType{
-  override def name(): String = "ParameterList"
-}
-
-case object MlModelsResource extends ResourceType{
-  override def name(): String = "MlModels"
 }

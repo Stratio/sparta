@@ -6,10 +6,17 @@
 
 package com.stratio.sparta.serving.api.helpers
 
+import scala.util.{Properties, Try}
+
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+import com.typesafe.config.ConfigFactory
+import org.apache.ignite.Ignition
+import spray.can.Http
+
+import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor._
@@ -19,13 +26,8 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
 import com.stratio.sparta.serving.core.factory.PostgresFactory
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
-import com.stratio.sparta.serving.core.services.migration.{CassiopeiaMigrationService, OrionMigrationService}
+import com.stratio.sparta.serving.core.services.migration.OrionMigrationService
 import com.stratio.sparta.serving.core.utils.SpartaIgnite
-import com.typesafe.config.ConfigFactory
-import org.apache.ignite.Ignition
-import spray.can.Http
-
-import scala.util.{Properties, Try}
 
 
 /**
@@ -55,13 +57,16 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       log.info("Initializing Sparta Postgres schemas ...")
       PostgresFactory.invokeInitializationMethods()
 
+      log.info("Initializing Sparta Postgres data ...")
+      PostgresFactory.invokeInitializationDataMethods()
+
       if (Try(SpartaConfig.getDetailConfig().get.getBoolean("migration.enable")).getOrElse(true)) {
+        //await to data initialization in database
+        Thread.sleep(500)
         val migration = new OrionMigrationService()
         migration.executeMigration()
       }
 
-      log.info("Initializing Sparta Postgres data ...")
-      PostgresFactory.invokeInitializationDataMethods()
 
       log.info("Initializing Dyplon authorization plugins ...")
       implicit val secManager = SecurityManagerHelper.securityManager
@@ -80,8 +85,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
 
         if (Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)) {
           log.info("Initializing lineage service ...")
-          //TODO lineage
-          //system.actorOf(LineageService.props(executionListenerActor, workflowListenerActor))
+          system.actorOf(LineageService.props(executionStatusChangeListenerActor))
         }
 
         val controllerActor = system.actorOf(Props(new ControllerActor(

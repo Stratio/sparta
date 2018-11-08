@@ -52,7 +52,9 @@ class ParameterListPostgresDao extends ParameterListDao {
         !variablesNames.contains(variable.name)
       }
       log.debug(s"Variables not present in the custom defaults list: $variablesToAdd")
-      update(paramList.copy(parameters = variablesToAdd ++ paramList.parameters))
+      update(paramList.copy(
+        parameters = (DefaultCustomExampleParametersMap ++ ParameterList.parametersToMap(paramList.parameters)).values.toSeq
+      ))
     }
     environmentFuture.onFailure { case _ =>
       log.debug("Initializing environment list")
@@ -72,7 +74,9 @@ class ParameterListPostgresDao extends ParameterListDao {
         !variablesNames.contains(variable.name)
       }
       log.debug(s"Variables not present in the environment list: $variablesToAdd")
-      update(envList.copy(parameters = variablesToAdd ++ envList.parameters))
+      update(envList.copy(
+        parameters = (DefaultEnvironmentParametersMap ++ ParameterList.parametersToMap(envList.parameters)).values.toSeq
+      ))
     }
   }
 
@@ -133,6 +137,16 @@ class ParameterListPostgresDao extends ParameterListDao {
   }
 
   def update(parameterList: ParameterList): Future[Unit] = {
+    updateActions(parameterList).flatMap { case (actions, (workflowsToUpdate, oldParameterListName, newParameterListName)) =>
+      db.run(txHandler(DBIO.seq(actions: _*).transactionally)).map(_ =>
+        if (cacheEnabled)
+          workflowService.upsertFromCacheByParameterList(oldParameterListName, newParameterListName, workflowsToUpdate)
+      )
+    }
+  }
+
+  //scalastyle:off
+  def updateActions(parameterList: ParameterList) = {
     val newParameterList = addCreationDate(addUpdateDate(parameterList))
     val id = newParameterList.id.getOrElse(
       throw new ServerException(s"No parameter list found by id ${newParameterList.id}"))
@@ -145,13 +159,35 @@ class ParameterListPostgresDao extends ParameterListDao {
         } yield (workflowsActions ++ contextsActions, workflowsToUpdate)
       } else Future((Seq.empty, Seq.empty))
 
-      workflowContextActions.flatMap { case (actions, workflowsToUpdate) =>
-        val actionsToExecute = actions :+ upsertAction(newParameterList)
-        db.run(txHandler(DBIO.seq(actionsToExecute: _*).transactionally)).map(_ =>
-          if (cacheEnabled)
-            workflowService.upsertFromCacheByParameterList(oldParameterList.name, newParameterList.name, workflowsToUpdate)
-        )
+      workflowContextActions.map { case (actions, workflowsToUpdate) =>
+        (actions :+ upsertAction(newParameterList), (workflowsToUpdate, oldParameterList.name, newParameterList.name))
       }
+    }
+  }
+
+  def updateList(parameterLists: Seq[ParameterList]): Future[Unit] = {
+    val parentListsWithDates = parameterLists.map(element => addCreationDate(addUpdateDate(element)))
+    val parentLists = parentListsWithDates.filter(_.parent.isEmpty)
+    val childrenLists = parentListsWithDates.filter(_.parent.nonEmpty)
+    for {
+      parentActions <- Future.sequence(parentLists.map(updateActions))
+      pActions = parentActions.flatMap { case (actions, _) => actions }
+      workflowActions = parentActions.map { case (_, actions) => actions }
+      _ <- db.run(txHandler(DBIO.seq(pActions: _*).transactionally)).map(_ =>
+        if (cacheEnabled)
+          workflowActions.foreach(action => workflowService.upsertFromCacheByParameterList(action._2, action._3, action._1))
+      )
+      childrenActions <- Future.sequence {
+        childrenLists.map(updateActions)
+      }
+      cActions = childrenActions.flatMap { case (actions, _) => actions }
+      workflowChildrenActions = childrenActions.map { case (_, actions) => actions }
+      finalResult <- db.run(txHandler(DBIO.seq(cActions: _*).transactionally)).map(_ =>
+        if (cacheEnabled)
+          workflowChildrenActions.foreach(action => workflowService.upsertFromCacheByParameterList(action._2, action._3, action._1))
+      )
+    } yield {
+      finalResult
     }
   }
 
@@ -243,8 +279,8 @@ class ParameterListPostgresDao extends ParameterListDao {
                                                   newParent: ParameterList
                                                 ) = {
     findByParent(oldParent.name).map { contextLists =>
-      contextLists.map { contextList =>
-        val newVariables = newParent.parameters.map { parameter =>
+      contextLists.flatMap { contextList =>
+        val newParameters = newParent.parameters.map { parameter =>
           val oldContextParameterValue = contextList.getParameterValue(parameter.name).notBlank
           val oldParentParameterValue = oldParent.getParameterValue(parameter.name).notBlank
           val newParentParameterValue = newParent.getParameterValue(parameter.name).notBlank
@@ -262,10 +298,17 @@ class ParameterListPostgresDao extends ParameterListDao {
           }
           parameter.copy(value = newValue)
         }
-        upsertAction(contextList.copy(
-          parent = Option(newParent.name),
-          parameters = newVariables
-        ))
+
+        if (newParameters != contextList.parameters) {
+          Option(upsertAction(contextList.copy(
+            parent = Option(newParent.name),
+            parameters = newParameters
+          )))
+        } else if (Option(newParent.name) != contextList.parent) {
+          Option(upsertAction(contextList.copy(
+            parent = Option(newParent.name)
+          )))
+        } else None
       }
     }
   }

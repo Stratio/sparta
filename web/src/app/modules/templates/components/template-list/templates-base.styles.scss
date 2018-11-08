@@ -40,7 +40,8 @@
 }
 
 .loading-bar{
-    position:absolute;
+    position: fixed;
+    top: 140px;
 }
 
 .general-actions {
@@ -54,7 +55,7 @@
 }
 
 .top-separation {
-   margin-top: 30px;
+   margin-top: -30px;
 }
 
 .templates-table {

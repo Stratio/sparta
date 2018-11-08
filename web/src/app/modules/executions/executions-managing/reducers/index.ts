@@ -47,14 +47,23 @@ export const getExecutionsList = createSelector(getExecutionsState, state => sta
 export const getCurrentPage = createSelector(getExecutionsState, state => state.pagination.currentPage);
 export const getPerPageElements = createSelector(getExecutionsState, state => state.pagination.perPage);
 export const getTableOrder = createSelector(getExecutionsState, state => state.order);
+export const getExecutionInfo = createSelector(getExecutionsState, state => state.executionInfo);
+export const getArchivedExecutions = createSelector(getExecutionsState, state => state.archivedExecutionList);
+export const isArchivedPage = createSelector(getExecutionsState, state => state.isArchivedPage);
+export const getIsLoading = createSelector(getExecutionsState, state => state.loading );
+export const isEmptyList = createSelector(getExecutionsState, state => state.isArchivedPage ?
+  !state.archivedExecutionList.length && !state.loadingArchived : !state.executionList.length && !state.loading);
 
 export const getFilteredExecutionsList = createSelector(
   getExecutionsList,
+  isArchivedPage,
+  getArchivedExecutions,
   getStatusFilter,
   getTypeFilter,
   getTimeIntervalFilter,
-  (executions, statusFilter, typeFilter, timeIntervalFilter) => {
+  (executions, archivedPage, archivedExecutions, statusFilter, typeFilter, timeIntervalFilter) => {
     const filters = [];
+    executions = archivedPage ? archivedExecutions : executions;
     if (statusFilter.length) {
       filters.push((execution) => execution.filterStatus === statusFilter);
     }
@@ -63,7 +72,7 @@ export const getFilteredExecutionsList = createSelector(
     }
     if (timeIntervalFilter > 0) {
       const current = new Date().getTime();
-      filters.push((execution) => execution.startDateMillis > (current - timeIntervalFilter));
+      filters.push((execution) => execution.launchDateMillis > (current - timeIntervalFilter));
     }
     return filters.length ? executions.filter(execution => !(filters.map(filter => filter(execution)).indexOf(false) > -1)) : executions;
   }
@@ -80,6 +89,7 @@ export const getFilteredSearchExecutionsList = createSelector(
     }) : executions, order.orderBy, order.type ? true : false);
   });
 
+
 export const getSelectedExecutions = createSelector(
   getExecutionsState,
   state => state.selectedExecutionsIds
@@ -93,3 +103,51 @@ export const getLastSelectedExecution = createSelector(
     return lastId ? executions.find(execution => execution.id === lastId) : null;
   }
 );
+
+export const showStopButton = createSelector(
+  getExecutionsList,
+  getSelectedExecutions,
+  getStatusFilter,
+  (executions, selectedExecutions, statusFilter) => {
+    if (selectedExecutions.length && (!statusFilter.length || statusFilter !== 'Archived')) {
+      if (executions.filter(execution => selectedExecutions.indexOf(execution.id) > -1 && execution.filterStatus !== 'Running').length) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  });
+
+export const showArchiveButton = createSelector(
+  getExecutionsList,
+  getSelectedExecutions,
+  isArchivedPage,
+  getStatusFilter,
+  (executions,  selectedExecutions, archivedPage, statusFilter) => {
+    if (selectedExecutions.length && !archivedPage) {
+      if (executions.filter(execution => selectedExecutions.indexOf(execution.id) > -1 && execution.filterStatus === 'Running').length) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  });
+
+export const showUnarchiveButton = createSelector(
+  getExecutionsList,
+  getSelectedExecutions,
+  getStatusFilter,
+  isArchivedPage,
+  (executions, selectedExecutions, statusFilter, archivedPage) => {
+    if (selectedExecutions.length && archivedPage) {
+      if (executions.filter(execution => selectedExecutions.indexOf(execution.id) > -1 && execution.filterStatus === 'Running').length) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+    return false;
+  });
+

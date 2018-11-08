@@ -100,32 +100,29 @@ object SecurityManagerHelper {
 
   implicit def resourceParser(resource: String): Resource = {
     resource match {
-      case "Groups" => Resource(GroupsResource, resource)
-      case "Workflows" => Resource(WorkflowsResource, resource)
-      case "Backup" => Resource(BackupResource, resource)
       case "Catalog" => Resource(CatalogResource, resource)
       case "Configuration" => Resource(ConfigurationResource, resource)
-      case "Environment" => Resource(EnvironmentResource, resource)
       case "Files" => Resource(FilesResource, resource)
-      case "Template" => Resource(TemplateResource, resource)
-      case "History" => Resource(HistoryResource, resource)
-      case "ParameterList" => Resource(ParameterListResource, resource)
+      case "GlobalParameters" => Resource(GlobalParametersResource, resource)
+      case "Groups" => Resource(GroupsResource, resource)
       case "MlModels" => Resource(MlModelsResource, resource)
+      case "ParameterList" => Resource(ParameterListResource, resource)
+      case "Template" => Resource(TemplateResource, resource)
+      case "Workflows" => Resource(WorkflowsResource, resource)
     }
   }
 
   implicit def resourceTupleParser(resource: (String,String)): Resource = {
     resource._1 match {
-      case "Groups" => Resource(GroupsResource, resource._2)
-      case "Workflows" => Resource(WorkflowsResource, resource._2)
-      case "Backup" => Resource(BackupResource, resource._2)
       case "Catalog" => Resource(CatalogResource, resource._2)
       case "Configuration" => Resource(ConfigurationResource, resource._2)
-      case "Environment" => Resource(EnvironmentResource, resource._2)
       case "Files" => Resource(FilesResource, resource._2)
-      case "Template" => Resource(TemplateResource, resource._2)
-      case "History" => Resource(HistoryResource, resource._2)
+      case "GlobalParameters" => Resource(GlobalParametersResource, resource._2)
+      case "Groups" => Resource(GroupsResource, resource._2)
+      case "MlModels" => Resource(MlModelsResource, resource._2)
       case "ParameterList" => Resource(ParameterListResource, resource._2)
+      case "Template" => Resource(TemplateResource, resource._2)
+      case "Workflows" => Resource(WorkflowsResource, resource._2)
     }
   }
 }

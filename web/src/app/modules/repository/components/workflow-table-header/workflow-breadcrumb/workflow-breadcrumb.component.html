@@ -1,0 +1,11 @@
+<section>
+  <div class="workflow-breadcrumb">
+    <div class="breadcrumb-section" *ngFor="let option of levelOptions; let i = index;">
+      <span *ngIf="i > 0" class="separator">/</span>
+      <div class="section-name" (click)="changeFolder.emit(i)">
+        <i class="icon" *ngIf="option.icon && option.icon.length" [ngClass]="option.icon"></i>
+        <span class="label" *ngIf="option.label && option.label.length">{{option.label}}</span>
+      </div>
+    </div>
+  </div>
+</section>

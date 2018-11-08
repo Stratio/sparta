@@ -19,35 +19,39 @@ const initialState: State = {
 };
 
 export function reducer(state: State = initialState, action: any): State {
-   switch (action.type) {
+    switch (action.type) {
 
-      case globalParamsActions.LIST_GLOBAL_PARAMS_COMPLETE: {
-         return {
-            ...state,
-            allVariables: action.params,
-            globalVariables: action.params,
-            creationMode: false
-         };
-      }
+        case globalParamsActions.LIST_GLOBAL_PARAMS_COMPLETE: {
+            return {
+                ...state,
+                allVariables: action.params,
+                globalVariables: action.params,
+                creationMode: false
+            };
+        }
 
-      case globalParamsActions.ADD_GLOBAL_PARAMS: {
-         return {
-            ...state,
-            globalVariables: [{ name: '', value: '', contexts: [] }, ...state.globalVariables],
-            creationMode: true
-         };
-      }
+        case globalParamsActions.ADD_GLOBAL_PARAMS: {
+            return {
+                ...state,
+                globalVariables: [{ name: '', value: '', contexts: [] }, ...state.globalVariables],
+                creationMode: true
+            };
+        }
 
-      case globalParamsActions.SEARCH_GLOBAL_PARAMS: {
-         if (action.text) {
-            const globalVariables = state.allVariables.filter(global => global.name.toLowerCase().includes(action.text.toLowerCase()));
-            return { ...state, globalVariables };
-         } else {
-            return { ...state, globalVariables: state.allVariables };
-         }
-      }
+        case globalParamsActions.SEARCH_GLOBAL_PARAMS: {
+            if (action.text) {
+                const globalVariables = state.allVariables.filter(global => global.name.toLowerCase().includes(action.text.toLowerCase()));
+                return { ...state, globalVariables };
+            } else {
+                return { ...state, globalVariables: state.allVariables };
+            }
+        }
+        case globalParamsActions.DELETE_NEW_GLOBAL_PARAMS: {
+            const globalVariables = state.globalVariables.slice(1);
+            return { ...state, globalVariables, allVariables: globalVariables, creationMode: false };
+        }
 
-      default:
-         return state;
-   }
+        default:
+            return state;
+    }
 }

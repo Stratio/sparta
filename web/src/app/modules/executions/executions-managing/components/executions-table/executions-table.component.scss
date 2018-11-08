@@ -42,6 +42,7 @@
    i {
       color: $action-primary-default;
       font-size: 20px;
+    margin-left: -15px;
       line-height: 9px;
    }
 }
@@ -72,6 +73,7 @@ hr {
 .oval {
    width: 12px;
    height: 12px;
+   margin-right: 4px;
    background-color: $status-success-default;
    border-radius: 50%;
    display: inline-block;
@@ -88,6 +90,15 @@ hr {
    color: $neutral-11;
    min-width: 80px;
    display: block;
+}
+
+.starting-spinner {
+    width: 16px;
+    display: inline-block;
+    margin-top: -2px;
+    margin-left: -4px;
+    float: left;
+    margin-right: 4px;
 }
 
 .all-executions button{

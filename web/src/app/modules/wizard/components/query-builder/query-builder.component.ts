@@ -15,6 +15,7 @@ import { isEqual as _isEqual } from 'lodash';
 import * as fromQueryBuilder from './reducers';
 import * as queryBuilderActions from './actions/queryBuilder';
 import { SaveJsonWorkflowActionError } from '@app/workflows/workflow-managing/actions/workflow-list';
+import { combineLatest } from 'rxjs';
 
 
 @Component({
@@ -148,7 +149,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
 
       const subjects = [];
       this.inputSchemasPositionSubjects.forEach(subject => subjects.push(subject.debounceTime(0)));
-      Observable.combineLatest(subjects)
+      combineLatest(subjects)
          .takeUntil(this._subscriptionSubject)
          .subscribe(value => {
             this.schemaPositions = value;

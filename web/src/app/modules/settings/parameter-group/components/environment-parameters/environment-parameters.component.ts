@@ -18,8 +18,8 @@ import * as environmentParametersActions from '../../actions/environment';
 export class EnvironmentParametersComponent implements OnInit {
 
    public showConfigContext = false;
-   public alertMessage = '';
-   public showAlert: boolean;
+   public alertMessage = { type: '', text: '' };
+   public showAlert = false;
 
    @Input() environmentParams: any;
    @Input() environmentContexts: string[];
@@ -36,15 +36,18 @@ export class EnvironmentParametersComponent implements OnInit {
    @Output() changeContext = new EventEmitter<any>();
    @Output() search: EventEmitter<{filter?: string, text: string}> = new EventEmitter<{filter?: string, text: string}>();
    @Output() deleteContext = new EventEmitter<any>();
+   @Output() onDownloadParams = new EventEmitter<void>();
+   @Output() onUploadParams = new EventEmitter<any>();
+   @Output() emitAlert = new EventEmitter<any>();
+
 
   constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit(): void {
       this._store.select(fromParameters.showAlert).subscribe(alert => {
-         this.showAlert = !!alert;
-         if (alert) {
+         this.showAlert = !!alert.text;
+         if (alert.text) {
             this.alertMessage = alert;
-            this.closeAlert();
          } else {
             this._cd.markForCheck();
          }
@@ -90,7 +93,25 @@ export class EnvironmentParametersComponent implements OnInit {
       this.deleteContext.emit(list);
    }
 
-   closeAlert() {
-      setTimeout(() => this._store.dispatch(new alertParametersActions.HideAlertAction()), 3000);
-   }
+   downloadParams() {
+    this.onDownloadParams.emit();
+    }
+
+    uploadParams(params) {
+        const reader: FileReader = new FileReader();
+        reader.onload = (e) => {
+            const loadFile: any = reader.result;
+            try {
+                const environment = JSON.parse(loadFile);
+                if (!environment.parameterList || !environment.contexts) {
+                    throw new Error('JSON Environment incorrect schema');
+                } else {
+                    this.onUploadParams.emit(environment);
+                }
+            } catch (err) {
+                this.emitAlert.emit(err);
+            }
+        };
+        reader.readAsText(params[0]);
+    }
 }

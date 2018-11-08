@@ -10,11 +10,14 @@ import com.stratio.sparta.sdk.lite.common.SDKCustomOutput
 import com.stratio.sparta.sdk.lite.common.models.OutputOptions
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
+import org.slf4j.Logger
 
 abstract class LiteCustomXDOutput(
                                    @transient xdSession: XDSession,
                                    properties: Map[String, String]
-                                 ) extends SDKCustomOutput with SLF4JLogging {
+                                 ) extends SDKCustomOutput with SLF4JLogging with Serializable {
+
+  val logger: Logger = log
 
   @deprecated("this method will become internal. Use overloaded version of 'save' with OutputOptions instead. " +
     "It will be invoked if the overloaded version is not overridden")

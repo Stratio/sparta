@@ -13,6 +13,10 @@ html {
     height: 100%;
 }
 
+th, h1, h2, h3, h4 {
+    font-weight:normal
+}
+
 body {
     margin: 0;
     overflow-x: hidden;
@@ -122,4 +126,9 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
         width: 5px!important;
         padding-right: 0px!important;
     }
+}
+
+.parameter-dropdown .st-dropdown-menu {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+    border: none;
 }

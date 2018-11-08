@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { StTableHeader, PaginateOptions, Order } from '@stratio/egeo';
 import { Router } from '@angular/router';
+import { Engine } from '@models/enums';
 
 @Component({
     selector: 'executions-table',
@@ -26,6 +27,9 @@ export class ExecutionsTableComponent {
    @Input() executionList: Array<any> = [];
 
    public fields: StTableHeader[];
+   public Engine = Engine;
+
+   public loadingStates: string[] = ['Starting', 'Launched', 'Uploaded'];
 
    constructor(private route: Router, private _cd: ChangeDetectorRef) {
       this.fields = [

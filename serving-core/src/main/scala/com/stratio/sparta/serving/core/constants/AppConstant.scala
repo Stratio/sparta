@@ -9,15 +9,15 @@ import akka.actor.ActorSystem
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.DataType
-import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
+import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow.{Group, WorkflowRelationSettings}
 import com.stratio.sparta.serving.core.utils.ZookeeperUtils
 
 import scala.util.{Properties, Try}
 
 /**
- * Global constants of the application.
- */
+  * Global constants of the application.
+  */
 object AppConstant extends ZookeeperUtils {
 
   val ConfigAppName = "sparta"
@@ -34,6 +34,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigMarathon = "sparta.marathon"
   val ConfigIntelligence = "sparta.intelligence"
   val ConfigIgnite = "sparta.ignite"
+  val ConfigLineage = "lineage.postgres"
   val HdfsKey = "hdfs"
   val DefaultOauth2CookieName = "user"
   val DriverPackageLocation = "driverPackageLocation"
@@ -58,8 +59,7 @@ object AppConstant extends ZookeeperUtils {
   val AndromedaVersion = "2.3.0"
 
   //Debug Options
-  val DebugSparkWindow = 120000
-  val maxDebugTimeout = 10000
+  val DebugSparkWindow = 1000
   val maxDebugWriteErrorTimeout = 5000
 
   //Workflow
@@ -137,6 +137,7 @@ object AppConstant extends ZookeeperUtils {
 
   //Parameters
   val parametersTwoBracketsPattern = "\\{\\{[\\w\\.\\-\\_]*\\}\\}".r
+  val regexMatchingMoustacheVariable = "(?<=\\{{2,3})([\\s*\\w\\-.+\\s]*)(?=\\}{2,3})".r
 
   //Environment Parameters
   val EnvironmentParameterListName = "Environment"
@@ -147,46 +148,56 @@ object AppConstant extends ZookeeperUtils {
     new ParameterVariable("KAFKA_BROKER_HOST", "localhost"),
     new ParameterVariable("KAFKA_BROKER_PORT", "9092"),
     new ParameterVariable("CASSANDRA_HOST", "localhost"),
+    new ParameterVariable("CASSANDRA_PORT", "9042"),
     new ParameterVariable("ES_HOST", "localhost"),
     new ParameterVariable("ES_PORT", "9200"),
+    new ParameterVariable("ES_INDEX_MAPPING", "sparta"),
+    new ParameterVariable("ES_CLUSTER", "elasticsearch"),
     new ParameterVariable("JDBC_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
     new ParameterVariable("JDBC_DRIVER", "org.postgresql.Driver"),
     new ParameterVariable("POSTGRES_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
+    new ParameterVariable("MONGODB_DB", "sparta"),
     new ParameterVariable("MONGODB_HOST", "localhost"),
-    new ParameterVariable("MONGODB_PORT", "27017")
-  )
-
-  //Example Custom Group parameters
-  val CustomExampleParameterList = "Default"
-  val CustomExampleParameterListId = Option("1b8d86a8-c7d5-11e8-a8d5-f2801f1b9fd1")
-  val DefaultCustomExampleParameters = Seq(
+    new ParameterVariable("MONGODB_PORT", "27017"),
     new ParameterVariable("CASSANDRA_KEYSPACE", "sparta"),
     new ParameterVariable("CASSANDRA_CLUSTER", "sparta"),
     new ParameterVariable("KAFKA_GROUP_ID", "sparta"),
     new ParameterVariable("KAFKA_MAX_POLL_TIMEOUT", "512"),
     new ParameterVariable("KAFKA_MAX_RATE_PER_PARTITION", "0"),
-    new ParameterVariable("ES_INDEX_MAPPING", "sparta"),
-    new ParameterVariable("MONGODB_DB", "sparta")
+    new ParameterVariable("WEBSOCKET_URL", "ws://stream.meetup.com/2/rsvps"),
+    new ParameterVariable("REDIS_HOST", "localhost"),
+    new ParameterVariable("REDIS_PORT", "6379")
   )
+  val DefaultEnvironmentParametersMap = ParameterList.parametersToMap(DefaultEnvironmentParameters)
+
+  //Example Custom Group parameters
+  val CustomExampleParameterList = "Default"
+  val CustomExampleParameterListId = Option("1b8d86a8-c7d5-11e8-a8d5-f2801f1b9fd1")
+  val DefaultCustomExampleParameters = Seq.empty[ParameterVariable]
+  val DefaultCustomExampleParametersMap = ParameterList.parametersToMap(DefaultCustomExampleParameters)
+
+  lazy val spartaFileEncoding: String =
+    Properties.envOrElse(MarathonConstant.SpartaFileEncoding, MarathonConstant.DefaultFileEncodingSystemProperty)
 
   //Global Parameters
   val DefaultGlobalParameters = Seq(
     new ParameterVariable("DEFAULT_OUTPUT_FIELD", "raw"),
     new ParameterVariable("DEFAULT_DELIMITER", ","),
-    new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE","qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.0.0-ae1b428"),
-    new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS","-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml"),
-    new ParameterVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
-    new ParameterVariable("SPARK_STREAMING_CHECKPOINT_PATH","sparta/checkpoint"),
-    new ParameterVariable("SPARK_STREAMING_WINDOW","2s"),
-    new ParameterVariable("SPARK_STREAMING_BLOCK_INTERVAL","100ms"),
+    new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE", "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8"),
+    new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS", s"$spartaFileEncoding -Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml"),
+    new ParameterVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS", s"$spartaFileEncoding  -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
+    new ParameterVariable("SPARK_STREAMING_CHECKPOINT_PATH", "sparta/checkpoint"),
+    new ParameterVariable("SPARK_STREAMING_WINDOW", "2s"),
+    new ParameterVariable("SPARK_STREAMING_BLOCK_INTERVAL", "100ms"),
     new ParameterVariable("SPARK_LOCAL_PATH", "/opt/spark/dist"),
-    new ParameterVariable("SPARK_CORES_MAX","2"),
-    new ParameterVariable("SPARK_EXECUTOR_MEMORY","2G"),
-    new ParameterVariable("SPARK_EXECUTOR_CORES","1"),
-    new ParameterVariable("SPARK_DRIVER_CORES","1"),
-    new ParameterVariable("SPARK_DRIVER_MEMORY","2G"),
-    new ParameterVariable("SPARK_LOCALITY_WAIT","100"),
-    new ParameterVariable("SPARK_TASK_MAX_FAILURES","8"),
-    new ParameterVariable("SPARK_MEMORY_FRACTION","0.6")
+    new ParameterVariable("SPARK_CORES_MAX", "2"),
+    new ParameterVariable("SPARK_EXECUTOR_MEMORY", "2G"),
+    new ParameterVariable("SPARK_EXECUTOR_CORES", "1"),
+    new ParameterVariable("SPARK_DRIVER_CORES", "1"),
+    new ParameterVariable("SPARK_DRIVER_MEMORY", "2G"),
+    new ParameterVariable("SPARK_LOCALITY_WAIT", "100"),
+    new ParameterVariable("SPARK_TASK_MAX_FAILURES", "8"),
+    new ParameterVariable("SPARK_MEMORY_FRACTION", "0.6")
   )
+  val DefaultGlobalParametersMap = ParameterList.parametersToMap(DefaultGlobalParameters)
 }

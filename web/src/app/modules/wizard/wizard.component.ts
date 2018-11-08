@@ -8,17 +8,17 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { Store } from '@ngrx/store';
-
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+import { Observable, Subject } from 'rxjs';
 
 import * as fromWizard from './reducers';
 import * as debugActions from './actions/debug';
 import * as wizardActions from './actions/wizard';
 import * as externalDataActions from './actions/externalData';
+
 import { WizardService } from './services/wizard.service';
 import { Engine } from 'app/models/enums';
 import { CreationMode, EditionConfigMode } from './models/node';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
    selector: 'wizard',
@@ -28,7 +28,7 @@ import { CreationMode, EditionConfigMode } from './models/node';
 
 export class WizardComponent implements OnInit, OnDestroy {
 
-   public workflowType = 'Streaming'; // default value, until the request ends
+   public workflowType = Engine.Streaming; // default value, until the request ends
    public editionConfigMode: EditionConfigMode;
    public showSettings = false;
    public creationMode: CreationMode;
@@ -36,6 +36,8 @@ export class WizardComponent implements OnInit, OnDestroy {
    public environmentList: Array<any> = [];
    public parameters: any = [];
    public showDebugConfig$: Observable<boolean>;
+   public executionContexts$: Observable<any>;
+
    private _componentDestroyed = new Subject();
 
    constructor(
@@ -62,43 +64,45 @@ export class WizardComponent implements OnInit, OnDestroy {
          this._store.dispatch(new wizardActions.SetWorkflowTypeAction(type)); // Set workflow type from the url param
          this._store.dispatch(new wizardActions.GetMenuTemplatesAction());    // Get menu templates
       }
+      this.executionContexts$ = this._store.select(fromWizard.getExecutionContexts);
+
       // Retrieves the workflow type from store (in edition mode, is updated after the get workflow data request)
       this._store.select(fromWizard.getWorkflowType)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((workflowType: string) => {
             this._wizardService.workflowType = workflowType;
             this.workflowType = workflowType;
          });
       // show create node pointer icon
       this._store.select(fromWizard.isCreationMode)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((creationMode: CreationMode) => {
             this.creationMode = creationMode;
             this._cd.markForCheck();
          });
       // show node editor fullscreen layout
       this._store.select(fromWizard.getEditionConfigMode)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(editionMode => {
             this.editionConfigMode = editionMode;
             this._cd.markForCheck();
          });
       // show node/settings editor fullscreen layout
       this._store.select(fromWizard.showSettings)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(showSettings => {
             this.showSettings = showSettings;
             this._cd.markForCheck();
          });
       // retrieves the environment list
       this._store.select(fromWizard.getParameters)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(parameters => {
             this.parameters = parameters;
             this._cd.markForCheck();
          });
       this._store.select(fromWizard.getEnvironmentList)
-         .takeUntil(this._componentDestroyed)
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe(environmentList => {
             this.environmentList = environmentList;
             this._cd.markForCheck();
@@ -110,6 +114,10 @@ export class WizardComponent implements OnInit, OnDestroy {
    closeCustomExecution() {
       this._store.dispatch(new debugActions.HideDebugConfigAction());
    }
+
+   executeWorkflow(event) {
+      this._store.dispatch(new debugActions.InitDebugWorkflowAction(event));
+  }
 
    ngOnDestroy(): void {
       this._componentDestroyed.next();

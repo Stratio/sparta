@@ -34,7 +34,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
   val settingsModel = Settings(
     GlobalSettings(executionMode = WorkflowExecutionMode.local),
     StreamingSettings(
-      JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
       JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
       None, SubmitArguments(), SparkConf(SparkResourcesConf())
@@ -398,7 +398,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val wrongSettingsModel = Settings(
         GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
-          JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
           JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(deployMode = Option(DeployMode.cluster)),
@@ -415,7 +415,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val wrongSettingsModel = Settings(
         GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
-          JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
           JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
@@ -436,7 +436,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val wrongSettingsModel = Settings(
         GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
-          JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"), false)),
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"), false)),
         SparkSettings(
           JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),

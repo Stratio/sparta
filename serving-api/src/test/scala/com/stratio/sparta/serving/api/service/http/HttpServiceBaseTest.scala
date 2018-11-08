@@ -90,7 +90,7 @@ trait HttpServiceBaseTest extends WordSpec
     val settingsModel = Settings(
       GlobalSettings(),
       StreamingSettings(
-        JsoneyString("6s"), None, None, None, None, Some(JsoneyString("100")), None, None,
+        JsoneyString("6s"), None, None, None, None, Some(JsoneyString("100")), None,
         CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf()))
@@ -119,7 +119,7 @@ trait HttpServiceBaseTest extends WordSpec
   }
 
   protected def getWorkflowVersionModel(): WorkflowVersion = {
-    WorkflowVersion("id", None, None, None)
+    WorkflowVersion("id", None, None, None, None)
   }
 
   protected def getWorkflowMoveModel(): WorkflowMove = {

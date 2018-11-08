@@ -12,7 +12,7 @@ import {
    OnInit
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { State } from './../../reducers';
 import * as executionActions from '../../actions/executions';
@@ -22,14 +22,22 @@ import * as fromRoot from './../../reducers';
    selector: 'executions-managing-header-container',
    template: `
         <executions-managing-header [selectedExecutions]="selectedExecutions"
+            [isArchivedPage]="isArchivedPage"
             [showDetails]="showDetails"
             [statusFilter]="statusFilter$ | async"
+            [showStopButton]="showStopButton$ | async"
+            [showArchiveButton]="showArchiveButton$ | async"
+            [showUnarchiveButton]="showUnarchiveButton$ | async"
             [typeFilter]="typeFilter$ | async"
+            [emptyTable]="emptyTable"
             [timeIntervalFilter]="timeIntervalFilter$ | async"
             (downloadExecutions)="downloadExecutions()"
+            (archiveExecutions)="archiveExecutions()"
+            (unarchiveExecutions)="unarchiveExecutions()"
             (showExecutionInfo)="showExecutionInfo.emit()"
             (onRunExecutions)="onRunExecutions($event)"
             (onStopExecution)="stopExecution()"
+            (onDeleteExecution)="deleteExecution($event)"
             (onChangeStatusFilter)="changeStatusFilter($event)"
             (onChangeTypeFilter)="changeTypeFilter($event)"
             (onChangeTimeIntervalFilter)="changeTimeIntervalFilter($event)"
@@ -42,12 +50,17 @@ export class ExecutionsHeaderContainer implements OnInit {
 
    @Input() selectedExecutions: Array<any>;
    @Input() showDetails: boolean;
+   @Input() emptyTable: boolean;
+   @Input() isArchivedPage: boolean;
 
    @Output() showExecutionInfo = new EventEmitter<void>();
 
    public statusFilter$: Observable<string>;
    public typeFilter$: Observable<string>;
    public timeIntervalFilter$: Observable<number>;
+   public showStopButton$: Observable<boolean>;
+   public showArchiveButton$: Observable<boolean>;
+   public showUnarchiveButton$: Observable<boolean>;
 
    constructor(private _store: Store<State>) { }
 
@@ -55,9 +68,24 @@ export class ExecutionsHeaderContainer implements OnInit {
       this.statusFilter$ = this._store.select(fromRoot.getStatusFilter);
       this.typeFilter$ = this._store.select(fromRoot.getTypeFilter);
       this.timeIntervalFilter$ = this._store.select(fromRoot.getTimeIntervalFilter);
+      if (this.isArchivedPage) {
+         this.showUnarchiveButton$ = this._store.select(fromRoot.showUnarchiveButton);
+      } else {
+         this.showStopButton$ = this._store.select(fromRoot.showStopButton);
+         this.showArchiveButton$ = this._store.select(fromRoot.showArchiveButton);
+      }
+
    }
 
    downloadExecutions(): void { }
+
+   archiveExecutions() {
+      this._store.dispatch(new executionActions.ArchiveExecutionsAction());
+   }
+
+   unarchiveExecutions() {
+      this._store.dispatch(new executionActions.UnarchiveExecutionsAction());
+   }
 
    searchExecutions(text: string) {
       this._store.dispatch(new executionActions.SearchExecutionAction(text));
@@ -79,5 +107,9 @@ export class ExecutionsHeaderContainer implements OnInit {
 
    stopExecution() {
       this._store.dispatch(new executionActions.StopExecutionAction());
+   }
+
+   deleteExecution(executionId: string) {
+      this._store.dispatch(new executionActions.DeleteExecutionAction(executionId));
    }
 }

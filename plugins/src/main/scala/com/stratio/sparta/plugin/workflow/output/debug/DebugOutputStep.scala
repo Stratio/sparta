@@ -33,10 +33,11 @@ class DebugOutputStep(name: String, xDSession: XDSession, properties: Map[String
     import slick.jdbc.PostgresProfile.api._
 
     val stepName = options.getString(DistributedMonad.StepName)
-    val rowsData = dataFrame.collect().map(row => RowJsonHelper.toJSON(row, Map.empty))
+    val rowsData = dataFrame.collect().map(row => RowJsonHelper.toJSON(row, Map.empty, useTypedConverters = true))
     val dataSource = JdbcSlickConnection.getDatabase
     val resultStep = ResultStep(
-      id = Some(s"$workflowId-$stepName"),
+      id = s"$workflowId-$stepName",
+      workflowId = workflowId,
       step = stepName,
       numEvents = rowsData.length,
       schema = Option(dataFrame.schema.json),

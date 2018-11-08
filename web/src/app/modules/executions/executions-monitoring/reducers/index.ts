@@ -56,6 +56,11 @@ export const getExecutionsFilters = createSelector(
    state => state.filters
 );
 
+export const getIsLoading = createSelector(
+   getExecutionsState,
+   state => state.loading
+);
+
 
 
 

@@ -47,7 +47,7 @@ package object daoTables {
 
     def value = column[Option[String]]("value")
 
-    def * = (name, value) <> ((ParameterVariable.apply _).tupled , ParameterVariable.unapply)
+    def * = (name, value) <> ((ParameterVariable.apply _).tupled, ParameterVariable.unapply)
 
     def pk = primaryKey(s"pk_$tableName", name)
   }
@@ -108,6 +108,8 @@ package object daoTables {
 
     def pk = primaryKey(s"pk_$tableName", id)
 
+    def uniqueWorkflowIndex = index(s"pk_${tableName}_uniqueWorkflow", (name, groupId, version), unique = true)
+
     def fk = foreignKey(s"fk_${tableName}_group", groupId.get, TableQuery[GroupTable])(_.groupId, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
 
     def groupIndex = index(s"idx_${tableName}_group", groupId)
@@ -132,6 +134,8 @@ package object daoTables {
 
     def id = column[String]("id")
 
+    def workflowId = column[String]("workflow_id")
+
     def step = column[String]("step")
 
     def numEvents = column[Int]("num_events")
@@ -140,7 +144,7 @@ package object daoTables {
 
     def data = column[Option[Seq[String]]]("data")
 
-    def * = (id.?, step, numEvents, schema, data) <> ((ResultStep.apply _).tupled, ResultStep.unapply _)
+    def * = (id, workflowId, step, numEvents, schema, data) <> ((ResultStep.apply _).tupled, ResultStep.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
 

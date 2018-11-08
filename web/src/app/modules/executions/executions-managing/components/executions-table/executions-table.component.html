@@ -30,7 +30,7 @@
                 {{execution.name}} - v{{execution.version}}
              </div>
              <div class="execution-group">
-                {{execution.group}}
+                {{execution.group.name}}
              </div>
          </label>
       </td>
@@ -38,20 +38,21 @@
          <label class="context-field" [ngClass]="execution.context">{{execution.context || '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label>{{execution.startDateFormatted || '-'}}</label>
+         <label>{{execution.launchDateFormatted || '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
          <label>{{execution.endDateFormatted || '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label class="status-field"><span class="oval" [ngClass]="execution.filterStatus"></span> {{execution.filterStatus}}</label>
+        <label class="status-field"><span class="oval" *ngIf="!loadingStates.includes(execution.status)" [ngClass]="execution.filterStatus"></span> 
+        <st-spinner class="starting-spinner" *ngIf="loadingStates.includes(execution.status)"></st-spinner>{{execution.filterStatus}}</label>
       </td>
       <td st-table-cell st-table-row-content class="spark-link">
-         <i class="icon-globe" (click)="showSparkUI(execution.sparkURI)" *ngIf="execution.sparkURI && execution.sparkURI.length && execution.filterStatus === 'Started'"></i>
+         <i class="icon-globe" (click)="showSparkUI(execution.sparkURI)" *ngIf="execution.sparkURI && execution.sparkURI.length && execution.status === 'Started'"></i>
       </td>
    </tr>
 </st-table>
-<div *ngIf="executionList.length > perPage">
+<div *ngIf="executionList.length > 10">
     <hr />
     <div class="pagination">
         <st-pagination [total]="executionList.length"

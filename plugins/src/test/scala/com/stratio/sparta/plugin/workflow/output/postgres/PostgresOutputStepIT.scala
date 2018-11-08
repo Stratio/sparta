@@ -43,13 +43,17 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   Class.forName("org.postgresql.Driver")
 
-  trait JdbcCommons {
+  trait PostgresCommons {
 
     def createTable()(table: String) = s"CREATE TABLE $table USING org.apache.spark.sql.jdbc OPTIONS (url '$host', dbtable '$table', driver 'org.postgresql.Driver')"
 
     val tableCreate = createTable() _
 
     var xdSession = sparkSession
+  }
+
+  trait JdbcCommons extends PostgresCommons {
+
     val schema = StructType(Seq(StructField("id", IntegerType), StructField("text", StringType)))
 
     val data = Seq(
@@ -81,6 +85,39 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     )
   }
 
+  trait JdbcCommonsUpsertFieldsCamelCase extends PostgresCommons {
+    val schema = StructType(Seq(StructField("Id", IntegerType), StructField("text", StringType), StructField("color", StringType), StructField("datetime", LongType)))
+    val upsertFields = Seq(
+      new GenericRowWithSchema(Array(1, "text1", "red", 1L), schema),
+      new GenericRowWithSchema(Array(2, "text2", "blue", 2L), schema),
+      new GenericRowWithSchema(Array(3, "text3", "green", 3L), schema),
+      new GenericRowWithSchema(Array(1, "text1", "pink", 10L), schema)
+    )
+    val rddUpsert = sc.parallelize(upsertFields, 1).asInstanceOf[RDD[Row]]
+    val upsertData = xdSession.createDataFrame(rddUpsert, schema)
+    val upsertFieldsDataOut = Seq(
+      new GenericRowWithSchema(Array(1, "text1", "pink", 1L), schema),
+      new GenericRowWithSchema(Array(2, "text2", "blue", 2L), schema),
+      new GenericRowWithSchema(Array(3, "text3", "green", 3L), schema)
+    )
+  }
+
+  trait JdbcCommonsUpsertFields extends PostgresCommons {
+    val schema = StructType(Seq(StructField("id", IntegerType), StructField("text", StringType), StructField("color", StringType), StructField("datetime", LongType)))
+    val upsertFields = Seq(
+      new GenericRowWithSchema(Array(1, "text1", "red", 1L), schema),
+      new GenericRowWithSchema(Array(2, "text2", "blue", 2L), schema),
+      new GenericRowWithSchema(Array(3, "text3", "green", 3L), schema),
+      new GenericRowWithSchema(Array(1, "text1", "pink", 10L), schema)
+    )
+    val rddUpsert = sc.parallelize(upsertFields, 1).asInstanceOf[RDD[Row]]
+    val upsertData = xdSession.createDataFrame(rddUpsert, schema)
+    val upsertFieldsDataOut = Seq(
+      new GenericRowWithSchema(Array(1, "text1", "pink", 1L), schema),
+      new GenericRowWithSchema(Array(2, "text2", "blue", 2L), schema),
+      new GenericRowWithSchema(Array(3, "text3", "green", 3L), schema)
+    )
+  }
   "Tx batch statement without duplicate data" should "insert allrecords" in new JdbcCommons {
     val tableName = s"test_batch_${System.currentTimeMillis()}"
     val postgresOutputStep = new PostgresOutputStep("postgresOutBatch", xdSession, properties ++ Map("postgresSaveMode" -> "STATEMENT"))
@@ -135,7 +172,6 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     xdSession.sql(s"SELECT * FROM $tableName").count() shouldBe 2
   }
 
-
   "CopyIn" should "insert data in table" in new JdbcCommons {
     val tableName = s"test_copy_${System.currentTimeMillis()}"
     val postgresOutputStep = new PostgresOutputStep("postgresOutSingle", xdSession, properties
@@ -161,6 +197,39 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     rows.foreach(row => assert(upsertDataOut.contains(row)))
   }
 
+  "Native upsert only fields with  primary key statement" should "update color column" in new JdbcCommonsUpsertFields {
+    val tableName = s"test_upsert_pk_fields_${System.currentTimeMillis()}"
+    val connectionProperties = new JDBCOptions(host,
+      tableName,
+      properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+    )
+    SpartaJdbcUtils.createTable(connectionProperties, upsertData, "upsertFieldsTable")
+    val connection = SpartaJdbcUtils.getConnection(connectionProperties, "upsertFieldsTable")
+    val dataInsert = Seq(
+      new GenericRowWithSchema(Array(1, "text1", "red", 1L), schema),
+      new GenericRowWithSchema(Array(2, "text2", "blue", 2L), schema),
+      new GenericRowWithSchema(Array(3, "text3", "green", 3L), schema)
+    )
+    connection.prepareStatement(s"ALTER TABLE $tableName ADD CONSTRAINT constraint_$tableName PRIMARY KEY (id,text)").execute()
+    dataInsert.foreach(row => {
+      val sql = s"INSERT INTO $tableName(id,text,color,datetime) VALUES (${row.getInt(0)},'${row.getString(1)}','${row.getString(2)}',${row.getLong(3)})"
+      connection.prepareStatement(sql).execute()
+    })
+
+    val primaryKey = "id,text"
+    val postgresOutputStep = new PostgresOutputStep("postgresNativeUpsert", xdSession, properties
+      ++ Map("postgresSaveMode" -> "STATEMENT", "failFast" -> "true", "dropTemporalTableSuccess" -> "true", "dropTemporalTableFailure" -> "true"))
+    postgresOutputStep.save(upsertData, SaveModeEnum.Upsert, Map("tableName" -> tableName,
+      "auto-commit" -> "false", "numPartitions" -> "1",
+      "isolationLevel" -> "READ-COMMITED",
+      "primaryKey" -> primaryKey,
+      "updateFields" -> "id,text,color"))
+    xdSession.sql(tableCreate(tableName))
+
+    val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
+    rows.foreach(row => assert(upsertFieldsDataOut.contains(row)))
+  }
+
   "Native upsert with unique constraint statement" should "return the same records " in new JdbcCommons {
     val tableName = s"test_upsert_${System.currentTimeMillis()}"
     val uniqueConstraint = "id,text"
@@ -174,6 +243,41 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
     xdSession.sql(tableCreate(tableName))
     val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
     rows.foreach(row => assert(upsert.contains(row)))
+  }
+
+  "Native upsert only fields with unique constraint statement" should "update color column" in new JdbcCommonsUpsertFieldsCamelCase {
+    val tableName = s"test_upsert_fields_${System.currentTimeMillis()}"
+    val connectionProperties = new JDBCOptions(host,
+      tableName,
+      properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+    )
+    SpartaJdbcUtils.createTable(connectionProperties, upsertData, "upsertFieldsTable")
+    val connection = SpartaJdbcUtils.getConnection(connectionProperties, "upsertFieldsTable")
+    val dataInsert = Seq(
+      new GenericRowWithSchema(Array(1, "text1", "red", 1L), schema),
+      new GenericRowWithSchema(Array(2, "text2", "blue", 2L), schema),
+      new GenericRowWithSchema(Array(3, "text3", "green", 3L), schema)
+    )
+    val id = "\"Id\""
+    connection.prepareStatement(s"ALTER TABLE $tableName ADD CONSTRAINT constraint_$tableName UNIQUE($id,text)").execute()
+    dataInsert.foreach(row => {
+      val sql = s"INSERT INTO $tableName($id,text,color,datetime) VALUES (${row.getInt(0)},'${row.getString(1)}','${row.getString(2)}',${row.getLong(3)})"
+      connection.prepareStatement(sql).execute()
+    })
+
+    val uniqueConstraint = "Id,text"
+    val postgresOutputStep = new PostgresOutputStep("postgresNativeUpsert", xdSession, properties
+      ++ Map("postgresSaveMode" -> "STATEMENT", "failFast" -> "true", "dropTemporalTableSuccess" -> "true", "dropTemporalTableFailure" -> "true"))
+    postgresOutputStep.save(upsertData, SaveModeEnum.Upsert, Map("tableName" -> tableName,
+      "auto-commit" -> "false", "numPartitions" -> "1",
+      "isolationLevel" -> "READ-COMMITED",
+      "uniqueConstraintName" -> s"uniqueConstraint_$tableName",
+      "uniqueConstraintFields" -> uniqueConstraint,
+      "updateFields" -> "Id,text,color"))
+    xdSession.sql(tableCreate(tableName))
+
+    val rows = xdSession.sql(s"SELECT * FROM $tableName").collect()
+    rows.foreach(row => assert(upsertFieldsDataOut.contains(row)))
   }
 
   "Native upsert with one transaction" should "fail with two records with same primary key in temporal table" in new JdbcCommons {
@@ -268,5 +372,5 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
       postgresOutputStep.save(okData, SaveModeEnum.Ignore, Map("tableName" -> tableName, "primaryKey" -> "text", "auto-commit" -> "false",
         "isolationLevel" ->
           "READ-COMMITED"))
-    }
+  }
 }

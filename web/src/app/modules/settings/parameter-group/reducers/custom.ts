@@ -36,7 +36,7 @@ export function reducer(state: State = initialState, action: any): State {
             ...state,
             customList: action.customLists,
             allCustomList: action.customLists,
-            customVariables: [],
+            customVariables: null,
             allVariables: [],
             list: null,
             creationMode: false
@@ -65,7 +65,7 @@ export function reducer(state: State = initialState, action: any): State {
                   .map(c => ({ name: c.name, value: c.parameters[env.name], id: c.id }))
             }));
 
-         return { ...state, customVariables, allVariables: customVariables, list: { id, name }, contexts, customList: [], allCustomList: [], creationMode: false };
+         return { ...state, customVariables, allVariables: customVariables, list: { id, name }, contexts, customList: null, allCustomList: [], creationMode: false };
 
       }
 

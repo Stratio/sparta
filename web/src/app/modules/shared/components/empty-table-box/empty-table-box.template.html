@@ -1,0 +1,8 @@
+<div class="box-container">
+   <img src="{{image}}" class="image" *ngIf="image" />
+   <span class="title">{{title}}</span>
+   <span class="text">{{text}}</span>
+   <div class="repository-link">
+      <button class="button button-primary" (click)="redirectTo.emit()">{{button}}</button>
+   </div>
+</div>

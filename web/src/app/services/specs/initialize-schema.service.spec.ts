@@ -9,6 +9,7 @@ import { streamingOutputsObject } from 'data-templates/outputs';
 import { settingsTemplate } from 'data-templates/index';
 import { TestBed, inject } from '@angular/core/testing';
 import { TranslateMockModule } from '@test/translate-stub';
+import { Engine } from '@models/enums';
 
 const kafkaTemplate = streamingInputsObject['Kafka'];
 const printTemplate = streamingOutputsObject['Print'];
@@ -48,17 +49,17 @@ describe('initialize-schema.service', function () {
 
    it('should be able to initialize an entity', () => {
       const template: any = <any>kafkaTemplate;
-      const model = initializeSchemaService.setDefaultEntityModel('Streaming', kafkaTemplate, 'Input', true);
+      const model = initializeSchemaService.setDefaultEntityModel(Engine.Streaming, kafkaTemplate, 'Input', true);
       expect(model.classPrettyName).toBe(template.classPrettyName);
    });
 
    it('should be able to initialize entity writer if it is not an output', () => {
-      const model = initializeSchemaService.setDefaultEntityModel('Streaming', kafkaTemplate, 'Input', true);
+      const model = initializeSchemaService.setDefaultEntityModel(Engine.Streaming, kafkaTemplate, 'Input', true);
       expect(model.writer).toBeDefined();
    });
 
    it('should not initialize the writer if it is an output', () => {
-      const model = initializeSchemaService.setDefaultEntityModel('Streaming', printTemplate, 'Output', true);
+      const model = initializeSchemaService.setDefaultEntityModel(Engine.Streaming, printTemplate, 'Output', true);
       expect(model.writer).toBeUndefined();
    });
 

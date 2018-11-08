@@ -1,40 +1,10 @@
 {
   "scope": [
     {
-      "type": "Groups",
-      "actions": [
-        "view",
-        "create",
-        "delete",
-        "edit"
-      ]
-    },
-    {
-      "type": "Workflows",
-      "actions": [
-        "view",
-        "create",
-        "delete",
-        "edit",
-        "status"
-      ]
-    },
-    {
       "type": "Catalog",
       "actions": [
         "view",
         "select"
-      ]
-    },
-    {
-      "type": "GlobalParameters",
-      "actions": [
-        "view",
-        "create",
-        "delete",
-        "edit",
-        "upload",
-        "download"
       ]
     },
     {
@@ -53,12 +23,29 @@
       ]
     },
     {
-      "type": "Template",
+      "type": "GlobalParameters",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "upload",
+        "download"
+      ]
+    },
+    {
+      "type": "Groups",
       "actions": [
         "view",
         "create",
         "delete",
         "edit"
+      ]
+    },
+    {
+      "type": "MlModels",
+      "actions": [
+        "view"
       ]
     },
     {
@@ -71,9 +58,22 @@
       ]
     },
     {
-      "type": "MlModels",
+      "type": "Template",
       "actions": [
-        "view"
+        "view",
+        "create",
+        "delete",
+        "edit"
+      ]
+    },
+    {
+      "type": "Workflows",
+      "actions": [
+        "view",
+        "create",
+        "delete",
+        "edit",
+        "status"
       ]
     }
   ]

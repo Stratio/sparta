@@ -1,0 +1,24 @@
+@import '~@stratio/egeo/theme/constants';
+
+.breadcrumb-section {
+  display: inline-block;
+}
+
+.icon {
+  color: $action-primary-default;
+}
+
+.section-name {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.separator {
+  font-family: $egeo-nunito-sans-extraBold;
+  font-size: 12px;
+  padding: 0 3px 0px 7px;
+}
+
+.label {
+  font-size: 15px;
+}

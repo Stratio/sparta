@@ -4,35 +4,36 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { StepType, Engine } from "@models/enums";
+import { StepType, Engine } from '@models/enums';
 
-import * as avroTemplate from './inputs/avro.json';
-import * as cassandraBatchTemplate from './inputs/cassandraBatch.json';
-import * as csvTemplate from './inputs/csv.json';
-import * as elasticSearchBatchTemplate from './inputs/elasticSearchBatch.json';
-import * as genericDatasourceBatchTemplate from './inputs/genericDatasourceBatch.json';
-import * as jsonTemplate from './inputs/json.json';
-import * as jdbcTemplate from './inputs/jdbc.json';
-import * as parquetTemplate from './inputs/parquet.json';
-import * as kafkaTemplate from './inputs/kafka.json';
-import * as crossdataStreamingTemplate from './inputs/crossdataStreaming.json';
-import * as crossdataBatchTemplate from './inputs/crossdataBatch.json';
-import * as customTemplate from './inputs/custom.json';
-import * as customLiteTemplate from './inputs/customLite.json';
-import * as customLiteXdTemplate from './inputs/customLiteXd.json';
-import * as filesystemStreamingTemplate from './inputs/filesystemStreaming.json';
-import * as filesystemBatchTemplate from './inputs/filesystemBatch.json';
-//import * as flumeTemplate from './inputs/flume.json';
-//import * as rabbitmqDistributedTemplate from './inputs/rabbitmq-distributed-node.json';
-//import * as rabbitmqSingleTemplate from './inputs/rabbitmq-single-node.json';
-//import * as socketTemplate from './inputs/socket.json';
-//import * as twitterJsonTemplate from './inputs/twitter-json.json';
-import * as restBatchTemplate from './inputs/restBatch.json';
-import * as restStreamingTemplate from './inputs/restStreaming.json';
-import * as testStreamingTemplate from './inputs/testStreaming.json';
-import * as testBatchTemplate from './inputs/testBatch.json';
-import * as xmlBatchTemplate from './inputs/xml.json';
-import * as websocketTemplate from './inputs/websocket.json';
+import avroTemplate from './inputs/avro.json';
+import cassandraBatchTemplate from './inputs/cassandraBatch.json';
+import csvTemplate from './inputs/csv.json';
+import elasticSearchBatchTemplate from './inputs/elasticSearchBatch.json';
+import genericDatasourceBatchTemplate from './inputs/genericDatasourceBatch.json';
+import jsonTemplate from './inputs/json.json';
+import jdbcTemplate from './inputs/jdbc.json';
+import parquetTemplate from './inputs/parquet.json';
+import kafkaTemplate from './inputs/kafka.json';
+import crossdataStreamingTemplate from './inputs/crossdataStreaming.json';
+import crossdataBatchTemplate from './inputs/crossdataBatch.json';
+import customTemplate from './inputs/custom.json';
+import customLiteTemplate from './inputs/customLite.json';
+import customLiteXdTemplate from './inputs/customLiteXd.json';
+import filesystemStreamingTemplate from './inputs/filesystemStreaming.json';
+import filesystemBatchTemplate from './inputs/filesystemBatch.json';
+//import flumeTemplate from './inputs/flume.json';
+//import rabbitmqDistributedTemplate from './inputs/rabbitmq-distributed-node.json';
+//import rabbitmqSingleTemplate from './inputs/rabbitmq-single-node.json';
+//import socketTemplate from './inputs/socket.json';
+//import twitterJsonTemplate from './inputs/twitter-json.json';
+import restBatchTemplate from './inputs/restBatch.json';
+import restStreamingTemplate from './inputs/restStreaming.json';
+import sftpTemplate from './inputs/sftp.json';
+import testStreamingTemplate from './inputs/testStreaming.json';
+import testBatchTemplate from './inputs/testBatch.json';
+import xmlBatchTemplate from './inputs/xml.json';
+import websocketTemplate from './inputs/websocket.json';
 
 
 export const inputs = [
@@ -62,7 +63,8 @@ export const inputs = [
     testBatchTemplate,
     testStreamingTemplate,
     xmlBatchTemplate,
-    websocketTemplate
+    websocketTemplate,
+    sftpTemplate
 ];
 
 

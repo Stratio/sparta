@@ -13,17 +13,17 @@
       <div>
         <st-checkbox [checked]="selectedGroups.indexOf('Environment') > -1" (change)="selectEnvironmentGroup($event)">Environment</st-checkbox>
       </div>
-      <div>
+      <!-- <div>
         <st-checkbox (change)="onSelectAllCustom($event)" 
         [checked]="selectedGroups.length === (customGroups.length + (selectedGroups.indexOf('Environment') > -1 ? 1 : 0))">All custom groups</st-checkbox>
-      </div>
+      </div> -->
     </div>
-    <perfect-scrollbar [config]="config" [style.maxHeight.px]="150" [scrollIndicators]="false">
+   <!--  <perfect-scrollbar [config]="config" [style.maxHeight.px]="150" [scrollIndicators]="false">
       <div class="custom-groups">
         <div class="custom-group" *ngFor="let group of filteredCustomGroups">
             <st-checkbox (change)="selectCustom($event, group.name)" [checked]="selectedGroups.indexOf(group.name) > -1">{{group.name}}</st-checkbox>
         </div>
       </div>
-    </perfect-scrollbar>
+    </perfect-scrollbar> -->
   </div>
 </div>

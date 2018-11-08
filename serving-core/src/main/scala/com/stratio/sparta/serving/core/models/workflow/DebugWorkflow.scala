@@ -84,10 +84,9 @@ case class DebugWorkflow(
       backpressureInitialRate = None,
       backpressureMaxRate = None,
       blockInterval = Option(JsoneyString(sparkWindow)),
-      stopGracefully = Option(true),
-      stopGracefulTimeout = Option(JsoneyString(AppConstant.maxDebugTimeout.toString)),
+      stopGracefully = Option(false),
       checkpointSettings = streamingSettings.checkpointSettings.copy(
-        checkpointPath = JsoneyString("file:///tmp/debug-checkpoint"),
+        checkpointPath = JsoneyString(s"file:///tmp/debug-checkpoint-${workflowOriginal.name}-${System.currentTimeMillis()}"),
         autoDeleteCheckpoint = true
       )
     )
@@ -149,7 +148,7 @@ case class DebugWorkflow(
     val nodesNames = nodesInGraph.flatMap { node =>
       val nodes = Seq(
         node.name -> s"${index}_${debugOutputNode.name}_${node.name}",
-        SdkSchemaHelper.discardTableName(node.name) -> s"${index}_${debugOutputNode.name}_${node.name}")
+        SdkSchemaHelper.discardTableName(node.name) -> s"${index}_${debugOutputNodeDiscard.name}_${node.name}")
       index = index + "a"
       nodes
     }.toMap

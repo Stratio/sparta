@@ -6,11 +6,19 @@
 package com.stratio.sparta.serving.core.marathon
 
 import java.util.{Calendar, UUID}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.io.Source
+import scala.util.{Properties, Try}
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
+import com.typesafe.config.Config
+import org.json4s.jackson.Serialization._
+import play.api.libs.json._
+
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
@@ -20,7 +28,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
@@ -29,14 +37,6 @@ import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
-import com.typesafe.config.Config
-import org.json4s.jackson.Serialization._
-import play.api.libs.json._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.io.Source
-import scala.util.{Properties, Try}
 
 //scalastyle:off
 case class MarathonService(context: ActorContext, execution: Option[WorkflowExecution]) extends SpartaSerializer {
@@ -202,8 +202,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     val submitExecution = execution.sparkSubmitExecution.get
     val newCpus = submitExecution.sparkConfigurations.get("spark.driver.cores")
       .map(_.toDouble).getOrElse(app.cpus)
-    val newMem = submitExecution.sparkConfigurations.get("spark.driver.memory")
-      .map(transformMemoryToInt).getOrElse(app.mem)
+    val newMem = Try(getSOMemory / 2).getOrElse(512)
     val envFromSubmit = submitExecution.sparkConfigurations.flatMap { case (key, value) =>
       if (key.startsWith("spark.mesos.driverEnv.")) {
         Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
@@ -218,9 +217,9 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     }
     val newEnv = Option(
       envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
-        gosecPluginProperties ++ xdProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
+        gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
         calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
-        intelligenceProperties
+        intelligenceProperties ++ marathonAppProperties
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -294,7 +293,8 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     app.copy(
       id = execution.marathonExecution.get.marathonId,
       cpus = newCpus,
-      mem = newMem + getSOMemory,
+      mem = submitExecution.sparkConfigurations.get("spark.driver.memory")
+        .map(transformMemoryToInt).getOrElse(app.mem) + getSOMemory,
       env = newEnv,
       container = newDockerContainerInfo,
       healthChecks = newHealthChecks,
@@ -350,6 +350,16 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
         key.startsWith("CROSSDATA_SECURITY")
     }.mapValues(value => JsString(value))
 
+  private def xdGosecProperties: Map[String, JsString] = {
+    sys.env.filterKeys { key =>
+      key.startsWith("CROSSDATA_SECURITY_MANAGER_ENABLED") ||
+        key.startsWith("GOSEC_CROSSDATA_VERSION") ||
+        key.startsWith("CROSSDATA_PLUGIN_SERVICE_NAME") ||
+        key.startsWith("DYPLON_SYSTEM_TENANT") ||
+        key.startsWith("DYPLON_TENANT_NAME")
+    }.mapValues(value => JsString(value))
+  }
+
   private def postgresProperties: Map[String, JsString] =
     sys.env.filterKeys { key =>
       key.startsWith("SPARTA_POSTGRES")
@@ -370,6 +380,10 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
       key.contains("INTELLIGENCE")
     }.mapValues(value => JsString(value))
 
+  private def marathonAppProperties: Map[String, JsString] =
+    sys.env.filterKeys(key => key.startsWith("MARATHON_APP")).mapValues(value => JsString(value))
+
+
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, memory: Int): Map[String, JsString] = {
     val submitExecution = execution.sparkSubmitExecution.get
 
@@ -383,6 +397,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
       PluginFiles -> Option(submitExecution.pluginFiles.mkString(",")),
       ExecutionIdEnv -> submitExecution.driverArguments.get(SparkSubmitService.ExecutionIdKey),
       DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
+      SpartaFileEncoding -> Some(Properties.envOrElse(SpartaFileEncoding, DefaultFileEncodingSystemProperty)),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
       DatastoreCaNameEnv -> Properties.envOrSome(DatastoreCaNameEnv, Option("ca")),

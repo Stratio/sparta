@@ -23,7 +23,7 @@ export class HideLoadingAction implements Action {
 
 export class ShowAlertAction implements Action {
    readonly type = SHOW_ALERT;
-   constructor(public message: string) { }
+   constructor(public message: any) { }
 }
 
 export class HideAlertAction implements Action {
