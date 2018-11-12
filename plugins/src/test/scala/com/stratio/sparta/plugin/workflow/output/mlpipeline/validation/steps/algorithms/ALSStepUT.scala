@@ -118,7 +118,7 @@ class ALSStepUT extends TemporalSparkContext with ShouldMatchers with BeforeAndA
    => Correct Pipeline construction and execution
     ------------------------------------------------------------- */
 
-  "ALS with default configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow (given valid user and item columns)" in
+  "ALS with default configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
@@ -138,7 +138,7 @@ class ALSStepUT extends TemporalSparkContext with ShouldMatchers with BeforeAndA
 => Wrong Pipeline construction and execution
 ------------------------------------------------------------- */
 
-  "ALS with empty configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow (given default user and item columns)" in
+  "ALS with empty configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
@@ -156,7 +156,7 @@ class ALSStepUT extends TemporalSparkContext with ShouldMatchers with BeforeAndA
  => Wrong Pipeline construction and execution
   ------------------------------------------------------------- */
 
-  "ALS with wrong configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid user and item columns)" in
+  "ALS with wrong configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid column names)" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
