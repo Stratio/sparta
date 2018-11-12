@@ -7,42 +7,45 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.al
 
 import java.io.{Serializable => JSerializable}
 
-import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
-import org.apache.spark.ml.recommendation.ALS.Rating
+import org.apache.spark.ml.linalg.{Vector, Vectors}
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, _}
 
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
-import scala.util.{Failure, Random, Try}
+import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
-class FPGrowthUT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+class LDAUT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
 
   trait ReadDescriptorResource{
     def getJsonDescriptor(filename:String): String = {
-      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/singlesteps/algorithms/fpgrowth/" + filename)).mkString
+      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/singlesteps/algorithms/lda/" + filename)).mkString
     }
   }
 
   trait WithExampleData {
-      val training: DataFrame = sparkSession.createDataFrame(Seq(
-        (0, Array("1", "2")),
-        (0, Array("1", "2")),
-        (0, Array("1", "2")),
-        (0, Array("1", "3"))
-      )).toDF("id", "items")
+    case class TestRow(features: Vector)
+
+
+    val avgWC = 1  // average instances of each word in a doc
+    val rng = new java.util.Random()
+    rng.setSeed(1)
+    val rdd = sc.parallelize(1 to 10).map { i =>
+      Vectors.dense(Array.fill(120)(rng.nextInt(2 * avgWC).toDouble))
+    }.map(v => new TestRow(v))
+
+
+    val training: DataFrame = sparkSession.createDataFrame(rdd)
   }
 
   trait WithFilesystemProperties {
@@ -87,11 +90,11 @@ class FPGrowthUT extends TemporalSparkContext with ShouldMatchers with BeforeAnd
    => Correct Pipeline construction and execution
     ------------------------------------------------------------- */
 
-  "ALS with default configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow (given valid user and item columns)" in
+  "LDA with default configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow (given valid user and item columns)" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("fpgrowth-default-params-v0.json")))
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("lda-default-params-v0.json")))
 
       // Validation step mut be done correctly
       val validation = Try{validateMlPipelineStep(properties)}
@@ -107,11 +110,11 @@ class FPGrowthUT extends TemporalSparkContext with ShouldMatchers with BeforeAnd
 => Wrong Pipeline construction and execution
 ------------------------------------------------------------- */
 
-  "ALS with empty configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow (given default user and item columns)" in
+  "LDA with empty configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow (given default user and item columns)" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("fpgrowht-emtpy-params-v0.json")))
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("lda-emtpy-params-v0.json")))
 
       // Validation step mut be done correctly
       val validation = Try{validateMlPipelineStep(properties)}
@@ -126,11 +129,31 @@ class FPGrowthUT extends TemporalSparkContext with ShouldMatchers with BeforeAnd
  => Wrong Pipeline construction and execution
   ------------------------------------------------------------- */
 
-  "ALS with empty configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid user and item columns)" in
+  "LDA with wrong configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid column names)" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("fpgrowth-wrong-columnname-values-v0.json")))
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("lda-wrong-columnname-values-v0.json")))
+
+      // Validation step mut be done correctly
+      val validation = Try{validateMlPipelineStep(properties)}
+      assert(validation.isSuccess)
+      //TODO add expected error tye assert(validation.get.valid)
+      val execution = Try{executeStepAndUsePipeline(training, properties)}
+      assert(execution.isFailure)
+      execution match { case Failure(t) => log.info(t.toString) }
+    }
+
+
+  /* -------------------------------------------------------------
+ => Wrong Pipeline construction and execution
+  ------------------------------------------------------------- */
+
+  "LDA with wrong configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow" in
+    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
+      with WithFilesystemProperties{
+
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("lda-wrong-column-values-v0.json")))
 
       // Validation step mut be done correctly
       val validation = Try{validateMlPipelineStep(properties)}
