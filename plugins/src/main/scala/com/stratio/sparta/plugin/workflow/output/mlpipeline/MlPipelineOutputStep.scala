@@ -180,7 +180,7 @@ class MlPipelineOutputStep(
         currentSchema = stage.transformSchema(currentSchema)
       } match {
         case Failure(e) =>
-          throw new Exception(s"Schema error on ${stage.getClass.getSimpleName}@${stage.uid}: ${e.getMessage}")
+          throw new Exception(ValidationErrorMessages.schemaError(stage.getClass.getSimpleName,stage.uid)+ s"${e.getMessage}")
         case _ => None
       }
     }

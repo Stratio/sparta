@@ -26,25 +26,12 @@ import scala.io.Source
 import scala.util.{Failure, Random, Try}
 
 @RunWith(classOf[JUnitRunner])
-class LinearSVCStepUT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+class LinearSVCStepUT extends GenericPipelineStepTest {
+  override def stepName: String = "linearsvc"
 
-  self: FlatSpec =>
+  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/linearsvc/"
 
-  @transient var smallBinaryDataset: Dataset[_] = _
-  @transient var smallValidationDataset: Dataset[_] = _
-  @transient var binaryDataset: Dataset[_] = _
-
-  @transient var smallSparseBinaryDataset: Dataset[_] = _
-  @transient var smallSparseValidationDataset: Dataset[_] = _
-
-
-  trait ReadDescriptorResource{
-    def getJsonDescriptor(filename:String): String = {
-      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/singlesteps/algorithms/linearsvc/" + filename)).mkString
-    }
-  }
-
-  trait WithExampleData {
+  override def trainingDf: DataFrame =  {
     // Generate noisy input of the form Y = signum(x.dot(weights) + intercept + noise)
     def generateSVMInput(
                           intercept: Double,
@@ -66,127 +53,6 @@ class LinearSVCStepUT extends TemporalSparkContext with ShouldMatchers with Befo
     val A = 0.01
     val B = -1.5
     val C = 1.0
-    smallBinaryDataset = sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateSVMInput(A, Array[Double](B, C), 50, 42)))
-    smallValidationDataset = sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateSVMInput(A, Array[Double](B, C), 50, 17)))
-    binaryDataset = sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateSVMInput(1.0, Array[Double](1.0, 2.0, 3.0, 4.0), 10000, 42)))
-
-    // Dataset for testing SparseVector
-    val toSparse: Vector => SparseVector = _.asInstanceOf[DenseVector].toSparse
-    val sparse = udf(toSparse)
-    //smallSparseBinaryDataset = smallBinaryDataset.withColumn("features", sparse('features))
-    //smallSparseValidationDataset = smallValidationDataset.withColumn("features", sparse('features))
+    sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateSVMInput(A, Array[Double](B, C), 50, 17)))
   }
-
-  trait WithFilesystemProperties {
-    var properties:Map[String, JSerializable] = Map(
-      "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
-      "path" -> JsoneyString("/tmp/pipeline_tests")
-    )
-  }
-
-  trait WithExecuteStep{
-    def executeStep(training:DataFrame, properties:Map[String, JSerializable]){
-      // · Creating outputStep
-      val mlPipelineOutput = new MlPipelineOutputStep("MlPipeline.out", sparkSession, properties)
-      // · Executing step
-      mlPipelineOutput.save(training, SaveModeEnum.Overwrite, Map.empty[String, String])
-    }
-
-    def executeStepAndUsePipeline(training:DataFrame, properties:Map[String, JSerializable]){
-      // · Creating outputStep
-      val mlPipelineOutput = new MlPipelineOutputStep("MlPipeline.out", sparkSession, properties)
-      // · Executing step
-      mlPipelineOutput.save(training, SaveModeEnum.Overwrite, Map.empty[String, String])
-      // · Use pipeline object
-      val pipelineModel = mlPipelineOutput.pipeline.get.fit(training)
-      val df = pipelineModel.transform(training)
-      df.show()
-    }
-  }
-
-  trait WithValidateStep{
-    def validateMlPipelineStep(properties:Map[String, JSerializable]): ErrorValidations = {
-      // · Creating outputStep
-      val mlPipelineOutput = new MlPipelineOutputStep("MlPipeline.out", sparkSession, properties)
-      // · Executing step
-      val e = mlPipelineOutput.validate()
-      e.messages.foreach(x => log.info(x.message))
-      e
-    }
-  }
-
-  /* -------------------------------------------------------------
-   => Correct Pipeline construction and execution
-    ------------------------------------------------------------- */
-
-  "LinearSVC default configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("linearsvc-default-values-v0.json")))
-
-      // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess)
-      assert(validation.get.valid)
-
-      val execution = Try{executeStepAndUsePipeline(smallValidationDataset.toDF, properties)}
-      assert(execution.isSuccess)
-    }
-
-  /* -------------------------------------------------------------
-=> Wrong Pipeline construction and execution
-------------------------------------------------------------- */
-
-  "LinearSVC with empty configuration values" should "provide a valid SparkMl pipeline than it can be trained in a workflow" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("linearsvc-empty-params-v0.json")))
-
-      // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess)
-
-      val execution = Try{executeStepAndUsePipeline(smallValidationDataset.toDF, properties)}
-      assert(execution.isSuccess)
-    }
-
-  /* -------------------------------------------------------------
- => Wrong Pipeline construction and execution
-  ------------------------------------------------------------- */
-
-  "LinearSVC with empty configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid column names)" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("linearsvc-wrong-columnname-values-v0.json")))
-
-      // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess)
-      //TODO add expected error tye assert(validation.get.valid)
-      val execution = Try{executeStepAndUsePipeline(smallValidationDataset.toDF, properties)}
-      assert(execution.isFailure)
-      execution match { case Failure(t) => log.info(t.toString) }
-    }
-
-  /* -------------------------------------------------------------
-=> Wrong Pipeline construction and execution
-------------------------------------------------------------- */
-
-  "LinearSVC with empty configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("linearsvc-wrong-column-values-v0.json")))
-
-      // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess)
-      //TODO add expected error tye assert(validation.get.valid)
-      val execution = Try{executeStepAndUsePipeline(smallValidationDataset.toDF, properties)}
-      assert(execution.isFailure)
-      execution match { case Failure(t) => log.info(t.toString) }
-    }
 }
