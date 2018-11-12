@@ -15,7 +15,7 @@ import com.stratio.qa.data.BrowsersDataProvider;
 @CucumberOptions(features = {
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1193_AppwithSecurityLogin_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1193_AppwithSecurityLogin_IT extends BaseTest {
 
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")

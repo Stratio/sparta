@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 @CucumberOptions(features = {
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_ExecuteListWorkflows_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1196_ExecuteListWorkflows_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})

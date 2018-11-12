@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1278_AddConfigurationForSparta_IT.feature",
         "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature",
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1890_GeneraliBatchworkflow_IT.feature"
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1422_InstalationAndExecutions_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})

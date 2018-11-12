@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1641_Enviroments_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 
 public class SPARTA_1641_Enviroments_IT extends BaseTest  {
     public SPARTA_1641_Enviroments_IT() {this.browser = browser;

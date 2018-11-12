@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 @CucumberOptions(features = {
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1195_AppWithoutSecurity_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1195_AppWithoutSecurity_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
