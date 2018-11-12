@@ -3,7 +3,7 @@
     {
       "configuration": {
         "binary": false,
-        "inputCol": "words",
+        "inputCol": "notexists",
         "minDF": "",
         "minTF": "",
         "outputCol": "features",
