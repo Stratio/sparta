@@ -12,7 +12,7 @@ import com.stratio.qa.cucumber.testng.CucumberRunner;
 
 import cucumber.api.CucumberOptions;
 
-@CucumberOptions(features = { "src/test/resources/features/manual" })
+@CucumberOptions(features = { "src/test/resources/features/manual" },format = "json:target/cucumber.json")
 public class ATmanual extends BaseTest {
 
     public ATmanual() {

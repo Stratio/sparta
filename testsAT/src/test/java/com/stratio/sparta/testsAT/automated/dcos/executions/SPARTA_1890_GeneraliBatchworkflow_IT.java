@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1890_GeneraliBatchworkflow_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 
 public class SPARTA_1890_GeneraliBatchworkflow_IT extends BaseTest  {
     public SPARTA_1890_GeneraliBatchworkflow_IT() {this.browser = browser;

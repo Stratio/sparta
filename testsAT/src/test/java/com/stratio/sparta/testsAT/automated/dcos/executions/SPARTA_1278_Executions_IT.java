@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
-})
+},format = "json:target/cucumber.json")
 
 public class SPARTA_1278_Executions_IT extends BaseTest  {
     public SPARTA_1278_Executions_IT() {this.browser = browser;

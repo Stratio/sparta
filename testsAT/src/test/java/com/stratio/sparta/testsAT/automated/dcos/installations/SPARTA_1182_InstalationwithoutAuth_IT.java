@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1182_InstalationwithoutAuth_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1182_InstalationwithoutAuth_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})

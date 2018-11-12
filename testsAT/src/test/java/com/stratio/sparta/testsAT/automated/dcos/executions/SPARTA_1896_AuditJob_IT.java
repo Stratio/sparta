@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1896_AuditJob_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 
 public class SPARTA_1896_AuditJob_IT extends BaseTest  {
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")

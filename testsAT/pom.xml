@@ -14,6 +14,7 @@ This software – including all its source code – contains proprietary informa
     <properties>
         <stratio-test-bdd.version>0.8.0-SNAPSHOT</stratio-test-bdd.version>
         <kotlin.version>1.1.2-4</kotlin.version>
+        <cucumber-reporting.version>4.1.1</cucumber-reporting.version>
     </properties>
 
     <groupId>com.stratio.sparta</groupId>
@@ -29,7 +30,35 @@ This software – including all its source code – contains proprietary informa
                 <version>2.17</version>
                 <configuration>
                     <skipTests>true</skipTests>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <version>${cucumber-reporting.version}</version>
+                <executions>
+                    <execution>
+                        <id>execution</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <projectName>zookeeper-framework</projectName>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <inputDirectory>${project.build.directory}</inputDirectory>
+                            <jsonFiles>
+                                <param>cucumber.json</param>
+                            </jsonFiles>
+                            <classificationDirectory>${project.build.directory}/</classificationDirectory>
+                            <classificationFiles>
+                                <param>notused.properties</param>
+                            </classificationFiles>
+                            <checkBuildResult>false</checkBuildResult>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

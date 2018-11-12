@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1678_Centralized_Logging_App_IT.feature",
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1678_Centralized_Logging_Workflow_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 
 public class SPARTA_1678_Centralized_Loggin_IT extends BaseTest  {
     public SPARTA_1678_Centralized_Loggin_IT() {this.browser = browser;

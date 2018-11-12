@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
 @CucumberOptions(features = {
         "src/test/resources/features/automated/dcos/03_uninstall/SPARTA_1277_UninstallSparta_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1277_UninstallSparta_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})

@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 @CucumberOptions(features = {
         "src/test/resources/features/automated/dcos/02_executions/SPARTA_1194_workflowScreenShots_IT.feature"
 
-})
+},format = "json:target/cucumber.json")
 public class SPARTA_1194_workflowScreenShots_IT extends BaseTest {
 
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
