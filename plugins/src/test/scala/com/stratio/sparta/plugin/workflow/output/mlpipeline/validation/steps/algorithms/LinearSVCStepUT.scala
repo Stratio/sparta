@@ -130,7 +130,8 @@ class LinearSVCStepUT extends TemporalSparkContext with ShouldMatchers with Befo
       assert(validation.isSuccess)
       assert(validation.get.valid)
 
-      executeStepAndUsePipeline(smallValidationDataset.toDF, properties)
+      val execution = Try{executeStepAndUsePipeline(smallValidationDataset.toDF, properties)}
+      assert(execution.isSuccess)
     }
 
   /* -------------------------------------------------------------
@@ -147,7 +148,8 @@ class LinearSVCStepUT extends TemporalSparkContext with ShouldMatchers with Befo
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess)
 
-      executeStepAndUsePipeline(smallValidationDataset.toDF, properties)
+      val execution = Try{executeStepAndUsePipeline(smallValidationDataset.toDF, properties)}
+      assert(execution.isSuccess)
     }
 
   /* -------------------------------------------------------------
