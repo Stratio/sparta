@@ -1,9 +1,9 @@
 {
   "nodes": [{
     "configuration": {
-      "itemsCol": "nonexistsitems",
+      "itemsCol": "items",
       "minConfidence": "0.5",
-      "minSupport": "0.5",
+      "minSupport": "notavalidnumber",
       "numPartitions": "",
       "predictionCol": "prediction"
     },
