@@ -1,27 +1,25 @@
 {
   "nodes": [{
     "configuration": {
-      "alpha": "",
+      "Stage UID": "",
       "checkpointInterval": "",
-      "coldStartStrategy": "nan",
-      "finalStorageLevel": "",
-      "implicitPrefs": false,
-      "intermediateStorageLevel": "",
-      "itemCol": "itemId",
+      "docConcentration": "",
+      "featuresCol": "",
+      "k": "",
+      "keepLastCheckpoint": true,
+      "learningDecay": "",
+      "learningOffset": "",
       "maxIter": "",
-      "nonnegative": false,
-      "numItemBlocks": "",
-      "numUserBlocks": "",
-      "predictionCol": "",
-      "rank": "",
-      "ratingCol": "ratingId",
-      "regParam": "0.1",
+      "optimizeDocConcentration": true,
+      "optimizer": "",
       "seed": "",
-      "userCol": "userId"
+      "subsamplingRate": "",
+      "topicConcentration": "",
+      "topicDistributionCol": ""
     },
     "supportedEngines": ["Batch"],
-    "classPrettyName": "ALS",
-    "className": "org.apache.spark.ml.recommendation.ALS",
+    "classPrettyName": "LDA",
+    "className": "org.apache.spark.ml.clustering.LDA",
     "arity": ["NullaryToNullary", "UnaryToNullary"],
     "stepType": "Algorithm",
     "writer": {
@@ -34,12 +32,12 @@
       "uniqueConstraintFields": null,
       "partitionBy": null
     },
-    "name": "ALS",
+    "name": "LDA",
     "created": true,
     "uiConfiguration": {
       "position": {
-        "x": 391,
-        "y": 115
+        "x": 638,
+        "y": 306
       }
     },
     "createdNew": false,

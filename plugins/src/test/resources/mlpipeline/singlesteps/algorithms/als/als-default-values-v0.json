@@ -3,7 +3,7 @@
     "configuration": {
       "alpha": "",
       "checkpointInterval": "",
-      "coldStartStrategy": "",
+      "coldStartStrategy": "nan",
       "finalStorageLevel": "",
       "implicitPrefs": false,
       "intermediateStorageLevel": "",

@@ -1,27 +1,22 @@
 {
   "nodes": [{
     "configuration": {
-      "alpha": "",
-      "checkpointInterval": "",
-      "coldStartStrategy": "nan",
-      "finalStorageLevel": "",
-      "implicitPrefs": false,
-      "intermediateStorageLevel": "",
-      "itemCol": "itemId",
-      "maxIter": "",
-      "nonnegative": false,
-      "numItemBlocks": "",
-      "numUserBlocks": "",
-      "predictionCol": "",
-      "rank": "",
-      "ratingCol": "ratingId",
-      "regParam": "0.1",
-      "seed": "",
-      "userCol": "userId"
+      "aggregationDepth": "2",
+      "featuresCol": "featureswrongname",
+      "fitIntercept": true,
+      "labelCol": "labelwrong",
+      "maxIter": "100",
+      "predictionCol": "prediction",
+      "rawPredictionCol": "rawPrediction",
+      "regParam": "0.0",
+      "standardization": true,
+      "threshold": "0.0",
+      "tol": "1.0E-6",
+      "weightCol": ""
     },
     "supportedEngines": ["Batch"],
-    "classPrettyName": "ALS",
-    "className": "org.apache.spark.ml.recommendation.ALS",
+    "classPrettyName": "LinearSVC",
+    "className": "org.apache.spark.ml.classification.LinearSVC",
     "arity": ["NullaryToNullary", "UnaryToNullary"],
     "stepType": "Algorithm",
     "writer": {
@@ -34,12 +29,12 @@
       "uniqueConstraintFields": null,
       "partitionBy": null
     },
-    "name": "ALS",
+    "name": "LinearSVC",
     "created": true,
     "uiConfiguration": {
       "position": {
-        "x": 391,
-        "y": 115
+        "x": 650,
+        "y": 368
       }
     },
     "createdNew": false,
