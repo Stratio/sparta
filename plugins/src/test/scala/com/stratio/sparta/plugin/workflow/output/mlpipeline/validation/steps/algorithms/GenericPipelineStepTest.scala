@@ -13,6 +13,7 @@ import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
 import org.apache.spark.sql.DataFrame
 import org.scalatest.{BeforeAndAfterAll, _}
 
@@ -94,8 +95,10 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
     assert(validation.isSuccess)
     assert(validation.get.valid)
 
-    executeStepAndUsePipeline(generateInputDf(), properties)
+    val execution = Try{executeStepAndUsePipeline(generateInputDf(), properties)}
+    assert(execution.isSuccess)
   }
+
 
 
   /* -------------------------------------------------------------
@@ -112,7 +115,9 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess)
 
-      executeStepAndUsePipeline(generateInputDf(), properties)
+      val execution = Try{executeStepAndUsePipeline(generateInputDf(), properties)}
+      assert(execution.isSuccess)
+
     }
 
 
@@ -132,6 +137,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
 
       val execution = Try{executeStepAndUsePipeline(generateInputDf(), properties)}
       assert(execution.isFailure)
+      assert(execution.failed.get.getMessage.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
       log.info(execution.failed.get.toString)
     }
 
@@ -152,6 +158,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
 
       val execution = Try{executeStepAndUsePipeline(generateInputDf(), properties)}
       assert(execution.isFailure)
+      assert(execution.failed.get.getMessage.startsWith(ValidationErrorMessages.schemaErrorInit))
       log.info(execution.failed.get.toString)
     }
 }

@@ -29,9 +29,10 @@ object ValidationErrorMessages {
   val moreThanOneEnd = "Pipeline Graph has more than one end node"
   val moreThanOneStart = "Pipeline Graph has more than one start node"
   val unconnectedNodes = "Pipeline Graph have some non-connected nodes"
+  val schemaErrorInit = "Schema error on "
   def moreThanOneOutput(nodeName: String): String =
     s"node '$nodeName' in Pipeline Graph has more than one output"
-
+  def schemaError(className: String, uid: String): String = schemaErrorInit+ s"${className}@${uid}:"
   // => Building pipeline
   val errorBuildingPipelineInstance = "The pipeline is not correctly defined (check Pipeline graph)."
 }
