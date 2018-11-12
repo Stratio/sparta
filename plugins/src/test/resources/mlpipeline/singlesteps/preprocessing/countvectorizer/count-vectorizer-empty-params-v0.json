@@ -6,7 +6,7 @@
         "inputCol": "words",
         "minDF": "",
         "minTF": "",
-        "outputCol": "features",
+        "outputCol": "",
         "vocabSize": ""
       },
       "supportedEngines": [
