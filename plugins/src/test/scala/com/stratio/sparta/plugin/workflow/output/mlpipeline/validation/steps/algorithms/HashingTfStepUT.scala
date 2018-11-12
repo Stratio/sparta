@@ -5,21 +5,17 @@
  */
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
 
-
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class CountVectorizerStepUT extends GenericPipelineStepTest {
+class HashingTfStepUT extends GenericPipelineStepTest {
 
-  override def stepName: String = "count-vectorizer"
+  override def stepName: String = "hashingTF"
 
-  override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/countvectorizer/"
+  override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/hashingTF/"
 
-  override def trainingDf: DataFrame = sparkSession.createDataFrame(Seq(
-    (0, Array("a", "b", "c")),
-    (1, Array("a", "b", "b", "c", "a"))
-  )).toDF("id", "words")
+  override def trainingDf: DataFrame = sparkSession.createDataFrame(Seq((0, "a a b b c d".split(" ").toSeq))).toDF("id", "tokens")
 
 }
