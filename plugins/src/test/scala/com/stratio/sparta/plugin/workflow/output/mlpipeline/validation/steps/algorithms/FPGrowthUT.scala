@@ -148,38 +148,18 @@ class ALSStepUT extends TemporalSparkContext with ShouldMatchers with BeforeAndA
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess)
 
-      val execution = Try{executeStepAndUsePipeline(training, properties)}
-      assert(execution.isSuccess)
+      executeStepAndUsePipeline(training, properties)
     }
 
   /* -------------------------------------------------------------
  => Wrong Pipeline construction and execution
   ------------------------------------------------------------- */
 
-  "ALS with wrong configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid user and item columns)" in
+  "ALS with empty configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow (given no valid user and item columns)" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("als-wrong-columnname-values-v0.json")))
-
-      // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess)
-      //TODO add expected error tye assert(validation.get.valid)
-      val execution = Try{executeStepAndUsePipeline(training, properties)}
-      assert(execution.isFailure)
-      execution match { case Failure(t) => log.info(t.toString) }
-    }
-
-  /* -------------------------------------------------------------
-=> Wrong Pipeline construction and execution
-------------------------------------------------------------- */
-
-  "ALS with wrong configuration values" should "not provide a valid SparkMl pipeline than it can be trained in a workflow" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("als-wrong-column-values-v0.json")))
 
       // Validation step mut be done correctly
       val validation = Try{validateMlPipelineStep(properties)}
