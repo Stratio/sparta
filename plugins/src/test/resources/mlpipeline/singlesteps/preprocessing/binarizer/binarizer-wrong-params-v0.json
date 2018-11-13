@@ -1,0 +1,48 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "inputCol": "feature",
+        "outputCol": "binarized_feature",
+        "threshold": "notANumber"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "Binarizer",
+      "className": "org.apache.spark.ml.feature.Binarizer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "Binarizer",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 670,
+          "y": 271
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

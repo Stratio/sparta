@@ -14,14 +14,17 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class BinarizerStepUT extends GenericPipelineStepTest {
 
-  override def stepName: String = "chi-sq-selector"
+  override def stepName: String = "binarizer"
 
-  override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/chisqselector/"
+  override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/binarizer/"
+
+  var data = Array(0.1, -0.5, 0.2, -0.3, 0.8, 0.7, -0.1, -0.4)
+
+  val threshold: Double = 0.2
+
+  val defaultBinarized: Array[Double] = data.map(x => if (x > threshold) 1.0 else 0.0)
 
   override def trainingDf: DataFrame = sparkSession.createDataFrame(Seq(
-    (1.0, Vectors.dense(Array(0.0, 9.0, 8.0, 5.0, 6.0, 4.0)), Vectors.dense(0.0)),
-    (2.0, Vectors.dense(Array(8.0, 9.0, 6.0, 5.0, 4.0, 4.0)), Vectors.dense(8.0)),
-    (2.0, Vectors.dense(Array(8.0, 9.0, 6.0, 4.0, 0.0, 0.0)), Vectors.dense(8.0))
-  )).toDF("label", "features", "topFeature")
-
+    (Vectors.dense(data), Vectors.dense(defaultBinarized))
+  )).toDF("feature", "expected")
 }
