@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "inputCol": "text",
+        "maxIter": "-1",
+        "maxSentenceLength": "-1",
+        "minCount": "-1",
+        "numPartitions": "-1",
+        "outputCol": "",
+        "seed": "",
+        "stepSize": "-1",
+        "vectorSize": "-1",
+        "windowSize": "-1"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "Word2Vec",
+      "className": "org.apache.spark.ml.feature.Word2Vec",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "Word2Vec",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 719,
+          "y": 230
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
