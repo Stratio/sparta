@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
+package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.preprocessing
 
 import java.io.{Serializable => JSerializable}
 
@@ -18,9 +18,9 @@ import org.apache.spark.ml.attribute.{Attribute, AttributeGroup, NumericAttribut
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, Row}
-import org.scalatest.{BeforeAndAfterAll, _}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{BeforeAndAfterAll, _}
 
 import scala.io.Source
 import scala.util.Try
