@@ -14,6 +14,7 @@ import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
 import org.apache.spark.ml.feature.LabeledPoint
 import org.apache.spark.ml.linalg.{DenseVector, SparseVector, Vector, Vectors}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}

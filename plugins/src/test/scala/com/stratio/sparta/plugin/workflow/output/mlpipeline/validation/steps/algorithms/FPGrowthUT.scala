@@ -5,6 +5,7 @@
  */
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
 
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
