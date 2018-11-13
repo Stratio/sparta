@@ -76,35 +76,20 @@ object MlPipelineDeserializationUtils {
           catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Int")}
 
         case "StringArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else value.toSeq.map(_.trim).toArray
+          else value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim).toArray
 
         case "DoubleArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else try{value.toSeq.map(_.trim.toDouble).toArray}
+          else try{value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toDouble).toArray}
           catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Double] (comma separated values)")}
 
         case "IntArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else try{value.toSeq.map(_.trim.toInt).toArray}
+          else try{value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toInt).toArray}
           catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Int] (comma separated values)")}
 
         case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
           else value.toString
 
         case _ => throw new Exception("Unknown parameter type")
-    }
-  }
-
-  def decodeParamType(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
-    param.getClass().getSimpleName match {
-      case "BooleanParam" => if (nullOrEmpty(value)) "Boolean" else value.toString.toBoolean
-      case "LongParam" => if (nullOrEmpty(value)) "Long" else value.toString.toLong
-      case "DoubleParam" => if (nullOrEmpty(value)) "Double" else value.toString.toDouble
-      case "FloatParam" => if (nullOrEmpty(value)) "Float" else value.toString.toFloat
-      case "IntParam" => if (nullOrEmpty(value)) "Int" else value.toString.toInt
-      case "StringArrayParam" => if (nullOrEmpty(value)) "Array[String] (comma separated values)" else value.toSeq.map(_.trim).toArray
-      case "DoubleArrayParam" => if (nullOrEmpty(value)) "Array[Double] (comma separated values)" else value.toSeq.map(_.trim.toDouble).toArray
-      case "IntArrayParam" => if (nullOrEmpty(value)) "Array[Int] (comma separated values)" else value.toSeq.map(_.trim.toInt).toArray
-      case "Param" => if (nullOrEmpty(value)) "String" else value.toString
-      case _ => throw new Exception("Unknown parameter type")
     }
   }
 }
