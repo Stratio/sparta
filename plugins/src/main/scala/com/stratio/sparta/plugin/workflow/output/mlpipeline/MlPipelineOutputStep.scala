@@ -14,7 +14,6 @@ import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
@@ -77,7 +76,8 @@ class MlPipelineOutputStep(
   //noinspection ScalaStyle
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     //Regular expression used to verify valid Model Names
-    val mlModelNameRegExpr = """^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])|(\.|\.\.)$""".r
+    val mlModelNameRegExpr =
+      """^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])|(\.|\.\.)$""".r
 
     def addValidationError(validation: ErrorValidations, error: String): ErrorValidations =
       ErrorValidations(valid = false, messages = validation.messages :+ WorkflowValidationMessage(error, name))
@@ -120,7 +120,7 @@ class MlPipelineOutputStep(
     }
 
     // · Non provided pipeline Json descriptor
-    if (pipelineJson.isEmpty )
+    if (pipelineJson.isEmpty)
       validation = addValidationError(validation, ValidationErrorMessages.emptyJsonPipelineDescriptor)
 
     // · Error de-serializing pipeline Json descriptor
@@ -180,7 +180,7 @@ class MlPipelineOutputStep(
         currentSchema = stage.transformSchema(currentSchema)
       } match {
         case Failure(e) =>
-          throw new Exception(ValidationErrorMessages.schemaError(stage.getClass.getSimpleName,stage.uid)+ s"${e.getMessage}")
+          throw new Exception(ValidationErrorMessages.schemaError(stage.getClass.getSimpleName, stage.uid) + s"${e.getMessage}")
         case _ => None
       }
     }
@@ -235,8 +235,10 @@ class MlPipelineOutputStep(
     * @return A Try of Seq[NodeGraph] with the ordered nodes if pipeline is valid
     *         or an error if the pipeline is not valid
     */
-  def getValidOrderedPipelineGraph(aiPipelineGraph: Try[PipelineGraph]) : Try[Seq[NodeGraph]] =
-    aiPipelineGraph flatMap { new PipelineGraphValidator(_).validate }
+  def getValidOrderedPipelineGraph(aiPipelineGraph: Try[PipelineGraph]): Try[Seq[NodeGraph]] =
+    aiPipelineGraph flatMap {
+      new PipelineGraphValidator(_).validate
+    }
 
   /**
     * Deserialize the AI pipeline descriptor in Json format provided in input properties map
@@ -247,13 +249,13 @@ class MlPipelineOutputStep(
     // Convert to pipeline descriptor object
     val validationResult: Try[Seq[NodeGraph]] = getValidOrderedPipelineGraph(pipelineGraph)
     validationResult match {
-      case Success(stages) => for (e <-stages)
+      case Success(stages) => for (e <- stages)
         yield PipelineStageDescriptor(
-        e.classPrettyName,
-        e.name,
-        e.className,
-        e.configuration
-    )
+          e.classPrettyName,
+          e.name,
+          e.className,
+          e.configuration
+        )
       case Failure(t) => throw new Exception(t.getMessage)
     }
   }
@@ -286,12 +288,12 @@ class MlPipelineOutputStep(
             s"PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})' " +
               s"don't have a parameter named '$paramName'."))
           // - Getting value of parameter decoding the string value set in PipelineStageDescriptor
-            val valueToSet = MlPipelineDeserializationUtils.decodeParamValue(paramToSet, paramValue)
-            valueToSet match{
+          val valueToSet = MlPipelineDeserializationUtils.decodeParamValue(paramToSet, paramValue)
+          valueToSet match {
             case Failure(t) => throw new Exception(
               t.getMessage + s" of PipelineStage " +
                 s"'${stageDescriptor.name}@id(${stageDescriptor.uid})'")
-            case Success(s) =>           Try {
+            case Success(s) => Try {
               stage.asInstanceOf[Params].set(paramToSet, s)
             }.getOrElse(throw new Exception(
               s"Parameter '$paramName' of PipelineStage " +

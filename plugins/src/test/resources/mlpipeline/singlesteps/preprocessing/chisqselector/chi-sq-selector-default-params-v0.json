@@ -1,1 +1,54 @@
-{"id":"943222cd-bc99-405a-a57f-66c6f8a52062","name":"chi-sq-selector-default-params","description":"","settings":{"global":{"executionMode":"marathon","userPluginsJars":[],"preExecutionSqlSentences":[],"postExecutionSqlSentences":[],"addAllUploadedPlugins":true,"mesosConstraint":"","mesosConstraintOperator":"CLUSTER","parametersLists":[],"parametersUsed":["Global.SPARK_CORES_MAX","Global.SPARK_DRIVER_CORES","Global.SPARK_DRIVER_JAVA_OPTIONS","Global.SPARK_DRIVER_MEMORY","Global.SPARK_EXECUTOR_BASE_IMAGE","Global.SPARK_EXECUTOR_CORES","Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","Global.SPARK_EXECUTOR_MEMORY","Global.SPARK_LOCALITY_WAIT","Global.SPARK_LOCAL_PATH","Global.SPARK_MEMORY_FRACTION","Global.SPARK_TASK_MAX_FAILURES"],"udfsToRegister":[],"udafsToRegister":[]},"streamingSettings":{"window":"2s","blockInterval":"100ms","checkpointSettings":{"checkpointPath":"sparta/checkpoint","enableCheckpointing":true,"autoDeleteCheckpoint":true,"addTimeToCheckpointPath":false}},"sparkSettings":{"master":"mesos://leader.mesos:5050","sparkKerberos":true,"sparkDataStoreTls":true,"sparkMesosSecurity":true,"submitArguments":{"userArguments":[],"deployMode":"client","driverJavaOptions":"{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}"},"sparkConf":{"sparkResourcesConf":{"coresMax":"{{{Global.SPARK_CORES_MAX}}}","executorMemory":"{{{Global.SPARK_EXECUTOR_MEMORY}}}","executorCores":"{{{Global.SPARK_EXECUTOR_CORES}}}","driverCores":"{{{Global.SPARK_DRIVER_CORES}}}","driverMemory":"{{{Global.SPARK_DRIVER_MEMORY}}}","mesosExtraCores":"","localityWait":"{{{Global.SPARK_LOCALITY_WAIT}}}","taskMaxFailures":"{{{Global.SPARK_TASK_MAX_FAILURES}}}","sparkMemoryFraction":"{{{Global.SPARK_MEMORY_FRACTION}}}","sparkParallelism":""},"userSparkConf":[],"coarse":true,"sparkUser":"root","sparkLocalDir":"{{{Global.SPARK_LOCAL_PATH}}}","executorDockerImage":"{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}","sparkKryoSerialization":false,"sparkSqlCaseSensitive":true,"logStagesProgress":false,"hdfsTokenCache":true,"executorExtraJavaOptions":"{{{Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"}},"errorsManagement":{"genericErrorManagement":{"whenError":"Error"},"transformationStepsManagement":{"whenError":"Error","whenRowError":"RowError","whenFieldError":"FieldError"},"transactionsManagement":{"sendToOutputs":[],"sendStepData":false,"sendPredecessorsData":true,"sendInputData":true}}},"pipelineGraph":{"nodes":[{"name":"Parquet","stepType":"Input","className":"ParquetInputStep","classPrettyName":"Parquet","arity":["NullaryToNary"],"writer":{"saveMode":"Append","tableName":"","partitionBy":"","errorTableName":""},"uiConfiguration":{"position":{"x":348,"y":433}},"configuration":{"path":"/tmp/chisqselector/chisqselector.parquet","inputOptions":"[]","debugOptions":"{\"path\":\"/tmp/chisqselector/chisqselector.parquet\"}"},"supportedEngines":["Batch"],"executionEngine":"Batch","supportedDataRelations":["ValidData"],"lineageProperties":[]},{"name":"MlPipeline","stepType":"Output","className":"MlPipelineOutputStep","classPrettyName":"MlPipeline","arity":["UnaryToNullary"],"writer":{"saveMode":"Append"},"uiConfiguration":{"position":{"x":731,"y":398}},"configuration":{"mlmodelrepModelName":"chi-sq-selector-empty-params","mlmodelrepModelTmpDir":"/tmp","path":"","validateMlModelRep":true,"serializationLib":"SPARK_AND_MLEAP","output.mode":"MODELREP","pipeline":{"nodes":[{"configuration":{"Stage UID":"","fdr":"","featuresCol":"features","fpr":"","fwe":"","labelCol":"label","numTopFeatures":"","outputCol":"filtered","percentile":"","selectorType":"numTopFeatures"},"supportedEngines":["Batch"],"classPrettyName":"ChiSqSelector","className":"org.apache.spark.ml.feature.ChiSqSelector","arity":["NullaryToNullary","NullaryToUnary"],"stepType":"Preprocessing","writer":{"tableName":null,"errorTableName":null,"saveMode":"Append","constraintType":"primaryKey","primaryKey":null,"uniqueConstraintName":null,"uniqueConstraintFields":null,"partitionBy":null},"name":"ChiSqSelector","created":true,"uiConfiguration":{"position":{"x":564,"y":294}},"createdNew":false,"description":"","hasErrors":false}],"edges":[],"svgPosition":{"k":1,"x":0,"y":0}}},"supportedEngines":["Batch"],"executionEngine":"Batch","lineageProperties":[]}],"edges":[{"origin":"Parquet","destination":"MlPipeline","dataType":"ValidData"}]},"executionEngine":"Batch","uiSettings":{"position":{"x":-1,"y":-1,"k":1}},"creationDate":"2018-11-02T12:43:45Z","version":0,"group":{"id":"51abf1d8-04fa-4b5e-a8d2-7c1ba413aeb7","name":"/home/ml-pipeline-validation-tests/preprocessing/chisqselector"},"debugMode":false,"versionSparta":"2.5.0-SNAPSHOT","groupId":"51abf1d8-04fa-4b5e-a8d2-7c1ba413aeb7"}
+{
+  "nodes": [
+    {
+      "configuration": {
+        "fdr": "0.05",
+        "featuresCol": "features",
+        "fpr": "0.05",
+        "fwe": "0.05",
+        "labelCol": "label",
+        "numTopFeatures": "50",
+        "outputCol": "filtered",
+        "percentile": "0.1",
+        "selectorType": "numTopFeatures"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "ChiSqSelector",
+      "className": "org.apache.spark.ml.feature.ChiSqSelector",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "ChiSqSelector",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 564,
+          "y": 294
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
