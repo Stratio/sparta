@@ -1,26 +1,17 @@
 {
   "nodes": [{
     "configuration": {
-      "Stage UID": "",
-      "checkpointInterval": "",
-      "docConcentration": "",
-      "featuresCol": "",
-      "k": "",
-      "keepLastCheckpoint": "",
-      "learningDecay": "",
-      "learningOffset": "",
-      "maxIter": "",
-      "optimizeDocConcentration": "",
-      "optimizer": "",
-      "seed": "",
-      "subsamplingRate": "",
-      "topicConcentration": "",
-      "topicDistributionCol": ""
+      "featureIndex": "thisisnotanumber",
+      "featuresCol": "features",
+      "isotonic": true,
+      "labelCol": "label",
+      "predictionCol": "prediction",
+      "weightCol": ""
     },
     "supportedEngines": ["Batch"],
-    "classPrettyName": "LDA",
-    "className": "org.apache.spark.ml.clustering.LDA",
-    "arity": ["NullaryToNullary", "UnaryToNullary"],
+    "classPrettyName": "IsotonicRegression",
+    "className": "org.apache.spark.ml.regression.IsotonicRegression",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
     "stepType": "Algorithm",
     "writer": {
       "tableName": null,
@@ -32,12 +23,12 @@
       "uniqueConstraintFields": null,
       "partitionBy": null
     },
-    "name": "LDA",
+    "name": "IsotonicRegression",
     "created": true,
     "uiConfiguration": {
       "position": {
-        "x": 638,
-        "y": 306
+        "x": 671,
+        "y": 240
       }
     },
     "createdNew": false,
