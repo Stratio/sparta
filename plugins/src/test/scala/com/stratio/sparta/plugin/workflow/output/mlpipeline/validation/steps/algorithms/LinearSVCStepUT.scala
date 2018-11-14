@@ -5,29 +5,18 @@
  */
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
 
-import java.io.{Serializable => JSerializable}
-
 import breeze.optimize.linear.PowerMethod.BDV
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.ErrorValidations
-import com.stratio.sparta.core.properties.JsoneyString
-import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTestMLeapErrors
 import org.apache.spark.ml.feature.LabeledPoint
-import org.apache.spark.ml.linalg.{DenseVector, SparseVector, Vector, Vectors}
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, _}
-import org.apache.spark.sql.functions.udf
 
-import scala.io.Source
-import scala.util.{Failure, Random, Try}
+import scala.util.Random
 
 @RunWith(classOf[JUnitRunner])
-class LinearSVCStepUT extends GenericPipelineStepTest {
+class LinearSVCStepUT extends GenericPipelineStepTestMLeapErrors {
   override def stepName: String = "linearsvc"
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/linearsvc/"

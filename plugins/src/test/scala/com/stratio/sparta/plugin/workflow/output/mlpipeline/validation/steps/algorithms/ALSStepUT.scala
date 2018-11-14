@@ -12,13 +12,13 @@ import scala.collection.mutable.ArrayBuffer
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.{GenericPipelineStepTest, GenericPipelineStepTestMLeapErrors}
 import org.apache.spark.ml.recommendation.ALS.Rating
 
 import scala.util.Random
 
 @RunWith(classOf[JUnitRunner])
-class ALSStepUT extends GenericPipelineStepTest {
+class ALSStepUT extends GenericPipelineStepTestMLeapErrors {
 
 
   override def stepName: String = "als"
