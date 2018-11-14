@@ -2,10 +2,10 @@
   "nodes": [{
     "configuration": {
       "bucketLength": "",
-      "inputCol": "features",
-      "numHashTables": "1",
-      "outputCol": "hashes",
-      "seed": "772209414"
+      "inputCol": "",
+      "numHashTables": "",
+      "outputCol": "",
+      "seed": ""
     },
     "supportedEngines": ["Batch"],
     "classPrettyName": "BucketedRandomProjectionLSH",
