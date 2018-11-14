@@ -144,11 +144,11 @@ class ElementWiseProductStepUT extends TemporalSparkContext with ShouldMatchers 
     }
 
   /* -------------------------------------------------------------
-   => Wrong Pipeline construction with wrong scalingVec param
+   => Wrong Pipeline construction with wrong scalingVec param - bad dimension
        (in this step there is no default value for the parameter splits)
   ------------------------------------------------------------- */
 
-  s"$stepName with an invalid value for scalingVec" should "provide an invalid SparkMl pipeline detected during validation" in
+  s"$stepName with a scalingVec of wrong dimension" should "provide an invalid SparkMl pipeline" in
     new WithFilesystemProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepWrongParamsPath)))
 
@@ -166,6 +166,55 @@ class ElementWiseProductStepUT extends TemporalSparkContext with ShouldMatchers 
       log.info(execution.failed.get.toString)
 
     }
+
+
+  /* -------------------------------------------------------------
+   => Wrong Pipeline construction with wrong scalingVec param - empty array
+       (in this step there is no default value for the parameter splits)
+  ------------------------------------------------------------- */
+
+  s"$stepName with an empty array for scalingVec" should "provide an invalid SparkMl pipeline" in
+    new WithFilesystemProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
+      val filePath = s"${resourcesPath}elementwiseproduct-wrong-params2-v0.json"
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(filePath)))
+
+      // Validation step mut be done correctly
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
+      assert(validation.isSuccess)
+      assert(validation.get.valid)
+
+      val execution = Try {
+        executeStepAndUsePipeline(generateInputDf(), properties)
+      }
+      assert(execution.isFailure)
+      log.info(execution.failed.get.toString)
+
+    }
+
+  /* -------------------------------------------------------------
+   => Wrong Pipeline construction with wrong scalingVec param - not an array
+       (in this step there is no default value for the parameter splits)
+  ------------------------------------------------------------- */
+
+  s"$stepName with not an array for scalingVec" should "provide an invalid SparkMl pipeline detected during validation" in
+    new WithFilesystemProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
+      val filePath = s"${resourcesPath}elementwiseproduct-wrong-params3-v0.json"
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(filePath)))
+
+      // Validation step mut be done correctly
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
+
+      assert(validation.isSuccess)
+      assert(!validation.get.valid)
+      val errorMessages: Seq[String] = validation.get.messages.map(_.message)
+      assert(errorMessages.exists(_ contains "scalingVec"))
+      assert(errorMessages.exists(_ contains "has an invalid value"))
+    }
+
 
   /* -------------------------------------------------------------
    => Wrong Pipeline construction with input column not present in training DF

@@ -92,7 +92,8 @@ object MlPipelineDeserializationUtils {
             // Special case of 'ElementWiseProduct' where the class of the 'scalingVec' parameter is Param[Vector]
             // so it will match this case clause. We need to cast it to spark.ml.linalg.Vector
             if (param.name == "scalingVec")
-              Vectors.dense(value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toDouble).toArray)
+              try { Vectors.dense(value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toDouble).toArray) }
+              catch { case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Double] (comma separated values)") }
             else
               value.toString
         }
