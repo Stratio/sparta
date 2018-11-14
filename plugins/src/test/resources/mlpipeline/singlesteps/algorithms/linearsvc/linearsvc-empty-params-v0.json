@@ -3,13 +3,13 @@
     "configuration": {
       "aggregationDepth": "",
       "featuresCol": "",
-      "fitIntercept": true,
+      "fitIntercept": "",
       "labelCol": "",
       "maxIter": "",
       "predictionCol": "",
       "rawPredictionCol": "",
       "regParam": "",
-      "standardization": true,
+      "standardization": "",
       "threshold": "",
       "tol": "",
       "weightCol": ""

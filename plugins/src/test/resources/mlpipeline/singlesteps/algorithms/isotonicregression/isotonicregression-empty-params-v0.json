@@ -1,28 +1,17 @@
 {
   "nodes": [{
     "configuration": {
-      "alpha": "",
-      "checkpointInterval": "",
-      "coldStartStrategy": "",
-      "finalStorageLevel": "",
-      "implicitPrefs": "",
-      "intermediateStorageLevel": "",
-      "itemCol": "",
-      "maxIter": "",
-      "nonnegative": "",
-      "numItemBlocks": "",
-      "numUserBlocks": "",
+      "featureIndex": "",
+      "featuresCol": "",
+      "isotonic": "",
+      "labelCol": "",
       "predictionCol": "",
-      "rank": "",
-      "ratingCol": "",
-      "regParam": "",
-      "seed": "",
-      "userCol": ""
+      "weightCol": ""
     },
     "supportedEngines": ["Batch"],
-    "classPrettyName": "ALS",
-    "className": "org.apache.spark.ml.recommendation.ALS",
-    "arity": ["NullaryToNullary", "UnaryToNullary"],
+    "classPrettyName": "IsotonicRegression",
+    "className": "org.apache.spark.ml.regression.IsotonicRegression",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
     "stepType": "Algorithm",
     "writer": {
       "tableName": null,
@@ -34,12 +23,12 @@
       "uniqueConstraintFields": null,
       "partitionBy": null
     },
-    "name": "ALS",
+    "name": "IsotonicRegression",
     "created": true,
     "uiConfiguration": {
       "position": {
-        "x": 447,
-        "y": 127
+        "x": 671,
+        "y": 240
       }
     },
     "createdNew": false,
@@ -50,6 +39,6 @@
   "svgPosition": {
     "k": 1,
     "x": 0,
-    "y": -2
+    "y": 0
   }
 }
