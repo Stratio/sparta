@@ -6,7 +6,8 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
 
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -19,9 +20,22 @@ class IsotonicRegressionUT extends GenericPipelineStepTest {
   override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/isotonicregression/"
 
   override def trainingDf: DataFrame = {
-    def generateIsotonicInput(labels: Seq[Double]): DataFrame = {
-      sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(labels.zipWithIndex.map { case (label, i) => (label, i.toDouble, 1.0) }))
+
+    def generateIsotonicInput(labels: Seq[Double]) = {
+      labels.zipWithIndex.map { case (label, i) => Row.fromSeq(Seq(label, i.toDouble, 1.0)) }
     }
-    generateIsotonicInput(Seq(1, 2, 3, 1, 6, 17, 16, 17, 18))
+
+    sparkSession.createDataFrame(
+      sparkSession.sparkContext.parallelize(
+        generateIsotonicInput(Seq(1, 2, 3, 1, 6, 17, 16, 17, 18))),
+      StructType(
+        List(
+          StructField("label", DoubleType, true),
+          StructField("features", DoubleType, true),
+          StructField("weight", DoubleType, true)
+        )
+      ))
+
   }
+
 }
