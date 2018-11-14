@@ -1,0 +1,67 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "inputCols": [
+          "value1",
+          "value2"
+        ],
+        "missingValue": "",
+        "outputCols": [
+          "out_v1",
+          "out_v2"
+        ],
+        "strategy": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "Imputer",
+      "className": "org.apache.spark.ml.feature.Imputer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "Imputer",
+      "hasErrors": false,
+      "errors": [
+        {
+          "propertyName": "inputCols",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCols",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 339,
+          "y": 178
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
