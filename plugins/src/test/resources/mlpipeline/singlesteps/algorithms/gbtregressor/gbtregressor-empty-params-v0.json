@@ -1,0 +1,54 @@
+{
+  "nodes": [{
+    "configuration": {
+      "cacheNodeIds": "",
+      "checkpointInterval": "",
+      "featuresCol": "",
+      "impurity": "",
+      "labelCol": "",
+      "lossType": "",
+      "maxBins": "",
+      "maxDepth": "",
+      "maxIter": "",
+      "maxMemoryInMB": "",
+      "minInfoGain": "",
+      "minInstancesPerNode": "",
+      "predictionCol": "",
+      "seed": "",
+      "stepSize": "",
+      "subsamplingRate": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "GBTRegressor",
+    "className": "org.apache.spark.ml.regression.GBTRegressor",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "GBTRegressor",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 582,
+        "y": 337
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": -128,
+    "y": -114
+  }
+}

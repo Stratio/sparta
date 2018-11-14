@@ -24,7 +24,7 @@ import scala.util.Try
   * @author Stratio Intelligence
   * @email intelligence@stratio.com
   */
-trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+trait GenericPipelineStepTestMLeapErrors extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
 
@@ -119,12 +119,8 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
         validateMlPipelineStep(properties)
       }
       assert(validation.isSuccess)
-      assert(validation.get.valid)
-
-      val execution = Try {
-        executeStepAndUsePipeline(generateInputDf(), properties)
-      }
-      assert(execution.isSuccess)
+      assert(!validation.get.valid)
+      assert(validation.get.messages.last.message.endsWith(" is not supported by Mleap. Try to serialize it only with Spark"))
     }
 
   s"$stepName default configuration values" should "provide a valid SparkMl pipeline" in
@@ -161,12 +157,8 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
         validateMlPipelineStep(properties)
       }
       assert(validation.isSuccess)
-      assert(validation.get.valid)
-      val execution = Try {
-        executeStepAndUsePipeline(generateInputDf(), properties)
-      }
-      assert(execution.isSuccess)
-
+      assert(!validation.get.valid)
+      assert(validation.get.messages.last.message.endsWith(" is not supported by Mleap. Try to serialize it only with Spark"))
     }
 
   s"$stepName with empty configuration values" should "provide a valid SparkMl pipeline using default values" in
@@ -197,7 +189,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
 
   s"$stepName with wrong configuration params" should "provide an invalid SparkMl pipeline" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemAndAllSerializationProperties {
+      with WithFilesystemAndSparkSerializationProperties {
 
       assume(wrongParamsAvailable)
 
