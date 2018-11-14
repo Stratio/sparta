@@ -1,0 +1,44 @@
+{
+  "nodes": [{
+    "configuration": {
+      "featuresCol": "features",
+      "k": "4",
+      "maxIter": "20",
+      "minDivisibleClusterSize": "1.0",
+      "predictionCol": "prediction",
+      "seed": "566573821"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "BisectingKMeans",
+    "className": "org.apache.spark.ml.clustering.BisectingKMeans",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "BisectingKMeans",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 569,
+        "y": 153
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
