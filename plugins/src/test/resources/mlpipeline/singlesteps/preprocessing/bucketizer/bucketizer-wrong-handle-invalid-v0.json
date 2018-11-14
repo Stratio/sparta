@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "handleInvalid": "notvalid",
+        "inputCol": "features",
+        "outputCol": "result",
+        "splits": "-0.5,0.0,0.5"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "Bucketizer",
+      "className": "org.apache.spark.ml.feature.Bucketizer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "bucketizer_split_param",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 796,
+          "y": 243
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
