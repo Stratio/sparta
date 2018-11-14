@@ -37,13 +37,15 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
 
   def emptyParamsAvailable: Boolean = true
 
-  private def stepDefaultParamsPath = s"$resourcesPath$stepName-default-params-v0.json"
+  def wrongInputColumnAvailable: Boolean = true
 
-  private def stepEmptyParamsPath = s"$resourcesPath$stepName-empty-params-v0.json"
+  def stepDefaultParamsPath: String = s"$resourcesPath$stepName-default-params-v0.json"
 
-  private def stepWrongParamsPath = s"$resourcesPath$stepName-wrong-params-v0.json"
+  def stepEmptyParamsPath: String = s"$resourcesPath$stepName-empty-params-v0.json"
 
-  private def stepWrongInputColumnPath = s"$resourcesPath$stepName-wrong-input-column-v0.json"
+  def stepWrongParamsPath: String = s"$resourcesPath$stepName-wrong-params-v0.json"
+
+  def stepWrongInputColumnPath: String = s"$resourcesPath$stepName-wrong-input-column-v0.json"
 
   trait ReadDescriptorResource {
     def getJsonDescriptor(filename: String): String = {
@@ -179,6 +181,8 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
   s"$stepName with invalid input column" should "provide an invalid SparkMl pipeline" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties {
+
+      assume(wrongInputColumnAvailable)
 
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepWrongInputColumnPath)))
 
