@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "handleInvalid": "error",
+        "inputCol": "notExists",
+        "outputCol": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "StringIndexer",
+      "className": "org.apache.spark.ml.feature.StringIndexer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "StringIndexer",
+      "hasErrors": false,
+      "errors": [
+        {
+          "propertyName": "inputCol",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCol",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": -13.4514884622632,
+          "y": 165.7532310361372
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [
+  ],
+  "svgPosition": {
+    "k": 1.086489325159504,
+    "x": 195.61490207590748,
+    "y": -43.08912468120565
+  }
+}
