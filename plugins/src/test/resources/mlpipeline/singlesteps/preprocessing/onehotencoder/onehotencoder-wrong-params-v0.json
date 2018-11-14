@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "dropLast": "error",
+        "inputCol": "",
+        "outputCol": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "OneHotEncoder",
+      "className": "org.apache.spark.ml.feature.OneHotEncoder",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "OneHotEncoder",
+      "hasErrors": false,
+      "errors": [
+        {
+          "propertyName": "inputCol",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCol",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 213.88622515125883,
+          "y": 161.15125952439172
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1.086489325159504,
+    "x": 195.61490207590748,
+    "y": -43.08912468120565
+  }
+}

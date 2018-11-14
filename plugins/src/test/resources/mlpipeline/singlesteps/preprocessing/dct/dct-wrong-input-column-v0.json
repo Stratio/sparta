@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "inputCol": "notExist",
+        "inverse": false,
+        "outputCol": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "DCT",
+      "className": "org.apache.spark.ml.feature.DCT",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "DCT",
+      "hasErrors": false,
+      "errors": [
+        {
+          "propertyName": "inputCol",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCol",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": -67.20883662969001,
+          "y": 122.98068683021762
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1.086489325159504,
+    "x": 194.61490207590748,
+    "y": -44.08912468120565
+  }
+}
