@@ -19,6 +19,9 @@ object ValidationErrorMessages {
   val mlModelRepModelInvalidModelName = "Model Name is invalid."
   val errorUrlMessage = "It's mandatory to specify the model repository URL."
 
+  // - Validate supported mleap stages
+  def stageNotSupportedMleap(className: String): String = s"Pipeline stage ${className} is not supported by Mleap. Try to serialize it only with Spark"
+
   // => Json pipeline descriptor
   val emptyJsonPipelineDescriptor = "The Machine Learning Pipeline is empty."
   val invalidJsonFormatPipelineDescriptor = "Unable to build Machine Learning pipeline."

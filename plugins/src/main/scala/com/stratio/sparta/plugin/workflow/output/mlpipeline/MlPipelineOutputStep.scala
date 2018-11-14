@@ -16,7 +16,7 @@ import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
+import com.stratio.sparta.plugin.enumerations.{MlPipelineFilteredStages, MlPipelineSaveMode, MlPipelineSerializationLibs}
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization._
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.{PipelineGraphValidator, ValidationErrorMessages}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -59,6 +59,9 @@ class MlPipelineOutputStep(
   lazy val pipelineDescriptor: Try[Seq[PipelineStageDescriptor]] = getPipelineDescriptor
   // · SparkMl Pipeline (built using Array[PipelineStageDescriptor])
   lazy val pipeline: Try[Pipeline] = getPipelineFromDescriptor(pipelineDescriptor.get)
+
+  // => Pipeline stages not supported by mleap
+  lazy val forbbidenStages: Seq[String] = MlPipelineFilteredStages.values.toSeq.map(_.toString)
 
   def mlModelRepClient: Try[MlModelsRepositoryClient] = Try {
     MlPipelineOutputStep.getMlRepositoryClient(
@@ -278,6 +281,13 @@ class MlPipelineOutputStep(
         }.getOrElse(throw new Exception(
                       s"Error instantiating PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})': " +
                         s"invalid 'className=${stageDescriptor.className}'"))
+
+        // · validate pipeline whether is supported by mleap
+        if (forbbidenStages.contains(stageDescriptor.className.split('.').toSeq.last)
+          && (serializationLib == MlPipelineSerializationLibs.MLEAP
+          || serializationLib == MlPipelineSerializationLibs.SPARK_AND_MLEAP)) {
+            throw new Exception(ValidationErrorMessages.stageNotSupportedMleap(stageDescriptor.className))
+        }
 
         // · Set parameters of SparkML PipelineStage instance
         // filter out parameters with null or empty values
