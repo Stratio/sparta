@@ -1,0 +1,46 @@
+{
+  "nodes": [{
+    "configuration": {
+      "featuresCol": "featuresnonexists",
+      "initMode": "k-means||",
+      "initSteps": "2",
+      "k": "2",
+      "maxIter": "20",
+      "predictionCol": "prediction",
+      "seed": "-1689246527",
+      "tol": "1.0E-4"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "KMeans",
+    "className": "org.apache.spark.ml.clustering.KMeans",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "KMeans",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 512,
+        "y": 141
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
