@@ -10,6 +10,7 @@ import com.stratio.sparta.core.properties.JsoneyString
 import org.apache.spark.ml.param.Param
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JBool
+import org.apache.spark.ml.linalg.Vectors
 
 import scala.util.{Failure, Try}
 
@@ -87,7 +88,14 @@ object MlPipelineDeserializationUtils {
           catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Int] (comma separated values)")}
 
         case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
-          else value.toString
+          else {
+            // Special case of 'ElementWiseProduct' where the class of the 'scalingVec' parameter is Param[Vector]
+            // so it will match this case clause. We need to cast it to spark.ml.linalg.Vector
+            if (param.name == "scalingVec")
+              Vectors.dense(value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toDouble).toArray)
+            else
+              value.toString
+        }
 
         case _ => throw new Exception("Unknown parameter type")
     }
