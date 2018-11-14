@@ -1,0 +1,57 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "aggregationDepth": "0.0",
+        "elasticNetParam": "-2.5",
+        "featuresCol": "",
+        "fitIntercept": true,
+        "labelCol": "",
+        "maxIter": "",
+        "predictionCol": "",
+        "regParam": "",
+        "solver": "",
+        "standardization": true,
+        "tol": "-1.0",
+        "weightCol": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "LinearRegression",
+      "className": "org.apache.spark.ml.regression.LinearRegression",
+      "arity": [
+        "NullaryToNullary",
+        "UnaryToNullary"
+      ],
+      "stepType": "Algorithm",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "LinearRegression",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 724,
+          "y": 330
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
