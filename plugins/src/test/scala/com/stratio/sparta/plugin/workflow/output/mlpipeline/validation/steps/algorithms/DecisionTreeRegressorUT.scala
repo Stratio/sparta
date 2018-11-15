@@ -12,12 +12,12 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class AFTSurvivalRegressionUT extends GenericPipelineStepTest {
+class DecisionTreeRegressorUT extends GenericPipelineStepTest {
 
 
-  override def stepName: String = "aftsurvivalregression"
+  override def stepName: String = "decisiontreeregressor"
 
-  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/aftsurvivalregression/"
+  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/decisiontreeregressor/"
 
   override def trainingDf: DataFrame = {
     sparkSession.createDataFrame(Seq(
