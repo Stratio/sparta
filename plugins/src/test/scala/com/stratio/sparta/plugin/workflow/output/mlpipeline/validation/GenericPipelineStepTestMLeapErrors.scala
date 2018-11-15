@@ -57,15 +57,6 @@ trait GenericPipelineStepTestMLeapErrors extends TemporalSparkContext with Shoul
     def generateInputDf(): DataFrame = trainingDf
   }
 
-  trait WithFilesystemAndAllSerializationProperties {
-    var properties: Map[String, JSerializable] = Map(
-      "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
-      "path" -> JsoneyString("/tmp/pipeline_tests"),
-      "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.SPARK_AND_MLEAP.toString)
-
-    )
-  }
-
   trait WithFilesystemAndSparkSerializationProperties {
     var properties: Map[String, JSerializable] = Map(
       "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
@@ -110,19 +101,6 @@ trait GenericPipelineStepTestMLeapErrors extends TemporalSparkContext with Shoul
    => Correct Pipeline construction with default params
   ------------------------------------------------------------- */
 
-  s"$stepName default configuration values" should "provide a valid SparkMl and MLeap serialized pipeline" in
-    new WithFilesystemAndAllSerializationProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepDefaultParamsPath)))
-
-      // Validation step mut be done correctly
-      val validation = Try {
-        validateMlPipelineStep(properties)
-      }
-      assert(validation.isSuccess)
-      assert(!validation.get.valid)
-      assert(validation.get.messages.last.message.endsWith(" is not supported by Mleap. Try to serialize it only with Spark"))
-    }
-
   s"$stepName default configuration values" should "provide a valid SparkMl pipeline" in
     new WithFilesystemAndSparkSerializationProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepDefaultParamsPath)))
@@ -143,23 +121,6 @@ trait GenericPipelineStepTestMLeapErrors extends TemporalSparkContext with Shoul
   /* -------------------------------------------------------------
    => Correct Pipeline construction with empty params
   ------------------------------------------------------------- */
-
-  s"$stepName with empty configuration values" should "provide a valid SparkMl and MLeap serialized pipeline using default values" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemAndAllSerializationProperties {
-
-      assume(emptyParamsAvailable)
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepEmptyParamsPath)))
-
-      // Validation step mut be done correctly
-      val validation = Try {
-        validateMlPipelineStep(properties)
-      }
-      assert(validation.isSuccess)
-      assert(!validation.get.valid)
-      assert(validation.get.messages.last.message.endsWith(" is not supported by Mleap. Try to serialize it only with Spark"))
-    }
 
   s"$stepName with empty configuration values" should "provide a valid SparkMl pipeline using default values" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
