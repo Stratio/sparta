@@ -1,0 +1,47 @@
+{
+  "nodes": [{
+    "configuration": {
+      "featuresCol": "features",
+      "labelCol": "label",
+      "modelType": "multinomial",
+      "predictionCol": "prediction",
+      "probabilityCol": "probability",
+      "rawPredictionCol": "rawPrediction",
+      "smoothing": "1.0",
+      "thresholds": "wrongthreshould",
+      "weightCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "NaiveBayes",
+    "className": "org.apache.spark.ml.classification.NaiveBayes",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "NaiveBayes",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 543,
+        "y": 163
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
