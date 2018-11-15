@@ -205,7 +205,10 @@ class TemplatePostgresDao extends TemplateDao {
       if (nodesWithTemplate.nonEmpty) {
         val newNodes = workflow.pipelineGraph.nodes.map { node =>
           if (node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateElement.id.get)
-            node.copy(nodeTemplate = Option(NodeTemplateInfo(name = templateElement.name, id = templateElement.id.get)))
+            node.copy(
+              configuration = templateElement.configuration,
+              nodeTemplate = Option(NodeTemplateInfo(name = templateElement.name, id = templateElement.id.get))
+            )
           else node
         }
         Option(WorkflowPostgresDao.addUpdateDate(workflow.copy(pipelineGraph = workflow.pipelineGraph.copy(nodes = newNodes))))

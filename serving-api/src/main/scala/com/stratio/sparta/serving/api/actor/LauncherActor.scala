@@ -198,7 +198,7 @@ class LauncherActor(
       workflowService.validateDebugWorkflow(workflow)
 
       val dummyExecution = WorkflowExecution(
-        genericDataExecution = GenericDataExecution(workflow, workflow, local, executionContext)
+        genericDataExecution = GenericDataExecution(workflow, workflow, local, executionContext, userId = user.map(_.id))
       )
       val workflowLauncherActor = debugLauncherActor
 

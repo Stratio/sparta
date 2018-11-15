@@ -94,6 +94,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
    ngOnInit(): void {
       setTimeout(() => {
          this.fadeActive = true;
+         this._cd.markForCheck();
       });
       this.valueDictionary.parameters = this.parameters;
       if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
@@ -116,6 +117,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
          .pipe(takeUntil(this._componentDestroyed))
          .subscribe((validation: boolean) => {
             this.validatedName = validation;
+            this._cd.markForCheck();
          });
 
       this.saveSubscription = this._store.select(fromWizard.isEntitySaved)
@@ -137,6 +139,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
          .pipe(takeUntil(this._componentDestroyed))
          .subscribe((queryBuilder: any) => {
             this.queryBuilder = queryBuilder;
+            this._cd.markForCheck();
          });
 
       this.getFormTemplate();
@@ -310,7 +313,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
          // FROM
          if (this.queryBuilder.inputSchemaFields.length || this.queryBuilder.outputSchemaFields.length) {
             const table = this.queryBuilder.inputSchemaFields[0];
-            const ouputTable = this.queryBuilder.outputSchemaFields[0];
+            const ouputTable = this.queryBuilder.outputSchemaFields[0] || [];
             fromClause = {
                tableName: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].table : table.name,
                alias: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].alias : table.alias

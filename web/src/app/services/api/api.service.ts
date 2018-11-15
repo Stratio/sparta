@@ -103,7 +103,7 @@ export class ApiService {
   }
 
   private handleError(error: any): Observable<any> {
-    if (error && error.status && error.status === 0) {
+    if (error && error.status !== undefined && error.status === 0) {
       this._showLoginWindow();
     }
     return throwError(error);

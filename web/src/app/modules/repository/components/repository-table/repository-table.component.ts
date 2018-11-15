@@ -61,6 +61,8 @@ export class RepositoryTableComponent {
    @Output() showExecutionConfig = new EventEmitter<string>();
    @Output() onSimpleRun = new EventEmitter<any>();
 
+   @Output() duplicateWorkflow = new EventEmitter<any>();
+
    /* modal titles */
    public deleteWorkflowModalTitle: string;
    public deleteVersionModalTitle: string;
@@ -157,7 +159,7 @@ export class RepositoryTableComponent {
       // this.generateVersion.emit();
       switch (event) {
          case 'version-new-workflow':
-            this._duplicateWorkflow(version);
+            this.duplicateWorkflow.emit(version);
             break;
          case 'version-run-workflow':
             this.simpleRun(version);
@@ -186,22 +188,6 @@ export class RepositoryTableComponent {
          workflowId: version.id,
          workflowName: version.name
       });
-   }
-
-   private _duplicateWorkflow(version) {
-
-      this._modalService.show({
-         modalTitle: this.duplicateWorkflowTitle,
-         maxWidth: 500,
-         inputs: {
-            version
-         },
-         outputs: {
-            onCloseDuplicateModal: (response: any) => {
-               this._modalService.close();
-            }
-         },
-      }, DuplicateWorkflowComponent);
    }
 
    private _deleteConfirmModal(title: string, onSuccesHander: Function) {

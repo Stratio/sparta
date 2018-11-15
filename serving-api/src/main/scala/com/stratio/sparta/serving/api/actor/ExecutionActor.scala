@@ -23,6 +23,7 @@ class ExecutionActor()
 
   private val executionPgService = PostgresDaoFactory.executionPgService
   private val ResourceType = "Workflows"
+  private val DashboardResourceType = "Dashboard"
 
   //scalastyle:off
   def receiveApiActions(action: Any): Any = action match {
@@ -82,7 +83,7 @@ class ExecutionActor()
   }
 
   def createDashboardView(user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceType -> Status)) {
+    authorizeActions(user, Map(DashboardResourceType -> View)) {
       executionPgService.createDashboardView()
     }
 

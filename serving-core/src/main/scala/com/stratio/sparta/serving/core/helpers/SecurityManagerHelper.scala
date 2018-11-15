@@ -102,6 +102,7 @@ object SecurityManagerHelper {
     resource match {
       case "Catalog" => Resource(CatalogResource, resource)
       case "Configuration" => Resource(ConfigurationResource, resource)
+      case "Dashboard" => Resource(DashboardResource, resource)
       case "Files" => Resource(FilesResource, resource)
       case "GlobalParameters" => Resource(GlobalParametersResource, resource)
       case "Groups" => Resource(GroupsResource, resource)
@@ -116,6 +117,7 @@ object SecurityManagerHelper {
     resource._1 match {
       case "Catalog" => Resource(CatalogResource, resource._2)
       case "Configuration" => Resource(ConfigurationResource, resource._2)
+      case "Dashboard" => Resource(DashboardResource, resource._2)
       case "Files" => Resource(FilesResource, resource._2)
       case "GlobalParameters" => Resource(GlobalParametersResource, resource._2)
       case "Groups" => Resource(GroupsResource, resource._2)

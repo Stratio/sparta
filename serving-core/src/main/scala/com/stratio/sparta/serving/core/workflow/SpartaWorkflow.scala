@@ -50,7 +50,8 @@ import scalax.collection.edge.LDiEdge
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                                                              workflow: Workflow,
                                                              errorManager: ErrorManager,
-                                                             files: Seq[String] = Seq.empty
+                                                             files: Seq[String] = Seq.empty,
+                                                             userId: Option[String] = Properties.envOrNone(UserNameEnv)
                                                            )
   extends CheckpointUtils with DistributedMonadImplicits {
 
@@ -61,7 +62,6 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   private val classpathUtils = WorkflowHelper.classpathUtils
   private var steps = Seq.empty[GraphStep]
   private var order = 0L
-  private val userId = Properties.envOrNone(UserNameEnv)
 
   /**
     * Execute the setup function associated to all the steps. Previously is mandatory execute the stages

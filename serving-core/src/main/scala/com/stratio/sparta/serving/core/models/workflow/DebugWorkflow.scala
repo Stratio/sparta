@@ -181,7 +181,11 @@ case class DebugWorkflow(
                 dataType = Option(dataType)
               )
             }
-            case None => Seq(EdgeGraph(origin = node.name, destination = outputDebugName))
+            case None => Seq(EdgeGraph(
+              origin = node.name,
+              destination = nodesNames(node.name),
+              dataType = Option(DataType.ValidData)
+            ))
           }
       }
     }

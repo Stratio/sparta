@@ -16,6 +16,12 @@
       ]
     },
     {
+      "type": "Dashboard",
+      "actions": [
+        "view"
+      ]
+    },
+    {
       "type": "Files",
       "actions": [
         "view",

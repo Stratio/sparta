@@ -42,7 +42,8 @@ import { Group } from '../../models/workflows';
             (selectGroup)="selectGroup($event)"
             (selectVersion)="selectVersion($event)"
             (onSimpleRun)="simpleRun($event)"
-            (showExecutionConfig)="showExecutionConfig($event)"></repository-table>
+            (showExecutionConfig)="showExecutionConfig($event)"
+            (duplicateWorkflow)="onDuplicateWorkflow($event)"></repository-table>
     `,
    changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -139,6 +140,15 @@ export class RepositoryTableContainer implements OnInit {
    simpleRun(version: any) {
       this._store.dispatch(new workflowActions.RunWorkflowAction(version));
    }
+
+   public onDuplicateWorkflow(version) {
+    this._store.dispatch(new workflowActions.DuplicateWorkflowAction({
+        id: version.id,
+        name: `${version.name}-copy`,
+        group: version.group.name,
+        tag: version.version
+     }));
+}
 
    constructor(private _store: Store<State>) { }
 

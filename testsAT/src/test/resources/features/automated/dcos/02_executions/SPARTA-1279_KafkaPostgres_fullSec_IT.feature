@@ -19,23 +19,8 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy_fr.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
       |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
-      |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}        | n/a |
-    Then the service response status must be '201'
-
-  #**********************
-  # ADD POSTGRES POLICY *
-  #**********************
-  @skipOnEnv(POSTGRES_OLD_VERSION=TRUE)
-  @skipOnEnv(STRATIO_RELEASE=ORION)
-  @skipOnEnv(SKIP_POLICY=true)
-  Scenario: [SPARTA-1162][02]Add postgres policy to write in postgres
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
-    And I wait '3' seconds
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
-      |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
-      |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}      | n/a |
+      |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}  | n/a |
+      |   $.services[0].version   |  UPDATE    | ${KF-GOSEC-VERSION:-2.2.0-59b63a7}     | n/a |
     Then the service response status must be '201'
 
   #************************************************

@@ -50,7 +50,7 @@ case class ContextsService()
       }
     }
 
-    val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, files)
+    val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, files, execution.genericDataExecution.userId)
 
     try {
       spartaWorkflow.stages()
@@ -68,7 +68,7 @@ case class ContextsService()
   def localContext(execution: WorkflowExecution, files: Seq[String]): Unit = {
     val workflow = execution.getWorkflowToExecute
     val errorManager = getErrorManager(workflow)
-    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, files)
+    val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, files, execution.genericDataExecution.userId)
 
     try {
       spartaWorkflow.setup()

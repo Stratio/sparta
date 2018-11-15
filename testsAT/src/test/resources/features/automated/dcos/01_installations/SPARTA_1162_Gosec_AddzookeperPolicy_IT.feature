@@ -11,6 +11,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.id                    |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
       |   $.name                  |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
+      |   $.services[0].version   |  UPDATE    | ${POSTGRES-ZL-VERSION:-1.0.0}      | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_SPARTA_POLICY_OLD)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
@@ -22,17 +23,19 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
   @runOnEnv(ID_SPARTA_POLICY)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_orion.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${ID_SPARTA_POLICY}     | n/a |
-      |   $.name                  |  UPDATE    | ${ID_SPARTA_POLICY}     | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.id                       |  UPDATE    | ${ID_POLICY_SP:-spartaserver}   | n/a |
+      |   $.name                     |  UPDATE    | ${ID_POLICY_SP:-spartaserver}    | n/a |
+      |   $.users[0]                 |  UPDATE    | ${DCOS_SERVICE_NAME}            | n/a |
+      |   $.services[0].version      |  UPDATE    | ${SP-GOSEC-VERSION:-2.4.0}      | n/a |
+      |   $.services[1].version      |  UPDATE    | ${SP-GOSEC-VERSION:-2.4.0}      | n/a |
     Then the service response status must be '201'
-
   @runOnEnv(ID_KAFKA_POLICY)
   Scenario: [SPARTA-1162][03]Add sparta policy to write in kafka
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_KAFKA_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_KAFKA_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+      |   $.services[0].version   |  UPDATE    | ${KF-GOSEC-VERSION:-2.2.0}      | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_KAFKA_FR_POLICY)
   Scenario: [SPARTA-1162][04]Add sparta policy to write in kafka
@@ -40,6 +43,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.id                    |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}         | n/a |
+      |   $.services[0].version   |  UPDATE    | ${KF-GOSEC-VERSION:-2.2.0}   | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_ELASTIC_POLICY)
   Scenario: [SPARTA-1162][05]Add Elastic policy to write in Elastic
@@ -47,13 +51,15 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.id                    |  UPDATE    | ${ID_ELASTIC_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_ELASTIC_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}        | n/a |
+      |   $.services[0].version      |  UPDATE    | ${EL-GOSEC-VERSION:-1.0.3}      | n/a |
     Then the service response status must be '201'
   @runOnEnv(ID_XD_POLICY)
-  Scenario: [SPARTA-1162][06]Add Elastic policy to write in Elastic
+  Scenario: [SPARTA-1162][06]Add XD policy to write in Elastic
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/xd_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_XD_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_XD_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}   | n/a |
+      |   $.services[0].version   |  UPDATE    | ${XD-GOSEC-VERSION:-2.4.0}      | n/a |
     Then the service response status must be '201'
 
   @runOnEnv(ID_SPARTA_POSTGRES)
@@ -62,6 +68,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
       |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.services[0].version   |  UPDATE    | ${POSTGRES-GOSEC-VERSION:-1.0.3}      | n/a |
     Then the service response status must be '201'
 
   @runOnEnv(RESTART_SPARTA)

@@ -162,6 +162,7 @@ export class WorkflowEffect {
       .pipe(withLatestFrom(this.store.select(state => state.workflowsManaging)))
       .pipe(switchMap(([data, workflow]) => this.workflowService.generateVersion({
          id: data.id,
+         name: data.name || null,
          group: workflow.workflowsManaging.groups.find((group: any) => group.name === data.group),
          version: 0
       }).pipe(mergeMap(() => [

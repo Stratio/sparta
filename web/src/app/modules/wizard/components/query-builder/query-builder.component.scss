@@ -54,7 +54,8 @@
       border-radius: 4px;
       display: flex;
       flex-flow: row wrap;
-      padding: 10px 0px 7px 0px;
+      padding: 3px 0px 7px 0px;
+      align-items: center;
       span {
         width: 50%;
         text-align: center;
@@ -67,10 +68,9 @@
       }
       .icon-join {
          width: 25px;
-         padding-left: 2px;
-         margin-left: 4px;
-         height: 14px;
+         padding-left: 8px;
          margin-top: 3px;
+         font-size: 20px;
       }
    }
    st-dropdown-menu {

@@ -61,7 +61,7 @@
 
  <div *ngIf="join.joins.length && inputSchemas.length" class="join-container">
       <div class="join-box">
-         <img [src]="getJoinIcon()" class="icon-join" />
+         <span class="icon icon-join" [ngClass]="getJoinIcon()"></span>
          <span class="icon icon-arrow2_down arrow" (click)="onToggleJoinsItems()" ></span>
       </div>
       <st-dropdown-menu

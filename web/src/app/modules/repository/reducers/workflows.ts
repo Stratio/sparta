@@ -333,6 +333,7 @@ export function reducer(state: State = initialState, action: any): State {
       case workflowActions.DUPLICATE_WORKFLOW_COMPLETE: {
          return {
             ...state,
+            openedWorkflow: null,
             showModal: false
          };
       }

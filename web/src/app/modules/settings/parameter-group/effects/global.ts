@@ -37,7 +37,6 @@ export class GlobalParametersEffect {
       .pipe(map((action: any) => action.payload))
       .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.global)))
       .pipe(switchMap(([param, state]) => {
-          console.log('******');
          const { allVariables } = state;
          const { name: oldName, value: { name, value } } = param;
          const index = allVariables.findIndex(env => env.name === oldName);

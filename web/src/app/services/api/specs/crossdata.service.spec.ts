@@ -55,5 +55,27 @@ describe('[CrossdataService]', () => {
          expect(req.request.method).toBe('GET');
          req.flush('OK');
       });
+
+      it('should can get database tables', () => {
+         const url = 'crossdata/tables';
+         service.getCrossdataTables().subscribe(response => {
+            expect(response).toEqual('OK');
+         });
+         const req = http.expectOne(url);
+         expect(req.request.method).toBe('GET');
+         req.flush('OK');
+      });
+
+
+      it('should can get crossdata table info', () => {
+         const tableName = 'table';
+         const url = 'crossdata/tables/info';
+         service.getCrossdataTableInfo(tableName).subscribe(response => {
+            expect(response).toEqual('OK');
+         });
+         const req = http.expectOne(url);
+         expect(req.request.method).toBe('POST');
+         req.flush('OK');
+      });
   });
 });

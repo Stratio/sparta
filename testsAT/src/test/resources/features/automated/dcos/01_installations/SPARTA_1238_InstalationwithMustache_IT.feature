@@ -18,7 +18,9 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
         |   $.name                  |  UPDATE    | ${ID_POLICY_ZK:-spartazk}       | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
+        |   $.id                    |  UPDATE    | ${ID_POLICY_ZK:-spartazk}     | n/a |
+        |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
+        |   $.services[0].version   |  UPDATE    | ${ZK-GOSEC-VERSION:-1.0.0}      | n/a |
     Then the service response status must be '201'
 
   #Add Postgres Policy
@@ -31,6 +33,8 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
       |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
       |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
       |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}      | n/a |
+      |   $.services[0].version      |  UPDATE    | ${POSTGRES-GOSEC-VERSION:-1.0.3}      | n/a |
+
     Then the service response status must be '201'
 
   @runOnEnv(STRATIO_SPARTA_VERSION=2.0.0)
@@ -100,7 +104,7 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
       |   $.Postgres.database                                       |  UPDATE     |  ${POSTGRES_DATABASE:-postgres}                                                   |n/a |
       |   $.Postgres.user                                           |  UPDATE     |  ${POSTGRES_USER:-sparta-server}                                                   |n/a |
       |   $.Postgres.schema                                         |  UPDATE     |  ${POSTGRES_SCHEMA:-postgres}                                                   |n/a |
-      |   $.GoSec.enable_dyplon_facade                              |  REPLACE    | ${DYPLON_FACADE_ENABLED:-false}                                          |boolean |
+      |   $.GoSec.enable_dyplon_facade                              |  REPLACE    |  ${DYPLON_FACADE_ENABLED:-false}                                          |boolean |
 
   Scenario: [SPARTA_1161][05] Sparta Installation with Mustache in DCOS
    #Copy DEPLOY JSON to DCOS-CLI
@@ -126,7 +130,9 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_orion.json' as 'json' with:
-      |   $.id                    |  UPDATE    | spartaserver     | n/a |
-      |   $.name                  |  UPDATE    | spartaserver     | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.id                       |  UPDATE    | ${ID_POLICY_SP:-spartaserver}   | n/a |
+      |   $.name                     |  UPDATE    | ${ID_POLICY_SP:-spartaserver}    | n/a |
+      |   $.users[0]                 |  UPDATE    | ${DCOS_SERVICE_NAME}            | n/a |
+      |   $.services[0].version      |  UPDATE    | ${SP-GOSEC-VERSION:-2.4.0}      | n/a |
+      |   $.services[1].version      |  UPDATE    | ${SP-GOSEC-VERSION:-2.4.0}      | n/a |
     Then the service response status must be '201'

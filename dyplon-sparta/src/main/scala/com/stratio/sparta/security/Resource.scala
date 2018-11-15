@@ -19,6 +19,10 @@ case object ConfigurationResource extends ResourceType{
   override def name(): String = "Configuration"
 }
 
+case object DashboardResource extends ResourceType{
+  override def name(): String = "Dashboard"
+}
+
 case object FilesResource extends ResourceType{
   override def name(): String = "Files"
 }

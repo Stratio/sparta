@@ -1,18 +1,24 @@
 {
-  "id": "sparta_policy",
-  "name": "sparta_policy",
+  "id": "spartapolicy",
+  "name": "spartapolicy",
   "users": [
     {
       "id": "sparta-server",
       "name": "sparta-server",
       "email": "sparta-server@demo.stratio.com",
       "custom": false
+    },
+    {
+      "id": "admin",
+      "name": "admin ",
+      "email": "admin@demo.stratio.com",
+      "custom": false
     }
   ],
   "groups": [],
   "services": [
     {
-      "type": "sparta",
+      "type": "Sparta",
       "instancesAcl": [
         {
           "instances": [
@@ -26,50 +32,11 @@
               "name": "*",
               "recursive": true,
               "actions": [
-                "View",
                 "Create",
-                "Delete",
                 "Edit",
+                "View",
+                "Delete",
                 "Status"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "Template",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "View",
-                "Create",
-                "Delete",
-                "Edit"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "Workflows",
-              "name": "/home",
-              "recursive": true,
-              "actions": [
-                "View",
-                "Create",
-                "Delete",
-                "Edit",
-                "Status"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "GlobalParameters",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "View",
-                "Create",
-                "Delete",
-                "Edit",
-                "Upload",
-                "Download"
               ],
               "allActions": []
             },
@@ -83,35 +50,41 @@
               "allActions": []
             },
             {
-              "resourceType": "Groups",
+              "resourceType": "GlobalParameters",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Edit",
+                "Delete",
+                "Upload",
+                "View",
+                "Download",
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Workflows",
               "name": "/home",
               "recursive": true,
               "actions": [
                 "View",
+                "Delete",
+                "Status",
+                "Edit",
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Template",
+              "name": "*",
+              "recursive": true,
+              "actions": [
                 "Create",
-                "Delete",
-                "Edit"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "Files",
-              "name": "*",
-              "recursive": true,
-              "actions": [
+                "Edit",
                 "View",
-                "Delete",
-                "Upload",
-                "Download"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "MlModels",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "View"
+                "Delete"
               ],
               "allActions": []
             },
@@ -126,20 +99,54 @@
               "allActions": []
             },
             {
+              "resourceType": "Groups",
+              "name": "/home",
+              "recursive": true,
+              "actions": [
+                "Edit",
+                "View",
+                "Delete",
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Files",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Delete",
+                "Upload",
+                "View",
+                "Download"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "MlModels",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "View"
+              ],
+              "allActions": []
+            },
+            {
               "resourceType": "ParameterList",
               "name": "*",
               "recursive": true,
               "actions": [
                 "View",
-                "Create",
                 "Delete",
+                "Create",
                 "Edit"
               ],
               "allActions": []
             }
           ]
         }
-      ]
+      ],
+      "version": "2.4.0"
     },
     {
       "type": "crossdata2",
@@ -161,17 +168,17 @@
               "allActions": []
             },
             {
-              "resourceType": "database",
+              "resourceType": "table",
               "name": "*",
               "recursive": true,
               "actions": [
-                "Read",
-                "Write",
-                "Create",
-                "Delete",
-                "Manage",
+                "Unknown",
+                "ViewPolicies",
                 "Audit",
-                "ViewPolicies"
+                "Write",
+                "Read",
+                "Other",
+                "Manage"
               ],
               "allActions": []
             },
@@ -180,31 +187,33 @@
               "name": "*",
               "recursive": true,
               "actions": [
-                "Write",
-                "Manage",
                 "Audit",
-                "ViewPolicies"
+                "Write",
+                "ViewPolicies",
+                "Manage"
               ],
               "allActions": []
             },
             {
-              "resourceType": "table",
+              "resourceType": "database",
               "name": "*",
               "recursive": true,
               "actions": [
-                "Read",
-                "Write",
-                "Other",
-                "Manage",
+                "Create",
                 "Audit",
-                "ViewPolicies"
+                "ViewPolicies",
+                "Write",
+                "Manage",
+                "Read",
+                "Delete"
               ],
               "allActions": []
             }
           ]
         }
       ],
-      "version":"1.0"
+      "version": "2.4.0"
     }
-  ]
+  ],
+  "tenant": "dyplon_system_tenant"
 }

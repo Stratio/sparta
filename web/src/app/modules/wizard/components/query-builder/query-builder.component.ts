@@ -54,14 +54,13 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
    }
 
    public joinsItems: Array<any> = [
-      { label: 'Inner', value: 'INNER' },
-      { label: 'Left', value: 'LEFT'},
-      { label: 'Left only', value: 'LEFT_ONLY'},
-      { label: 'Right', value: 'RIGHT' },
-      { label: 'Right only', value: 'RIGHT_ONLY' },
-      /* { label: 'Left right only', value: 'LEFT_RIGHT_ONLY' }, */
-      { label: 'Full', value: 'FULL'},
-      { label: 'Cross', value: 'CROSS' },
+      { label: 'Inner', value: 'icon-inner-join' },
+      { label: 'Left', value: 'icon-left-join' },
+      { label: 'Left only', value: 'icon-left-only-join' },
+      { label: 'Right', value: 'icon-right-join' },
+      { label: 'Right only', value: 'icon-right-only-join' },
+      { label: 'Full', value: 'icon-full-join' },
+      { label: 'Cross', value: 'icon-circle-cross' },
       { label: 'Remove Join', value: 'removeJoin', icon: 'icon-trash' }
    ];
 
@@ -81,7 +80,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
          const alias = ['t1', 't2'];
          this.inputSchemas = schemas.inputs
             .filter(input => !(input.error && input.error.message))
-            .map((input, index) =>  ({
+            .map((input, index) => ({
                name: input.result.step,
                alias: alias[index],
                fields: input.result.schema.fields.map(field => ({
@@ -98,9 +97,9 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
             } else {
                this._store.dispatch(new queryBuilderActions.InitQueryBuilder(this.inputSchemas));
             }
-         } else if (configuration.backup  && _isEqual(this.inputSchemas, configuration.backup.inputSchemaFields)) {
+         } else if (configuration.backup && _isEqual(this.inputSchemas, configuration.backup.inputSchemaFields)) {
             this._store.dispatch(new queryBuilderActions.AddBackup(configuration.backup));
-         }  else {
+         } else {
             this._store.dispatch(new queryBuilderActions.InitQueryBuilder(this.inputSchemas));
          }
       } else {
@@ -171,7 +170,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
          });
 
       this._store.select(fromQueryBuilder.getInputSchemaFields)
-         .subscribe((inputSchemas:  Array<InputSchema>) => {
+         .subscribe((inputSchemas: Array<InputSchema>) => {
             this.inputSchemas = inputSchemas;
          });
 
@@ -190,13 +189,13 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
       } else {
          this._store.dispatch(new queryBuilderActions.ChangeJoinType(join.value));
       }
-      if (dropDown.querySelector('.icon.icon-check') ) {
+      if (dropDown.querySelector('.icon.icon-check')) {
          dropDown.removeChild(dropDown.querySelector('.icon.icon-check'));
       }
    }
 
    getJoinIcon() {
-      return `assets/images/JOIN_${this.join.type}White.png`;
+      return this.join.type === 'INNER' ? 'icon-inner-join' : this.join.type;
    }
 
    onToggleJoinsItems() {
@@ -260,7 +259,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
 
    getJoinArrowCoordinates() {
       if (!this.join || !this.join.joins) {
-        return;
+         return;
       }
       const joinPaths = [];
       const inputSchemasOrder = {};

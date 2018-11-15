@@ -140,12 +140,13 @@ class WorkflowPostgresDao extends WorkflowDao {
     log.debug(s"Creating workflow version $workflowVersion")
     (for {
       workflowById <- findByID(workflowVersion.id)
-      workflowsGroup <- if (workflowById.isEmpty)
-        throw new ServerException(s"Workflow with id ${
-          workflowVersion.id
-        } does not exist.")
-      else
-        findWorkflowsVersion(workflowVersion.name.getOrElse(workflowById.get.name), workflowById.get.group.id.getOrElse("N/A"))
+      workflowsGroup <- if (workflowById.isEmpty) {
+        throw new ServerException(s"Workflow with id ${workflowVersion.id} does not exist.")
+      } else {
+        val targetWorkflowName = workflowVersion.name.getOrElse(workflowById.get.name)
+        val targetWorkflowVersion = workflowVersion.group.flatMap(_.id).orElse(workflowById.flatMap(_.group.id)).getOrElse("N/A")
+        findWorkflowsVersion(targetWorkflowName, targetWorkflowVersion)
+      }
     } yield {
 
       workflowById.map{ originalWorkflow =>
