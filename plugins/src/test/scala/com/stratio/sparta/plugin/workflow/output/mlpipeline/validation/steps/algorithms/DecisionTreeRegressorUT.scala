@@ -6,33 +6,29 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
 
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
-import org.apache.spark.ml.feature.LabeledPoint
-import org.apache.spark.ml.linalg.Vectors
+import org.apache.spark.ml.linalg.{Vector, Vectors}
+import org.apache.spark.mllib.random.{ExponentialGenerator, WeibullGenerator}
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
+import scala.util.Random
+
 @RunWith(classOf[JUnitRunner])
-class DecisionTreeRegressorUT extends GenericPipelineStepTest {
+class AFTSurvivalRegressionUT extends GenericPipelineStepTest {
 
 
-  override def stepName: String = "decisiontreeregressor"
+  override def stepName: String = "aftsurvivalregression"
 
-  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/decisiontreeregressor/"
+  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/aftsurvivalregression/"
 
   override def trainingDf: DataFrame = {
-    def generateCategoricalDataPoints(): Array[LabeledPoint] = {
-      val arr = new Array[LabeledPoint](1000)
-      for (i <- 0 until 1000) {
-        if (i < 600) {
-          arr(i) = new LabeledPoint(1.0, Vectors.dense(0.0, 1.0))
-        } else {
-          arr(i) = new LabeledPoint(0.0, Vectors.dense(1.0, 0.0))
-        }
-      }
-      arr
-    }
-
-    sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateCategoricalDataPoints()))
+    sparkSession.createDataFrame(Seq(
+      (1.218, 1.0, Vectors.dense(1.560, -0.605)),
+      (2.949, 0.0, Vectors.dense(0.346, 2.158)),
+      (3.627, 0.0, Vectors.dense(1.380, 0.231)),
+      (0.273, 1.0, Vectors.dense(0.520, 1.151)),
+      (4.199, 0.0, Vectors.dense(0.795, -0.226))
+    )).toDF("label", "censor", "features")
   }
 }

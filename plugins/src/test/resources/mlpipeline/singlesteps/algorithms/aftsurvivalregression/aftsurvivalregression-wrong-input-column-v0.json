@@ -3,7 +3,7 @@
     "configuration": {
       "aggregationDepth": "2",
       "censorCol": "censor",
-      "featuresCol": "features",
+      "featuresCol": "featuresnonexisting",
       "fitIntercept": true,
       "labelCol": "label",
       "maxIter": "100",
