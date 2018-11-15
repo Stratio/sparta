@@ -7,12 +7,11 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation
 
 import java.io.{Serializable => JSerializable}
-
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
+import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
 import org.apache.spark.sql.DataFrame
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, ShouldMatchers}
@@ -57,21 +56,10 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
     def generateInputDf(): DataFrame = trainingDf
   }
 
-  trait WithFilesystemAndAllSerializationProperties {
+  trait WithFilesystemProperties {
     var properties: Map[String, JSerializable] = Map(
       "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
-      "path" -> JsoneyString("/tmp/pipeline_tests"),
-      "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.SPARK_AND_MLEAP.toString)
-
-    )
-  }
-
-  trait WithFilesystemAndSparkSerializationProperties {
-    var properties: Map[String, JSerializable] = Map(
-      "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
-      "path" -> JsoneyString("/tmp/pipeline_tests"),
-    "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.SPARK.toString)
-
+      "path" -> JsoneyString("/tmp/pipeline_tests")
     )
   }
 
@@ -110,25 +98,8 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
    => Correct Pipeline construction with default params
   ------------------------------------------------------------- */
 
-  s"$stepName default configuration values" should "provide a valid SparkMl and MLeap serialized pipeline" in
-    new WithFilesystemAndAllSerializationProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepDefaultParamsPath)))
-
-      // Validation step mut be done correctly
-      val validation = Try {
-        validateMlPipelineStep(properties)
-      }
-      assert(validation.isSuccess)
-      assert(validation.get.valid)
-
-      val execution = Try {
-        executeStepAndUsePipeline(generateInputDf(), properties)
-      }
-      assert(execution.isSuccess)
-    }
-
   s"$stepName default configuration values" should "provide a valid SparkMl pipeline" in
-    new WithFilesystemAndSparkSerializationProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
+    new WithFilesystemProperties with WithExampleData with WithExecuteStep with WithValidateStep with ReadDescriptorResource {
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepDefaultParamsPath)))
 
       // Validation step mut be done correctly
@@ -143,35 +114,15 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
       }
       assert(execution.isSuccess)
     }
+
 
   /* -------------------------------------------------------------
    => Correct Pipeline construction with empty params
   ------------------------------------------------------------- */
 
-  s"$stepName with empty configuration values" should "provide a valid SparkMl and MLeap serialized pipeline using default values" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemAndAllSerializationProperties {
-
-      assume(emptyParamsAvailable)
-
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepEmptyParamsPath)))
-
-      // Validation step mut be done correctly
-      val validation = Try {
-        validateMlPipelineStep(properties)
-      }
-      assert(validation.isSuccess)
-      assert(validation.get.valid)
-      val execution = Try {
-        executeStepAndUsePipeline(generateInputDf(), properties)
-      }
-      assert(execution.isSuccess)
-
-    }
-
   s"$stepName with empty configuration values" should "provide a valid SparkMl pipeline using default values" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemAndSparkSerializationProperties {
+      with WithFilesystemProperties {
 
       assume(emptyParamsAvailable)
 
@@ -183,6 +134,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
       }
       assert(validation.isSuccess)
       assert(validation.get.valid)
+
       val execution = Try {
         executeStepAndUsePipeline(generateInputDf(), properties)
       }
@@ -197,7 +149,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
 
   s"$stepName with wrong configuration params" should "provide an invalid SparkMl pipeline" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemAndAllSerializationProperties {
+      with WithFilesystemProperties {
 
       assume(wrongParamsAvailable)
 
@@ -210,6 +162,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
       assert(validation.isSuccess)
       assert(!validation.get.valid)
       assert(validation.get.messages.last.message.contains(" has an invalid value. Details:"))
+
       val execution = Try {
         executeStepAndUsePipeline(generateInputDf(), properties)
       }
@@ -225,7 +178,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
 
   s"$stepName with invalid input column" should "provide an invalid SparkMl pipeline" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemAndSparkSerializationProperties {
+      with WithFilesystemProperties {
 
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(stepWrongInputColumnPath)))
 
@@ -235,6 +188,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
       }
       assert(validation.isSuccess)
       assert(validation.get.valid)
+
       val execution = Try {
         executeStepAndUsePipeline(generateInputDf(), properties)
       }
