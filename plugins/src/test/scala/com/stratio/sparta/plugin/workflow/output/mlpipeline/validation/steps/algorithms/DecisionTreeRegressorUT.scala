@@ -6,13 +6,10 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.algorithms
 
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
-import org.apache.spark.ml.linalg.{Vector, Vectors}
-import org.apache.spark.mllib.random.{ExponentialGenerator, WeibullGenerator}
+import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-import scala.util.Random
 
 @RunWith(classOf[JUnitRunner])
 class AFTSurvivalRegressionUT extends GenericPipelineStepTest {

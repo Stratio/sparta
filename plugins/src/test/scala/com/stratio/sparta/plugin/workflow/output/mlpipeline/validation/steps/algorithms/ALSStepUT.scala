@@ -12,7 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.{GenericPipelineStepTest, GenericPipelineStepTestMLeapErrors}
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTestMLeapErrors
 import org.apache.spark.ml.recommendation.ALS.Rating
 
 import scala.util.Random

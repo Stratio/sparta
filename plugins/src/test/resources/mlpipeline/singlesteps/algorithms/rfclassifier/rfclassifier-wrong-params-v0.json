@@ -5,7 +5,7 @@
       "checkpointInterval": "10",
       "featureSubsetStrategy": "auto",
       "featuresCol": "features",
-      "impurity": "gini",
+      "impurity": "mini",
       "labelCol": "label",
       "maxBins": "32",
       "maxDepth": "5",
