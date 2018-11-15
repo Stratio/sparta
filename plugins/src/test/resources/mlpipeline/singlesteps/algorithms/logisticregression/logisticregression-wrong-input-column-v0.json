@@ -4,25 +4,35 @@
       "configuration": {
         "aggregationDepth": "2",
         "elasticNetParam": "0.0",
-        "featuresCol": "features",
+        "family": "auto",
+        "featuresCol": "notExists",
         "fitIntercept": true,
         "labelCol": "label",
+        "lowerBoundsOnCoefficients": "",
+        "lowerBoundsOnIntercepts": "",
         "maxIter": "100",
-        "predictionCol": "",
+        "predictionCol": "prediction",
+        "probabilityCol": "probability",
+        "rawPredictionCol": "rawPrediction",
         "regParam": "0.0",
-        "solver": "auto",
         "standardization": true,
+        "threshold": "0.5",
+        "thresholds": "",
         "tol": "1.0E-6",
+        "upperBoundsOnCoefficients": "",
+        "upperBoundsOnIntercepts": "",
         "weightCol": ""
       },
       "supportedEngines": [
         "Batch"
       ],
-      "classPrettyName": "LinearRegression",
-      "className": "org.apache.spark.ml.regression.LinearRegression",
+      "classPrettyName": "LogisticRegression",
+      "className": "org.apache.spark.ml.classification.LogisticRegression",
       "arity": [
         "NullaryToNullary",
-        "UnaryToNullary"
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
       ],
       "stepType": "Algorithm",
       "writer": {
@@ -35,12 +45,12 @@
         "uniqueConstraintFields": null,
         "partitionBy": null
       },
-      "name": "LinearRegression",
+      "name": "LogisticRegression",
       "created": true,
       "uiConfiguration": {
         "position": {
-          "x": 724,
-          "y": 330
+          "x": 502,
+          "y": 156
         }
       },
       "createdNew": false,
