@@ -3,7 +3,7 @@
     {
       "configuration": {
         "inputCol": "words",
-        "n": "2",
+        "n": "error",
         "outputCol": ""
       },
       "supportedEngines": [

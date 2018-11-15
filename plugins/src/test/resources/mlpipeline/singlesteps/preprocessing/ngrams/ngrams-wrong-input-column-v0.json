@@ -2,7 +2,7 @@
   "nodes": [
     {
       "configuration": {
-        "inputCol": "words",
+        "inputCol": "notExists",
         "n": "2",
         "outputCol": ""
       },
