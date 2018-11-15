@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "cacheNodeIds": null,
+        "checkpointInterval": "10",
+        "featuresCol": "features",
+        "impurity": "",
+        "labelCol": "label",
+        "lossType": "",
+        "maxBins": "",
+        "maxDepth": "",
+        "maxIter": "",
+        "maxMemoryInMB": "",
+        "minInfoGain": "",
+        "minInstancesPerNode": "",
+        "predictionCol": "",
+        "probabilityCol": "",
+        "rawPredictionCol": "",
+        "seed": "",
+        "stepSize": "",
+        "subsamplingRate": "",
+        "thresholds": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "GBTClassifier",
+      "className": "org.apache.spark.ml.classification.GBTClassifier",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Algorithm",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "GBTClassifier",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 1050,
+          "y": 358
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": -17,
+    "y": -10
+  }
+}
