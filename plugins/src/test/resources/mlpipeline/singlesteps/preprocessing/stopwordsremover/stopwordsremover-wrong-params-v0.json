@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "caseSensitive": "error",
+        "inputCol": "raw",
+        "outputCol": "filtered",
+        "stopWords": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "StopWordsRemover",
+      "className": "org.apache.spark.ml.feature.StopWordsRemover",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "StopWordsRemover",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 581,
+          "y": 267
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 4,
+    "y": 0
+  }
+}
