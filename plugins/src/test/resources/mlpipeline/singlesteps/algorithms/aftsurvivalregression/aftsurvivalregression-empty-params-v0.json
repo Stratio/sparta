@@ -1,28 +1,20 @@
 {
   "nodes": [{
     "configuration": {
-      "cacheNodeIds": false,
-      "checkpointInterval": "10",
-      "featureSubsetStrategy": "auto",
-      "featuresCol": "features",
-      "impurity": "gini",
-      "labelCol": "label",
-      "maxBins": "32",
-      "maxDepth": "5",
-      "maxMemoryInMB": "256",
-      "minInfoGain": "0.0",
-      "minInstancesPerNode": "1",
-      "numTrees": "20",
-      "predictionCol": "prediction",
-      "probabilityCol": "probability",
-      "rawPredictionCol": "rawPrediction",
-      "seed": "207336481",
-      "subsamplingRate": "1.0",
-      "thresholds": ""
+      "aggregationDepth": "",
+      "censorCol": "",
+      "featuresCol": "",
+      "fitIntercept": "",
+      "labelCol": "",
+      "maxIter": "",
+      "predictionCol": "",
+      "quantileProbabilities": "",
+      "quantilesCol": "",
+      "tol": ""
     },
     "supportedEngines": ["Batch"],
-    "classPrettyName": "RandomForestClassifier",
-    "className": "org.apache.spark.ml.classification.RandomForestClassifier",
+    "classPrettyName": "AFTSurvivalRegression",
+    "className": "org.apache.spark.ml.regression.AFTSurvivalRegression",
     "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
     "stepType": "Algorithm",
     "writer": {
@@ -35,12 +27,12 @@
       "uniqueConstraintFields": null,
       "partitionBy": null
     },
-    "name": "RandomForestClassifier",
+    "name": "AFTSurvivalRegression",
     "created": true,
     "uiConfiguration": {
       "position": {
-        "x": 533,
-        "y": 153
+        "x": 600,
+        "y": 221
       }
     },
     "createdNew": false,
@@ -50,7 +42,7 @@
   "edges": [],
   "svgPosition": {
     "k": 1,
-    "x": -87,
-    "y": -41
+    "x": -2,
+    "y": 3
   }
 }
