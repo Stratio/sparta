@@ -1,0 +1,51 @@
+{
+  "nodes": [{
+    "configuration": {
+      "cacheNodeIds": false,
+      "checkpointInterval": "10",
+      "featuresCol": "featuresnonexisting",
+      "impurity": "variance",
+      "labelCol": "label",
+      "maxBins": "32",
+      "maxDepth": "5",
+      "maxMemoryInMB": "256",
+      "minInfoGain": "0.0",
+      "minInstancesPerNode": "1",
+      "predictionCol": "prediction",
+      "seed": "926680331",
+      "varianceCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "DecisionTreeRegressor",
+    "className": "org.apache.spark.ml.regression.DecisionTreeRegressor",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "DecisionTreeRegressor",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 310,
+        "y": 165
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
