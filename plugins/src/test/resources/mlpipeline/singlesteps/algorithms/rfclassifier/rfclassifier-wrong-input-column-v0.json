@@ -4,7 +4,7 @@
       "cacheNodeIds": false,
       "checkpointInterval": "10",
       "featureSubsetStrategy": "auto",
-      "featuresCol": "features",
+      "featuresCol": "featuresnonexisting",
       "impurity": "gini",
       "labelCol": "label",
       "maxBins": "32",

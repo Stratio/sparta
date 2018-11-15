@@ -8,8 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.al
 import scala.util.Random
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.GenericPipelineStepTest
 import org.apache.spark.ml.feature.LabeledPoint
-import org.apache.spark.ml.linalg.{DenseVector, SparseVector, Vectors}
-import org.apache.spark.sql.types._
+import org.apache.spark.ml.linalg.{DenseVector, Vectors}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
