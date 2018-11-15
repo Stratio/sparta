@@ -1,0 +1,49 @@
+{
+  "nodes": [{
+    "configuration": {
+      "blockSize": "",
+      "featuresCol": "",
+      "initialWeights": "",
+      "labelCol": "",
+      "layers": "",
+      "maxIter": "",
+      "predictionCol": "",
+      "seed": "",
+      "solver": "",
+      "stepSize": "",
+      "tol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "MultilayerPerceptronClassifier",
+    "className": "org.apache.spark.ml.classification.MultilayerPerceptronClassifier",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "MultilayerPerceptronClassifier",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 536,
+        "y": 148
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}
