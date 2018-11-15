@@ -7,7 +7,6 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
@@ -140,7 +139,7 @@ class MlPipelineUnsupportedStagesTests extends TemporalSparkContext with Matcher
   "BucketedRandomProjectionLSH" should "not be supported with mleap serialization" in
     new ReadDescriptorResource with WithExampleData with WithMandatoryProperties with WithValidateStep {
       properties = properties.updated(
-        "pipeline", JsoneyString(getJsonDescriptor("preprocessing/bucketedrandomprojectionlsh/bucketed-random-default-params-v0.json"))
+        "pipeline", JsoneyString(getJsonDescriptor("preprocessing/bucketedrandomprojectionlsh/bucketed-random-projection-lsh-default-params-v0.json"))
       ).updated("serializationLib", JsoneyString(MlPipelineSerializationLibs.MLEAP.toString))
 
       lazy val validationResult: ErrorValidations = validateMlPipelineStep(properties)
@@ -154,7 +153,7 @@ class MlPipelineUnsupportedStagesTests extends TemporalSparkContext with Matcher
   "BucketedRandomProjectionLSH" should "not be supported with spark and mleap serialization" in
     new ReadDescriptorResource with WithExampleData with WithMandatoryProperties with WithValidateStep {
       properties = properties.updated(
-        "pipeline", JsoneyString(getJsonDescriptor("preprocessing/bucketedrandomprojectionlsh/bucketed-random-default-params-v0.json"))
+        "pipeline", JsoneyString(getJsonDescriptor("preprocessing/bucketedrandomprojectionlsh/bucketed-random-projection-lsh-default-params-v0.json"))
       ).updated("serializationLib", JsoneyString(MlPipelineSerializationLibs.SPARK_AND_MLEAP.toString))
 
       lazy val validationResult: ErrorValidations = validateMlPipelineStep(properties)
@@ -168,7 +167,7 @@ class MlPipelineUnsupportedStagesTests extends TemporalSparkContext with Matcher
   "BucketedRandomProjectionLSH" should "be supported with spark serialization" in
     new ReadDescriptorResource with WithExampleData with WithMandatoryProperties with WithValidateStep {
       properties = properties.updated(
-        "pipeline", JsoneyString(getJsonDescriptor("preprocessing/bucketedrandomprojectionlsh/bucketed-random-default-params-v0.json"))
+        "pipeline", JsoneyString(getJsonDescriptor("preprocessing/bucketedrandomprojectionlsh/bucketed-random-projection-lsh-default-params-v0.json"))
       ).updated("serializationLib", JsoneyString(MlPipelineSerializationLibs.SPARK.toString))
 
       lazy val validationResult: ErrorValidations = validateMlPipelineStep(properties)

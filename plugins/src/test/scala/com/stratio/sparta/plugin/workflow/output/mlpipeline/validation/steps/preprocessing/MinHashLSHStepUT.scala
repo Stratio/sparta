@@ -18,20 +18,6 @@ class MinHashLSHStepUT extends GenericPipelineStepTest {
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/minhashlsh/"
 
-//  val dfA = sparkSession.createDataFrame(Seq(
-//    (0, Vectors.sparse(6, Seq((0, 1.0), (1, 1.0), (2, 1.0)))),
-//    (1, Vectors.sparse(6, Seq((2, 1.0), (3, 1.0), (4, 1.0)))),
-//    (2, Vectors.sparse(6, Seq((0, 1.0), (2, 1.0), (4, 1.0))))
-//  )).toDF("id", "features")
-//
-//  val dfB = sparkSession.createDataFrame(Seq(
-//    (3, Vectors.sparse(6, Seq((1, 1.0), (3, 1.0), (5, 1.0)))),
-//    (4, Vectors.sparse(6, Seq((2, 1.0), (3, 1.0), (5, 1.0)))),
-//    (5, Vectors.sparse(6, Seq((1, 1.0), (2, 1.0), (4, 1.0))))
-//  )).toDF("id", "features")
-//
-//  val key = Vectors.sparse(6, Seq((1, 1.0), (3, 1.0)))
-
   override def trainingDf: DataFrame =sparkSession.createDataFrame(Seq(
     (0, Vectors.sparse(6, Seq((0, 1.0), (1, 1.0), (2, 1.0)))),
     (1, Vectors.sparse(6, Seq((2, 1.0), (3, 1.0), (4, 1.0)))),
