@@ -12,27 +12,22 @@ import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
+
 @RunWith(classOf[JUnitRunner])
-class DecisionTreeRegressorUT extends GenericPipelineStepTest {
+class LinearRegressionUT extends GenericPipelineStepTest {
 
+  override def stepName: String = "linearregression"
 
-  override def stepName: String = "decisiontreeregressor"
-
-  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/decisiontreeregressor/"
+  override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/linearregression/"
 
   override def trainingDf: DataFrame = {
-    def generateCategoricalDataPoints(): Array[LabeledPoint] = {
-      val arr = new Array[LabeledPoint](1000)
-      for (i <- 0 until 1000) {
-        if (i < 600) {
-          arr(i) = new LabeledPoint(1.0, Vectors.dense(0.0, 1.0))
-        } else {
-          arr(i) = new LabeledPoint(0.0, Vectors.dense(1.0, 0.0))
-        }
-      }
-      arr
+
+    val data = (0.0 to 9.0 by 1) // create a collection of Doubles
+      .map(n => (n, n)) // make it pairs
+      .map { case (label, features) =>
+      LabeledPoint(label, Vectors.dense(features)) // create labeled points of dense vectors
     }
 
-    sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateCategoricalDataPoints()))
+    sparkSession.createDataFrame(data).toDF()
   }
 }
