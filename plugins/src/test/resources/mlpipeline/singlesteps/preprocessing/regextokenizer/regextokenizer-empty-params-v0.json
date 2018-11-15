@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "gaps": true,
+        "inputCol": "sentence",
+        "minTokenLength": "",
+        "outputCol": "",
+        "pattern": "",
+        "toLowercase": true
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "RegexTokenizer",
+      "className": "org.apache.spark.ml.feature.RegexTokenizer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "RegexTokenizer",
+      "hasErrors": false,
+      "errors": [
+        {
+          "propertyName": "inputCol",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCol",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 293.0402448982657,
+          "y": 211.773019166504
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1.086489325159504,
+    "x": 195.61490207590748,
+    "y": -43.08912468120565
+  }
+}

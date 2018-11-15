@@ -34,7 +34,7 @@ class ImputerStepUT extends GenericPipelineStepTest {
 
   s"$stepName with wrong number of  output columns" should "provide an invalid SparkMl pipeline" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
+      with WithFilesystemAndAllSerializationProperties{
       val filePath = s"${resourcesPath}imputer-wrong-output-columns-v0.json"
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(filePath)))
 
