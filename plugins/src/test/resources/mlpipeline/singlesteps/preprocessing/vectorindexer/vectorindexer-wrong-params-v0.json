@@ -3,8 +3,8 @@
     {
       "configuration": {
         "inputCol": "features",
-        "maxCategories": "",
-        "outputCol": ""
+        "maxCategories": "-20",
+        "outputCol": "indexed"
       },
       "supportedEngines": [
         "Batch"
