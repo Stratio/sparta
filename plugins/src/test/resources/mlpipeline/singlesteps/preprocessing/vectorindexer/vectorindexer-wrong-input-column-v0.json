@@ -2,9 +2,9 @@
   "nodes": [
     {
       "configuration": {
-        "inputCol": "features",
-        "maxCategories": "",
-        "outputCol": ""
+        "inputCol": "notexists",
+        "maxCategories": "20",
+        "outputCol": "indexed"
       },
       "supportedEngines": [
         "Batch"
