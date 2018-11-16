@@ -63,6 +63,8 @@ class MlPipelineOutputStep(
   // => Pipeline stages not supported by mleap
   lazy val forbbidenStages: Seq[String] = MlPipelineFilteredStages.values.toSeq.map(_.toString)
 
+  private val errors_separator: String = "---===###SPARK-ML-PIPELINES-ERRORS-SEPARATOR###===---"
+
   def mlModelRepClient: Try[MlModelsRepositoryClient] = Try {
     MlPipelineOutputStep.getMlRepositoryClient(
       xDSession,
