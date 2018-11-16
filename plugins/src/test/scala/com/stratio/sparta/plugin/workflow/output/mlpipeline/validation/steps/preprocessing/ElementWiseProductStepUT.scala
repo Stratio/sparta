@@ -212,7 +212,7 @@ class ElementWiseProductStepUT extends TemporalSparkContext with ShouldMatchers 
       assert(!validation.get.valid)
       val errorMessages: Seq[String] = validation.get.messages.map(_.message)
       assert(errorMessages.exists(_ contains "scalingVec"))
-      assert(errorMessages.exists(_ contains "has an invalid value"))
+      assert(errorMessages.exists(_ contains "Values must be"))
     }
 
 

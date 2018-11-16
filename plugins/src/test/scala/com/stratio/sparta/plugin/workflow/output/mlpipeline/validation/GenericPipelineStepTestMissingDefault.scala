@@ -186,7 +186,7 @@ trait GenericPipelineStepTestMissingDefault extends TemporalSparkContext with Sh
       }
       assert(validation.isSuccess)
       assert(!validation.get.valid)
-      assert(validation.get.messages.last.message.contains(" has an invalid value. Details:"))
+      assert(validation.get.messages.last.message.contains(" has an invalid value. Details:")||validation.get.messages.last.message.startsWith("Wrong value type for parameter"))
 
       val execution = Try {
         executeStepAndUsePipeline(generateInputDf(), properties)

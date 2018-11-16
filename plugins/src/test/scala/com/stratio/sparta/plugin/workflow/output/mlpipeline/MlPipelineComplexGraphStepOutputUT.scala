@@ -49,7 +49,7 @@ class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with Shoul
         StructField("variety",StringType,true),
         StructField("winery",StringType,true)))
     val training: DataFrame = sparkSession.read.schema(schema).format("csv").
-      option("header","true").load(getClass.getResource("/mlpipeline/complexpipelines/wine.csv").getPath)
+      option("header","true").load(getClass.getResource("/mlpipeline/complexpipelines/data/wine.csv").getPath)
   }
 
   trait WithFilesystemProperties {
