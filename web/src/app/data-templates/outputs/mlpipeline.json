@@ -3,7 +3,7 @@
     "icon": "MlPipeline",
     "className": "MlPipelineOutputStep",
     "classPrettyName": "MlPipeline",
-    "arity": ["NullaryToNullary", "NaryToNullary"],
+    "arity": ["UnaryToNullary"],
     "supportedEngines": ["Batch"],
     "description": "Spark ML Pipeline visual builder",
     "properties": [

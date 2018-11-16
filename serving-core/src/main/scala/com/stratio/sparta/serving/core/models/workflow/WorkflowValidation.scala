@@ -296,10 +296,20 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
                                               arity: NodeArity
                                             ): WorkflowValidation =
     arity match {
+      case NullaryToUnary =>
+        combineWithAnd(
+          validateDegree(inDegree, Nullary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Unary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
       case NullaryToNary =>
         combineWithAnd(
           validateDegree(inDegree, Nullary, InvalidMessage(nodeGraph.name, InputMessage)),
           validateDegree(outDegree, Nary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case UnaryToNullary =>
+        combineWithAnd(
+          validateDegree(inDegree, Unary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nullary, InvalidMessage(nodeGraph.name, OutputMessage))
         )
       case UnaryToUnary =>
         combineWithAnd(

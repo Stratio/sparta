@@ -29,7 +29,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
   val edges = Seq(
     EdgeGraph("a", "b")
   )
-  val validPipeGraph = PipelineGraph(nodes , edges)
+  val validPipeGraph = PipelineGraph(nodes, edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
     GlobalSettings(executionMode = WorkflowExecutionMode.local),
@@ -48,7 +48,6 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     description = "whatever",
     pipelineGraph = emptyPipeGraph
   )
-
 
 
   "workflowValidation" must {
@@ -70,7 +69,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "validate correct nodes" in {
-      val pipeline = PipelineGraph(nodes , edges)
+      val pipeline = PipelineGraph(nodes, edges)
       implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyNodes
 
@@ -94,7 +93,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "validate correct edges" in {
-      val pipeline = PipelineGraph(nodes , edges)
+      val pipeline = PipelineGraph(nodes, edges)
       implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyEdges
 
@@ -117,7 +116,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       result.valid shouldBe true
     }
 
-    "validate an acyclic graph" in{
+    "validate an acyclic graph" in {
       val nodes = Seq(
         NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
         NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
@@ -130,7 +129,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("c", "d")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateGraphIsAcyclic
@@ -153,7 +152,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("d", "b")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateGraphIsAcyclic
@@ -170,7 +169,9 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
         NodeGraph("e", "", "", "", Seq(NodeArityEnum.BinaryToNary), WriterGraph()),
         NodeGraph("f", "", "", "", Seq(NodeArityEnum.NullaryToNary, NodeArityEnum.NaryToNary), WriterGraph()),
-        NodeGraph("j", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("j", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
+        NodeGraph("k", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph()),
+        NodeGraph("l", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph())
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
@@ -178,10 +179,12 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("c", "d"),
         EdgeGraph("d", "e"),
         EdgeGraph("f", "e"),
-        EdgeGraph("e", "j")
+        EdgeGraph("f", "j"),
+        EdgeGraph("e", "j"),
+        EdgeGraph("k", "l")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateArityOfNodes
@@ -189,18 +192,24 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       result.valid shouldBe true
     }
 
+
     "not validate a graph with invalid arity in input relation" in {
       val nodes = Seq(
         NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
         NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph())
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph()),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph())
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
-        EdgeGraph("b", "c")
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d"),
+        EdgeGraph("b", "d"),
+        EdgeGraph("d", "e")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateArityOfNodes
@@ -212,14 +221,18 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val nodes = Seq(
         NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
         NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph())
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph()),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph()),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph())
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
-        EdgeGraph("b", "c")
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d"),
+        EdgeGraph("d", "e")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateArityOfNodes
@@ -231,14 +244,20 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val nodes = Seq(
         NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
         NodeGraph("b", "", "", "", Seq(NodeArityEnum.BinaryToNary), WriterGraph()),
-        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NullaryToUnary), WriterGraph()),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.UnaryToNullary), WriterGraph()),
+        NodeGraph("f", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
       )
       val edges = Seq(
         EdgeGraph("a", "b"),
-        EdgeGraph("b", "c")
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d"),
+        EdgeGraph("d", "e"),
+        EdgeGraph("e", "f")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateArityOfNodes
@@ -257,7 +276,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("b", "c")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateArityOfNodes
@@ -265,7 +284,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       result.valid shouldBe false
     }
 
-    "validate a graph containing at least one Input-to-Output path" in{
+    "validate a graph containing at least one Input-to-Output path" in {
       val nodes = Seq(
         NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
         NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
@@ -280,7 +299,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("c", "d")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateExistenceCorrectPath
@@ -303,7 +322,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("d", "b")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateExistenceCorrectPath
@@ -319,8 +338,8 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
           |  "name": "/home/test1"
           |  }
         """.stripMargin
-      val invalidGroup= Group(Some("aaaaa"),"/home/test1")
-      implicit val workflow = emptyWorkflow.copy(group= invalidGroup)
+      val invalidGroup = Group(Some("aaaaa"), "/home/test1")
+      implicit val workflow = emptyWorkflow.copy(group = invalidGroup)
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val curatorFramework = mock[CuratorFramework]
@@ -353,8 +372,8 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
           |  "name": "/home//"
           |  }
         """.stripMargin
-      val invalidGroup= Group(Some("aaaaa"),"/home//")
-      implicit val workflow = emptyWorkflow.copy(group= invalidGroup)
+      val invalidGroup = Group(Some("aaaaa"), "/home//")
+      implicit val workflow = emptyWorkflow.copy(group = invalidGroup)
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val curatorFramework = mock[CuratorFramework]
@@ -380,21 +399,21 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "validate a correct workflow name" in {
-      val pipeline = PipelineGraph(nodes , edges)
-      implicit val workflow = emptyWorkflow.copy(name="workflow-correct", pipelineGraph = pipeline)
+      val pipeline = PipelineGraph(nodes, edges)
+      implicit val workflow = emptyWorkflow.copy(name = "workflow-correct", pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateName
       result.valid shouldBe true
     }
 
     "not validate an incorrect workflow name" in {
-      val pipeline = PipelineGraph(nodes , edges)
-      implicit val workflow = emptyWorkflow.copy(name="workflow-Incorrect!", pipelineGraph = pipeline)
+      val pipeline = PipelineGraph(nodes, edges)
+      implicit val workflow = emptyWorkflow.copy(name = "workflow-Incorrect!", pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateName
       result.valid shouldBe false
     }
 
     "not validate an incorrect deploy mode" in {
-      val pipeline = PipelineGraph(nodes , edges)
+      val pipeline = PipelineGraph(nodes, edges)
       val wrongSettingsModel = Settings(
         GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
@@ -411,7 +430,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "not validate an incorrect spark cores" in {
-      val pipeline = PipelineGraph(nodes , edges)
+      val pipeline = PipelineGraph(nodes, edges)
       val wrongSettingsModel = Settings(
         GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
@@ -432,7 +451,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         NodeGraph("a", "", "CubeTransformStep", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
         NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
       )
-      val pipeline = PipelineGraph(cubeNodes , edges)
+      val pipeline = PipelineGraph(cubeNodes, edges)
       val wrongSettingsModel = Settings(
         GlobalSettings(executionMode = WorkflowExecutionMode.marathon),
         StreamingSettings(
@@ -448,7 +467,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       result.valid shouldBe false
     }
 
-    "validate a graph whose step names are unique" in{
+    "validate a graph whose step names are unique" in {
       val nodes = Seq(
         NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
         NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
@@ -463,7 +482,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("c", "d")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateDuplicateNames
@@ -489,7 +508,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         EdgeGraph("e", "d")
       )
 
-      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes, edges))
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateDuplicateNames
@@ -498,10 +517,10 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "not validate Mesos constraints without a colon" in {
-      val pipeline = PipelineGraph(nodes,edges)
+      val pipeline = PipelineGraph(nodes, edges)
       val wrongSettingsModel = Settings(
         GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true, Some(JsoneyString("constraint1constraint2")))
-        )
+      )
 
       implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateMesosConstraints
@@ -510,7 +529,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "not validate Mesos constraints with more than a colon" in {
-      val pipeline = PipelineGraph(nodes,edges)
+      val pipeline = PipelineGraph(nodes, edges)
       val wrongSettingsModel = Settings(
         GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true, Some(JsoneyString("constraint1:constraint2:")))
       )
@@ -522,7 +541,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
 
     "not validate Mesos constraints with a colon at the beginning or end of the string" in {
-      val pipeline = PipelineGraph(nodes,edges)
+      val pipeline = PipelineGraph(nodes, edges)
       val wrongSettingsModel = Settings(
         GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true, Some(JsoneyString(":constraint1")))
       )
