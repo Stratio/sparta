@@ -29,7 +29,7 @@ class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with Shoul
 
   trait ReadDescriptorResource{
     def getJsonDescriptor(filename:String): String = {
-      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/" + filename)).mkString
+      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/complexpipelines/" + filename)).mkString
     }
   }
 
@@ -49,7 +49,7 @@ class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with Shoul
         StructField("variety",StringType,true),
         StructField("winery",StringType,true)))
     val training: DataFrame = sparkSession.read.schema(schema).format("csv").
-      option("header","true").load(getClass.getResource("/mlpipeline/wine.csv").getPath)
+      option("header","true").load(getClass.getResource("/mlpipeline/complexpipelines/wine.csv").getPath)
   }
 
   trait WithFilesystemProperties {
@@ -105,7 +105,10 @@ class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with Shoul
       assert(validation.isSuccess)
       assert(validation.get.valid)
 
-      executeStepAndUsePipeline(training, properties)
+      val execution = Try {
+        executeStepAndUsePipeline(training, properties)
+      }
+      assert(execution.isSuccess)
     }
 
 }

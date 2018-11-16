@@ -12,8 +12,8 @@ import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
+import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, _}
@@ -28,27 +28,16 @@ class MlPipelinePreprocessingComplexGraphUT extends TemporalSparkContext with Sh
 
   trait ReadDescriptorResource{
     def getJsonDescriptor(filename:String): String = {
-      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/" + filename)).mkString
+      Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/complexpipelines/" + filename)).mkString
     }
   }
 
   trait WithExampleData {
-    val schema = StructType(
-      List(StructField("country",StringType,true),
-        StructField("description",StringType,true),
-        StructField("designation",StringType,true),
-        StructField("points",LongType,true),
-        StructField("price",DoubleType,true),
-        StructField("province",StringType,true),
-        StructField("region_1",StringType,true),
-        StructField("region_2",StringType,true),
-        StructField("taster_name",StringType,true),
-        StructField("taster_twitter_handle",StringType,true),
-        StructField("title",StringType,true),
-        StructField("variety",StringType,true),
-        StructField("winery",StringType,true)))
-    val training: DataFrame = sparkSession.read.schema(schema).format("csv").
-      option("header","true").load(getClass.getResource("/mlpipeline/wine.csv").getPath)
+    val training: DataFrame = sparkSession.createDataFrame(Seq(
+      (0, 0.0, "Hi I heard about Spark", Vectors.sparse(5, Seq((1, 1.0), (3, 7.0))), 1, 1, 2, 3, -0.5, 2.0),
+      (1, 0.0, "I wish Java could use case classes", Vectors.dense(2.0, 0.0, 3.0, 4.0, 5.0), 2, 4, 3, 8, -0.3, Double.NaN),
+      (2, 1.0, "Logistic regression models are neat", Vectors.dense(4.0, 0.0, 0.0, 6.0, 7.0), 3, 6, 1, 9, 0.2, 8.0)
+    )).toDF("id", "sentenceLabel", "sentence", "vectorPCAIn", "num1", "num2", "num3", "num4", "bucketedData", "imputerData")
   }
 
   trait WithFilesystemProperties {
@@ -93,18 +82,40 @@ class MlPipelinePreprocessingComplexGraphUT extends TemporalSparkContext with Sh
    => Correct Pipeline construction and execution
     ------------------------------------------------------------- */
 
-  "MlPipeline" should "construct a valid SparkMl pipeline than it can be trained in a workflow" in
+  "MlPipeline" should "construct a valid SparkMl complex pre-processing pipeline than it can be trained in a workflow" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
       with WithFilesystemProperties{
 
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("complexTest.json")))
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("pre-processing-complex-v0.json")))
 
       // Validation step mut be done correctly
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess)
       assert(validation.get.valid)
 
-      executeStepAndUsePipeline(training, properties)
-    }
+      val execution = Try {
+        executeStepAndUsePipeline(training, properties)
+      }
+      assert(execution.isSuccess)    }
 
+
+  /* -------------------------------------------------------------
+ => Correct Pipeline construction and execution
+  ------------------------------------------------------------- */
+
+  "MlPipeline" should "construct a valid SparkMl complex logistic regression pipeline than it can be trained in a workflow" in
+    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
+      with WithFilesystemProperties{
+
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("logistic-regression-complex-v0.json")))
+
+      // Validation step mut be done correctly
+      val validation = Try{validateMlPipelineStep(properties)}
+      assert(validation.isSuccess)
+      assert(validation.get.valid)
+
+      val execution = Try {
+        executeStepAndUsePipeline(training, properties)
+      }
+      assert(execution.isSuccess)    }
 }
