@@ -9,6 +9,6 @@ object MlPipelineFilteredStages extends Enumeration {
 
   type MlPipelineFilteredStages = Value
 
-  val BucketedRandomProjectionLSH, ALS, LinearSVC, FPGrowth, MinHashLSHModel, ImputerModel  = Value
+  val BucketedRandomProjectionLSH, ALS, LinearSVC, FPGrowth, MinHashLSH, Imputer  = Value
 
 }
