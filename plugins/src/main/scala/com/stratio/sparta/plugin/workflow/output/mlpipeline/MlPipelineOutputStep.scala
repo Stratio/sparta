@@ -47,8 +47,10 @@ class MlPipelineOutputStep(
   lazy val externalMlModelRepositoryUrl: Option[String] = properties.getString(SdkConstants.ModelRepositoryUrl, None).notBlank
   lazy val externalMlModelRepositoryModelName: Option[String] = properties.getString("mlmodelrepModelName", None)
   lazy val externalMlModelRepositoryTmpDir: String = properties.getString("mlmodelrepModelTmpDir", "/tmp")
+
   lazy val serializationLib: MlPipelineSerializationLibs.Value =
-    MlPipelineSerializationLibs.withName(properties.getString("serializationLib", "SPARK_AND_MLEAP").toUpperCase)
+    MlPipelineSerializationLibs.withName(properties.getString("serializationLib",
+      if (outputMode.get == MlPipelineSaveMode.FILESYSTEM) {"SPARK"} else {"SPARK_AND_MLEAP"}).toUpperCase)
 
   // => Pipeline related
   // · Pipeline Json descriptor --> deserialized into Array[PipelineStageDescriptor]
