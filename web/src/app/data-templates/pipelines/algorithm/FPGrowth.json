@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the items of the FPGrowth process.",
     "qa" : "",
-    "default" : "items",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the FPGrowth process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "minConfidence",

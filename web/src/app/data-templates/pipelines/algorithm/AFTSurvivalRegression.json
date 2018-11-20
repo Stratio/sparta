@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the AFTSurvivalRegression process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the labels of the AFTSurvivalRegression process.",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -31,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the censors of the AFTSurvivalRegression process.",
     "qa" : "",
-    "default" : "censor",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -40,7 +40,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the AFTSurvivalRegression process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "quantilesCol",
@@ -50,14 +50,6 @@
     "qa" : "",
     "propertyType" : "text"
   }, {
-    "propertyId" : "aggregationDepth",
-    "propertyName" : "Aggregation depth (>= 2)",
-    "required" : true,
-    "tooltip" : "Suggested depth for treeAggregate (>= 2).",
-    "qa" : "",
-    "default" : "2",
-    "propertyType" : "text"
-  }, {
     "propertyId" : "fitIntercept",
     "propertyName" : "Fit an intercept term",
     "required" : true,
@@ -65,6 +57,14 @@
     "qa" : "",
     "default" : true,
     "propertyType" : "boolean"
+  }, {
+    "propertyId" : "aggregationDepth",
+    "propertyName" : "Aggregation depth (>= 2)",
+    "required" : true,
+    "tooltip" : "Suggested depth for treeAggregate (>= 2).",
+    "qa" : "",
+    "default" : "2",
+    "propertyType" : "text"
   }, {
     "propertyId" : "maxIter",
     "propertyName" : "Max number of iterations (>= 0)",

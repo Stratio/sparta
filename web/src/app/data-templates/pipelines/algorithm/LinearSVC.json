@@ -8,20 +8,12 @@
   "supportedEngines" : [ "Batch" ],
   "description" : "PipelineStage: type = classification",
   "properties" : [ {
-    "propertyId" : "aggregationDepth",
-    "propertyName" : "aggregationDepth",
-    "required" : true,
-    "tooltip" : "suggested depth for treeAggregate (>= 2)",
-    "qa" : "",
-    "default" : "2",
-    "propertyType" : "text"
-  }, {
     "propertyId" : "featuresCol",
     "propertyName" : "Features column",
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the LinearSVC process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -30,7 +22,7 @@
     "required" : true,
     "tooltip" : "label column name",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -39,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the LinearSVC process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "rawPredictionCol",
@@ -47,7 +39,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the raw prediction (a.k.a. confidence) of the LinearSVC process.",
     "qa" : "",
-    "default" : "rawPrediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "weightCol",
@@ -66,6 +58,22 @@
     "default" : true,
     "propertyType" : "boolean"
   }, {
+    "propertyId" : "standardization",
+    "propertyName" : "Standardize training features before fit the model",
+    "required" : true,
+    "tooltip" : "Whether or not to standardize the training features before fitting the model",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "aggregationDepth",
+    "propertyName" : "aggregationDepth",
+    "required" : true,
+    "tooltip" : "suggested depth for treeAggregate (>= 2)",
+    "qa" : "",
+    "default" : "2",
+    "propertyType" : "text"
+  }, {
     "propertyId" : "maxIter",
     "propertyName" : "Max number of iterations (>= 0)",
     "required" : true,
@@ -81,14 +89,6 @@
     "qa" : "",
     "default" : "0.0",
     "propertyType" : "text"
-  }, {
-    "propertyId" : "standardization",
-    "propertyName" : "Standardize training features before fit the model",
-    "required" : true,
-    "tooltip" : "Whether or not to standardize the training features before fitting the model",
-    "qa" : "",
-    "default" : true,
-    "propertyType" : "boolean"
   }, {
     "propertyId" : "threshold",
     "propertyName" : "Threshold",

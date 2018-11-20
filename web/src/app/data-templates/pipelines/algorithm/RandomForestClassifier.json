@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the RandomForestClassifier process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the label of the RandomForestClassifier process.",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -31,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the RandomForestClassifier process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "rawPredictionCol",
@@ -39,7 +39,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the raw prediction (a.k.a. confidence) of the RandomForestClassifier process.",
     "qa" : "",
-    "default" : "rawPrediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "probabilityCol",
@@ -47,7 +47,7 @@
     "required" : true,
     "tooltip" : "Column name for predicted class conditional probabilities. Note: Not all models output well-calibrated probability estimates! These probabilities should be treated as confidences, not precise probabilities.",
     "qa" : "",
-    "default" : "probability",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "cacheNodeIds",

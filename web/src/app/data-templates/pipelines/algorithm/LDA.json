@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the LDA process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "Output column with estimates of the topic mixture distribution for each document (often called \"theta\" in the literature).  Returns a vector of zeros for an empty document.",
     "qa" : "",
-    "default" : "topicDistribution",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "checkpointInterval",

@@ -20,7 +20,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the label on the ChiSqSelector process.",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -29,7 +29,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features on the ChiSqSelector process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {

@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the GBTRegressor process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the label of the GBTRegressor process.",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -31,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the GBTRegressor process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "cacheNodeIds",

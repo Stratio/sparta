@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the LogisticRegression process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the label of the LogisticRegression process.",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -31,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the LogisticRegression process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "probabilityCol",
@@ -39,7 +39,7 @@
     "required" : true,
     "tooltip" : "Column name for predicted class conditional probabilities. Note: Not all models output well-calibrated probability estimates! These probabilities should be treated as confidences, not precise probabilities",
     "qa" : "",
-    "default" : "probability",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "rawPredictionCol",
@@ -47,7 +47,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the raw prediction (a.k.a. confidence) of the LogisticRegression process.",
     "qa" : "",
-    "default" : "rawPrediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "weightCol",
@@ -62,6 +62,14 @@
     "propertyName" : "Fit an intercept term",
     "required" : true,
     "tooltip" : "Whether or not to fit an intercept term.",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "standardization",
+    "propertyName" : "Standardize training features before fit the model",
+    "required" : true,
+    "tooltip" : "Whether or not to standardize the training features before fitting the model",
     "qa" : "",
     "default" : true,
     "propertyType" : "boolean"
@@ -120,14 +128,6 @@
     "default" : "0.0",
     "propertyType" : "text"
   }, {
-    "propertyId" : "standardization",
-    "propertyName" : "Standardize training features before fit the model",
-    "required" : true,
-    "tooltip" : "Whether or not to standardize the training features before fitting the model",
-    "qa" : "",
-    "default" : true,
-    "propertyType" : "boolean"
-  }, {
     "propertyId" : "threshold",
     "propertyName" : "Threshold (between 0 and 1)",
     "required" : true,
@@ -155,7 +155,15 @@
     "required" : false,
     "tooltip" : "The lower bounds on intercepts if fitting under bound constrained optimization.",
     "qa" : "",
-    "propertyType" : "text"
+    "propertyType" : "text",
+    "visible": [
+      [
+        {
+          "propertyId": "fitIntercept",
+          "value": true
+        }
+      ]
+    ]
   }, {
     "propertyId" : "upperBoundsOnCoefficients",
     "propertyName" : "Upper bounds on coefficients",
@@ -169,7 +177,15 @@
     "required" : false,
     "tooltip" : "The upper bounds on intercepts if fitting under bound constrained optimization.",
     "qa" : "",
-    "propertyType" : "text"
+    "propertyType" : "text",
+    "visible": [
+      [
+        {
+          "propertyId": "fitIntercept",
+          "value": true
+        }
+      ]
+    ]
   }, {
     "propertyId" : "tol",
     "propertyName" : "Convergence tolerance (>= 0)",

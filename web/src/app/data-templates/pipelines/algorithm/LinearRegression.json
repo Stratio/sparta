@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the features of the LinearRegression process.",
     "qa" : "",
-    "default" : "features",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the label of the LinearRegression process.",
     "qa" : "",
-    "default" : "label",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -31,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the LinearRegression process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "weightCol",
@@ -41,6 +41,22 @@
     "qa" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "fitIntercept",
+    "propertyName" : "Fit an intercept term",
+    "required" : true,
+    "tooltip" : "Whether or not to fit an intercept term.",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "standardization",
+    "propertyName" : "Standardize the training features before fit the model",
+    "required" : true,
+    "tooltip" : "Whether or not to standardize the training features before fitting the model.",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
   }, {
     "propertyId" : "maxIter",
     "propertyName" : "Max number of iterations (>= 0)",
@@ -57,14 +73,6 @@
     "qa" : "",
     "default" : "2",
     "propertyType" : "number"
-  }, {
-    "propertyId" : "fitIntercept",
-    "propertyName" : "Fit an intercept term",
-    "required" : true,
-    "tooltip" : "Whether or not to fit an intercept term.",
-    "qa" : "",
-    "default" : true,
-    "propertyType" : "boolean"
   }, {
     "propertyId" : "elasticNetParam",
     "propertyName" : "ElasticNet mixing (between 0 and 1)",
@@ -89,14 +97,6 @@
     "qa" : "",
     "default" : "auto",
     "propertyType" : "text"
-  }, {
-    "propertyId" : "standardization",
-    "propertyName" : "Standardize the training features before fit the model",
-    "required" : true,
-    "tooltip" : "Whether or not to standardize the training features before fitting the model.",
-    "qa" : "",
-    "default" : true,
-    "propertyType" : "boolean"
   }, {
     "propertyId" : "tol",
     "propertyName" : "Convergence tolerance (>=0)",

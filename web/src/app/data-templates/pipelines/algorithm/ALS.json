@@ -13,7 +13,7 @@
     "required" : true,
     "tooltip" : "The name of the column for item IDs. IDs must be within the integer value range.",
     "qa" : "",
-    "default" : "item",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -22,7 +22,7 @@
     "required" : true,
     "tooltip" : "The name of the column name for user IDs. IDs must be within the integer value range.",
     "qa" : "",
-    "default" : "user",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
@@ -31,7 +31,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the prediction of the ALS process.",
     "qa" : "",
-    "default" : "prediction",
+    "default" : "",
     "propertyType" : "text"
   }, {
     "propertyId" : "ratingCol",
@@ -39,7 +39,7 @@
     "required" : true,
     "tooltip" : "The name of the column that will be the ratings of the ALS process.",
     "qa" : "",
-    "default" : "rating",
+    "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
   }, {
