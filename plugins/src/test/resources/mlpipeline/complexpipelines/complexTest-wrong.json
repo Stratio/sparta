@@ -1,0 +1,263 @@
+{
+  "nodes": [{
+    "configuration": {
+      "inputCol": "description",
+      "outputCol": "tokens",
+      "minTokenLength": "2.3",
+      "pattern": "123",
+      "gaps": false,
+      "toLowercase": "Sisisi"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "RegexTokenizer",
+    "className": "org.apache.spark.ml.feature.RegexTokenizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "TokenizerIdentifier",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 281,
+        "y": 146
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "binary": "yes",
+      "inputCol": "tokens",
+      "numFeatures": "262.144",
+      "outputCol": "hashing"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "HashingTF",
+    "className": "org.apache.spark.ml.feature.HashingTF",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "HashingTFIdentifier",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 482,
+        "y": 567
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "aggregationDepth": "2.24",
+      "elasticNetParam": "0.0",
+      "featuresCol": "vectorsnonewxisting",
+      "fitIntercept": true,
+      "labelCol": "points",
+      "maxIter": "0.0100",
+      "predictionCol": "prediction",
+      "regParam": "0.0",
+      "solver": "auto",
+      "standardization": true,
+      "tol": "1.0E-6",
+      "weightCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "LinearRegression",
+    "className": "org.apache.spark.ml.regression.LinearRegression",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "LinearRegressionIdentifier",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 1339,
+        "y": 134
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }, {
+    "configuration": {
+      "dropLast": true,
+      "inputCol": "varietyIndex",
+      "outputCol": "varietyohe"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "OneHotEncoder",
+    "className": "org.apache.spark.ml.feature.OneHotEncoder",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "OneHotEncoderIdentifier",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 923,
+        "y": 574
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCols": ["hashingnonexisting", "varietyohe"],
+      "outputCol": "vectors"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "VectorAssembler",
+    "className": "org.apache.spark.ml.feature.VectorAssembler",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "VectorAssemblerIdentifier",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCols",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 924,
+        "y": 135
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "handleInvalid": "nonExistingVale",
+      "inputCol": "variety",
+      "outputCol": "varietyIndex"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "StringIndexer",
+    "className": "org.apache.spark.ml.feature.StringIndexer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "StringIndexerIdentifier",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 712,
+        "y": 135
+      }
+    },
+    "description": ""
+  }],
+  "edges": [{
+    "origin": "TokenizerIdentifier",
+    "destination": "HashingTFIdentifier"
+  }, {
+    "origin": "OneHotEncoderIdentifier",
+    "destination": "VectorAssemblerIdentifier"
+  }, {
+    "origin": "VectorAssemblerIdentifier",
+    "destination": "LinearRegressionIdentifier"
+  }, {
+    "origin": "HashingTFIdentifier",
+    "destination": "StringIndexerIdentifier"
+  }, {
+    "origin": "StringIndexerIdentifier",
+    "destination": "OneHotEncoderIdentifier"
+  }],
+  "svgPosition": {
+    "k": 1,
+    "x": 1,
+    "y": -2
+  }
+}
