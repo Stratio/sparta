@@ -163,8 +163,7 @@ class MlPipelineOutputStep(
       }
       validation = ErrorValidations(
         valid = false,
-        messages = (validation.messages :+ WorkflowValidationMessage(
-          ValidationErrorMessages.errorBuildingPipelineInstance, name)) ++ errors
+        messages = (validation.messages :+ WorkflowValidationMessage.apply2(ValidationErrorMessages.errorBuildingPipelineInstance, name, Some(errors)))
       )
     }
 
