@@ -18,6 +18,9 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
+import java.nio.charset.Charset
+
+import com.stratio.sparta.plugin.common.csv.CsvBase
 
 class CsvInputStepBatch(
                           name: String,
@@ -26,10 +29,12 @@ class CsvInputStepBatch(
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
                         )
-  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with CsvBase{
 
   lazy val pathKey = "path"
   lazy val path: Option[String] = properties.getString(pathKey, None)
+  lazy val delimiter: Option[String] = properties.getString("delimiter", None)
+  lazy val charset: Option[String] = properties.getString("charset", None)
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -44,6 +49,24 @@ class CsvInputStepBatch(
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"The input path cannot be empty.", name)
+      )
+
+    if (delimiter.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
+      )
+
+    if (charset.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"encoding cannot be empty", name)
+      )
+
+    if (!isCharsetSupported(charset.get))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"encoding is not valid", name)
       )
 
     if(debugOptions.isDefined && !validDebuggingOptions)
@@ -73,4 +96,6 @@ class CsvInputStepBatch(
 
     (df.rdd, Option(df.schema))
   }
+
 }
+

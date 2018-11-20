@@ -11,6 +11,7 @@ import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessa
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.plugin.common.csv.CsvBase
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
@@ -20,12 +21,13 @@ class CsvOutputStep(
                      name: String,
                      xDSession: XDSession,
                      properties: Map[String, JSerializable]
-                   ) extends OutputStep(name, xDSession, properties) {
+                   ) extends OutputStep(name, xDSession, properties) with CsvBase{
 
   lazy val path: String = properties.getString("path", "").trim
   lazy val header = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
-  lazy val delimiter = Try(getValidDelimiter(properties.getString("delimiter"))).toOption.notBlank
+  lazy val delimiter = properties.getString("delimiter", None)
+  lazy val charset = properties.getString("charset", None)
   lazy val codecOption = properties.getString("codec", None).notBlank
   lazy val compressExtension = properties.getString("compressExtension", None).notBlank.getOrElse(".gz")
 
@@ -45,6 +47,18 @@ class CsvOutputStep(
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
+      )
+
+    if (charset.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"encoding cannot be empty", name)
+      )
+
+    if (!isCharsetSupported(charset.get))
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"encoding is not valid", name)
       )
 
     validation
@@ -74,12 +88,4 @@ class CsvOutputStep(
     applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).csv(pathWithExtension)
   }
 
-  def getValidDelimiter(delimiter: String): String = {
-    if (delimiter.length > 1) {
-      val firstCharacter = delimiter.head.toString
-      log.warn(s"Invalid length for the delimiter: '$delimiter' . " +
-        s"The system chose the first character: '$firstCharacter'")
-      firstCharacter
-    } else delimiter
-  }
 }

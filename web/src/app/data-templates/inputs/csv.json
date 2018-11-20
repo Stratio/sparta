@@ -31,8 +31,17 @@
            "propertyType": "text",
            "tooltip": "Delimiter character for input rows.",
            "default": "{{{Global.DEFAULT_DELIMITER}}}",
-           "required": false,
+           "required": true,
            "qa": "fragment-details-csv-delimiter"
+        },
+        {
+           "propertyId": "charset",
+           "propertyName": "_CSV_CHARSET_",
+           "propertyType": "text",
+           "tooltip": "Charset type for csv input.",
+           "default": "UTF-8",
+           "required": true,
+           "qa": "fragment-details-csv-charset"
         },
         {
            "propertyId": "inputOptions",

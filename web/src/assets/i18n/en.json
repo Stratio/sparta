@@ -630,6 +630,7 @@
    "_HEADER_PROPERTY_VALUE_": "Header property value",
    "_HTTP_STATUS_CODE_WHITELIST_" : "Comma-separated values of allowed status codes",
    "_REQUEST_TIMEOUT_": "Request timeout",
+   "_CSV_CHARSET_": "Encoding",
    "_SFTP_FILE_TYPE_": "SFTP File Type",
    "_SFTP_HOST_": "SFTP Host",
    "_SFTP_PORT_": "SFTP Port",
