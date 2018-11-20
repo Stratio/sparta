@@ -111,4 +111,28 @@ class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with Shoul
       assert(execution.isSuccess)
     }
 
+  /* -------------------------------------------------------------
+ => Correct Pipeline construction and execution
+  ------------------------------------------------------------- */
+
+  "MlPipeline" should "construct an invalid SparkMl pipeline than it can be trained in a workflow an return correct errors" in
+    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
+      with WithFilesystemProperties{
+
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("complexTest-wrong.json")))
+
+      // Validation step mut be done correctly
+      val validation = Try{validateMlPipelineStep(properties)}
+      assert(validation.isSuccess)
+      assert(!validation.get.valid)
+      assert(!validation.get.messages.isEmpty)
+      assert(!validation.get.messages(0).internalErrors.isEmpty)
+      assert(validation.get.messages(0).internalErrors.size == 7)
+      val execution = Try {
+        executeStepAndUsePipeline(training, properties)
+      }
+      assert(execution.isFailure)
+    }
+
+
 }
