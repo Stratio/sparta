@@ -1,0 +1,51 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "binary": false,
+        "inputCol": "words",
+        "minDF": "",
+        "minTF": "",
+        "outputCol": "features",
+        "vocabSize": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "CountVectorizer",
+      "className": "org.apache.spark.ml.feature.CountVectorizer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "CountVectorizerDefaultParams",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 409,
+          "y": 128
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

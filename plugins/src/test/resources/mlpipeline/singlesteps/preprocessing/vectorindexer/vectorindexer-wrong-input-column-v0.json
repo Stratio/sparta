@@ -1,0 +1,48 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "inputCol": "notexists",
+        "maxCategories": "20",
+        "outputCol": "indexed"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "VectorIndexer",
+      "className": "org.apache.spark.ml.feature.VectorIndexer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "VectorIndexer",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 623,
+          "y": 255
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

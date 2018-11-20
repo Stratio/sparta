@@ -6,11 +6,13 @@
 
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization
 
+import com.stratio.sparta.core.properties.JsoneyString
 import org.apache.spark.ml.param.Param
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JBool
+import org.apache.spark.ml.linalg.Vectors
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 
 /** Custom json4s serializator/deserializator for boolean values threated as strings */
@@ -39,25 +41,64 @@ case class PipelineStageDescriptor(
                                     name: String,
                                     uid: String,
                                     className: String,
-                                    properties: Map[String, String]
+                                    properties: Map[String, JsoneyString]
                                   )
 
 
 //noinspection ScalaStyle
 object MlPipelineDeserializationUtils {
 
-  def decodeParamValue(param: Param[Any], value: String = null): Try[Any] = Try {
-    param.getClass().getSimpleName match {
-      case "BooleanParam" => if (value == null) "Boolean" else value.toBoolean
-      case "LongParam" => if (value == null) "Long" else value.toLong
-      case "DoubleParam" => if (value == null) "Double" else value.toDouble
-      case "FloatParam" => if (value == null) "Float" else value.toFloat
-      case "IntParam" => if (value == null) "Int" else value.toInt
-      case "StringArrayParam" => if (value == null) "Array[String] (comma separated values)" else value.split(",").map(_.trim)
-      case "DoubleArrayParam" => if (value == null) "Array[Double] (comma separated values)" else value.split(",").map(_.trim.toDouble)
-      case "IntArrayParam" => if (value == null) "Array[Int] (comma separated values)" else value.split(",").map(_.trim.toInt)
-      case "Param" => if (value == null) "String" else value
-      case _ => throw new Exception("Unknown parameter type")
+  def nullOrEmpty(value: JsoneyString): Boolean = (value == null)||(value.toString == null)||(value.toString.trim == "")
+
+  //TODO filter out only optional parameters
+  def okParam(value: JsoneyString): Boolean = (value != null)&&(value.toString!=null)&&(value.toString.trim != "")
+
+
+  def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
+      param.getClass().getSimpleName match {
+        case "BooleanParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toBoolean}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Boolean")}
+
+        case "LongParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toLong}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Long")}
+
+        case "DoubleParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toDouble}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Double")}
+
+        case "FloatParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toFloat}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Float")}
+
+        case "IntParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toString.toInt}
+          catch{case _: Exception => throw new Exception(s"Wrong value type for parameter ${param.name}. Value must be Int")}
+
+        case "StringArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim).toArray
+
+        case "DoubleArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toDouble).toArray}
+          catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Double] (comma separated values)")}
+
+        case "IntArrayParam" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else try{value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toInt).toArray}
+          catch{case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Int] (comma separated values)")}
+
+        case "Param" => if (nullOrEmpty(value)) throw new Exception(s"Value not set for Parameter ${param.name}")
+          else {
+            // Special case of 'ElementWiseProduct' where the class of the 'scalingVec' parameter is Param[Vector]
+            // so it will match this case clause. We need to cast it to spark.ml.linalg.Vector
+            if (param.name == "scalingVec")
+              try { Vectors.dense(value.toSeq.flatMap(x => if (x == "") Seq() else Seq(x)).map(_.trim.toDouble).toArray) }
+              catch { case _: Exception => throw new Exception(s"Wrong values for parameter ${param.name}. Values must be Array[Double] (comma separated values)") }
+            else
+              value.toString
+        }
+
+        case _ => throw new Exception("Unknown parameter type")
     }
   }
 }

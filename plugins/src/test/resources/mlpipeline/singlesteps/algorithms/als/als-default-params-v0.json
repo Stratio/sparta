@@ -1,0 +1,55 @@
+{
+  "nodes": [{
+    "configuration": {
+      "alpha": "",
+      "checkpointInterval": "",
+      "coldStartStrategy": "nan",
+      "finalStorageLevel": "",
+      "implicitPrefs": false,
+      "intermediateStorageLevel": "",
+      "itemCol": "item",
+      "maxIter": "",
+      "nonnegative": false,
+      "numItemBlocks": "",
+      "numUserBlocks": "",
+      "predictionCol": "",
+      "rank": "",
+      "ratingCol": "rating",
+      "regParam": "0.1",
+      "seed": "",
+      "userCol": "user"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "ALS",
+    "className": "org.apache.spark.ml.recommendation.ALS",
+    "arity": ["NullaryToNullary", "UnaryToNullary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "ALS",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 391,
+        "y": 115
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

@@ -22,7 +22,7 @@ import scala.io.Source
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
-class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
+class MlPipelineGraphStepOutputIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
 
@@ -80,8 +80,8 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
   }
 
   /* -------------------------------------------------------------
-    => Correct Pipeline construction and execution
-     ------------------------------------------------------------- */
+   => Correct Pipeline construction and execution
+    ------------------------------------------------------------- */
 
   "MlPipeline" should "construct a valid SparkMl pipeline than it can be trained in a workflow" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
@@ -95,11 +95,59 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       assert(validation.get.valid)
 
       executeStepAndUsePipeline(training, properties)
-  }
+    }
 
   /* -------------------------------------------------------------
-    => Incorrect Pipeline construction and execution
-     ------------------------------------------------------------- */
+     => Incorrect Pipeline Graphs
+      ------------------------------------------------------------- */
+  "MlPipeline" should "show a validation error with graph with two inputs" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_two_inputs.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+          .contains(ValidationErrorMessages.moreThanOneStart))
+    }
+
+  "MlPipeline" should "show a validation error with graph with two outputs" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_two_outputs.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+        .contains(ValidationErrorMessages.moreThanOneEnd))
+    }
+
+  "MlPipeline" should "show a validation error with graph with a loop" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_with_loop.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+        .contains(ValidationErrorMessages.moreThanOneOutput("HashingTF")))
+    }
+
+  "MlPipeline" should "show a validation error with graph with a floating node" in
+    new ReadDescriptorResource with WithValidateStep with WithFilesystemProperties {
+      properties = properties.updated("pipeline",
+        JsoneyString(getJsonDescriptor("nlp_pipeline_bad_graph_floating_node.json")))
+      val validation = Try(validateMlPipelineStep(properties))
+      assert(validation.isSuccess && !validation.get.valid)
+      assert(validation.get.messages.length == 1)
+      assert(validation.get.messages(0).message
+        .contains(ValidationErrorMessages.moreThanOneStart))
+    }
+
+
+  /* -------------------------------------------------------------
+     => Incorrect Pipeline construction and execution
+      ------------------------------------------------------------- */
 
   // *********************************
   //  JSON descriptor related errors
@@ -125,7 +173,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val execution = Try{executeStep(training, properties)}
       assert(execution.isFailure)
       execution match { case Failure(t) => log.info(t.toString) }
-  }
+    }
 
   // - Bad JSON formatted Pipeline descriptor
   // · On validation
@@ -136,8 +184,8 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
-  }
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor))
+    }
   // · On execution
   "MlPipeline" should "throw an error with an invalid JSON format when executing workflow" in
     new WithExampleData with WithExecuteStep with WithFilesystemProperties{
@@ -145,7 +193,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val execution = Try{executeStep(training, properties)}
       assert(execution.isFailure)
       execution match { case Failure(t) => log.info(t.toString) }
-  }
+    }
 
   // - JSON Pipeline descriptor without a required property
   // · On validation
@@ -155,16 +203,16 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
-  }
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor))
+    }
   // · On execution
   "MlPipeline" should "throw an error with a JSON descriptor without a required property when executing workflow" in
     new WithExampleData with ReadDescriptorResource with WithExecuteStep with WithFilesystemProperties{
-    properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("nlp_pipeline_bad_noName.json")))
-    val execution = Try{executeStep(training, properties)}
-    assert(execution.isFailure)
-    execution match { case Failure(t) => log.info(t.toString) }
-  }
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("nlp_pipeline_bad_noName.json")))
+      val execution = Try{executeStep(training, properties)}
+      assert(execution.isFailure)
+      execution match { case Failure(t) => log.info(t.toString) }
+    }
 
   // - JSON Pipeline descriptor with a bad property name
   // · On validation
@@ -174,8 +222,8 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
         JsoneyString(getJsonDescriptor("nlp_pipeline_bad_property_name.json")))
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
+      assert(validation.get.messages.length==2)
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
     }
   // · On execution
   "MlPipeline" should "throw an error with a JSON descriptor with a bad property name when executing workflow" in
@@ -201,7 +249,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==2)
       assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
-  }
+    }
   "MlPipeline" should "show a validation error message with nonexistent stages" in
     new WithValidateStep with ReadDescriptorResource with WithFilesystemProperties{
       properties = properties.updated("pipeline",
@@ -210,7 +258,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==3)
       assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
-  }
+    }
   // · On execution
   "MlPipeline" should "throw an error with a nonexistent stage when executing workflow" in
     new WithExampleData with ReadDescriptorResource with WithExecuteStep with WithFilesystemProperties{
@@ -219,7 +267,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val execution = Try{executeStep(training, properties)}
       assert(execution.isFailure)
       execution match { case Failure(t) => log.info(t.getLocalizedMessage) }
-  }
+    }
   "MlPipeline" should "throw an error with nonexistent stages when executing workflow" in
     new WithExampleData with ReadDescriptorResource with WithExecuteStep with WithFilesystemProperties{
       properties = properties.updated("pipeline",
@@ -227,7 +275,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val execution = Try{executeStep(training, properties)}
       assert(execution.isFailure)
       execution match { case Failure(t) => log.info(t.getLocalizedMessage) }
-  }
+    }
 
   // - Non existent Param/s in a PipelineStage
   // · On validation
@@ -239,7 +287,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==2)
       assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
-  }
+    }
   "MlPipeline" should "show a validation error message with nonexistent parameters" in
     new WithValidateStep with ReadDescriptorResource with WithFilesystemProperties{
       properties = properties.updated("pipeline",
@@ -248,7 +296,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       assert(validation.isSuccess && !validation.get.valid)
       assert(validation.get.messages.length==3)
       assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
-  }
+    }
   // · On execution
   "MlPipeline" should "throw an error with a nonexistent parameter when executing workflow" in
     new WithExampleData with ReadDescriptorResource with WithExecuteStep with WithFilesystemProperties{
@@ -257,7 +305,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val execution = Try{executeStep(training, properties)}
       assert(execution.isFailure)
       execution match { case Failure(t) => log.info(t.getLocalizedMessage) }
-  }
+    }
   "MlPipeline" should "throw an error with nonexistent parameters when executing workflow" in
     new WithExampleData with ReadDescriptorResource with WithExecuteStep with WithFilesystemProperties{
       properties = properties.updated("pipeline",
@@ -265,7 +313,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
       val execution = Try{executeStep(training, properties)}
       assert(execution.isFailure)
       execution match { case Failure(t) => log.info(t.getLocalizedMessage) }
-  }
+    }
 
   // - Invalid Param value in a PipelineStage
   // · On validation
@@ -284,7 +332,7 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
         JsoneyString(getJsonDescriptor("nlp_pipeline_bad_params_values.json")))
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==4)
+      assert(validation.get.messages.length==3)
       assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
     }
   // · On execution
@@ -313,9 +361,9 @@ class MlPipelineStepOutputIT extends TemporalSparkContext with ShouldMatchers {
         JsoneyString(getJsonDescriptor("nlp_pipeline_bad_multi_definition_error.json")))
       val validation = Try{validateMlPipelineStep(properties)}
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==7)
-      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.errorBuildingPipelineInstance))
-  }
+      assert(validation.get.messages.length==1)
+      assert(validation.get.messages(0).message.startsWith(ValidationErrorMessages.invalidJsonFormatPipelineDescriptor))
+    }
   // · On execution
   "MlPipeline" should "throw an error with multiple errors in definition when executing workflow" in
     new WithExampleData with ReadDescriptorResource with WithExecuteStep with WithFilesystemProperties{

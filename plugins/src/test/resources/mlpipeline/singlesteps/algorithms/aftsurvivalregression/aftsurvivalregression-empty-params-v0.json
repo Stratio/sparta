@@ -1,0 +1,48 @@
+{
+  "nodes": [{
+    "configuration": {
+      "aggregationDepth": "",
+      "censorCol": "",
+      "featuresCol": "",
+      "fitIntercept": "",
+      "labelCol": "",
+      "maxIter": "",
+      "predictionCol": "",
+      "quantileProbabilities": "",
+      "quantilesCol": "",
+      "tol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "AFTSurvivalRegression",
+    "className": "org.apache.spark.ml.regression.AFTSurvivalRegression",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "AFTSurvivalRegression",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 600,
+        "y": 221
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": -2,
+    "y": 3
+  }
+}

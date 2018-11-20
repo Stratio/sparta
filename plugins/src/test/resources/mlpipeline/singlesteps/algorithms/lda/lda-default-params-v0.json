@@ -1,0 +1,52 @@
+{
+  "nodes": [{
+    "configuration": {
+      "checkpointInterval": "10",
+      "docConcentration": "",
+      "featuresCol": "features",
+      "k": "10",
+      "keepLastCheckpoint": true,
+      "learningDecay": "0.51",
+      "learningOffset": "1024.0",
+      "maxIter": "20",
+      "optimizeDocConcentration": true,
+      "optimizer": "online",
+      "seed": "1435876747",
+      "subsamplingRate": "0.05",
+      "topicConcentration": "",
+      "topicDistributionCol": "topicDistribution"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "LDA",
+    "className": "org.apache.spark.ml.clustering.LDA",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "LDA",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 504,
+        "y": 203
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

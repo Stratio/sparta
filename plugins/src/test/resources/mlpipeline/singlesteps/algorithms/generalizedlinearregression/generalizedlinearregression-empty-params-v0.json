@@ -1,0 +1,52 @@
+{
+  "nodes": [{
+    "configuration": {
+      "family": "",
+      "featuresCol": "",
+      "fitIntercept": "",
+      "labelCol": "",
+      "link": "",
+      "linkPower": "",
+      "linkPredictionCol": "",
+      "maxIter": "",
+      "predictionCol": "",
+      "regParam": "",
+      "solver": "",
+      "tol": "",
+      "variancePower": "",
+      "weightCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "GeneralizedLinearRegression",
+    "className": "org.apache.spark.ml.regression.GeneralizedLinearRegression",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "GeneralizedLinearRegression",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 638,
+        "y": 154
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

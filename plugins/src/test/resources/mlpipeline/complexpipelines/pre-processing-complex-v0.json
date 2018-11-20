@@ -1,0 +1,1202 @@
+{
+  "nodes": [{
+    "configuration": {
+      "inputCol": "sentence",
+      "outputCol": "words"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Tokenizer",
+    "className": "org.apache.spark.ml.feature.Tokenizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Tokenizer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 135,
+        "y": 43
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "binary": false,
+      "inputCol": "words",
+      "numFeatures": "20",
+      "outputCol": "rawFeatures"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "HashingTF",
+    "className": "org.apache.spark.ml.feature.HashingTF",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "HashingTF",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 136.678466796875,
+        "y": 214.1842269897461
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "rawFeatures",
+      "minDocFreq": "0",
+      "outputCol": "features"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "IDF",
+    "className": "org.apache.spark.ml.feature.IDF",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "IDF",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 137.12002563476562,
+        "y": 384.8434066772461
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "words",
+      "maxIter": "1",
+      "maxSentenceLength": "1000",
+      "minCount": "0",
+      "numPartitions": "1",
+      "outputCol": "resultW2vec",
+      "seed": "-1961189076",
+      "stepSize": "0.025",
+      "vectorSize": "3",
+      "windowSize": "5"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Word2Vec",
+    "className": "org.apache.spark.ml.feature.Word2Vec",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Word2Vec",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 137.02587890625,
+        "y": 557.8595428466797
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "binary": false,
+      "inputCol": "words",
+      "minDF": "2",
+      "minTF": "1.0",
+      "outputCol": "countVecOut",
+      "vocabSize": "3"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "CountVectorizer",
+    "className": "org.apache.spark.ml.feature.CountVectorizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "CountVectorizer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 135.23797607421875,
+        "y": 739.6680068969727
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "caseSensitive": false,
+      "inputCol": "words",
+      "outputCol": "swremOut",
+      "stopWords": "[i,me,my,myself,we,our,ours,ourselves,you,your,yours,yourself,yourselves,he,him,his,himself,she,her,hers,herself,it,its,itself,they,them,their,theirs,themselves,what,which,who,whom,this,that,these,those,am,is,are,was,were,be,been,being,have,has,had,having,do,does,did,doing,a,an,the,and,but,if,or,because,as,until,while,of,at,by,for,with,about,against,between,into,through,during,before,after,above,below,to,from,up,down,in,out,on,off,over,under,again,further,then,once,here,there,when,where,why,how,all,any,both,each,few,more,most,other,some,such,no,nor,not,only,own,same,so,than,too,very,s,t,can,will,just,don,should,now,i'll,you'll,he'll,she'll,we'll,they'll,i'd,you'd,he'd,she'd,we'd,they'd,i'm,you're,he's,she's,it's,we're,they're,i've,we've,you've,they've,isn't,aren't,wasn't,weren't,haven't,hasn't,hadn't,don't,doesn't,didn't,won't,wouldn't,shan't,shouldn't,mustn't,can't,couldn't,cannot,could,here's,how's,let's,ought,that's,there's,what's,when's,where's,who's,why's,would]"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "StopWordsRemover",
+    "className": "org.apache.spark.ml.feature.StopWordsRemover",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "StopWordsRemover",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 135.97177124023438,
+        "y": 901.5082397460938
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "words",
+      "n": "2",
+      "outputCol": "ngramsOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "NGram",
+    "className": "org.apache.spark.ml.feature.NGram",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "NGram",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 414.2713541260091,
+        "y": 37.324686833482005
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "sentenceLabel",
+      "outputCol": "binarizerOUt",
+      "threshold": "0.5"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Binarizer",
+    "className": "org.apache.spark.ml.feature.Binarizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Binarizer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 414.27127311520553,
+        "y": 217.08406179233407
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "k": "3",
+      "outputCol": "pcaOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "PCA",
+    "className": "org.apache.spark.ml.feature.PCA",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "PCA",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 412.87785551068373,
+        "y": 384.30211280057324
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "degree": "3",
+      "inputCol": "vectorPCAIn",
+      "outputCol": "polyOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "PolynomialExpansion",
+    "className": "org.apache.spark.ml.feature.PolynomialExpansion",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "PolynomialExpansion",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 412.877844027147,
+        "y": 548.7331543757879
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "inverse": false,
+      "outputCol": "dctOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "DCT",
+    "className": "org.apache.spark.ml.feature.DCT",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "DCT",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 412.87788461964067,
+        "y": 736.853439671243
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "handleInvalid": "error",
+      "inputCol": "sentence",
+      "outputCol": "strIndexerOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "StringIndexer",
+    "className": "org.apache.spark.ml.feature.StringIndexer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "StringIndexer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 412.1800558502843,
+        "y": 898.5439084733862
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "strIndexerOut",
+      "labels": "",
+      "outputCol": "indexToStrOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "IndexToString",
+    "className": "org.apache.spark.ml.feature.IndexToString",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "IndexToString",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 696.8870008534834,
+        "y": 34.8569509414602
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "dropLast": true,
+      "inputCol": "strIndexerOut",
+      "outputCol": "oheOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "OneHotEncoder",
+    "className": "org.apache.spark.ml.feature.OneHotEncoder",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "OneHotEncoder",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 696.3744053587262,
+        "y": 210.64998676903537
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "maxCategories": "10",
+      "outputCol": "vectorIndexerOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "VectorIndexer",
+    "className": "org.apache.spark.ml.feature.VectorIndexer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "VectorIndexer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 696.374405944389,
+        "y": 372.29408233636656
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCols": ["num1", "num2"],
+      "outputCol": "vecAssemblerOut1"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "VectorAssembler",
+    "className": "org.apache.spark.ml.feature.VectorAssembler",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "VectorAssembler",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCols",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 694.9809839877798,
+        "y": 535.3316712632101
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCols": ["num3", "vecAssemblerOut1"],
+      "outputCol": "interactedOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Interaction",
+    "className": "org.apache.spark.ml.feature.Interaction",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Interaction",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCols",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 694.981013041201,
+        "y": 726.2388597500511
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "outputCol": "normalizerOut",
+      "p": "1.0"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Normalizer",
+    "className": "org.apache.spark.ml.feature.Normalizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Normalizer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 693.5875087282789,
+        "y": 887.8829760528762
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "outputCol": "standardScaledOut",
+      "withMean": false,
+      "withStd": true
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "StandardScaler",
+    "className": "org.apache.spark.ml.feature.StandardScaler",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "StandardScaler",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 945.8079757932852,
+        "y": 29.497142731697892
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "max": "1.0",
+      "min": "0.0",
+      "outputCol": "minmaxScalerOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "MinMaxScaler",
+    "className": "org.apache.spark.ml.feature.MinMaxScaler",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "MinMaxScaler",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 945.8079965287792,
+        "y": 203.68257924964146
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "outputCol": "maxAbsScalerOut"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "MaxAbsScaler",
+    "className": "org.apache.spark.ml.feature.MaxAbsScaler",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "MaxAbsScaler",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 945.5902947752652,
+        "y": 374.55000481562274
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "handleInvalid": "error",
+      "inputCol": "bucketedData",
+      "outputCol": "bucketedOut",
+      "splits": "[-0.5, 0.0, 0.5]"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Bucketizer",
+    "className": "org.apache.spark.ml.feature.Bucketizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Bucketizer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 945.5352519739412,
+        "y": 531.8428604174632
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vecAssemblerOut1",
+      "outputCol": "ewpOut",
+      "scalingVec": "[3.0,5.0]"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "ElementwiseProduct",
+    "className": "org.apache.spark.ml.feature.ElementwiseProduct",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "ElementwiseProduct",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 946.1771776699427,
+        "y": 719.0368413849177
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCols": ["imputerData"],
+      "missingValue": "NaN",
+      "outputCols": ["imputerOut"],
+      "strategy": "mean"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "Imputer",
+    "className": "org.apache.spark.ml.feature.Imputer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "Imputer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCols",
+      "type": "required"
+    }, {
+      "propertyName": "outputCols",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 946.1092576694778,
+        "y": 882.445190678161
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "fdr": "0.05",
+      "featuresCol": "vectorPCAIn",
+      "fpr": "0.05",
+      "fwe": "0.05",
+      "labelCol": "sentenceLabel",
+      "numTopFeatures": "1",
+      "outputCol": "chiSqOut",
+      "percentile": "0.1",
+      "selectorType": "numTopFeatures"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "ChiSqSelector",
+    "className": "org.apache.spark.ml.feature.ChiSqSelector",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "ChiSqSelector",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 1202.11480955975,
+        "y": 195.03575559714784
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "bucketLength": "2.0",
+      "inputCol": "vectorPCAIn",
+      "numHashTables": "3",
+      "outputCol": "brpOut",
+      "seed": "772209414"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "BucketedRandomProjectionLSH",
+    "className": "org.apache.spark.ml.feature.BucketedRandomProjectionLSH",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "BucketedRandomProjectionLSH",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 1202.1148370370445,
+        "y": 359.53075671641494
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "inputCol": "vectorPCAIn",
+      "numHashTables": "5",
+      "outputCol": "mhlshOut",
+      "seed": "328749633"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "MinHashLSH",
+    "className": "org.apache.spark.ml.feature.MinHashLSH",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "MinHashLSH",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 1202.1148497204972,
+        "y": 517.4460306628305
+      }
+    },
+    "description": ""
+  }, {
+    "configuration": {
+      "handleInvalid": "error",
+      "inputCol": "num4",
+      "numBuckets": "3",
+      "outputCol": "qdOut",
+      "relativeError": "0.001"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "QuantileDiscretizer",
+    "className": "org.apache.spark.ml.feature.QuantileDiscretizer",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Preprocessing",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "QuantileDiscretizer",
+    "hasErrors": false,
+    "errors": [{
+      "propertyName": "inputCol",
+      "type": "required"
+    }, {
+      "propertyName": "outputCol",
+      "type": "required"
+    }],
+    "createdNew": false,
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 1202.1148132582105,
+        "y": 706.6152784972876
+      }
+    },
+    "description": ""
+  }],
+  "edges": [{
+    "origin": "Tokenizer",
+    "destination": "HashingTF"
+  }, {
+    "origin": "HashingTF",
+    "destination": "IDF"
+  }, {
+    "origin": "IDF",
+    "destination": "Word2Vec"
+  }, {
+    "origin": "Word2Vec",
+    "destination": "CountVectorizer"
+  }, {
+    "origin": "CountVectorizer",
+    "destination": "StopWordsRemover"
+  }, {
+    "origin": "StopWordsRemover",
+    "destination": "NGram"
+  }, {
+    "origin": "NGram",
+    "destination": "Binarizer"
+  }, {
+    "origin": "Binarizer",
+    "destination": "PCA"
+  }, {
+    "origin": "PCA",
+    "destination": "PolynomialExpansion"
+  }, {
+    "origin": "PolynomialExpansion",
+    "destination": "DCT"
+  }, {
+    "origin": "DCT",
+    "destination": "StringIndexer"
+  }, {
+    "origin": "StringIndexer",
+    "destination": "IndexToString"
+  }, {
+    "origin": "IndexToString",
+    "destination": "OneHotEncoder"
+  }, {
+    "origin": "OneHotEncoder",
+    "destination": "VectorIndexer"
+  }, {
+    "origin": "VectorIndexer",
+    "destination": "VectorAssembler"
+  }, {
+    "origin": "VectorAssembler",
+    "destination": "Interaction"
+  }, {
+    "origin": "Interaction",
+    "destination": "Normalizer"
+  }, {
+    "origin": "Normalizer",
+    "destination": "StandardScaler"
+  }, {
+    "origin": "StandardScaler",
+    "destination": "MinMaxScaler"
+  }, {
+    "origin": "MinMaxScaler",
+    "destination": "MaxAbsScaler"
+  }, {
+    "origin": "MaxAbsScaler",
+    "destination": "Bucketizer"
+  }, {
+    "origin": "Bucketizer",
+    "destination": "ElementwiseProduct"
+  }, {
+    "origin": "ElementwiseProduct",
+    "destination": "Imputer"
+  }, {
+    "origin": "ChiSqSelector",
+    "destination": "BucketedRandomProjectionLSH"
+  }, {
+    "origin": "BucketedRandomProjectionLSH",
+    "destination": "MinHashLSH"
+  }, {
+    "origin": "MinHashLSH",
+    "destination": "QuantileDiscretizer"
+  }, {
+    "origin": "Imputer",
+    "destination": "ChiSqSelector"
+  }],
+  "svgPosition": {
+    "k": 0.43625996781658277,
+    "x": 133.74411121218418,
+    "y": 39.20223626430857
+  }
+}

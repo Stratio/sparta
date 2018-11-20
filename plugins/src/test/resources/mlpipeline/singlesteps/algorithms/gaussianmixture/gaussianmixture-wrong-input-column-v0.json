@@ -1,0 +1,45 @@
+{
+  "nodes": [{
+    "configuration": {
+      "featuresCol": "featuresNonExisting",
+      "k": "2",
+      "maxIter": "100",
+      "predictionCol": "prediction",
+      "probabilityCol": "probability",
+      "seed": "538009335",
+      "tol": "0.01"
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "GaussianMixture",
+    "className": "org.apache.spark.ml.clustering.GaussianMixture",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "GaussianMixture",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 685,
+        "y": 134
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

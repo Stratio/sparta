@@ -1,0 +1,67 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "aggregationDepth": "-2.0",
+        "elasticNetParam": "0.0",
+        "family": "auto",
+        "featuresCol": "features",
+        "fitIntercept": true,
+        "labelCol": "label",
+        "lowerBoundsOnCoefficients": "",
+        "lowerBoundsOnIntercepts": "",
+        "maxIter": "-4",
+        "predictionCol": "prediction",
+        "probabilityCol": "probability",
+        "rawPredictionCol": "rawPrediction",
+        "regParam": "0.0",
+        "standardization": true,
+        "threshold": "0.5",
+        "thresholds": "",
+        "tol": "1.0E-6",
+        "upperBoundsOnCoefficients": "",
+        "upperBoundsOnIntercepts": "",
+        "weightCol": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "LogisticRegression",
+      "className": "org.apache.spark.ml.classification.LogisticRegression",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Algorithm",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "LogisticRegression",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 502,
+          "y": 156
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

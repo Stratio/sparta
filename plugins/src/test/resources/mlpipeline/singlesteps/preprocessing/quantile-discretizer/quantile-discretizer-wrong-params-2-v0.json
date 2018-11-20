@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "handleInvalid": "notvalid",
+        "inputCol": "hour",
+        "numBuckets": "2",
+        "outputCol": "result",
+        "relativeError": "0.001"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "QuantileDiscretizer",
+      "className": "org.apache.spark.ml.feature.QuantileDiscretizer",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "QuantileDiscretizer",
+      "hasErrors": true,
+      "errors": [
+        {
+          "propertyName": "inputCol",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCol",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 620,
+          "y": 307
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

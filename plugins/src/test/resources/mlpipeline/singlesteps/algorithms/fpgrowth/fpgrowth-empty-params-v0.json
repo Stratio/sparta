@@ -1,0 +1,43 @@
+{
+  "nodes": [{
+    "configuration": {
+      "itemsCol": "",
+      "minConfidence": "",
+      "minSupport": "",
+      "numPartitions": "",
+      "predictionCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "FPGrowth",
+    "className": "org.apache.spark.ml.fpm.FPGrowth",
+    "arity": ["NullaryToNullary", "UnaryToNullary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "FPGrowth",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 638,
+        "y": 288
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

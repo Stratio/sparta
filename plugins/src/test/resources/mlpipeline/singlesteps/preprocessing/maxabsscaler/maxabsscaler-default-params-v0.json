@@ -1,0 +1,47 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "inputCol": "features",
+        "outputCol": "scaled"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "MaxAbsScaler",
+      "className": "org.apache.spark.ml.feature.MaxAbsScaler",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "MaxAbsScaler",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 499,
+          "y": 109
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

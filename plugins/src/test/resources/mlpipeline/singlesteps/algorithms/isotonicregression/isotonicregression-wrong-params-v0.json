@@ -1,0 +1,44 @@
+{
+  "nodes": [{
+    "configuration": {
+      "featureIndex": "thisisnotanumber",
+      "featuresCol": "features",
+      "isotonic": true,
+      "labelCol": "label",
+      "predictionCol": "prediction",
+      "weightCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "IsotonicRegression",
+    "className": "org.apache.spark.ml.regression.IsotonicRegression",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "IsotonicRegression",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 671,
+        "y": 240
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

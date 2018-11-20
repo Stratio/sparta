@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "cacheNodeIds": false,
+        "checkpointInterval": "10",
+        "featuresCol": "features",
+        "impurity": "notvalid",
+        "labelCol": "label",
+        "maxBins": "-1",
+        "maxDepth": "-1",
+        "maxMemoryInMB": "-1",
+        "minInfoGain": "-1",
+        "minInstancesPerNode": "-1",
+        "predictionCol": "prediction",
+        "probabilityCol": "probability",
+        "rawPredictionCol": "rawPrediction",
+        "seed": "159147643",
+        "thresholds": ""
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "DecisionTreeClassifier",
+      "className": "org.apache.spark.ml.classification.DecisionTreeClassifier",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Algorithm",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "DecisionTreeClassifier",
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 967,
+          "y": 338
+        }
+      },
+      "createdNew": false,
+      "description": "",
+      "hasErrors": false
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "degree": "2",
+        "inputCol": "features",
+        "outputCol": "polyFeatures"
+      },
+      "supportedEngines": [
+        "Batch"
+      ],
+      "classPrettyName": "PolynomialExpansion",
+      "className": "org.apache.spark.ml.feature.PolynomialExpansion",
+      "arity": [
+        "NullaryToNullary",
+        "NullaryToUnary",
+        "UnaryToNullary",
+        "UnaryToUnary"
+      ],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "PolynomialExpansion",
+      "hasErrors": false,
+      "errors": [
+        {
+          "propertyName": "inputCol",
+          "type": "required"
+        },
+        {
+          "propertyName": "outputCol",
+          "type": "required"
+        }
+      ],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 840,
+          "y": 316
+        }
+      },
+      "description": ""
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 6,
+    "y": -1
+  }
+}

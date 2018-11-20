@@ -1,0 +1,53 @@
+{
+  "nodes": [{
+    "configuration": {
+      "cacheNodeIds": "",
+      "checkpointInterval": "",
+      "featureSubsetStrategy": "",
+      "featuresCol": "",
+      "impurity": "",
+      "labelCol": "",
+      "maxBins": "",
+      "maxDepth": "",
+      "maxMemoryInMB": "",
+      "minInfoGain": "",
+      "minInstancesPerNode": "",
+      "numTrees": "",
+      "predictionCol": "",
+      "seed": "",
+      "subsamplingRate": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "RandomForestRegressor",
+    "className": "org.apache.spark.ml.regression.RandomForestRegressor",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "RandomForestRegressor",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 630,
+        "y": 121
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": -5,
+    "y": -7
+  }
+}

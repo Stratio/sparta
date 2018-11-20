@@ -1,0 +1,56 @@
+{
+  "nodes": [{
+    "configuration": {
+      "cacheNodeIds": "",
+      "checkpointInterval": "",
+      "featureSubsetStrategy": "",
+      "featuresCol": "",
+      "impurity": "",
+      "labelCol": "",
+      "maxBins": "",
+      "maxDepth": "",
+      "maxMemoryInMB": "",
+      "minInfoGain": "",
+      "minInstancesPerNode": "",
+      "numTrees": "",
+      "predictionCol": "",
+      "probabilityCol": "",
+      "rawPredictionCol": "",
+      "seed": "",
+      "subsamplingRate": "",
+      "thresholds": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "RandomForestClassifier",
+    "className": "org.apache.spark.ml.classification.RandomForestClassifier",
+    "arity": ["NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "RandomForestClassifier",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 533,
+        "y": 153
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": -87,
+    "y": -41
+  }
+}
