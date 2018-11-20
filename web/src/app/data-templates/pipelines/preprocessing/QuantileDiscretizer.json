@@ -1,0 +1,60 @@
+{
+  "name" : "QuantileDiscretizer",
+  "icon" : "QuantileDiscretizer",
+  "className" : "org.apache.spark.ml.feature.QuantileDiscretizer",
+  "category" : "Transformers",
+  "classPrettyName" : "QuantileDiscretizer",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the QuantileDiscretizer process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the output of the QuantileDiscretizer process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "numBuckets",
+    "propertyName" : "Number of Buckets (>= 2)",
+    "required" : true,
+    "tooltip" : "Number of buckets (quantiles, or categories) into which data points are grouped. Must be >= 2.",
+    "qa" : "",
+    "default" : "2",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "relativeError",
+    "propertyName" : "Relative target precision (must be between 0 and 1)",
+    "required" : true,
+    "tooltip" : "The relative target precision for the approximate quantile algorithm used to generate buckets. Must be in the range [0, 1].",
+    "qa" : "",
+    "default" : "0.001",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "handleInvalid",
+    "propertyName" : "How to handle invalid entries",
+    "required" : true,
+    "tooltip" : "How to handle invalid entries. Options are skip (filter out rows with invalid values), error (throw an error), or keep (keep invalid values in a special additional bucket).",
+    "qa" : "",
+    "values" : [ {
+      "label" : "SKIP",
+      "value" : "skip"
+    }, {
+      "label" : "ERROR",
+      "value" : "error"
+    }, {
+      "label" : "KEEP",
+      "value" : "keep"
+    } ],
+    "default" : "error",
+    "propertyType" : "select"
+  } ]
+}

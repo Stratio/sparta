@@ -1,111 +1,126 @@
 @import '~@stratio/egeo/theme/constants';
 .sparta-node-box {
-   .entity {
-      cursor: move;
-   }
-   .entity-name {
-      fill: $action-secondary-07;
-      font-family: $egeo-nunito-sans;
-      font-size: 14px;
-      font-weight: 300;
-      cursor: move;
-      letter-spacing: -0.6px;
-      user-select: none;
-      word-break: break-word;
-      line-height: 17px;
-   }
-   .entity-icon {
-      font-family: $egeo-stratio-icons;
-      font-size: 25px;
-      user-select: none;
-      cursor: move;
-   }
-   .error-icon {
-      font-family: $egeo-stratio-icons;
-      user-select: none;
-      cursor: move;
-      fill: $status-critical-default;
-   }
+  .entity {
+    cursor: move;
+  }
+  .entity-name {
+    fill: $action-secondary-07;
+    font-family: $egeo-nunito-sans;
+    font-size: 14px;
+    font-weight: 300;
+    cursor: move;
+    letter-spacing: -0.6px;
+    user-select: none;
+    word-break: break-word;
+    line-height: 17px;
+  }
+  .entity-icon {
+    font-family: $egeo-stratio-icons;
+    font-size: 25px;
+    user-select: none;
+    cursor: move;
+  }
+  .error-icon {
+    font-family: $egeo-stratio-icons;
+    user-select: none;
+    cursor: move;
+    fill: $status-critical-default;
+  }
 
-   .success-icon {
-      font-family: $egeo-stratio-icons;
-      user-select: none;
-      cursor: move;
-      fill: $status-success-hover;
-   }
+  .success-icon {
+    font-family: $egeo-stratio-icons;
+    user-select: none;
+    cursor: move;
+    fill: $status-success-hover;
+  }
 
-   .input-step {
-      stroke: #fcb66c;
-      &.active {
-         fill: #fbf3ec;
-      }
-   }
-   .output-step {
-      stroke: #78c7dd;
-      &.active {
-         fill: #f5fbfd;
-      }
-   }
-   .transformation-step {
-      stroke: #c59ddb;
-      &.active {
-         fill: #f9f5fb;
-      }
-   }
-   &.created-new {
-      .entity {
-         stroke: #ddd;
-      }
-      .entity-name {
-         color: #aaa;
-      }
-      .entity-icon {
-         fill: #aaa;
-      }
-      .entity-icon2 {
-         display: none;
-      }
-   }
-   .relation {
-      transform: scale(0);
-      stroke-width: 1;
-      stroke: $neutral-08;
-      fill: $action-primary-light;
-      transition: 0.15s transform;
-      transform-origin: 4px 4px;
-      cursor: pointer;
-   }
-   &:hover .origin .relation,
-   &.creation-mode .destination .relation {
-      transform: scale(1);
-   }
-   &.creation-mode:hover .destination .relation, .origin .relation:hover {
-      transform: scale(1.2)!important;
-      fill: white;
-   }
-   .relation-container {
-      &.over,
-      &.over2 {
-         .relation {
-            transform: scale(1.2)!important;
-            fill: white;
-         }
-      }
-   }
+  .input-step {
+    stroke: #fcb66c;
+    &.active {
+      fill: #fbf3ec;
+    }
+  }
+  .output-step {
+    stroke: #78c7dd;
+    &.active {
+      fill: #f5fbfd;
+    }
+  }
+  .transformation-step {
+    stroke: #c59ddb;
+    &.active {
+      fill: #f9f5fb;
+    }
+  }
 
-   .template-label {
-    font-family: Nunito Sans Bold;
+  .preprocessing-step {
+    stroke: #128bdd;
+    &.active {
+      fill: #f9f5fb;
+    }
+  }
+
+  .algorithm-step {
+    stroke: #fdbd2b;
+    &.active {
+      fill: #f9f5fb;
+    }
+  }
+
+  &.created-new {
+    .entity {
+      stroke: #ddd;
+    }
+    .entity-name {
+      color: #aaa;
+    }
+    .entity-icon {
+      fill: #aaa;
+    }
+    .entity-icon2 {
+      display: none;
+    }
+  }
+  .relation {
+    transform: scale(0);
+    stroke-width: 1;
+    stroke: $neutral-08;
+    fill: $action-primary-light;
+    transition: 0.15s transform;
+    transform-origin: 4px 4px;
+    cursor: pointer;
+  }
+  &:hover .origin .relation,
+  &.creation-mode .destination .relation {
+    transform: scale(1);
+  }
+  &.creation-mode:hover .destination .relation, .origin .relation:hover {
+    transform: scale(1.2)!important;
+    fill: white;
+  }
+  .relation-container {
+    &.over,
+    &.over2 {
+      .relation {
+        transform: scale(1.2)!important;
+        fill: white;
+      }
+    }
+  }
+
+  .template-label {
+    font-family: Nunito Sans Bold, sans-serif;
     margin-right: 6px;
     font-size: 12px;
-   }
-   
-    .input-step + .text-container.template-label{
-        color: #e67905;
-    }
-    .transformation-step + .text-container .template-label {
-        color: #9349bc;
-    }
-    .output-step  + .text-container .template-label {
-        color: #2d96b4;
-    }
+  }
+
+  .input-step + .text-container.template-label{
+    color: #e67905;
+  }
+  .transformation-step + .text-container .template-label {
+    color: #9349bc;
+  }
+  .output-step  + .text-container .template-label {
+    color: #2d96b4;
+  }
 }

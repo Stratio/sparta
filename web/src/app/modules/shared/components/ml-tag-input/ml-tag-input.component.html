@@ -1,0 +1,66 @@
+<st-dropdown-menu
+  [items]="autocompleteList"
+  [attr.id]="listId"
+  [placement]="'bottom-start'"
+  [active]="hasAutocomplete"
+  (change)="onListSelect($event)">
+
+  <div class="st-tag-input" [ngClass]="{ 'active': hasFocus, 'error': formControl.errors }">
+    <label
+      *ngIf="hasLabel" class="st-tag-input__label st-label"
+      [attr.id]="labelId"
+      [attr.title]="tooltip"
+      [attr.disabled]="disableValue">
+      {{label}}<span *ngIf="isRequired"> *</span>
+    </label>
+
+    <div
+      #inputElement
+      class="st-tag-input__input st-input"
+      [attr.disabled]="disableValue"
+      (clickOutside)="onClickOutside($event)"
+      (click)="onInputFocusIn($event)">
+
+      <span
+        *ngIf="hasPlaceholder"
+        class="st-tag-input__placeholder"
+        [attr.disabled]="disableValue">
+        {{placeholder}}
+      </span>
+      <div
+        class="st-tag-input__item tag-item"
+        *ngFor="let item of items; let i = index;"
+        [tabindex]="0"
+        [attr.id]="tagId + i"
+        (focusin)="onTagFocusIn($event, i)"
+        (focusout)="onTagFocusOut($event, i)"
+        (blur)="onTagFocusOut($event, i)"
+        (click)="onTagClick($event, i)"
+        (keydown)="onTagKeyDown($event, i)">
+        {{item}}
+        <span
+          *ngIf="!disabled"
+          class="icon-cross remove-tag-button"
+          (click)="deleteTag(i); $event.stopPropagation()">
+        </span>
+      </div>
+
+      <div
+        #newElement
+        type="type"
+        class="st-tag-input__text inner-input"
+        [attr.contenteditable]="(disableValue === null && allowFreeText)"
+        [attr.id]="inputId"
+        [ngClass]="{ 'error': !isValidInput }"
+        (focusin)="onInputFocusIn($event)"
+        (focusout)="onInputFocusOut($event)"
+        (blur)="onInputFocusOut($event)"
+        (input)="onInputText($event.target.textContent)"
+        (keydown)="onInputKeyDown($event)">
+      </div>
+    </div>
+  </div>
+
+</st-dropdown-menu>
+<span class="info-message" *ngIf="infoMessage && isPristine">{{infoMessage}}</span>
+<span *ngIf="formControl.errors" class="st-input-error-message">{{errorMessage}}</span>

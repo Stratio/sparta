@@ -5,22 +5,23 @@
  */
 
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  HostListener,
-  Input,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewContainerRef
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    HostListener,
+    Input,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewContainerRef
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 
 import 'rxjs/add/operator/takeUntil';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
@@ -33,281 +34,299 @@ import { WizardNode, WizardEdge, WizardEdgeNodes, EdgeOption } from '@app/wizard
 import { KEYS } from '@app/wizard/wizard.constants';
 import { ZoomTransform } from '@app/wizard/models/drag';
 import { WizardEditorService, WizardEditorComponent } from '@app/wizard';
-import { takeUntil, take } from 'rxjs/operators';
+import { WorkflowData } from '@app/wizard/wizard.models';
 
 @Component({
-   selector: 'wizard-editor-container',
-   styleUrls: ['wizard-editor-container.component.scss'],
-   templateUrl: 'wizard-editor-container.component.html',
-   changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'wizard-editor-container',
+  styleUrls: ['wizard-editor-container.component.scss'],
+  templateUrl: 'wizard-editor-container.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class WizardEditorContainer implements OnInit, OnDestroy {
+    @Input() workflowData: WorkflowData;
+    @Input() hiddenContent: boolean;
 
-   @Input() workflowType = '';
-   @Input() hiddenContent: boolean;
-   @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
-   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
+    @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
+    @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
-   public selectedNodeName = '';
-   public selectedNodeModel: WizardNode;
-   public selectedEdge: WizardEdge;
-   public isMobile = false;
-   public workflowName = '';
-   public workflowVersion = '';
-   public workflowEdges: Array<WizardEdgeNodes>;
-   public workflowNodes: Array<WizardNode>;
-   public svgPosition: ZoomTransform;
-   public creationMode$: Observable<any>;
-   public isShowedEntityDetails$: Observable<any>;
-   public edgeOptions: EdgeOption;
-   public isWorkflowDebugging: boolean;
-   public debugResult: any;
-   public serverStepValidations: any;
-   public showDebugConsole: boolean;
-   public genericError: any;
-   public consoleDebugData: any;
+    public selectedNodeName = '';
+    public selectedNodeModel: WizardNode;
+    public selectedEdge: WizardEdge;
+    public isMobile = false;
+    public workflowEdges: Array<WizardEdgeNodes>;
+    public workflowNodes: Array<WizardNode>;
+    public svgPosition: ZoomTransform;
+    public creationMode$: Observable<any>;
+    public isShowedEntityDetails$: Observable<any>;
+    public edgeOptions: EdgeOption;
+    public isWorkflowDebugging: boolean;
+    public debugResult: any;
+    public serverStepValidations: any;
+    public showDebugConsole: boolean;
+    public genericError: any;
+    public consoleDebugData: any;
+    public isPipelinesNodeSelected: boolean;
 
-   public showForbiddenError$: Observable<any>;
-   private _componentDestroyed = new Subject();
+    public showForbiddenError$: Observable<any>;
+    private _componentDestroyed = new Subject();
 
-   @ViewChild('editorArea') editorArea: ElementRef;
-   @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-      if (this.hiddenContent) {
-        return;
-      }
-      if (event.keyCode === KEYS.ESC_KEYCODE) {
-         if (this.selectedNodeName.length) {
-            this._store.dispatch(new wizardActions.UnselectEntityAction());
-         }
-         this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+    @ViewChild('editorArea') editorArea: ElementRef;
+    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+        if (this.hiddenContent) {
+            return;
+        }
+        if (event.keyCode === KEYS.ESC_KEYCODE) {
+            if (this.selectedNodeName.length) {
+                this._store.dispatch(new wizardActions.UnselectEntityAction());
+            }
+            this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
 
-      } else if (event.keyCode === KEYS.SUPR_KEYCODE) {
-         this.deleteSelection();
-      }
-   }
+        } else if (event.keyCode === KEYS.SUPR_KEYCODE) {
+            this.deleteSelection();
+        }
+    }
 
-   @HostListener('click', ['$event'])
-   clickout(event: any) {
-      if (this.editorArea.nativeElement.contains(event.target)) {
-         if (this.selectedEdge) {
+    @HostListener('click', ['$event'])
+    clickout(event: any) {
+        if (this.editorArea.nativeElement.contains(event.target)) {
+            if (this.selectedEdge) {
+                this._store.dispatch(new wizardActions.UnselectSegmentAction());
+            }
+            if (this.selectedNodeName) {
+                this._store.dispatch(new wizardActions.UnselectEntityAction());
+            }
+
+            this.isPipelinesNodeSelected = false;
+        }
+    }
+
+    constructor(
+        private _modalService: StModalService,
+        private _editorService: WizardEditorService,
+        private _cd: ChangeDetectorRef,
+        private _store: Store<fromWizard.State>,
+        private _el: ElementRef,
+        private store: Store<fromRoot.State>) {
+        this.isMobile = isMobile;
+    }
+
+    ngOnInit(): void {
+        this.creationMode$ = this._store.select(fromWizard.isCreationMode);
+        this._store.select(fromWizard.getSelectedEntityData)
+            .takeUntil(this._componentDestroyed)
+            .subscribe(nodeModel => {
+                this.selectedNodeModel = nodeModel;
+                this._cd.markForCheck();
+            });
+        this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails);
+        this._store.select(fromWizard.getSelectedEntities)
+            .takeUntil(this._componentDestroyed)
+            .subscribe(name => {
+                this.selectedNodeName = name;
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.getConsoleDebugEntityData)
+            .takeUntil(this._componentDestroyed)
+            .subscribe(debugData => {
+                this.consoleDebugData = debugData;
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.getWorkflowPosition)
+            .takeUntil(this._componentDestroyed)
+            .subscribe(position => {
+                this.svgPosition = position;
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.getWorkflowNodes)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((data: Array<any>) => {
+                this.workflowNodes = data;
+                this._store.dispatch(new wizardActions.ValidateWorkflowAction());
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.getWorkflowEdges)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((data: Array<WizardEdgeNodes>) => {
+                this.workflowEdges = data;
+                this._cd.markForCheck();
+                this._store.dispatch(new wizardActions.ValidateWorkflowAction());
+            });
+        this._store.select(fromWizard.getSelectedRelation)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((edge: WizardEdge) => {
+                this.selectedEdge = edge;
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.getServerStepValidation)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((serverStepValidations: any) => {
+                this.serverStepValidations = serverStepValidations;
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.showDebugConsole)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((showDebugConsole: any) => {
+                this.showDebugConsole = showDebugConsole;
+                this._cd.markForCheck();
+            });
+
+        this._store.select(fromWizard.getDebugResult)
+            .takeUntil(this._componentDestroyed)
+            .subscribe(debugResult => {
+                this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.getEdgeOptions)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((edgeOptions: any) => {
+                if (this.edgeOptions && !edgeOptions.active && !this.edgeOptions.active) {
+                    return;
+                }
+                this.edgeOptions = edgeOptions;
+                /** sync hide element, sometimes current event cascade is ocuppied
+                 * by the drag events and the if operator can't be executed until the dragend*/
+
+                const dropdownElement = this._el.nativeElement.querySelector('#edge-dropdown');
+                if (dropdownElement) {
+                    dropdownElement.hidden = !this.edgeOptions.active;
+                }
+
+                this._cd.markForCheck();
+            });
+        this._store.select(fromWizard.isWorkflowDebugging)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((isDebugging => {
+                this.isWorkflowDebugging = isDebugging;
+                this._cd.markForCheck();
+            }));
+
+        this._store.select(fromWizard.getDebugResult)
+            .takeUntil(this._componentDestroyed)
+            .subscribe((debugResult => {
+                this.debugResult = debugResult && debugResult.steps ? debugResult.steps : {};
+                this._cd.markForCheck();
+            }));
+        this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
+    }
+
+    deleteSelection() {
+        if (this.selectedNodeName && this.selectedNodeName.length) {
+            this.deleteConfirmModal('Delete node', 'This node and its relations will be deleted.', () => {
+                this._store.dispatch(new wizardActions.DeleteEntityAction());
+                this.isPipelinesNodeSelected = false;
+            });
+        }
+        if (this.selectedEdge) {
+            this._store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedEdge));
+        }
+    }
+
+    selectNode(entity: WizardNode) {
+        if (this.selectedEdge) {
             this._store.dispatch(new wizardActions.UnselectSegmentAction());
-         }
-         if (this.selectedNodeName) {
-            this._store.dispatch(new wizardActions.UnselectEntityAction());
-         }
-      }
-   }
+        }
+        if (this.selectedNodeName !== entity.name) {
+            const isPipelinesNodeEdition = (entity.classPrettyName && entity.classPrettyName === 'MlPipeline');
+            this._store.dispatch(new wizardActions.SelectEntityAction(entity.name, isPipelinesNodeEdition));
+        }
 
-   constructor(private _modalService: StModalService,
-      private _editorService: WizardEditorService,
-      private _cd: ChangeDetectorRef,
-      private _store: Store<fromWizard.State>,
-      private _el: ElementRef,
-      private store: Store<fromRoot.State>) {
-      this.isMobile = isMobile;
-   }
+        const isNodeSelected = (this.selectedNodeModel && Object.keys(this.selectedNodeModel).length);
+        this.isPipelinesNodeSelected = (isNodeSelected && this.selectedNodeModel.classPrettyName === 'MlPipeline');
+    }
 
-   ngOnInit(): void {
-      this.initData();
-   }
-
-   initData() {
-      this._store.select(fromWizard.getWorkflowHeaderData)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((data: any) => {
-            this.workflowName = data.name;
-            this.workflowVersion = data.version;
-            this._cd.markForCheck();
-         });
-      this.creationMode$ = this._store.select(fromWizard.isCreationMode);
-      this._store.select(fromWizard.getSelectedEntityData)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe(nodeModel => {
-            this.selectedNodeModel = nodeModel;
-            this._cd.markForCheck();
-         });
-      this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails);
-      this._store.select(fromWizard.getSelectedEntities)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe(name => {
-            this.selectedNodeName = name;
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.getConsoleDebugEntityData)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe(debugData => {
-            this.consoleDebugData = debugData;
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.getWorkflowPosition)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe(position => {
-            this.svgPosition = position;
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.getWorkflowNodes)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((data: Array<any>) => {
-            this.workflowNodes = data;
-            this._store.dispatch(new wizardActions.ValidateWorkflowAction());
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.getWorkflowEdges)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((data: Array<WizardEdgeNodes>) => {
-            this.workflowEdges = data;
-            this._cd.markForCheck();
-            this._store.dispatch(new wizardActions.ValidateWorkflowAction());
-         });
-      this._store.select(fromWizard.getSelectedRelation)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((edge: WizardEdge) => {
-            this.selectedEdge = edge;
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.getServerStepValidation)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((serverStepValidations: any) => {
-            this.serverStepValidations = serverStepValidations;
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.showDebugConsole)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((showDebugConsole: any) => {
-            this.showDebugConsole = showDebugConsole;
-            this._cd.markForCheck();
-         });
-
-      this._store.select(fromWizard.getDebugResult)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe(debugResult => {
-            this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.getEdgeOptions)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((edgeOptions: any) => {
-            if (this.edgeOptions && !edgeOptions.active && !this.edgeOptions.active) {
-               return;
+    public deleteConfirmModal(modalTitle: string, modalMessage: string, handler: any): void {
+        const buttons: StModalButton[] = [
+            { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
+            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
+        ];
+        this._modalService.container = this.target;
+        this._modalService.show({
+            modalTitle: modalTitle,
+            buttons: buttons,
+            maxWidth: 500,
+            messageTitle: 'Are you sure?',
+            message: modalMessage,
+        }).take(1).subscribe((response: any) => {
+            if (response === 1) {
+                this._modalService.close();
+            } else if (response === 0) {
+                handler();
             }
-            this.edgeOptions = edgeOptions;
-            /** sync hide element, sometimes current event cascade is ocuppied
-             * by the drag events and the if operator can't be executed until the dragend*/
+        });
+    }
 
-            const dropdownElement = this._el.nativeElement.querySelector('#edge-dropdown');
-            if (dropdownElement) {
-               dropdownElement.hidden = !this.edgeOptions.active;
-            }
+    saveWorkflow(closeOnSave: boolean): void {
+        this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
+        this._store.dispatch(new wizardActions.SaveEditorPosition(this.editor._svgPosition));
+        this._store.dispatch(new wizardActions.SaveWorkflowAction(closeOnSave));
+    }
 
-            this._cd.markForCheck();
-         });
-      this._store.select(fromWizard.isWorkflowDebugging)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((isDebugging => {
-            this.isWorkflowDebugging = isDebugging;
-            this._cd.markForCheck();
-         }));
+    createNode(event: any) {
+        this._store.dispatch(new wizardActions.CreateEntityAction(event));
+    }
 
-      this._store.select(fromWizard.getDebugResult)
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((debugResult => {
-            this.debugResult = debugResult && debugResult.steps ? debugResult.steps : {};
-            this._cd.markForCheck();
-         }));
-      this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
-   }
+    createEdge(event: any) {
+        this._store.dispatch(new wizardActions.CreateNodeRelationAction(event));
+    }
 
-   deleteSelection() {
-      if (this.selectedNodeName && this.selectedNodeName.length) {
-         this.deleteConfirmModal('Delete node', 'This node and its relations will be deleted.', () => {
-            this._store.dispatch(new wizardActions.DeleteEntityAction());
-         });
-      }
-      if (this.selectedEdge) {
-         this._store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedEdge));
-      }
-   }
+    closeSideBar() {
+        this._store.dispatch(new wizardActions.ToggleDetailSidebarAction());
+    }
 
-   selectNode(entity: any) {
-      if (this.selectedEdge) {
-         this._store.dispatch(new wizardActions.UnselectSegmentAction());
-      }
-      if (this.selectedNodeName !== entity.name) {
-         this._store.dispatch(new wizardActions.SelectEntityAction(entity.name));
-      }
-   }
+    editButtonEntity() {
+        this.editEntity(this.selectedNodeModel);
+    }
 
-   public deleteConfirmModal(modalTitle: string, modalMessage: string, handler: any): void {
-      const buttons: StModalButton[] = [
-         { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
-         { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
-      ];
-      this._modalService.container = this.target;
-      this._modalService.show({
-         modalTitle: modalTitle,
-         buttons: buttons,
-         maxWidth: 500,
-         messageTitle: 'Are you sure?',
-         message: modalMessage,
-      }).pipe(take(1)).subscribe((response: any) => {
-         if (response === 1) {
-            this._modalService.close();
-         } else if (response === 0) {
-            handler();
-         }
-      });
-   }
+    editButtonPipelinesEntity() {
+        this._store.dispatch(new wizardActions.ModifyIsPipelinesNodeEdition(false));
+        this.editEntity(this.selectedNodeModel);
+    }
 
-   saveWorkflow(closeOnSave: boolean): void {
-      this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
-      this._store.dispatch(new wizardActions.SaveEditorPosition(this.editor._svgPosition));
-      this._store.dispatch(new wizardActions.SaveWorkflowAction(closeOnSave));
-   }
+    setEditorDirty() {
+        this._store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+    }
 
-   createNode(event: any) {
-      this._store.dispatch(new wizardActions.CreateEntityAction(event));
-   }
+    selectEdge(event) {
+        this._store.dispatch(new wizardActions.SelectSegmentAction(event));
+        this.isPipelinesNodeSelected = false;
+    }
 
-   createEdge(event: any) {
-      this._store.dispatch(new wizardActions.CreateNodeRelationAction(event));
-   }
+    deselectEntityCreation() {
+        this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+    }
 
-   closeSideBar() {
-      this._store.dispatch(new wizardActions.ToggleDetailSidebarAction());
-   }
+    editEntity(entity: any) {
+        this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
+        this._store.dispatch(new wizardActions.ShowEditorConfigAction({
+            stepType: entity.stepType,
+            data: entity
+        }));
+    }
 
-   editButtonEntity() {
-      this.editEntity(this.selectedNodeModel);
-   }
+    showEdgeOptions(event) {
+        this._store.dispatch(new wizardActions.ShowEdgeOptionsAction(event));
+    }
 
-   editEntity(entity: any) {
-      this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
-      this._store.dispatch(new wizardActions.ShowEditorConfigAction({
-         stepType: entity.stepType,
-         data: entity
-      }));
-   }
+    duplicateNode(): void {
+        if (this.selectedNodeName) {
+            const data = _cloneDeep(this.workflowNodes.find((node: any) => node.name === this.selectedNodeName));
+            data.name = this._editorService.getNewEntityName(data.name, this.workflowNodes);
+            const newEntity: any = {
+                type: 'copy',
+                data: data
+            };
+            this._store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
+        }
+    }
 
-   duplicateNode(): void {
-      if (this.selectedNodeName) {
-         const data = _cloneDeep(this.workflowNodes.find((node: any) => node.name === this.selectedNodeName));
-         data.name = this._editorService.getNewEntityName(data.name, this.workflowNodes);
-         const newEntity: any = {
-            type: 'copy',
-            data: data
-         };
-         this._store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
-      }
-   }
+    hideAlert() {
+        this.store.dispatch(new errorsActions.ChangeRouteAction());
+    }
 
-   hideAlert() {
-      this.store.dispatch(new errorsActions.ChangeRouteAction());
-   }
-
-   ngOnDestroy(): void {
-      this.hideAlert();
-      this._componentDestroyed.next();
-      this._componentDestroyed.unsubscribe();
-   }
+    ngOnDestroy(): void {
+        this.hideAlert();
+        this._componentDestroyed.next();
+        this._componentDestroyed.unsubscribe();
+    }
 }

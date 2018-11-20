@@ -64,8 +64,7 @@ export const isOutputsLoaded: any = createSelector(getOutputsEntityState, (state
 // transformations
 export const getTransformationList: any = createSelector(getTransformationsEntityState, transformations.getTransformationList);
 export const getSelectedTransformations: any = createSelector(getTransformationsEntityState, transformations.getSelectedTransformations);
-export const getSelectedTransformationDisplayOption: any = createSelector(getTransformationsEntityState, 
-    transformations.getSelectedDisplayOption);
+export const getSelectedTransformationDisplayOption: any = createSelector(getTransformationsEntityState, transformations.getSelectedDisplayOption);
 export const getEditedTransformation: any = createSelector(getTransformationsEntityState, transformations.getEditedTransformation);
 export const isTransformationSaved: any = createSelector(getTransformationsEntityState, transformations.isTransformationSaved);
 export const isTransformationsLoaded: any = createSelector(getTransformationsEntityState, (state) => state.loaded);

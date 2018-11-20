@@ -1,110 +1,153 @@
 <div class="form-field">
-   <!-- input text -->
-   <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible && (!field.showInputSteps && !field.showSchemaFields)"
-      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
-      fieldType="{{field.propertyType}}"
+  <!-- input text -->
+  <sp-input
+    *ngIf="
+      (field.propertyType === 'text' || field.propertyType === 'password' || field.propertyType === 'number') &&
+      isVisible &&
+      (!field.showInputSteps && !field.showSchemaFields)"
+    label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
+    fieldType="{{field.propertyType}}"
+    class="st-form-field"
+    [formControl]="stFormControl"
+    [placeholder]="field.placeholder ? field.placeholder : ''"
+    pattern="{{field.regexp}}"
+    [required]="field.required"
+    [forceValidations]="forceValidations"
+    [errors]="errorsService.errors.inputErrors"
+    [qaTag]="field.qa"
+    [parameters]="valueDictionary['parameters']"
+    [showVars]="showVars"
+    [minlength]="field.minlength"
+    [customValidator]="customValidator"
+    [maxlength]="field.maxlength">
+  </sp-input>
+
+  <sp-column-input
+    *ngIf="
+      (field.propertyType == 'text' || field.propertyType == 'number') &&
+      isVisible  &&
+      (field.showInputSteps || field.showSchemaFields)"
+    label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
+    fieldType="{{field.propertyType}}"
+    class="st-form-field"
+    [formControl]="stFormControl"
+    [placeholder]="field.placeholder ? field.placeholder : ''"
+    pattern="{{field.regexp}}"
+    [name]="field.propertyId"
+    [errors]="errorsService.errors.inputErrors"
+    [forceValidations]="forceValidations"
+    [variableList]="getVariableList(field)"
+    [showVars]="showVars"
+    [minlength]="field.minlength"
+    [maxlength]="field.maxlength"
+    qaTag="field.qa"
+    [required]="field.required">
+  </sp-column-input>
+
+  <div class="textareas" *ngIf="field.propertyType === 'textarea' && isVisible" >
+    <!-- highlight textarea -->
+    <sp-textarea-highlight
+      *ngIf="field.contentType"
       class="st-form-field"
       [formControl]="stFormControl"
-      [placeholder]="field.placeholder ? field.placeholder : ''"
+      [contentType]="field.contentType"
+      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       pattern="{{field.regexp}}"
       [required]="field.required"
       [forceValidations]="forceValidations"
+      [placeholder]="field.placeholder ? field.placeholder : ''"
       [errors]="errorsService.errors.inputErrors"
       [qaTag]="field.qa"
-      [parameters]="valueDictionary['parameters']"
-      [showVars]="showVars"
       [minlength]="field.minlength"
-      [maxlength]="field.maxlength"></sp-input>
-      
-      <sp-column-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'number') && isVisible  && (field.showInputSteps || field.showSchemaFields)"
-        label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
-        fieldType="{{field.propertyType}}"
-        class="st-form-field"
-        [formControl]="stFormControl"
-        [placeholder]="field.placeholder ? field.placeholder : ''"
-        pattern="{{field.regexp}}"
-        [name]="field.propertyId"
-        [errors]="errorsService.errors.inputErrors"
-        [forceValidations]="forceValidations"       
-        [variableList]="getVariableList(field)"
-        [showVars]="showVars"
-        [minlength]="field.minlength"
-        [maxlength]="field.maxlength"
-        qaTag="field.qa" 
-        [required]="field.required" ></sp-column-input>
-
-    <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
-
-      <!-- highlight textarea -->
-      <sp-textarea-highlight *ngIf="field.contentType"
-          class="st-form-field"
-          [formControl]="stFormControl"
-          [contentType]="field.contentType"
-          label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
-          pattern="{{field.regexp}}"
-          [required]="field.required"
-          [forceValidations]="forceValidations"
-          [placeholder]="field.placeholder ? field.placeholder : ''"
-          [errors]="errorsService.errors.inputErrors"
-          [qaTag]="field.qa"
-          [minlength]="field.minlength"
-          [maxlength]="field.maxlength"></sp-textarea-highlight>
-
-      <!-- regular textarea -->
-      <sp-textarea *ngIf="!field.contentType"
-          [formControl]="stFormControl"
-          class="st-form-field"
-          label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
-          pattern="{{field.regexp}}"
-          [required]="field.required"
-          [forceValidations]="forceValidations"
-          [placeholder]="field.placeholder ? field.placeholder : ''"
-          [errors]="errorsService.errors.inputErrors"
-          [qaTag]="field.qa"
-          [rows]="field.rows"
-          [minlength]="field.minlength"
-          [maxlength]="field.maxlength"></sp-textarea>
-    </div>
-
-   <sp-select *ngIf="field.propertyType == 'select' && isVisible"
-      [options]="field.externalValueKey ? valueDictionary[field.externalValueKey]: field.values"
+      [maxlength]="field.maxlength">
+    </sp-textarea-highlight>
+    <!-- regular textarea -->
+    <sp-textarea
+      *ngIf="!field.contentType"
+      [formControl]="stFormControl"
       class="st-form-field"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
+      pattern="{{field.regexp}}"
+      [required]="field.required"
       [forceValidations]="forceValidations"
-      placeholder="Select option"
-      [qaTag]="field.qa"
-      [errorRequiredMessage]="errorsService.errors.selectRequiredError"
-      [required]="field.required"
-      [formControl]="stFormControl"></sp-select>
-
-   <st-switch *ngIf="field.propertyType == 'switch' && isVisible"
-      label="{{field.propertyName | translate}}"
-      labelPosition="top"
-      class="st-form-field"
-      [formControl]="stFormControl"
-      [value]="stModel"
-      [name]="field.propertyId"
-      [qaTag]="field.qa"></st-switch>
-
-    <st-checkbox *ngIf="field.propertyType == 'boolean' && isVisible"
-      [formControl]="stFormControl"
-      [checked]="stModel"
-      [name]="field.propertyId"
-      class="st-form-field"
-      [qaTag]="field.qa">{{field.propertyName | translate}}</st-checkbox>
-
-
-   <form-list *ngIf="field.propertyType == 'list'"
-      [formListData]="field.fields"
-      [qaTag]="field.qa"
-      [variableList]="variableList"
-      [showVars]="showVars"
-      [valueDictionary]="valueDictionary"
-      [required]="field.required"
-      [complexForm]="field.complexForm"
-      [formControl]="stFormControl"
+      [placeholder]="field.placeholder ? field.placeholder : ''"
       [errors]="errorsService.errors.inputErrors"
-      [forceValidations]="forceValidations"
-      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"></form-list>
+      [qaTag]="field.qa"
+      [rows]="field.rows"
+      [minlength]="field.minlength"
+      [maxlength]="field.maxlength">
+    </sp-textarea>
+  </div>
 
+  <sp-select
+    *ngIf="field.propertyType === 'select' && isVisible"
+    [options]="field.externalValueKey ? valueDictionary[field.externalValueKey]: field.values"
+    class="st-form-field"
+    label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
+    [forceValidations]="forceValidations"
+    placeholder="Select option"
+    [qaTag]="field.qa"
+    [errorRequiredMessage]="errorsService.errors.selectRequiredError"
+    [required]="field.required"
+    [formControl]="stFormControl">
+  </sp-select>
+
+  <st-switch
+    *ngIf="field.propertyType === 'switch' && isVisible"
+    label="{{field.propertyName | translate}}"
+    labelPosition="top"
+    class="st-form-field"
+    [formControl]="stFormControl"
+    [value]="stModel"
+    [name]="field.propertyId"
+    [qaTag]="field.qa">
+  </st-switch>
+
+  <st-checkbox
+    *ngIf="field.propertyType === 'boolean' && isVisible"
+    [formControl]="stFormControl"
+    [checked]="stModel"
+    [name]="field.propertyId"
+    class="st-form-field"
+    [qaTag]="field.qa">
+    {{field.propertyName | translate}}
+  </st-checkbox>
+
+  <ml-tag-input
+    *ngIf="field.propertyType === 'multiSelect' && isVisible"
+    class="st-form-field"
+    name="tag-input-auto-completed-group-list"
+    [label]="field.propertyName"
+    [errors]="errorsService.errors.inputErrors"
+    [formControl]="stFormControl"
+    [forceValidations]="forceValidations"
+    [tooltip]="field.tooltip"
+    [withAutocomplete]="true"
+    [required]="field.required"
+    [allowFreeText] = "freeText"
+    [autocompleteList]="field.externalValueKey ? valueDictionary[field.externalValueKey]: field.values"
+    [charsToShowAutocompleteList]="0">
+  </ml-tag-input>
+  <!--<ml-chips-->
+    <!--*ngIf="field.propertyType === 'multiSelect' && isVisible"-->
+    <!--class="st-form-field"-->
+    <!--[label]="field.propertyName"-->
+    <!--[formControl]="stFormControl"-->
+    <!--[required]="field.required">-->
+  <!--</ml-chips>-->
+
+  <form-list
+    *ngIf="field.propertyType === 'list'"
+    [formListData]="field.fields"
+    [qaTag]="field.qa"
+    [variableList]="variableList"
+    [showVars]="showVars"
+    [valueDictionary]="valueDictionary"
+    [required]="field.required"
+    [complexForm]="field.complexForm"
+    [formControl]="stFormControl"
+    [errors]="errorsService.errors.inputErrors"
+    [forceValidations]="forceValidations"
+    label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}">
+  </form-list>
 </div>

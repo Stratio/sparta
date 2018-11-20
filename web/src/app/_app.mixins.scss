@@ -1,0 +1,18 @@
+//## Mixin for apply flex properties to container.
+//## PARAMETERS: flex-direction, align-items, justify-content, flex-wrap
+@mixin createFlexBox($flexDirection, $alignItems, $justifyContent, $wrapMode) {
+  display: flex;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  flex-flow: $flexDirection $wrapMode;
+  -webkit-flex-direction: $flexDirection $wrapMode;
+  -ms-flex-direction: $flexDirection $wrapMode;
+  flex-shrink: 0;
+  -webkit-flex-shrink: 0;
+  align-items: $alignItems;
+  -webkit-align-items: $alignItems;
+  -ms-flex-align: $alignItems;
+  justify-content: $justifyContent;
+  -webkit-justify-content: $justifyContent;
+  @content;
+}

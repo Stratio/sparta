@@ -36,6 +36,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
    @Input() valueDictionary;
    @Input() variableList: Array<any> = [];
    @Input() showVars: boolean;
+   @Input() customValidator: any;
 
 
    public stFormControl: FormControl;
@@ -45,8 +46,9 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
    public disableSubscription: Subscription[] = [];
    public stModel: any = false;
    public errors: StInputError = {};
+   public freeText = true;
 
-   constructor(private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) { }
+   constructor(private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) {}
 
    ngOnInit() {
       this.stFormControl = new FormControl();
@@ -62,6 +64,9 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
                this.stFormControl.updateValueAndValidity();
             });
          });
+      }
+      if (this.field.hasOwnProperty('freeText')) {
+        this.freeText = this.field.freeText;
       }
    }
 

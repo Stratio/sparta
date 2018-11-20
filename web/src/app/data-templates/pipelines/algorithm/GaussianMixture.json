@@ -1,0 +1,68 @@
+{
+  "name" : "GaussianMixture",
+  "icon" : "GaussianMixture",
+  "className" : "org.apache.spark.ml.clustering.GaussianMixture",
+  "category" : "Clustering",
+  "classPrettyName" : "GaussianMixture",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = clustering",
+  "properties" : [ {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the GaussianMixture process.",
+    "qa" : "",
+    "default" : "features",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "Prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the GaussianMixture process.",
+    "qa" : "",
+    "default" : "prediction",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "probabilityCol",
+    "propertyName" : "Probability column",
+    "required" : true,
+    "tooltip" : "Column name for predicted class conditional probabilities. Note: Not all models output well-calibrated probability estimates! These probabilities should be treated as confidences, not precise probabilities.",
+    "qa" : "",
+    "default" : "probability",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "k",
+    "propertyName" : "Number of independent gaussians (> 1)",
+    "required" : true,
+    "tooltip" : "Number of independent Gaussians in the mixture model (> 1).",
+    "qa" : "",
+    "default" : "2",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "100",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "tol",
+    "propertyName" : "Convergence tolerance (>= 0)",
+    "required" : true,
+    "tooltip" : "The convergence tolerance for iterative algorithms (>= 0).",
+    "qa" : "",
+    "default" : "0.01",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "random seed",
+    "qa" : "",
+    "default" : "538009335",
+    "propertyType" : "number"
+  } ]
+}

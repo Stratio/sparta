@@ -1,0 +1,43 @@
+{
+  "name" : "HashingTF",
+  "icon" : "HashingTF",
+  "className" : "org.apache.spark.ml.feature.HashingTF",
+  "category" : "Extractors",
+  "classPrettyName" : "HashingTF",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the HashingTF process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the output of the HashingTF process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "binary",
+    "propertyName" : "Binary",
+    "required" : true,
+    "tooltip" : "If true, all non zero counts are set to 1. This is useful for discrete probabilistic models that model binary events rather than integer counts.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "numFeatures",
+    "propertyName" : "Number of Features",
+    "required" : true,
+    "tooltip" : "The number of features (> 0).",
+    "qa" : "",
+    "default" : "262144",
+    "propertyType" : "number",
+    "minimum": 0
+  } ]
+}

@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, OnDestroy, OnChanges} from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -24,7 +24,7 @@ import { Subscription } from 'rxjs/Subscription';
          multi: true
       }]
 })
-export class FormGeneratorComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
+export class FormGeneratorComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy, OnChanges {
 
    @Input() formData: any; // data template
    @Input() stFormGroup: FormGroup;
@@ -36,6 +36,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
    @Input() valueDictionary: any = {};
    @Input() variableList: Array<any> = [];
    @Input() showVars: boolean;
+   @Input() customValidators: any = {};
 
    @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
 

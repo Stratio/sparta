@@ -1,0 +1,24 @@
+@import '../../app.mixins';
+@import '../../app.variables';
+
+:host {
+  z-index: 99999;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#wizard-embedded {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  @include createFlexBox(column, normal, flex-start, nowrap);
+
+  DIV.we__editor {
+    background: url('../../../assets/images/workflow-base.png') 11px 8px;
+    width: 100%;
+    height: calc(100% - #{$wizardHeaderHeight});
+    position: relative;
+    @include createFlexBox(column, center, center, nowrap);
+  }
+}

@@ -1,0 +1,57 @@
+@import '../../../app.mixins';
+@import '../../../app.variables';
+
+#we-header {
+  height: 135px;
+  min-height: $wizardHeaderHeight;
+  @include createFlexBox(column, normal, normal, nowrap);
+
+  & > DIV {
+    height: 50%;
+    @include createFlexBox(row, center, space-between, nowrap);
+    & > DIV {
+      margin: 0 110px;
+    }
+  }
+
+  & > DIV.we-header__info {
+    background-color: black;
+    A {
+      color: white;
+      cursor: pointer;
+    }
+    .we-header__left {
+      IMG {
+        width: 28px;
+      }
+      SPAN {
+        margin-left: 20px;
+      }
+    }
+    .we-header__right {
+      #save-button {
+        margin-left: 30px;
+      }
+    }
+  }
+
+  & > DIV.we-header__control {
+    border: 1px solid #dddddd;
+    floating-menu {
+      margin-left: -7px;
+    }
+    BUTTON {
+      margin-left: 5px;
+    }
+    .we-header__left {
+      #zoom-in-button, #undo-button {
+        margin-left: 25px;
+      }
+    }
+  }
+
+  //###### OVERWRITE EGEO CLASSES ######
+  .egeo-title-extra-large {
+    color: white;
+  }
+}

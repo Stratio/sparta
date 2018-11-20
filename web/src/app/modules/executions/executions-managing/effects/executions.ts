@@ -54,7 +54,7 @@ export class ExecutionsEffect {
       .pipe(map((action: any) => action.executionId))
       .pipe(withLatestFrom(this.store.select(state => state.executions.executions.isArchivedPage)))
       .pipe(switchMap(([executionId, isArchivedPage]: [string, boolean]) => this._executionService.deleteExecution(executionId)
-         .pipe(mergeMap((() => [new executionsActions.DeleteExecutionCompleteAction, isArchivedPage ? new executionsActions.ListArchivedExecutionsAction() : new executionsActions.ListExecutionsAction()])))
+         .pipe(mergeMap((() => [new executionsActions.DeleteExecutionCompleteAction(executionId), isArchivedPage ? new executionsActions.ListArchivedExecutionsAction() : new executionsActions.ListExecutionsAction()])))
       .catch((error) => from([new executionsActions.DeleteExecutionErrorAction(), new errorActions.ServerErrorAction(error)]))));
 
 

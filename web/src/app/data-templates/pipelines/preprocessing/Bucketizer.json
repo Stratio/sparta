@@ -1,0 +1,51 @@
+{
+  "name" : "Bucketizer",
+  "icon" : "Bucketizer",
+  "className" : "org.apache.spark.ml.feature.Bucketizer",
+  "category" : "Transformers",
+  "classPrettyName" : "Bucketizer",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the Bucketizer process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the output of the Bucketizer process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "splits",
+    "propertyName" : "Split points (separated by comma)",
+    "required" : false,
+    "tooltip" : "(comma separated values) Split points for mapping continuous features into buckets. With n+1 splits, there are n buckets. A bucket defined by splits x,y holds values in the range [x,y) except the last bucket, which also includes y. The splits should be of length >= 3 and strictly increasing. Values at -inf, inf must be explicitly provided to cover all Double values; otherwise, values outside the splits specified will be treated as errors.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "handleInvalid",
+    "propertyName" : "How to handle invalids entries",
+    "required" : true,
+    "tooltip" : "How to handle invalid entries. Options are skip (filter out rows with invalid values), error (throw an error), or keep (keep invalid values in a special additional bucket).",
+    "qa" : "",
+    "values" : [ {
+      "label" : "SKIP",
+      "value" : "skip"
+    }, {
+      "label" : "ERROR",
+      "value" : "error"
+    }, {
+      "label" : "KEEP",
+      "value" : "keep"
+    } ],
+    "default" : "error",
+    "propertyType" : "select"
+  } ]
+}

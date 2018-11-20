@@ -13,12 +13,12 @@
     <div class="container">
       <div class="row">
         <div class="col-sm-12">
-          <div class="header-info" *ngIf="workflowName.length">
-            <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="workflowType === 'Streaming'" />
-            <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="workflowType === 'Batch'" />
+          <div class="header-info" *ngIf="workflowData.name.length">
+            <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="workflowData.type === 'Streaming'" />
+            <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="workflowData.type === 'Batch'" />
             <div class="workflow-name-container">
-              <span class="title egeo-title-extra-large">{{workflowName}} -</span>
-              <span class="title egeo-title-giant">v{{workflowVersion}}</span>
+              <span class="title egeo-title-extra-large">{{workflowData.name}} -</span>
+              <span class="title egeo-title-giant">v{{workflowData.version}}</span>
             </div>
           </div>
           <div class="header-links">
@@ -66,14 +66,35 @@
         </div>
         <div class="col-xs-6">
           <div style="float:left">
-            <button class="button button-toolbar" spTitle="Edit selected node" (click)="onEditEntity.emit()" *ngIf="isNodeSelected" id="edit-node-button">
+            <button
+              *ngIf="isPipelinesNodeSelected"
+              id="edit-pipeline-node-button"
+              class="button button-toolbar"
+              spTitle="Settings"
+              (click)="onEditPipelinesEntity.emit()">
+              <i class="icon-tool"></i>
+            </button>
+            <button
+              class="button button-toolbar"
+              spTitle="Edit"
+              (click)="onEditEntity.emit()"
+              *ngIf="isNodeSelected"
+              id="edit-node-button">
               <i class="icon-edit"></i>
             </button>
-            <button class="button button-toolbar" spTitle="Copy selected node" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected"
+            <button
+              class="button button-toolbar"
+              spTitle="Duplicate"
+              (click)="onDuplicateNode.emit()"
+              *ngIf="isNodeSelected"
               id="copy-node-button">
               <i class="icon-copy2"></i>
             </button>
-            <button class="button button-toolbar" spTitle="Delete selected node" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || isEdgeSelected"
+            <button
+              class="button button-toolbar"
+              spTitle="Delete"
+              (click)="deleteSelection.emit()"
+              *ngIf="isNodeSelected || isEdgeSelected"
               id="delete-node-button">
               <i class="icon-trash"></i>
             </button>
@@ -93,7 +114,7 @@
               class="button button-toolbar" id="show-info-button" (click)="toggleEntityInfo()">
                 <i class="icon-info1"></i>
             </button>
-            <button spTitle="Workflow settings" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
+            <button spTitle="Workflow configuration" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
               <i class="icon-cog"></i>
             </button>
           </div>
@@ -101,29 +122,5 @@
       </div>
     </div>
   </div>
-  <sp-foreground-notifications *ngIf="notification.visible" class="notification" [status]="notification.type" [text]="notification.message ? (('WIZARD.NOTIFICATION.' + notification.message) | translate) : ''"
-    [visible]="notification.visible">
-    <div *ngIf="notification.templateType && notification.templateType.length">
-      <div [ngSwitch]="notification.templateType">
-        <div class="message" *ngSwitchCase="'generic'">
-          <span class="icon-alert"></span>
-          <span>{{'WIZARD.GENERIC_ERROR' | translate}}</span>
-          <span class="link" (click)="showGlobalErrors()">View summary</span>
-        </div>
-        <div class="message" *ngSwitchCase="'debugSuccess'">
-          <span class="icon-circle-check icon-green"></span>
-          <span>{{'WIZARD.NOTIFICATION.DEBUG_SUCCESS' | translate}}</span>
-        </div>
-        <div class="message" *ngSwitchCase="'debugFail'">
-          <span class="icon-alert"></span>
-          <span>{{'WIZARD.NOTIFICATION.DEBUG_FAIL' | translate}}</span>
-        </div>
-        <div class="message" *ngSwitchCase="'runDebug'">
-          <loading-spinner class="loading"></loading-spinner>
-          <span>{{'WIZARD.NOTIFICATION.DEBUG_RUN' | translate}}</span>
-        </div>
-      </div>
-    </div>
-  </sp-foreground-notifications>
   <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
 </div>

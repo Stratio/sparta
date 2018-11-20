@@ -1,0 +1,146 @@
+{
+  "name" : "GeneralizedLinearRegression",
+  "icon" : "GeneralizedLinearRegression",
+  "className" : "org.apache.spark.ml.regression.GeneralizedLinearRegression",
+  "category" : "Regression",
+  "classPrettyName" : "GeneralizedLinearRegression",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = regression",
+  "properties" : [ {
+    "propertyId" : "family",
+    "propertyName" : "family",
+    "required" : true,
+    "tooltip" : "The name of family which is a description of the error distribution to be used in the model. Supported options: binomial, poisson, gaussian, gamma, tweedie.",
+    "qa" : "",
+    "default" : "gaussian",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the GeneralizedLinearRegression process.",
+    "qa" : "",
+    "default" : "features",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "labelCol",
+    "propertyName" : "Label column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the label of the GeneralizedLinearRegression process.",
+    "qa" : "",
+    "default" : "label",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "Prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the GeneralizedLinearRegression process.",
+    "qa" : "",
+    "default" : "prediction",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "linkPredictionCol",
+    "propertyName" : "Link prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the link prediction (linear predictor) of the GeneralizedLinearRegression process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "weightCol",
+    "propertyName" : "Weight column",
+    "required" : false,
+    "tooltip" : "Weight column name. If this is not set or empty, we treat all instance weights as 1.0.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "fitIntercept",
+    "propertyName" : "Fit an intercept term",
+    "required" : true,
+    "tooltip" : "Whether or not to fit an intercept term",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "link",
+    "propertyName" : "Link function",
+    "required" : false,
+    "tooltip" : "The name of link function which provides the relationship between the linear predictor and the mean of the distribution function. Supported options: cloglog, probit, logit, inverse, sqrt, identity, log.",
+    "qa" : "",
+    "propertyType" : "select",
+    "values": [
+      {
+        "label": "cloglog",
+        "value": "cloglog"
+      }, {
+        "label": "probit",
+        "value": "probit"
+      }, {
+        "label": "logit",
+        "value": "logit"
+      }, {
+        "label": "inverse",
+        "value": "inverse"
+      }, {
+        "label": "sqrt",
+        "value": "sqrt"
+      }, {
+        "label": "identity",
+        "value": "identity"
+      }, {
+        "label": "log",
+        "value": "log"
+      }
+    ]
+  }, {
+    "propertyId" : "linkPower",
+    "propertyName" : "Link power index",
+    "required" : false,
+    "tooltip" : "The index in the power link function. Only applicable to the Tweedie family.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "variancePower",
+    "propertyName" : "Variance power",
+    "required" : true,
+    "tooltip" : "The power in the variance function of the Tweedie distribution which characterizes the relationship between the variance and mean of the distribution. Only applicable to the Tweedie family. Supported values: 0 and [1, Inf).",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "25",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "regParam",
+    "propertyName" : "Regularization parameter (>= 0)",
+    "required" : true,
+    "tooltip" : "Regularization parameter (>= 0).",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "solver",
+    "propertyName" : "Solver algotithm",
+    "required" : true,
+    "tooltip" : "The solver algorithm for optimization. If this is not set or empty, default value is 'auto'.",
+    "qa" : "",
+    "default" : "irls",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "tol",
+    "propertyName" : "Convergence tolerance (>=0)",
+    "required" : true,
+    "tooltip" : "The convergence tolerance for iterative algorithms (>= 0).",
+    "qa" : "",
+    "default" : "1.0E-6",
+    "propertyType" : "text"
+  } ]
+}

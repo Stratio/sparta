@@ -1,0 +1,13 @@
+<div id="milos-chips">
+  <label
+    *ngIf="label"
+    for="milos-chips-{{label}}"
+    [ngClass]="{error: hasErrors}">
+    {{label}}<span *ngIf="chipsRequired"> *</span>
+  </label>
+  <input id="milos-chips-{{label}}">
+
+  <span>HERE: </span>
+  {{chipsContent | json }}
+  <span *ngFor="let item of chipsContent;"> {{item}} </span>
+</div>

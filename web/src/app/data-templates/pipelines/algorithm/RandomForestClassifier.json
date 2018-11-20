@@ -1,0 +1,190 @@
+{
+  "name" : "RandomForestClassifier",
+  "icon" : "RandomForestClassifier",
+  "className" : "org.apache.spark.ml.classification.RandomForestClassifier",
+  "category" : "Classification",
+  "classPrettyName" : "RandomForestClassifier",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = classification",
+  "properties" : [ {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the RandomForestClassifier process.",
+    "qa" : "",
+    "default" : "features",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "labelCol",
+    "propertyName" : "Label column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the label of the RandomForestClassifier process.",
+    "qa" : "",
+    "default" : "label",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "Prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the RandomForestClassifier process.",
+    "qa" : "",
+    "default" : "prediction",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "rawPredictionCol",
+    "propertyName" : "Raw prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the raw prediction (a.k.a. confidence) of the RandomForestClassifier process.",
+    "qa" : "",
+    "default" : "rawPrediction",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "probabilityCol",
+    "propertyName" : "Probability column",
+    "required" : true,
+    "tooltip" : "Column name for predicted class conditional probabilities. Note: Not all models output well-calibrated probability estimates! These probabilities should be treated as confidences, not precise probabilities.",
+    "qa" : "",
+    "default" : "probability",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "cacheNodeIds",
+    "propertyName" : "Cache node IDs",
+    "required" : true,
+    "tooltip" : "If false, the algorithm will pass trees to executors to match instances with nodes. If true, the algorithm will cache node IDs for each instance. Caching can speed up training of deeper trees.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "checkpointInterval",
+    "propertyName" : "Checkpoint interval (>= 1 or -1 to disable)",
+    "required" : true,
+    "tooltip" : "set checkpoint interval (>= 1) or disable checkpoint (-1). E.g. 10 means that the cache will get checkpointed every 10 iterations.",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "featureSubsetStrategy",
+    "propertyName" : "Feature subset strategy",
+    "required" : true,
+    "tooltip" : "The number of features to consider for splits at each tree node. Supported options: auto, all, onethird, sqrt, log2, [0.0-1.0], [1-n].",
+    "qa" : "",
+    "default" : "auto",
+    "propertyType" : "select",
+    "values": [
+      {
+        "label" : "auto",
+        "value" : "auto"
+      }, {
+        "label" : "all",
+        "value" : "all"
+      }, {
+        "label" : "onethird",
+        "value" : "aonethirdll"
+      }, {
+        "label" : "sqrt",
+        "value" : "sqrt"
+      }, {
+        "label" : "log2",
+        "value" : "log2"
+      }, {
+        "label" : "[0.0-1.0]",
+        "value" : "[0.0-1.0]"
+      }, {
+        "label" : "[1-n]",
+        "value" : "[1-n]"
+      }
+    ]
+  }, {
+    "propertyId" : "impurity",
+    "propertyName" : "Impurity",
+    "required" : true,
+    "tooltip" : "Criterion used for information gain calculation (case-insensitive). Supported options: entropy, gini.",
+    "qa" : "",
+    "default" : "gini",
+    "propertyType" : "select",
+    "values": [
+      {
+        "label": "entropy",
+        "value": "entropy"
+      },
+      {
+        "label": "gini",
+        "value": "gini"
+      }
+    ]
+  }, {
+    "propertyId" : "maxBins",
+    "propertyName" : "Max bins for discretizing continuous features (>= 2)",
+    "required" : true,
+    "tooltip" : "Max number of bins for discretizing continuous features.  Must be >=2 and >= number of categories for any categorical feature.",
+    "qa" : "",
+    "default" : "32",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxDepth",
+    "propertyName" : "Max depth (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum depth of the tree. (>= 0) E.g., depth 0 means 1 leaf node; depth 1 means 1 internal node + 2 leaf nodes.",
+    "qa" : "",
+    "default" : "5",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxMemoryInMB",
+    "propertyName" : "Max memory (in MB)",
+    "required" : true,
+    "tooltip" : "Maximum memory in MB allocated to histogram aggregation.",
+    "qa" : "",
+    "default" : "256",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "minInfoGain",
+    "propertyName" : "Min info gain",
+    "required" : true,
+    "tooltip" : "Minimum information gain for a split to be considered at a tree node.",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "minInstancesPerNode",
+    "propertyName" : "Min instances per node (>= 1)",
+    "required" : true,
+    "tooltip" : "Minimum number of instances each child must have after split.  If a split causes the left or right child to have fewer than minInstancesPerNode, the split will be discarded as invalid. Should be >= 1.",
+    "qa" : "",
+    "default" : "1",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "numTrees",
+    "propertyName" : "Num of Trees (>= 1)",
+    "required" : true,
+    "tooltip" : "Number of trees to train (>= 1).",
+    "qa" : "",
+    "default" : "20",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "subsamplingRate",
+    "propertyName" : "Subsampling rate (between 0 and 1)",
+    "required" : true,
+    "tooltip" : "Fraction of the training data used for learning each decision tree, in range [0, 1].",
+    "qa" : "",
+    "default" : "1.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "thresholds",
+    "propertyName" : "Thresholds (separated by comma)",
+    "required" : false,
+    "tooltip" : "(comma separated values) Thresholds in multi-class classification to adjust the probability of predicting each class. Array must have length equal to the number of classes, with values > 0 excepting that at most one value may be 0. The class with largest value p/t is predicted, where p is the original probability of that class and t is the class's threshold.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "207336481",
+    "propertyType" : "number"
+  } ]
+}

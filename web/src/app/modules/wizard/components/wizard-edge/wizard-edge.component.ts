@@ -5,16 +5,16 @@
  */
 
 import {
-   AfterContentInit,
-   ChangeDetectionStrategy,
-   ChangeDetectorRef,
-   Component,
-   ElementRef,
-   Input,
-   NgZone,
-   OnChanges,
-   SimpleChanges,
-   ViewEncapsulation
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef, EventEmitter,
+  Input,
+  NgZone,
+  OnChanges, Output,
+  SimpleChanges,
+  ViewEncapsulation
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as d3 from 'd3';
@@ -39,6 +39,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    @Input() finalEntityName: string;
    @Input() selectedEdge: any;
    @Input() index = 0;
+   @Input() workflowID: string = '';
    @Input() initPosition: WizardNodePosition;
    @Input() endPosition: WizardNodePosition;
    @Input() supportedDataRelations: Array<string>;
@@ -47,10 +48,13 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    }
    set dataType(value: string) {
       if (this._edgeElement) {
-         this._edgeElement.classed('special', value !== 'ValidData' ? true : false);
+         this._edgeElement.classed('special', value && value !== 'ValidData');
       }
       this._dataType = value;
-   };
+   }
+
+   @Output() selectEdge = new EventEmitter<any>();
+   @Output() showEdgeOptions = new EventEmitter<any>();
 
    public edge = '';
    public isSelected = false;
@@ -74,26 +78,26 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
 
       this._svgAuxDefs = container.append('defs')
          .append('path')
-         .attr('id', 'path' + this.index);
+         .attr('id', 'path' + this.index + '-' + this.workflowID);
       this._edgeElement = container.append('use')
-         .attr('xlink:xlink:href', '#path' + this.index)
+         .attr('xlink:xlink:href', '#path' + this.index + '-' + this.workflowID)
          .attr('class', 'edge')
-         .classed('special', this.dataType !== 'ValidData' ? true : false)
+         .classed('special', this.dataType && this.dataType !== 'ValidData')
          .attr('marker-start', 'url(#UpArrowPrecise)')
-         .attr('marker-end', 'url(#DownArrowPrecise');
+         .attr('marker-end', 'url(#DownArrowPrecise)');
 
       const auxEdge = container.append('use')
-         .attr('xlink:xlink:href', '#path' + this.index)
+         .attr('xlink:xlink:href', '#path' + this.index + '-' + this.workflowID)
          .attr('class', 'edge-hover')
          .attr('stroke-width', '15')
          .on('contextmenu', (d, i) => {
             const event = d3Event;
             event.preventDefault();
-            this.store.dispatch(new wizardActions.SelectSegmentAction({
+            this.selectEdge.emit({
                origin: this.initialEntityName,
                destination: this.finalEntityName
-            }));
-            this.store.dispatch(new wizardActions.ShowEdgeOptionsAction({
+            });
+            this.showEdgeOptions.emit({
                clientX: event.clientX,
                clientY: event.clientY,
                relation: {
@@ -102,7 +106,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
                },
                edgeType: this.dataType,
                supportedDataRelations: this.supportedDataRelations
-            }));
+            });
          });
       auxEdge.on('click', this.selectedge.bind(this));
       this.getPosition(this.initPosition.x, this.initPosition.y, this.endPosition.x, this.endPosition.y);
@@ -121,6 +125,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    }
 
    getPosition(x1: number, y1: number, x2: number, y2: number) {
+
       if (!this._svgAuxDefs) {
          return;
       }
@@ -149,15 +154,14 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
    selectedge() {
       d3Event.stopPropagation();
       // deselect nodes
-      this.store.dispatch(new wizardActions.UnselectEntityAction());
       if (this.selectedEdge && this.selectedEdge.origin === this.initialEntityName
          && this.selectedEdge.destination === this.finalEntityName) {
          this.store.dispatch(new wizardActions.UnselectSegmentAction());
       } else {
-         this.store.dispatch(new wizardActions.SelectSegmentAction({
+        this.selectEdge.emit({
             origin: this.initialEntityName,
             destination: this.finalEntityName
-         }));
+         });
       }
    }
 }

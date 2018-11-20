@@ -181,7 +181,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
 
     // When status change call this function to check if have errors
     private checkErrors(control: FormControl): void {
-        let errors: { [key: string]: any } = control.errors;
+        const errors: { [key: string]: any } = control.errors;
         this.errorMessage = this.getErrorMessage(errors);
         this._cd.markForCheck();
     }

@@ -1,18 +1,43 @@
-<label sp-label class="st-input__label" [ngClass]="{error: showError(), active: focus, disabled: disabled}" name="name" [attr.id]="labelQaTag"
-   [attr.title]="contextualHelp">
-   {{label}}
+<label
+  sp-label
+  class="st-input__label"
+  for="st-input-{{label}}"
+  [ngClass]="{error: showError(), active: focus, disabled: disabled}"
+  [attr.id]="labelQaTag"
+  [attr.title]="contextualHelp">
+  {{label}}
 </label>
 <div class="st-input__container" [ngClass]="{'param-value' : isParameterValue}">
-   <span class="icon-selected-param icon-json" *ngIf="isParameterValue"></span>
-   <input #input class="st-input" (keydown)="onKeydown($event)" autocomplete="off" (focus)="onFocus($event)" (focusout)="onFocusOut($event); " (blur)="onFocusOut($event)" [formControl]="internalControl"
-      [placeholder]="placeholder" [name]="name" [attr.type]="fieldType" [attr.id]="qaTag" [attr.maxlength]="maxLength" [attr.min]="min"
-      [attr.max]="max" [value]="value" [readonly]="readonly" [ngClass]="{'error': showError()}">
-      <div *ngIf="parameters && (isParameterValue || this.focus)" class="add-parameter" (mousedown)="showParameterSelector()">
-         <span class="icon icon-json"></span>
-      </div>
+  <span class="icon-selected-param icon-json" *ngIf="isParameterValue"></span>
+  <input
+    #input
+    id="st-input-{{label}}"
+    class="st-input"
+    (keydown)="onKeydown($event)"
+    autocomplete="off"
+    (focus)="onFocus($event)"
+    (focusout)="onFocusOut($event)"
+    (blur)="onFocusOut($event)"
+    [formControl]="internalControl"
+    [placeholder]="placeholder"
+    [name]="name"
+    [attr.type]="fieldType"
+    [attr.id]="qaTag"
+    [attr.maxlength]="maxLength"
+    [attr.min]="min"
+    [attr.max]="max"
+    [value]="value"
+    [readonly]="readonly"
+    [ngClass]="{'error': showError()}">
+  <div
+    *ngIf="parameters && (isParameterValue || this.focus)"
+    class="add-parameter"
+    (mousedown)="showParameterSelector()">
+    <span class="icon icon-json"></span>
+  </div>
 </div>
 <div class="param-type" *ngIf="isParameterValue">{{paramType}} Parameter</div>
 <div class="st-input-error-layout" *ngIf="showError()">
-   <span class="st-input-error-message">{{errorMessage}}</span>
+  <span class="st-input-error-message">{{errorMessage}}</span>
 </div>
 <div #variableSelectorModal></div>

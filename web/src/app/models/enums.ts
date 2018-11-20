@@ -15,3 +15,8 @@
     Transformation : 'Transformation',
     Pipeline: 'Pipeline'
  };
+
+export const PipelineType = {
+    Preprocessing: 'Preprocessing',
+    Algorithm: 'Algorithm'
+};

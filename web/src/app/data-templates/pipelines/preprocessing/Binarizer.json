@@ -1,0 +1,34 @@
+{
+  "name" : "Binarizer",
+  "icon" : "Binarizer",
+  "className" : "org.apache.spark.ml.feature.Binarizer",
+  "category" : "Transformers",
+  "classPrettyName" : "Binarizer",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the Binarizer process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the output of the Binarizer process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "threshold",
+    "propertyName" : "Threshold",
+    "required" : true,
+    "tooltip" : "Threshold used to binarize continuous features.",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  } ]
+}

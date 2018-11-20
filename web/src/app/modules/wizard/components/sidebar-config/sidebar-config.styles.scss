@@ -1,0 +1,25 @@
+@import '../../../../../../node_modules/@stratio/egeo/theme/constants';
+
+.entity-categories{
+  padding-bottom: 30px;
+  display: block;
+}
+
+.title {
+  color: $action-secondary-06;
+  font-size: 14px;
+  margin-top: 6px;
+  display: block;
+}
+
+.values {
+  display: block;
+  word-break: break-all;
+}
+
+.catalog {
+  position: fixed;
+  right: 0;
+  top: 0;
+  min-height: 100%;
+}
