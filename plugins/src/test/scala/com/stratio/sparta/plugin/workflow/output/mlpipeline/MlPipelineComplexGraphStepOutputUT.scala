@@ -126,8 +126,15 @@ class MlPipelineComplexGraphStepOutputUT extends TemporalSparkContext with Shoul
       assert(validation.isSuccess)
       assert(!validation.get.valid)
       assert(!validation.get.messages.isEmpty)
-      assert(!validation.get.messages(0).internalErrors.isEmpty)
-      assert(validation.get.messages(0).internalErrors.get.size == 7)
+      assert(validation.get.messages.size == 8)
+      assert(validation.get.messages(0).subStep == None)
+      assert(validation.get.messages(1).subStep != None)
+      assert(validation.get.messages(2).subStep != None)
+      assert(validation.get.messages(3).subStep != None)
+      assert(validation.get.messages(4).subStep != None)
+      assert(validation.get.messages(5).subStep != None)
+      assert(validation.get.messages(6).subStep != None)
+      assert(validation.get.messages(7).subStep != None)
       val execution = Try {
         executeStepAndUsePipeline(training, properties)
       }
