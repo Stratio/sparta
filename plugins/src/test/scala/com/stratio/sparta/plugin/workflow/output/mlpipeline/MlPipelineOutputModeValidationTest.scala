@@ -21,7 +21,7 @@ import scala.io.Source
 import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
-class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matchers{
+class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Matchers{
 
   trait WithValidateStep {
     def validateMlPipelineStep(properties: Map[String, JSerializable]): ErrorValidations = {
@@ -70,18 +70,6 @@ class MlPipelineOutputModeValidationTests extends TemporalSparkContext with Matc
       assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedPath)
     }
 
-  /* Ya no aplica este test
-  "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining url" in
-    new WithValidPipeline with WithValidateStep {
-
-      properties = properties.updated("output.mode", MlPipelineSaveMode.MODELREP)
-        .updated("mlmodelrepModelName", "test")
-      val validation = Try{validateMlPipelineStep(properties)}
-      assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
-      assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedMlRepoConnection)
-    }
-*/
   "MlPipeline" should "show a validation error with mlModelRepo output.mode without defining the model name" in
     new WithValidPipeline with WithValidateStep {
 

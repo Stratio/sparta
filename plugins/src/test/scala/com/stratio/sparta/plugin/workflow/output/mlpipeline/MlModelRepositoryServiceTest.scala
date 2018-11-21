@@ -22,7 +22,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class MlModelRepositoryServiceTests extends TemporalSparkContext with Matchers {
+class MlModelRepositoryServiceTest extends TemporalSparkContext with Matchers {
 
   trait ReadDescriptorResource {
     def getJsonDescriptor(filename: String): String = {
@@ -132,13 +132,5 @@ class MlModelRepositoryServiceTests extends TemporalSparkContext with Matchers {
       assert(!validationResult.valid)
       assert(validationResult.messages.head.message.equals(ValidationErrorMessages.mlModelRepModelInvalidModelName))
     }
-/*
-  "MlModelRepositoryClient" should "save a model into local ml-model-repo" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithLocalRepositoryProperties {
-      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("nlp_pipeline_good.json")))
-      executeStepAndUsePipeline(training, properties)
-    }
-*/
 
 }

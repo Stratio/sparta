@@ -12,7 +12,7 @@ import org.json4s.CustomSerializer
 import org.json4s.JsonAST.JBool
 import org.apache.spark.ml.linalg.Vectors
 
-import scala.util.{Failure, Try}
+import scala.util.Try
 
 
 /** Custom json4s serializator/deserializator for boolean values threated as strings */
@@ -45,14 +45,11 @@ case class PipelineStageDescriptor(
                                   )
 
 
-//noinspection ScalaStyle
 object MlPipelineDeserializationUtils {
 
   def nullOrEmpty(value: JsoneyString): Boolean = (value == null)||(value.toString == null)||(value.toString.trim == "")
 
-  //TODO filter out only optional parameters
   def okParam(value: JsoneyString): Boolean = (value != null)&&(value.toString!=null)&&(value.toString.trim != "")
-
 
   def decodeParamValue(param: Param[Any], value: JsoneyString = null): Try[Any] = Try {
       param.getClass().getSimpleName match {

@@ -28,7 +28,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Success, Try}
-import MlPipelineDeserializationUtils.{okParam, decodeParamValue }
+import MlPipelineDeserializationUtils.{okParam, decodeParamValue}
 
 class MlPipelineOutputStep(
                             name: String,
@@ -50,7 +50,11 @@ class MlPipelineOutputStep(
 
   lazy val serializationLib: MlPipelineSerializationLibs.Value =
     MlPipelineSerializationLibs.withName(properties.getString("serializationLib",
-      if (outputMode.get == MlPipelineSaveMode.FILESYSTEM) {"SPARK"} else {"SPARK_AND_MLEAP"}).toUpperCase)
+      if (outputMode.get == MlPipelineSaveMode.FILESYSTEM) {
+        "SPARK"
+      } else {
+        "SPARK_AND_MLEAP"
+      }).toUpperCase)
 
   // => Pipeline related
   // · Pipeline Json descriptor --> deserialized into Array[PipelineStageDescriptor]
@@ -163,7 +167,8 @@ class MlPipelineOutputStep(
       }
       validation = ErrorValidations(
         valid = false,
-        messages = (validation.messages :+ WorkflowValidationMessage(ValidationErrorMessages.errorBuildingPipelineInstance, name)) ++ errors
+        messages = (validation.messages :+ WorkflowValidationMessage(
+          ValidationErrorMessages.errorBuildingPipelineInstance, name)) ++ errors
       )
     }
 

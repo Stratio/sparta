@@ -36,6 +36,7 @@ object ValidationErrorMessages {
   def moreThanOneOutput(nodeName: String): String =
     s"node '$nodeName' in Pipeline Graph has more than one output"
   def schemaError(className: String, uid: String): String = schemaErrorInit+ s"${className}@${uid}:"
+
   // => Building pipeline
   val errorBuildingPipelineInstance = "The pipeline is not correctly defined (check Pipeline graph)."
 }
