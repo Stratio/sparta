@@ -6,12 +6,16 @@
 
 package com.stratio.sparta.core.models
 
-case class WorkflowValidationMessage(message: String, step: Option[String] = None) {
+case class WorkflowValidationMessage(message: String, step: Option[String] = None, subStep: Option[String] = None) {
 
 }
 
 object WorkflowValidationMessage {
 
-  def apply(message: String, step: String): WorkflowValidationMessage = WorkflowValidationMessage(message, Option(step))
+  def apply(message: String, step: String): WorkflowValidationMessage =
+    WorkflowValidationMessage(message, Option(step))
+
+  def apply(message: String, step: String, subStep: String): WorkflowValidationMessage =
+    WorkflowValidationMessage(message, Option(step), Option(subStep))
 
 }
