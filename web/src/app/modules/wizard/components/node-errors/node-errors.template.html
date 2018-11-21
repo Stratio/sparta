@@ -30,6 +30,19 @@
   </div>
 </div>
 <div class="schemas-container">
+
+  <div class="schemas pipelines-schema" *ngIf="pipelinesSchema && pipelinesSchema.tree && pipelinesSchema.tree.length">
+    <div class="schema-title">
+      <span (click)="pipelinesSchemasOpened = !pipelinesSchemasOpened">
+        <span class="icon" [ngClass]="pipelinesSchemasOpened ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
+        <span>{{pipelinesSchema.name}}</span>
+      </span>
+    </div>
+    <div class="pipelines-schema__content" *ngIf="pipelinesSchemasOpened">
+      <div class="pipelines-schema__children" *ngFor="let item of pipelinesSchema.tree">{{item.label}}</div>
+    </div>
+  </div>
+
   <div class="schemas input-schemas" *ngIf="inputSchemas.length">
     <div class="schema-title">
       <span (click)="inputSchemasOpened = !inputSchemasOpened">

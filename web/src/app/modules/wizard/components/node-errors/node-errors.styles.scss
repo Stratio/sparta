@@ -33,7 +33,7 @@
     .icon-record {
       font-size: 18px;
       margin-top: 1px;
-      margin-right: 3px;  
+      margin-right: 3px;
     }
   }
 
@@ -110,6 +110,16 @@
     font-weight: 600;
     font-size: 14px;
     padding-right: 2px;
+  }
+
+  &.pipelines-schema {
+    .pipelines-schema__content {
+      margin-top: 12px;
+      .pipelines-schema__children {
+        padding-left: 25px;
+        font-size: 0.875rem;
+      }
+    }
   }
 }
 

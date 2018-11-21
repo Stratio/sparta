@@ -28,10 +28,12 @@ export class NodeErrorsComponent implements OnChanges {
 
   public outputSchemasOpened = false;
   public inputSchemasOpened = false;
+  public pipelinesSchemasOpened = true;
 
   public inputSchemas: NodeSchema[] = [];
   public outputSchema: NodeSchema = null;
   public outputsSchemas:  NodeSchema[] = [];
+  public pipelinesSchema: PipelinesSchema;
   private _schemas: any = {};
 
   constructor(private _store: Store<fromWizard.State>) { }
@@ -71,6 +73,15 @@ export class NodeErrorsComponent implements OnChanges {
       }));
     } else {
       this.outputsSchemas = [];
+    }
+
+    if (value && value.type && value.type === 'pipelines') {
+      this.pipelinesSchema = {
+        name: 'Inputs received',
+        tree: value.tree
+      };
+    } else {
+      this.pipelinesSchema = null;
     }
 
     if (this.openedSchema === 'Output') {
@@ -116,4 +127,9 @@ class NodeSchema {
   name: String;
   tree: StTreeNode[];
   expanded: boolean;
+}
+
+class PipelinesSchema {
+  name: string;
+  tree: Array<any>;
 }

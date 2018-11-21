@@ -152,12 +152,15 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
   weSelectNode(event: WizardNode) {
     this.deselectAll();
-    this.selectedNode = event.name;
-    this.editedNodeEditionMode = this.nodesEditionMode.find(node => node.editionType.data.name === event.name);
-
     this._nodeHelpers.nodes = this.nodes;
     this._nodeHelpers.edges = this.edges;
-    // console.log(this._nodeHelpers.getInputFields(this.nodes.find(node => node.name === this.selectedNode)));
+
+    this.selectedNode = event.name;
+    this.editedNodeEditionMode = this.nodesEditionMode.find(node => node.editionType.data.name === event.name);
+    this.editedNodeEditionMode['schemas'] = {
+      type: 'pipelines',
+      tree: this._nodeHelpers.getInputFields(this.nodes.find(node => node.name === this.selectedNode))
+    };
   }
 
   weSelectEdge(event: WizardEdge) {
