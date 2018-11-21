@@ -20,6 +20,7 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 import { NgForm } from '@angular/forms';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
 import {HelpOptions} from '@app/shared/components/sp-help/sp-help.component';
+import {NodeHelpersService} from '@app/wizard-embedded/_services/node-helpers.service';
 
 @Component({
   selector: 'we-config-editor',
@@ -61,6 +62,7 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
   constructor(
     private _wizardService: WizardService,
     private _initializeSchemaService: InitializeSchemaService,
+    private _nodeHelpers: NodeHelpersService,
     public errorsService: ErrorMessagesService
   ) {}
 
@@ -72,7 +74,7 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
     this.formDescription = editedNode.description || '';
     this.helpOptions = this._initializeSchemaService.getHelpOptions(this.formTemplate.properties);
 
-    this.processInputs();
+    this.valueDictionary.externalInputs = this._nodeHelpers.getInputFields(this.editedNode);
     this.customValidations();
   }
 
@@ -82,67 +84,6 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
         this.customValidators[key] = this.outputValidation.bind(this);
       }
     });
-  }
-
-  processInputs() {
-    if (this.mlPipelineNode.schemas) {
-      const mlPipelineNodeData = _cloneDeep(this.mlPipelineNode.editionType.data);
-      const mlPipelineNodeInputs = _cloneDeep(this.mlPipelineNode.schemas.inputs);
-      if (mlPipelineNodeInputs && Array.isArray(mlPipelineNodeInputs) && mlPipelineNodeInputs.length) {
-        if (mlPipelineNodeInputs.length === 1) {
-          const inputFields = mlPipelineNodeInputs.pop().result.schema.fields;
-          this.valueDictionary.externalInputs = inputFields.map(field => {
-            return {
-              label: field.name,
-              value: field.name
-            };
-          });
-        } else {
-          console.error(new Error('Found more than 1 input from step ' + mlPipelineNodeData.name));
-        }
-      } else {
-        console.error(new Error('No inputs found in step ' + mlPipelineNodeData.name));
-      }
-    }
-
-    const prevOutputs = this.processPrevOutputs(this.editedNode);
-    if (prevOutputs.length) {
-      const newExternalInputs = prevOutputs.map(e => {
-        return {
-          label: e,
-          value: e
-        };
-      });
-      if (this.valueDictionary.externalInputs) {
-        this.valueDictionary.externalInputs = this.valueDictionary.externalInputs.concat(newExternalInputs).sort(compare);
-      } else {
-        this.valueDictionary.externalInputs = newExternalInputs.sort(compare);
-      }
-    }
-
-    if (!this.valueDictionary.externalInputs) {
-      this.valueDictionary.externalInputs = [];
-    }
-
-    function compare(a, b) {
-      if (a.label < b.label) {
-        return -1;
-      }
-      if (a.label > b.label) {
-        return 1;
-      }
-      return 0;
-    }
-  }
-
-  processPrevOutputs(node: WizardNode, output: string[] = []): string[] {
-    const fromEdge = this.edges.find(e => e.destination === node.name);
-    if (fromEdge) {
-      const prevNode = this.nodes.find(e => e.name === fromEdge.origin);
-      output.push(prevNode.configuration.outputCol);
-      this.processPrevOutputs(prevNode, output);
-    }
-    return output;
   }
 
   saveEdition(configuration: any) {
