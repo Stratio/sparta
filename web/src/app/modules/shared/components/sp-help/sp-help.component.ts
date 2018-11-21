@@ -42,6 +42,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
    }
    @Input() xPos = 0;
    @Input() yPos = 0;
+   @Input() reference = '';
    @Output() onCloseHelpMenu =  new EventEmitter();
 
    public definitionShowed: HelpOptions = null;
@@ -56,11 +57,12 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
 
    private _element: any;
    private _helpOptions: Array<HelpOptions> = [];
-   constructor(private _el: ElementRef,
-      private _ngZone: NgZone,
-      @Inject(DOCUMENT) private _document: Document,
+   constructor(
+     private _el: ElementRef,
+     private _ngZone: NgZone,
+     @Inject(DOCUMENT) private _document: Document,
    ) {
-      this._element = _el.nativeElement;
+     this._element = _el.nativeElement;
    }
 
    ngOnInit() {
@@ -68,8 +70,15 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
    }
 
    ngAfterContentInit(): void {
-      this._element.style.top = this._element.offsetTop + this.yPos + 'px';
-      this._element.style.left = this._element.offsetLeft + this.xPos + 'px';
+      if (this.reference) {
+        const referenceContainer = document.getElementById(this.reference);
+        const rect = referenceContainer.getBoundingClientRect();
+        this._element.style.top = rect.top + rect.height + 5 + 'px';
+        this._element.style.left = rect.left + 'px';
+      } else {
+        this._element.style.top = this._element.offsetTop + this.yPos + 'px';
+        this._element.style.left = this._element.offsetLeft + this.xPos + 'px';
+      }
    }
 
    showDefinition(event: string): void {

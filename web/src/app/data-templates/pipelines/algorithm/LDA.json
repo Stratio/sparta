@@ -1,0 +1,131 @@
+{
+  "name" : "LDA",
+  "icon" : "LDA",
+  "className" : "org.apache.spark.ml.clustering.LDA",
+  "category" : "Clustering",
+  "classPrettyName" : "LDA",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = clustering",
+  "properties" : [ {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the LDA process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "topicDistributionCol",
+    "propertyName" : "Topic distribution column",
+    "required" : true,
+    "tooltip" : "Output column with estimates of the topic mixture distribution for each document (often called \"theta\" in the literature).  Returns a vector of zeros for an empty document.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "checkpointInterval",
+    "propertyName" : "Checkpoint interval (>=1 or -1 to disable)",
+    "required" : true,
+    "tooltip" : "set checkpoint interval (>= 1) or disable checkpoint (-1). E.g. 10 means that the cache will get checkpointed every 10 iterations",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "keepLastCheckpoint",
+    "propertyName" : "Keep last checkpoint",
+    "required" : true,
+    "tooltip" : "(For EM optimizer) If using checkpointing, this indicates whether to keep the last checkpoint. If false, then the checkpoint will be deleted. Deleting the checkpoint can cause failures if a data partition is lost, so set this bit with care.",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "optimizeDocConcentration",
+    "propertyName" : "Optimize doc concentration",
+    "required" : true,
+    "tooltip" : "(For online optimizer only, currently) Indicates whether the docConcentration (Dirichlet parameter for document-topic distribution) will be optimized during training.",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "docConcentration",
+    "propertyName" : "Doc concentration parameters (separated by comma)",
+    "required" : false,
+    "tooltip" : "(comma separated values) Concentration parameter (commonly named \"alpha\") for the prior placed on documents' distributions over topics (\"theta\").",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "k",
+    "propertyName" : "Number of topics (clusters) (> 1)",
+    "required" : true,
+    "tooltip" : "The number of topics (clusters) to infer (> 1).",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "topicConcentration",
+    "propertyName" : "Topic concentration",
+    "required" : false,
+    "tooltip" : "Concentration parameter (commonly named \"beta\" or \"eta\") for the prior placed on topic' distributions over terms.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "learningDecay",
+    "propertyName" : "Learning decay (between 0.5 and 1)",
+    "required" : true,
+    "tooltip" : "(For online optimizer) Learning rate, set as an exponential decay rate. This should be between (0.5, 1.0) to guarantee asymptotic convergence.",
+    "qa" : "",
+    "default" : "0.51",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "learningOffset",
+    "propertyName" : "Learning offset",
+    "required" : true,
+    "tooltip" : "(For online optimizer) A (positive) learning parameter that downweights early iterations. Larger values make early iterations count less.",
+    "qa" : "",
+    "default" : "1024.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "20",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "optimizer",
+    "propertyName" : "Optimizer",
+    "required" : true,
+    "tooltip" : "Optimizer or inference algorithm used to estimate the LDA model. Supported: online, em",
+    "qa" : "",
+    "default" : "online",
+    "propertyType" : "select",
+    "values": [
+      {
+        "label": "online",
+        "value": "online"
+      }, {
+        "label": "em",
+        "value": "em"
+      }
+    ]
+  }, {
+    "propertyId" : "subsamplingRate",
+    "propertyName" : "Subsampling rate",
+    "required" : true,
+    "tooltip" : "(For online optimizer) Fraction of the corpus to be sampled and used in each iteration of mini-batch gradient descent, in range (0, 1].",
+    "qa" : "",
+    "default" : "0.05",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "1435876747",
+    "propertyType" : "number"
+  } ]
+}

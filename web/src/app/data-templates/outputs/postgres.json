@@ -163,7 +163,7 @@
             }
           ]
         ],
-        "required": true,
+        "required": false,
         "tooltip": "Charset encoding to use during saving.",
         "qa": "fragment-details-postgres-encoding"
       },

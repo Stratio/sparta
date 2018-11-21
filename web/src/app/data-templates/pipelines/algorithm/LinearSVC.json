@@ -1,0 +1,109 @@
+{
+  "name" : "LinearSVC",
+  "icon" : "LinearSVC",
+  "className" : "org.apache.spark.ml.classification.LinearSVC",
+  "category" : "Classification",
+  "classPrettyName" : "LinearSVC",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = classification",
+  "properties" : [ {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the LinearSVC process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "labelCol",
+    "propertyName" : "labelCol",
+    "required" : true,
+    "tooltip" : "label column name",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "predictionCol",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the LinearSVC process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "rawPredictionCol",
+    "propertyName" : "Raw prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the raw prediction (a.k.a. confidence) of the LinearSVC process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "weightCol",
+    "propertyName" : "Weight column",
+    "required" : false,
+    "tooltip" : "Weight column name. If this is not set or empty, we treat all instance weights as 1.0.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "fitIntercept",
+    "propertyName" : "Fit an intercept term",
+    "required" : true,
+    "tooltip" : "Whether or not to fit an intercept term.",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "standardization",
+    "propertyName" : "Standardize training features before fit the model",
+    "required" : true,
+    "tooltip" : "Whether or not to standardize the training features before fitting the model",
+    "qa" : "",
+    "default" : true,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "aggregationDepth",
+    "propertyName" : "aggregationDepth",
+    "required" : true,
+    "tooltip" : "suggested depth for treeAggregate (>= 2)",
+    "qa" : "",
+    "default" : "2",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "100",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "regParam",
+    "propertyName" : "Regularization (>= 0)",
+    "required" : true,
+    "tooltip" : "Regularization parameter (>= 0).",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "threshold",
+    "propertyName" : "Threshold",
+    "required" : true,
+    "tooltip" : "Threshold in binary classification prediction applied to rawPrediction.",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "tol",
+    "propertyName" : "Convergence tolerance (>= 0)",
+    "required" : true,
+    "tooltip" : "The convergence tolerance for iterative algorithms (>= 0).",
+    "qa" : "",
+    "default" : "1.0E-6",
+    "propertyType" : "text"
+  } ]
+}

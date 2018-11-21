@@ -10,7 +10,7 @@
 
 <st-fullscreen-layout class="layout" title="{{entityFormModel.stepType}} - {{currentName}}" [ngClass]="{'active': fadeActive}">
 
-   <div class="st-fullscreen-layout-buttons">
+   <div id="wizard-config-editor-header" class="st-fullscreen-layout-buttons">
       <div class="edit-title" *ngIf="entityFormModel.classPrettyName === 'QueryBuilder' && visualQueryBuilder">
          <div class="edit-text">
             <span *ngIf="!editTitle">{{entityFormModel['name']}}<span class="icon icon-edit" (click)="onEditTitle()"></span></span>
@@ -20,7 +20,9 @@
       <button *ngIf="entityFormModel.classPrettyName === 'QueryBuilder'" class="button button-link-secondary visualQuery" [ngClass]="{'selected-button' : isShowedHelp}" (click)="visualQueryBuilder = !visualQueryBuilder">
          <i [ngClass]="visualQueryBuilder ? 'icon-spool' : 'icon-layout'"></i> {{ visualQueryBuilder ? 'Form mode' : 'Visual mode' }}
       </button>
-      <button *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'" 
+      <button
+        *ngIf="entityFormModel.classPrettyName !== 'QueryBuilder'"
+        id="wizard-config-editor"
         class="button button-toolbar help-button" 
         [ngClass]="{'selected-button' : isShowedHelp}"
         (click)="isShowedHelp = !isShowedHelp">
@@ -36,7 +38,12 @@
       <button class="button button-primary" (click)="saveForm()" id="save-node-button">
          <span>{{'WIZARD.SAVE' | translate}}</span>
       </button>
-      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" [xPos]="-346" [yPos]="50" [helpOptions]="helpOptions"></sp-help>
+      <sp-help
+        *ngIf="isShowedHelp"
+        (onCloseHelpMenu)="closeHelp()"
+        reference="wizard-config-editor"
+        [helpOptions]="helpOptions">
+      </sp-help>
    </div>
    <div class="st-fullscreen-layout-content">
       <div class="node-edition" >
@@ -60,26 +67,35 @@
                </div>
             </div>
 
-            <form-generator *ngIf="config.editionType.stepType !== 'Output'" [variableList]="formVariables" [showVars]="true" [hidden]="activeOption !== 'Writer'"
-               [forceValidations]="submitted" name="writer" [valueDictionary]="valueDictionary" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
+        <form-generator *ngIf="config.editionType.stepType !== 'Output'" [variableList]="formVariables" [showVars]="true" [hidden]="activeOption !== 'Writer'"
+                        [forceValidations]="submitted" name="writer" [valueDictionary]="valueDictionary" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
 
-            <form-generator *ngIf="!isTemplate" [variableList]="formVariables" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
-               [forceValidations]="submitted" name="global" [formData]="basicSettings" [valueDictionary]="valueDictionary" [(ngModel)]="entityFormModel.configuration"></form-generator>
+        <form-generator *ngIf="!isTemplate" [variableList]="formVariables" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
+                        [forceValidations]="submitted" name="global" [formData]="basicSettings" [valueDictionary]="valueDictionary" [(ngModel)]="entityFormModel.configuration"></form-generator>
 
-            <div class="mocks-tab" *ngIf="config.editionType.stepType === 'Input'" [hidden]="activeOption !== 'Mocks'">
-               <mocks-config [model]="debugOptions"></mocks-config>
-            </div>
-            <div class="template-data" *ngIf="isTemplate && templateData && activeOption === 'Global'">
-               <div class="egeo-title-medium">Template configuration</div>
-               <div class="advice-params">These are read-only parameters. To edit them, <span class="link" (click)="editTemplate(templateData.id)">go to the Templates section</span>.</div>
-               <form-generator [forceValidations]="submitted" [disabled]="true" [disabledForm]="true" name="global" [formData]="basicSettings"
-                  [(ngModel)]="templateData.configuration"></form-generator>
-            </div>
-         </form>
-         <div *ngIf="entityFormModel.classPrettyName === 'QueryBuilder'" [hidden]="!visualQueryBuilder">
-            <query-builder [nodeData]="config" [entityFormModel]="entityFormModel" ></query-builder>
-         </div>
+        <div class="mocks-tab" *ngIf="config.editionType.stepType === 'Input'" [hidden]="activeOption !== 'Mocks'">
+          <mocks-config [model]="debugOptions"></mocks-config>
+        </div>
+        <div class="template-data" *ngIf="isTemplate && templateData && activeOption === 'Global'">
+          <div class="egeo-title-medium">Template configuration</div>
+          <div class="advice-params">These are read-only parameters. To edit them, <span class="link" (click)="editTemplate(templateData.id)">go to the Templates section</span>.</div>
+          <form-generator [forceValidations]="submitted" [disabled]="true" [disabledForm]="true" name="global" [formData]="basicSettings"
+                          [(ngModel)]="templateData.configuration"></form-generator>
+        </div>
+      </form>
+      <div *ngIf="entityFormModel.classPrettyName === 'QueryBuilder'" [hidden]="!visualQueryBuilder">
+        <query-builder [nodeData]="config" [entityFormModel]="entityFormModel" ></query-builder>
       </div>
-      <sidebar-config *ngIf="!(entityFormModel.classPrettyName === 'QueryBuilder')" [nodeData]="config" [showCrossdataCatalog]="showCrossdataCatalog" [isVisible]="isShowedInfo" (toggleSidebar)="toggleInfo()"></sidebar-config>
-   </div>
+    </div>
+
+    <sidebar-config
+      *ngIf="!(entityFormModel.classPrettyName === 'QueryBuilder')"
+      [nodeData]="config"
+      [showCrossdataCatalog]="showCrossdataCatalog"
+      [isVisible]="isShowedInfo"
+      rightReference="save-node-button"
+      topReference="wizard-config-editor-header"
+      (toggleSidebar)="toggleInfo()">
+    </sidebar-config>
+  </div>
 </st-fullscreen-layout>

@@ -65,3 +65,12 @@ export class FloatingMenuComponent implements OnInit {
 
    constructor(private _eref: ElementRef, private _cd: ChangeDetectorRef) { }
 }
+
+
+export interface FloatingMenuModel {
+    name: string;
+    value: any;
+    icon?: string;
+    stepType?: string;
+    subMenus?: Array<FloatingMenuModel>;
+}

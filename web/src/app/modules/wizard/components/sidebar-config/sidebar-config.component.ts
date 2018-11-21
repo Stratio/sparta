@@ -9,7 +9,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output
@@ -23,11 +23,12 @@ import { StHorizontalTab } from '@stratio/egeo';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy {
-
+export class SidebarConfigComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() isVisible = true;
   @Input() nodeData: any;
   @Input() showCrossdataCatalog: boolean;
+  @Input() rightReference: string;
+  @Input() topReference: string;
 
   @Output() toggleSidebar = new EventEmitter();
 
@@ -35,6 +36,7 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy 
   public selectedOption = 'data';
 
   public sidebarPosition = 0;
+  public sidebarTopPosition = 0;
 
   public sideBarOptions: StHorizontalTab[] = [{
     id: 'data',
@@ -44,13 +46,13 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy 
     text: 'Crossdata'
   }];
 
-  private _fn: any;
+  readonly _fn: any;
   private _nodeContainer: Element;
+  private _nodeContainerTop: Element;
 
-  constructor(
-    private _cd: ChangeDetectorRef) {
-      this._fn = this._calculatePosition.bind(this);
-    }
+  constructor(private _cd: ChangeDetectorRef) {
+    this._fn = this._calculatePosition.bind(this);
+  }
 
   changeFormOption(event) {
     this.selectedOption = event.id;
@@ -58,12 +60,23 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy 
 
   /** lifecyle methods */
 
-  ngOnInit(): void {
-    this.entityData = this.nodeData.editionType.data;
+  ngOnInit(): void {}
+
+  ngOnChanges(changes): void {
+    if (changes.nodeData) {
+      this.entityData = (this.nodeData.hasOwnProperty('editionType')) ?
+        this.nodeData.editionType.data :
+        this.nodeData;
+    }
   }
 
   ngAfterViewInit(): void {
-    this._nodeContainer = document.getElementById('save-node-button');
+    if (this.rightReference) {
+      this._nodeContainer = document.getElementById(this.rightReference);
+    }
+    if (this.topReference) {
+      this._nodeContainerTop = document.getElementById(this.topReference);
+    }
     this._fn();
     window.addEventListener('resize', this._fn);
   }
@@ -73,8 +86,14 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private _calculatePosition() {
-    const rect = this._nodeContainer.getBoundingClientRect();
-    this.sidebarPosition = window.innerWidth - rect.left - rect.width - 13;
+    if (this.rightReference) {
+      const rect = this._nodeContainer.getBoundingClientRect();
+      this.sidebarPosition = window.innerWidth - rect.right;
+    }
+    if (this.topReference) {
+      const topReference = this._nodeContainerTop.getBoundingClientRect();
+      this.sidebarTopPosition = topReference.top + topReference.height;
+    }
     this._cd.markForCheck();
   }
 

@@ -1,0 +1,107 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<div id="we-config-editor">
+  <st-fullscreen-layout class="layout" [title]="editedNode.name">
+    <div id="we_editor_header" class="st-fullscreen-layout-buttons editor__header">
+      <button
+        id="we-config-editor__show-help"
+        class="button button-toolbar help-button"
+        [ngClass]="{'selected-button' : isShowedHelp}"
+        (click)="isShowedHelp = !isShowedHelp">
+        <i class="icon-help2"></i>
+      </button>
+      <button
+        class="show-catalog button button-toolbar"
+        [ngClass]="{'selected-button' : isShowedInfo}"
+        id="show-catalog-button"
+        (click)="isShowedInfo = !isShowedInfo">
+        <i class="icon-info1"></i>
+      </button>
+      <button
+        id="cancel-edit-node"
+        class="button button-secondary-line cancel-button"
+        (click)="onCloseEdition.emit()">
+        <span>Cancel</span>
+      </button>
+      <button
+        id="save-pipeline-node-button"
+        class="button button-primary"
+        [disabled]="errorRepeatedNameValidation || errorPatternNameValidation || errorOutputColumn"
+        (click)="saveEdition(form)">
+        <span>Accept</span>
+      </button>
+
+      <sp-help
+        *ngIf="isShowedHelp"
+        (onCloseHelpMenu)="isShowedHelp = false"
+        reference="we-config-editor__show-help"
+        [helpOptions]="helpOptions">
+      </sp-help>
+    </div>
+
+    <div class="st-fullscreen-layout-content editor__body">
+      <div class="node-edition">
+        <!-- {{form | json}} -->
+        <form #pipelineForm="ngForm">
+          <div class="row">
+            <div class="col-sm-8">
+              <sp-input
+                name="name"
+                label="{{'TEMPLATE_NAME' | translate}} *"
+                fieldType="text"
+                maxLength="30"
+                [(ngModel)]="formName"
+                [errors]="errorsService.errors.inputErrors"
+                [required]="true"
+                (ngModelChange)="nameValidation()">
+              </sp-input>
+              <div *ngIf="pipelineForm.controls['name'] && pipelineForm.controls['name'].valid">
+                <div class="st-input-error-message name-validation" *ngIf="errorRepeatedNameValidation">
+                  {{'WIZARD.NODE_NAME_VALIDATION' | translate}}
+                </div>
+                <div class="st-input-error-message name-validation" *ngIf="errorPatternNameValidation">
+                  {{'WIZARD.NODE_NAME_VALIDATION_PATTERN' | translate}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-8">
+              <sp-textarea
+                name="description"
+                [(ngModel)]="formDescription"
+                label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                fieldType="text"
+                [required]="false"
+                maxLength="120">
+              </sp-textarea>
+            </div>
+          </div>
+          <form-generator
+            name="form"
+            [(ngModel)]="form"
+            [customValidators]="customValidators"
+            [formData]="formTemplate.properties"
+            [valueDictionary]="valueDictionary">
+          </form-generator>
+        </form>
+      </div>
+
+      <sidebar-config
+        [nodeData]="editedNodeEditionMode"
+        [isVisible]="isShowedInfo"
+        rightReference="save-pipeline-node-button"
+        topReference="we_editor_header"
+        (toggleSidebar)="isShowedInfo = !isShowedInfo">
+      </sidebar-config>
+    </div>
+  </st-fullscreen-layout>
+</div>

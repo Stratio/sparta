@@ -1,0 +1,24 @@
+<sp-foreground-notifications *ngIf="notification.visible" class="notification" [status]="notification.type" [text]="notification.message ? (('WIZARD.NOTIFICATION.' + notification.message) | translate) : ''"
+                             [visible]="notification.visible">
+  <div *ngIf="notification.templateType && notification.templateType.length">
+    <div [ngSwitch]="notification.templateType">
+      <div class="message" *ngSwitchCase="'generic'">
+        <span class="icon-alert"></span>
+        <span>{{'WIZARD.GENERIC_ERROR' | translate}}</span>
+        <span class="link" (click)="showGlobalErrors()">View summary</span>
+      </div>
+      <div class="message" *ngSwitchCase="'debugSuccess'">
+        <span class="icon-circle-check icon-green"></span>
+        <span>{{'WIZARD.NOTIFICATION.DEBUG_SUCCESS' | translate}}</span>
+      </div>
+      <div class="message" *ngSwitchCase="'debugFail'">
+        <span class="icon-alert"></span>
+        <span>{{'WIZARD.NOTIFICATION.DEBUG_FAIL' | translate}}</span>
+      </div>
+      <div class="message" *ngSwitchCase="'runDebug'">
+        <loading-spinner class="loading"></loading-spinner>
+        <span>{{'WIZARD.NOTIFICATION.DEBUG_RUN' | translate}}</span>
+      </div>
+    </div>
+  </div>
+</sp-foreground-notifications>

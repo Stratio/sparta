@@ -23,6 +23,7 @@ import {
 
 export class SelectedEntityComponent implements OnInit, OnDestroy {
 
+
    private _nativeElement: HTMLElement;
 
    constructor(private zone: NgZone, private _cd: ChangeDetectorRef, private _el: ElementRef) {

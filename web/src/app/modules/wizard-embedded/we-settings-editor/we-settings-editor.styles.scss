@@ -1,0 +1,18 @@
+#we-settings-editor {
+  .editor__header {
+    BUTTON {
+      margin-left: 20px;
+    }
+  }
+
+  .editor__body {
+    .node-edition {
+      margin-bottom: 50px;
+      position: relative;
+      width: calc(100% - 430px);
+      .row > DIV {
+        margin: 15px 0;
+      }
+    }
+  }
+}

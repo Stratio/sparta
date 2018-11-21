@@ -1,0 +1,29 @@
+@import '~@stratio/egeo/theme/constants';
+
+.notification {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999999;
+  top: 145px;
+  min-width: 500px;
+}
+
+
+.message {
+  .link {
+    color: $action-primary-default;
+    cursor: pointer;
+  }
+}
+
+.loading {
+  transform: scale(0.6);
+  display: inline-block;
+  position:relative;
+  bottom:-2px;
+}
+
+.icon-green {
+  color: $status-success-hover;
+}

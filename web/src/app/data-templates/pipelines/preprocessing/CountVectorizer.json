@@ -1,0 +1,58 @@
+{
+  "name" : "CountVectorizer",
+  "icon" : "CountVectorizer",
+  "className" : "org.apache.spark.ml.feature.CountVectorizer",
+  "category" : "Extractors",
+  "classPrettyName" : "CountVectorizer",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the CountVectorizer process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the CountVectorizer process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "binary",
+    "propertyName" : "Binary",
+    "required" : true,
+    "tooltip" : "If true, all non zero counts are set to 1. This is useful for discrete probabilistic models that model binary events rather than integer counts.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "minDF",
+    "propertyName" : "Min number of documents a term must appear",
+    "required" : true,
+    "tooltip" : "Specifies the minimum number of different documents a term must appear in to be included in the vocabulary. If this is an integer >= 1, this specifies the number of documents the term must appear in; if this is a double in [0,1), then this specifies the fraction of documents.",
+    "qa" : "",
+    "default" : "1.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "minTF",
+    "propertyName" : "Ignore documents that appear less than",
+    "required" : true,
+    "tooltip" : "Filter to ignore rare words in a document. For each document, terms with frequency/count less than the given threshold are ignored. If this is an integer >= 1, then this specifies a count (of times the term must appear in the document); if this is a double in [0,1), then this specifies a fraction (out of the document's token count). Note that the parameter is only used in transform of CountVectorizerModel and does not affect fitting.",
+    "qa" : "",
+    "default" : "1.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "vocabSize",
+    "propertyName" : "Max size of the vocabulary",
+    "required" : true,
+    "tooltip" : "Max size of the vocabulary.",
+    "qa" : "",
+    "default" : "262144",
+    "propertyType" : "number"
+  } ]
+}

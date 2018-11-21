@@ -1,0 +1,47 @@
+{
+  "name" : "CrossValidator",
+  "icon" : "CrossValidator",
+  "className" : "org.apache.spark.ml.tuning.CrossValidator",
+  "classPrettyName" : "CrossValidator",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = tuning",
+  "properties" : [ {
+    "propertyId" : "estimator",
+    "propertyName" : "Estimator",
+    "required" : false,
+    "tooltip" : "Estimator for selection",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "estimatorParamMaps",
+    "propertyName" : "Estimator param maps",
+    "required" : false,
+    "tooltip" : "Param maps for the estimator.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "evaluator",
+    "propertyName" : "Evaluator",
+    "required" : false,
+    "tooltip" : "Evaluator used to select hyper-parameters that maximize the validated metric.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "numFolds",
+    "propertyName" : "Number of folds (>= 2)",
+    "required" : true,
+    "tooltip" : "Number of folds for cross validation (>= 2).",
+    "qa" : "",
+    "default" : "3",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "-1191137437",
+    "propertyType" : "number"
+  } ]
+}

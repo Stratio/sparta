@@ -7,44 +7,48 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-<svg id="composition" class="composition" (click)="clickDetected($event)">
-   <svg:g id="svg-container">
-      <svg:g *ngFor="let relation of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
-         wizard-edge
-         [initialEntityName]="relation.origin.name"
-         [finalEntityName]="relation.destination.name"
-         [selectedEdge]="selectedEdge"
-         [index]="i"
-         [dataType]="relation.dataType"
-         [initPosition]="relation.origin.uiConfiguration.position"
-         [supportedDataRelations]="relation.origin.supportedDataRelations"
-         [endPosition]="relation.destination.uiConfiguration.position"/>
-      <svg:g wizard-node svg-draggable *ngFor="let nodeData of workflowNodes;"
-         [data]="nodeData"
-         [attr.id]="nodeData.name + '-node'"
-         [createdNew]="nodeData.createdNew"
-         [debugResult]="debugResult[nodeData.name] ? debugResult[nodeData.name] : {}"
-         [serverStepValidation]="serverStepValidations[nodeData.name]"
-         [selected]="selectedNodeName === nodeData.name"
-         [drawingConnectionStatus]="drawingConnectionStatus"
-         (onDrawConnector)="createEdge($event)"
-         (onFinishConnector)="finishConnector($event)"
-         [(position)]="nodeData.uiConfiguration.position"
-         (onDoubleClickEvent)="this.editEntity.emit(nodeData)"
-         (onClickEvent)="selectNode.emit(nodeData)"/>
-   </svg:g>
 
-   <svg:defs>
-      <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
-      <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
-      </svg:marker>
-      <svg:marker id="UpArrowPreciseSelected" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
-      <svg:path d="M9,0 L9,8 L0,4 Z" fill="#128bde" />
-      </svg:marker>
-      <svg:marker id="createConnectorMarker" orient="auto" markerUnits="userSpaceOnUse" markerWidth="200" markerHeight="20" refX="13"refY="7.5">
-      <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
-      </svg:marker>
-   </svg:defs>
-   <svg:path stroke="#777" [ngClass]="{'show' : showConnector}"
-      stroke-width="2" fill="none" class="connector-line" marker-end="url(#createConnectorMarker)"></svg:path>
+<svg id="composition" class="composition" (click)="clickDetected($event)">
+  <svg:g id="svg-container">
+    <svg:g
+      *ngFor="let relation of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
+      wizard-edge
+      [initialEntityName]="relation.origin.name"
+      [workflowID]="workflowID"
+      [finalEntityName]="relation.destination.name"
+      [selectedEdge]="selectedEdge"
+      [index]="i"
+      [dataType]="relation.dataType"
+      [initPosition]="relation.origin.uiConfiguration.position"
+      [supportedDataRelations]="relation.origin.supportedDataRelations"
+      [endPosition]="relation.destination.uiConfiguration.position"
+      (selectEdge)="selectEdge.emit($event)"
+      (showEdgeOptions)="showEdgeOptions.emit($event)">
+    </svg:g>
+    <svg:g
+      wizard-node svg-draggable *ngFor="let nodeData of workflowNodes;"
+      [data]="nodeData"
+      [attr.id]="nodeData.name + '-node'"
+      [createdNew]="nodeData.createdNew"
+      [debugResult]="debugResult && debugResult[nodeData.name] ? debugResult[nodeData.name] : {}"
+      [serverStepValidation]="serverStepValidations[nodeData.name]"
+      [selected]="selectedNodeName === nodeData.name"
+      [drawingConnectionStatus]="drawingConnectionStatus"
+      (onDrawConnector)="createEdge($event)"
+      (onFinishConnector)="finishConnector($event)"
+      (setEditorDirty)="setEditorDirty.emit()"
+      [(position)]="nodeData.uiConfiguration.position"
+      (onDoubleClickEvent)="this.editEntity.emit(nodeData)"
+      (onClickEvent)="selectNode.emit(nodeData)">
+    </svg:g>
+  </svg:g>
+
+  <svg:path
+    stroke="#777"
+    [ngClass]="{'show' : showConnector}"
+    stroke-width="2"
+    fill="none"
+    class="connector-line"
+    marker-end="url(#createConnectorMarker)">
+  </svg:path>
 </svg>

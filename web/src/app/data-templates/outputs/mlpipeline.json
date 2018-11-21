@@ -15,7 +15,8 @@
           "width": 12,
           "required": true,
           "tooltip": "Spark ML Pipeline descriptor",
-          "qa": ""
+          "qa": "",
+          "hidden": true
        },
        {
           "propertyId": "output.mode",
@@ -44,7 +45,7 @@
           "propertyId": "path",
           "propertyName": "_PATH_",
           "propertyType": "text",
-          "required": false,
+          "required": true,
           "visible": [
              [
                 {

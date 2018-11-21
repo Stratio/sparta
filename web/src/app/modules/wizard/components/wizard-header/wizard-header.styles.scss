@@ -169,15 +169,6 @@ $cloudy-black: #cdd6df;
     width: 28px;
 }
 
-.notification {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
-    top: 145px;
-    min-width: 500px;
-}
-
 #show-info-button {
    position: relative;
    &.errors {
@@ -225,7 +216,7 @@ $cloudy-black: #cdd6df;
         background: $neutral-03;
         border-color: transparent;
     }
-    
+
     &:hover {
         border-color: $neutral-03;
     }

@@ -1,0 +1,78 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<div #wizardPipelinesModal qaTag="wizard-modal"></div>
+<div id="wizard-embedded">
+  <we-header
+    [workflowData]="workflowData"
+    [nodeName]="nodeName"
+    [isDirtyEditor]="isDirtyEditor"
+    [menuData]="menuData"
+    [showDeleteButton]="selectedEdge || selectedNode.length"
+    [showEditAndCopyButton]="selectedNode && selectedNode.length"
+    (selectedOption)="onSelectedOption($event)"
+    (onZoomIn)="editor.changeZoom(true)"
+    (onZoomOut)="editor.changeZoom(false)"
+    (onCenter)="editor.centerWorkflow()"
+    (onEditButton)="weEditNode(selectedNode)"
+    (onDuplicateNode)="weDuplicateNode()"
+    (deleteSelection)="weDeleteSelection()"
+    (onShowInfo)="isShowedInfo = !isShowedInfo"
+    (onEditSettings)="weEditSettings()"
+    (onSavePipelinesWorkflow)="weSavePipelinesWorkflow()">
+  </we-header>
+
+  <div class="we__editor">
+    <wizard-editor
+      [creationMode]="creationMode"
+      [selectedNodeName]="selectedNode"
+      [serverStepValidations]="serverStepValidations || []"
+      [selectedEdge]="selectedEdge"
+      workflowID="pipeline"
+      [svgPosition]="svgPosition"
+      [workflowNodes]="nodes"
+      [workflowEdges]="getEdgesMap()"
+      (createNode)="createNode($event)"
+      (setEditorDirty)="weSetEditorDirty()"
+      (onCreateEdge)="onCreateEdge($event)"
+      (deselectNode)="deselectAll()"
+      (editEntity)="weEditNode($event)"
+      (selectEdge)="weSelectEdge($event)"
+      (selectNode)="weSelectNode($event)">
+    </wizard-editor>
+    <selected-entity *ngIf="creationMode.active"></selected-entity>
+
+    <sidebar-config
+      [nodeData]="editedNodeEditionMode"
+      [isVisible]="isShowedInfo"
+      topReference="we-header"
+      (toggleSidebar)="isShowedInfo = !isShowedInfo">
+    </sidebar-config>
+  </div>
+
+  <we-config-editor
+    *ngIf="editedNode"
+    [editedNode]="editedNode"
+    [editedNodeEditionMode]="editedNodeEditionMode"
+    [nodes]="nodes"
+    [edges]="edges"
+    [mlPipelineNode]="nodeDataEdited"
+    (onCloseEdition)="weCloseEdition()"
+    (onSaveEdition)="saveEdition($event)">
+  </we-config-editor>
+
+  <we-settings-editor
+    [parentNodeData]="nodeDataEdited.editionType.data"
+    [parentNode]="nodeDataEdited"
+    *ngIf="settingsPipelinesWorkflow"
+    (onCloseSettingsEdition)="closeSettingsEdition()"
+    (onSaveSettingsEdition)="saveSettingsEdition($event)">
+  </we-settings-editor>
+</div>

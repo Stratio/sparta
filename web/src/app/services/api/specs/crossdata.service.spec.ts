@@ -66,7 +66,6 @@ describe('[CrossdataService]', () => {
          req.flush('OK');
       });
 
-
       it('should can get crossdata table info', () => {
          const tableName = 'table';
          const url = 'crossdata/tables/info';

@@ -1,0 +1,90 @@
+{
+  "name" : "Word2Vec",
+  "icon" : "Word2Vec",
+  "className" : "org.apache.spark.ml.feature.Word2Vec",
+  "category" : "Extractors",
+  "classPrettyName" : "Word2Vec",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the Word2Vec process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the output of the Word2Vec process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "1",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxSentenceLength",
+    "propertyName" : "Max sentence length (> 0)",
+    "required" : true,
+    "tooltip" : "Maximum length (in words) of each sentence in the input data. Any sentence longer than this threshold will be divided into chunks up to the size (> 0).",
+    "qa" : "",
+    "default" : "1000",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "minCount",
+    "propertyName" : "Min number of times a token must appear (>= 0)",
+    "required" : true,
+    "tooltip" : "The minimum number of times a token must appear to be included in the word2vec model's vocabulary (>= 0).",
+    "qa" : "",
+    "default" : "5",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "numPartitions",
+    "propertyName" : "Number of partitions (> 0)",
+    "required" : true,
+    "tooltip" : "Number of partitions for sentences of words (> 0).",
+    "qa" : "",
+    "default" : "1",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "stepSize",
+    "propertyName" : "Step size (> 0)",
+    "required" : true,
+    "tooltip" : "Step size to be used for each iteration of optimization (> 0).",
+    "qa" : "",
+    "default" : "0.025",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "vectorSize",
+    "propertyName" : "Vector size (> 0)",
+    "required" : true,
+    "tooltip" : "The dimension of codes after transforming from words (> 0).",
+    "qa" : "",
+    "default" : "100",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "windowSize",
+    "propertyName" : "Window size (> 0)",
+    "required" : true,
+    "tooltip" : "The window size (context words from [-window, window]) (> 0).",
+    "qa" : "",
+    "default" : "5",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "-1961189076",
+    "propertyType" : "number"
+  } ]
+}

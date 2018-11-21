@@ -23,6 +23,7 @@
                   [field]="prop.field"
                   [formControl]="prop.formControl"
                   [stFormGroup]="stFormGroup"
+                  [customValidator]="customValidators[prop.field.propertyId]"
                   [forceValidations]="forceValidations"></form-field>
          </div>
          <div *ngIf="!prop.field.properties && prop.field.propertyType === 'list'" class="prop-container">

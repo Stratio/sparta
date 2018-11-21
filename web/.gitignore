@@ -6,7 +6,6 @@
 # dist
 dist/
 target
-coverage/
 
 # Node
 node/
@@ -18,16 +17,5 @@ npm-debug.log
 .DS_Store
 Thumbs.db
 
-# Node
-node_modules/
-npm-debug.log
-.npmrc
-
 # Karma
 coverage/
-
-# Yarn
-yarn.lock
-
-# NPM
-package-lock.json

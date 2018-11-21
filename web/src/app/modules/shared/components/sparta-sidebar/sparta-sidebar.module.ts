@@ -6,12 +6,18 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { SpartaSidebarComponent } from './sparta-sidebar.component';
 
 @NgModule({
-   declarations: [SpartaSidebarComponent],
-   imports: [CommonModule],
-   exports: [SpartaSidebarComponent]
+  exports: [
+    SpartaSidebarComponent
+  ],
+  declarations: [
+    SpartaSidebarComponent
+  ],
+  imports: [
+    CommonModule
+  ]
 })
-export class SpartaSidebarModule { }
+
+export class SpartaSidebarModule {}

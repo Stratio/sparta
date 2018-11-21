@@ -1,0 +1,13 @@
+#milos-chips {
+  LABEL {
+    font-size: .875rem;
+    line-height: 1.125rem;
+    margin-bottom: 5px;
+    &.error {
+      color: #ec445c;
+    }
+  }
+  INPUT {
+    outline: none;
+  }
+}

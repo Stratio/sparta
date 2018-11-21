@@ -11,119 +11,119 @@ import { TranslateService } from '@ngx-translate/core';
 @Injectable()
 export class InitializeSchemaService {
 
-   constructor(private _translate: TranslateService) { }
+  constructor(private _translate: TranslateService) { }
 
-   public static setDefaultWorkflowSettings(value: any): any {
+  public static setDefaultWorkflowSettings(value: any): any {
       const model: any = {};
       model.basic = {
-         name: 'workflow-name',
-         description: ''
+          name: 'workflow-name',
+          description: ''
       };
       model.advancedSettings = {};
-      value.advancedSettings.forEach((category: any) => {
-         model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
+      value.advancedSettings.map((category: any) => {
+          model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
       });
       model.advancedSettings = {
-         ...model.advancedSettings,
-         global: {
-            ...model.advancedSettings.global,
-            parametersLists: ['Environment']
-         }
+          ...model.advancedSettings,
+          global: {
+              ...model.advancedSettings.global,
+              parametersLists: ['Environment']
+          }
       };
       return model;
-   }
+  }
 
-   public static getCategoryModel(value: any): any {
-      const model: any = {};
-      value.map((prop: any) => {
-         if (prop.properties) {
-            model[prop.name] = this.getCategoryModel(prop.properties);
-         } else {
-            model[prop.propertyId] = prop.default ? prop.default : null;
-         }
-      });
-      return model;
-   }
-
-   setDefaultEntityModel(workflowtype: string, value: any, stepType: string, writerOptions = false): any {
-      const model: any = {};
-      model.configuration = {};
-      model.supportedEngines = value.supportedEngines;
-      model.supportedDataRelations = value.supportedDataRelations;
-      model.executionEngine = workflowtype;
-
-      value.properties.map((prop: any) => {
-         model.configuration[prop.propertyId] = prop.default ? prop.default : null;
-      });
-      model.classPrettyName = value.classPrettyName;
-      model.className = value.className;
-      // model.description = value.description;
-      // arity property for workflow validation
-      if (value.arity) {
-         model.arity = value.arity;
-      }
-      model.stepType = stepType;
-      if (writerOptions && stepType !== 'Output') {
-         model.writer = this.getDefaultWriterModel();
-      }
-      return model;
-   }
-
-   setTemplateEntityModel(template: any): any {
-      const model: any = {};
-      model.configuration = template.configuration;
-      model.supportedEngines = template.supportedEngines;
-      model.executionEngine = template.executionEngine;
-      model.classPrettyName = template.classPrettyName;
-      model.supportedDataRelations = template.supportedDataRelations;
-      model.className = template.className;
-      model.nodeTemplate = {
-         id: template.id,
-         name: template.name
-      };
-      if (template.templateType !== 'output') {
-         model.writer = this.getDefaultWriterModel();
-      }
-
-      return model;
-   }
-
-   getDefaultWriterModel(): any {
-      const writerTpl = <any>writerTemplate;
-      const writer: any = {};
-      writerTpl.map((prop: any) => {
-         writer[prop.propertyId] = prop.default ? prop.default : null;
-      });
-      return writer;
-   }
-
-   getHelpOptions(template: any) {
-      return this.getSubProperties(template)
-         .filter(prop => prop.tooltip && prop.tooltip.length)
-         .map(prop => {
-            return {
-               label: this._translate.instant(prop.propertyName),
-               text: prop.tooltip,
-               sections: prop.propertyType === 'list' ? this.getHelpOptions(prop.fields) : null
-            };
-         });
-   }
-
-   getSubProperties(property: any) {
-      if (property.length) {
-         let props = [];
-         property.forEach(prop => {
-            if (prop.properties) {
-               props = props.concat(this.getSubProperties(prop.properties));
-            } else {
-               props.push(prop);
-            }
-         });
-         return props;
+  public static getCategoryModel(value: any): any {
+    const model: any = {};
+    value.map((prop: any) => {
+      if (prop.properties) {
+        model[prop.name] = this.getCategoryModel(prop.properties);
       } else {
-         return [property];
+        model[prop.propertyId] = prop.default ? prop.default : null;
       }
-   }
+    });
+    return model;
+  }
+
+  setDefaultEntityModel(workflowtype: string, value: any, stepType: string, writerOptions = false): any {
+    const model: any = {};
+    model.configuration = {};
+    model.supportedEngines = value.supportedEngines;
+    model.supportedDataRelations = value.supportedDataRelations;
+    model.executionEngine = workflowtype;
+
+    value.properties.map((prop: any) => {
+      model.configuration[prop.propertyId] = prop.default ? prop.default : null;
+    });
+    model.classPrettyName = value.classPrettyName;
+    model.className = value.className;
+    // model.description = value.description;
+    // arity property for workflow validation
+    if (value.arity) {
+      model.arity = value.arity;
+    }
+    model.stepType = stepType;
+    if (writerOptions && stepType !== 'Output') {
+      model.writer = this.getDefaultWriterModel();
+    }
+    return model;
+  }
+
+  setTemplateEntityModel(template: any): any {
+    const model: any = {};
+    model.configuration = template.configuration;
+    model.supportedEngines = template.supportedEngines;
+    model.executionEngine = template.executionEngine;
+    model.classPrettyName = template.classPrettyName;
+    model.supportedDataRelations = template.supportedDataRelations;
+    model.className = template.className;
+    model.nodeTemplate = {
+      id: template.id,
+      name: template.name
+    };
+    if (template.templateType !== 'output') {
+      model.writer = this.getDefaultWriterModel();
+    }
+
+    return model;
+  }
+
+  getDefaultWriterModel(): any {
+    const writerTpl = <any>writerTemplate;
+    const writer: any = {};
+    writerTpl.map((prop: any) => {
+      writer[prop.propertyId] = prop.default ? prop.default : null;
+    });
+    return writer;
+  }
+
+  getHelpOptions(template: any) {
+    return this.getSubProperties(template)
+      .filter(prop => prop.tooltip && prop.tooltip.length)
+      .map(prop => {
+        return {
+          label: this._translate.instant(prop.propertyName),
+          text: prop.tooltip,
+          sections: prop.propertyType === 'list' ? this.getHelpOptions(prop.fields) : null,
+          hidden: (prop.hasOwnProperty('hidden')) ? prop.hidden : false
+        };
+      })
+      .filter(value => !value.hidden );
+  }
+
+  getSubProperties(property: any) {
+    if (property.length) {
+      let props = [];
+      property.forEach(prop => {
+        if (prop.properties) {
+          props = props.concat(this.getSubProperties(prop.properties));
+        } else {
+          props.push(prop);
+        }
+      });
+      return props;
+    } else {
+      return [property];
+    }
+  }
 }
-
-

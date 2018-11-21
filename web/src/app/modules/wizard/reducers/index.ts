@@ -15,199 +15,200 @@ import * as fromExternalData from './externalData';
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 
 export interface WizardState {
-    wizard: fromWizard.State;
-    entities: fromEntities.State;
-    debug: fromDebug.State;
-    externalData: fromExternalData.State;
+  wizard: fromWizard.State;
+  entities: fromEntities.State;
+  debug: fromDebug.State;
+  externalData: fromExternalData.State;
 }
 
 export interface State extends fromRoot.State {
-    wizard: WizardState;
+  wizard: WizardState;
 }
 
 export const reducers = {
-    wizard: fromWizard.reducer,
-    entities: fromEntities.reducer,
-    debug: fromDebug.reducer,
-    externalData: fromExternalData.reducer
+  wizard: fromWizard.reducer,
+  entities: fromEntities.reducer,
+  debug: fromDebug.reducer,
+  externalData: fromExternalData.reducer
 };
 
 export const getWizardFeatureState = createFeatureSelector<WizardState>('wizard');
 
 export const getWizardState = createSelector(
-    getWizardFeatureState,
-    state => state.wizard
+  getWizardFeatureState,
+  state => state.wizard
 );
 
 export const getDebugState = createSelector(
-    getWizardFeatureState,
-    state => state.debug
+  getWizardFeatureState,
+  state => state.debug
 );
 
 export const getEntitiesState = createSelector(
-    getWizardFeatureState,
-    state => state.entities
+  getWizardFeatureState,
+  state => state.entities
 );
 
 export const getExternalDataState = createSelector(
-    getWizardFeatureState,
-    state => state.externalData
+  getWizardFeatureState,
+  state => state.externalData
 );
 
 export const getEdges = createSelector(
-    getWizardState,
-    (state) => state.edges
+  getWizardState,
+  (state) => state.edges
 );
 
 export const getWorkflowNodes = createSelector(
-    getWizardState,
-    (state) => state.nodes
+  getWizardState,
+  (state) => state.nodes
 );
 
 export const getEdgeOptions = createSelector(
-    getWizardState,
-    (state) => state.edgeOptions
+  getWizardState,
+  (state) => state.edgeOptions
 );
 
 export const getWizardNofications = createSelector(
-    getEntitiesState,
-    (state) => state.notification
+  getEntitiesState,
+  (state) => state.notification
 );
 
 export const getDebugResult = createSelector(
-    getDebugState,
-    (state) => state.lastDebugResult
+  getDebugState,
+  (state) => state.lastDebugResult
 );
 
 export const getServerStepValidation = createSelector(
-    getWizardState,
-    (state) => state.serverStepValidations
+  getWizardState,
+  (state) => state.serverStepValidations
 );
 
 export const getNodesMap = createSelector(
-    getWorkflowNodes,
-    (nodes) => nodes.reduce(function (map, obj) {
-        map[obj.name] = obj;
-        return map;
-    }, {})
+  getWorkflowNodes,
+  (nodes) => nodes.reduce(function (map, obj) {
+    map[obj.name] = obj;
+    return map;
+  }, {})
 );
 
 export const getWorkflowEdges = createSelector(
-    getEdges,
-    getNodesMap,
-    (edges: WizardEdge[], nodesMap: any) => {
-        return edges.map((edge: WizardEdge) => ({
-            origin: nodesMap[edge.origin],
-            destination: nodesMap[edge.destination],
-            dataType: edge.dataType
-        }));
-    }
+  getEdges,
+  getNodesMap,
+  (edges: WizardEdge[], nodesMap: any) => {
+    return edges.map((edge: WizardEdge) => ({
+      origin: nodesMap[edge.origin],
+      destination: nodesMap[edge.destination],
+      dataType: edge.dataType
+    }));
+  }
 );
 
 export const getErrorsManagementOutputs = createSelector(
-    getWorkflowNodes,
-    (wNodes) => wNodes.reduce((filtered: Array<string>, workflowNode) => {
-        if (workflowNode.stepType === 'Output' && workflowNode.configuration.errorSink) {
-            filtered.push(workflowNode.name);
-        }
-        return filtered;
-    }, [])
+  getWorkflowNodes,
+  (wNodes) => wNodes.reduce((filtered: Array<string>, workflowNode) => {
+    if (workflowNode.stepType === 'Output' && workflowNode.configuration.errorSink) {
+      filtered.push(workflowNode.name);
+    }
+    return filtered;
+  }, [])
 );
 
 export const getSelectedNodeData = createSelector(getWizardState, fromWizard.getSelectedEntityData);
 
 export const getSelectedNodeSchemas = createSelector(
-    getSelectedNodeData,
-    getDebugResult,
-    getEdges,
-    (selectedNode: WizardNode, debugResult: any, edges: any) => {
-        if (edges && edges.length && debugResult && debugResult.steps && selectedNode) {
-            return {
-                inputs: edges.filter(edge => edge.destination === selectedNode.name)
-                    .map(edge => edge.dataType === 'ValidData' ? debugResult.steps[edge.origin] : debugResult.steps[edge.origin + '_Discard']).filter(input => input).sort(),
-                output: debugResult.steps[selectedNode.name],
-                outputs: Object.keys(debugResult.steps)
-                    .map(key => debugResult.steps[key])
-                    .filter(output => output.error || (output.result.step && (output.result.step === selectedNode.name || output.result.step === selectedNode.name + '_Discard')))
-                    .sort((a, b) => a.result && b.result  && a.result.step && a.result.step > b.result.step ? 1 : -1)
-            };
-        } else {
-            return null;
-        }
-    });
+  getSelectedNodeData,
+  getDebugResult,
+  getEdges,
+  (selectedNode: WizardNode, debugResult: any, edges: any) => {
+    if (edges && edges.length && debugResult && debugResult.steps && selectedNode) {
+      return {
+        inputs: edges.filter(edge => edge.destination === selectedNode.name)
+          .map(edge => edge.dataType === 'ValidData' ? debugResult.steps[edge.origin] : debugResult.steps[edge.origin + '_Discard']).filter(input => input).sort(),
+        output: debugResult.steps[selectedNode.name],
+        outputs: Object.keys(debugResult.steps)
+          .map(key => debugResult.steps[key])
+          .filter(output => output.error || (output.result.step && (output.result.step === selectedNode.name || output.result.step === selectedNode.name + '_Discard')))
+          .sort((a, b) => a.result && b.result  && a.result.step && a.result.step > b.result.step ? 1 : -1)
+      };
+    } else {
+      return null;
+    }
+  });
 
 export const getSelectedEntityData = createSelector(
-    getSelectedNodeData,
-    getDebugResult,
-    getServerStepValidation,
-    getSelectedNodeSchemas,
-    (selectedNode: WizardNode, debugResult: any, serverStepValidation: Array<any>, schemas: any) => {
-        const entityData = selectedNode && debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
-            ...selectedNode,
-            debugResult: debugResult.steps[selectedNode.name]
-        } : selectedNode;
+  getSelectedNodeData,
+  getDebugResult,
+  getServerStepValidation,
+  getSelectedNodeSchemas,
+  (selectedNode: WizardNode, debugResult: any, serverStepValidation: Array<any>, schemas: any) => {
+    if (selectedNode) {
+      const entityData = debugResult && debugResult.steps && debugResult.steps[selectedNode.name] ? {
+        ...selectedNode,
+        debugResult: debugResult.steps[selectedNode.name]
+      } : selectedNode;
 
-        return {
-            ...entityData,
-            schemas: schemas,
-            serverValidationError: selectedNode ? serverStepValidation[selectedNode.name] : {}
-        };
+      return {
+        ...entityData,
+        schemas: schemas,
+        serverValidationError: (serverStepValidation[selectedNode.name]) ? serverStepValidation[selectedNode.name].errors : null
+      };
+    } else {
+      return {};
     }
+  }
 );
 export const getEditionConfig = createSelector(getWizardState, fromWizard.getEditionConfigMode);
 
 export const getEditionConfigMode = createSelector(
-    getEditionConfig,
-    getDebugResult,
-    getServerStepValidation,
-    getSelectedNodeSchemas,
-    getEdges,
-    (editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
-        return editionConfig && editionConfig.isEdition ?
-            {
-                ...editionConfig,
-                serverValidation: stepValidation[editionConfig.editionType.data.name],
-                inputSteps: edges.filter(edge => edge.destination === editionConfig.editionType.data.name)
-                    .map(edge => edge.origin),
-                debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
-                schemas: schemas,
-            } : editionConfig;
-    }
+  getEditionConfig,
+  getDebugResult,
+  getServerStepValidation,
+  getSelectedNodeSchemas,
+  getEdges,(editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
+    return editionConfig && editionConfig.isEdition ?
+      {
+        ...editionConfig,
+        serverValidation: (stepValidation[editionConfig.editionType.data.name]) ? stepValidation[editionConfig.editionType.data.name].errors : null,
+        serverValidationInternalErrors: (stepValidation[editionConfig.editionType.data.name]) ? stepValidation[editionConfig.editionType.data.name].internalErrors : null,
+        inputSteps: edges.filter(edge => edge.destination === editionConfig.editionType.data.name)
+          .map(edge => edge.origin),
+        debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
+        schemas: schemas,
+      } : editionConfig;
+  }
 );
 
 
 export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
 
-export const getConsoleDebugEntity = createSelector(
-    getDebugState,
-    state => state.showedDebugDataEntity
-);
+export const getConsoleDebugEntity = createSelector(getDebugState,state => state.showedDebugDataEntity);
 
 
 export const getConsoleDebugEntityData = createSelector(
-    showDebugConsole,
-    getConsoleDebugEntity,
-    getSelectedNodeData,
-    getDebugResult,
-    (showConsole, debugEntity, selectedNode, debugResult) => {
-        if (!showConsole || !debugResult.steps) {
-            return null;
-        } else {
-            if (selectedNode && debugEntity && debugEntity.length) {
-                return {
-                    ...debugResult.steps[debugEntity],
-                    debugEntityName: debugEntity
-                };
-            } else if (selectedNode) {
-                return {
-                    ...debugResult.steps[selectedNode.name],
-                    debugEntityName: selectedNode.name
-                };
-            } else {
-                return null;
-            }
-        }
-    });
+  showDebugConsole,
+  getConsoleDebugEntity,
+  getSelectedNodeData,
+  getDebugResult,
+  (showConsole, debugEntity, selectedNode, debugResult) => {
+    if (!showConsole || !debugResult.steps) {
+      return null;
+    } else {
+      if (selectedNode && debugEntity && debugEntity.length) {
+        return {
+          ...debugResult.steps[debugEntity],
+          debugEntityName: debugEntity
+        };
+      } else if (selectedNode) {
+        return {
+          ...debugResult.steps[selectedNode.name],
+          debugEntityName: selectedNode.name
+        };
+      } else {
+        return null;
+      }
+    }
+  });
 
 // wizard
 export const getDebugFile = createSelector(getWizardState, state => state.debugFile);
@@ -239,8 +240,7 @@ export const isShowingDebugConfig = createSelector(getDebugState, state => state
 export const getExecutionContexts = createSelector(getDebugState, state => state.executionContexts);
 
 export const getParameters = createSelector(getExternalDataState, state => ({
-    globalVariables: state.globalVariables,
-    environmentVariables: state.environmentVariables,
-    customGroups: state.customGroups
+  globalVariables: state.globalVariables,
+  environmentVariables: state.environmentVariables,
+  customGroups: state.customGroups
 }));
-

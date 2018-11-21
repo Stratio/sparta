@@ -11,6 +11,7 @@ import * as wizardActions from './../actions/wizard';
 import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 import { WizardNode, WizardEdge, EdgeOption } from '@app/wizard/models/node';
+import {stat} from 'fs';
 
 export interface State {
   editionMode: boolean;
@@ -36,6 +37,7 @@ export interface State {
   editionConfigData: any;
   editionSaved: boolean;
   selectedEntity: string;
+  isPipelineEdition: boolean;
   showEntityDetails: boolean;
   selectedEdge: WizardEdge;
   svgPosition: any;
@@ -75,6 +77,7 @@ const initialState: State = {
   entityNameValidation: false,
   selectedEdge: null,
   selectedEntity: '',
+  isPipelineEdition: false,
   showEntityDetails: false,
   showSettings: false,
   isShowedCrossdataCatalog: true,
@@ -109,13 +112,21 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SELECT_ENTITY: {
       return {
         ...state,
-        selectedEntity: action.payload
+        selectedEntity: action.payload,
+        isPipelineEdition: action.isPipelinesEdition
       };
     }
     case wizardActions.UNSELECT_ENTITY: {
       return {
         ...state,
-        selectedEntity: ''
+        selectedEntity: '',
+        isPipelineEdition: false
+      };
+    }
+    case wizardActions.MODIFY_IS_PIPELINES_NODE_EDITION: {
+      return {
+        ...state,
+        isPipelineEdition: action.payload
       };
     }
     case wizardActions.SET_WORKFLOW_ID: {
@@ -224,6 +235,7 @@ export function reducer(state: State = initialState, action: any): State {
         }),
         undoStates: getUndoState(state),
         redoStates: [],
+        editionConfig: !action.payload.closeEdition,
         editionSaved: true
       };
     }
@@ -308,7 +320,8 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SELECT_SEGMENT: {
       return {
         ...state,
-        selectedEdge: action.payload
+        selectedEdge: action.payload,
+        selectedEntity: ''
       };
     }
     case wizardActions.UNSELECT_SEGMENT: {
@@ -363,11 +376,21 @@ export function reducer(state: State = initialState, action: any): State {
           .reduce((acc, el) => {
             const position = acc[el.step];
             if (position) {
-              position.push(el.message);
+              if (!el.subStep) {
+                position['errors'].push(el.message);
+              } else {
+                if (!position['internalErrors']) {
+                  position['internalErrors'] = [];
+                }
+                position['internalErrors'].push(el);
+              }
             } else {
-              acc[el.step] = [
-                el.message
-              ];
+              if (!el.subStep) {
+                acc[el.step] = {};
+                acc[el.step]['errors'] = [el.message];
+              } else {
+                acc[el.step]['internalErrors'] = [el];
+              }
             }
             return acc;
           }, {})
@@ -469,8 +492,10 @@ function getRedoState(state: any) {
   return [newRedoState, ...state.redoStates.filter((value: any, index: number) => index < 4)];
 }
 
-export const getSelectedEntityData = (state: State) => state.selectedEntity.length ?
-  state.nodes.find((node: any) => node.name === state.selectedEntity) : undefined;
+export const getSelectedEntityData = (state: State) => {
+  return state.selectedEntity.length ?
+    state.nodes.find((node: any) => node.name === state.selectedEntity) : undefined;
+};
 
 export const getWorkflowHeaderData = (state: State) => ({
   name: state.settings.basic.name,
@@ -478,14 +503,16 @@ export const getWorkflowHeaderData = (state: State) => ({
 });
 
 export const areUndoRedoEnabled = (state: State) => ({
-  undo: state.undoStates.length ? true : false,
-  redo: state.redoStates.length ? true : false
+  undo: !!state.undoStates.length,
+  redo: !!state.redoStates.length
 });
 
-export const getEditionConfigMode = (state: State) => ({
+export const getEditionConfigMode = (state: State) => {
+  return {
     isEdition: state.editionConfig,
     editionType: state.editionConfigType,
-    isPipeline: state.editionConfigType && state.editionConfigType.data.className === 'MlPipelineOutputStep',
-});
+    isPipelinesEdition: state.isPipelineEdition
+  };
+};
 
 

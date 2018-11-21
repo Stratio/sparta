@@ -4,7 +4,6 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { FormFileComponent } from './components/form-file/form-file.component';
 import { MenuService } from './services/menu.service';
 import { FileReaderComponent } from './components/file-reader/file-reader.component';
 import { UtilsService } from './services/utils.service';
@@ -13,8 +12,7 @@ import { MenuOptionsComponent } from './components/floating-menu/menu-option/men
 import { MessageNotificationComponent } from './components/message-notification/message-notification.component';
 import { FragmentBoxComponent } from './components/fragment-box/fragment-box.component';
 import { FilterPipe } from './pipes/filter.pipe';
-import { ToolBarComponent } from './components/tool-bar/tool-bar.component';
-import { SpartaSidebarComponent } from './components/sparta-sidebar/sparta-sidebar.component';
+import { ToolBarComponent } from './componeomponents/sparta-sidebar/sparta-sidebar.component';
 import { DragEventsDirective } from './directives/drag-events/drag-events.directive';
 import { DragEventsService } from './directives/drag-events/drag-events.service';
 import { OrderByPipe } from './pipes/sort.pipe';
@@ -22,26 +20,24 @@ import { Keyobject } from './pipes/keyobject';
 import { InfoFragmentComponent } from './components/fragment-box/info-fragment/info-fragment.component';
 import { NotificationAlertComponent } from './components/notification-alert/notification-alert.component';
 import { SpPopoverComponent } from './components/sp-popover/sp-popover.component';
-import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 
 export const sharedProvider = [
-    MenuService,
-    DragEventsService,
-    UtilsService
+  MenuService,
+  DragEventsService,
+  UtilsService
 ];
 
 export const shareComponents = [
-    FileReaderComponent,
-    SpPopoverComponent,
-    FloatingMenuComponent,
-    MenuOptionsComponent,
-    NotificationAlertComponent,
-    LoadingSpinnerComponent,
-    MessageNotificationComponent,
-    FragmentBoxComponent,
-    InfoFragmentComponent,
-    DragEventsDirective,
-    FilterPipe,
-    Keyobject,
-    OrderByPipe
+  FileReaderComponent,
+  SpPopoverComponent,
+  FloatingMenuComponent,
+  MenuOptionsComponent,
+  NotificationAlertComponent,
+  MessageNotificationComponent,
+  FragmentBoxComponent,
+  InfoFragmentComponent,
+  DragEventsDirective,
+  FilterPipe,
+  Keyobject,
+  OrderByPipe
 ];

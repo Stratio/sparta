@@ -18,6 +18,7 @@ export const TOGGLE_ENTITY_DETAILS = '[Wizard] Toggle entity details';
 export const CHANGE_WORKFLOW_NAME = '[Wizard] Change workflow name';
 export const SELECT_ENTITY = '[Wizard] Select entity';
 export const UNSELECT_ENTITY = '[Wizard] Unselect entity';
+export const MODIFY_IS_PIPELINES_NODE_EDITION = '[Wizard] Modify pipelines node edition';
 export const EDIT_ENTITY = '[Wizard] Edit entity';
 export const HIDE_EDIT_ENTITY = '[Wizard] Hide edit entity';
 export const CREATE_NODE_RELATION = '[Wizard] Create node relation';
@@ -118,11 +119,16 @@ export class HideEditEntityAction implements Action {
 
 export class SelectEntityAction implements Action {
     readonly type = SELECT_ENTITY;
-    constructor(public payload: any) { }
+    constructor(public payload: any, public isPipelinesEdition: boolean) { }
 }
 
 export class UnselectEntityAction implements Action {
     readonly type = UNSELECT_ENTITY;
+}
+
+export class ModifyIsPipelinesNodeEdition implements Action {
+  readonly type = MODIFY_IS_PIPELINES_NODE_EDITION;
+  constructor(public payload: boolean) {}
 }
 
 export class ToggleDetailSidebarAction implements Action {
@@ -322,6 +328,7 @@ export type Actions =
     HideEditEntityAction |
     SelectEntityAction |
     UnselectEntityAction |
+    ModifyIsPipelinesNodeEdition |
     ToggleDetailSidebarAction |
     CreateNodeRelationAction |
     CreateNodeRelationErrorAction |

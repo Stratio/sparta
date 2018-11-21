@@ -10,51 +10,51 @@ import { ValidateSchemaService } from '@app/wizard/services/validate-schema.serv
 @Injectable()
 export class WizardEditorService {
 
-    getNewEntityName(entityType: string, entities: Array<any>, index: number = 0): string {
-        let name = entityType;
-        if (index > 0) {
-            name += '_' + index;
-        }
-        let valid = true;
-        entities.forEach((ent: any) => {
-            if (ent.name === name) {
-                valid = false;
-            }
-        });
-
-        if (!valid) {
-            index++;
-            return this.getNewEntityName(entityType, entities, index);
-        } else {
-            return name;
-        }
+  getNewEntityName(entityType: string, entities: Array<any>, index: number = 0): string {
+    let name = entityType;
+    if (index > 0) {
+      name += '_' + index;
     }
+    let valid = true;
+    entities.forEach((ent: any) => {
+      if (ent.name === name) {
+        valid = false;
+      }
+    });
 
-    initializeEntity(workflowType: string, entityData: any, entities: any): any {
-        let entity: any = {};
-        if (entityData.type === 'template') {
-            entity = this.initializeSchemaService.setTemplateEntityModel(entityData.data);
-            // outputs havent got writer
-            if (entityData.stepType !== 'Output') {
-                entity.writer = this.initializeSchemaService.getDefaultWriterModel();
-            }
-            entity.name = this.getNewEntityName(entityData.data.name, entities);
-        } else {
-            entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);
-            entity.name = this.getNewEntityName(entityData.value.name, entities);
-            // validation of the model
-            const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
-            if (errors && errors.length) {
-                entity.hasErrors = true;
-                entity.errors = errors;
-                entity.createdNew = true; // grey box
-            }
-            entity.created = true; // shows created fadeIn animation
-        }
-        entity.stepType = entityData.stepType;
-
-        return entity;
+    if (!valid) {
+      index++;
+      return this.getNewEntityName(entityType, entities, index);
+    } else {
+      return name;
     }
+  }
 
-    constructor(private initializeSchemaService: InitializeSchemaService, private validateSchemaService: ValidateSchemaService) { }
+  initializeEntity(workflowType: string, entityData: any, entities: any): any {
+    let entity: any = {};
+    if (entityData.type === 'template') {
+      entity = this.initializeSchemaService.setTemplateEntityModel(entityData.data);
+      // outputs havent got writer
+      if (entityData.stepType !== 'Output') {
+        entity.writer = this.initializeSchemaService.getDefaultWriterModel();
+      }
+      entity.name = this.getNewEntityName(entityData.data.name, entities);
+    } else {
+      entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);
+      entity.name = this.getNewEntityName(entityData.value.name, entities);
+      // validation of the model
+      const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
+      if (errors && errors.length) {
+        entity.hasErrors = true;
+        entity.errors = errors;
+        entity.createdNew = true; // grey box
+      }
+      entity.created = true; // shows created fadeIn animation
+    }
+    entity.stepType = entityData.stepType;
+
+    return entity;
+  }
+
+  constructor(private initializeSchemaService: InitializeSchemaService, private validateSchemaService: ValidateSchemaService) { }
 }

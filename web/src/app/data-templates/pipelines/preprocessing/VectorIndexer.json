@@ -1,0 +1,34 @@
+{
+  "name" : "VectorIndexer",
+  "icon" : "VectorIndexer",
+  "className" : "org.apache.spark.ml.feature.VectorIndexer",
+  "category" : "Transformers",
+  "classPrettyName" : "VectorIndexer",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = feature",
+  "properties" : [ {
+    "propertyId" : "inputCol",
+    "propertyName" : "Input columns",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the input of the VectorIndexer process.",
+    "qa" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "outputCol",
+    "propertyName" : "Output column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the output of the VectorIndexer process.",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "maxCategories",
+    "propertyName" : "Max categories (>=2)",
+    "required" : true,
+    "tooltip" : "Threshold for the number of values a categorical feature can take (>= 2). If a feature is found to have > maxCategories values, then it is declared continuous.",
+    "qa" : "",
+    "default" : "20",
+    "propertyType" : "number"
+  } ]
+}

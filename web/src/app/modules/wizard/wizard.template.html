@@ -9,24 +9,62 @@
 -->
 
 <section class="workflow-wizard">
-    <div class="wizard-content">
-        <wizard-editor-container [hiddenContent]="editionConfigMode.isEdition || showSettings" [workflowType]="workflowType"></wizard-editor-container>
-    </div>
-    <selected-entity *ngIf="creationMode && creationMode.active"></selected-entity>
+  <div class="wizard-content">
+    <wizard-editor-container
+      #editorContainer
+      [hiddenContent]="editionConfigMode.isEdition || showSettings"
+      [workflowData]="workflowData">
+    </wizard-editor-container>
+  </div>
+  <selected-entity *ngIf="creationMode.active"></selected-entity>
 </section>
-<wizard-config-editor *ngIf="editionConfigMode.isEdition"
-   [workflowType]="workflowType"
-   [environmentList]="environmentList"
-   [parameters]="parameters"
-   [config]="editionConfigMode"></wizard-config-editor>
 
-<wizard-settings [workflowType]="workflowType"
-   [edition]="isEdit"
-   [parameters]="parameters"
-   [workflowType]="workflowType"
-   *ngIf="workflowType.length && showSettings"></wizard-settings>
+<wizard-embedded
+  *ngIf="(editionConfigMode.isEdition && editionConfigMode.isPipelinesEdition)"
+  [workflowData]="workflowData"
+  [nodeData]="editionConfigMode"
+  [menuData]="pipelinesMenu"
+  (savePipelinesWorkflow)="weSavePipelinesWorkflow($event)">
+</wizard-embedded>
 
-<custom-execution-container (closeCustomExecution)="closeCustomExecution()"
-    (executeWorkflow)="executeWorkflow($event)"
-    [executionContexts]="executionContexts$ | async"
-    *ngIf="showDebugConfig$ | async"></custom-execution-container>
+<wizard-config-editor
+  *ngIf="(editionConfigMode.isEdition && !editionConfigMode.isPipelinesEdition)"
+  [workflowType]="workflowType"
+  [environmentList]="environmentList"
+  [parameters]="parameters"
+  [config]="editionConfigMode">
+</wizard-config-editor>
+
+<wizard-settings
+  *ngIf="(workflowType.length && showSettings)"
+  [edition]="isEdit"
+  [parameters]="parameters"
+  [workflowType]="workflowType">
+</wizard-settings>
+
+<custom-execution-container
+  (closeCustomExecution)="closeCustomExecution()"
+  (executeWorkflow)="executeWorkflow($event)"
+  [executionContexts]="executionContexts$ | async"
+  *ngIf="showDebugConfig$ | async">
+</custom-execution-container>
+
+<wizard-notifications></wizard-notifications>
+
+<html
+  xmlns:svg="http://www.w3.org/XML/1998/namespace"
+  xmlns="http://www.w3.org/1999/xhtml">
+  <svg>
+    <svg:defs>
+      <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
+        <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
+      </svg:marker>
+      <svg:marker id="UpArrowPreciseSelected" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
+        <svg:path d="M9,0 L9,8 L0,4 Z" fill="#128bde" />
+      </svg:marker>
+      <svg:marker id="createConnectorMarker" orient="auto" markerUnits="userSpaceOnUse" markerWidth="200" markerHeight="20" refX="13" refY="7.5">
+        <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
+      </svg:marker>
+    </svg:defs>
+  </svg>
+</html>

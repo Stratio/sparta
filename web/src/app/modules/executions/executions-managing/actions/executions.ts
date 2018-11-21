@@ -200,6 +200,7 @@ export class DeleteExecutionAction implements Action {
 
 export class DeleteExecutionCompleteAction implements Action {
   readonly type = DELETE_EXECUTION_COMPLETE;
+  constructor(public executionId: string) {}
 }
 
 export class DeleteExecutionErrorAction implements Action {

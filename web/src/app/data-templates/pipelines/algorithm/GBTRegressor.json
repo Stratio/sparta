@@ -1,0 +1,156 @@
+{
+  "name" : "GBTRegressor",
+  "icon" : "GBTRegressor",
+  "className" : "org.apache.spark.ml.regression.GBTRegressor",
+  "category" : "Regression",
+  "classPrettyName" : "GBTRegressor",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = regression",
+  "properties" : [ {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the GBTRegressor process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "labelCol",
+    "propertyName" : "Label column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the label of the GBTRegressor process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "Prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the GBTRegressor process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "cacheNodeIds",
+    "propertyName" : "Cache node IDs",
+    "required" : true,
+    "tooltip" : "If false, the algorithm will pass trees to executors to match instances with nodes. If true, the algorithm will cache node IDs for each instance. Caching can speed up training of deeper trees.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "checkpointInterval",
+    "propertyName" : "checkpointInterval",
+    "required" : true,
+    "tooltip" : "set checkpoint interval (>= 1) or disable checkpoint (-1). E.g. 10 means that the cache will get checkpointed every 10 iterations",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "impurity",
+    "propertyName" : "Impurity",
+    "required" : true,
+    "tooltip" : "Criterion used for information gain calculation (case-insensitive). Supported options: variance.",
+    "qa" : "",
+    "default" : "variance",
+    "propertyType" : "select",
+    "values": [
+      {
+         "label": "variance",
+         "value": "variance"
+      }
+   ]
+  }, {
+    "propertyId" : "lossType",
+    "propertyName" : "Loss type",
+    "required" : true,
+    "tooltip" : "Loss function which GBT tries to minimize (case-insensitive). Supported options: squared, absolute",
+    "qa" : "",
+    "default" : "squared",
+    "propertyType" : "select",
+    "values": [
+      {
+         "label": "squared",
+         "value": "squared"
+      }, {
+        "label": "absolute",
+        "value": "absolute"
+     }
+  ]
+  }, {
+    "propertyId" : "maxBins",
+    "propertyName" : "Max bins",
+    "required" : true,
+    "tooltip" : "Max number of bins for discretizing continuous features.  Must be >=2 and >= number of categories for any categorical feature.",
+    "qa" : "",
+    "default" : "32",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxDepth",
+    "propertyName" : "Max depth",
+    "required" : true,
+    "tooltip" : "Maximum depth of the tree. (>= 0) E.g., depth 0 means 1 leaf node; depth 1 means 1 internal node + 2 leaf nodes.",
+    "qa" : "",
+    "default" : "5",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "20",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxMemoryInMB",
+    "propertyName" : "Max memory (in MB)",
+    "required" : true,
+    "tooltip" : "Maximum memory in MB allocated to histogram aggregation.",
+    "qa" : "",
+    "default" : "256",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "minInfoGain",
+    "propertyName" : "Min info gain",
+    "required" : true,
+    "tooltip" : "Minimum information gain for a split to be considered at a tree node.",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "minInstancesPerNode",
+    "propertyName" : "Min instances per node (>=1)",
+    "required" : true,
+    "tooltip" : "Minimum number of instances each child must have after split.  If a split causes the left or right child to have fewer than minInstancesPerNode, the split will be discarded as invalid (>= 1).",
+    "qa" : "",
+    "default" : "1",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "stepSize",
+    "propertyName" : "Step size (between 0 and 1)",
+    "required" : true,
+    "tooltip" : "Step size (a.k.a. learning rate) in interval (0, 1) for shrinking the contribution of each estimator.",
+    "qa" : "",
+    "default" : "0.1",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "subsamplingRate",
+    "propertyName" : "Subsampling rate (between 0 and 1)",
+    "required" : true,
+    "tooltip" : "Fraction of the training data used for learning each decision tree, in range (0, 1).",
+    "qa" : "",
+    "default" : "1.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "-131597770",
+    "propertyType" : "number"
+  } ]
+}

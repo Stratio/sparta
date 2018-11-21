@@ -1,0 +1,150 @@
+{
+  "name" : "ALS",
+  "icon" : "ALS",
+  "className" : "org.apache.spark.ml.recommendation.ALS",
+  "category" : "Recommendation",
+  "classPrettyName" : "ALS",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = recommendation",
+  "properties" : [ {
+    "propertyId" : "itemCol",
+    "propertyName" : "Item column",
+    "required" : true,
+    "tooltip" : "The name of the column for item IDs. IDs must be within the integer value range.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "userCol",
+    "propertyName" : "User column",
+    "required" : true,
+    "tooltip" : "The name of the column name for user IDs. IDs must be within the integer value range.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "Prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the ALS process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "ratingCol",
+    "propertyName" : "Rating column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the ratings of the ALS process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "alpha",
+    "propertyName" : "Alpha",
+    "required" : true,
+    "tooltip" : "Alpha for implicit preference.",
+    "qa" : "",
+    "default" : "1.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "checkpointInterval",
+    "propertyName" : "Checkpoint interval (>= 1 or -1 to disable)",
+    "required" : true,
+    "tooltip" : "Set checkpoint interval (>= 1) or disable checkpoint (-1). E.g. 10 means that the cache will get checkpointed every 10 iterations.",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "coldStartStrategy",
+    "propertyName" : "Cold start strategy",
+    "required" : true,
+    "tooltip" : "Strategy for dealing with unknown or new users/items at prediction time. This may be useful in cross-validation or production scenarios, for handling user/item ids the model has not seen in the training data. Supported values: nan,drop.",
+    "qa" : "",
+    "default" : "nan",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "finalStorageLevel",
+    "propertyName" : "Final storage level",
+    "required" : true,
+    "tooltip" : "Storage level for ALS model factors.",
+    "qa" : "",
+    "default" : "MEMORY_AND_DISK",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "implicitPrefs",
+    "propertyName" : "Implicit preference",
+    "required" : true,
+    "tooltip" : "Whether or not to use implicit preference.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "intermediateStorageLevel",
+    "propertyName" : "Intermediate storage level",
+    "required" : true,
+    "tooltip" : "StorageLevel for intermediate datasets. Cannot be 'NONE'.",
+    "qa" : "",
+    "default" : "MEMORY_AND_DISK",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "nonnegative",
+    "propertyName" : "Non-negative",
+    "required" : true,
+    "tooltip" : "Whether or not to use non-negative constraint for least squares.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "numItemBlocks",
+    "propertyName" : "Number of item blocks",
+    "required" : true,
+    "tooltip" : "Number of item blocks.",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "numUserBlocks",
+    "propertyName" : "Number of user blocks",
+    "required" : true,
+    "tooltip" : "Number of user blocks.",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "rank",
+    "propertyName" : "Rank of the factorization",
+    "required" : true,
+    "tooltip" : "The rank of the factorization.",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "regParam",
+    "propertyName" : "Regularization parameter (>= 0)",
+    "required" : true,
+    "tooltip" : "Regularization parameter (>= 0).",
+    "qa" : "",
+    "default" : "0.1",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "1994790107",
+    "propertyType" : "number"
+  } ]
+}

@@ -1,0 +1,90 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<div id="we-header">
+  <div class="we-header__info">
+    <div class="we-header__left title egeo-title-extra-large">
+      <img src="assets/images/iconStreaming.svg" *ngIf="workflowData.type === 'Streaming'">
+      <img src="assets/images/iconBatch.svg" *ngIf="workflowData.type === 'Batch'">
+      <span>{{workflowData.name + ' - v' + workflowData.version + ' > ' + nodeName}}</span>
+    </div>
+    <div class="we-header__right">
+      <a (click)="showConfirmModal()">{{'WIZARD.PIPELINES.RETURN_WORKFLOW' | translate}}</a>
+      <button [disabled]="!isDirtyEditor" id="save-button" class="button button-primary" (click)="onSavePipelinesWorkflow.emit()">
+        {{'WIZARD.SAVE' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="we-header__control">
+    <div class="we-header__left">
+      <floating-menu
+        [search]="true"
+        [menuOptions]="menuData"
+        (selectedOption)="selectedMenuOption($event)">
+        <div id="create-node-menu" menu-action>
+          <button class="button button-toolbar" spTitle="Create node">
+            <i class="icon-plus"></i>
+          </button>
+        </div>
+      </floating-menu>
+      <button id="zoom-in-button" class="button button-toolbar" (click)="onZoomIn.emit()" spTitle="Zoom in">
+        <i class="icon-zoom-in"></i>
+      </button>
+      <button id="zoom-out-button" class="button button-toolbar" (click)="onZoomOut.emit()" spTitle="Zoom out">
+        <i class="icon-zoom-out"></i>
+      </button>
+      <button id="center-button" class="button button-toolbar" (click)="onCenter.emit()" spTitle="Center workflow">
+        <i class="icon-move"></i>
+      </button>
+    </div>
+    <div>
+      <button
+        id="edit-node-button"
+        class="button button-toolbar"
+        spTitle="Edit"
+        (click)="onEditButton.emit()"
+        *ngIf="showEditAndCopyButton">
+        <i class="icon-edit"></i>
+      </button>
+      <button
+        id="copy-node-button"
+        class="button button-toolbar"
+        spTitle="Duplicate"
+        (click)="onDuplicateNode.emit()"
+        *ngIf="showEditAndCopyButton">
+        <i class="icon-copy2"></i>
+      </button>
+      <button
+        id="delete-node-button"
+        class="button button-toolbar"
+        spTitle="Delete"
+        (click)="deleteSelection.emit()"
+        *ngIf="showDeleteButton">
+        <i class="icon-trash"></i>
+      </button>
+    </div>
+    <div class="we-header__right">
+      <button
+        id="show-info-button"
+        class="button button-toolbar"
+        spTitle="Show node info"
+        (click)="onShowInfo.emit()">
+        <i class="icon-info1"></i>
+      </button>
+      <button
+        id="show-settings-button"
+        class="button button-toolbar"
+        spTitle="Settings"
+        (click)="onEditSettings.emit()">
+        <i class="icon-tool"></i>
+      </button>
+    </div>
+  </div>
+</div>

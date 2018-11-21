@@ -166,7 +166,8 @@ export function reducer(state: State = initialState, action: any): State {
       case executionActions.DELETE_EXECUTION_COMPLETE: {
          return {
             ...state,
-            selectedExecutionsIds: []
+            selectedExecutionsIds: [],
+            executionList: state.executionList.filter((execution) => execution.id === action.executionId)
          };
       }
       default:

@@ -1,0 +1,179 @@
+{
+  "name" : "GBTClassifier",
+  "icon" : "GBTClassifier",
+  "className" : "org.apache.spark.ml.classification.GBTClassifier",
+  "category" : "Classification",
+  "classPrettyName" : "GBTClassifier",
+  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "supportedEngines" : [ "Batch" ],
+  "description" : "PipelineStage: type = classification",
+  "properties" : [ {
+    "propertyId" : "featuresCol",
+    "propertyName" : "Features column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the features of the GBTClassifier process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "labelCol",
+    "propertyName" : "Label column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the label of the GBTClassifier process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "select",
+    "externalValueKey" : "externalInputs"
+  }, {
+    "propertyId" : "predictionCol",
+    "propertyName" : "Prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the prediction of the GBTClassifier process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "probabilityCol",
+    "propertyName" : "Probability column",
+    "required" : true,
+    "tooltip" : "Column name for predicted class conditional probabilities. Note: Not all models output well-calibrated probability estimates! These probabilities should be treated as confidences, not precise probabilities",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "rawPredictionCol",
+    "propertyName" : "Raw prediction column",
+    "required" : true,
+    "tooltip" : "The name of the column that will be the raw prediction (a.k.a. confidence) of the DecisionTreeClassifier process.",
+    "qa" : "",
+    "default" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "CacheNodeIds",
+    "propertyName" : "Cache node IDs",
+    "required" : true,
+    "tooltip" : "If false, the algorithm will pass trees to executors to match instances with nodes. If true, the algorithm will cache node IDs for each instance. Caching can speed up training of deeper trees.",
+    "qa" : "",
+    "default" : false,
+    "propertyType" : "boolean"
+  }, {
+    "propertyId" : "checkpointInterval",
+    "propertyName" : "Checkpoint interval (>=1 or -1 to disable)",
+    "required" : true,
+    "tooltip" : "Set checkpoint interval (>= 1) or disable checkpoint (-1). E.g. 10 means that the cache will get checkpointed every 10 iterations.",
+    "qa" : "",
+    "default" : "10",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "impurity",
+    "propertyName" : "Impurity",
+    "required" : true,
+    "tooltip" : "Criterion used for information gain calculation (case-insensitive). Supported options: entropy, gini.",
+    "qa" : "",
+    "default" : "gini",
+    "propertyType" : "select",
+    "values": [
+      {
+         "label": "entropy",
+         "value": "entropy"
+      }, {
+        "label": "gini",
+        "value": "gini"
+     }
+   ]
+  }, {
+    "propertyId" : "lossType",
+    "propertyName" : "Loss type",
+    "required" : true,
+    "tooltip" : "Loss function which GBT tries to minimize (case-insensitive). Supported options: logistic",
+    "qa" : "",
+    "default" : "logistic",
+    "propertyType" : "select",
+    "values": [
+      {
+        "label": "logistic",
+        "value": "logistic"
+      }
+    ]
+  }, {
+    "propertyId" : "maxBins",
+    "propertyName" : "Max bins",
+    "required" : true,
+    "tooltip" : "Max number of bins for discretizing continuous features.  Must be >=2 and >= number of categories for any categorical feature.",
+    "qa" : "",
+    "default" : "32",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxDepth",
+    "propertyName" : "Max depth",
+    "required" : true,
+    "tooltip" : "Maximum depth of the tree. (>= 0) E.g., depth 0 means 1 leaf node; depth 1 means 1 internal node + 2 leaf nodes.",
+    "qa" : "",
+    "default" : "5",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxIter",
+    "propertyName" : "Max number of iterations (>= 0)",
+    "required" : true,
+    "tooltip" : "Maximum number of iterations (>= 0).",
+    "qa" : "",
+    "default" : "20",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "maxMemoryInMB",
+    "propertyName" : "Max memory (in MB)",
+    "required" : true,
+    "tooltip" : "Maximum memory in MB allocated to histogram aggregation.",
+    "qa" : "",
+    "default" : "256",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "minInfoGain",
+    "propertyName" : "Min info gain",
+    "required" : true,
+    "tooltip" : "Minimum information gain for a split to be considered at a tree node.",
+    "qa" : "",
+    "default" : "0.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "minInstancesPerNode",
+    "propertyName" : "Min instances per node (>= 1)",
+    "required" : true,
+    "tooltip" : "Minimum number of instances each child must have after split. If a split causes the left or right child to have fewer than minInstancesPerNode, the split will be discarded as invalid (>= 1).",
+    "qa" : "",
+    "default" : "1",
+    "propertyType" : "number"
+  }, {
+    "propertyId" : "stepSize",
+    "propertyName" : "Step size (between 0 and 1)",
+    "required" : true,
+    "tooltip" : "Step size (a.k.a. learning rate) in interval (0, 1) for shrinking the contribution of each estimator.",
+    "qa" : "",
+    "default" : "0.1",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "subsamplingRate",
+    "propertyName" : "Subsampling rate",
+    "required" : true,
+    "tooltip" : "Fraction of the training data used for learning each decision tree, in range (0, 1).",
+    "qa" : "",
+    "default" : "1.0",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "thresholds",
+    "propertyName" : "Thresholds (separated by comma)",
+    "required" : false,
+    "tooltip" : "(comma separated values) Thresholds in multi-class classification to adjust the probability of predicting each class. Array must have length equal to the number of classes, with values > 0 excepting that at most one value may be 0. The class with largest value p/t is predicted, where p is the original probability of that class and t is the class's threshold",
+    "qa" : "",
+    "propertyType" : "text"
+  }, {
+    "propertyId" : "seed",
+    "propertyName" : "Random seed",
+    "required" : true,
+    "tooltip" : "Random seed.",
+    "qa" : "",
+    "default" : "-1287390502",
+    "propertyType" : "number"
+  } ]
+}

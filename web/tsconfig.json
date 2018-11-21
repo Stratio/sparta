@@ -48,6 +48,7 @@
         "test/index.ts"
       ]
     },
+    "noImplicitAny": false,
     "sourceMap": true,
     "target": "es5",
     "typeRoots": [

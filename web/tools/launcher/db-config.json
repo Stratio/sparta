@@ -1,0 +1,37 @@
+{
+   "development": {
+      "database": "postgres",
+      "username": "postgres",
+      "password": "",
+      "dialect": "postgres",
+      "host": "localhost"
+   },
+   "test": {
+      "database": "",
+      "username": "",
+      "password": "",
+      "dialect": "",
+      "host": ""
+   },
+   "pre": {
+      "database": "",
+      "username": "",
+      "password": "",
+      "dialect": "",
+      "host": ""
+   },
+   "production": {
+      "database": "",
+      "username": "",
+      "password": "",
+      "dialect": "",
+      "host": ""
+   },
+   "homeDev": {
+      "database": "",
+      "username": "",
+      "password": "",
+      "dialect": "",
+      "host": ""
+   }
+}
