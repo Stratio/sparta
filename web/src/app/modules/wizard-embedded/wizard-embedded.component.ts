@@ -49,6 +49,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public nodesEditionMode: any[] = [];
   public isDirtyEditor = false;
   public isShowedInfo = false;
+  public serverStepValidations: any;
 
   @Input() workflowData: WorkflowData;
   @Input() nodeData: EditionConfigMode;
@@ -86,7 +87,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
     const internalErrors = (Object.prototype.hasOwnProperty.call(this.nodeDataEdited, 'serverValidationInternalErrors'));
     if (internalErrors && this.nodeDataEdited.serverValidationInternalErrors.length) {
-      const associativeErrors = this.nodeDataEdited.serverValidationInternalErrors
+      this.serverStepValidations = this.nodeDataEdited.serverValidationInternalErrors
         .filter(message => message.step)
         .reduce((a, e) => {
           if (a[e.step]) {
@@ -101,7 +102,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
         editionType: {
           data: e
         },
-        serverValidation: (Object.prototype.hasOwnProperty.call(associativeErrors, e.name)) ? associativeErrors[e.name] : null
+        serverValidation: (Object.prototype.hasOwnProperty.call(this.serverStepValidations, e.name)) ? this.serverStepValidations[e.name] : null
       }));
 
       // console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
