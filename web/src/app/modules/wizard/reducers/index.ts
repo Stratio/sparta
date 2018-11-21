@@ -161,17 +161,17 @@ export const getEditionConfigMode = createSelector(
     getDebugResult,
     getServerStepValidation,
     getSelectedNodeSchemas,
-    getEdges,
-    (editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
-        return editionConfig && editionConfig.isEdition ?
-            {
-                ...editionConfig,
-                serverValidation: stepValidation[editionConfig.editionType.data.name],
-                inputSteps: edges.filter(edge => edge.destination === editionConfig.editionType.data.name)
-                    .map(edge => edge.origin),
-                debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
-                schemas: schemas,
-            } : editionConfig;
+    getEdges,(editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
+      return editionConfig && editionConfig.isEdition ?
+        {
+          ...editionConfig,
+          serverValidation: stepValidation[editionConfig.editionType.data.name].errors,
+          serverValidationInternalErrors: stepValidation[editionConfig.editionType.data.name].internalErrors || null,
+          inputSteps: edges.filter(edge => edge.destination === editionConfig.editionType.data.name)
+            .map(edge => edge.origin),
+          debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],
+          schemas: schemas,
+        } : editionConfig;
     }
 );
 

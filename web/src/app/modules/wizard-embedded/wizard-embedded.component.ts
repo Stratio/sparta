@@ -34,6 +34,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public nodeName: string;
   public settingsPipelinesWorkflow: boolean;
   public editedNode: WizardNode;
+  public editedNodeEditionMode: any;
   public nodeDataEdited: EditionConfigMode;
   public selectedNode = '';
   public selectedEdge;
@@ -45,6 +46,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public nodes: WizardNode[] = [];
   public edges: WizardEdge[] = [];
   public svgPosition = { x: 0, y: 0, k: 1 };
+  public nodesEditionMode: any[] = [];
   public isDirtyEditor = false;
   public isShowedInfo = false;
 
@@ -64,6 +66,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.nodeDataEdited = _cloneDeep(this.nodeData);
+    this.editedNodeEditionMode = this.nodeDataEdited;
     this.readData();
     if (this.nodeDataEdited && this.nodeDataEdited.editionType && this.nodeDataEdited.editionType.data) {
       this.nodeName = this.nodeDataEdited.editionType.data.name;
@@ -79,6 +82,31 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       this.nodes = pipelinesConfig.nodes;
       this.edges = pipelinesConfig.edges;
       this.svgPosition = pipelinesConfig.svgPosition;
+    }
+
+    const internalErrors = (Object.prototype.hasOwnProperty.call(this.nodeDataEdited, 'serverValidationInternalErrors'));
+    if (internalErrors && this.nodeDataEdited.serverValidationInternalErrors.length) {
+      const associativeErrors = this.nodeDataEdited.serverValidationInternalErrors
+        .filter(message => message.step)
+        .reduce((a, e) => {
+          if (a[e.step]) {
+            a[e.step].push(e.message);
+          } else {
+            a[e.step] = [e.message];
+          }
+          return a;
+        }, {});
+
+      this.nodesEditionMode = this.nodes.map(e => ({
+        editionType: {
+          data: e
+        },
+        serverValidation: (Object.prototype.hasOwnProperty.call(associativeErrors, e.name)) ? associativeErrors[e.name] : null
+      }));
+
+      // console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
+      // console.log(this.nodesEditionMode, associativeErrors);
+      // console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
     }
   }
 
@@ -124,6 +152,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   weSelectNode(event: WizardNode) {
     this.deselectAll();
     this.selectedNode = event.name;
+    this.editedNodeEditionMode = this.nodesEditionMode.find(node => node.editionType.data.name === event.name);
   }
 
   weSelectEdge(event: WizardEdge) {
@@ -217,6 +246,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   deselectAll() {
     this.selectedNode = '';
     this.selectedEdge = null;
+    this.editedNodeEditionMode = this.nodeDataEdited;
   }
 
   weCloseEdition() {

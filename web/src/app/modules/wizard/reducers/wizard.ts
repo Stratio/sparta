@@ -376,11 +376,16 @@ export function reducer(state: State = initialState, action: any): State {
           .reduce((acc, el) => {
             const position = acc[el.step];
             if (position) {
-              position.push(el.message);
+              position['errors'].push(el.message);
+              if (el.internalErrors) {
+                position['internalErrors'] = el.internalErrors;
+              }
             } else {
-              acc[el.step] = [
-                el.message
-              ];
+              acc[el.step] = {};
+              acc[el.step]['errors'] = [el.message];
+              if (el.internalErrors) {
+                acc[el.step]['internalErrors'] = el.internalErrors;
+              }
             }
             return acc;
           }, {})

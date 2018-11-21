@@ -9,7 +9,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  Input,
+  Input, OnChanges,
   OnDestroy,
   OnInit,
   Output
@@ -23,7 +23,7 @@ import { StHorizontalTab } from '@stratio/egeo';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SidebarConfigComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input() isVisible = true;
   @Input() nodeData: any;
   @Input() showCrossdataCatalog: boolean;
@@ -60,7 +60,9 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnDestroy 
 
   /** lifecyle methods */
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngOnChanges(): void {
     this.entityData = (this.nodeData.hasOwnProperty('editionType')) ?
       this.nodeData.editionType.data :
       this.nodeData;

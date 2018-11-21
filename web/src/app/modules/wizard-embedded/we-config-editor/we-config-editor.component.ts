@@ -64,6 +64,9 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+
+    // console.log(this.mlPipelineNode, this.editedNode);
+
     this.formTemplate = this._wizardService.getPipelinesTemplates(this.editedNode.stepType)[this.editedNode.classPrettyName];
     const editedNode = _cloneDeep(this.editedNode);
     this.form = editedNode.configuration;

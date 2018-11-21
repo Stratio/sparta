@@ -71,6 +71,7 @@ export interface EditionConfigMode {
     output: Array<string>;
   };
   serverValidation?: any;
+  serverValidationInternalErrors?: any;
   debugResult: any;
   schemas?: any;
   inputSteps?: any;
