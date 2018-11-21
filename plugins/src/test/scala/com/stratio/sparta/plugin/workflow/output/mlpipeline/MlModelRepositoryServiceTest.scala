@@ -13,6 +13,7 @@ import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -21,7 +22,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class MlModelRepositoryServiceTests extends TemporalSparkContext with Matchers {
+class MlModelRepositoryServiceTest extends TemporalSparkContext with Matchers {
 
   trait ReadDescriptorResource {
     def getJsonDescriptor(filename: String): String = {
@@ -45,6 +46,25 @@ class MlModelRepositoryServiceTests extends TemporalSparkContext with Matchers {
       "mlmodelrepModelTmpDir" -> "/tmp",
       SdkConstants.ModelRepositoryUrl -> "http://localhost:8080",
       "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.MLEAP.toString)
+    )
+  }
+
+  trait WithLocalRepositoryPropertiesInvalidName {
+    var properties: Map[String, JSerializable] = Map(
+      "output.mode" -> JsoneyString(MlPipelineSaveMode.MODELREP.toString),
+      "mlmodelrepModelName" -> "123_%456",
+      "mlmodelrepModelTmpDir" -> "/tmp",
+      SdkConstants.ModelRepositoryUrl -> "http://localhost:8080",
+      "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.SPARK.toString)
+    )
+  }
+
+  trait WithLocalRepositoryPropertiesmissingName {
+    var properties: Map[String, JSerializable] = Map(
+      "output.mode" -> JsoneyString(MlPipelineSaveMode.MODELREP.toString),
+      "mlmodelrepModelTmpDir" -> "/tmp",
+      SdkConstants.ModelRepositoryUrl -> "http://localhost:8080",
+      "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.SPARK.toString)
     )
   }
 
@@ -82,22 +102,35 @@ class MlModelRepositoryServiceTests extends TemporalSparkContext with Matchers {
 
   // TODO - Mock for unit test - Integration test
   // Note: only in local environment
-  /*
-  "MlModelRepositoryClient" should "validate a local ml-model-repo connection" in
+
+  "MlModelRepositoryClient" should "accept a model with valid name" in
     new ReadDescriptorResource with WithExampleData with WithValidateStep
       with WithLocalRepositoryProperties {
       properties = properties.updated(
         "pipeline", JsoneyString(getJsonDescriptor("nlp_pipeline_good.json"))
-      ).updated("validateMlModelRep", true)
-      validateMlPipelineStep(properties)
+      )
+      assert(validateMlPipelineStep(properties).valid)
     }
 
-  "MlModelRepositoryClient" should "save a model into local ml-model-repo" in
-    new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithLocalRepositoryProperties {
+
+  "MlModelRepositoryClient" should "not accept a model with a missing name" in
+    new ReadDescriptorResource with WithExampleData with WithValidateStep
+      with WithLocalRepositoryPropertiesmissingName {
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("nlp_pipeline_good.json")))
-      executeStepAndUsePipeline(training, properties)
+
+      lazy val validationResult: ErrorValidations = validateMlPipelineStep(properties)
+      assert(!validationResult.valid)
+      assert(validationResult.messages.head.message.equals(ValidationErrorMessages.mlModelModelName))
     }
-  */
+
+  "MlModelRepositoryClient" should "not accept a model with an invalid name" in
+    new ReadDescriptorResource with WithExampleData with WithValidateStep
+      with WithLocalRepositoryPropertiesInvalidName {
+      properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("nlp_pipeline_good.json")))
+
+      lazy val validationResult: ErrorValidations = validateMlPipelineStep(properties)
+      assert(!validationResult.valid)
+      assert(validationResult.messages.head.message.equals(ValidationErrorMessages.mlModelRepModelInvalidModelName))
+    }
 
 }

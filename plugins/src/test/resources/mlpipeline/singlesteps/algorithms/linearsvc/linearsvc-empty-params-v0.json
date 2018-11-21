@@ -1,0 +1,50 @@
+{
+  "nodes": [{
+    "configuration": {
+      "aggregationDepth": "",
+      "featuresCol": "",
+      "fitIntercept": "",
+      "labelCol": "",
+      "maxIter": "",
+      "predictionCol": "",
+      "rawPredictionCol": "",
+      "regParam": "",
+      "standardization": "",
+      "threshold": "",
+      "tol": "",
+      "weightCol": ""
+    },
+    "supportedEngines": ["Batch"],
+    "classPrettyName": "LinearSVC",
+    "className": "org.apache.spark.ml.classification.LinearSVC",
+    "arity": ["NullaryToNullary", "UnaryToNullary"],
+    "stepType": "Algorithm",
+    "writer": {
+      "tableName": null,
+      "errorTableName": null,
+      "saveMode": "Append",
+      "constraintType": "primaryKey",
+      "primaryKey": null,
+      "uniqueConstraintName": null,
+      "uniqueConstraintFields": null,
+      "partitionBy": null
+    },
+    "name": "LinearSVC",
+    "created": true,
+    "uiConfiguration": {
+      "position": {
+        "x": 677,
+        "y": 403
+      }
+    },
+    "createdNew": false,
+    "description": "",
+    "hasErrors": false
+  }],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 9,
+    "y": -8
+  }
+}

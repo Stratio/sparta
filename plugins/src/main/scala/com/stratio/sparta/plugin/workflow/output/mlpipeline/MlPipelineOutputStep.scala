@@ -14,29 +14,27 @@ import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.plugin.enumerations.{MlPipelineSaveMode, MlPipelineSerializationLibs}
+import com.stratio.sparta.plugin.enumerations.{MlPipelineFilteredStages, MlPipelineSaveMode, MlPipelineSerializationLibs}
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.deserialization._
-import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
+import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.{PipelineGraphValidator, ValidationErrorMessages}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PipelineGraph}
 import org.apache.spark.ml.param._
 import org.apache.spark.ml.{Pipeline, PipelineModel, PipelineStage}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 import org.json4s.jackson.Serialization.read
-import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.{Failure, Success, Try}
-
+import MlPipelineDeserializationUtils.{okParam, decodeParamValue}
 
 class MlPipelineOutputStep(
                             name: String,
                             xDSession: XDSession,
                             properties: Map[String, JSerializable]
-                          ) extends OutputStep(name, xDSession, properties) {
-
-  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer() + BooleanToString
+                          ) extends OutputStep(name, xDSession, properties) with SpartaSerializer {
 
   lazy val outputMode: Option[MlPipelineSaveMode.Value] =
     Try(MlPipelineSaveMode.withName(properties.getString("output.mode").toUpperCase)).toOption
@@ -49,15 +47,29 @@ class MlPipelineOutputStep(
   lazy val externalMlModelRepositoryUrl: Option[String] = properties.getString(SdkConstants.ModelRepositoryUrl, None).notBlank
   lazy val externalMlModelRepositoryModelName: Option[String] = properties.getString("mlmodelrepModelName", None)
   lazy val externalMlModelRepositoryTmpDir: String = properties.getString("mlmodelrepModelTmpDir", "/tmp")
+
   lazy val serializationLib: MlPipelineSerializationLibs.Value =
-    MlPipelineSerializationLibs.withName(properties.getString("serializationLib", "SPARK_AND_MLEAP").toUpperCase)
+    MlPipelineSerializationLibs.withName(properties.getString("serializationLib",
+      if (outputMode.get == MlPipelineSaveMode.FILESYSTEM) {
+        "SPARK"
+      } else {
+        "SPARK_AND_MLEAP"
+      }).toUpperCase)
 
   // => Pipeline related
   // · Pipeline Json descriptor --> deserialized into Array[PipelineStageDescriptor]
   lazy val pipelineJson: Option[String] = properties.getString("pipeline", None)
-  lazy val pipelineDescriptor: Try[Array[PipelineStageDescriptor]] = getPipelineDescriptor
+  // Pipeline Graph --> represents arcs and nodes as they comes form the fron editor
+  lazy val pipelineGraph: Try[PipelineGraph] = getPipelineGraph
+  // Pipeline descriptor --> Descriptor object that can be easily converted into a SparkML Pipeline
+  lazy val pipelineDescriptor: Try[Seq[PipelineStageDescriptor]] = getPipelineDescriptor
   // · SparkMl Pipeline (built using Array[PipelineStageDescriptor])
   lazy val pipeline: Try[Pipeline] = getPipelineFromDescriptor(pipelineDescriptor.get)
+
+  // => Pipeline stages not supported by mleap
+  lazy val forbbidenStages: Seq[String] = MlPipelineFilteredStages.values.toSeq.map(_.toString)
+
+  private val errors_separator: String = "---===###SPARK-ML-PIPELINES-ERRORS-SEPARATOR###===---"
 
   def mlModelRepClient: Try[MlModelsRepositoryClient] = Try {
     MlPipelineOutputStep.getMlRepositoryClient(
@@ -74,6 +86,10 @@ class MlPipelineOutputStep(
     */
   //noinspection ScalaStyle
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
+    //Regular expression used to verify valid Model Names
+    val mlModelNameRegExpr =
+      """^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])|(\.|\.\.)$""".r
+
     def addValidationError(validation: ErrorValidations, error: String): ErrorValidations =
       ErrorValidations(valid = false, messages = validation.messages :+ WorkflowValidationMessage(error, name))
 
@@ -90,9 +106,14 @@ class MlPipelineOutputStep(
 
       // => Ml-Model-Repository
       if ((outputMode.get == MlPipelineSaveMode.MODELREP) || (outputMode.get == MlPipelineSaveMode.BOTH)) {
-        if (externalMlModelRepositoryUrl.isEmpty || externalMlModelRepositoryModelName.isEmpty) {
-          validation = addValidationError(validation, ValidationErrorMessages.nonDefinedMlRepoConnection)
+        if (externalMlModelRepositoryModelName.isEmpty) {
+          validation = addValidationError(validation, ValidationErrorMessages.mlModelModelName)
         } else {
+          externalMlModelRepositoryModelName.get match {
+            //check if the model name is valid //TODO this check should be done also in Front
+            case mlModelNameRegExpr(_*) => None
+            case _ => validation = addValidationError(validation, ValidationErrorMessages.mlModelRepModelInvalidModelName)
+          }
           // · If validate Ml-Model-repository external connection during creation time is enabled
           validation = if (validateConnectionMlModelrep) {
             mlModelRepClient match {
@@ -114,7 +135,21 @@ class MlPipelineOutputStep(
       validation = addValidationError(validation, ValidationErrorMessages.emptyJsonPipelineDescriptor)
 
     // · Error de-serializing pipeline Json descriptor
-    if (pipelineJson.isDefined && pipelineDescriptor.isFailure) {
+    if (pipelineJson.isDefined && pipelineGraph.isFailure) {
+      val error = pipelineGraph match {
+        case Failure(f) => f
+      }
+      validation = addValidationError(validation,
+        ValidationErrorMessages.invalidJsonFormatPipelineGraphDescriptor + s" ${error.getMessage}")
+    }
+
+    //pipeline graph is defined? (check is it has no nodes)
+    if (pipelineGraph.isSuccess && pipelineGraph.get.nodes.isEmpty) {
+      validation = addValidationError(validation, ValidationErrorMessages.emptyJsonPipelineDescriptor)
+    }
+
+    //validate the PipelineGraph
+    if (pipelineGraph.isSuccess && !pipelineGraph.get.nodes.isEmpty && pipelineDescriptor.isFailure) {
       val error = pipelineDescriptor match {
         case Failure(f) => f
       }
@@ -125,7 +160,10 @@ class MlPipelineOutputStep(
     // · Error building SparkML Pipeline instance
     if (pipelineDescriptor.isSuccess && pipeline.isFailure) {
       val errors: Seq[WorkflowValidationMessage] = pipeline match {
-        case Failure(f) => f.getMessage.split("\\n").map(m => WorkflowValidationMessage(s"· $m", name)).toSeq
+        case Failure(f) => {
+          f.getMessage.split("\\n").map(m => WorkflowValidationMessage(m.split(errors_separator).last, name, m.split(errors_separator).head)).toSeq
+        }
+
       }
       validation = ErrorValidations(
         valid = false,
@@ -156,7 +194,7 @@ class MlPipelineOutputStep(
         currentSchema = stage.transformSchema(currentSchema)
       } match {
         case Failure(e) =>
-          throw new Exception(s"Schema error on ${stage.getClass.getSimpleName}@${stage.uid}: ${e.getMessage}")
+          throw new Exception(ValidationErrorMessages.schemaError(stage.getClass.getSimpleName, stage.uid) + s"${e.getMessage}")
         case _ => None
       }
     }
@@ -195,14 +233,45 @@ class MlPipelineOutputStep(
   }
 
   /**
-    * Deserialize the pipeline descriptor in Json format provided in input properties map
+    * Deserialize the pipeline graph descriptor in Json format provided in input properties map
+    *
+    * @return An instance of PipelineGraph
+    */
+  def getPipelineGraph: Try[PipelineGraph] = Try {
+    // Getting pipeline descriptor object
+    // unescape JSON first
+    read[PipelineGraph](pipelineJson.getOrElse(throw new Exception("The pipeline graph JSON descriptor is not provided.")))
+  }
+
+  /**
+    * Validate the Graph Pipeline provided
+    *
+    * @return A Try of Seq[NodeGraph] with the ordered nodes if pipeline is valid
+    *         or an error if the pipeline is not valid
+    */
+  def getValidOrderedPipelineGraph(aiPipelineGraph: Try[PipelineGraph]): Try[Seq[NodeGraph]] =
+    aiPipelineGraph flatMap {
+      new PipelineGraphValidator(_).validate
+    }
+
+  /**
+    * Deserialize the AI pipeline descriptor in Json format provided in input properties map
     *
     * @return An array of PipelineStageDescriptor instances
     */
-  def getPipelineDescriptor: Try[Array[PipelineStageDescriptor]] = Try {
-    // Getting pipeline descriptor object
-    read[Array[PipelineStageDescriptor]](
-      pipelineJson.getOrElse(throw new Exception("The pipeline JSON descriptor is not provided.")))
+  def getPipelineDescriptor(): Try[Seq[PipelineStageDescriptor]] = Try {
+    // Convert to pipeline descriptor object
+    val validationResult: Try[Seq[NodeGraph]] = getValidOrderedPipelineGraph(pipelineGraph)
+    validationResult match {
+      case Success(stages) => for (e <- stages)
+        yield PipelineStageDescriptor(
+          e.classPrettyName,
+          e.name,
+          e.className,
+          e.configuration
+        )
+      case Failure(t) => throw new Exception(t.getMessage)
+    }
   }
 
   /**
@@ -211,37 +280,52 @@ class MlPipelineOutputStep(
     * @param pipelineDescriptor == array of PipelineStageDescriptor instances
     * @return Pipeline instance
     */
-  def getPipelineFromDescriptor(pipelineDescriptor: Array[PipelineStageDescriptor]): Try[Pipeline] = {
+  def getPipelineFromDescriptor(pipelineDescriptor: Seq[PipelineStageDescriptor]): Try[Pipeline] = {
 
     // · Traversing the array of PipelineStageDescriptor for constructing an array of SparkML PipelineStages
-    val stages: Array[Try[PipelineStage]] = for (stageDescriptor <- pipelineDescriptor) yield {
+    val stages: Seq[Try[PipelineStage]] = for (stageDescriptor <- pipelineDescriptor) yield {
       Try {
         // · Instantiate SparkML PipelineStage class
         val stage = Try {
           assert(stageDescriptor.className.startsWith("org.apache.spark.ml"))
           Class.forName(stageDescriptor.className).getConstructor(classOf[String]).newInstance(stageDescriptor.uid)
-        }.getOrElse(throw new Exception(
+        }.getOrElse(throw new Exception(s"${stageDescriptor.uid}" + errors_separator +
           s"Error instantiating PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})': " +
-            s"invalid 'className=${stageDescriptor.className}'"))
+          s"invalid 'className=${stageDescriptor.className}'"))
+
+        // · validate pipeline whether is supported by mleap
+        if (forbbidenStages.contains(stageDescriptor.className.split('.').toSeq.last)
+          && (serializationLib == MlPipelineSerializationLibs.MLEAP
+          || serializationLib == MlPipelineSerializationLibs.SPARK_AND_MLEAP)) {
+          throw new Exception(ValidationErrorMessages.stageNotSupportedMleap(stageDescriptor.className))
+        }
 
         // · Set parameters of SparkML PipelineStage instance
-        val parameterValidator: Seq[Try[Params]] = stageDescriptor.properties.map { case (paramName, paramValue) => Try {
-          // - Getting parameter from PipelineStage using its name
-          val paramToSet: Param[Any] = Try(stage.asInstanceOf[Params].getParam(paramName)
-          ).getOrElse(throw new Exception(
-            s"PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})' " +
-              s"don't have a parameter named '$paramName'."))
-          // - Getting value of parameter decoding the string value set in PipelineStageDescriptor
-          Try {
-            val valueToSet = MlPipelineDeserializationUtils.decodeParamValue(paramToSet, paramValue)
-            stage.asInstanceOf[Params].set(paramToSet, valueToSet.get)
-          }.getOrElse(throw new Exception(
-            s"Parameter '$paramName' of PipelineStage " +
-              s"'${stageDescriptor.name}@id(${stageDescriptor.uid})' has an invalid value " +
-              s"(it must be a ${MlPipelineDeserializationUtils.decodeParamValue(paramToSet).get})."
-          ))
-        }
-        }.toSeq
+        // filter out parameters with null or empty values
+        val parameterValidator: Seq[Try[Params]] = stageDescriptor.properties
+          .filter((t) => okParam(t._2))
+          .map { case (paramName, paramValue) => {
+            // - Getting parameter from PipelineStage using its name
+            val paramToSet: Param[Any] = Try(stage.asInstanceOf[Params].getParam(paramName))
+              .getOrElse(throw new Exception(s"${stageDescriptor.uid}" + errors_separator + s"PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})' " +
+                s"don't have a parameter named '$paramName'."))
+            // - Getting value of parameter decoding the string value set in PipelineStageDescriptor
+            decodeParamValue(paramToSet, paramValue)
+              .transform(
+                s => Try(stage.asInstanceOf[Params].set(paramToSet, s)),
+                f => Failure(throw new Exception(
+                  s"${stageDescriptor.uid}" + errors_separator + f.getMessage +
+                    s" of PipelineStage '${stageDescriptor.name}@id(${stageDescriptor.uid})'"))
+              ).transform(
+              s => Success(s),
+              f => Failure(
+                throw new Exception(s"${stageDescriptor.uid}" + errors_separator +
+                  s"'${stageDescriptor.name}@id(${stageDescriptor.uid})' has an invalid value. Details: ${f.getMessage}"
+                )
+              )
+            )
+          }
+          }.toSeq
 
         Try(parameterValidator.map(_.get)).getOrElse(
           throw new Exception(parameterValidator.collect { case Failure(t) => t }.map(_.getMessage).mkString("\n"))
@@ -250,9 +334,9 @@ class MlPipelineOutputStep(
         stage.asInstanceOf[PipelineStage]
       }
     }
-
+    val stagesArray = stages.toArray[Try[PipelineStage]]
     val validatedStages: Either[Array[Throwable], Pipeline] = Try(
-      Right(new Pipeline().setStages(stages.map(_.get)))).getOrElse(Left(stages.collect { case Failure(t) => t }))
+      Right(new Pipeline().setStages(stagesArray.map(_.get)))).getOrElse(Left(stagesArray.collect { case Failure(t) => t }))
 
     validatedStages match {
       case Left(errors) => Failure(new Exception(errors.map(_.getMessage).mkString("\n")))

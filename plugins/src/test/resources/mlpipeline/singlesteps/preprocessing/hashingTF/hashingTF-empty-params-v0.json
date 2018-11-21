@@ -1,0 +1,48 @@
+{
+  "nodes": [
+    {
+      "configuration": {
+        "binary": false,
+        "inputCol": "tokens",
+        "numFeatures": "",
+        "outputCol": ""
+      },
+      "supportedEngines": ["Batch"],
+      "classPrettyName": "HashingTF",
+      "className": "org.apache.spark.ml.feature.HashingTF",
+      "arity": ["NullaryToNullary", "NullaryToUnary"],
+      "stepType": "Preprocessing",
+      "writer": {
+        "tableName": null,
+        "errorTableName": null,
+        "saveMode": "Append",
+        "constraintType": "primaryKey",
+        "primaryKey": null,
+        "uniqueConstraintName": null,
+        "uniqueConstraintFields": null,
+        "partitionBy": null
+      },
+      "name": "HashingTF",
+      "hasErrors": true,
+      "errors": [{
+        "propertyName": "inputCol",
+        "type": "required"
+      }],
+      "createdNew": false,
+      "created": true,
+      "uiConfiguration": {
+        "position": {
+          "x": 407,
+          "y": 101
+        }
+      }
+    }
+  ],
+  "edges": [],
+  "svgPosition": {
+    "k": 1,
+    "x": 0,
+    "y": 0
+  }
+
+}
