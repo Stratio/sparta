@@ -86,14 +86,14 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     }
 
     const internalErrors = (Object.prototype.hasOwnProperty.call(this.nodeDataEdited, 'serverValidationInternalErrors'));
-    if (internalErrors && this.nodeDataEdited.serverValidationInternalErrors.length) {
+    if (internalErrors && this.nodeDataEdited.serverValidationInternalErrors && this.nodeDataEdited.serverValidationInternalErrors.length) {
       this.serverStepValidations = this.nodeDataEdited.serverValidationInternalErrors
         .filter(message => message.step)
         .reduce((a, e) => {
-          if (a[e.step]) {
-            a[e.step].push(e.message);
+          if (a[e.subStep]) {
+            a[e.subStep].push(e.message);
           } else {
-            a[e.step] = [e.message];
+            a[e.subStep] = [e.message];
           }
           return a;
         }, {});
@@ -104,10 +104,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
         },
         serverValidation: (Object.prototype.hasOwnProperty.call(this.serverStepValidations, e.name)) ? this.serverStepValidations[e.name] : null
       }));
-
-      // console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-      // console.log(this.nodesEditionMode, associativeErrors);
-      // console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
     }
   }
 

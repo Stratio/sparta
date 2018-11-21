@@ -165,8 +165,8 @@ export const getEditionConfigMode = createSelector(
       return editionConfig && editionConfig.isEdition ?
         {
           ...editionConfig,
-          serverValidation: stepValidation[editionConfig.editionType.data.name].errors,
-          serverValidationInternalErrors: stepValidation[editionConfig.editionType.data.name].internalErrors || null,
+          serverValidation: (stepValidation[editionConfig.editionType.data.name]) ? stepValidation[editionConfig.editionType.data.name].errors : null,
+          serverValidationInternalErrors: (stepValidation[editionConfig.editionType.data.name]) ? stepValidation[editionConfig.editionType.data.name].internalErrors : null,
           inputSteps: edges.filter(edge => edge.destination === editionConfig.editionType.data.name)
             .map(edge => edge.origin),
           debugResult: debugResult && debugResult.steps && debugResult.steps[editionConfig.editionType.data.name],

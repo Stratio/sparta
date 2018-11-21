@@ -365,6 +365,8 @@ export function reducer(state: State = initialState, action: any): State {
       }
     }
     case wizardActions.VALIDATE_WORKFLOW_COMPLETE: {
+      console.log('POLLAS: ', action.payload.messages);
+
       return {
         ...state,
         validationErrors: {
@@ -376,15 +378,20 @@ export function reducer(state: State = initialState, action: any): State {
           .reduce((acc, el) => {
             const position = acc[el.step];
             if (position) {
-              position['errors'].push(el.message);
-              if (el.internalErrors) {
-                position['internalErrors'] = el.internalErrors;
+              if (!el.subStep) {
+                position['errors'].push(el.message);
+              } else {
+                if (!position['internalErrors']) {
+                  position['internalErrors'] = [];
+                }
+                position['internalErrors'].push(el);
               }
             } else {
-              acc[el.step] = {};
-              acc[el.step]['errors'] = [el.message];
-              if (el.internalErrors) {
-                acc[el.step]['internalErrors'] = el.internalErrors;
+              if (!el.subStep) {
+                acc[el.step] = {};
+                acc[el.step]['errors'] = [el.message];
+              } else {
+                acc[el.step]['internalErrors'] = [el];
               }
             }
             return acc;

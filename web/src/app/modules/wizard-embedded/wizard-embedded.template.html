@@ -33,7 +33,7 @@
     <wizard-editor
       [creationMode]="creationMode"
       [selectedNodeName]="selectedNode"
-      [serverStepValidations]="serverStepValidations"
+      [serverStepValidations]="serverStepValidations || []"
       [selectedEdge]="selectedEdge"
       workflowID="pipeline"
       [svgPosition]="svgPosition"
