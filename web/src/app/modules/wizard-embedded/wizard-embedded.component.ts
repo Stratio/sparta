@@ -13,7 +13,8 @@ import {
   Output,
   ViewChild,
   ViewContainerRef,
-  EventEmitter, ChangeDetectorRef
+  EventEmitter,
+  ChangeDetectorRef
 } from '@angular/core';
 import { WorkflowData } from '@app/wizard/wizard.models';
 import { EditionConfigMode, WizardEdge, WizardNode } from '@app/wizard/models/node';
@@ -22,6 +23,7 @@ import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 import { CreationData } from '@app/wizard/models/drag';
 import { WizardEditorComponent, WizardEditorService } from '@app/wizard';
 import { filter as _filter, cloneDeep as _cloneDeep } from 'lodash';
+import { NodeHelpersService } from '@app/wizard-embedded/_services/node-helpers.service';
 
 @Component({
   selector: 'wizard-embedded',
@@ -63,11 +65,13 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   constructor(
     private _modalService: StModalService,
     private _cd: ChangeDetectorRef,
-    private _editorService: WizardEditorService) {}
+    private _editorService: WizardEditorService,
+    private _nodeHelpers: NodeHelpersService) {}
 
   ngOnInit(): void {
     this.nodeDataEdited = _cloneDeep(this.nodeData);
     this.editedNodeEditionMode = this.nodeDataEdited;
+    this._nodeHelpers.parentNode = this.nodeDataEdited;
     this.readData();
     if (this.nodeDataEdited && this.nodeDataEdited.editionType && this.nodeDataEdited.editionType.data) {
       this.nodeName = this.nodeDataEdited.editionType.data.name;
@@ -150,6 +154,10 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     this.deselectAll();
     this.selectedNode = event.name;
     this.editedNodeEditionMode = this.nodesEditionMode.find(node => node.editionType.data.name === event.name);
+
+    this._nodeHelpers.nodes = this.nodes;
+    this._nodeHelpers.edges = this.edges;
+    // console.log(this._nodeHelpers.getInputFields(this.nodes.find(node => node.name === this.selectedNode)));
   }
 
   weSelectEdge(event: WizardEdge) {

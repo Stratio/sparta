@@ -13,9 +13,10 @@ import { WizardEditorModule } from '@app/wizard/components/wizard-editor/wizard-
 import { SelectedEntityModule } from '@app/wizard/components/selected-entity/selected-entity.module';
 import { WeConfigEditorModule } from '@app/wizard-embedded/we-config-editor/we-config-editor.module';
 import { WeSettingsEditorModule } from '@app/wizard-embedded/we-settings-editor/we-settings-editor.module';
-import {SidebarConfigModule} from '@app/wizard/components/sidebar-config/sidebar-config.module';
-import {SpartaSidebarModule} from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
-import {WizardDetailsModule} from '@app/wizard/components/wizard-details/wizard-details.module';
+import { SidebarConfigModule } from '@app/wizard/components/sidebar-config/sidebar-config.module';
+import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
+import { WizardDetailsModule } from '@app/wizard/components/wizard-details/wizard-details.module';
+import { NodeHelpersService } from '@app/wizard-embedded/_services/node-helpers.service';
 
 @NgModule({
   exports: [
@@ -35,6 +36,9 @@ import {WizardDetailsModule} from '@app/wizard/components/wizard-details/wizard-
 
     SpartaSidebarModule,
     WizardDetailsModule
+  ],
+  providers: [
+    NodeHelpersService
   ]
 })
 

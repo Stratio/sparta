@@ -26,32 +26,32 @@ export class WizardService {
 
   constructor() { }
 
-    /**
-     * Return input list form schemas
-     */
-    getInputs() {
-        return this._workflowType === Engine.Streaming ? streamingInputsObject : batchInputsObject;
-    }
+  /**
+   * Return input list form schemas
+   */
+  getInputs() {
+    return this._workflowType === Engine.Streaming ? streamingInputsObject : batchInputsObject;
+  }
 
-    getOutputs() {
-        return this._workflowType === Engine.Streaming ? streamingOutputsObject : batchOutputsObject;
-    }
+  getOutputs() {
+    return this._workflowType === Engine.Streaming ? streamingOutputsObject : batchOutputsObject;
+  }
 
-    getTransformations() {
-        return this._workflowType === Engine.Streaming ? streamingTransformationsObject : batchTransformationsObject;
-    }
+  getTransformations() {
+    return this._workflowType === Engine.Streaming ? streamingTransformationsObject : batchTransformationsObject;
+  }
 
-    getInputsNames() {
-        return this._workflowType === Engine.Streaming ? streamingInputsObject : batchInputsObject;
-    }
+  getInputsNames() {
+    return this._workflowType === Engine.Streaming ? streamingInputsObject : batchInputsObject;
+  }
 
-    getOutputsNames() {
-        return this._workflowType === Engine.Streaming ? streamingOutputsObject : batchOutputsObject;
-    }
+  getOutputsNames() {
+    return this._workflowType === Engine.Streaming ? streamingOutputsObject : batchOutputsObject;
+  }
 
-    getTransformationsNames() {
-        return this._workflowType === Engine.Streaming ? streamingTransformationsObject : batchTransformationsObject;
-    }
+  getTransformationsNames() {
+    return this._workflowType === Engine.Streaming ? streamingTransformationsObject : batchTransformationsObject;
+  }
 
   getPipelinesTemplates(pipelineType: string) {
     if (pipelineType === PipelineType.Algorithm) {

@@ -51,7 +51,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
     public selectedNodeName = '';
-    public selectedNodeModel: WizardNode;
+    public selectedNodeModel: WizardNode | any;
     public selectedEdge: WizardEdge;
     public isMobile = false;
     public workflowEdges: Array<WizardEdgeNodes>;

@@ -365,8 +365,6 @@ export function reducer(state: State = initialState, action: any): State {
       }
     }
     case wizardActions.VALIDATE_WORKFLOW_COMPLETE: {
-      console.log('POLLAS: ', action.payload.messages);
-
       return {
         ...state,
         validationErrors: {

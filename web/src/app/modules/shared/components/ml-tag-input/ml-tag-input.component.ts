@@ -180,7 +180,6 @@ export class MlTagInputComponent implements ControlValueAccessor, Validator, OnI
 
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('POLLAS: ', changes);
     this.checkAutocompleteMenuChange(changes);
     if (this.forceValidations) {
       this.writeValue(this.items);
@@ -433,8 +432,6 @@ export class MlTagInputComponent implements ControlValueAccessor, Validator, OnI
     const errors: { [key: string]: any } = control.errors;
     this.errorMessage = this.getErrorMessage(errors);
     this.hasErrors = !!(control.errors && Object.keys(control.errors).length);
-    // console.log(control);
-    // console.log('QUI: ', this.hasErrors, this.errorMessage);
     this._cd.markForCheck();
   }
 

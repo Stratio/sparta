@@ -75,7 +75,6 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
         const rect = referenceContainer.getBoundingClientRect();
         this._element.style.top = rect.top + rect.height + 5 + 'px';
         this._element.style.left = rect.left + 'px';
-        console.log(rect);
       } else {
         this._element.style.top = this._element.offsetTop + this.yPos + 'px';
         this._element.style.left = this._element.offsetLeft + this.xPos + 'px';

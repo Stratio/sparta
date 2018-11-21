@@ -62,10 +62,12 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnChanges,
 
   ngOnInit(): void {}
 
-  ngOnChanges(): void {
-    this.entityData = (this.nodeData.hasOwnProperty('editionType')) ?
-      this.nodeData.editionType.data :
-      this.nodeData;
+  ngOnChanges(changes): void {
+    if (changes.nodeData) {
+      this.entityData = (this.nodeData.hasOwnProperty('editionType')) ?
+        this.nodeData.editionType.data :
+        this.nodeData;
+    }
   }
 
   ngAfterViewInit(): void {
