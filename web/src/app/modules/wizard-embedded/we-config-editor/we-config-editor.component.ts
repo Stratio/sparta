@@ -30,6 +30,7 @@ import {HelpOptions} from '@app/shared/components/sp-help/sp-help.component';
 
 export class WeConfigEditorComponent implements OnInit, OnDestroy {
   @Input() editedNode: WizardNode;
+  @Input() editedNodeEditionMode: any;
   @Input() nodes: Array<WizardNode>;
   @Input() edges: Array<WizardEdge>;
   @Input() mlPipelineNode: EditionConfigMode;
