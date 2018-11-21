@@ -6,7 +6,7 @@
 
 package com.stratio.sparta.core.models
 
-case class WorkflowValidationMessage(message: String, step: Option[String] = None) {
+case class WorkflowValidationMessage(message: String, step: Option[String] = None, subStep: Option[String] = None) {
 
 }
 
