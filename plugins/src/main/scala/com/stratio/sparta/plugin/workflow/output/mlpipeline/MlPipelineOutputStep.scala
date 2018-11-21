@@ -157,7 +157,7 @@ class MlPipelineOutputStep(
     if (pipelineDescriptor.isSuccess && pipeline.isFailure) {
       val errors: Seq[WorkflowValidationMessage] = pipeline match {
         case Failure(f) => {
-          f.getMessage.split("\\n").map(m => WorkflowValidationMessage(m.split(errors_separator).last, m.split(errors_separator).head)).toSeq
+          f.getMessage.split("\\n").map(m => WorkflowValidationMessage(m.split(errors_separator).last, name, m.split(errors_separator).head)).toSeq
         }
 
       }
