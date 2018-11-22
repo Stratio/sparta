@@ -89,6 +89,10 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       this.svgPosition = pipelinesConfig.svgPosition;
     }
 
+    this._wrappNodeEditionMode();
+  }
+
+  private _wrappNodeEditionMode() {
     const internalErrors = (Object.prototype.hasOwnProperty.call(this.nodeDataEdited, 'serverValidationInternalErrors'));
     if (internalErrors && this.nodeDataEdited.serverValidationInternalErrors && this.nodeDataEdited.serverValidationInternalErrors.length) {
       this.serverStepValidations = this.nodeDataEdited.serverValidationInternalErrors
@@ -101,14 +105,13 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
           }
           return a;
         }, {});
-
-      this.nodesEditionMode = this.nodes.map(e => ({
-        editionType: {
-          data: e
-        },
-        serverValidation: (Object.prototype.hasOwnProperty.call(this.serverStepValidations, e.name)) ? this.serverStepValidations[e.name] : null
-      }));
     }
+    this.nodesEditionMode = this.nodes.map(e => ({
+      editionType: {
+        data: e
+      },
+      serverValidation: (this.serverStepValidations && Object.prototype.hasOwnProperty.call(this.serverStepValidations, e.name)) ? this.serverStepValidations[e.name] : null
+    }));
   }
 
   weSavePipelinesWorkflow(save: boolean = true) {
@@ -195,6 +198,9 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
             this.edges.splice(this.edges.indexOf(edge), 1);
           });
           this.nodes.splice(this.nodes.indexOf(nodeToDelete), 1);
+
+          this._wrappNodeEditionMode();
+
           this.isDirtyEditor = true;
         }
         this.deselectAll();
@@ -248,8 +254,9 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     this.creationMode.data = null;
     event.createdNew = true;
     this.nodes = [...this.nodes, event];
-  }
 
+    this._wrappNodeEditionMode();
+  }
 
   deselectAll() {
     this.selectedNode = '';
