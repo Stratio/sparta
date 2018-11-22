@@ -39,6 +39,10 @@ class GBTRegressorTest extends GenericPipelineStepTest {
       arr
     }
 
-    sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateOrderedLabeledPoints(numFeatures = 10, 50)))
+    sparkSession.createDataFrame(sparkSession.sparkContext.parallelize(generateOrderedLabeledPoints(numFeatures = 3, 5)))
   }
+
+  override def emptyParamsAvailable: Boolean = false
+  override def wrongInputColumnAvailable: Boolean = false
+  override def wrongParamsAvailable: Boolean = false
 }

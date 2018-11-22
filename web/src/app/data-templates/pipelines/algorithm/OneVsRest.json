@@ -2,7 +2,6 @@
   "name" : "OneVsRest",
   "icon" : "OneVsRest",
   "className" : "org.apache.spark.ml.classification.OneVsRest",
-  "category" : "Unknown",
   "classPrettyName" : "OneVsRest",
   "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
   "supportedEngines" : [ "Batch" ],

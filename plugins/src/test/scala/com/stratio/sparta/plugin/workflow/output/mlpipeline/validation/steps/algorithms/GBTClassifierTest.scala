@@ -44,8 +44,12 @@ class GBTClassifierTest extends GenericPipelineStepTest {
       }
       arr
     }
-    val numFeatures = 5
-    val numInstances = 5
+    val numFeatures = 2
+    val numInstances = 2
     sc.parallelize(generateOrderedLabeledPoints(numFeatures, numInstances)).toDF()
   }
+
+  override def emptyParamsAvailable: Boolean = false
+  override def wrongInputColumnAvailable: Boolean = false
+  override def wrongParamsAvailable: Boolean = false
 }
