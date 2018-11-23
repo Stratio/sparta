@@ -85,6 +85,7 @@
     class="st-form-field"
     label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
     [forceValidations]="forceValidations"
+    [setExternalDisabled]="field.disabled"
     placeholder="Select option"
     [qaTag]="field.qa"
     [errorRequiredMessage]="errorsService.errors.selectRequiredError"

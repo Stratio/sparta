@@ -21,6 +21,7 @@ import { NgForm } from '@angular/forms';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
 import {HelpOptions} from '@app/shared/components/sp-help/sp-help.component';
 import {NodeHelpersService} from '@app/wizard-embedded/_services/node-helpers.service';
+import {ValidateSchemaService} from '@app/wizard/services/validate-schema.service';
 
 @Component({
   selector: 'we-config-editor',
@@ -63,11 +64,20 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
     private _wizardService: WizardService,
     private _initializeSchemaService: InitializeSchemaService,
     private _nodeHelpers: NodeHelpersService,
-    public errorsService: ErrorMessagesService
+    public errorsService: ErrorMessagesService,
+    public _validateSchema: ValidateSchemaService
   ) {}
 
   ngOnInit(): void {
     this.formTemplate = this._wizardService.getPipelinesTemplates(this.editedNode.stepType)[this.editedNode.classPrettyName];
+    this.formTemplate.properties = this.formTemplate.properties.map(e => {
+      return (!e.propertyName.includes('(' + e.propertyId + ')')) ?
+        {
+          ...e,
+          propertyName: e.propertyName + ' (' + e.propertyId + ')',
+          tooltip: e.tooltip + ' Variable name: ' + e.propertyId + '.'
+        } : e;
+    });
     const editedNode = _cloneDeep(this.editedNode);
     this.form = editedNode.configuration;
     this.formName = editedNode.name || '';
@@ -92,6 +102,7 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
       editedNode.name = this.formName;
       editedNode.description = this.formDescription;
       editedNode.hasErrors = this.pipelineForm.invalid;
+      editedNode.errors = this._validateSchema.validateEntity(editedNode);
       this.onSaveEdition.emit(editedNode);
     }
   }

@@ -3,7 +3,7 @@
   "icon" : "ElementWiseProduct",
   "className" : "org.apache.spark.ml.feature.ElementwiseProduct",
   "category" : "Transformers",
-  "classPrettyName" : "ElementwiseProduct",
+  "classPrettyName" : "ElementWiseProduct",
   "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
   "supportedEngines" : [ "Batch" ],
   "description" : "PipelineStage: type = feature",

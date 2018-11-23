@@ -24,12 +24,10 @@
     "propertyType" : "text"
   }, {
     "propertyId" : "labels",
-    "propertyName" : "Labels",
+    "propertyName" : "Labels (separated by comma)",
     "required" : false,
     "tooltip" : "(comma separated values) Optional array of labels specifying index-string mapping. If not provided or if empty, then metadata from inputCol is used instead.",
     "qa" : "",
-    "propertyType" : "multiSelect",
-    "externalValueKey" : "externalInputs",
-    "freeText" : false
+    "propertyType" : "multiSelect"
   } ]
 }

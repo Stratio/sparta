@@ -25,8 +25,11 @@ export class ValidateSchemaService {
    *
    * Get the step schema and validates the model without paint the form, with the same rules and validations from the schema
    */
-  validateEntity(model: any, stepType: string, schema?: any) {
+  validateEntity(model: any, stepType?: string, schema?: any) {
     if (!schema) {
+      if (model.stepType && !stepType) {
+        stepType = model.stepType;
+      }
       switch (stepType) {
         case 'Input':
           return this.validate(this._wizardService.getInputs()[model.classPrettyName].properties, model.configuration)
@@ -36,6 +39,9 @@ export class ValidateSchemaService {
         case 'Transformation':
           return this.validate(this._wizardService.getTransformations()[model.classPrettyName].properties, model.configuration)
             .concat(this.validate(writerTemplate, model.writer));
+        case 'Algorithm':
+        case 'Preprocessing':
+          return this.validate(this._wizardService.getPipelinesTemplates(stepType)[model.classPrettyName].properties, model.configuration);
         default:
           break;
       }
@@ -43,7 +49,6 @@ export class ValidateSchemaService {
       // if its an output skip writer validation (outputs has not writer)
       if (stepType === StepType.Input || stepType === StepType.Transformation) {
         return this.validate(schema.properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
-
       } else {
         return this.validate(schema.properties, model.configuration);
 
@@ -84,15 +89,19 @@ export class ValidateSchemaService {
         if (prop.propertyType === 'number') {
           if (!value) {
             errors.push({
-              propertyName: prop.propertyId,
-              type: 'required'
+              propertyId: prop.propertyId,
+              propertyName: prop.propertyName,
+              type: 'required',
+              message: `Field ${prop.propertyName} is required.`
             });
           }
         } else {
           if (!value || !value.length) {
             errors.push({
-              propertyName: prop.propertyId,
-              type: 'required'
+              propertyId: prop.propertyId,
+              propertyName: prop.propertyName,
+              type: 'required',
+              message: `Field ${prop.propertyName} is required.`
             });
           }
         }
@@ -102,8 +111,10 @@ export class ValidateSchemaService {
         const re: RegExp = new RegExp(prop.regexp);
         if (!re.test(value)) {
           errors.push({
-            propertyName: prop.propertyId,
-            type: 'regex'
+            propertyId: prop.propertyId,
+            propertyName: prop.propertyName,
+            type: 'regex',
+            message: `Field ${prop.propertyName} does not satisfy defined pattern.`
           });
         }
       }

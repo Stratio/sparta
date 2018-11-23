@@ -4,7 +4,7 @@
   "className" : "org.apache.spark.ml.regression.AFTSurvivalRegression",
   "category" : "Regression",
   "classPrettyName" : "AFTSurvivalRegression",
-  "arity" : [ "NullaryToNullary", "NullaryToUnary", "UnaryToNullary", "UnaryToUnary" ],
+  "arity" : [ "NullaryToNullary",  "NullaryToUnary",  "UnaryToNullary",  "UnaryToUnary" ],
   "supportedEngines" : [ "Batch" ],
   "description" : "PipelineStage: type = regression",
   "properties" : [ {
@@ -16,7 +16,7 @@
     "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
-  }, {
+  },  {
     "propertyId" : "labelCol",
     "propertyName" : "Label column",
     "required" : true,
@@ -25,7 +25,7 @@
     "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
-  }, {
+  },  {
     "propertyId" : "censorCol",
     "propertyName" : "Censor column",
     "required" : true,
@@ -34,7 +34,7 @@
     "default" : "",
     "propertyType" : "select",
     "externalValueKey" : "externalInputs"
-  }, {
+  },  {
     "propertyId" : "predictionCol",
     "propertyName" : "Prediction column",
     "required" : true,
@@ -42,14 +42,14 @@
     "qa" : "",
     "default" : "",
     "propertyType" : "text"
-  }, {
+  },  {
     "propertyId" : "quantilesCol",
     "propertyName" : "Quantiles column",
     "required" : false,
     "tooltip" : "The name of the column that will be the quantiles of the AFTSurvivalRegression process.",
     "qa" : "",
     "propertyType" : "text"
-  }, {
+  },  {
     "propertyId" : "fitIntercept",
     "propertyName" : "Fit an intercept term",
     "required" : true,
@@ -57,7 +57,7 @@
     "qa" : "",
     "default" : true,
     "propertyType" : "boolean"
-  }, {
+  },  {
     "propertyId" : "aggregationDepth",
     "propertyName" : "Aggregation depth (>= 2)",
     "required" : true,
@@ -65,7 +65,7 @@
     "qa" : "",
     "default" : "2",
     "propertyType" : "text"
-  }, {
+  },  {
     "propertyId" : "maxIter",
     "propertyName" : "Max number of iterations (>= 0)",
     "required" : true,
@@ -73,15 +73,15 @@
     "qa" : "",
     "default" : "100",
     "propertyType" : "text"
-  }, {
+  },  {
     "propertyId" : "quantileProbabilities",
     "propertyName" : "Quantile probabilities (separated by comma)",
     "required" : true,
     "tooltip" : "(comma separated values) Quantile probabilities array.",
     "qa" : "",
-    "default" : "[0.01,0.05,0.1,0.25,0.5,0.75,0.9,0.95,0.99]",
-    "propertyType" : "text"
-  }, {
+    "default" : ["0.01", "0.05", "0.1", "0.25", "0.5", "0.75", "0.9", "0.95", "0.99"],
+    "propertyType" : "multiSelect"
+  },  {
     "propertyId" : "tol",
     "propertyName" : "Convergence tolerance for iterative algorithms (>= 0)",
     "required" : true,

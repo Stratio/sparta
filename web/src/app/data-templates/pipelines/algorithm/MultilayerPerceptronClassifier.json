@@ -54,7 +54,7 @@
     "required" : false,
     "tooltip" : "(comma separated values) Sizes of layers from input layer to output layer. E.g., Array(780, 100, 10) means 780 inputs, one hidden layer with 100 neurons and output layer of 10 neurons.",
     "qa" : "",
-    "propertyType" : "text"
+    "propertyType" : "multiSelect"
   }, {
     "propertyId" : "maxIter",
     "propertyName" : "Max number of iterations (>= 0)",

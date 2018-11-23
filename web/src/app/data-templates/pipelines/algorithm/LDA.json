@@ -54,7 +54,7 @@
     "required" : false,
     "tooltip" : "(comma separated values) Concentration parameter (commonly named \"alpha\") for the prior placed on documents' distributions over topics (\"theta\").",
     "qa" : "",
-    "propertyType" : "text"
+    "propertyType" : "multiSelect"
   }, {
     "propertyId" : "k",
     "propertyName" : "Number of topics (clusters) (> 1)",

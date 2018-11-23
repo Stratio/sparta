@@ -10,6 +10,7 @@ export interface WizardNode {
   created: boolean;
   createdNew?: boolean;
   classPrettyName: string;
+  errors?: any;
   hasErrors: boolean;
   nodeTemplate: any;
   configuration: any;

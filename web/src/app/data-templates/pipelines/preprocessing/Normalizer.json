@@ -24,9 +24,9 @@
     "propertyType" : "text"
   }, {
     "propertyId" : "p",
-    "propertyName" : "p norm value",
+    "propertyName" : "p-norm value (> 1)",
     "required" : true,
-    "tooltip" : "The p norm value.",
+    "tooltip" : "The p-norm value. Must be greater than 1.",
     "qa" : "",
     "default" : "2.0",
     "propertyType" : "text"

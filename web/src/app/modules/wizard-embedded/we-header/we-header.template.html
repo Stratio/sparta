@@ -26,8 +26,9 @@
     <div class="we-header__left">
       <floating-menu
         [search]="true"
-        [menuOptions]="menuData"
-        (selectedOption)="selectedMenuOption($event)">
+        [menuOptions]="filteredMenuData"
+        (selectedOption)="selectedMenuOption($event)"
+        (searchChange)="filterMenu($event)">
         <div id="create-node-menu" menu-action>
           <button class="button button-toolbar" spTitle="Create node">
             <i class="icon-plus"></i>

@@ -5,6 +5,7 @@
  */
 
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
@@ -25,7 +26,7 @@ import { FloatingMenuModel } from './../floating-menu.model';
    styleUrls: ['./menu-options.styles.scss'],
    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MenuOptionsComponent implements OnInit {
+export class MenuOptionsComponent implements OnInit, AfterViewInit {
 
    @Input() menuOptions: Array<FloatingMenuModel>;
    @Input() search = false;

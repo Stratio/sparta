@@ -12,6 +12,7 @@ import { streamingInputsNames, batchInputsNames } from 'data-templates/inputs';
 import { streamingTransformationsNames, batchTransformationsNames } from 'data-templates/transformations';
 import { streamingOutputsNames, batchOutputsNames } from 'data-templates/outputs';
 import { Engine, StepType } from '@models/enums';
+import {WizardService} from '@app/wizard/services/wizard.service';
 
 export interface State {
   templates: any;
@@ -208,7 +209,7 @@ export const getTemplates = (state: State) => state.templates;
 export const getMenuOptions = (state: State) => {
   if (state.floatingMenuSearch.length) {
     const matchString = state.floatingMenuSearch.toLowerCase();
-    return getEntitiesSteps(state.menuOptions, matchString);
+    return WizardService.getEntitiesSteps(state.menuOptions, matchString);
   } else {
     return state.menuOptions;
   }
@@ -219,22 +220,3 @@ export const isCreationMode: any = (state: State) => {
     data: state.selectedCreationEntity
   };
 };
-
-
-function getEntitiesSteps(category: any, matchString: string, parentIcon?: string) {
-  let menu: any = [];
-  const options: any = [];
-  category.forEach((categoryType: any) => {
-    const icon = parentIcon || categoryType.icon;
-    if (!categoryType.subMenus) {
-      if (categoryType.name.toLowerCase().indexOf(matchString) !== -1) {
-        options.push(Object.assign({}, categoryType, {
-          icon: icon
-        }));
-      }
-    } else {
-      menu = menu.concat(getEntitiesSteps(categoryType.subMenus, matchString, icon));
-    }
-  });
-  return menu.concat(options);
-}

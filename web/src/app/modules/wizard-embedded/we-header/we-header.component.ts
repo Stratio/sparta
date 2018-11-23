@@ -21,6 +21,8 @@ import { StModalService } from '@stratio/egeo';
 import * as wizardActions from '@app/wizard/actions/wizard';
 import { Store } from '@ngrx/store';
 import * as fromWizard from '@app/wizard/reducers';
+import {WizardService} from '@app/wizard/services/wizard.service';
+import { cloneDeep as _cloneDeep } from 'lodash';
 
 @Component({
   selector: 'we-header',
@@ -52,6 +54,7 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
   @Output() onShowInfo = new EventEmitter();
 
   private _modalConfiguration: any;
+  public filteredMenuData: Array<FloatingMenuModel>;
 
   constructor(
     private route: Router,
@@ -59,6 +62,7 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
     private _store: Store<fromWizard.State>) {}
 
   ngOnInit(): void {
+    this.filteredMenuData = _cloneDeep(this.menuData);
     this._modalConfiguration = {
       modalTitle: 'You will lose your changes',
       outputs: {
@@ -90,6 +94,9 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
     this.selectedOption.emit($event);
   }
 
+  filterMenu(e) {
+    this.filteredMenuData = e.length ? WizardService.getEntitiesSteps(this.menuData, e) : this.menuData;
+  }
 
   ngOnDestroy(): void {
     console.info('DESTROY: WeHeaderComponent');

@@ -18,7 +18,6 @@ import * as externalDataActions from './actions/externalData';
 import { WizardService } from './services/wizard.service';
 import { Engine } from 'app/models/enums';
 import { CreationMode, EditionConfigMode } from './models/node';
-import { takeUntil } from 'rxjs/operators';
 import { WorkflowData } from '@app/wizard/wizard.models';
 
 import { streamingPreprocessingNames, batchPreprocessingNames } from 'data-templates/pipelines/pipelines-preprocessing';
@@ -31,35 +30,35 @@ import { streamingAlgorithmNames, batchAlgorithmNames } from 'data-templates/pip
 })
 
 export class WizardComponent implements OnInit, OnDestroy {
-   public workflowType = 'Streaming'; // default value, until the request ends
-   public editionConfigMode: EditionConfigMode;
-   public showSettings = false;
-   public creationMode: CreationMode;
-   public isEdit = false;
-   public environmentList: Array<any> = [];
-   public parameters: any = [];
-   public showDebugConfig$: Observable<boolean>;
-   public executionContexts$: Observable<any>;
+  public workflowType = 'Streaming'; // default value, until the request ends
+  public editionConfigMode: EditionConfigMode;
+  public showSettings = false;
+  public creationMode: CreationMode;
+  public isEdit = false;
+  public environmentList: Array<any> = [];
+  public parameters: any = [];
+  public showDebugConfig$: Observable<boolean>;
+  public executionContexts$: Observable<any>;
 
-   public workflowData: WorkflowData;
-   public pipelinesMenu: any = [
-        {
-            name: 'Preprocessing',
-            icon: 'icon-lego',
-            value: 'action',
-            subMenus: []
-        },
-        {
-            name: 'Algorithm',
-            icon: 'icon-chip',
-            value: 'action',
-            subMenus: []
-        }
-    ];
+  public workflowData: WorkflowData;
+  public pipelinesMenu: any = [
+    {
+      name: 'Preprocessing',
+      icon: 'icon-lego',
+      value: 'action',
+      subMenus: []
+    },
+    {
+      name: 'Algorithm',
+      icon: 'icon-chip',
+      value: 'action',
+      subMenus: []
+    }
+  ];
 
-    @ViewChild('editorContainer') _editor: ElementRef;1
-   
-   private _componentDestroyed = new Subject();
+  @ViewChild('editorContainer') _editor: ElementRef;
+
+  private _componentDestroyed = new Subject();
 
   constructor(
     private _store: Store<fromWizard.State>,
@@ -90,8 +89,8 @@ export class WizardComponent implements OnInit, OnDestroy {
       this._store.dispatch(new wizardActions.SetWorkflowTypeAction(type)); // Set workflow type from the url param
       this._store.dispatch(new wizardActions.GetMenuTemplatesAction());    // Get menu templates
     }
-      this.executionContexts$ = this._store.select(fromWizard.getExecutionContexts);
-    
+    this.executionContexts$ = this._store.select(fromWizard.getExecutionContexts);
+
     // Retrieves the workflow type from store (in edition mode, is updated after the get workflow data request)
     this._store.select(fromWizard.getWorkflowType)
       .takeUntil(this._componentDestroyed)
@@ -216,13 +215,13 @@ export class WizardComponent implements OnInit, OnDestroy {
     this._store.dispatch(new debugActions.HideDebugConfigAction());
   }
 
-   executeWorkflow(event) {
-      this._store.dispatch(new debugActions.InitDebugWorkflowAction(event));
+  executeWorkflow(event) {
+    this._store.dispatch(new debugActions.InitDebugWorkflowAction(event));
   }
 
-   ngOnDestroy(): void {
-      this._componentDestroyed.next();
-      this._componentDestroyed.unsubscribe();
-      this._document.body.classList.remove('disable-scroll');
-   }
+  ngOnDestroy(): void {
+    this._componentDestroyed.next();
+    this._componentDestroyed.unsubscribe();
+    this._document.body.classList.remove('disable-scroll');
+  }
 }

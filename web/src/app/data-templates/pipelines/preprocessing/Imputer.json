@@ -22,9 +22,7 @@
     "required" : true,
     "tooltip" : "(comma separated values) The name of the columns that will be the output of the Imputer process.",
     "qa" : "",
-    "propertyType" : "multiSelect",
-    "externalValueKey" : "externalInputs",
-    "freeText" : true
+    "propertyType" : "multiSelect"
   }, {
     "propertyId" : "strategy",
     "propertyName" : "Strategy",

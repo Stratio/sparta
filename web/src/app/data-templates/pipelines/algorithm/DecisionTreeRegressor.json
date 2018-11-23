@@ -65,6 +65,7 @@
     "qa" : "",
     "default" : "variance",
     "propertyType" : "select",
+    "disabled": true,
     "values": [
       {
          "label": "variance",

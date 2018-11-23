@@ -39,7 +39,7 @@
     "propertyType" : "text"
   }, {
     "propertyId" : "seed",
-    "propertyName" : "Seed",
+    "propertyName" : "Random seed",
     "required" : true,
     "tooltip" : "A random seed.",
     "qa" : "",

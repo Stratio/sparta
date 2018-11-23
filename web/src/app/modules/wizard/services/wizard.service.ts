@@ -26,6 +26,24 @@ export class WizardService {
 
   constructor() { }
 
+  static getEntitiesSteps(category: any, matchString: string, parentIcon?: string) {
+    let menu: any = [];
+    const options: any = [];
+    category.forEach((categoryType: any) => {
+      const icon = parentIcon || categoryType.icon;
+      if (!categoryType.subMenus) {
+        if (categoryType.name.toLowerCase().indexOf(matchString) !== -1) {
+          options.push(Object.assign({}, categoryType, {
+            icon: icon
+          }));
+        }
+      } else {
+        menu = menu.concat(WizardService.getEntitiesSteps(categoryType.subMenus, matchString, icon));
+      }
+    });
+    return menu.concat(options);
+  }
+
   /**
    * Return input list form schemas
    */

@@ -28,8 +28,7 @@
     "required" : true,
     "tooltip" : "(comma separated values) An array of indices to select features from a vector column. There can be no overlap with names.",
     "qa" : "",
-    "default" : "[]",
-    "propertyType" : "text"
+    "propertyType" : "multiSelect"
   }, {
     "propertyId" : "names",
     "propertyName" : "Feature names (separated by commas)",
