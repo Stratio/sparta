@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import akka.util.Timeout
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
@@ -16,18 +17,25 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.time.{Minutes, Span}
 import org.scalatest.{BeforeAndAfterAll, _}
 
 import scala.io.Source
 import scala.util.Try
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class MlPipelinePreprocessingComplexGraphTest extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
 
-  trait ReadDescriptorResource{
-    def getJsonDescriptor(filename:String): String = {
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
+
+  trait ReadDescriptorResource {
+    def getJsonDescriptor(filename: String): String = {
       Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/complexpipelines/" + filename)).mkString
     }
   }
@@ -41,22 +49,22 @@ class MlPipelinePreprocessingComplexGraphTest extends TemporalSparkContext with 
   }
 
   trait WithFilesystemProperties {
-    var properties:Map[String, JSerializable] = Map(
+    var properties: Map[String, JSerializable] = Map(
       "output.mode" -> JsoneyString(MlPipelineSaveMode.FILESYSTEM.toString),
       "path" -> JsoneyString("/tmp/pipeline_tests"),
       "serializationLib" -> JsoneyString(MlPipelineSerializationLibs.SPARK.toString)
     )
   }
 
-  trait WithExecuteStep{
-    def executeStep(training:DataFrame, properties:Map[String, JSerializable]){
+  trait WithExecuteStep {
+    def executeStep(training: DataFrame, properties: Map[String, JSerializable]) {
       // · Creating outputStep
       val mlPipelineOutput = new MlPipelineOutputStep("MlPipeline.out", sparkSession, properties)
       // · Executing step
       mlPipelineOutput.save(training, SaveModeEnum.Overwrite, Map.empty[String, String])
     }
 
-    def executeStepAndUsePipeline(training:DataFrame, properties:Map[String, JSerializable]){
+    def executeStepAndUsePipeline(training: DataFrame, properties: Map[String, JSerializable]) {
       // · Creating outputStep
       val mlPipelineOutput = new MlPipelineOutputStep("MlPipeline.out", sparkSession, properties)
       // · Executing step
@@ -68,8 +76,8 @@ class MlPipelinePreprocessingComplexGraphTest extends TemporalSparkContext with 
     }
   }
 
-  trait WithValidateStep{
-    def validateMlPipelineStep(properties:Map[String, JSerializable]): ErrorValidations = {
+  trait WithValidateStep {
+    def validateMlPipelineStep(properties: Map[String, JSerializable]): ErrorValidations = {
       // · Creating outputStep
       val mlPipelineOutput = new MlPipelineOutputStep("MlPipeline.out", sparkSession, properties)
       // · Executing step
@@ -85,19 +93,22 @@ class MlPipelinePreprocessingComplexGraphTest extends TemporalSparkContext with 
 
   "MlPipeline" should "construct a valid SparkMl complex pre-processing pipeline than it can be trained in a workflow" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
+      with WithFilesystemProperties {
 
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("pre-processing-complex-v0.json")))
 
       // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess)
       assert(validation.get.valid)
 
       val execution = Try {
         executeStepAndUsePipeline(training, properties)
       }
-      assert(execution.isSuccess)    }
+      assert(execution.isSuccess)
+    }
 
 
   /* -------------------------------------------------------------
@@ -106,17 +117,20 @@ class MlPipelinePreprocessingComplexGraphTest extends TemporalSparkContext with 
 
   "MlPipeline" should "construct a valid SparkMl complex logistic regression pipeline than it can be trained in a workflow" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
+      with WithFilesystemProperties {
 
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor("logistic-regression-complex-v0.json")))
 
       // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess)
       assert(validation.get.valid)
 
       val execution = Try {
         executeStepAndUsePipeline(training, properties)
       }
-      assert(execution.isSuccess)    }
+      assert(execution.isSuccess)
+    }
 }

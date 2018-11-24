@@ -19,10 +19,11 @@ class LogisticRegressionTest extends GenericPipelineStepTest {
   override def stepName: String = "logisticregression"
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/logisticregression/"
+
   override def trainingDf: DataFrame = {
 
     val data = (0.0 to 9.0 by 1) // create a collection of Doubles
-      .map(n => (n, n/3)) // make it pairs
+      .map(n => (n, n / 3)) // make it pairs
       .map { case (label, features) =>
       LabeledPoint(label, Vectors.dense(features)) // create labeled points of dense vectors
     }

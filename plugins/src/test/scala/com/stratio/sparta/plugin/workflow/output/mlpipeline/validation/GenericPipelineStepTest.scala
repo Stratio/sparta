@@ -7,6 +7,8 @@
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation
 
 import java.io.{Serializable => JSerializable}
+
+import akka.util.Timeout
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
@@ -14,10 +16,12 @@ import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
 import org.apache.spark.sql.DataFrame
+import org.scalatest.time.{Minutes, Span}
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, ShouldMatchers}
 
 import scala.io.Source
 import scala.util.Try
+import scala.concurrent.duration._
 
 /**
   * @author Stratio Intelligence
@@ -26,6 +30,10 @@ import scala.util.Try
 trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
 
   def stepName: String
 
@@ -163,7 +171,7 @@ trait GenericPipelineStepTest extends TemporalSparkContext with ShouldMatchers w
       }
       assert(validation.isSuccess)
       assert(!validation.get.valid)
-      assert(validation.get.messages.last.message.contains(" has an invalid value. Details:")||validation.get.messages.last.message.contains(" for parameter "))
+      assert(validation.get.messages.last.message.contains(" has an invalid value. Details:") || validation.get.messages.last.message.contains(" for parameter "))
 
       val execution = Try {
         executeStepAndUsePipeline(generateInputDf(), properties)

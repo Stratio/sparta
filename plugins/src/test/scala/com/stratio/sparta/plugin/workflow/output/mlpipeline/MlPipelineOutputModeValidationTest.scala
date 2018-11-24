@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import akka.util.Timeout
 import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
@@ -16,12 +17,18 @@ import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.Validatio
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.time.{Minutes, Span}
 
 import scala.io.Source
 import scala.util.Try
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
-class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Matchers{
+class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Matchers {
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
 
   trait WithValidateStep {
     def validateMlPipelineStep(properties: Map[String, JSerializable]): ErrorValidations = {
@@ -35,18 +42,21 @@ class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Match
   }
 
   trait WithValidPipeline {
-    def getJsonDescriptor(filename:String): String = {
+    def getJsonDescriptor(filename: String): String = {
       Source.fromInputStream(getClass.getResourceAsStream("/mlpipeline/" + filename)).mkString
     }
+
     var properties: Map[String, JSerializable] = Map(
       "pipeline" -> JsoneyString(getJsonDescriptor("nlp_pipeline_good.json")))
   }
 
   "MlPipeline" should "show a validation error with if output.mode property is not defined" in
     new WithValidPipeline with WithValidateStep {
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
+      assert(validation.get.messages.length == 1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.invalidSaveMode)
     }
 
@@ -54,9 +64,11 @@ class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Match
     new WithValidPipeline with WithValidateStep {
 
       properties = properties.updated("output.mode", "blablabla")
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
+      assert(validation.get.messages.length == 1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.invalidSaveMode)
     }
 
@@ -64,9 +76,11 @@ class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Match
     new WithValidPipeline with WithValidateStep {
 
       properties = properties.updated("output.mode", MlPipelineSaveMode.FILESYSTEM)
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
+      assert(validation.get.messages.length == 1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.nonDefinedPath)
     }
 
@@ -75,9 +89,11 @@ class MlPipelineOutputModeValidationTest extends TemporalSparkContext with Match
 
       properties = properties.updated("output.mode", MlPipelineSaveMode.MODELREP)
         .updated(SdkConstants.ModelRepositoryUrl, "http://localhost:8000")
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess && !validation.get.valid)
-      assert(validation.get.messages.length==1)
+      assert(validation.get.messages.length == 1)
       assert(validation.get.messages(0).message == ValidationErrorMessages.mlModelModelName)
     }
 

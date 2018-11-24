@@ -11,16 +11,16 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class FPGrowthTest extends GenericPipelineStepMLeapErrorsTest{
+class FPGrowthTest extends GenericPipelineStepMLeapErrorsTest {
 
   override def stepName: String = "fpgrowth"
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/fpgrowth/"
 
   override def trainingDf: DataFrame = sparkSession.createDataFrame(Seq(
-        (0, Array("1", "2")),
-        (0, Array("1", "2")),
-        (0, Array("1", "2")),
-        (0, Array("1", "3"))
-      )).toDF("id", "items")
+    (0, Array("1", "2")),
+    (0, Array("1", "2")),
+    (0, Array("1", "2")),
+    (0, Array("1", "3"))
+  )).toDF("id", "items")
 }

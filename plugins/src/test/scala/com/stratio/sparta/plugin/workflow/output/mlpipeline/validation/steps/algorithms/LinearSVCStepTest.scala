@@ -21,7 +21,7 @@ class LinearSVCStepTest extends GenericPipelineStepMLeapErrorsTest {
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/algorithms/linearsvc/"
 
-  override def trainingDf: DataFrame =  {
+  override def trainingDf: DataFrame = {
     // Generate noisy input of the form Y = signum(x.dot(weights) + intercept + noise)
     def generateSVMInput(
                           intercept: Double,

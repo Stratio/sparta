@@ -22,7 +22,7 @@ class LDATest extends GenericPipelineStepTest {
 
   override def trainingDf: DataFrame = {
 
-    val avgWC = 1  // average instances of each word in a doc
+    val avgWC = 1 // average instances of each word in a doc
     val rng = new java.util.Random()
     rng.setSeed(1)
     val rdd = sc.parallelize(1 to 5).map { i =>

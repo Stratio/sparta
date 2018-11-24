@@ -18,7 +18,7 @@ class MinHashLSHStepTest extends GenericPipelineStepTest {
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/minhashlsh/"
 
-  override def trainingDf: DataFrame =sparkSession.createDataFrame(Seq(
+  override def trainingDf: DataFrame = sparkSession.createDataFrame(Seq(
     (0, Vectors.sparse(6, Seq((0, 1.0), (1, 1.0), (2, 1.0)))),
     (1, Vectors.sparse(6, Seq((2, 1.0), (3, 1.0), (4, 1.0)))),
     (2, Vectors.sparse(6, Seq((0, 1.0), (2, 1.0), (4, 1.0))))

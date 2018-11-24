@@ -24,5 +24,6 @@ class TokenizerStepTest extends GenericPipelineStepTest {
   )).toDF("id", "sentence")
 
   override def emptyParamsAvailable: Boolean = false
+
   override def wrongParamsAvailable: Boolean = false
 }

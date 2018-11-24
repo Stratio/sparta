@@ -4,6 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation
+
 import ValidationErrorMessages.{moreThanOneEnd, moreThanOneStart, unconnectedNodes, moreThanOneOutput}
 import com.stratio.sparta.serving.core.models.workflow.{EdgeGraph, NodeGraph, PipelineGraph, WriterGraph}
 import org.junit.runner.RunWith
@@ -14,6 +15,7 @@ import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
 class PipelineGraphValidatorUT extends FlatSpec with Matchers {
+
   import ExampleGraphs._
 
 
@@ -82,7 +84,7 @@ class PipelineGraphValidatorUT extends FlatSpec with Matchers {
       assert(validationResult.failed.get.getMessage == moreThanOneStart)
     }
 
-  "PipelineGraphValidator"should
+  "PipelineGraphValidator" should
     "return a failure from a graph with a floating node with a loop" in
     new WithPipelineGraphValidation {
       val graph: PipelineGraph = floatingSelfConnected
@@ -109,20 +111,22 @@ class PipelineGraphValidatorUT extends FlatSpec with Matchers {
 object ExampleGraphs {
 
   private def nodeGraph(name: String): NodeGraph =
-    NodeGraph(name,"", "", "", Seq(), WriterGraph())
+    NodeGraph(name, "", "", "", Seq(), WriterGraph())
 
   private def edgeGraph(origin: String, destination: String) =
     EdgeGraph(origin, destination, None)
 
   private def nodesFromNames(names: Seq[String]) = names.map(nodeGraph)
+
   private def edgesFromTuples(edges: Seq[(String, String)]) =
     edges.map(edge => edgeGraph(edge._1, edge._2))
+
   private def makeGraph(names: Seq[String], edges: Seq[(String, String)]): PipelineGraph =
     PipelineGraph(nodesFromNames(names), edgesFromTuples(edges))
 
   val validGraph: PipelineGraph = makeGraph(
     Seq("2", "4", "1", "3"),
-    Seq("1"->"2", "2"->"3", "3"->"4")
+    Seq("1" -> "2", "2" -> "3", "3" -> "4")
   )
   val singleNodeGraph: PipelineGraph = makeGraph(Seq("1"), Seq())
   val twoNodesGraph: PipelineGraph = makeGraph(Seq("1", "2"), Seq("1" -> "2"))
@@ -137,9 +141,9 @@ object ExampleGraphs {
   val diamondGraph: PipelineGraph = makeGraph(
     Seq("start", "1", "2a", "3a", "2b", "3b", "4", "end"),
     Seq("start" -> "1",
-      "1"->"2a", "2a"->"3a", "3a" -> "4",
-      "1"->"2b", "2b"->"3b", "3b" -> "4",
-      "4"->"end"
+      "1" -> "2a", "2a" -> "3a", "3a" -> "4",
+      "1" -> "2b", "2b" -> "3b", "3b" -> "4",
+      "4" -> "end"
     )
   )
   val floatingNodeGraph: PipelineGraph = makeGraph(
@@ -152,10 +156,10 @@ object ExampleGraphs {
   )
   val doubleGraph: PipelineGraph = makeGraph(
     Seq("1", "2", "3", "a", "b", "c"),
-    Seq("1"->"2", "2"->"3", "a"->"b", "b"->"c")
+    Seq("1" -> "2", "2" -> "3", "a" -> "b", "b" -> "c")
   )
   val loopGraph: PipelineGraph = makeGraph(
     Seq("1", "2", "3", "4"),
-    Seq("1"->"2", "2"->"3", "3"->"2", "3"->"4")
+    Seq("1" -> "2", "2" -> "3", "3" -> "2", "3" -> "4")
   )
 }

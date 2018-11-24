@@ -13,9 +13,9 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class VectorAssemblerStepTest extends GenericPipelineStepTest {
 
-  override def stepName:String  = "vectorassembler"
+  override def stepName: String = "vectorassembler"
 
-  override def resourcesPath:String = "/mlpipeline/singlesteps/preprocessing/vectorassembler/"
+  override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/vectorassembler/"
 
   override def trainingDf: DataFrame
   = sparkSession.createDataFrame(Seq(

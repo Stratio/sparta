@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import akka.util.Timeout
 import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
@@ -18,11 +19,17 @@ import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.time.{Minutes, Span}
 
 import scala.io.Source
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class MlModelRepositoryServiceTest extends TemporalSparkContext with Matchers {
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
 
   trait ReadDescriptorResource {
     def getJsonDescriptor(filename: String): String = {

@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import akka.util.Timeout
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
@@ -16,11 +17,17 @@ import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.time.{Minutes, Span}
 
 import scala.io.Source
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class MlPipelineUnsupportedStagesTest extends TemporalSparkContext with Matchers {
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
 
   trait WithExampleData {
     val training: DataFrame = sparkSession.createDataFrame(Seq(

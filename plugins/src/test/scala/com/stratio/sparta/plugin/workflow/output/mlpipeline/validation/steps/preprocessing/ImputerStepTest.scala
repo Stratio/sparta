@@ -20,7 +20,7 @@ class ImputerStepTest extends GenericPipelineStepTest {
 
   override def resourcesPath: String = "/mlpipeline/singlesteps/preprocessing/imputer/"
 
-  override def trainingDf: DataFrame =sparkSession.createDataFrame( Seq(
+  override def trainingDf: DataFrame = sparkSession.createDataFrame(Seq(
     (0, 1.0, 4.0),
     (1, 11.0, 12.0),
     (2, 3.0, Double.NaN),
@@ -34,15 +34,19 @@ class ImputerStepTest extends GenericPipelineStepTest {
 
   s"$stepName with wrong number of  output columns" should "provide an invalid SparkMl pipeline" in
     new ReadDescriptorResource with WithExampleData with WithExecuteStep with WithValidateStep
-      with WithFilesystemProperties{
+      with WithFilesystemProperties {
       val filePath = s"${resourcesPath}imputer-wrong-output-columns-v0.json"
       properties = properties.updated("pipeline", JsoneyString(getJsonDescriptor(filePath)))
 
       // Validation step mut be done correctly
-      val validation = Try{validateMlPipelineStep(properties)}
+      val validation = Try {
+        validateMlPipelineStep(properties)
+      }
       assert(validation.isSuccess)
 
-      val execution = Try{executeStepAndUsePipeline(generateInputDf(), properties)}
+      val execution = Try {
+        executeStepAndUsePipeline(generateInputDf(), properties)
+      }
       assert(execution.isFailure)
       assert(execution.failed.get.getMessage.startsWith(ValidationErrorMessages.schemaErrorInit))
       log.info(execution.failed.get.toString)

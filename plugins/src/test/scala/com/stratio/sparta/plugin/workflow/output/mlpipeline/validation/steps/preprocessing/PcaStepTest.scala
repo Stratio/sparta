@@ -29,5 +29,5 @@ class PcaStepTest extends GenericPipelineStepTest {
   }
 
   override def emptyParamsAvailable: Boolean = false
-  
+
 }

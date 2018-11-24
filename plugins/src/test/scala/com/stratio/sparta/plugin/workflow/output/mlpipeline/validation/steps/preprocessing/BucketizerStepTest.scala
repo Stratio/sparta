@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.steps.pr
 
 import java.io.{Serializable => JSerializable}
 
+import akka.util.Timeout
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.JsoneyString
@@ -14,21 +15,25 @@ import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.MlPipelineOutputStep
 import com.stratio.sparta.plugin.workflow.output.mlpipeline.validation.ValidationErrorMessages
-import org.apache.spark.ml.attribute.{Attribute, AttributeGroup, NumericAttribute}
-import org.apache.spark.ml.linalg.Vectors
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.DataFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.time.{Minutes, Span}
 import org.scalatest.{BeforeAndAfterAll, _}
 
 import scala.io.Source
 import scala.util.Try
 
+import scala.concurrent.duration._
+
 @RunWith(classOf[JUnitRunner])
 class BucketizerStepTest extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
 
   def stepName: String = "bucketizer"
 

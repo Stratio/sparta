@@ -29,7 +29,7 @@ class GeneralizedLinearRegressionTest extends GenericPipelineStepTest {
       */
     def dot(x: DenseVector, y: DenseVector): Double = {
       val n = x.size
-      org.netlib.blas.Ddot.ddot(n, x.values,0,  1, y.values, 0, 1);
+      org.netlib.blas.Ddot.ddot(n, x.values, 0, 1, y.values, 0, 1);
     }
 
     def generateGeneralizedLinearRegressionInput(
@@ -44,9 +44,11 @@ class GeneralizedLinearRegressionTest extends GenericPipelineStepTest {
                                                   link: String): Seq[LabeledPoint] = {
 
       val rnd = new Random(seed)
+
       def rndElement(i: Int) = {
         (rnd.nextDouble() - 0.5) * math.sqrt(12.0 * xVariance(i)) + xMean(i)
       }
+
       val (generator, mean) = family match {
         case "gaussian" => (new StandardNormalGenerator, 0.0)
         case "poisson" => (new PoissonGenerator(1.0), 1.0)
@@ -72,9 +74,9 @@ class GeneralizedLinearRegressionTest extends GenericPipelineStepTest {
 
     sparkSession.createDataFrame(
       sparkSession.sparkContext.parallelize(generateGeneralizedLinearRegressionInput(
-      intercept = 2.5, coefficients = Array(2.2, 0.6), xMean = Array(2.9, 10.5),
-      xVariance = Array(0.7, 1.2), nPoints = 10000, 1234, noiseLevel = 0.01,
-      family = "gaussian", link = "identity")))
+        intercept = 2.5, coefficients = Array(2.2, 0.6), xMean = Array(2.9, 10.5),
+        xVariance = Array(0.7, 1.2), nPoints = 10000, 1234, noiseLevel = 0.01,
+        family = "gaussian", link = "identity")))
 
   }
 

@@ -7,24 +7,30 @@ package com.stratio.sparta.plugin.workflow.output.mlpipeline
 
 import java.io.{Serializable => JSerializable}
 
+import akka.util.Timeout
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.enumerations.MlPipelineSaveMode
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.time.{Minutes, Span}
 import org.scalatest.{BeforeAndAfterAll, _}
 
 import scala.io.Source
 import scala.util.Try
+import scala.concurrent.duration._
 
 @RunWith(classOf[JUnitRunner])
 class MlPipelineComplexGraphStepOutputTest extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
   self: FlatSpec =>
+
+  override val timeLimit = Span(1, Minutes)
+
+  override val timeout = Timeout(1 minutes)
 
   trait ReadDescriptorResource {
     def getJsonDescriptor(filename: String): String = {
