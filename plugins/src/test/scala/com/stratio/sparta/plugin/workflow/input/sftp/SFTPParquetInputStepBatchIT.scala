@@ -13,7 +13,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.scalatest._
 
 
-class SFTPParquetInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithUploadAndDeleteFile {
+class SFTPParquetInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithFileOperations {
 
   val resourcePath = getClass().getResource("/test.parquet").getFile
   val targetPath = "/upload/test.parquet"
@@ -37,11 +37,6 @@ class SFTPParquetInputStepBatchIT extends TemporalSparkContext with Matchers wit
     val data = rdd.ds.collect()
     count shouldBe 1
     rdd.ds.collect().toSeq should be(dataOut)
-  }
 
-  override def afterAll() = {
-    // delete the file created during test in sftp server
-    deleteSftpFile(targetPath)
   }
-
 }

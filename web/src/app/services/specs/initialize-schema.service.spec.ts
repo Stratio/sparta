@@ -58,7 +58,7 @@ describe('initialize-schema.service', function () {
       expect(model.writer).toBeDefined();
    });
 
-   it('should not initialize the writer if it is an output', () => {
+   xit('should not initialize the writer if it is an output', () => {
       const model = initializeSchemaService.setDefaultEntityModel(Engine.Streaming, printTemplate, 'Output', true);
       expect(model.writer).toBeUndefined();
    });

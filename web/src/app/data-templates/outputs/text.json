@@ -24,7 +24,7 @@
         "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
         "default": "{{{Global.DEFAULT_DELIMITER}}}",
         "trim": false,
-        "required": false,
+        "required": true,
         "qa": "fragment-details-filesystem-delimiter"
       },
         {

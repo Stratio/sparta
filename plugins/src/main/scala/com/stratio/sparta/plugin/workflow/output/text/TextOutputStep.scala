@@ -39,6 +39,12 @@ class TextOutputStep(
         messages = validation.messages :+ WorkflowValidationMessage(s"the destination path can not be empty", name)
       )
 
+    if (delimiter.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"Delimiter can not be empty", name)
+      )
+
     validation
   }
 

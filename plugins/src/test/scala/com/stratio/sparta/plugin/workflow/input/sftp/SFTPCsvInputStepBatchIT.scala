@@ -12,7 +12,7 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.scalatest._
 
-class SFTPCsvInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithUploadAndDeleteFile {
+class SFTPCsvInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithFileOperations {
 
   val resourcePath = getClass().getResource("/test.csv").getFile
   val targetPath = "/upload/test.csv"
@@ -36,11 +36,6 @@ class SFTPCsvInputStepBatchIT extends TemporalSparkContext with Matchers with Sf
     val data = rdd.ds.collect()
     count shouldBe 1
     rdd.ds.collect().toSeq should be(dataOut)
-  }
 
-  override def afterAll() = {
-    // delete the file created during test in sftp server
-    deleteSftpFile(targetPath)
   }
-
 }

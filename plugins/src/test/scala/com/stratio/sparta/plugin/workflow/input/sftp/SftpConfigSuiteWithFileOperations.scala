@@ -15,7 +15,7 @@ import com.typesafe.config.ConfigFactory
 import scala.util.{Failure, Success, Try}
 
 
-trait SftpConfigSuiteWithUploadAndDeleteFile extends SLF4JLogging {
+trait SftpConfigSuiteWithFileOperations extends SLF4JLogging {
 
 
   val config = ConfigFactory.load()
@@ -42,9 +42,9 @@ trait SftpConfigSuiteWithUploadAndDeleteFile extends SLF4JLogging {
     }
   }
 
-  lazy val sftpClient = new SFTPClient(null, "foo", "pass", sftpHost, sftpPort)
+  def sftpClient = new SFTPClient(null, "foo", "pass", sftpHost, sftpPort)
 
-  lazy val channelSftp: ChannelSftp = {
+  def channelSftp: ChannelSftp = {
     val jsch = new JSch
     val session = jsch.getSession("foo", sftpHost, sftpPort)
     session.setPassword("pass")
@@ -57,9 +57,20 @@ trait SftpConfigSuiteWithUploadAndDeleteFile extends SLF4JLogging {
     channel.asInstanceOf[ChannelSftp]
   }
 
-  def uploadFile(fromFilePath: String, targetFilePath: String) = {
+  def uploadFile(fromFilePath: String, targetFilePath: String) =
     sftpClient.copyToFTP(fromFilePath, targetFilePath)
-  }
 
   def deleteSftpFile(targetPath: String) = channelSftp.rm(targetPath)
+
+  def createSftpDir(targetPath: String) = channelSftp.mkdir(targetPath)
+
+  def chmodSftpFile(targetPath: String) = channelSftp.chmod(7777, targetPath)
+
+  def checkFileExists(targetPath: String, fileName: String) = {
+    val filesInPath = channelSftp.ls(targetPath).toArray()
+    filesInPath.exists(x => x.toString.contains(fileName))
+  }
+
+  def downloadFile(readFrom: String, downloadTo: String) = channelSftp.get(readFrom, downloadTo)
+
 }

@@ -68,8 +68,9 @@ hose {
                'image': 'atmoz/sftp',
                'sleep': 60,
                'healthcheck': 22,
+               'cmd': 'foo:pass:1001',
                'volumes': [
-               '/home/foo/upload:/home/foo/upload'],
+               '/tmp:/home/foo/tmp'],
               ]
             ]
     ]
@@ -86,7 +87,7 @@ hose {
       |    -Dmongo.host=%%MONGODB
       |    -Dsftp.host=%%SFTP
       |    -Dsftp.port=22
-      |    -Dsftp.volume=/home/foo/upload
+      |    -Dsftp.volume=/home/foo/tmp
       | """
 
     DEV = { config ->

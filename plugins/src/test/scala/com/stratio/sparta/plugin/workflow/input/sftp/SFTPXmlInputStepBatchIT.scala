@@ -11,7 +11,7 @@ import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.scalatest._
 
-class SFTPXmlInputBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithUploadAndDeleteFile {
+class SFTPXmlInputBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithFileOperations {
 
   val resourcePath = getClass().getResource("/test.xml").getFile
   val targetPath = "/upload/test.xml"

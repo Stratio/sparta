@@ -13,7 +13,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.scalatest._
 
 
-class SFTPJsonInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithUploadAndDeleteFile {
+class SFTPJsonInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithFileOperations {
 
   val resourcePath = getClass().getResource("/test.json").getFile
   val targetPath = "/upload/test.json"

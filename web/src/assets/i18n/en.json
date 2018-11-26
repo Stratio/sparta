@@ -644,6 +644,9 @@
    "_SFTP_PROPERTIES_":  "SFTP properties",
    "_SFTP_PROPERTY_KEY_":  "SFTP property",
    "_SFTP_PROPERTY_VALUE_":  "Value",
+   "_SFTP_SAVE_PROPERTIES_": "SFTP Save Properties",
+   "_SFTP_FILE_NAME_": "File Name",
+   "_SFTP_SAVE_PROPERTIES_": "SFTP Save Properties",
 
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
