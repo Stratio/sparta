@@ -234,11 +234,11 @@ object SparkContextFactory extends SLF4JLogging {
   def getStreamingContext: StreamingContext =
     ssc.getOrElse(throw new Exception("Streaming Context not initialized"))
 
-  def stopStreamingContext(stopGracefully: Boolean = false): Unit = synchronized {
+  def stopStreamingContext(stopGracefully: Boolean = false, stopSparkContext: Boolean = false): Unit = synchronized {
     ssc.orElse(StreamingContext.getActive()).fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>
       try {
           log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
-          Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
+          Try(streamingContext.stop(stopSparkContext, stopGracefully)) match {
             case Success(_) =>
               log.debug("Streaming Context has been stopped")
             case Failure(error) =>

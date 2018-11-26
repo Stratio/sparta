@@ -32,6 +32,7 @@ import slick.jdbc.PostgresProfile
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.util.control.NonFatal
 import scala.util.{Failure, Properties, Success, Try}
 
 //scalastyle:off
@@ -155,15 +156,20 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       upsertResult
     }
 
-    Try {
-      Await.result(updateFuture, AppConstant.DefaultApiTimeout seconds)
-    } match {
-      case Success((actualExecutionStatus, newExecutionWithStatus)) =>
-        writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
-        newExecutionWithStatus
-      case Failure(e) =>
-        throw ServerException.create(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
+
+    val updateWithZKFuture = updateFuture.map{ case (actualExecutionStatus, newExecutionWithStatus) =>
+      writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
+      newExecutionWithStatus
     }
+
+    Try {
+      Await.result(updateWithZKFuture, AppConstant.DefaultApiTimeout seconds)
+    }.recoverWith {
+      case NonFatal(e) =>
+        Failure(
+          ServerException.create(s"Impossible to update execution with id ${executionStatus.id} and status ${executionStatus.status} after max timeout", e)
+        )
+    }.get
   }
 
   def stopExecution(id: String): WorkflowExecution = {
