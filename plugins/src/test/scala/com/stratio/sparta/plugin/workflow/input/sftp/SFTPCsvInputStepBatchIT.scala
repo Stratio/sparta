@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.input.sftp
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.serving.core.models.enumerators.SftpFileTypeEnum
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.scalatest._
@@ -15,7 +16,7 @@ import org.scalatest._
 class SFTPCsvInputStepBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithFileOperations {
 
   val resourcePath = getClass().getResource("/test.csv").getFile
-  val targetPath = "/upload/test.csv"
+  val targetPath = "/tmp/sftp/test.csv"
 
   override def beforeAll() = {
     uploadFile(resourcePath, targetPath)
@@ -24,7 +25,7 @@ class SFTPCsvInputStepBatchIT extends TemporalSparkContext with Matchers with Sf
   val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
 
   "Events in sftp csv file" should "match the number of events and the content" in {
-    val properties = Map("path" -> targetPath, "fileType" -> "csv", "host" -> sftpHost,
+    val properties = Map("path" -> targetPath, "fileType" -> SftpFileTypeEnum.csv.toString, "host" -> sftpHost,
       "port" -> sftpPort.toString, "username" -> "foo", "password" -> "pass", "header" -> "true")
     val input = new SFTPInputStepBatch("name", outputOptions, Option(ssc), sparkSession, properties)
     val outputSchema = StructType(Seq(StructField("name", StringType)))

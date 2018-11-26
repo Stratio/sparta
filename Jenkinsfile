@@ -71,7 +71,7 @@ hose {
                'cmd': 'foo:pass:1001',
                'volumes': [
                '/tmp:/home/foo/tmp'],
-              ]
+             ]
             ]
     ]
 

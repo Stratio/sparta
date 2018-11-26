@@ -8,13 +8,14 @@ package com.stratio.sparta.plugin.workflow.input.sftp
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.serving.core.models.enumerators.SftpFileTypeEnum
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.scalatest._
 
 class SFTPXmlInputBatchIT extends TemporalSparkContext with Matchers with SftpConfigSuiteWithFileOperations {
 
   val resourcePath = getClass().getResource("/test.xml").getFile
-  val targetPath = "/upload/test.xml"
+  val targetPath = "/tmp/sftp/test.xml"
 
   override def beforeAll() = {
     uploadFile(resourcePath, targetPath)
@@ -23,7 +24,7 @@ class SFTPXmlInputBatchIT extends TemporalSparkContext with Matchers with SftpCo
   val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName")
 
   "SFTPXmlInputStep" should "match the number of events and the content" in {
-    val properties = Map("path" -> targetPath, "fileType" -> "xml", "host" -> sftpHost,
+    val properties = Map("path" -> targetPath, "fileType" -> SftpFileTypeEnum.xml.toString, "host" -> sftpHost,
       "port" -> sftpPort.toString, "username" -> "foo", "password" -> "pass", "rowTag" -> "book")
     val input = new SFTPInputStepBatch("name", outputOptions, Option(ssc), sparkSession, properties)
     val expectedSchema = StructType(Seq(StructField("_id", StringType, true),

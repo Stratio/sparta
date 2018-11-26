@@ -13,10 +13,14 @@ import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step._
+import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.serving.core.models.enumerators.SftpFileTypeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
+
+import scala.util.Try
 
 class SFTPInputStepBatch(
                           name: String,
@@ -32,7 +36,14 @@ class SFTPInputStepBatch(
   lazy val port = properties.getInt("port", None)
   lazy val username = properties.getString("username", None)
   lazy val fileType = properties.getString(key = "fileType", None)
+  lazy val delimiter = properties.getString("port", ",")
   lazy val rowTag = properties.getString("rowTag", None).notBlank
+  lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
+  lazy val sparkConf = xDSession.conf.getAll
+  lazy val pemOption = if(tlsEnable) {
+    SecurityHelper.getPemUri(sparkConf).fold(Map.empty[String, String]) { pemUri => Map("pem" -> pemUri) }
+  } else Map.empty[String, String]
 
   //Dummy function on batch inputs that generates DataSets with schema
   def init(): DistributedMonad[RDD] = {
@@ -45,44 +56,50 @@ class SFTPInputStepBatch(
     if (path.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage("The path value is not defined.")
+        messages = validation.messages :+ WorkflowValidationMessage("The path value is not defined.", name)
       )
 
     if (host.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage("The host value is not defined.")
+        messages = validation.messages :+ WorkflowValidationMessage("The host value is not defined.", name)
       )
 
     if (port.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage("The port value is not defined.")
+        messages = validation.messages :+ WorkflowValidationMessage("The port value is not defined.", name)
       )
 
     if (port.nonEmpty && (port.get <= 0 || port.get >= 65535))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage("The port value is not valid.")
+        messages = validation.messages :+ WorkflowValidationMessage("The port value is not valid.", name)
       )
 
     if (username.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage("The username for the sftp server is not defined.")
+        messages = validation.messages :+ WorkflowValidationMessage("The username for the sftp server is not defined.", name)
       )
 
     if (fileType.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage("The input file type is not chosen.")
+        messages = validation.messages :+ WorkflowValidationMessage("The input file type is not chosen.", name)
       )
 
-    if (fileType.get == "xml" && rowTag.isEmpty)
+    if (fileType.get == SftpFileTypeEnum.xml.toString && rowTag.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"The user should specify a row tag of the" +
           s" xml files to treat as a row", name)
+      )
+
+    if (fileType.get == SftpFileTypeEnum.csv.toString && delimiter.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage("The delimiter is not defined", name)
       )
 
     if (debugOptions.isDefined && !validDebuggingOptions)
@@ -101,10 +118,8 @@ class SFTPInputStepBatch(
       "port" -> properties.getString("port", None),
       "username" -> properties.getString("username", None),
       "fileType" -> properties.getString(key = "fileType", None),
-      "password" -> properties.getString(key = "password", None),
-      "pem" -> properties.getString("pem", None),
-      "pemPassphrase" -> properties.getString("pemPassphrase", None))
-      .filter { case (key, value) => value.isDefined }.map { case (key, optValue) => (key, optValue.get) }
+      "password" -> properties.getString(key = "password", None))
+      .filter { case (key, value) => value.isDefined }.map { case (key, optValue) => (key, optValue.get) } ++ pemOption
 
     val dataframeReader = xDSession.read.format("com.springml.spark.sftp")
 
