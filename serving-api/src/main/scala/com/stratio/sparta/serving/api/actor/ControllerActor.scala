@@ -5,6 +5,7 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.routing.RoundRobinPool
@@ -15,6 +16,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
+import com.stratio.sparta.serving.core.actor.ParametersListenerActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -22,18 +24,24 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import spray.http.StatusCodes._
+import spray.httpx.encoding.Gzip
 import spray.routing._
 
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
 
-class ControllerActor(
-                       executionStListenerActor: ActorRef,
-                       envListenerActor: ActorRef
-                     )(implicit secManager: Option[SpartaSecurityManager])
+class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
+
+  override def supervisorStrategy: SupervisorStrategy = AllForOneStrategy(){
+    case _ => Restart
+  }
+
+  override def postStop(): Unit = {
+    log.warn(s"Stopped ControllerActor at time ${System.currentTimeMillis()}")
+  }
 
   private val apiTimeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
     .getOrElse(AppConstant.DefaultApiTimeout) - 1
@@ -41,14 +49,15 @@ class ControllerActor(
 
   log.debug("Initializing actors in Controller Actor")
 
+  val parametersListenerActor = context.actorOf(Props[ParametersListenerActor])
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor())), TemplateActorName)
   val localLauncherActor = context.actorOf(Props(new LocalLauncherActor()), LocalLauncherActorName)
   val debugLauncherActor = context.actorOf(Props(new DebugLauncherActor()), DebugLauncherActorName)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(executionStListenerActor, envListenerActor, localLauncherActor, debugLauncherActor))), LauncherActorName)
+    .props(Props(new LauncherActor(parametersListenerActor, localLauncherActor, debugLauncherActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new WorkflowActor(launcherActor, envListenerActor))), WorkflowActorName)
+    .props(Props(new WorkflowActor(launcherActor, parametersListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ExecutionActor())), ExecutionActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -125,14 +134,16 @@ class ControllerActor(
   }
 
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {
-    serviceRoutes.templateRoute(user) ~ serviceRoutes.executionRoute(user) ~
-      serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
-      serviceRoutes.pluginsRoute(user) ~ serviceRoutes.swaggerRoute ~
-      serviceRoutes.serviceInfoRoute(user) ~
-      serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
-      serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
-      serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
-      serviceRoutes.mlModelsRoutes(user)
+    compressResponse(Gzip) {
+      serviceRoutes.templateRoute(user) ~ serviceRoutes.executionRoute(user) ~
+        serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
+        serviceRoutes.pluginsRoute(user) ~ serviceRoutes.swaggerRoute ~
+        serviceRoutes.serviceInfoRoute(user) ~
+        serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
+        serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
+        serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
+        serviceRoutes.mlModelsRoutes(user)
+    }
   }
 
   lazy val webRoutes: Route =

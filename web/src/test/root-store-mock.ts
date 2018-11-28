@@ -7,7 +7,8 @@ export const ROOT_STORE_MOCK = {
    user: {
       userName: '',
          editFromMonitoring: false,
-         xDSparkUi: 'http://localhost:4041'
+         xDSparkUi: 'http://localhost:4041',
+         timeout: 20000
    },
    alerts: {
       confirmSave: false,

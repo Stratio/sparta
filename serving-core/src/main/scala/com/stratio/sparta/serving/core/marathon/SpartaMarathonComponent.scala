@@ -5,13 +5,22 @@
  */
 package com.stratio.sparta.serving.core.marathon
 
+import java.net.HttpCookie
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods._
 import akka.stream.ActorMaterializer
-import com.stratio.tikitakka.common.exceptions.ConfigurationException
+import com.stratio.tikitakka.common.exceptions.{ConfigurationException, ResponseException}
 import com.stratio.tikitakka.common.util.ConfigComponent
 import com.stratio.tikitakka.updown.marathon.MarathonComponent
 import SpartaMarathonComponent._
+import com.stratio.tikitakka.common.model.{ContainerId, CreateApp}
+import com.stratio.tikitakka.common.model.marathon.MarathonApplication
+import com.stratio.tikitakka.updown.marathon.MarathonComponent.upComponentMethod
+import play.api.libs.json.Json
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.concurrent.Future
 
 trait SpartaMarathonComponent extends MarathonComponent {
 
@@ -20,6 +29,17 @@ trait SpartaMarathonComponent extends MarathonComponent {
   }
 
   override lazy val apiVersion = ConfigComponent.getString(versionField, defaultApiVersion)
+
+  override def upApplication(application: CreateApp, ssoToken: Option[HttpCookie]): Future[ContainerId] = {
+    val marathonApp = MarathonApplication(application)
+    doRequest[String](uri, upPath, upComponentMethod, Option(Json.toJson(marathonApp)), ssoToken.map(List(_)).getOrElse(Seq.empty))
+      .recover { case e =>
+        throw ResponseException(s"Error when up an application with error: ${e.getLocalizedMessage}", e)
+      }
+      .map { case _ =>
+        ContainerId(application.id)
+      }
+  }
 }
 
 object SpartaMarathonComponent {

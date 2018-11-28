@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import com.stratio.sparta.core.models.DebugResults
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 
 import scala.util.Try
 
@@ -64,6 +65,11 @@ object CustomColumnTypes extends SpartaSerializer {
   implicit val executionEngineSeqType = MappedColumnType.base[Seq[ExecutionEngine], String](
     objToSerialize => write(objToSerialize),
     objToDeSerialize => read[Seq[ExecutionEngine]](objToDeSerialize)
+  )
+
+  implicit val executionStatusType =  MappedColumnType.base[WorkflowStatusEnum, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[WorkflowStatusEnum](objToDeSerialize)
   )
 
   implicit val stringListMapper = MappedColumnType.base[Seq[String], String](

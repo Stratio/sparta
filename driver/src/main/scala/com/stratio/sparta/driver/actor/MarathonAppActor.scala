@@ -19,6 +19,8 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor with SLF4JLogging {
@@ -33,37 +35,40 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
 
   def preStopActions(): Unit = {
     log.info("Shutting down Sparta Marathon Actor system")
-    //Await.ready(context.system.terminate(), 1 minute)
-    context.system.terminate()
+    Await.ready(context.system.terminate(), 1 minute)
+  }
+
+  override def postStop(): Unit = {
+    log.warn(s"Stopped MarathonAppActor at time ${System.currentTimeMillis()}")
   }
 
   //scalastyle:off
   def doStartApp(execution: WorkflowExecution): Unit = {
     Try {
-      log.debug(s"Obtained status: ${execution.lastStatus.state}")
+      log.info(s"Obtained status: ${execution.lastStatus.state}")
+      closeChecker(execution.getExecutionId)
+
       if (execution.lastStatus.state != Stopped && execution.lastStatus.state != Stopping &&
         execution.lastStatus.state != Failed && execution.lastStatus.state != Finished) {
-        log.debug(s"Closing checker with execution id: ${execution.getExecutionId}")
-        closeChecker(execution.getExecutionId)
-        log.debug(s"Obtaining execution with workflow id: ${execution.getExecutionId}")
+        log.info(s"Starting execution with id: ${execution.getExecutionId}")
+        log.debug(s"Execution in string: ${execution.toString}")
 
-        log.debug(s"Starting execution: ${execution.toString}")
         val clusterLauncherActor =
-          context.actorOf(Props(new ClusterLauncherActor(executionStatusListenerActor)), ClusterLauncherActorName)
+          context.actorOf(Props(new ClusterLauncherActor(Option(executionStatusListenerActor))), ClusterLauncherActorName)
         clusterLauncherActor ! Run(execution)
       } else {
-        val information = "Workflow App launched by Marathon with incorrect state, the job was not executed"
+        val information = "Workflow App launched by Marathon with incorrect state, the workflow was not executed"
         log.info(information)
         executionService.updateStatus(ExecutionStatusUpdate(
           execution.getExecutionId,
           ExecutionStatus(
-          state = if (execution.lastStatus.state == Stopping) Stopped else execution.lastStatus.state,
-          statusInfo = Option(information)
+            state = if (execution.lastStatus.state == Stopping) Stopped else execution.lastStatus.state,
+            statusInfo = Option(information)
           )))
       }
     } match {
       case Success(_) =>
-        log.info(s"StartApp in Workflow App executed without errors")
+        log.debug(s"Start application function in MarathonApp executed without errors")
       case Failure(exception) =>
         val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
@@ -78,7 +83,6 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
           ExecutionStatus(state = Failed, statusInfo = Option(information))
         ), error)
         log.debug(s"Updated correctly the execution status ${execution.getExecutionId} to $Failed in MarathonAppActor")
-
     }
   }
 
@@ -91,11 +95,11 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
       if (executionStatusChange.newExecution.lastStatus.state == Stopped ||
         executionStatusChange.newExecution.lastStatus.state == Failed) {
         try {
-          val information = s"Executing pre-close actions in Workflow App ..."
-          log.info(information)
+          executionStatusListenerActor ! ForgetExecutionStatusActions(executionId)
+          log.info(s"Executing pre-stop actions in Workflow App ...")
           preStopActions()
         } finally {
-          executionStatusListenerActor ! ForgetExecutionStatusActions(executionId)
+          log.info(s"Pre-stop actions executed in Workflow App")
         }
       }
     }

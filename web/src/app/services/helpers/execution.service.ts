@@ -11,7 +11,7 @@ import { formatDate } from '@utils';
 export class ExecutionHelperService {
 
    public normalizeExecution(execution) {
-      const { id, statuses, marathonExecution, localExecution, genericDataExecution: { lastError, endDate, startDate,launchDate, workflow: { name, group, tags, version, executionEngine }, executionContext: { paramsLists: context } } } = execution;
+      const { id, statuses, marathonExecution, localExecution, genericDataExecution: { lastError, endDate, startDate, launchDate, workflow: { name, group, tags, version, executionEngine }, executionContext: { paramsLists: context } } , totalCount } = execution;
       let startDateMillis = 0;
       let startDateFormatted = '-';
       try {
@@ -60,7 +60,8 @@ export class ExecutionHelperService {
          status,
          startDateWithStatus: filterStatus === 'Running' ?  new Date().getTime() : launchDateMillis,
          statusData: statuses.length && statuses[0],
-         filterStatus
+         filterStatus,
+         totalCount
       };
    }
 

@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
  SPARTA_MARATHON_CONF_FILE=/etc/sds/sparta/marathon/reference.conf
+ SPARTA_SPARK_CONF_FILE=/etc/sds/sparta/spark/reference.conf
  cp ${SPARTA_MARATHON_CONF_FILE} ${SPARTA_CONF_FILE}
 
  INFO "[SPARTA-MARATHON] Loading Sparta common functions ... "
@@ -23,9 +24,9 @@
  initJavaOptions
  INFO "[SPARTA-MARATHON] Loaded Sparta Java options"
 
- INFO "[SPARTA-SERVER] Loading Crossdata plugin ... "
+ INFO "[SPARTA-MARATHON] Loading Crossdata plugin ... "
  initPluginCrossdata
- INFO "[SPARTA-SERVER] Loaded Crossdata plugin "
+ INFO "[SPARTA-MARATHON] Loaded Crossdata plugin "
 
  INFO "[SPARTA-MARATHON] Loading Sparta Spark options ... "
  initSpark
@@ -46,6 +47,12 @@
  logLevelOptions
  logLevelAppender
  INFO "[SPARTA-MARATHON] Log appender selected"
+
+ INFO "[SPARTA-MARATHON] Adding extra properties ... "
+ extraProperties ${SPARTA_CONF_FILE}
+ extraProperties ${SPARTA_MARATHON_CONF_FILE}
+ extraProperties ${SPARTA_SPARK_CONF_FILE}
+ INFO "[SPARTA-MARATHON] Extra properties added"
 
  # Run Sparta Marathon jar
  INFO "[SPARTA-MARATHON] Running Sparta marathon application ... "

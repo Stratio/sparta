@@ -27,7 +27,7 @@ export class WorkflowService extends ApiService {
 
     getWorkflowsByGroup(groupId: string): Observable<any> {
         const options: any = {};
-        return this.request('workflows/findAllByGroup/' + groupId, 'get', options);
+        return this.request('workflows/findAllByGroupDto/' + groupId, 'get', options);
     }
 
     getGroups(): Observable<any> {

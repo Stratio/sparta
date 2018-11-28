@@ -20,6 +20,7 @@ import { Observable } from 'rxjs';
             [perPage]="perPage$ | async"
             [currentOrder]="currentOrder$ | async"
             [currentPage]="pageNumber$ | async"
+            [total]="total$ | async"
             (onChangeOrder)="changeOrder($event)"
             (onChangePage)="changePage($event)"
             (selectExecution)="selectExecution($event)"
@@ -35,6 +36,7 @@ export class ExecutionsTableContainer implements OnInit {
 
    public perPage$: Observable<number>;
    public pageNumber$: Observable<number>;
+   public total$: Observable<number>;
    public currentOrder$: Observable<Order>;
 
    constructor(private _store: Store<State>, private _modalService: StModalService) { }
@@ -42,6 +44,7 @@ export class ExecutionsTableContainer implements OnInit {
    ngOnInit(): void {
      this.pageNumber$ = this._store.select(fromRoot.getCurrentPage);
      this.perPage$ = this._store.select(fromRoot.getPerPageElements);
+     this.total$ = this._store.select(fromRoot.getTotalElements);
     }
 
    selectExecution(execution: any) {

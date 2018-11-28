@@ -7,9 +7,7 @@
 package com.stratio.sparta.serving.core
 
 import scala.util.Try
-
 import org.joda.time.DateTime
-
 import com.stratio.sparta.core.models.{DebugResults, ResultStep}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -19,6 +17,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 //scalastyle:off
 package object daoTables {
 
@@ -238,12 +237,27 @@ package object daoTables {
 
     def archived = column[Option[Boolean]]("archived")
 
-    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived) <>
+    def resumedDate = column[Option[DateTime]]("resumed_date")
+
+    def resumedStatus = column[Option[WorkflowStatusEnum]]("resumed_status")
+
+    def executionEngine = column[Option[ExecutionEngine]]("execution_engine")
+
+    def searchText = column[Option[String]]("search_text")
+
+    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText) <>
       ((WorkflowExecution.apply _).tupled, WorkflowExecution.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
 
     def workflowExecutionArchivedIndex = index(s"idx_${tableName}_archived", archived)
+
+    def workflowExecutionArchivedDateIndex = index(s"idx_${tableName}_archived_date", (archived, resumedDate))
+
+    def workflowExecutionArchivedStatusIndex = index(s"idx_${tableName}_archived_status", (archived, resumedStatus))
+
+    def workflowExecutionQueryIndex = index(s"idx_${tableName}_query", (archived, resumedDate, resumedStatus, executionEngine, searchText))
+
   }
 
 }

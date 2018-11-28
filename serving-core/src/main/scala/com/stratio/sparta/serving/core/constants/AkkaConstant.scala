@@ -5,6 +5,10 @@
  */
 package com.stratio.sparta.serving.core.constants
 
+import com.stratio.sparta.serving.core.config.SpartaConfig
+
+import scala.util.Try
+
 
 object AkkaConstant {
 
@@ -34,7 +38,8 @@ object AkkaConstant {
   val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
   val ParameterListActorName = "ParameterListActorName"
 
-  val DefaultInstances = Runtime.getRuntime.availableProcessors()
+  lazy val DefaultInstances = Try(SpartaConfig.getDetailConfig().get.getInt("actors.instances"))
+    .getOrElse(Runtime.getRuntime.availableProcessors())
 
   def cleanActorName(initialName: String): String = initialName.replace(" ", "_")
 }

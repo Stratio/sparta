@@ -43,7 +43,7 @@ trait WorkflowHttpService extends BaseHttpService {
     find(user) ~ findAll(user) ~ create(user) ~ run(user) ~
       update(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
       removeList(user) ~ findList(user) ~ validate(user) ~ validateWithoutContext(user) ~
-      createVersion(user) ~ findAllByGroup(user) ~
+      createVersion(user) ~ findAllByGroup(user) ~ findAllByGroupDto(user) ~
       findAllDto(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
       migrate(user) ~ validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user) ~
       migrateFromAndromeda(user)
@@ -98,6 +98,34 @@ trait WorkflowHttpService extends BaseHttpService {
         context =>
           for {
             response <- (supervisor ? FindAllByGroup(groupID, user))
+              .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
+          } yield getResponse(context, WorkflowServiceFindAllByGroup, response, genericError)
+      }
+    }
+  }
+
+  @Path("/findAllByGroupDto/{groupID}")
+  @ApiOperation(value = "Find all workflowsDto by group id",
+    notes = "Find all workflowsDto by group name",
+    httpMethod = "GET",
+    response = classOf[Array[WorkflowDto]])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "groupID",
+      value = "workflow group",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findAllByGroupDto(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findAllByGroupDto" / Segment) { groupID =>
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindAllByGroupDto(groupID, user))
               .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
           } yield getResponse(context, WorkflowServiceFindAllByGroup, response, genericError)
       }

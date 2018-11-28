@@ -22,7 +22,8 @@ import org.slf4j.Logger
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Properties, Success, Try}
 
 class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) extends SLF4JLogging {
@@ -44,6 +45,8 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
     "<title>502 Bad Gateway</title>")
 
   private[core] val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
+
+  private[core] val DefaultTimeoutInMarathonRequests = 3000
 
   def removeEmptyFoldersFromDCOS: Unit = {
     outer.log.debug("Retrieving groups from MarathonAPI to purge the empty ones")
@@ -87,7 +90,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
 
   private[core] def responseUnExpectedError(exception: Exception): Future[Nothing] = {
     val problem = UnExpectedError(exception)
-    log.error(problem.getMessage)
+    log.error(problem.getMessage, problem.ex)
     Future.failed(problem)
   }
 
@@ -103,14 +106,13 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   }
 
   def retrieveApps(): Future[String] = {
-    val appsList = s"v2/apps?id=sparta/$marathonInstanceName/workflows"
+    val appsList = s"v2/apps?id=sparta/$marathonInstanceName/workflows&embed=apps.tasks"
     for {
       responseMarathon <- doRequest[String](marathonApiUri.get,
         appsList,
         HttpMethods.GET,
         cookies = Seq(getToken))
-      responseAuth <- responseCheckedAuthorization(responseMarathon,
-        Option(s"Correctly retrieved all apps inside $appsList"))
+      responseAuth <- responseCheckedAuthorization(responseMarathon, Option(s"Correctly retrieved all apps inside $appsList"))
     } yield responseAuth
   }.recoverWith {
     case exception: Exception =>
@@ -124,8 +126,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
         groupsPath,
         HttpMethods.GET,
         cookies = Seq(getToken))
-      responseAuth <- responseCheckedAuthorization(groups,
-        Option(s"Correctly retrieved all sub-groups of $groupsPath"))
+      responseAuth <- responseCheckedAuthorization(groups, Option(s"Correctly retrieved all sub-groups of $groupsPath"))
     } yield parseFindingEmpty(responseAuth)
   }.recoverWith {
     case exception: Exception =>
@@ -139,8 +140,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
         groupPath,
         HttpMethods.DELETE,
         cookies = Seq(getToken))
-      resultAuth <- responseCheckedAuthorization(resultHTTP,
-        Option(s"Correctly deleted group with id $group"))
+      resultAuth <- responseCheckedAuthorization(resultHTTP, Option(s"Correctly deleted group with id $group"))
     } yield resultAuth
   }.recoverWith {
     case exception: Exception =>
@@ -148,33 +148,31 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   }
 
   private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
-    val GroupPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
+    val groupPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
 
     import oauthUtils._
 
     for {
-      group <- doRequest[String](marathonApiUri.get, GroupPath, cookies = Seq(getToken))
+      resultHTTP <- doRequest[String](marathonApiUri.get, groupPath, cookies = Seq(getToken))
+      resultAuth <- responseCheckedAuthorization(resultHTTP, Option(s"Correctly obtained groups with from path $groupPath"))
       seqApps = {
-        if (!group.contains(UnauthorizedKey)) {
-          extractAppsId(group) match {
-            case Some(appsId) =>
-              loggerMarathonUtils.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
-              Future.sequence {
-                appsId.map { appId =>
-                  val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
-                  appResponse.flatMap { response =>
-                    if (response.contains(UnauthorizedKey))
-                      responseUnauthorized()
-                    else {
-                      loggerMarathonUtils.debug(s"Extracted info for appID $appId: $response")
-                      Future(response)
-                    }
-                  }
+        extractAppsId(resultAuth) match {
+          case Some(appsId) =>
+            loggerMarathonUtils.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
+            Future.sequence {
+              appsId.map { appId =>
+                val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
+
+                Try(Await.result(appResponse, DefaultTimeoutInMarathonRequests seconds)) match {
+                  case Success(response) =>
+                    responseCheckedAuthorization(response, Option(s"Extracted info for appID $appId"))
+                  case Failure(e: Exception) =>
+                    responseUnExpectedError(e)
                 }
               }
-            case None => Future(Seq.empty[String])
-          }
-        } else responseUnauthorized()
+            }
+          case None => Future(Seq.empty[String])
+        }
       }
       appsStrings <- seqApps
     } yield {
@@ -208,7 +206,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
             case Success(list) if list.nonEmpty =>
               list.flatMap(node => Try(node.asText).toOption.notBlank)
             case Failure(e) =>
-              log.warn(s"Impossible to extract App in JsonNode: ${jsonNode.toString} .Error: ${e.getLocalizedMessage}")
+              log.debug(s"Impossible to extract App in JsonNode: ${jsonNode.toString} .Error: ${e.getLocalizedMessage}")
               None
           }
         else None
@@ -239,7 +237,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
       case Success(apps) =>
         Option(apps)
       case Failure(e) =>
-        log.warn(s"Invalid App extraction, the Marathon API responses: $json .Error: ${e.getLocalizedMessage}")
+        log.debug(s"Invalid App extraction, the Marathon API responses: $json .Error: ${e.getLocalizedMessage}")
         None
     }
   }
@@ -258,8 +256,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
         case Success(apps) =>
           Option(apps)
         case Failure(e) =>
-          log.warn(s"Invalid Apps extraction, the Marathon API responses: $json ." +
-            s"Error: ${e.getLocalizedMessage}")
+          log.debug(s"Invalid Apps extraction, the Marathon API responses: $json . Error: ${e.getLocalizedMessage}")
           None
       }
     }
@@ -331,7 +328,7 @@ object MarathonAPIUtils {
 
 }
 
-abstract class MarathonApiError protected(description: String) extends RuntimeException {
+abstract class MarathonApiError protected(description: String, exception: Option[Throwable] = None) extends RuntimeException {
   override def getMessage: String = s"MarathonAPI problem: $description"
 }
 
@@ -341,6 +338,6 @@ object MarathonApiError {
 
   case class ServerError(message: String) extends MarathonApiError(s"MarathonAPI responded with $message")
 
-  case class UnExpectedError(ex: Exception) extends MarathonApiError(s"Unexpected error with message: ${ex.toString}")
+  case class UnExpectedError(ex: Exception) extends MarathonApiError(s"Unexpected error with message: ${ex.toString}", Option(ex))
 
 }

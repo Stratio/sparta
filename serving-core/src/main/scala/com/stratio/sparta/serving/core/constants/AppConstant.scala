@@ -49,6 +49,7 @@ object AppConstant extends ZookeeperUtils {
   val ModelRepositoryUrlKey = "repository.url"
   val DefaultModelRepositoryUrl = "http://localhost:11000"
   val DefaultAwaitWorkflowChangeStatus = "360s"
+  val DefaultAwaitWorkflowChangeStatusSeconds = 360
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20

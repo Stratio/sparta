@@ -31,7 +31,7 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
   val profile = PostgresProfile
   import profile.api._
   var db1: profile.api.Database = _
-  val queryTimeout : Int = 500
+  val queryTimeout : Int = 20000
 
   val groupTest1 = Group(Some("id1"),"/home/testgroup")
   val groupTest2 = Group(Some("id2"), "/home/testgroup2")
@@ -90,13 +90,13 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
 
     "be found if an existing id is given" in new GroupDaoTrait {
 
-      whenReady(groupPostgresDao.findGroupByName("/home/groupmodified")) {
+      whenReady(groupPostgresDao.findGroupByName("/home/groupmodified"), timeout(Span(queryTimeout, Milliseconds))) {
         result => result.name shouldBe "/home/groupmodified"
       }
     }
 
     "be found if an existing name is given" in new GroupDaoTrait {
-      whenReady(groupPostgresDao.findGroupById("id1")) {
+      whenReady(groupPostgresDao.findGroupById("id1"), timeout(Span(queryTimeout, Milliseconds))) {
         result => result.id.get shouldBe "id1"
       }
     }

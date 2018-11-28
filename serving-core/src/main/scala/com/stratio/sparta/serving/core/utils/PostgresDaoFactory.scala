@@ -19,7 +19,9 @@ import com.stratio.sparta.serving.core.services.dao._
 object PostgresDaoFactory {
 
   implicit val pgExecutionContext = ExecutionContext.fromExecutorService(
-    new ForkJoinPool(Try(SpartaConfig.getPostgresConfig().get.getInt("numThreads")).getOrElse(Runtime.getRuntime.availableProcessors() * 2)))
+    new ForkJoinPool(Try(SpartaConfig.getPostgresConfig().get.getInt("executionContext.parallelism"))
+      .getOrElse(Runtime.getRuntime.availableProcessors() * 4))
+  )
 
   lazy val workflowPgService = new WorkflowPostgresDao()
   lazy val groupPgService = new GroupPostgresDao()

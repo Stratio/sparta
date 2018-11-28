@@ -7,20 +7,30 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Store } from '@ngrx/store';
+import { cloneDeep as _cloneDeep } from 'lodash';
+
+import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { MockStore } from '@test/store-mock';
 
 import { ExecutionService } from './../execution.service';
 
-describe('[ExecutionService]', () => {
-   const mockStoreInstance = jasmine.createSpyObj('store', ['dispatch']);
+const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
 
-   beforeEach(() => TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
-         ExecutionService,
-         {
-            provide: Store, useValue: mockStoreInstance
-         }]
-   }));
+describe('[ExecutionService]', () => {
+   const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);
+
+   beforeEach(() => {
+      spyOn(mockStoreInstance, 'dispatch');
+      spyOn(mockStoreInstance, 'select').and.callThrough();
+      TestBed.configureTestingModule({
+         imports: [HttpClientTestingModule],
+         providers: [
+            ExecutionService,
+            {
+               provide: Store, useValue: mockStoreInstance
+            }]
+      });
+   });
 
    describe('should be able to call execution services', () => {
       let service: ExecutionService;
@@ -71,7 +81,7 @@ describe('[ExecutionService]', () => {
          const query = {
             archived: true
          };
-         const url = 'workflowExecutions/findByQuery';
+         const url = 'workflowExecutions/findByQueryDto';
          service.getExecutionsByQuery(query).subscribe(response => {
             expect(response).toEqual('OK');
          });

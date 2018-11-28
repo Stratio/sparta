@@ -66,11 +66,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       findByGroup(groupId)
   }
 
-  private def findByGroup(groupId: String): Future[Seq[Workflow]] = db.run(table.filter(_.groupId === groupId).result)
-
   def findByIdList(workflowIds: Seq[String]): Future[Seq[Workflow]] = db.run(table.filter(_.id.inSet(workflowIds.toSet)).result)
-
-  def findListByWorkflowQuery(query: WorkflowsQuery): Future[Seq[Workflow]] = db.run(table.filter(_.groupId === query.group.get).result)
 
   def doQuery(query: WorkflowQuery): Future[Seq[Workflow]] = {
     for {
@@ -149,7 +145,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       }
     } yield {
 
-      workflowById.map{ originalWorkflow =>
+      workflowById.map { originalWorkflow =>
         val workflowWithVersionFields = originalWorkflow.copy(
           name = workflowVersion.name.getOrElse(originalWorkflow.name),
           tags = workflowVersion.tags,
@@ -307,13 +303,15 @@ class WorkflowPostgresDao extends WorkflowDao {
 
   /** PRIVATE METHODS **/
 
-  private[dao] def findWorkflowsVersion(name: String, groupId: String): Future[Seq[Workflow]] =
+  private[sparta] def findByGroup(groupId: String): Future[Seq[Workflow]] = db.run(table.filter(_.groupId === groupId).result)
+
+  private[sparta] def findWorkflowsVersion(name: String, groupId: String): Future[Seq[Workflow]] =
     db.run(table.filter(w => w.name === name && w.groupId.isDefined && w.groupId === groupId).result)
 
-  private[services] def filterByIdReal(id: String): Future[Seq[Workflow]] =
+  private[sparta] def filterByIdReal(id: String): Future[Seq[Workflow]] =
     db.run(table.filter(_.id === id).result)
 
-  private[services] def findByIdHead(id: String): Future[Workflow] =
+  private[sparta] def findByIdHead(id: String): Future[Workflow] =
     for {
       workflowList <- filterByIdReal(id)
     } yield {
@@ -322,7 +320,7 @@ class WorkflowPostgresDao extends WorkflowDao {
       else throw new ServerException(s"No workflow found by id $id")
     }
 
-  private[services] def workflowGroupById(id: String): Future[Group] =
+  private[sparta] def workflowGroupById(id: String): Future[Group] =
     for {
       group <- db.run(groupsTable.filter(_.groupId === id).result)
     } yield {
@@ -349,7 +347,7 @@ class WorkflowPostgresDao extends WorkflowDao {
         workflow.copy(version = usrVersion)
     }
 
-  private[services] def deleteYield(workflowLists: Seq[Workflow]): Future[Boolean] = {
+  private[sparta] def deleteYield(workflowLists: Seq[Workflow]): Future[Boolean] = {
     val ids = workflowLists.flatMap(_.id.toList)
     for {
       _ <- deleteList(ids).removeInCache(ids: _*)
@@ -412,7 +410,7 @@ object WorkflowPostgresDao extends SpartaSerializer {
   }
 
   /** Ignite predicates */
-  private def ignitePredicateByGroup(group: String): ScanQuery[String, Workflow] = new ScanQuery[String, Workflow](
+  private[sparta] def ignitePredicateByGroup(group: String): ScanQuery[String, Workflow] = new ScanQuery[String, Workflow](
     new IgniteBiPredicate[String, Workflow]() {
       override def apply(k: String, value: Workflow) = value.groupId.equals(Option(group))
     }

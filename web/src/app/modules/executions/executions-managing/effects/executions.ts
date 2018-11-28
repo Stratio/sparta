@@ -7,7 +7,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Store, Action } from '@ngrx/store';
-import { Observable, timer, of, forkJoin, from } from 'rxjs';
+import { Observable, timer, of, forkJoin, from, iif } from 'rxjs';
 
 import * as errorActions from 'actions/errors';
 import * as executionsActions from '../actions/executions';
@@ -18,6 +18,17 @@ import { isEqual } from 'lodash';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 import { switchMap, takeUntil, concatMap, catchError, withLatestFrom, mergeMap, map } from 'rxjs/operators';
 
+const normalizeFilter = (filter, archived) => {
+    return {
+        archived,
+        status: filter.statusFilter || undefined,
+        executionEngine: filter.typeFilter || undefined,
+        searchText: filter.searchQuery || undefined,
+        page: filter.pagination.currentPage - 1,
+        offset: filter.pagination.perPage,
+        date: filter.timeIntervalFilter || undefined
+    };
+};
 
 @Injectable()
 export class ExecutionsEffect {
@@ -29,21 +40,24 @@ export class ExecutionsEffect {
       .ofType(executionsActions.LIST_EXECUTIONS)
       .pipe(switchMap(() => timer(0, 5000)
          .pipe(takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING)))
-         .pipe(concatMap(() => this._executionService.getExecutionsByQuery({ archived: false })
-            .map(executions => {
-               if (isEqual(executions, this._lastExecutionsValue)) {
-                  return new executionsActions.ListExecutionsEmptyAction();
-               }
-               this._lastExecutionsValue = executions;
-               return new executionsActions.ListExecutionsCompleteAction(
-                  executions.map(execution => this._executionHelperService.normalizeExecution(execution)));
-            }).catch(err => of(new executionsActions.ListExecutionsFailAction()))))));
+         .pipe(withLatestFrom(this.store.select(state => state.executions.executions)))
+         .pipe(concatMap( ([status, filter]) => this._executionService.getExecutionsByQuery(normalizeFilter(filter, false))
+            .pipe(map(executions => {
+                if (isEqual(executions, this._lastExecutionsValue)) {
+                    return new executionsActions.ListExecutionsEmptyAction();
+                }
+                this._lastExecutionsValue = executions;
+                return new executionsActions.ListExecutionsCompleteAction(
+                    executions.map(execution => this._executionHelperService.normalizeExecution(execution)));
+                }))
+            .pipe(catchError(err => of(new executionsActions.ListExecutionsFailAction())))))));
 
 
    @Effect()
    getArhivedExecutionsList: Observable<any> = this.actions$
       .ofType(executionsActions.LIST_ARCHIVED_EXECUTIONS)
-      .pipe(switchMap(executions => this._executionService.getExecutionsByQuery({ archived: true })
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions)))
+      .pipe(switchMap(([executions, filter]) => this._executionService.getExecutionsByQuery(normalizeFilter(filter, true))
          .map((archived: Array<any>) => new executionsActions.ListArchivedExecutionsCompleteAction(archived.map(execution =>
             this._executionHelperService.normalizeExecution(execution))))))
       .pipe(catchError(error => of(new executionsActions.ListArchivedExecutionsFailAction())));
@@ -88,11 +102,14 @@ export class ExecutionsEffect {
 
    @Effect()
    selectStatusFilter: Observable<any> = this.actions$
-      .ofType(executionsActions.SELECT_STATUS_FILTER)
-      .pipe(switchMap((action: any) =>
-         action.status === 'Archived' ? of(new executionsActions.ListArchivedExecutionsAction()) : of({ type: 'NO_ACTION' })));
+      .ofType(executionsActions.SELECT_STATUS_FILTER, executionsActions.SELECT_TYPE_FILTER, executionsActions.SELECT_TIME_INTERVAL_FILTER, executionsActions.CHANGE_PAGINATION, executionsActions.SEARCH_EXECUTION)
+      .pipe(withLatestFrom(this.store.select(state => state.executions.executions.isArchivedPage)))
+      .pipe(switchMap(([action, archived]: [any, boolean]) =>
+        iif(() => archived,
+            of(new executionsActions.ListArchivedExecutionsAction()),
+            of(new executionsActions.ListExecutionsAction()))));
 
-   @Effect()
+    @Effect()
    stopExecutionsList$: Observable<any> = this.actions$
       .ofType(executionsActions.STOP_EXECUTIONS_ACTION)
       .pipe(withLatestFrom(this.store.select(state => state.executions.executions.selectedExecutionsIds)))

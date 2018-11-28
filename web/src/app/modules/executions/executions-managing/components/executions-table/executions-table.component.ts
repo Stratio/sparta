@@ -27,6 +27,7 @@ export class ExecutionsTableComponent {
    @Input() selectedExecutionsIds: Array<string> = [];
    @Input() perPage = 0;
    @Input() currentPage = 0;
+   @Input() total = 0;
    @Input() currentOrder;
 
    @Output() selectExecution = new EventEmitter<any>();

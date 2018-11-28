@@ -8,7 +8,16 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 
-import com.github.nscala_time.time.OrderingImplicits._
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.util.control.NonFatal
+import scala.util.{Failure, Properties, Success, Try}
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.write
+import slick.jdbc.PostgresProfile
+import slick.lifted.CanBeQueryCondition
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.SparkConstant.{SubmitAppNameConf, SubmitUiProxyPrefix}
@@ -18,22 +27,12 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
 import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, NginxUtils}
-import org.apache.ignite.cache.query.ScanQuery
-import org.apache.ignite.lang.IgniteBiPredicate
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.write
-import slick.jdbc.PostgresProfile
-
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.util.control.NonFatal
-import scala.util.{Failure, Properties, Success, Try}
 
 //scalastyle:off
 class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
@@ -41,8 +40,9 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   override val profile = PostgresProfile
   override val db = JdbcSlickConnection.getDatabase
 
-  import com.stratio.sparta.serving.core.dao.CustomColumnTypes._
   import profile.api._
+
+  import com.stratio.sparta.serving.core.dao.CustomColumnTypes._
 
   override def initializeData(): Unit = {
     initialCacheLoad()
@@ -57,29 +57,74 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       findAll()
   }
 
-  def findExecutionsByQuery(workflowExecutionQuery: WorkflowExecutionQuery): Future[Seq[WorkflowExecution]] = {
-    workflowExecutionQuery.archived match {
-      case Some(archived) =>
-        if (cacheEnabled)
-          predicateList(ignitePredicateByArchived(Option(archived)))(filterByArchived(archived))
-        else filterByArchived(archived)
-      case None =>
-        findAllExecutions()
+  def findExecutionsByStatus(statuses: Seq[WorkflowStatusEnum]): Future[Seq[WorkflowExecution]] =
+    db.run(table.filter(_.resumedStatus.inSet(statuses)).result)
+
+  def findExecutionsByIds(ids: Seq[String]): Future[Seq[WorkflowExecution]] =
+    db.run(table.filter(_.id.inSet(ids)).result)
+
+  case class SlickFilter[TType, Y, C[_]](val query: Query[TType, Y, C]) {
+
+    def dinamicFilter[FilterValue, Function: CanBeQueryCondition](optionFilter: Option[FilterValue])(f: FilterValue => TType => Function) = {
+      optionFilter.map(v => SlickFilter(query.withFilter(f(v)))).getOrElse(this)
     }
   }
 
-  def createDashboardView(): Future[DashboardView] = findAllExecutions().map(getDashboardView)
+
+  def findExecutionsByQuery(workflowExecutionQuery: WorkflowExecutionQuery): Future[(Seq[WorkflowExecution], Int)] = {
+
+    val statusFilter = workflowExecutionQuery.status.map(_.toLowerCase) match {
+      case Some("running") => Some(Set(WorkflowStatusEnum.Launched, WorkflowStatusEnum.Starting, WorkflowStatusEnum.Started, WorkflowStatusEnum.Uploaded))
+      case Some("stopped") => Some(Set(WorkflowStatusEnum.Stopped, WorkflowStatusEnum.Stopping, WorkflowStatusEnum.Finished, WorkflowStatusEnum.NotDefined,
+        WorkflowStatusEnum.Created, WorkflowStatusEnum.NotStarted, WorkflowStatusEnum.Killed))
+      case Some("failed") => Some(Set(WorkflowStatusEnum.Failed))
+      case None => None
+    }
+
+    val execEngineFilter = workflowExecutionQuery.executionEngine.map(_.toLowerCase) match {
+      case Some(execType) if execType == WorkflowExecutionEngine.Streaming.toString.toLowerCase => Some(WorkflowExecutionEngine.Streaming)
+      case Some(execType) if execType == WorkflowExecutionEngine.Batch.toString.toLowerCase => Some(WorkflowExecutionEngine.Batch)
+      case None => None
+    }
+
+    val dateFilter = workflowExecutionQuery.date match {
+      case Some(millis) => Some {
+        val current = System.currentTimeMillis()
+        val minusDate = current - millis
+        (new DateTime(minusDate),new DateTime(current))
+      }
+      case None => None
+    }
+
+    val query = SlickFilter(table)
+      .dinamicFilter(workflowExecutionQuery.archived)(archived => t => t.archived === archived)
+      .dinamicFilter(statusFilter)(status => t => t.resumedStatus.inSet(status))
+      .dinamicFilter(execEngineFilter)(engine => t => t.executionEngine === engine)
+      .dinamicFilter(workflowExecutionQuery.searchText)(search => t => t.searchText like s"%$search%")
+      .dinamicFilter(dateFilter)(date => t  => t.resumedDate >= date._1 && t.resumedDate <= date._2)
+      .query
+
+    for {
+      result <- db.run(query.drop(workflowExecutionQuery.page * workflowExecutionQuery.offset).take(workflowExecutionQuery.offset).result)
+      totalCount <- db.run(query.size.result)
+    } yield {
+      (result, totalCount)
+    }
+  }
+
+  def createDashboardView(): Future[DashboardView] = getOptimizedDashboardView
 
   def findExecutionById(id: String): Future[WorkflowExecution] = findByIdHead(id)
 
   def createExecution(execution: WorkflowExecution): Future[WorkflowExecution] = {
     log.debug("Adding extra data to execution")
-    val executionWithExtraData = addLastUpdateDate(
-      addCreatedStatus(
-        addMarathonData(
-          addSparkSubmitData(
-            addWorkflowId(
-              addExecutionId(execution))))))
+    val executionWithExtraData = addResumedInformation(
+      addLastUpdateDate(
+        addCreatedStatus(
+          addMarathonData(
+            addSparkSubmitData(
+              addWorkflowId(
+                addExecutionId(execution)))))))
 
     createAndReturn(executionWithExtraData).cached()
   }
@@ -88,7 +133,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     (for {
       _ <- findByIdHead(execution.id.get)
     } yield {
-      upsert(execution)
+      upsert(addResumedInformation(execution))
       execution
     }).cached()
 
@@ -139,10 +184,11 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       val newStatuses = if (newStatus.state == actualStatus.state) {
         newStatus +: actualExecutionStatus.statuses.drop(1)
       } else newStatus +: actualExecutionStatus.statuses
-      val newExecutionWithStatus = actualExecutionStatus.copy(
-        statuses = newStatuses,
-        genericDataExecution = actualExecutionStatus.genericDataExecution.copy(lastError = error.orElse(actualExecutionStatus.genericDataExecution.lastError))
-      )
+      val newExecutionWithStatus = addResumedInformation(
+        actualExecutionStatus.copy(
+          statuses = newStatuses,
+          genericDataExecution = actualExecutionStatus.genericDataExecution.copy(lastError = error.orElse(actualExecutionStatus.genericDataExecution.lastError))
+        ))
       val newExInformation = new StringBuilder
       if (actualStatus.state != newStatus.state)
         newExInformation.append(s"\tStatus -> ${actualStatus.state} to ${newStatus.state}")
@@ -212,7 +258,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         val statuses = execution.statuses.map(_.state)
         statuses.contains(Failed) || statuses.contains(Stopped)
       }
-      result <- if(canDelete) {
+      result <- if (canDelete) {
         deleteYield(Seq(execution))
       } else throw new ServerException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
     } yield result
@@ -317,8 +363,9 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   private def writeExecutionStatusInZk(workflowExecutionStatusChange: WorkflowExecutionStatusChange): Unit = {
     synchronized {
-      import AppConstant._
       import workflowExecutionStatusChange._
+
+      import AppConstant._
 
       Try {
         if (CuratorFactoryHolder.existsPath(ExecutionsStatusChangesZkPath))
@@ -459,35 +506,58 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
   }
 
+  private[services] def addResumedInformation(execution: WorkflowExecution): WorkflowExecution = {
+    import execution.genericDataExecution._
+    val genericSettingsDate = launchDate.orElse(startDate).orElse(endDate).getOrElse(new DateTime())
+    val newResumedDate = execution.statuses.headOption match {
+      case Some(status) => status.lastUpdateDate.getOrElse(genericSettingsDate)
+      case None => genericSettingsDate
+    }
+    execution.copy(
+      resumedDate = Try(newResumedDate).toOption,
+      resumedStatus = Try(execution.lastStatus.state).toOption,
+      executionEngine = Try(execution.getWorkflowToExecute.executionEngine).toOption,
+      searchText = Try(execution.getWorkflowToExecute.name).toOption
+    )
+  }
+
   private[services] def getNewUpdateDate: Option[DateTime] = Option(new DateTime())
 
-  private[services] def getDashboardView(executions: Seq[WorkflowExecution]): DashboardView = {
+  private[services] def getOptimizedDashboardView: Future[DashboardView] = {
 
-    val nonArchivedExecutions = executions.filterNot(_.archived.getOrElse(false))
+    val archivedExecutions = db.run(table.filter(_.archived === true).length.result)
 
-    val lastExecutions = nonArchivedExecutions.sortBy { execution =>
-      import execution.genericDataExecution._
-      val genericSettingsDate = launchDate.orElse(startDate).orElse(endDate).getOrElse(new DateTime())
-      execution.statuses.headOption match {
-        case Some(status) => status.lastUpdateDate.getOrElse(genericSettingsDate)
-        case None => genericSettingsDate
+    val nonArchivedExecutionsStatuses = db.run(table.filter(_.archived === false).map(_.resumedStatus)
+      .groupBy(status => status).map { case (status, aggStatus) =>
+      (status, aggStatus.length)
+    }.result)
+
+    val nonArchivedSummary = nonArchivedExecutionsStatuses.map { aggegatedStatuses =>
+      aggegatedStatuses.foldLeft(ExecutionsSummary(0, 0, 0, 0)) {
+        (summary, aggStatus: (Option[WorkflowStatusEnum], Int)) =>
+          aggStatus._1 match {
+            case Some(status) if Seq(Launched, Starting, Started, Uploaded).contains(status) => summary.copy(running = summary.running + aggStatus._2)
+            case Some(status) if Seq(Stopping, Stopped, Finished, NotDefined, Created, NotStarted, Killed).contains(status) => summary.copy(stopped = summary.stopped + aggStatus._2)
+            case Some(status) if Seq(Failed).contains(status) => summary.copy(failed = summary.failed + aggStatus._2)
+            case None => summary
+          }
       }
-    }.takeRight(10).reverse.map { execution =>
-      val executionDto: WorkflowExecutionDto = execution
-      executionDto
     }
 
-    val nonArchivedSummary = nonArchivedExecutions.foldLeft(ExecutionsSummary(0, 0, 0, 0)) {
-      (summary, execution: WorkflowExecution) =>
-        execution.statuses.headOption match {
-          case Some(status) if Seq(Launched, Starting, Started, Uploaded).contains(status.state) => summary.copy(running = summary.running + 1)
-          case Some(status) if Seq(Stopping, Stopped, Finished, NotDefined, Created, NotStarted, Killed).contains(status.state) => summary.copy(stopped = summary.stopped + 1)
-          case Some(status) if Seq(Failed).contains(status.state) => summary.copy(failed = summary.failed + 1)
-          case None => summary
-        }
+    val lastExecutions = db.run(table.filter(_.archived === false).sortBy(_.resumedDate.desc).take(10).result).map { executions =>
+      executions.map { execution =>
+        val executionDto: WorkflowExecutionDto = execution
+        executionDto
+      }
     }
 
-    val summary = nonArchivedSummary.copy(archived = executions.size - nonArchivedExecutions.size)
-    DashboardView(lastExecutions, summary)
+    for {
+      archivedEx <- archivedExecutions
+      nonArchivedSum <- nonArchivedSummary
+      lastEx <- lastExecutions
+    } yield {
+      val summary = nonArchivedSum.copy(archived = archivedEx)
+      DashboardView(lastEx, summary)
+    }
   }
 }

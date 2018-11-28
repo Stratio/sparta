@@ -8,8 +8,8 @@ package com.stratio.sparta.serving.core.actor
 import java.io.StringReader
 
 import akka.actor.{Actor, ActorRef}
+import akka.event.slf4j.SLF4JLogging
 import com.github.mustachejava.DefaultMustacheFactory
-
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -17,14 +17,14 @@ import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecut
 import com.stratio.sparta.serving.core.services.dao.WorkflowPostgresDao
 import com.twitter.mustache.ScalaObjectHandler
 import org.json4s.jackson.Serialization._
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
-class ParametersListenerActor extends Actor with SpartaSerializer {
+class ParametersListenerActor extends Actor with SpartaSerializer with SLF4JLogging {
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
 
   case class ParametersToApplyContext(parametersToApply: Map[String, String], parametersWithoutValue: Seq[String])
 
@@ -35,6 +35,10 @@ class ParametersListenerActor extends Actor with SpartaSerializer {
 
   override def preStart(): Unit = {
     moustacheFactory.setObjectHandler(new ScalaObjectHandler)
+  }
+
+  override def postStop(): Unit = {
+    log.warn(s"Stopped ParametersListenerActor at time ${System.currentTimeMillis()}")
   }
 
   def applyContextToWorkflowAndResponse(

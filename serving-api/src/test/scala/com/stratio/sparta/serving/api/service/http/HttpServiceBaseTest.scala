@@ -131,7 +131,6 @@ trait HttpServiceBaseTest extends WordSpec
       id = Option("exec1"),
       genericDataExecution = GenericDataExecution(
         getWorkflowModel(),
-        getWorkflowModel(),
         WorkflowExecutionMode.local,
         ExecutionContext()
       ),

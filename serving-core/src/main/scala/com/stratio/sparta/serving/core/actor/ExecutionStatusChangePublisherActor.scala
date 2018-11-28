@@ -34,6 +34,10 @@ class ExecutionStatusChangePublisherActor() extends ListenerPublisher {
     initNodeListener()
   }
 
+  override def postStop(): Unit = {
+    log.warn(s"Stopped ExecutionStatusChangePublisherActor at time ${System.currentTimeMillis()}")
+  }
+
   override def initNodeListener(): Unit = {
     val nodeListener = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {

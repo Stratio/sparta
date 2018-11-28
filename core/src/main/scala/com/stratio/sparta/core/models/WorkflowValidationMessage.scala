@@ -8,6 +8,10 @@ package com.stratio.sparta.core.models
 
 case class WorkflowValidationMessage(message: String, step: Option[String] = None, subStep: Option[String] = None) {
 
+  override def toString: String = if(step.isDefined){
+    s"$message in step ${step.get}"
+  } else message
+
 }
 
 object WorkflowValidationMessage {

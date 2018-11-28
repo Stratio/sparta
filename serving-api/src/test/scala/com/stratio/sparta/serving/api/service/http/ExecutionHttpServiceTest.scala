@@ -3,22 +3,23 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.service.http
+
+import scala.util.{Failure, Success, Try}
 
 import akka.actor.ActorRef
 import akka.testkit.TestActor
-import com.stratio.sparta.core.exception.MockException
-import com.stratio.sparta.serving.api.actor.ExecutionActor
-import com.stratio.sparta.serving.api.actor.ExecutionActor._
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{DtoModelImplicits, WorkflowExecution, WorkflowExecutionDto}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.core.exception.MockException
+import com.stratio.sparta.serving.api.actor.ExecutionActor._
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.workflow.{DtoModelImplicits, WorkflowExecution, WorkflowExecutionDto}
 
 @RunWith(classOf[JUnitRunner])
 class ExecutionHttpServiceTest extends WordSpec

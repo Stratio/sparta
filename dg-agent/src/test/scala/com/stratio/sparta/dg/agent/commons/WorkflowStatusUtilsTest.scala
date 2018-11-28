@@ -59,7 +59,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
             state = WorkflowStatusEnum.Created,
             lastUpdateDate = Some(new DateTime(timestampEpochTest))
           )),
-          genericDataExecution = GenericDataExecution(testWorkflow, testWorkflow, local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(testWorkflow, local, ExecutionContext())
         ),
         WorkflowExecution(
           id = Option("qwerty12345"),
@@ -67,7 +67,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
             state = WorkflowStatusEnum.Finished,
             lastUpdateDate = Some(new DateTime(timestampEpochTest))
           )),
-          genericDataExecution = GenericDataExecution(testWorkflow, testWorkflow, local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(testWorkflow, local, ExecutionContext())
         )
       )
       LineageUtils.workflowMetadataPathString(statusEvent.newExecution.getWorkflowToExecute, Seq("qwerty12345"): _*) should be(MetadataPath("sparta/home_test_subgroup_kafka-test_0/qwerty12345"))
@@ -83,7 +83,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
             state = WorkflowStatusEnum.Starting,
             lastUpdateDate = Some(new DateTime(timestampEpochTest))
           )),
-          genericDataExecution = GenericDataExecution(testWorkflow, testWorkflow, local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(testWorkflow, local, ExecutionContext())
         ),
         WorkflowExecution(
           id = Option("qwerty12345"),
@@ -91,7 +91,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
             state = WorkflowStatusEnum.Killed,
             lastUpdateDate = Some(new DateTime(timestampEpochTest))
           )),
-          genericDataExecution = GenericDataExecution(testWorkflow, testWorkflow, local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(testWorkflow, local, ExecutionContext())
         )
       )
       LineageUtils.executionStatusMetadataLineage(statusEvent) should be(None)
@@ -105,7 +105,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
             state = WorkflowStatusEnum.Created,
             lastUpdateDate = Some(new DateTime(timestampEpochTest))
           )),
-          genericDataExecution = GenericDataExecution(testWorkflow, testWorkflow, local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(testWorkflow, local, ExecutionContext())
         ),
         WorkflowExecution(
           id = Option("qwerty12345"),
@@ -113,7 +113,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
             state = WorkflowStatusEnum.Finished,
             lastUpdateDate = Some(new DateTime(timestampEpochTest))
           )),
-          genericDataExecution = GenericDataExecution(testWorkflow, testWorkflow, local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(testWorkflow, local, ExecutionContext())
         )
       )
       val metadataPath = MetadataPath(Seq("sparta", "home_test_subgroup_kafka-test_0", "qwerty12345", "status"))

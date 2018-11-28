@@ -118,7 +118,7 @@ class DummyDebugInputStepBatchIT extends TemporalSparkContext with Matchers with
     sparkSession.sql("CREATE TABLE tableName2 USING org.apache.spark.sql.parquet AS select * FROM tableName")
 
     val datasourceParams = Map("dummyInputSource" -> "SQL",
-      "debugOptions" -> TestJsonUtil.toJson(DebugOptions(None, Some(s"select * from tableName2"), None)))
+      "debugOptions" -> TestJsonUtil.toJson(DebugOptions(None, Some(s"select * from tableName2 limit 1000"), None)))
     val debugInput = new DummyDebugInputStepBatch(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
 

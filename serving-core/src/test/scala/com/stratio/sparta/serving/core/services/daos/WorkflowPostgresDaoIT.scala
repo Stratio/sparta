@@ -36,7 +36,7 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
   import profile.api._
 
   var db1: profile.api.Database = _
-  val queryTimeout: Int = 2000
+  val queryTimeout: Int = 20000
   val postgresConf: Config = SpartaConfig.getPostgresConfig().get
 
   val workflowPostgresDao = new WorkflowPostgresDao()
@@ -60,7 +60,7 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
       val wf: Workflow = WorkflowBuilder.workflow.build
 
       whenReady(workflowPostgresDao.createWorkflow(wf), timeout(Span(queryTimeout, Milliseconds))) { createdWF =>
-        whenReady(workflowPostgresDao.findWorkflowById(wf.id.get)) { returnedWF =>
+        whenReady(workflowPostgresDao.findWorkflowById(wf.id.get), timeout(Span(queryTimeout, Milliseconds))) { returnedWF =>
           returnedWF shouldBe createdWF
         }
       }
@@ -73,7 +73,7 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
       val workflowVersion = WorkflowVersion(wf.id.get, name = None, version = Some(newVersion), None, None)
 
       whenReady(workflowPostgresDao.createWorkflow(wf), timeout(Span(queryTimeout, Milliseconds))) { createdWF =>
-        whenReady(workflowPostgresDao.createVersion(workflowVersion)) { returnedWF =>
+        whenReady(workflowPostgresDao.createVersion(workflowVersion), timeout(Span(queryTimeout, Milliseconds))) { returnedWF =>
           returnedWF.version shouldBe newVersion
           createdWF.version should not be equal (newVersion)
         }
@@ -87,8 +87,8 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
       val workflowVersion = WorkflowVersion(wf.id.get, name = Some(newName), None, None, None)
 
       whenReady(workflowPostgresDao.createWorkflow(wf), timeout(Span(queryTimeout, Milliseconds))) { createdWF =>
-        whenReady(workflowPostgresDao.createVersion(workflowVersion)) { rWF =>
-          whenReady(workflowPostgresDao.findWorkflowById(rWF.id.get)) { returnedWF =>
+        whenReady(workflowPostgresDao.createVersion(workflowVersion), timeout(Span(queryTimeout, Milliseconds))) { rWF =>
+          whenReady(workflowPostgresDao.findWorkflowById(rWF.id.get), timeout(Span(queryTimeout, Milliseconds))) { returnedWF =>
             returnedWF.name shouldBe newName
             createdWF.name should not be newName
             returnedWF.version shouldBe 0

@@ -41,7 +41,7 @@ abstract class InputStep[Underlying[Row]](
   lazy val DefaultRawDataField = "raw"
   lazy val DefaultRawDataType = "string"
   lazy val errorDebugValidation = "Either an input path or an uploaded file path or a user-defined example " +
-    "or a valid query to execute must be provided inside the debugging options"
+    "or a valid query containing a limit must be provided inside the debugging options"
   lazy val DefaultSchema: StructType = StructType(Seq(StructField(DefaultRawDataField, StringType)))
   lazy val storageLevel: StorageLevel = {
     val storageLevel = properties.getString("storageLevel", StorageDefaultValue)
@@ -59,8 +59,8 @@ abstract class InputStep[Underlying[Row]](
       (debugOpt.path.notBlank, debugOpt.query.notBlank,
         debugOpt.userProvidedExample.notBlank, debugOpt.fileUploaded.notBlank))
       .getOrElse((None, None, None, None))
-  lazy val validDebuggingOptions = debugPath.isDefined || debugQuery.isDefined ||
-    debugUserProvidedExample.isDefined || debugFileUploaded.isDefined
+  lazy val validDebuggingOptions = debugPath.isDefined || debugUserProvidedExample.isDefined ||
+    debugFileUploaded.isDefined || (debugQuery.isDefined && debugQuery.get.toLowerCase.contains("limit"))
 
 
   /* METHODS TO IMPLEMENT */

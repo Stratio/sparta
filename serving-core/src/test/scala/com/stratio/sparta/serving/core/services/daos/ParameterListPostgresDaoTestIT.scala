@@ -32,7 +32,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
   val profile = PostgresProfile
   import profile.api._
   var db1: profile.api.Database = _
-  val queryTimeout : Int = 500
+  val queryTimeout : Int = 20000
 
   val paramVar_1 = ParameterVariable("pv1", Some("value1"))
   val paramVar_2 = ParameterVariable("pv2", Some("value2"))
@@ -91,7 +91,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
 
       whenReady(parameterList.createFromWorkflow(plFromWorkflow), timeout(Span(queryTimeout, Milliseconds))) {
         _ =>
-          whenReady(db.run(table.filter(_.name === plFromWorkflow.name.get).result).map(_.toList)) {
+          whenReady(db.run(table.filter(_.name === plFromWorkflow.name.get).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
             result => {
               val resultParamList = result.head
               resultParamList.name shouldBe plFromWorkflow.name.get
@@ -121,7 +121,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
 
       whenReady(parameterList.createFromParameterList(paramList_2), timeout(Span(queryTimeout, Milliseconds))) {
         _ =>
-          whenReady(parameterList.findByParent(paramList_1.name)) {
+          whenReady(parameterList.findByParent(paramList_1.name), timeout(Span(queryTimeout, Milliseconds))) {
             result => result.head.parent.get shouldBe paramList_1.name
           }
       }
@@ -131,7 +131,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
 
       val result = parameterList.findAllParametersList().futureValue
 
-      whenReady(db.run(table.result).map(_.toList)) {
+      whenReady(db.run(table.result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
         res => res.size shouldBe result.size
       }
     }
@@ -144,14 +144,14 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
         parameters = Seq(paramVar_1_mod, paramVar_2)
       )
 
-      whenReady(parameterList.update(paramList_1_mod)) {
+      whenReady(parameterList.update(paramList_1_mod), timeout(Span(queryTimeout, Milliseconds))) {
         _ => {
           whenReady(db.run(table.filter(_.name === paramList_1_mod.name).result).map(_.toList),
             timeout(Span(queryTimeout, Milliseconds))) {
             result => result.head.name shouldBe paramList_1_mod.name
           }
 
-          whenReady(db.run(table.filter(_.name === paramList_2.name).result).map(_.toList)) {
+          whenReady(db.run(table.filter(_.name === paramList_2.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
             result => {
               result.head.parameters.size shouldBe 2
               result.head.parameters.head.value.get shouldBe "value1_modified"
@@ -166,7 +166,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
       val deleted = parameterList.deleteByName(paramList_2.name).futureValue
       deleted shouldBe true
 
-      whenReady(db.run(table.filter(_.name === paramList_2.name).result).map(_.toList)) {
+      whenReady(db.run(table.filter(_.name === paramList_2.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
         result => result.isEmpty shouldBe true
       }
     }
@@ -180,7 +180,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
 
           assert(deleted === true)
 
-          whenReady(db.run(table.filter(_.name === paramList_3.name).result).map(_.toList)) {
+          whenReady(db.run(table.filter(_.name === paramList_3.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
             result => result.isEmpty shouldBe true
           }
       }
@@ -194,10 +194,10 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
 
           assert(deleted === true)
 
-          whenReady(db.run(table.filter(_.name === paramList_1.name).result).map(_.toList)) {
+          whenReady(db.run(table.filter(_.name === paramList_1.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
             result => result.isEmpty shouldBe true
           }
-          whenReady(db.run(table.filter(_.name === paramList_3.name).result).map(_.toList)) {
+          whenReady(db.run(table.filter(_.name === paramList_3.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
             result => result.isEmpty shouldBe true
           }
       }
@@ -207,7 +207,7 @@ class ParameterListPostgresDaoTestIT extends DAOConfiguration
 
       whenReady(parameterList.deleteAllParameterList(), timeout(Span(queryTimeout, Milliseconds))) {
         _ =>
-          whenReady(db.run(table.result).map(_.toList)){
+          whenReady(db.run(table.result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))){
             result => result.isEmpty shouldBe true
           }
       }

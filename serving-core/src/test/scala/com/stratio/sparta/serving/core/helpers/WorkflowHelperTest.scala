@@ -46,7 +46,7 @@ class WorkflowHelperTest extends WordSpec with ShouldMatchers with Matchers with
         val execution = WorkflowExecution(
           id = Option("1234-5678"),
           statuses = Seq(ExecutionStatus()),
-          genericDataExecution = GenericDataExecution(wf, wf, WorkflowExecutionMode.local, ExecutionContext())
+          genericDataExecution = GenericDataExecution(wf, WorkflowExecutionMode.local, ExecutionContext())
         )
         WorkflowHelper.getMarathonId(execution) should be (expected)
       }

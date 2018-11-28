@@ -154,7 +154,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     val testExecution = WorkflowExecution(
       Option("1234"),
       Seq(ExecutionStatus(WorkflowStatusEnum.Started)),
-      GenericDataExecution(testWorkflow, testWorkflow, WorkflowExecutionMode.marathon, exContext),
+      GenericDataExecution(testWorkflow, WorkflowExecutionMode.marathon, exContext),
       None,
       None,
       None,
@@ -165,7 +165,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     val testExecution2 = WorkflowExecution(
       Option("5678"),
       Seq(ExecutionStatus(WorkflowStatusEnum.Started)),
-      GenericDataExecution(testWorkflow, testWorkflow, WorkflowExecutionMode.local, exContext),
+      GenericDataExecution(testWorkflow, WorkflowExecutionMode.local, exContext),
       None,
       None,
       None,

@@ -96,7 +96,7 @@ function initPluginCrossdata() {
 }
 
 function apiOptions() {
-  if [[ ! -v SPARTA_TIMEOUT_API_CALLS ]]; then
+ if [[ ! -v SPARTA_TIMEOUT_API_CALLS ]]; then
    SPARTA_TIMEOUT_API_CALLS=20
  fi
  sed -i "s|.*spray.can.server.request-timeout.*|spray.can.server.request-timeout = ${SPARTA_TIMEOUT_API_CALLS}s|" ${SPARTA_CONF_FILE}

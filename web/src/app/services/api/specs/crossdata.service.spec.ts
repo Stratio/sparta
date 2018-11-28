@@ -7,20 +7,30 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Store } from '@ngrx/store';
+import { cloneDeep as _cloneDeep } from 'lodash';
 
+import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { MockStore } from '@test/store-mock';
 import { CrossdataService } from './../crossdata.service';
 
-describe('[CrossdataService]', () => {
-   const mockStoreInstance = jasmine.createSpyObj('store', ['dispatch']);
+const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
 
-   beforeEach(() => TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
-         CrossdataService,
-         {
-            provide: Store, useValue: mockStoreInstance
-         }]
-   }));
+
+describe('[CrossdataService]', () => {
+   const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);
+
+   beforeEach(() => {
+      spyOn(mockStoreInstance, 'dispatch');
+      spyOn(mockStoreInstance, 'select').and.callThrough();
+      TestBed.configureTestingModule({
+         imports: [HttpClientTestingModule],
+         providers: [
+            CrossdataService,
+            {
+               provide: Store, useValue: mockStoreInstance
+            }]
+      });
+   });
 
    describe('should be able to call global config services', () => {
       let service: CrossdataService;

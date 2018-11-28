@@ -38,7 +38,7 @@ export class ExecutionService extends ApiService {
       const options = {
          body: query
       };
-      return this.request('workflowExecutions/findByQuery', 'post', options);
+      return this.request('workflowExecutions/findByQueryDto', 'post', options);
    }
 
    archiveExecution(executionId: string, archived: boolean): Observable<any> {

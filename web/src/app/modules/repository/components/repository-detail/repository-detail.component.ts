@@ -56,7 +56,7 @@ export class RepositoryDetailComponent implements OnInit, OnChanges {
         this.lastError = this.execution && this.execution.genericDataExecution ?
             this.workflowData.execution.genericDataExecution.lastError : null;
         if (this.data) {
-            this.data.data.pipelineGraph.nodes.forEach((node: any) => {
+            this.data.data.nodes.forEach((node: any) => {
                 if (node.stepType.indexOf('Input') > -1) {
                     inputs.push(node.name);
                 } else if (node.stepType.indexOf('Output') > -1) {

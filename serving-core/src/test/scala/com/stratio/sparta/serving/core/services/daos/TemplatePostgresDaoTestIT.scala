@@ -32,7 +32,7 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
   val profile = PostgresProfile
   import profile.api._
   var db1: profile.api.Database = _
-  val queryTimeout: Int = 2000
+  val queryTimeout: Int = 20000
   val postgresConf: Config = SpartaConfig.getPostgresConfig().get
 
   val templateElement_1 = TemplateElement(
@@ -111,7 +111,7 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     }
 
     "be found and returned if they have the type specified" in new TemplateDaoTrait {
-      whenReady(templatePostgresDao.findByType(TemplateType.InputValue)) {
+      whenReady(templatePostgresDao.findByType(TemplateType.InputValue), timeout(Span(queryTimeout, Milliseconds))) {
         result => {
           result.head.name shouldBe templateElement_1.name
           result.size shouldBe 2
@@ -121,7 +121,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
     "be found and returned if its name and type matches the ones specified in the method" in new TemplateDaoTrait {
 
-      whenReady(templatePostgresDao.findByTypeAndName(TemplateType.TransformationValue, templateElement_2.name)) {
+      whenReady(templatePostgresDao.findByTypeAndName(TemplateType.TransformationValue, templateElement_2.name),
+        timeout(Span(queryTimeout, Milliseconds))) {
         result => {
           result.name shouldBe templateElement_2.name
         }
@@ -132,7 +133,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
       val templateId = templatePostgresDao.findByTypeAndName(templateElement_2.templateType,
         templateElement_2.name).futureValue.id
-      whenReady(templatePostgresDao.findByTypeAndId(TemplateType.TransformationValue, templateId.get)) {
+      whenReady(templatePostgresDao.findByTypeAndId(TemplateType.TransformationValue, templateId.get),
+        timeout(Span(queryTimeout, Milliseconds))) {
         result =>
           result.name shouldBe templateElement_2.name
       }

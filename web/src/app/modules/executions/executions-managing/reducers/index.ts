@@ -12,6 +12,7 @@ import { orderBy, reduceReducers } from '@utils';
 
 import * as fromRoot from 'reducers';
 import * as fromExecutionsList from './executions';
+import { StPaginationComponent } from '@stratio/egeo/typings/st-pagination/st-pagination.component';
 
 export interface ExecutionsMonitoringState {
   executions: fromExecutionsList.State;
@@ -46,6 +47,7 @@ export const getSearchQuery = createSelector(getExecutionsState, state => state.
 export const getExecutionsList = createSelector(getExecutionsState, state => state.executionList);
 export const getCurrentPage = createSelector(getExecutionsState, state => state.pagination.currentPage);
 export const getPerPageElements = createSelector(getExecutionsState, state => state.pagination.perPage);
+export const getTotalElements = createSelector(getExecutionsState, state => state.pagination.total);
 export const getTableOrder = createSelector(getExecutionsState, state => state.order);
 export const getExecutionInfo = createSelector(getExecutionsState, state => state.executionInfo);
 export const getArchivedExecutions = createSelector(getExecutionsState, state => state.archivedExecutionList);
@@ -53,27 +55,16 @@ export const isArchivedPage = createSelector(getExecutionsState, state => state.
 export const getIsLoading = createSelector(getExecutionsState, state => state.loading );
 export const isEmptyList = createSelector(getExecutionsState, state => state.isArchivedPage ?
   !state.archivedExecutionList.length && !state.loadingArchived : !state.executionList.length && !state.loading);
+export const isEmptyFilter = createSelector(getExecutionsState, state => state.statusFilter === '' && state.typeFilter === '' && state.searchQuery === '' && state.timeIntervalFilter === 0 );
+
 
 export const getFilteredExecutionsList = createSelector(
   getExecutionsList,
   isArchivedPage,
   getArchivedExecutions,
-  getStatusFilter,
-  getTypeFilter,
-  getTimeIntervalFilter,
-  (executions, archivedPage, archivedExecutions, statusFilter, typeFilter, timeIntervalFilter) => {
+  (executions, archivedPage, archivedExecutions) => {
     const filters = [];
     executions = archivedPage ? archivedExecutions : executions;
-    if (statusFilter.length) {
-      filters.push((execution) => execution.filterStatus === statusFilter);
-    }
-    if (typeFilter.length) {
-      filters.push((execution) => execution.executionEngine === typeFilter);
-    }
-    if (timeIntervalFilter > 0) {
-      const current = new Date().getTime();
-      filters.push((execution) => execution.launchDateMillis > (current - timeIntervalFilter));
-    }
     return filters.length ? executions.filter(execution => !(filters.map(filter => filter(execution)).indexOf(false) > -1)) : executions;
   }
 );

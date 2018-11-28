@@ -38,7 +38,7 @@
          <label class="context-field" [ngClass]="execution.context">{{execution.context || '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
-         <label>{{execution.launchDateFormatted || '-'}}</label>
+         <label>{{execution.launchDateFormatted || execution.startDateFormatted || '-'}}</label>
       </td>
       <td st-table-cell st-table-row-content>
          <label>{{execution.endDateFormatted || '-'}}</label>
@@ -51,11 +51,14 @@
          <i class="icon-globe" (click)="showSparkUI(execution.sparkURI)" *ngIf="execution.sparkURI && execution.sparkURI.length && execution.status === 'Started'"></i>
       </td>
    </tr>
+   
 </st-table>
-<div *ngIf="executionList.length > 10">
+
+<div *ngIf="!executionList.length" class="empty-table">Empty results</div>
+<div *ngIf="total > 10">
     <hr />
     <div class="pagination">
-        <st-pagination [total]="executionList.length"
+        <st-pagination [total]="total"
             [perPage]="perPage"
             [perPageOptions]="perPageOptions"
             [currentPage]="currentPage"

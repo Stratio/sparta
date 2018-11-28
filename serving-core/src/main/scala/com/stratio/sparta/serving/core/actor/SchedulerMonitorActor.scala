@@ -5,18 +5,19 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import scala.concurrent._
-import scala.io.Source
-import scala.util.{Failure, Properties, Success, Try}
+import java.util.{Calendar, UUID}
 
-import akka.actor.{Actor, ActorRef, Cancellable, Props}
-
+import akka.actor.SupervisorStrategy.Restart
+import akka.actor.{Actor, ActorRef, AllForOneStrategy, Cancellable, Props, SupervisorStrategy}
+import akka.cluster.Cluster
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.marathon.MarathonService
@@ -26,43 +27,31 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
+import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils, SpartaClusterUtils}
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.read
-import scala.concurrent._
-import scala.io.Source
-import scala.util.{Failure, Properties, Success, Try}
-import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
-import com.stratio.sparta.serving.core.utils.{SchedulerUtils, SpartaClusterUtils}
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.impl.client.HttpClientBuilder
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.read
-import scala.concurrent._
-import scala.io.Source
-import scala.util.{Failure, Properties, Success, Try}
 
-import akka.cluster.Cluster
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+import scala.concurrent._
+import scala.io.Source
+import scala.util.{Failure, Properties, Success, Try}
 
 class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaClusterUtils with SpartaSerializer {
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   import SchedulerMonitorActor._
+
+  implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
 
   val cluster = Cluster(context.system)
   val mediator = DistributedPubSub(context.system).mediator
+  val marathonService = new MarathonService(context)
 
   lazy val executionService = PostgresDaoFactory.executionPgService
-
-  lazy val inconsistentStatusCheckerActor: ActorRef =
-    context.system.actorOf(Props(new InconsistentStatusCheckerActor()), AkkaConstant.InconsistentStatusCheckerActorName)
+  lazy val inconsistentStatusCheckerActor: ActorRef = context.actorOf(
+    Props(new InconsistentStatusCheckerActor()),
+    s"$InconsistentStatusCheckerActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
+  )
   implicit lazy val currentInstanceName: Option[String] = instanceName
 
   type SchedulerAction = WorkflowExecution => Unit
@@ -71,7 +60,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
   private val invalidStartupStateActions = scala.collection.mutable.Buffer[SchedulerAction]()
   private val scheduledActions = scala.collection.mutable.Buffer[(String, Cancellable)]()
   private val propertyCheckInterval = "marathon.checkInterval"
-  private val defaultTimeInterval = "30s"
+  private val defaultTimeInterval = "1m"
   private val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
   private lazy val checkTaskMarathon: Cancellable = {
     scheduleMsg(propertyCheckInterval,
@@ -80,6 +69,10 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       defaultTimeInterval,
       self,
       TriggerCheck)
+  }
+
+  override def supervisorStrategy: SupervisorStrategy = AllForOneStrategy() {
+    case _ => Restart
   }
 
   override def preStart(): Unit = {
@@ -98,6 +91,8 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     scheduledActions.foreach { case (_, task) => if (!task.isCancelled) task.cancel() }
 
     if (marathonApiUri.isDefined) checkTaskMarathon.cancel()
+
+    log.warn(s"Stopped SchedulerMonitorActor at time ${System.currentTimeMillis()}")
   }
 
   override def receive: Receive = {
@@ -198,7 +193,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(state = Failed, statusInfo = Option(error)))
-            , wError)
+              , wError)
           } else workflowExecution
       }
     } else workflowExecution
@@ -235,7 +230,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       }
       log.info(s"Finishing workflow with Marathon API")
       val executionUpdated = Try {
-        new MarathonService(context).kill(workflowExecution.marathonExecution.get.marathonId)
+        marathonService.kill(workflowExecution.marathonExecution.get.marathonId)
       } match {
         case Success(_) =>
           val information = s"Workflow correctly finished in Marathon API"
@@ -259,11 +254,12 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
             )
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
-              ExecutionStatus(state = Failed, statusInfo = Some(error))
+              ExecutionStatus(state = NotDefined, statusInfo = Some(error))
             ), wError)
           } else workflowExecution
       }
       if (executionUpdated.genericDataExecution.endDate.isEmpty) {
+        log.debug(s"Updating endDate in execution id: ${workflowExecution.getExecutionId}")
         Try(executionService.setEndDate(executionUpdated, new DateTime()))
           .getOrElse(log.warn(s"Impossible to update endDate in execution id: ${workflowExecution.getExecutionId}"))
       }
@@ -339,7 +335,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
 
       workflowExecution.lastStatus.state match {
         case status if wrongStartStates.contains(status) =>
-          val information = s"Checker: the workflow execution did not start correctly after maximum deployment time"
+          val information = s"Checker: the workflow execution  did not start correctly after maximum deployment time"
           log.warn(information.replace("  ", s" $id "))
           executionService.updateStatus(ExecutionStatusUpdate(
             id,
@@ -362,7 +358,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
         case status if validStopStates.contains(status) =>
           val information = s"Checker: the workflow execution  stopped correctly"
           log.info(information.replace("  ", s" $id "))
-          if(status != Failed) {
+          if (status != Failed) {
             executionService.updateStatus(ExecutionStatusUpdate(
               id,
               ExecutionStatus(state = NotDefined, statusInfo = Some(information))
@@ -371,7 +367,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
         case _ =>
           val information = s"Checker: the workflow execution  has invalid state ${workflowExecution.lastStatus.state}"
           log.info(information.replace("  ", s" $id "))
-          if(workflowExecution.lastStatus.state != Failed) {
+          if (workflowExecution.lastStatus.state != Failed) {
             executionService.updateStatus(ExecutionStatusUpdate(
               id,
               ExecutionStatus(state = Failed, statusInfo = Some(information))
@@ -390,7 +386,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
 
   def checkForOrphanedWorkflows(): Unit = {
     for {
-      executions <- executionService.findAllExecutions()
+      executions <- executionService.findExecutionsByStatus(SchedulerMonitorActor.runningStates)
     } yield {
       val currentRunningWorkflows: Map[String, String] = fromExecutionsToMapMarathonIdExecutionId(executions)
 
@@ -409,7 +405,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       (nameWorkflowExecution, idExecution) <- runningButActuallyStopped
     } yield {
       val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon" +
-        " of the workflow. Therefore, the workflow was terminated."
+        " of the workflow  . Therefore, the workflow was terminated."
       log.info(information.replace("  ", s" with id $idExecution and name $nameWorkflowExecution "))
       ExecutionStatusUpdate(
         idExecution,
@@ -424,22 +420,19 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     // and overwriting the status could cause the loss of useful info
     val seqStoppedAsExecutionId = fromDCOSName2ExecutionId(stoppedButActuallyRunning)
 
-    log.debug(s" Stopped but running: ${
-      for {
-        id <- seqStoppedAsExecutionId
-      } yield s"Application stopped: $id"
-    }")
+    if (seqStoppedAsExecutionId.nonEmpty) {
+      log.info(s" Stopped but running: ${seqStoppedAsExecutionId.map(id => s"Application stopped: $id").mkString(",")}")
+    }
 
     for {
-      executions <- executionService.findAllExecutions()
+      executions <- executionService.findExecutionsByIds(seqStoppedAsExecutionId)
     } yield {
       executions.foreach { execution =>
         execution.id.foreach { idExecution =>
-          if (seqStoppedAsExecutionId.contains(idExecution)) {
-            marathonStop(execution)
-            log.info(s"The application with id $idExecution was marked ${execution.lastStatus.state} " +
-              s"but it was running, therefore its termination was triggered")
-          }
+          marathonStop(execution)
+          log.info(s"The application with id $idExecution was marked ${execution.lastStatus.state} " +
+            s"but it was running, therefore its termination was triggered")
+
         }
       }
     }
@@ -467,12 +460,14 @@ object SchedulerMonitorActor {
   val stopStates = Seq(Stopped, Failed, Stopping)
   val finishedStates = Seq(Created, Finished, Failed)
   val notRunningStates: Seq[WorkflowStatusEnum.Value] = stopStates ++ finishedStates
+  val runningStates: Seq[WorkflowStatusEnum.Value] = Seq(Launched, Starting, Started, Uploaded, NotStarted)
 
   def fromDCOSName2ExecutionId(stoppedButActuallyRunning: Seq[String]): Seq[String] =
-    stoppedButActuallyRunning.map { nameWorkflowDCOS =>
-      val splittedNameDCOS = nameWorkflowDCOS.substring(nameWorkflowDCOS.indexOf("/home")).split("/")
-
-      splittedNameDCOS.last
+    stoppedButActuallyRunning.flatMap { nameWorkflowDCOS =>
+      Try {
+        val splittedNameDCOS = nameWorkflowDCOS.substring(nameWorkflowDCOS.indexOf("/home")).split("/")
+        splittedNameDCOS.last
+      }.toOption
     }
 
   def fromExecutionsToMapMarathonIdExecutionId(

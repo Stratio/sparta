@@ -71,7 +71,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiOperation(value = "Find executions from query.",
     notes = "Find executions from query.",
     httpMethod = "POST",
-    response = classOf[Seq[WorkflowExecution]],
+    response = classOf[Seq[WorkflowExecutionDto]],
     responseContainer = "List")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "executionQuery",

@@ -7,20 +7,30 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Store } from '@ngrx/store';
+import { cloneDeep as _cloneDeep } from 'lodash';
+import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+
+const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
+import { MockStore } from '@test/store-mock';
+
 
 import { TemplatesService } from './../templates.service';
 
 describe('[TemplatesService]', () => {
-  const mockStoreInstance = jasmine.createSpyObj('store', ['dispatch']);
+   const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);
 
-  beforeEach(() => TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule],
-    providers: [
-      TemplatesService,
-      {
-        provide: Store, useValue: mockStoreInstance
-      }]
-  }));
+   beforeEach(() => {
+      spyOn(mockStoreInstance, 'dispatch');
+      spyOn(mockStoreInstance, 'select').and.callThrough();
+      TestBed.configureTestingModule({
+         imports: [HttpClientTestingModule],
+         providers: [
+            TemplatesService,
+            {
+               provide: Store, useValue: mockStoreInstance
+            }]
+      });
+   });
 
   describe('should be able to call templates services', () => {
     let service: TemplatesService;

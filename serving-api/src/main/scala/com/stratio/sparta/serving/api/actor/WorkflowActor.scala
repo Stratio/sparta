@@ -53,6 +53,7 @@ class WorkflowActor(
     case FindAll(user) => findAll(user)
     case FindAllDto(user) => findAllDto(user)
     case FindAllByGroup(group, user) => findAllByGroup(group, user)
+    case FindAllByGroupDto(group, user) => findAllByGroupDto(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
     case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
@@ -189,6 +190,14 @@ class WorkflowActor(
   def findAllByGroup(groupID: String, user: Option[LoggedUser]): Unit =
     authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
       workflowPgService.findByGroupID(groupID)
+    }
+
+  def findAllByGroupDto(groupID: String, user: Option[LoggedUser]): Unit =
+    authorizeActionResultResources(user, Map(ResourceWorkflow -> View)) {
+      workflowPgService.findByGroupID(groupID).map(workflows => workflows.map { workflow =>
+        val workflowDto: WorkflowDto = workflow
+        workflowDto
+      })
     }
 
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
@@ -362,6 +371,8 @@ object WorkflowActor extends SLF4JLogging {
   case class Find(id: String, user: Option[LoggedUser])
 
   case class FindAllByGroup(groupID: String, user: Option[LoggedUser])
+
+  case class FindAllByGroupDto(groupID: String, user: Option[LoggedUser])
 
   case class FindByIdList(workflowIds: Seq[String], user: Option[LoggedUser])
 

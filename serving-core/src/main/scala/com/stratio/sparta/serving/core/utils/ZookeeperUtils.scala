@@ -33,9 +33,7 @@ trait ZookeeperUtils {
 
   def checkIfValidPath(zkPath: String) : Boolean =
     Try(PathUtils.validatePath(zkPath)) match {
-      case Success(_) =>
-        if (zkPath.startsWith("/stratio/sparta")) true
-        else false
+      case Success(_) => true
       case Failure(_) => false
     }
 }

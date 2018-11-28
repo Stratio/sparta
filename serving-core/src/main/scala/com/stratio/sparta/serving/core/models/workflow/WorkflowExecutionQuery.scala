@@ -6,4 +6,11 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class WorkflowExecutionQuery(archived: Option[Boolean] = None)
+//scalastyle:off
+case class WorkflowExecutionQuery(page: Int = 0,
+                                  offset: Int = 20,
+                                  date: Option[Long],
+                                  status: Option[String] = None,
+                                  executionEngine: Option[String] = None,
+                                  searchText: Option[String] = None,
+                                  archived: Option[Boolean] = None)

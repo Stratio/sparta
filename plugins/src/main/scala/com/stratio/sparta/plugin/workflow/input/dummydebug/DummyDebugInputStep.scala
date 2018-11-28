@@ -84,8 +84,8 @@ abstract class DummyDebugInputStep[Underlying[Row]](
   }
 
   def createDistributedMonadRDDwithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
-    require( debugPath.nonEmpty || debugUserProvidedExample.nonEmpty || debugQuery.nonEmpty ||
-      debugFileUploaded.nonEmpty, errorDebugValidation)
+    require(debugPath.nonEmpty || debugUserProvidedExample.nonEmpty || debugFileUploaded.nonEmpty ||
+      (debugQuery.isDefined && debugQuery.get.toLowerCase.contains("limit")), errorDebugValidation)
 
     (debugPath, debugQuery, debugUserProvidedExample, debugFileUploaded) match {
       case (Some(path), _ , _,_) => createDebugFromPath(Some(path))

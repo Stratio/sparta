@@ -10,6 +10,8 @@ object WorkflowStatusEnum extends Enumeration {
 
   type status = Value
 
+  type WorkflowStatusEnum = Value
+
   val Launched = Value("Launched")
   val Starting = Value("Starting")
   val Started = Value("Started")

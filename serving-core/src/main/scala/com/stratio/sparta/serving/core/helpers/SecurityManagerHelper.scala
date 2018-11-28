@@ -26,15 +26,20 @@ object SecurityManagerHelper {
       log.info("Authorization is not enabled, configure a security manager if needed")
       None
     } else {
-      log.debug("Starting Gosec Sparta Dyplon security manager")
+      log.info("Starting Gosec Sparta Dyplon security manager")
       val secManager = if (Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)) {
-        new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager]
+        Some(new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager])
+      } else if (Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)) {
+        Some(new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager])
       } else {
-        new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
+        log.info("Authorization is not enabled, configure a security manager if needed")
+        None
       }
-      secManager.start()
-      log.debug("Started Gosec Sparta Dyplon security manager")
-      Some(secManager)
+      secManager.foreach { manager =>
+        manager.start()
+        log.info("Started Gosec Sparta Dyplon security manager")
+      }
+      secManager
     }
 
   def initCrossdataSecurityManager(): Unit =

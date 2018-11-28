@@ -52,6 +52,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
    public showDebugConsole = false;
    public isArchivedPage = false;
    public isEmptyList: boolean;
+   public isEmptyFilter: boolean;
    private _componentDestroyed = new Subject();
 
    private _intervalHandler;
@@ -102,6 +103,13 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
          .pipe(takeUntil(this._componentDestroyed))
          .subscribe(executionInfo => {
             this.executionInfo = executionInfo;
+            this._cd.markForCheck();
+         });
+
+         this._store.select(fromRoot.isEmptyFilter)
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe(isEmptyFilter => {
+            this.isEmptyFilter = isEmptyFilter;
             this._cd.markForCheck();
          });
    }

@@ -104,16 +104,19 @@ class ExecutionActor()
 
   def findExecutionsByQuery(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser]): Unit =
     authorizeActionResultResources(user, Map(ResourceType -> Status)) {
-      executionPgService.findExecutionsByQuery(workflowExecutionQuery)
+      executionPgService.findExecutionsByQuery(workflowExecutionQuery).map {
+        case (executions, _) => executions
+      }
     }
 
   def findExecutionsDtoByQuery(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser]): Unit =
     authorizeActionResultResources(user, Map(ResourceType -> Status)) {
-      executionPgService.findExecutionsByQuery(workflowExecutionQuery).map { executions =>
-        executions.map { execution =>
-          val executionDto: WorkflowExecutionDto = execution
-          executionDto
-        }
+      executionPgService.findExecutionsByQuery(workflowExecutionQuery).map {
+        case (executions, totalCount) =>
+          executions.map { execution =>
+            val executionDto: WorkflowExecutionDto = (execution, totalCount)
+            executionDto
+          }
       }
     }
 

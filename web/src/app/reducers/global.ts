@@ -9,12 +9,14 @@ export interface State {
     userName: string;
     editFromMonitoring: boolean;
     xDSparkUi: string;
+    timeout: number;
 }
 
 const initialState: State = {
     userName: '',
     editFromMonitoring: false,
-    xDSparkUi: ''
+    xDSparkUi: '',
+    timeout: 20000
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -22,7 +24,8 @@ export function reducer(state: State = initialState, action: any): State {
         case userActions.GET_USER_PROFILE_COMPLETE: {
             return Object.assign({}, state, {
                 userName: action.payload.userName,
-                xDSparkUi: action.payload.xDSparkUi
+                xDSparkUi: action.payload.xDSparkUi,
+                timeout: action.payload.timeout
             });
         }
         case userActions.SET_EDIT_MONITORING_MODE: {
@@ -38,3 +41,4 @@ export function reducer(state: State = initialState, action: any): State {
 export const getUsername: any = (state: State) => state.userName;
 export const getEditMonitoringMode: any = (state: State) => state.editFromMonitoring;
 export const getSparkUILink: any = (state: State) => state.xDSparkUi;
+export const getSpartaTimeout: any = (state: State) => state.timeout;

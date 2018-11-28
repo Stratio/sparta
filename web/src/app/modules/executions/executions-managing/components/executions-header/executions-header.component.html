@@ -46,7 +46,7 @@
         </div>
         <div class="col-sm-4">
             <div class="executions-search">
-                <st-search [placeholder]="'Search...'" qaTag="search-execution" (search)="onSearch.emit($event.text)" [value]="searchQuery"></st-search>
+                <st-search [placeholder]="'Search...'" qaTag="search-execution" [debounce]="200" (search)="onSearch.emit($event.text)" [value]="searchQuery"></st-search>
             </div>
         </div>
         <div class="col-sm-3">

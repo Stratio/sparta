@@ -6,19 +6,11 @@
 package com.stratio.sparta.serving.core.marathon
 
 import java.util.{Calendar, UUID}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import scala.io.Source
-import scala.util.{Properties, Try}
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
-import com.typesafe.config.Config
-import org.json4s.jackson.Serialization._
-import play.api.libs.json._
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
@@ -37,6 +29,14 @@ import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
+import com.typesafe.config.Config
+import org.json4s.jackson.Serialization._
+import play.api.libs.json._
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.io.Source
+import scala.util.{Properties, Try}
 
 //scalastyle:off
 case class MarathonService(context: ActorContext, execution: Option[WorkflowExecution]) extends SpartaSerializer {
@@ -59,6 +59,7 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
   val appInfo = InfoHelper.getAppInfo
   val versionParsed = if (appInfo.pomVersion != "${project.version}") appInfo.pomVersion else version
   val DefaultSpartaDockerImage = s"qa.stratio.com/stratio/sparta:$versionParsed"
+  val DefaultMaxTimeOutInMarathonRequests = 5000
 
   /* Lazy variables */
   lazy val calicoEnabled: Boolean = {
@@ -70,9 +71,9 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     .getOrElse(false)
   lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
-  lazy val upAndDownActor: ActorRef = actorSystem.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
+  lazy val upAndDownActor: ActorRef = context.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
     s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
-  lazy val cleanerActor: ActorRef = actorSystem.actorOf(Props(new EnvironmentCleanerActor()),
+  lazy val cleanerActor: ActorRef = context.actorOf(Props(new EnvironmentCleanerActor()),
     s"$EnvironmentCleanerActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
 
 
@@ -84,31 +85,27 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     val workflow = execution.get.getWorkflowToExecute
     val createApp = addRequirements(getMarathonAppFromFile, workflow, execution.get)
     log.info(s"Submitting Marathon application: ${write(createApp)}")
-    for {
-      response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
-    } response match {
+    val launchRequest = (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
+
+    Await.result(launchRequest, DefaultMaxTimeOutInMarathonRequests seconds) match {
       case response: UpServiceFails =>
-        val information = s"Workflow App ${response.appInfo.id} cannot be deployed: ${response.msg}"
-        log.error(information)
-        throw new Exception(information)
-      case response: UpServiceResponse =>
-        log.info(s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}")
+        log.warn(s"Workflow App launched with warning state, id: ${createApp.id} message: ${response.msg}")
+      case _: UpServiceResponse =>
+        log.debug(s"Workflow App correctly launched to Marathon API with id: ${createApp.id}")
     }
   }
 
   def kill(containerId: String): Unit = {
-    for {
-      response <- (upAndDownActor ? DownServiceRequest(ContainerId(containerId), Try(getToken).toOption))
-        .mapTo[UpAndDownMessage]
-    } response match {
+    log.info(s"Killing Marathon application: $containerId")
+    val killRequest = (upAndDownActor ? DownServiceRequest(ContainerId(containerId), Try(getToken).toOption)).mapTo[UpAndDownMessage]
+
+    Await.result(killRequest, DefaultMaxTimeOutInMarathonRequests seconds) match {
       case response: DownServiceFails =>
-        val information = s"Workflow App ${response.appInfo.id} cannot be killed: ${response.msg}"
-        log.error(information)
         cleanerActor ! TriggerCleaning
-        throw new Exception(information)
+        throw new Exception(s"Workflow App ${response.appInfo.id} cannot be killed: ${response.msg}")
       case response: DownServiceResponse =>
-        log.info(s"Workflow App correctly killed with Marathon API and id: ${response.appInfo.id}")
         cleanerActor ! TriggerCleaning
+        log.debug(s"Workflow App correctly killed with Marathon API and id: ${response.appInfo.id}")
     }
   }
 
@@ -218,8 +215,8 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     val newEnv = Option(
       envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
-        calicoProperties ++ extraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
-        intelligenceProperties ++ marathonAppProperties
+        calicoProperties ++ extraProperties ++ spartaExtraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
+        intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -319,6 +316,16 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
   }
 
   private def extraProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("EXTRA_PROPERTIES")
+    }.mapValues(value => JsString(value))
+
+  private def marathonProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("SPARTA_MARATHON")
+    }.mapValues(value => JsString(value))
+
+  private def spartaExtraProperties: Map[String, JsString] =
     sys.env.filterKeys(key => key.startsWith("SPARTA_EXTRA")).map { case (key, value) =>
       key.replaceAll("SPARTA_EXTRA_", "") -> JsString(value)
     }
@@ -363,6 +370,16 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
   private def postgresProperties: Map[String, JsString] =
     sys.env.filterKeys { key =>
       key.startsWith("SPARTA_POSTGRES")
+    }.mapValues(value => JsString(value))
+
+  private def configProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("SPARTA_CONFIG")
+    }.mapValues(value => JsString(value))
+
+  private def actorsProperties: Map[String, JsString] =
+    sys.env.filterKeys { key =>
+      key.startsWith("SPARTA_ACTORS")
     }.mapValues(value => JsString(value))
 
   private def zookeeperProperties: Map[String, JsString] =

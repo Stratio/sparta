@@ -7,20 +7,27 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Store } from '@ngrx/store';
+import { cloneDeep as _cloneDeep } from 'lodash';
 
 import { WorkflowService } from './../workflow.service';
+import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { MockStore } from '@test/store-mock';
+
+const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
 
 describe('[WorkflowService]', () => {
-   const mockStoreInstance = jasmine.createSpyObj('store', ['dispatch']);
-
-   beforeEach(() => TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [
-         WorkflowService,
-         {
-            provide: Store, useValue: mockStoreInstance
-         }]
-   }));
+   const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);
+   beforeEach(() => {
+      spyOn(mockStoreInstance, 'dispatch');
+      spyOn(mockStoreInstance, 'select').and.callThrough();
+      TestBed.configureTestingModule({
+         imports: [HttpClientTestingModule],
+         providers: [
+            WorkflowService,
+            {
+               provide: Store, useValue: mockStoreInstance
+            }]
+      })});
 
    describe('should be able to call worflows and groups api services', () => {
 
@@ -50,7 +57,7 @@ describe('[WorkflowService]', () => {
 
       it('should get workflows by group', () => {
          const groupId = '0';
-         const url = 'workflows/findAllByGroup/' + groupId;
+         const url = 'workflows/findAllByGroupDto/' + groupId;
          service.getWorkflowsByGroup(groupId).subscribe(response => {
             expect(response).toEqual('OK');
          });

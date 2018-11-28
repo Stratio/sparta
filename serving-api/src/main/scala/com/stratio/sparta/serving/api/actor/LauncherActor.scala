@@ -5,13 +5,11 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import java.util.{Calendar, UUID}
 
+import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Props, _}
 import akka.pattern.ask
-import org.joda.time.DateTime
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -20,8 +18,8 @@ import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant.SpartaDriverClass
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, SparkConstant}
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
@@ -30,12 +28,15 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import org.joda.time.DateTime
+
+import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class LauncherActor(
-                    statusListenerActor: ActorRef,
-                    parametersStateActor: ActorRef,
-                    localLauncherActor: ActorRef,
-                    debugLauncherActor: ActorRef
+                     parametersStateActor: ActorRef,
+                     localLauncherActor: ActorRef,
+                     debugLauncherActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -44,9 +45,22 @@ class LauncherActor(
   private val workflowService = PostgresDaoFactory.workflowPgService
   private val debugPgService = PostgresDaoFactory.debugWorkflowPgService
 
-  private val marathonLauncherActor = context.actorOf(Props(new MarathonLauncherActor), MarathonLauncherActorName)
-  private val clusterLauncherActor = context.actorOf(Props(
-    new ClusterLauncherActor(statusListenerActor)), ClusterLauncherActorName)
+  private val marathonLauncherActor = context.actorOf(
+    Props(new MarathonLauncherActor),
+    s"$MarathonLauncherActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
+  )
+  private val clusterLauncherActor = context.actorOf(
+    Props(new ClusterLauncherActor()),
+    s"$ClusterLauncherActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
+  )
+
+  override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
+    case _ => Restart
+  }
+
+  override def postStop(): Unit = {
+    log.warn(s"Stopped LauncherActor at time ${System.currentTimeMillis()}")
+  }
 
   def receiveApiActions(action: Any): Any = action match {
     case Launch(workflowIdExecutionContext, user) => launch(workflowIdExecutionContext, user)
@@ -68,21 +82,20 @@ class LauncherActor(
         response match {
           case Success(validationContextResult) =>
             if (validationContextResult.workflowValidation.valid) {
-            for {
-              newExecution <- createExecution(
-                validationContextResult.workflow,
-                workflowRaw,
-                addParameterListsToExecutionContext(
-                  validationContextResult.workflow.settings.global.parametersLists,
-                  workflowIdExecutionContext.executionContext
-                ),
-                workflowIdExecutionContext.executionSettings,
-                user
-              )
-            } yield launchExecution(newExecution)
+              for {
+                newExecution <- createExecution(
+                  validationContextResult.workflow,
+                  addParameterListsToExecutionContext(
+                    validationContextResult.workflow.settings.global.parametersLists,
+                    workflowIdExecutionContext.executionContext
+                  ),
+                  workflowIdExecutionContext.executionSettings,
+                  user
+                )
+              } yield launchExecution(newExecution)
             } else {
               val information = s"The workflow ${validationContextResult.workflow.name} is invalid" +
-                s" with the execution context. ${validationContextResult.workflowValidation.messages.mkString(",")}"
+                s" with the execution context. Messages: \n\t${validationContextResult.workflowValidation.messages.mkString(".\n\t")}"
               log.error(information)
               throw new Exception(information)
             }
@@ -171,7 +184,7 @@ class LauncherActor(
                 )
               else {
                 val information = s"The workflow ${validationContextResult.workflow.name} is invalid" +
-                  s" with the execution context. ${validationContextResult.workflowValidation.messages.mkString(",")}"
+                  s" with the execution context. Messages: \n\t${validationContextResult.workflowValidation.messages.mkString(".\n\t")}"
                 log.error(information)
                 throw new Exception(information)
               }
@@ -198,7 +211,7 @@ class LauncherActor(
       workflowService.validateDebugWorkflow(workflow)
 
       val dummyExecution = WorkflowExecution(
-        genericDataExecution = GenericDataExecution(workflow, workflow, local, executionContext, userId = user.map(_.id))
+        genericDataExecution = GenericDataExecution(workflow, local, executionContext, userId = user.map(_.id))
       )
       val workflowLauncherActor = debugLauncherActor
 
@@ -230,29 +243,28 @@ class LauncherActor(
                                                    executionContext: ExecutionContext
                                                  ): ExecutionContext = {
     //In a future refactor this must be added -> executionContext.copy(paramsLists = workflowParameterList)
-    if(executionContext.paramsLists.isEmpty)
+    if (executionContext.paramsLists.isEmpty)
       executionContext.copy(paramsLists = Seq("-"))
     else executionContext
   }
 
   private def createExecution(
                                workflow: Workflow,
-                               workflowRaw: Workflow,
                                executionContext: ExecutionContext,
                                runExecutionSettings: Option[RunExecutionSettings],
                                user: Option[LoggedUser]
                              ): Future[WorkflowExecution] = {
     workflow.settings.global.executionMode match {
       case WorkflowExecutionMode.marathon =>
-        createClusterExecution(workflow, workflowRaw, executionContext, runExecutionSettings, user, marathon)
+        createClusterExecution(workflow, executionContext, runExecutionSettings, user, marathon)
       case WorkflowExecutionMode.dispatcher =>
-        createClusterExecution(workflow, workflowRaw, executionContext, runExecutionSettings, user, dispatcher)
+        createClusterExecution(workflow, executionContext, runExecutionSettings, user, dispatcher)
       case WorkflowExecutionMode.local =>
         for {
           anyLocalWorkflowRunning <- executionService.anyLocalWorkflowRunning
           localExecution <- {
             if (!anyLocalWorkflowRunning)
-              createLocalExecution(workflow, workflowRaw, executionContext, runExecutionSettings, user)
+              createLocalExecution(workflow, executionContext, runExecutionSettings, user)
             else throw new Exception(s"There are executions running and only one it's supported in local mode")
           }
         } yield localExecution
@@ -265,7 +277,6 @@ class LauncherActor(
 
   private def createLocalExecution(
                                     workflow: Workflow,
-                                    workflowRaw: Workflow,
                                     executionContext: ExecutionContext,
                                     runExecutionSettings: Option[RunExecutionSettings],
                                     user: Option[LoggedUser]
@@ -277,7 +288,6 @@ class LauncherActor(
     val newExecution = WorkflowExecution(
       genericDataExecution = GenericDataExecution(
         workflow = workflow,
-        workflowRaw = workflowRaw,
         executionMode = WorkflowExecutionMode.local,
         executionContext = executionContext,
         startDate = Option(launchDate),
@@ -303,7 +313,6 @@ class LauncherActor(
 
   private def createClusterExecution(
                                       workflow: Workflow,
-                                      workflowRaw: Workflow,
                                       executionContext: ExecutionContext,
                                       runExecutionSettings: Option[RunExecutionSettings],
                                       user: Option[LoggedUser],
@@ -330,7 +339,6 @@ class LauncherActor(
       sparkDispatcherExecution = None,
       genericDataExecution = GenericDataExecution(
         workflow = workflow,
-        workflowRaw = workflowRaw,
         executionMode = executionMode,
         executionContext = executionContext,
         userId = user.map(_.id),

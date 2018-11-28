@@ -8,22 +8,23 @@ package com.stratio.sparta.driver
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
-import com.stratio.sparta.core.helpers.ExceptionHelper
+import com.stratio.sparta.core.helpers.{AggregationTimeHelper, ExceptionHelper}
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate}
-
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 //scalastyle:off
 object MarathonDriver extends SLF4JLogging with SpartaSerializer {
@@ -50,6 +51,7 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
         marathonAppActor ! StartApp(execution)
       } match {
         case Success(_) =>
+          log.debug(s"The execution $executionId sent to MarathonAppActor")
         case Failure(exception) =>
           val information = s"Error initiating workflow app environment in Marathon driver"
           Try {
@@ -59,7 +61,7 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
               exception.toString,
               ExceptionHelper.toPrintableException(exception)
             )
-            val executionWithError =executionService.updateStatus(ExecutionStatusUpdate(
+            val executionWithError = executionService.updateStatus(ExecutionStatusUpdate(
               executionId,
               ExecutionStatus(state = Failed, statusInfo = Option(information))
             ), error)
@@ -67,8 +69,10 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
             executionWithError
           } match {
             case Success(_) =>
+              Thread.sleep(5000)
               throw DriverException(information, exception)
             case Failure(_) =>
+              Thread.sleep(5000)
               throw DriverException(information + ". Error updating finish status in Marathon driver.", exception)
           }
       }
@@ -77,10 +81,32 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
         log.info("Workflow App environment started")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
+        Thread.sleep(secondsToWaitBeforeError)
         throw driverException
       case Failure(exception) =>
         log.error(s"An error was encountered while starting the Workflow App environment", exception)
+        Thread.sleep(secondsToWaitBeforeError)
         throw exception
     }
+  }
+
+  def secondsToWaitBeforeError: Int = {
+    val graceSeconds = Try(Properties.envOrNone(SpartaMarathonGracePeriodsSecondsEnv).get.toInt).toOption
+      .getOrElse(DefaultGracePeriodSeconds)
+    val intervalSeconds = Try(Properties.envOrNone(SpartaMarathonIntervalSecondsEnv).get.toInt).toOption
+      .getOrElse(DefaultIntervalSeconds)
+    val failures = Try(Properties.envOrNone(SpartaMarathonMaxFailuresEnv).get.toInt).toOption
+      .getOrElse(DefaultMaxConsecutiveFailures)
+    val maxAwaitSeconds = Try {
+      (AggregationTimeHelper.parseValueToMilliSeconds(
+        Try(Properties.envOrNone(SpartaAwaitChangeStatusEnv).get)
+          .getOrElse(AppConstant.DefaultAwaitWorkflowChangeStatus)
+      ) / 1000).toInt
+    }.toOption.getOrElse(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds)
+    val totalTimeBeforeMarathonKill = graceSeconds + (intervalSeconds * failures)
+
+    if (totalTimeBeforeMarathonKill > maxAwaitSeconds)
+      maxAwaitSeconds
+    else totalTimeBeforeMarathonKill
   }
 }

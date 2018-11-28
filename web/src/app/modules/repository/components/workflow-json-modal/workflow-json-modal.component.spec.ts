@@ -73,13 +73,17 @@ describe('[WorkflowJsonModal]', () => {
    });
 
    describe('User can save the new workflow when workflow json has been typed', () => {
+      let originalTimeout;
 
       beforeEach(() => {
          component.model.json = JSON.stringify(fakeWorkflowJson);
+         originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+         jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
          fixture.detectChanges();
       });
 
       afterEach(() => {
+         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
          mockStoreInstance.next(initialStoreState);
       });
 

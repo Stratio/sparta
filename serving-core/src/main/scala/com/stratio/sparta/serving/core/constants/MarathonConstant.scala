@@ -6,8 +6,6 @@
 
 package com.stratio.sparta.serving.core.constants
 
-import scala.util.Properties
-
 object MarathonConstant {
 
   /* Constant variables */
@@ -27,9 +25,9 @@ object MarathonConstant {
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
   val HostJavaCertificatePath = "/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts"
   val DefaultGracePeriodSeconds = 240
-  val DefaultIntervalSeconds = 60
-  val DefaultTimeoutSeconds = 30
-  val DefaultMaxConsecutiveFailures = 3
+  val DefaultIntervalSeconds = 20
+  val DefaultTimeoutSeconds = 20
+  val DefaultMaxConsecutiveFailures = 2
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
   val DefaultIncludeCommonVolumes = true
@@ -37,7 +35,7 @@ object MarathonConstant {
   val DefaultSparkUIPort = 4040
   val DefaultSOMemSize = 1024
   val MinSOMemSize = 512
-  val DefaultFileEncodingSystemProperty= "-Dfile.encoding=UTF-8"
+  val DefaultFileEncodingSystemProperty = "-Dfile.encoding=UTF-8"
 
   /* Environment variables to Marathon Application */
 
@@ -56,6 +54,10 @@ object MarathonConstant {
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
   val SpartaFileEncoding = "SPARTA_FILE_ENCODING"
   val SpartaOSMemoryEnv = "SPARTA_MARATHON_OS_MEMORY"
+  val SpartaMarathonGracePeriodsSecondsEnv = "SPARTA_MARATHON_GRACEPERIODS_SECONDS"
+  val SpartaMarathonIntervalSecondsEnv = "SPARTA_MARATHON_INTERVAL_SECONDS"
+  val SpartaMarathonMaxFailuresEnv = "SPARTA_MARATHON_MAX_FAILURES"
+  val SpartaAwaitChangeStatusEnv = "SPARTA_AWAIT_POLICY_CHANGE_STATUS"
   val SparkHomeEnv = "SPARK_HOME"
   val DcosServiceName = "MARATHON_APP_LABEL_DCOS_SERVICE_NAME"
   val HostnameConstraint = "MESOS_HOSTNAME_CONSTRAINT"

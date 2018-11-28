@@ -6,6 +6,7 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{Actor, ActorRef}
+import akka.event.slf4j.SLF4JLogging
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.core.actor.SchedulerMonitorActor._
 import com.stratio.sparta.serving.core.utils.MarathonAPIUtils
@@ -13,7 +14,7 @@ import com.stratio.sparta.serving.core.utils.MarathonAPIUtils
 import scala.concurrent.ExecutionContext.Implicits._
 
 
-class InconsistentStatusCheckerActor extends Actor {
+class InconsistentStatusCheckerActor extends Actor with SLF4JLogging {
 
   private val utils = new MarathonAPIUtils(context.system, ActorMaterializer())
 
@@ -22,11 +23,16 @@ class InconsistentStatusCheckerActor extends Actor {
       waitForMarathonAnswer(sender, msg.runningInDatabase)
   }
 
-  def waitForMarathonAnswer(sender: ActorRef, currentRunningWorkflows: Map[String, String]): Unit = {
+  def waitForMarathonAnswer(sendResultTo: ActorRef, currentRunningWorkflows: Map[String, String]): Unit = {
     for {
       (runningButActuallyStopped, stoppedButActuallyRunning) <- utils.checkDiscrepancy(currentRunningWorkflows)
     } yield {
-      sender ! InconsistentStatuses(runningButActuallyStopped, stoppedButActuallyRunning)
+      sendResultTo ! InconsistentStatuses(runningButActuallyStopped, stoppedButActuallyRunning)
     }
   }
+
+  override def postStop(): Unit = {
+    log.warn(s"Stopped InconsistentStatusCheckerActor at time ${System.currentTimeMillis()}")
+  }
+
 }

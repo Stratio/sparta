@@ -8,27 +8,24 @@ package com.stratio.sparta.serving.api.actor
 import java.util.concurrent.TimeUnit
 
 import akka.actor.{Actor, Cancellable}
+import akka.cluster.pubsub.DistributedPubSub
+import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
 import akka.stream.ActorMaterializer
-
 import com.stratio.sparta.serving.api.actor.NginxActor._
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
+
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
-
-import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor
-
-
-
 class NginxActor extends Actor {
 
-  import context.dispatcher
+  implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
+
   val mediator = DistributedPubSub(context.system).mediator
 
   private lazy val scheduledInitialCheck: Cancellable =

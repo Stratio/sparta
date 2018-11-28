@@ -220,7 +220,7 @@ class DummyDebugInputStepStreamingIT extends TemporalSparkContext with TimeLimit
     sparkSession.sql("CREATE TABLE tableName3 USING org.apache.spark.sql.parquet AS select * FROM tableName")
 
     val datasourceParams = Map("dummyInputSource" -> "SQL",
-      "debugOptions" -> TestJsonUtil.toJson(DebugOptions(None, Some(s"select * from tableName3"), None)))
+      "debugOptions" -> TestJsonUtil.toJson(DebugOptions(None, Some(s"select * from tableName3 limit 1000"), None)))
     val debugInput = new DummyDebugInputStepStreaming(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
 

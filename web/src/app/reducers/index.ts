@@ -40,3 +40,4 @@ export const pendingSavedData: any = createSelector(getAlertsState, fromAlerts.p
 // user
 export const getUsername: any = createSelector(getUserState, fromGlobal.getUsername);
 export const getSparkUILink: any = createSelector(getUserState, fromGlobal.getSparkUILink);
+export const getSpartaTimeout: any = createSelector(getUserState, fromGlobal.getSpartaTimeout);

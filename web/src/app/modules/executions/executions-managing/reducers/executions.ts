@@ -1,3 +1,4 @@
+import { ɵpad } from '@angular/core';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -23,6 +24,7 @@ export interface State {
    pagination: {
       perPage: number;
       currentPage: number;
+      total: number
    };
    order: Order;
 }
@@ -41,7 +43,8 @@ const initialState: State = {
    searchQuery: '',
    pagination: {
       perPage: 10,
-      currentPage: 1
+      currentPage: 1,
+      total: 0
    },
    order: {
       orderBy: 'startDateWithStatus',
@@ -52,23 +55,29 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
+         const [execution, ...rest] = action.payload;
          return {
             ...state,
             executionList: action.payload,
-            loading: false
+            loading: false,
+            pagination: { ...state.pagination, total: execution && execution.totalCount ? execution.totalCount : action.payload ? action.payload.length : 0 }
          };
       }
       case executionActions.LIST_EXECUTIONS_EMPTY: {
+         const [execution, ...rest] = state.executionList;
          return {
             ...state,
-            loading: false
+            loading: false,
+            pagination: { ...state.pagination, total: execution && execution.totalCount ? execution.totalCount : action.payload ? action.payload.length : 0 }
          };
       }
       case executionActions.LIST_ARCHIVED_EXECUTIONS_COMPLETE: {
+         const [execution, ...rest] = action.payload;
          return {
             ...state,
             loadingArchived: false,
-            archivedExecutionList: action.payload
+            archivedExecutionList: action.payload,
+            pagination: { ...state.pagination, total: execution && execution.totalCount ? execution.totalCount : action.payload ? action.payload.length : 0 }
          };
 
       }
@@ -90,7 +99,11 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             statusFilter: action.status,
-            selectedExecutionsIds: []
+            selectedExecutionsIds: [],
+            pagination: {
+               ...state.pagination,
+               currentPage: 1
+            }
          };
       }
       case executionActions.ARCHIVE_EXECUTIONS_COMPLETE: {
@@ -109,21 +122,33 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             typeFilter: action.workflowType,
-            selectedExecutionsIds: []
+            selectedExecutionsIds: [],
+            pagination: {
+               ...state.pagination,
+               currentPage: 1
+            }
          };
       }
       case executionActions.SELECT_TIME_INTERVAL_FILTER: {
          return {
             ...state,
             timeIntervalFilter: action.time,
-            selectedExecutionsIds: []
+            selectedExecutionsIds: [],
+            pagination: {
+               ...state.pagination,
+               currentPage: 1
+            }
          };
       }
       case executionActions.SEARCH_EXECUTION: {
          return {
             ...state,
             searchQuery: action.searchQuery,
-            selectedExecutionsIds: []
+            selectedExecutionsIds: [],
+            pagination: {
+               ...state.pagination,
+               currentPage: 1
+            }
          };
       }
       case executionActions.CHANGE_ORDER: {
@@ -135,7 +160,10 @@ export function reducer(state: State = initialState, action: any): State {
       case executionActions.CHANGE_PAGINATION: {
          return {
             ...state,
-            pagination: action.payload,
+            pagination: {
+               ...state.pagination,
+               ...action.payload
+            },
             selectedExecutionsIds: []
          };
       }
@@ -167,7 +195,7 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             selectedExecutionsIds: [],
-            executionList: state.executionList.filter((execution) => execution.id === action.executionId)
+            executionList: state.executionList.filter(execution => execution.id !== action.executionId)
          };
       }
       default:

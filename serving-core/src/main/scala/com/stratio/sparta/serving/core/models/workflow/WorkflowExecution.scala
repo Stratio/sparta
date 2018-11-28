@@ -8,8 +8,10 @@ package com.stratio.sparta.serving.core.models.workflow
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.Dto
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import org.joda.time.DateTime
 
 case class WorkflowExecution(
@@ -21,7 +23,11 @@ case class WorkflowExecution(
                               sparkDispatcherExecution: Option[SparkDispatcherExecution] = None,
                               marathonExecution: Option[MarathonExecution] = None,
                               localExecution: Option[LocalExecution] = None,
-                              archived: Option[Boolean] = Option(false)
+                              archived: Option[Boolean] = Option(false),
+                              resumedDate: Option[DateTime] = None,
+                              resumedStatus: Option[WorkflowStatusEnum] = None,
+                              executionEngine: Option[ExecutionEngine] = None,
+                              searchText: Option[String] = None
                             ) extends EntityAuthorization {
 
   def authorizationId: String = genericDataExecution.workflow.authorizationId
@@ -36,7 +42,6 @@ case class WorkflowExecution(
 
 case class GenericDataExecution(
                                  workflow: Workflow,
-                                 workflowRaw: Workflow,
                                  executionMode: WorkflowExecutionMode,
                                  executionContext: ExecutionContext,
                                  launchDate: Option[DateTime] = None,
@@ -87,7 +92,12 @@ case class WorkflowExecutionDto(
                                  genericDataExecution: GenericDataExecutionDto,
                                  marathonExecution: Option[MarathonExecutionDto] = None,
                                  localExecution: Option[LocalExecution] = None,
-                                 archived: Option[Boolean] = None
+                                 archived: Option[Boolean] = None,
+                                 resumedDate: Option[DateTime] = None,
+                                 resumedStatus: Option[WorkflowStatusEnum] = None,
+                                 executionEngine: Option[ExecutionEngine] = None,
+                                 searchText: Option[String] = None,
+                                 totalCount :Int = 0
                                ) extends Dto
 
 case class MarathonExecutionDto(sparkURI: Option[String] = None) extends Dto

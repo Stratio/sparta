@@ -21,10 +21,10 @@ import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 
-class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor with SchedulerUtils {
+class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None) extends Actor with SchedulerUtils {
 
   lazy val executionService = PostgresDaoFactory.executionPgService
-  lazy val listenerService = new ListenerService(executionStatusListenerActor)
+  lazy val listenerService = executionStatusListenerActor.map(new ListenerService(_))
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflowExecution) => doStartExecution(workflowExecution)
@@ -33,7 +33,9 @@ class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor
   }
 
   def doStartExecution(workflowExecution: WorkflowExecution): Unit = {
-    val updateDateResult = executionService.setLaunchDate(workflowExecution, new DateTime())
+    val updateDateResult = if(workflowExecution.genericDataExecution.launchDate.isEmpty)
+      executionService.setLaunchDate(workflowExecution, new DateTime())
+    else workflowExecution
     doRun(updateDateResult)
   }
 
@@ -90,7 +92,7 @@ class ClusterLauncherActor(executionStatusListenerActor: ActorRef) extends Actor
         log.debug(s"Updated correctly the execution status ${workflowExecution.getExecutionId} to $Failed in ClusterLauncherActor")
       case Success(sparkHandler) =>
         if (workflowExecution.getWorkflowToExecute.settings.global.executionMode == marathon)
-          listenerService.addSparkClientListener(workflowExecution.getExecutionId, sparkHandler)
+          listenerService.foreach(_.addSparkClientListener(workflowExecution.getExecutionId, sparkHandler))
         val information = "Workflow launched correctly"
         log.info(information)
         val updateStateResult = executionService.updateStatus(ExecutionStatusUpdate(

@@ -28,8 +28,13 @@ export interface State {
 const initialState: State = {
    executionList: [],
    executionInfo: null,
-   loading: true,
-   filters: [],
+   loading: false,
+   filters: [
+      { name: 'running', value: 0, image: 'runIcon'},
+      { name: 'stopped', value: 0, image: 'stopIcon'},
+      { name: 'failed', value: 0, image: 'failIcon'},
+      { name: 'archived', value: 0, image: 'archiveIcon'}
+   ],
     order: {
       orderBy: 'startDateWithStatus',
       type: 0

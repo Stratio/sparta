@@ -62,6 +62,7 @@ class MarathonLauncherActor extends Actor
           workflowExecution.getWorkflowToExecute
         } match {
           case Success(_) =>
+            log.info(s"Workflow App correctly launched to Marathon API with execution id: ${workflowExecution.getExecutionId}")
             val updateStateResult = executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(
@@ -71,6 +72,7 @@ class MarathonLauncherActor extends Actor
             executionService.setLaunchDate(updateStateResult, new DateTime())
           case Failure(exception) =>
             val information = s"An error was encountered while launching the Workflow App in the Marathon API"
+            log.error(information, exception)
             val error = WorkflowError(
               information,
               PhaseEnum.Launch,

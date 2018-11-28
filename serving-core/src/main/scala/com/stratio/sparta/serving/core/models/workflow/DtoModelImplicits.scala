@@ -3,6 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.models.workflow
 
 object DtoModelImplicits {
@@ -36,11 +37,33 @@ object DtoModelImplicits {
       execution.genericDataExecution,
       execution.marathonExecution,
       execution.localExecution,
-      execution.archived
+      execution.archived,
+      execution.resumedDate,
+      execution.resumedStatus,
+      execution.executionEngine,
+      execution.searchText
     )
 
+  implicit def executionToDtoTuple(executionTuple: (WorkflowExecution, Int)): WorkflowExecutionDto =
+    executionTuple match {
+      case (execution, totalCount) =>
+        WorkflowExecutionDto(
+          execution.id,
+          execution.statuses,
+          execution.genericDataExecution,
+          execution.marathonExecution,
+          execution.localExecution,
+          execution.archived,
+          execution.resumedDate,
+          execution.resumedStatus,
+          execution.executionEngine,
+          execution.searchText,
+          totalCount
+        )
+    }
+
   implicit def marathonExecutionToDto(marathonExecution: Option[MarathonExecution]): Option[MarathonExecutionDto] = {
-    marathonExecution.flatMap{marathonEx =>
+    marathonExecution.flatMap { marathonEx =>
       marathonEx.sparkURI.map(_ => MarathonExecutionDto(marathonEx.sparkURI))
     }
   }

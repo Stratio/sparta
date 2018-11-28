@@ -58,6 +58,10 @@
  logLevelAppender
  INFO "[SPARTA-SERVER] Log appender selected"
 
+ INFO "[SPARTA-SERVER] Adding extra properties ... "
+ extraProperties ${SPARTA_CONF_FILE}
+ INFO "[SPARTA-SERVER] Extra properties added"
+
  INFO "[SPARTA-SERVER] Running Sparta server ... "
  export SPARTA_OPTS="$SPARTA_OPTS -Dconfig.file=$SPARTA_CONF_FILE -Djava.util.logging.config.file=file://$LOG_CONFIG_FILE"
  INFO "[SPARTA-SERVER] Running Sparta server with java options: $SPARTA_OPTS"
