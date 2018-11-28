@@ -7,7 +7,7 @@
 
 #### 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
-#### 2.2.3-eec304e (Built: November 28, 2018 | Pre-release)
+#### 2.2.3-eec304e (Built: November 28, 2018 | Released: November 28, 2018)
 
 #### 2.2.2-05e8bbd (Built: November 08, 2018 | Released: November 08, 2018)
 
