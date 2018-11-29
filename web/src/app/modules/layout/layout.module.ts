@@ -6,9 +6,13 @@
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StHeaderModule, StPopOverModule } from '@stratio/egeo';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { NotificationAlertModule } from '@app/shared/components/notification-alert/notification-alert.module';
 
 import { LayoutComponent, LayoutRouter, UserProfileComponent } from '.';
-import { SharedModule } from '@app/shared';
+import { MenuService } from '@app/shared/services/menu.service';
 
 @NgModule({
    declarations: [
@@ -16,11 +20,16 @@ import { SharedModule } from '@app/shared';
       UserProfileComponent
    ],
    imports: [
+      CommonModule,
       StHeaderModule,
       StPopOverModule,
       FormsModule,
       LayoutRouter,
-      SharedModule
+      NotificationAlertModule,
+      TranslateModule
+   ],
+   providers: [
+     MenuService
    ]
 })
 

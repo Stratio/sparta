@@ -5,15 +5,19 @@
  */
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StRadioMenuModule, StRadioModule,
-    StPaginationModule, StProgressBarModule, StFullscreenLayoutModule, StTextareaModule, StInputModule, StHorizontalTabsModule
+import { CommonModule } from '@angular/common';
+import {
+   StBreadcrumbsModule, StTableModule, StCheckboxModule, StRadioMenuModule, StRadioModule,
+   StPaginationModule, StProgressBarModule, StFullscreenLayoutModule, StTextareaModule, StInputModule, StHorizontalTabsModule
 } from '@stratio/egeo';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
+import { TranslateModule } from '@ngx-translate/core';
 
-import { TemplatesComponent} from './templates.component';
+import { SpHelpModule, TableNotificationModule, ToolBarModule, SpSelectModule, FormGeneratorModule } from '@app/shared';
+
+import { TemplatesComponent } from './templates.component';
 import { TemplatesRoutingModule } from './templates-routing.module';
-import { SharedModule } from '@app/shared';
 
 import { InputsComponent } from './components/template-list/inputs.component';
 import { OutputsComponent } from './components/template-list/outputs.component';
@@ -22,40 +26,43 @@ import { CreateInputComponent } from './components/template-creation/create-inpu
 import { CreateOutputComponent } from './components/template-creation/create-output.component';
 import { CreateTransformationsComponent } from './components/template-creation/create-transformation.component';
 import { reducers } from './reducers';
-import { InputEffect} from './effects/input';
-import { TransformationEffect} from './effects/transformation';
-import { OutputEffect} from './effects/output';
-import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
+import { InputEffect } from './effects/input';
+import { TransformationEffect } from './effects/transformation';
+import { OutputEffect } from './effects/output';
 
 @NgModule({
-    declarations: [
-        TemplatesComponent,
-        InputsComponent,
-        OutputsComponent,
-        TransformationsComponent,
-        CreateInputComponent,
-        CreateOutputComponent,
-        CreateTransformationsComponent
-    ],
-    imports: [
-        FormsModule,
-        StoreModule.forFeature('templates', reducers),
-        EffectsModule.forFeature([InputEffect, TransformationEffect, OutputEffect]),
-        ReactiveFormsModule,
-        TemplatesRoutingModule,
-        SharedModule,
-        TableNotificationModule,
-        StRadioMenuModule,
-        StProgressBarModule,
-        StFullscreenLayoutModule,
-        StPaginationModule,
-        StRadioModule,
-        StTextareaModule,
-        StInputModule,
-        StBreadcrumbsModule,
-        StHorizontalTabsModule,
-        StTableModule,
-        StCheckboxModule
-    ]
+   declarations: [
+      TemplatesComponent,
+      InputsComponent,
+      OutputsComponent,
+      TransformationsComponent,
+      CreateInputComponent,
+      CreateOutputComponent,
+      CreateTransformationsComponent
+   ],
+   imports: [
+      CommonModule,
+      FormsModule,
+      StoreModule.forFeature('templates', reducers),
+      EffectsModule.forFeature([InputEffect, TransformationEffect, OutputEffect]),
+      TemplatesRoutingModule,
+      TableNotificationModule,
+      FormGeneratorModule,
+      SpHelpModule,
+      SpSelectModule,
+      ToolBarModule,
+      StRadioMenuModule,
+      StProgressBarModule,
+      StFullscreenLayoutModule,
+      StPaginationModule,
+      StRadioModule,
+      StTextareaModule,
+      StInputModule,
+      StBreadcrumbsModule,
+      StHorizontalTabsModule,
+      StTableModule,
+      StCheckboxModule,
+      TranslateModule
+   ]
 })
 export class TemplatesModule { }

@@ -25,7 +25,7 @@ import { take } from 'rxjs/internal/operators/take';
 @Component({
    selector: 'workflow-duplicate-modal',
    templateUrl: './duplicate-workflow.component.html',
-   styleUrls: ['./duplicate-workflow.styles.scss'],
+   styleUrls: ['./duplicate-workflow.component.scss'],
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DuplicateWorkflowComponent implements OnInit, OnDestroy {

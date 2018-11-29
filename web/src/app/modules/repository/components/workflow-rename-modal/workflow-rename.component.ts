@@ -25,8 +25,8 @@ import { FOLDER_SEPARATOR } from './../../workflow.constants';
 
 @Component({
    selector: 'workflow-rename-modal',
-   templateUrl: './workflow-rename.template.html',
-   styleUrls: ['./workflow-rename.styles.scss'],
+   templateUrl: './workflow-rename.component.html',
+   styleUrls: ['./workflow-rename.component.scss'],
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowRenameModalComponent implements OnInit, OnDestroy {

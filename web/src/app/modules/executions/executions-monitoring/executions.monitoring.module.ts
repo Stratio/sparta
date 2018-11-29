@@ -5,55 +5,38 @@
  */
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { EffectsModule } from '@ngrx/effects';
-import { StBreadcrumbsModule, StTableModule,
-    StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-    StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StSpinnerModule
-} from '@stratio/egeo';
-
-import { SharedModule } from '@app/shared';
-import {
-   ExecutionsComponent,
-   ExecutionsRouterModule,
-   ExecutionsHeaderComponent,
-   ExecutionsTableComponent
-} from '.';
 
 import { reducerToken, reducerProvider } from './reducers';
 import { ExecutionsEffect } from './effects/executions';
-import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
-import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
+
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { EmptyTableBoxModule } from '@app/shared';
+
+import { ExecutionsMonitoringHeaderModule } from './components/executions-header/executions-header.module';
+import { ExecutionsMonitoringTableModule } from './components/executions-table/executions-table.module';
+
+import { ExecutionsComponent } from './executions.component';
+import { ExecutionsRouterModule } from './executions.router';
 
 
 @NgModule({
     declarations: [
-      ExecutionsComponent,
-      ExecutionsHeaderComponent,
-      ExecutionsTableComponent
+      ExecutionsComponent
     ],
     imports: [
-        FormsModule,
-        SpTooltipModule,
+        CommonModule,
+        ExecutionsMonitoringHeaderModule,
+        ExecutionsMonitoringTableModule,
+        EmptyTableBoxModule,
         StoreModule.forFeature('executionsMonitoring', reducerToken),
         EffectsModule.forFeature([ExecutionsEffect]),
-        StCheckboxModule,
-        StHorizontalTabsModule,
-        StFullscreenLayoutModule,
-        StTableModule,
-        StTooltipModule,
-        StSpinnerModule,
-        StBreadcrumbsModule,
-        StSearchModule,
         ExecutionsRouterModule,
-        StPaginationModule,
-        SharedModule,
-        ConsoleBoxModule,
         TranslateModule
     ],
-    providers: [reducerProvider, ExecutionHelperService]
+    providers: [ExecutionHelperService, reducerProvider]
 })
 
 export class ExecutionsMonitoringModule {

@@ -66,7 +66,7 @@ export class WizardNodeComponent implements OnInit {
   }
   set drawingConnectionStatus(dstatus: any) {
     if (this._containerElement) {
-      this._containerElement.classed('creation-mode', dstatus.status && dstatus.name !== this.data.name);
+      this._containerElement.classed('creation-mode', dstatus && dstatus.status && dstatus.name !== this.data.name);
     }
     this._drawingConectionStatus = dstatus;
   }
@@ -92,14 +92,16 @@ export class WizardNodeComponent implements OnInit {
   private _nodeRectElement: d3.Selection<any>;
   private _errorIconElement: d3.Selection<any>;
 
-  private _drawingConectionStatus: DrawingConnectorStatus;
+  private _drawingConectionStatus: DrawingConnectorStatus | any = {};
   private _selectedNode = false;
   private _debugResult: any;
   private _serverStepValidation: string;
+  private _selectedConnector: any;
 
   constructor(elementRef: ElementRef, private utilsService: UtilsService, private _cd: ChangeDetectorRef, private _ngZone: NgZone) {
     this._cd.detach();
     this._el = elementRef.nativeElement;
+    this._mouseUp = this._mouseUp.bind(this);
   }
 
   ngOnInit(): void {
@@ -212,11 +214,15 @@ export class WizardNodeComponent implements OnInit {
   private _generateInput(connection: any) {
     const that = this;
     connection.on('mousedown', function () {
-      if (that.drawingConnectionStatus.status) {
+      // if is drawing a path, prevent hover effect
+      if (that.drawingConnectionStatus && that.drawingConnectionStatus.status) {
         return;
       }
+      that._selectedConnector = this;
       d3Select(this).classed('over2', true);
       that._ngZone.run(() => {
+        document.addEventListener('mouseup', that._mouseUp);
+
         that.onDrawConnector.emit({
           event: d3Event,
           name: that.data.name
@@ -276,5 +282,10 @@ export class WizardNodeComponent implements OnInit {
         icons++;
       }
     }
+  }
+
+  private _mouseUp() {
+    d3Select(this._selectedConnector).classed('over2', false);
+    document.removeEventListener('mouseup', this._mouseUp);
   }
 }

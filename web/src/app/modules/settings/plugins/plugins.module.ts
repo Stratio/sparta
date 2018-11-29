@@ -5,41 +5,40 @@
  */
 
 import { NgModule } from '@angular/core';
-import { SharedModule } from '@app/shared';
-import { StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
+import { CommonModule } from '@angular/common';
+import { StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+
 import { PluginsEffect } from './effects/plugins';
 import { reducers } from './reducers';
 import { PluginsComponent } from './plugins.component';
-import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
+import { TableNotificationModule, FormFileModule, ToolBarModule } from '@app/shared';
 import { PluginRoutingModule } from './plugins.routes';
 
 @NgModule({
-    declarations: [
-        PluginsComponent
-    ],
-    imports: [
-        StoreModule.forFeature('plugins', reducers),
-        EffectsModule.forFeature([PluginsEffect]),
-        FormsModule,
-        StSwitchModule,
-        PluginRoutingModule,
-        StBreadcrumbsModule,
-        TableNotificationModule,
-        StCheckboxModule,
-        StTableModule,
-        SharedModule,
-        StTableModule,
-        FormsModule,
-        ReactiveFormsModule
-    ]
+  declarations: [
+    PluginsComponent
+  ],
+  imports: [
+    CommonModule,
+    StoreModule.forFeature('plugins', reducers),
+    EffectsModule.forFeature([PluginsEffect]),
+    PluginRoutingModule,
+    StBreadcrumbsModule,
+    FormFileModule,
+    ToolBarModule,
+    TableNotificationModule,
+    StCheckboxModule,
+    StTableModule,
+    TranslateModule
+  ]
 })
 
 export class PluginsModule {
-    constructor() {
+  constructor() {
 
-    }
+  }
 }
 

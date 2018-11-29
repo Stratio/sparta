@@ -7,7 +7,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 
-import * as fromRoot from './../../reducers';
 import { State } from './../../reducers';
 import { SelectStatusFilterAction } from '@app/executions/executions-managing/actions/executions';
 

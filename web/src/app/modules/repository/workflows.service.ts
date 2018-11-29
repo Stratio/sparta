@@ -10,8 +10,8 @@ import { StModalService } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Subscription';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { WorkflowGroupModal } from './components/workflow-group-modal/workflow-group-modal.component';
-import { WorkflowJsonModal } from './components/workflow-json-modal/workflow-json-modal.component';
+import { WorkflowGroupModalComponent } from './components/workflow-group-modal/workflow-group-modal.component';
+import { WorkflowJsonModalComponent } from './components/workflow-json-modal/workflow-json-modal.component';
 import * as fromRoot from 'reducers';
 import * as workflowActions from './actions/workflow-list';
 
@@ -32,7 +32,7 @@ export class WorkflowsManagingService {
             outputs: {
                 onCloseJsonModal: this.onCloseJsonModal.bind(this)
             },
-        }, WorkflowJsonModal);
+        }, WorkflowJsonModalComponent);
     }
 
     public runWorkflow(versionId: string, workflowName: string): void {
@@ -53,7 +53,7 @@ export class WorkflowsManagingService {
             outputs: {
                 onCloseGroupModal: () => this._modalService.close()
             },
-        }, WorkflowGroupModal);
+        }, WorkflowGroupModalComponent);
     }
 
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,

@@ -6,20 +6,20 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-    name: 'filter'
+  name: 'filter'
 })
 export class FilterPipe implements PipeTransform {
-    transform(items: any, term: any): any {
-        if (term) {
-            return items.filter((item: any) => {
-                return Object.keys(item).some(
-                    k => {
-                        if (item[k] != null && item[k] != undefined && typeof item[k] == 'string')
-                            return item[k].includes(term.toLowerCase());
-                    }
-                );
-            });
-        }
-        return items;
+  transform(items: any, term: any): any {
+    if (term) {
+      return items.filter((item: any) => {
+        return Object.keys(item).some(
+          k => {
+            if (item[k] != null && item[k] != undefined && typeof item[k] == 'string')
+              return item[k].includes(term.toLowerCase());
+          }
+        );
+      });
     }
+    return items;
+  }
 }

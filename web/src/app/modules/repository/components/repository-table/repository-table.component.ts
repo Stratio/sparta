@@ -22,8 +22,7 @@ import { Group } from '../../models/workflows';
 import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
 
 import { WorkflowRenameModalComponent } from './../workflow-rename-modal/workflow-rename.component';
-import { MoveGroupModal } from './../move-group-modal/move-group.component';
-import { DuplicateWorkflowComponent } from './../duplicate-workflow-modal/duplicate-workflow.component';
+import { MoveGroupModalComponent } from './../move-group-modal/move-group.component';
 
 import { groupOptions, workflowOptions, versionOptions } from './repository-table.models';
 
@@ -225,7 +224,7 @@ export class RepositoryTableComponent {
                this._modalService.close();
             }
          },
-      }, MoveGroupModal);
+      }, MoveGroupModalComponent);
    }
 
 

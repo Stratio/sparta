@@ -21,7 +21,7 @@ import { Router } from '@angular/router';
    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class ExecutionsTableComponent {
+export class ExecutionTableComponent {
 
    @Input() executionList: Array<any> = [];
    @Input() selectedExecutionsIds: Array<string> = [];

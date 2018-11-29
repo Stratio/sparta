@@ -21,9 +21,11 @@ import { EditionConfigMode, WizardEdge, WizardNode } from '@app/wizard/models/no
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 import { CreationData } from '@app/wizard/models/drag';
-import { WizardEditorComponent, WizardEditorService } from '@app/wizard';
 import { filter as _filter, cloneDeep as _cloneDeep } from 'lodash';
 import { NodeHelpersService } from '@app/wizard-embedded/_services/node-helpers.service';
+import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+
+import { GraphEditorComponent } from '@app/shared/components/graph-editor/graph-editor.component';
 
 @Component({
   selector: 'wizard-embedded',
@@ -53,6 +55,10 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public isShowedInfo = false;
   public serverStepValidations: any;
 
+  /** draw connector path */
+  public drawingConnectionStatus: any;
+  public connectorInitPosition: any;
+
   @Input() workflowData: WorkflowData;
   @Input() nodeData: EditionConfigMode;
   @Input() menuData: Array<FloatingMenuModel>;
@@ -60,12 +66,14 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   @Output() savePipelinesWorkflow = new EventEmitter<any>();
 
   @ViewChild('wizardPipelinesModal', {read: ViewContainerRef}) target: any;
-  @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
+  @ViewChild(GraphEditorComponent) editor: GraphEditorComponent;
+
+  private _connectorOrigin = '';
 
   constructor(
     private _modalService: StModalService,
     private _cd: ChangeDetectorRef,
-    private _editorService: WizardEditorService,
+    private _initializeStepService: InitializeStepService,
     private _nodeHelpers: NodeHelpersService) {}
 
   ngOnInit(): void {
@@ -88,7 +96,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       this.edges = pipelinesConfig.edges;
       this.svgPosition = pipelinesConfig.svgPosition;
     }
-
     this._wrapNodeEditionMode();
   }
 
@@ -135,7 +142,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       data.configuration.pipeline = {
         nodes: this.nodes,
         edges: this.edges,
-        svgPosition: this.editor.svgPosition
+        svgPosition: this.editor.editorPosition
       };
     }
     data.createdNew = false;
@@ -193,7 +200,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
         data: {
           data: {
             ...this.nodes.find(node => node.name === this.selectedNode),
-            name: this._editorService.getNewEntityName(this.selectedNode, this.nodes)
+            name: this._initializeStepService.getNewEntityName(this.selectedNode, this.nodes)
           },
           type: 'copy'
         }
@@ -231,6 +238,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     }
   }
 
+
   private deleteConfirmModal(modalTitle: string, modalMessage: string, handler: any): void {
     const buttons: StModalButton[] = [
       { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
@@ -265,10 +273,22 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   }
 
   createNode(event: any) {
+    const creationMode = event.creationMode;
+    let entity: any = {};
+    const entityData = creationMode.data;
+    entity = this._initializeStepService.initializeEntity(
+        this.workflowData.type,
+        entityData,
+        this.nodes
+    );
+
+    entity.uiConfiguration = {
+      position: event.position
+    };
     this.creationMode.active = false;
     this.creationMode.data = null;
-    event.createdNew = true;
-    this.nodes = [...this.nodes, event];
+    entity.createdNew = true;
+    this.nodes = [...this.nodes, entity];
 
     this._wrapNodeEditionMode();
   }
@@ -327,13 +347,43 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     this.weSavePipelinesWorkflow(false);
   }
 
-  onCreateEdge(event: any) {
-    const existsOrigin = _filter(this.edges, {origin: event.origin});
-    const existsDestination = _filter(this.edges, {destination: event.destination});
+  drawEdge(edgeEvent) {
+    this._connectorOrigin = edgeEvent.name;
+    this.connectorInitPosition = {
+        x: edgeEvent.event.layerX,
+        y: edgeEvent.event.layerY
+    };
+    this.drawingConnectionStatus = {
+      status: true,
+      name: edgeEvent.name,
+    };
+  }
+
+  removeConnector() {
+    this._connectorOrigin = '';
+    this.connectorInitPosition = null;
+    this.drawingConnectionStatus = null;
+  }
+
+  onCreateEdge(destinationEntity: any) {
+    if (!this._connectorOrigin.length) {
+       return;
+    }
+    const edge: WizardEdge = {
+       origin: this._connectorOrigin,
+       destination: destinationEntity.name
+    };
+
+    const existsOrigin = _filter(this.edges, {origin: edge.origin});
+    const existsDestination = _filter(this.edges, {destination: edge.destination});
     if (!existsOrigin.length && !existsDestination.length) {
-      this.edges = [...this.edges, event];
+      this.edges = [...this.edges, edge];
       this.isDirtyEditor = true;
     }
+  }
+
+  trackByEdgeFn(index: number, item: any) {
+    return index;
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,25 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+
+<svg class="composition" (click)="clickDetected($event)"
+  xmlns:svg="http://www.w3.org/XML/1998/namespace"
+  xmlns="http://www.w3.org/1999/xhtml">
+  <svg:g class="svg-container">
+    <ng-content></ng-content>
+  </svg:g>
+  <svg:path
+    stroke="#777"
+    [ngClass]="{'show' : showConnector}"
+    stroke-width="2"
+    fill="none"
+    class="connector-line"
+    marker-end="url(#createConnectorMarker)">
+  </svg:path>
+</svg>

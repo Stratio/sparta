@@ -6,7 +6,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StTableModule } from '@stratio/egeo';
+import { StTableModule, StModalService, StModalModule } from '@stratio/egeo';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { RepositoryTableComponent } from './repository-table.component';
@@ -14,6 +14,9 @@ import { RepositoryTableContainer } from './repository-table.container';
 
 import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
+
+import { MoveGroupModalModule } from './../move-group-modal/move-group.module';
+import { MoveGroupModalComponent } from './../move-group-modal/move-group.component';
 
 
 @NgModule({
@@ -29,7 +32,12 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
        MenuOptionsListModule,
        SpTooltipModule,
        StTableModule,
-       TranslateModule
+       TranslateModule,
+       MoveGroupModalModule,
+       StModalModule.withComponents([MoveGroupModalComponent])
+    ],
+    providers: [
+      StModalService
     ]
 })
 

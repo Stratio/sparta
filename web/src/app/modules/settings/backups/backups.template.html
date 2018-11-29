@@ -7,23 +7,22 @@
    <div general-tools>
       <div class="selection-tools">
          <button class="button button-toolbar" st-title="Run backup" *ngIf="selectedBackups.length === 1" (click)="executeBackupModal()">
-                <i class="icon-play"></i>
-            </button>
+            <i class="icon-play"></i>
+         </button>
          <button class="button button-toolbar" title="Download backup" *ngIf="selectedBackups.length" (click)="downloadBackup()">
-                <i class="icon-download"></i>
-            </button>
+            <i class="icon-download"></i>
+         </button>
          <button class="button button-toolbar" title="Delete backup" *ngIf="selectedBackups.length" (click)="deleteBackupConfirmModal()">
-                <i class="icon-trash"></i>
-            </button>
+            <i class="icon-trash"></i>
+         </button>
       </div>
       <button class="button button-toolbar" title="Delete metadata" (click)="deleteMetadataConfirmModal()">
-           <i class="icon-square-cross"></i>
-       </button>
+         <i class="icon-square-cross"></i>
+      </button>
       <form-file class="form-file" type="button-toolbar" title="Upload backup" (onFileUpload)="uploadBackup($event)"></form-file>
       <button class="button button-toolbar" title="Generate backup" (click)="generatebackup()">
-        <i class="icon-plus"></i>   
-    </button>
-
+        <i class="icon-plus"></i>
+      </button>
    </div>
 </tool-bar>
 <div class="container">

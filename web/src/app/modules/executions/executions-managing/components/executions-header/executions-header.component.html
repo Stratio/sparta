@@ -10,7 +10,7 @@
 
 <tool-bar>
     <div breadcrumb>
-        <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="templates-breadcrumb"></st-breadcrumbs>
+        <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="executions-breadcrumb"></st-breadcrumbs>
     </div>
 </tool-bar>
 <div class="container" *ngIf="!emptyTable">
@@ -52,21 +52,21 @@
         <div class="col-sm-3">
             <div class="global-actions">
                 <div class="selection-tools">
-                <button *ngIf="false" 
-                    spTitle="Download selected execution" 
-                    class="button button-toolbar" 
-                    id="download-button" 
+                <button *ngIf="false"
+                    spTitle="Download selected execution"
+                    class="button button-toolbar"
+                    id="download-button"
                     (click)="downloadExecutions.emit()">
                   <i class="icon-trash"></i>
                </button>
-                <button *ngIf="showArchiveButton" 
-                    spTitle="Archive selected executions" 
-                    class="button button-toolbar" 
-                    id="archive-button" 
+                <button *ngIf="showArchiveButton"
+                    spTitle="Archive selected executions"
+                    class="button button-toolbar"
+                    id="archive-button"
                     (click)="archiveExecutions.emit()">
                   <i class="icon-inbox2"></i>
                </button>
-                <button *ngIf="showUnarchiveButton" 
+                <button *ngIf="showUnarchiveButton"
                     spTitle="Unarchive selected executions" class="button button-toolbar" id="unarchive-button" (click)="unarchiveExecutions.emit()">
                   <i class="icon-outbox"></i>
                </button>
@@ -77,10 +77,10 @@
                     id="run-button" (click)="onStopExecution.emit()">
                   <i class="icon-stop"></i>
                </button>
-                <button *ngIf="selectedExecutions.length === 1" 
-                    spTitle="Delete selected execution" 
-                    class="button button-toolbar" 
-                    id="delete-button" 
+                <button *ngIf="selectedExecutions.length === 1"
+                    spTitle="Delete selected execution"
+                    class="button button-toolbar"
+                    id="delete-button"
                     (click)="onDeleteExecution.emit(selectedExecutions[0])">
                         <i class="icon-trash"></i>
                     </button>

@@ -71,7 +71,7 @@
    &:before {
       min-width: 160px;
    }
-}   
+}
 
 .st-dropdown-menu-item {
    cursor: pointer;
@@ -79,10 +79,6 @@
 
 .st-modal {
    animation: ModalAnimation 0.3s!important;
-}
-
-.sth-header-menu-option {
-   cursor: pointer;
 }
 
 @keyframes ModalAnimation {
@@ -112,20 +108,4 @@
 
 workflows-manage-header .sth-breadcrumbs__item {
    text-transform: lowercase;
-}
-
-.st-textarea {
-    height: auto;
-}
-
-.button.button-critical, .button.button-primary, .button.button-secondary-gray, .button.button-secondary-line, .button.button-success, .button.button-warning {
-    font-family: Nunito Sans;
-}
-
-.st-label {
-    font-family: Nunito Sans;
-}
-
-.st-form-field .st-label {
-    color: #555;
 }

@@ -5,57 +5,45 @@
  */
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { EffectsModule } from '@ngrx/effects';
-import {
-   StBreadcrumbsModule, StTableModule,
-   StSearchModule, StCheckboxModule, StHorizontalTabsModule,
-   StPaginationModule, StTooltipModule, StFullscreenLayoutModule, StDropdownMenuModule, StSpinnerModule
-} from '@stratio/egeo';
-
-import { SharedModule } from '@app/shared';
-import {
-   ExecutionsManagingComponent, ExecutionsRouterModule, ExecutionsDetailComponent,
-   ExecutionsExecutionInfoComponent, ExecutionsHeaderContainer, ExecutionsHeaderComponent,
-   ExecutionsTableComponent, ExecutionsTableContainer, ExecutionsConsoleComponent
-} from '.';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { reducerToken, reducerProvider } from './reducers';
 import { ExecutionsEffect } from './effects/executions';
-import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
-import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
+
+import { EmptyTableBoxModule, SpartaSidebarModule } from '@app/shared';
+
+import { ExecutionsConsoleModule } from './components/executions-console/executions-console.module';
+import { ExecutionsDetailModule } from './components/executions-detail/executions-detail.module';
+import { ExecutionInfoModule } from './components/execution-info/execution-info.module';
+import { ExecutionsHeaderModule } from './components/executions-header/executions-header.module';
+import { ExecutionsManagingTableModule } from './components/executions-table/executions-table.module';
+
+import { ExecutionsManagingComponent } from './executions.component';
+
+
+import { ExecutionsRouterModule } from './executions.router';
 
 
 @NgModule({
    declarations: [
-      ExecutionsManagingComponent,
-      ExecutionsDetailComponent,
-      ExecutionsExecutionInfoComponent,
-      ExecutionsHeaderContainer,
-      ExecutionsHeaderComponent,
-      ExecutionsTableComponent,
-      ExecutionsTableContainer,
-      ExecutionsConsoleComponent
+      ExecutionsManagingComponent
    ],
    imports: [
-      FormsModule,
-      SpTooltipModule,
+      CommonModule,
+      EmptyTableBoxModule,
+      SpartaSidebarModule,
+      ExecutionsConsoleModule,
+      ExecutionsDetailModule,
+      ExecutionInfoModule,
+      ExecutionsManagingTableModule,
+      ExecutionsHeaderModule,
       StoreModule.forFeature('executions', reducerToken),
       EffectsModule.forFeature([ExecutionsEffect]),
-      StCheckboxModule,
-      StHorizontalTabsModule,
-      StFullscreenLayoutModule,
-      StTableModule,
-      StTooltipModule,
-      StSpinnerModule,
-      StBreadcrumbsModule,
-      StDropdownMenuModule,
-      StSearchModule,
       ExecutionsRouterModule,
-      StPaginationModule,
-      SharedModule,
-      ConsoleBoxModule
+      TranslateModule
    ],
    providers: [reducerProvider, ExecutionHelperService]
 })

@@ -16,6 +16,7 @@ export interface WizardNode {
   configuration: any;
   description?: string;
   debugResult: any;
+  supportedDataRelations?: Array<any>;
   uiConfiguration: {
     position: WizardNodePosition
   };

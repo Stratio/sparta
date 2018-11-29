@@ -5,18 +5,20 @@
  */
 
 import { NgModule } from '@angular/core';
-import { SharedModule } from '@app/shared';
+import { CommonModule } from '@angular/common';
 import { StModalModule, StModalService, StSwitchModule, StTableModule, StBreadcrumbsModule, StCheckboxModule } from '@stratio/egeo';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { FormFileModule, TableNotificationModule, ToolBarModule } from '@app/shared';
 
 import { SpartaBackups } from './backups.component';
 import { BackupsRoutingModule } from './backups.routes';
 import { ExecuteBackup } from './components/execute-backup/execute-backup.component';
 import { BackupsEffect } from './effects/backups';
 import { reducers } from './reducers';
-import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
 
 @NgModule({
    declarations: [
@@ -24,6 +26,8 @@ import { TableNotificationModule } from '@app/shared/components/table-notificati
       ExecuteBackup
    ],
    imports: [
+      CommonModule,
+      FormFileModule,
       BackupsRoutingModule,
       StoreModule.forFeature('backups', reducers),
       EffectsModule.forFeature([BackupsEffect]),
@@ -32,9 +36,10 @@ import { TableNotificationModule } from '@app/shared/components/table-notificati
       StCheckboxModule,
       StModalModule.withComponents([ExecuteBackup]),
       StSwitchModule,
-      SharedModule,
       TableNotificationModule,
-      StTableModule
+      StTableModule,
+      ToolBarModule,
+      TranslateModule
    ],
    providers: [
       StModalService

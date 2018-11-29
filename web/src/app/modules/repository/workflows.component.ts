@@ -161,7 +161,6 @@ export class WorkflowsManagingComponent implements OnInit, AfterViewInit, OnDest
       this._groupList$ && this._groupList$.unsubscribe();
       this._selectedVersion && this._selectedVersion.unsubscribe();
       window.removeEventListener('resize', this._calculatePosition);
-      //clearInterval(this.timer); // stop status requests
       this._store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
    }
 

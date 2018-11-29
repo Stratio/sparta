@@ -9,32 +9,31 @@ import { NgModule } from '@angular/core';
 import { EgeoModule } from '@stratio/egeo';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { shareComponents, sharedProvider } from './share.declarations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
-import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
-import { SpSelectModule } from '@app/shared/components/sp-select/sp-select.module';
-import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
-import { TableNotificationModule } from '@app/shared/components/table-notification/table-notification.module';
-import { FormGeneratorModule } from '@app/shared/components/form-generator/form-generator.module';
-import { FormListModule } from '@app/shared/components/form-list/form-list.module';
-import { FormFieldModule } from '@app/shared/components/form-field/form-field.module';
-import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
-import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
-import { ConsoleBoxModule } from '@app/shared/components/console-box/console.box.module';
-import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
-import { FormFileModule } from '@app/shared/components/form-file/form-file.module';
-import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
-import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-column-input.module';
-import {LoadingSpinnerModule} from '@app/shared/components/loading-spinner/loading-spinner.module';
-import { EmptyTableBoxModule } from '@app/shared/components/empty-table-box/empty-table-box.module';
+import { SpInputModule } from './components/sp-input/sp-input.module';
+import { SpTextareaModule } from './components/sp-textarea/sp-textarea.module';
+import { SpSelectModule } from './components/sp-select/sp-select.module';
+import { HighlightTextareaModule } from './components/highlight-textarea/hightlight-textarea.module';
+import { TableNotificationModule } from './components/table-notification/table-notification.module';
+import { FormGeneratorModule } from './components/form-generator/form-generator.module';
+import { FormListModule } from './components/form-list/form-list.module';
+import { FormFieldModule } from './components/form-field/form-field.module';
+import { SpTitleModule } from './components/sp-title/sp-title.module';
+import { SpHelpModule } from './components/sp-help/sp-help.module';
+import { ConsoleBoxModule } from './components/console-box/console.box.module';
+import { ToolBarModule } from './components/tool-bar/tool-bar.module';
+import { FormFileModule } from './components/form-file/form-file.module';
+import { SpartaSidebarModule } from './components/sparta-sidebar/sparta-sidebar.module';
+import { SpColumnInputModule } from './components/sp-column-input/sp-column-input.module';
+import {LoadingSpinnerModule} from './components/loading-spinner/loading-spinner.module';
+import { EmptyTableBoxModule } from './components/empty-table-box/empty-table-box.module';
+import { NotificationAlertModule } from './components/notification-alert/notification-alert.module';
 
 @NgModule({
    exports: [
       CommonModule,
       TranslateModule,
-      ...shareComponents,
       SpInputModule,
       SpTextareaModule,
       SpSelectModule,
@@ -66,6 +65,7 @@ import { EmptyTableBoxModule } from '@app/shared/components/empty-table-box/empt
       SpartaSidebarModule,
       ToolBarModule,
       FormFileModule,
+      NotificationAlertModule,
       HighlightTextareaModule,
       SpSelectModule,
       TranslateModule,
@@ -75,10 +75,7 @@ import { EmptyTableBoxModule } from '@app/shared/components/empty-table-box/empt
       SpColumnInputModule,
       EmptyTableBoxModule
    ],
-   declarations: [
-      ...shareComponents
-   ],
-   providers: [...sharedProvider]
+   providers: []
 })
 
 export class SharedModule {

@@ -6,8 +6,10 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+
 import { WeHeaderComponent } from '@app/wizard-embedded/we-header/we-header.component';
-import { SharedModule } from '@app/shared';
+import { FloatingMenuModule } from '@app/shared/components/floating-menu/floating-menu.module';
 
 @NgModule({
   exports: [
@@ -18,7 +20,8 @@ import { SharedModule } from '@app/shared';
   ],
   imports: [
     CommonModule,
-    SharedModule
+    FloatingMenuModule,
+    TranslateModule
   ]
 })
 

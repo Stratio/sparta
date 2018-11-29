@@ -1,3 +1,4 @@
+
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -6,20 +7,13 @@
 
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { EffectsModule } from '@ngrx/effects';
-import { StBreadcrumbsModule, StModalModule, StCheckboxModule, StHorizontalTabsModule,
-    StModalService, StProgressBarModule, StTextareaModule, StInputModule
-} from '@stratio/egeo';
-import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { StModalService, StProgressBarModule, StModalModule } from '@stratio/egeo';
 
-import { SharedModule } from '@app/shared';
-import {
-    WorkflowsManagingComponent, WorkflowsManagingService, WorkflowCreationModal,
-    WorkflowJsonModal,  WorkflowManagingRouterModule,
-    WorkflowGroupModal, WorkflowRenameModalComponent,
-    MoveGroupModal, GroupTreeComponent, DuplicateWorkflowComponent, GroupSelectorComponent
-} from '.';
+import { WorkflowsManagingService } from './workflows.service';
+import { WorkflowManagingRouterModule } from './workflows.router';
+import { WorkflowsManagingComponent } from './workflows.component';
 
 import { RepositoryTableHeaderModule } from './components/workflow-table-header/workflow-table-header.module';
 import { RepositoryTableModule } from './components/repository-table/repository-table.module';
@@ -28,45 +22,33 @@ import { RepositoryDetailModule } from './components/repository-detail/repositor
 
 import { reducers } from './reducers';
 import { WorkflowEffect } from './effects/workflow';
-import { SpSelectModule } from '@app/shared/components/sp-select/sp-select.module';
 import { CustomExecutionModule } from '@app/custom-execution/custom-execution.module';
+import { SpartaSidebarModule } from '@app/shared';
+
+import { WorkflowGroupModalModule } from './components/workflow-group-modal/workflow-group-modal.module';
+import { WorkflowGroupModalComponent } from './components/workflow-group-modal/workflow-group-modal.component';
+import { WorkflowJsonModalComponent } from './components/workflow-json-modal/workflow-json-modal.component';
+import { WorkflowJsonModalModule } from './components/workflow-json-modal/workflow-json-modal.module';
 
 @NgModule({
-    exports: [
-      WorkflowJsonModal
-   ],
     declarations: [
-        WorkflowsManagingComponent,
-        WorkflowCreationModal,
-        WorkflowJsonModal,
-        WorkflowGroupModal,
-        WorkflowRenameModalComponent,
-        GroupSelectorComponent,
-        GroupTreeComponent,
-        DuplicateWorkflowComponent,
-        MoveGroupModal
+        WorkflowsManagingComponent
     ],
     imports: [
-        FormsModule,
-        ReactiveFormsModule,
+        CommonModule,
         StoreModule.forFeature('workflowsManaging', reducers),
         EffectsModule.forFeature([WorkflowEffect]),
-        PerfectScrollbarModule,
         CustomExecutionModule,
-        StHorizontalTabsModule,
+        SpartaSidebarModule,
         StProgressBarModule,
-        StTextareaModule,
-        SpSelectModule,
-        StInputModule,
+        StModalModule.withComponents([WorkflowGroupModalComponent, WorkflowJsonModalComponent]),
         WorkflowManagingRouterModule,
         RepositoryDetailModule,
         RepositoryHeaderModule,
         RepositoryTableHeaderModule,
         RepositoryTableModule,
-        SharedModule,
-        StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal,
-        WorkflowGroupModal, WorkflowRenameModalComponent, MoveGroupModal, GroupTreeComponent,
-        DuplicateWorkflowComponent])
+        WorkflowGroupModalModule,
+        WorkflowJsonModalModule,
     ],
     providers: [
         WorkflowsManagingService,

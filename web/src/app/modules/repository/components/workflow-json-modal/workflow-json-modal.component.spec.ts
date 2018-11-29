@@ -14,16 +14,15 @@ import { Store } from '@ngrx/store';
 
 import { TranslateMockModule, initTranslate } from '@test/translate-stub';
 import { Router } from '@angular/router';
-import { SharedModule } from '@app/shared';
 import { MockStore } from '@test/store-mock';
 import * as workflowActions from './../../actions/workflow-list';
-import { WorkflowJsonModal } from './workflow-json-modal.component';
+import { WorkflowJsonModalComponent } from './workflow-json-modal.component';
 import { ROOT_STORE_MOCK } from '@test/root-store-mock';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 
-let component: WorkflowJsonModal;
-let fixture: ComponentFixture<WorkflowJsonModal>;
+let component: WorkflowJsonModalComponent;
+let fixture: ComponentFixture<WorkflowJsonModalComponent>;
 
 let routeMock: Router;
 let modalServiceMock: StModalService;
@@ -47,18 +46,17 @@ describe('[WorkflowJsonModal]', () => {
          imports: [
             StBreadcrumbsModule,
             TranslateMockModule,
-            SharedModule,
             FormsModule,
             StTextareaModule
          ],
          providers: [
             { provide: Store, useValue: mockStoreInstance }
          ],
-         declarations: [WorkflowJsonModal],
+         declarations: [WorkflowJsonModalComponent],
          schemas: [NO_ERRORS_SCHEMA]
       })
       // remove this block when the issue #12313 of Angular is fixed
-         .overrideComponent(WorkflowJsonModal, {
+         .overrideComponent(WorkflowJsonModalComponent, {
             set: { changeDetection: ChangeDetectionStrategy.Default }
          })
          .compileComponents();  // compile template and css
@@ -67,23 +65,19 @@ describe('[WorkflowJsonModal]', () => {
 
    beforeEach(() => {
       initTranslate();
-      fixture = TestBed.createComponent(WorkflowJsonModal);
+      fixture = TestBed.createComponent(WorkflowJsonModalComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
    });
 
    describe('User can save the new workflow when workflow json has been typed', () => {
-      let originalTimeout;
 
       beforeEach(() => {
          component.model.json = JSON.stringify(fakeWorkflowJson);
-         originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
-         jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
          fixture.detectChanges();
       });
 
       afterEach(() => {
-         jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
          mockStoreInstance.next(initialStoreState);
       });
 

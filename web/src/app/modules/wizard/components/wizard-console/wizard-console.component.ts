@@ -1,4 +1,3 @@
-import { errorComparator } from 'rxjs-tslint/node_modules/tslint/lib/verify/lintError';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *

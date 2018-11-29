@@ -14,7 +14,6 @@ import { Store } from '@ngrx/store';
 import { isEqual as _isEqual } from 'lodash';
 import * as fromQueryBuilder from './reducers';
 import * as queryBuilderActions from './actions/queryBuilder';
-import { SaveJsonWorkflowActionError } from '@app/workflows/workflow-managing/actions/workflow-list';
 import { combineLatest } from 'rxjs';
 
 

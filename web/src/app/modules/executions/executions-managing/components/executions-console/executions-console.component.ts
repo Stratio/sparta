@@ -35,7 +35,7 @@ export class ExecutionsConsoleComponent implements OnInit {
 
    public selectedOption: StHorizontalTab;
 
-   constructor(private _el: ElementRef, private _ngZone: NgZone) { }
+   constructor(private _el: ElementRef) { }
 
    ngOnInit(): void {
       this.selectedOption = { id: 'Exceptions', text: 'Exceptions' };

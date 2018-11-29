@@ -5,15 +5,18 @@
  */
 
 import { NgModule } from '@angular/core';
-import { WeConfigEditorComponent } from '@app/wizard-embedded/we-config-editor/we-config-editor.component';
 import { StFullscreenLayoutModule } from '@stratio/egeo';
 import { CommonModule } from '@angular/common';
-import { FormGeneratorModule } from '@app/shared/components/form-generator/form-generator.module';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+
+
+import { WeConfigEditorComponent } from '@app/wizard-embedded/we-config-editor/we-config-editor.component';
+import { FormGeneratorModule } from '@app/shared/components/form-generator/form-generator.module';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
 import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
-import {SharedModule} from '@app/shared';
-import {SidebarConfigModule} from '@app/wizard/components/sidebar-config/sidebar-config.module';
+import { SidebarConfigModule } from '@app/wizard/components/sidebar-config/sidebar-config.module';
+import { SpHelpModule } from '@app/shared/components/sp-help/sp-help.module';
 
 @NgModule({
   exports: [
@@ -27,10 +30,11 @@ import {SidebarConfigModule} from '@app/wizard/components/sidebar-config/sidebar
     FormGeneratorModule,
     FormsModule,
     StFullscreenLayoutModule,
+    SpHelpModule,
     SpInputModule,
     SpTextareaModule,
-    SharedModule,
-    SidebarConfigModule
+    SidebarConfigModule,
+    TranslateModule
   ]
 })
 

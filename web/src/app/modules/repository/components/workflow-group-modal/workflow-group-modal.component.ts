@@ -14,11 +14,11 @@ import { ErrorMessagesService } from 'app/services';
 
 @Component({
     selector: 'workflow-group-modal',
-    templateUrl: './workflow-group-modal.template.html',
-    styleUrls: ['./workflow-group-modal.styles.scss'],
+    templateUrl: './workflow-group-modal.component.html',
+    styleUrls: ['./workflow-group-modal.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowGroupModal implements OnInit, OnDestroy {
+export class WorkflowGroupModalComponent implements OnInit, OnDestroy {
 
     @Output() onCloseGroupModal = new EventEmitter<string>();
 

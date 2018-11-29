@@ -7,20 +7,23 @@
 import { StoreModule } from '@ngrx/store';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+
 import {
   StSearchModule, StSwitchModule, StTableModule, StCheckboxModule,
   StPaginationModule, StBreadcrumbsModule, StProgressBarModule
 } from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
+import { TranslateModule } from '@ngx-translate/core';
+
+import { SpPipesModule, HighlightTextareaModule, LoadingSpinnerModule, SpSelectModule, ToolBarModule } from '@app/shared';
 
 import { CrossdataTables } from './components/crossdata-tables/crossdata-tables.component';
 import { CrossdataQueries } from './components/crossdata-queries/crossdata-queries.component';
-import { SharedModule } from '@app/shared';
 import { CrossdataComponent } from './crossdata.component';
 import { CrossdataRouter } from './crossdata.router';
 import { CrossdataEffect } from './effects/crossdata';
 import { reducers } from './reducers/';
-import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
 import { CrossdataCatalogComponent } from './components/crossdata-catalog/crossdata-catalog.component';
 
 @NgModule({
@@ -34,19 +37,24 @@ import { CrossdataCatalogComponent } from './components/crossdata-catalog/crossd
     CrossdataCatalogComponent
   ],
   imports: [
+    CommonModule,
     FormsModule,
     CrossdataRouter,
     EffectsModule.forFeature([CrossdataEffect]),
     StoreModule.forFeature('crossdata', reducers),
+    SpPipesModule,
     HighlightTextareaModule,
-    SharedModule,
+    LoadingSpinnerModule,
     StSearchModule,
     StSwitchModule,
     StTableModule,
     StCheckboxModule,
     StPaginationModule,
     StProgressBarModule,
-    StBreadcrumbsModule
+    StBreadcrumbsModule,
+    SpSelectModule,
+    ToolBarModule,
+    TranslateModule
   ]
 })
 

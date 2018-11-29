@@ -15,7 +15,6 @@
   @include createFlexBox(column, normal, flex-start, nowrap);
 
   DIV.we__editor {
-    background: url('../../../assets/images/workflow-base.png') 11px 8px;
     width: 100%;
     height: calc(100% - #{$wizardHeaderHeight});
     position: relative;

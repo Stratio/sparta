@@ -5,7 +5,6 @@
  */
 import { AppRouter } from 'app';
 import { EgeoModule } from '@stratio/egeo';
-import { SharedModule } from '@app/shared';
 import { TranslateModule } from '@ngx-translate/core';
 import { StoreModule } from '@ngrx/store';
 import { TRANSLATE_CONFIG } from '@app/core';
@@ -26,7 +25,6 @@ export const APP_IMPORTS: Array<any> = [
    BrowserModule,
    EgeoModule.forRoot(),
    HttpClientModule,
-   SharedModule,
    TranslateModule.forRoot(TRANSLATE_CONFIG),
    StoreModule.forRoot(reducers),
     !environment.production

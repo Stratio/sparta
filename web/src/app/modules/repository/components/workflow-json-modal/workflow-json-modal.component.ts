@@ -15,11 +15,11 @@ import * as fromRoot from './../../reducers';
 
 @Component({
     selector: 'workflow-json-modal',
-    templateUrl: './workflow-json-modal.template.html',
-    styleUrls: ['./workflow-json-modal.styles.scss'],
+    templateUrl: './workflow-json-modal.component.html',
+    styleUrls: ['./workflow-json-modal.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowJsonModal implements OnInit {
+export class WorkflowJsonModalComponent implements OnInit {
 
     @Output() onCloseJsonModal = new EventEmitter<string>();
 

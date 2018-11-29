@@ -21,15 +21,16 @@ import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from './../../reducers';
 import { FOLDER_SEPARATOR } from './../../workflow.constants';
 import { Group } from './../../models/workflows';
+
 import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'move-group-modal',
-    templateUrl: './move-group.template.html',
-    styleUrls: ['./move-group.styles.scss'],
+    templateUrl: './move-group.component.html',
+    styleUrls: ['./move-group.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MoveGroupModal implements OnInit, OnDestroy {
+export class MoveGroupModalComponent implements OnInit, OnDestroy {
 
     @Input() workflow: any;
     @Input() currentGroup: string;

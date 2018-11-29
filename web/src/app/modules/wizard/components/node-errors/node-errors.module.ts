@@ -7,8 +7,8 @@
 import {NgModule} from '@angular/core';
 import {NodeErrorsComponent} from '@app/wizard/components/node-errors/node-errors.component';
 import {NodeSchemaModule} from '@app/wizard/components/node-schema/node-schema.module';
-import {CommonModule} from '@angular/common';
-import {SharedModule} from '@app/shared';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   exports: [
@@ -19,8 +19,8 @@ import {SharedModule} from '@app/shared';
   ],
   imports: [
     CommonModule,
-    SharedModule,
-    NodeSchemaModule
+    NodeSchemaModule,
+    TranslateModule
   ]
 })
 

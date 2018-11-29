@@ -7,7 +7,6 @@
 import {NgModule} from '@angular/core';
 import {NodeSchemaComponent} from '@app/wizard/components/node-schema/node-schema.component';
 import {CommonModule} from '@angular/common';
-import {SharedModule} from '@app/shared';
 
 @NgModule({
   exports: [
@@ -17,8 +16,7 @@ import {SharedModule} from '@app/shared';
     NodeSchemaComponent
   ],
   imports: [
-    CommonModule,
-    SharedModule
+    CommonModule
   ]
 })
 

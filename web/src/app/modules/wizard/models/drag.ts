@@ -25,4 +25,8 @@ export interface NodeConnector {
 export interface DrawingConnectorStatus {
     status: boolean;
     name: string;
+    initPosition?: {
+      x: number;
+      y: number;
+    };
 }
