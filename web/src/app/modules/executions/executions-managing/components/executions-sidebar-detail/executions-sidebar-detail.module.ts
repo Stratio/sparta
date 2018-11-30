@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { StHorizontalTabsModule } from '@stratio/egeo';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ExecutionsDetailComponent } from './executions-detail.component';
+import { ExecutionsSidebarDetailComponent } from './executions-sidebar-detail.component';
 
 @NgModule({
    imports: [
@@ -16,7 +16,7 @@ import { ExecutionsDetailComponent } from './executions-detail.component';
      StHorizontalTabsModule,
      TranslateModule
    ],
-   declarations: [ExecutionsDetailComponent],
-   exports: [ExecutionsDetailComponent]
+   declarations: [ExecutionsSidebarDetailComponent],
+   exports: [ExecutionsSidebarDetailComponent]
 })
-export class ExecutionsDetailModule { }
+export class ExecutionsSidebarDetailModule { }

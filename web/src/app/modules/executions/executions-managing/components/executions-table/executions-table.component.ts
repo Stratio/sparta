@@ -23,58 +23,64 @@ import { Router } from '@angular/router';
 
 export class ExecutionTableComponent {
 
-   @Input() executionList: Array<any> = [];
-   @Input() selectedExecutionsIds: Array<string> = [];
-   @Input() perPage = 0;
-   @Input() currentPage = 0;
-   @Input() total = 0;
-   @Input() currentOrder;
+  @Input() executionList: Array<any> = [];
+  @Input() selectedExecutionsIds: Array<string> = [];
+  @Input() perPage = 0;
+  @Input() currentPage = 0;
+  @Input() total = 0;
+  @Input() currentOrder;
 
-   @Output() selectExecution = new EventEmitter<any>();
-   @Output() deselectExecution = new EventEmitter<any>();
-   @Output() onChangeOrder = new EventEmitter<Order>();
-   @Output() onChangePage = new EventEmitter<any>();
+  @Output() selectExecution = new EventEmitter<any>();
+  @Output() deselectExecution = new EventEmitter<any>();
+  @Output() onChangeOrder = new EventEmitter<Order>();
+  @Output() onChangePage = new EventEmitter<any>();
 
-   public fields: StTableHeader[];
-   public generatedId: string;
-   public perPageOptions: any = [
-      { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
-   ];
+  public fields: StTableHeader[];
+  public generatedId: string;
+  public perPageOptions: any = [
+    { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
+  ];
 
-   public loadingStates: string[] = ['Starting', 'Launched', 'Uploaded'];
-
-
-   checkValue(event: any) {
-      this.checkRow(event.checked, event.value);
-   }
-
-   checkRow(isChecked: boolean, value: any) {
-      if (isChecked) {
-         this.selectExecution.emit(value);
-      } else {
-         this.deselectExecution.emit(value);
-      }
-   }
+  public loadingStates: string[] = ['Starting', 'Launched', 'Uploaded'];
 
 
-   showSparkUI(url: string) {
-      window.open(url, '_blank');
-   }
+  checkValue(event: any) {
+    this.checkRow(event.checked, event.value);
+  }
 
-   trackByFn(index, item) {
-      return item.id;
-   }
+  checkRow(isChecked: boolean, value: any) {
+    if (isChecked) {
+       this.selectExecution.emit(value);
+    } else {
+       this.deselectExecution.emit(value);
+    }
+  }
 
-   constructor(private route: Router, private _cd: ChangeDetectorRef) {
-      this.generatedId = 'paginator-' + Math.floor((Math.random() * 1000) + 1);
-      this.fields = [
-         { id: 'isChecked', label: '', sortable: false },
-         { id: 'name', label: 'Name' },
-         { id: 'context', label: 'Context' },
-         { id: 'launchDateMillis', label: 'Launch Date' },
-         { id: 'endDateMillis', label: 'End Date' },
-         { id: 'filterStatus', label: 'Status' },
-         { id: 'spark', label: '', sortable: false }
-      ];
-   }
+
+  showSparkUI(url: string) {
+    window.open(url, '_blank');
+  }
+
+  trackByFn(index, item) {
+    return item.id;
+  }
+
+  constructor(private route: Router, private _cd: ChangeDetectorRef) {
+    this.generatedId = 'paginator-' + Math.floor((Math.random() * 1000) + 1);
+    this.fields = [
+      { id: 'isChecked', label: '', sortable: false },
+      { id: 'name', label: 'Name' },
+      { id: 'context', label: 'Context' },
+      { id: 'launchDateMillis', label: 'Launch Date' },
+      { id: 'endDateMillis', label: 'End Date' },
+      { id: 'filterStatus', label: 'Status' },
+      { id: 'spark', label: '', sortable: false }
+    ];
+  }
+
+  goToWorkflow(ev, id) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.route.navigate(['executions', id]);
+  }
 }

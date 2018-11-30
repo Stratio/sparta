@@ -19,8 +19,8 @@
          </div>
          <div class="execution-detail-container">
             <sparta-sidebar [fullHeight]="true" [isVisible]="showDetails" (onCloseSidebar)="onShowExecutionInfo()">
-               <executions-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
-                  [executionData]="selectedExecution" (showConsole)="showConsole($event)"></executions-detail>
+               <executions-sidebar-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
+                  [executionData]="selectedExecution" (showConsole)="showConsole($event)"></executions-sidebar-detail>
             </sparta-sidebar>
          </div>
       </div>

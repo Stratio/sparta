@@ -138,6 +138,17 @@ export class ExecutionsEffect {
             name: data.payload.name
          })).catch(error => from([new executionsActions.GetExecutionInfoErrorAction(), new errorActions.ServerErrorAction(error)]))));
 
+  @Effect()
+  getExecution: Observable<any> = this.actions$
+    .ofType(executionsActions.GET_EXECUTION)
+    .pipe(map((action: any) => action.executionId))
+    .pipe(switchMap((executionId: string) => this._executionService.getExecutionById(executionId)
+      .pipe(map((execution: any) => new executionsActions.GetExecutionCompleteAction(execution)
+      ))
+      .pipe(catchError(error => of(new executionsActions.GetExecutionErrorAction())))));
+
+
+
    constructor(
       private actions$: Actions,
       private _executionHelperService: ExecutionHelperService,

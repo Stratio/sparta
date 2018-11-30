@@ -6,11 +6,16 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ExecutionsManagingComponent } from './executions.component';
+import { ExecutionsDetailComponent } from './components/executions-detail/executions-detail.component';
 
 const executionsRoutes: Routes = [
    {
       path: '',
       component: ExecutionsManagingComponent
+   },
+   {
+     path: ':id',
+     component: ExecutionsDetailComponent
    }
 ];
 

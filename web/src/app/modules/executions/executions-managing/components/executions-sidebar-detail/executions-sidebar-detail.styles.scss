@@ -1,0 +1,130 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+   display: block;
+}
+
+.not-selected {
+   text-align: center;
+   min-height: 230px;
+   margin-top: 20px;
+   .execution-detail-image {
+      width: 140px;
+   }
+
+   .execution-info {
+    font-size: $egeo-font-size-xxsmall;
+    color: $neutral-10;
+  }
+}
+
+.execution-group {
+  color: $action-secondary-06;
+  font-size: 14px;
+}
+.description {
+   display: block;
+   font-size: $egeo-font-size-xxsmall;
+   display: block;
+}
+
+.date {
+  font-size: $egeo-font-size-xxsmall;
+}
+
+.title {
+   display: block;
+   margin-top: 10px;
+}
+
+.title2 {
+   display: block;
+   margin-top: 15px;
+}
+
+
+.values {
+   display: block;
+   font-size: $egeo-font-size-xxsmall;
+}
+
+.status {
+   font-weight: 600;
+   color: #3c3c3c;
+   font-size: $egeo-font-size-xsmall;
+   background: rgba(205, 214, 223, 0.3);
+   padding: 3px 10px;
+   display: inline-block;
+   margin-bottom: 5px;
+   &.started {
+      background: rgba(12, 170, 112, 0.15);
+      color: #0baa70;
+      padding: 3px 10px;
+   }
+   &.failed {
+      color: $status-critical-default;
+      padding: 3px 10px;
+      background: rgba(170, 12, 112, 0.15);
+   }
+}
+
+.status-advaced {
+  font-weight: 400;
+}
+
+.execution-info-link {
+   font-family: $egeo-nunito-sans-semiBold;
+   cursor: pointer;
+   color: $action-primary-default;
+   display: block;
+}
+
+.selected {
+    margin-top: 16px;
+}
+
+.errors {
+   font-size: 14px;
+
+   .icon {
+      font-size: 13px;
+   }
+   .message {
+      display: block;
+      font-family: $egeo-nunito-sans-semiBold;
+      color: $status-critical-hover;
+      word-wrap: break-word;
+   }
+   .original-msg {
+      word-break: break-word;
+      color: $status-critical-hover;
+   }
+
+   .details {
+      color: #4a90e2;
+      font-size: 15px;
+      cursor: pointer;
+    }
+}
+
+.phase, .step {
+  display: block;
+}
+
+.details-option{
+  width: 100%;
+  display: block;
+  padding-bottom: 25px;
+}
+
+.extraParam-name {
+    font-weight: bold;
+    display: block;
+}
+
+.execution-parameters{
+  word-break: break-all;
+}
+.parameters {
+  margin-top:10px;
+}

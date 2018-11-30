@@ -3,62 +3,69 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input, OnChanges } from '@angular/core';
-import { StHorizontalTab } from '@stratio/egeo';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+
+
+import * as fromExecution from '../../reducers';
+import * as executionActions from '../../actions/executions';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
    selector: 'executions-detail',
    templateUrl: './executions-detail.template.html',
    styleUrls: ['./executions-detail.styles.scss']
 })
-export class ExecutionsDetailComponent implements OnInit, OnChanges {
+export class ExecutionsDetailComponent implements OnInit, OnDestroy {
 
-   @Input() executionData: any;
-   @Output() showWorkflowExecutionInfo = new EventEmitter<any>();
-   @Output() showConsole = new EventEmitter<any>();
-
-
-   public inputs: Array<string> = [];
-   public outputs: Array<string> = [];
-   public transformations: Array<string> = [];
-
-   public objectKeys = Object.keys;
-
-   public lastError: any;
+   public isLoading: boolean;
    public execution: any;
-   public executionContext: any;
-   public parametersList: Array<string>;
+   public edges: any = [];
+   public nodes: any = [];
 
-   public options: StHorizontalTab[] = [
-     {
-      id: 'overview',
-      text: 'Overview'
-     }, {
-      id: 'parameters',
-      text: 'Parameters'
-     }
-   ];
-   public activeOption = this.options[0];
+   private _componentDestroyed = new Subject();
 
-   constructor(private _cd: ChangeDetectorRef) { }
+   constructor(private _route: ActivatedRoute, private _store: Store<fromExecution.State>, private _cd: ChangeDetectorRef) { }
 
-   ngOnInit() { }
+   ngOnInit() {
+      const id = this._route.snapshot.params.id;
+      this._store.dispatch(new executionActions.GetExecutionAction(id));
+      this._store.select(fromExecution.getExecutionDetailInfo)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe(execution => {
+         this.execution = execution;
+         if (execution) {
+            const { pipelineGraph } =  execution.genericDataExecution.workflow;
+            this.nodes = pipelineGraph.nodes;
+            this.edges = this.getEdgesMap(pipelineGraph.nodes, pipelineGraph.edges);
+         }
+         this._cd.markForCheck();
+      });
 
-   ngOnChanges() {
-      if (this.executionData) {
-         this.execution = this.executionData && this.executionData.execution ? this.executionData.execution : null;
-         this.lastError = this.executionData.lastError;
-         this.parametersList = this.executionData.genericDataExecution.workflow.parametersUsedInExecution;
-         this._cd.detectChanges();
-      }
-
+      this._store.select(fromExecution.getExecutionDetailIsLoading)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe(isLoading => {
+         this.isLoading = isLoading;
+         this._cd.markForCheck();
+      });
    }
 
-   changedOption(event: StHorizontalTab) {
-     this.activeOption = event;
-   }
+   getEdgesMap(nodes, edges) {
+    const nodesMap = nodes.reduce(function (map, obj) {
+      map[obj.name] = obj;
+      return map;
+    }, {});
+    return edges.map((edge: any) => ({
+      origin: nodesMap[edge.origin],
+      destination: nodesMap[edge.destination],
+      dataType: edge.dataType
+    }));
+  }
 
-   onShowConsole() {
-      this.showConsole.emit();
-   }
+  ngOnDestroy(): void {
+    this._componentDestroyed.next();
+    this._componentDestroyed.unsubscribe();
+ }
 }

@@ -55,6 +55,10 @@ export const DELETE_EXECUTION_COMPLETE = '[Workflow] Delete execution complete';
 export const DELETE_EXECUTION_ERROR = '[Workflow] Delete execution error';
 
 
+export const GET_EXECUTION = '[Executions] Get execution';
+export const GET_EXECUTION_COMPLETE = '[Executions] Get execution complete';
+export const GET_EXECUTION_ERROR = '[Executions] Get execution error';
+
 export class ListExecutionsAction implements Action {
    readonly type = LIST_EXECUTIONS;
 }
@@ -185,7 +189,7 @@ export class GetExecutionInfoErrorAction implements Action {
 export class CloseWorkflowExecutionInfoAction implements Action {
   readonly type = CLOSE_WORKFLOW_EXECUTION_INFO;
 
-  constructor() { };
+  constructor() { }
 }
 
 export class SetArchivedPageAction implements Action {
@@ -205,6 +209,20 @@ export class DeleteExecutionCompleteAction implements Action {
 
 export class DeleteExecutionErrorAction implements Action {
   readonly type = DELETE_EXECUTION_ERROR;
+}
+
+export class GetExecutionAction implements Action {
+  readonly type = GET_EXECUTION;
+  constructor(public executionId: string) {}
+}
+
+export class GetExecutionCompleteAction implements Action {
+  readonly type = GET_EXECUTION_COMPLETE;
+  constructor(public execution: any) {}
+}
+
+export class GetExecutionErrorAction implements Action {
+  readonly type = GET_EXECUTION_ERROR;
 }
 
 export type Actions = ListExecutionsAction
@@ -237,4 +255,7 @@ export type Actions = ListExecutionsAction
    | SetArchivedPageAction
    | DeleteExecutionAction
    | DeleteExecutionCompleteAction
-   | DeleteExecutionErrorAction;
+   | DeleteExecutionErrorAction
+   | GetExecutionAction
+   | GetExecutionCompleteAction
+   | GetExecutionErrorAction;

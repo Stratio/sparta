@@ -12,17 +12,19 @@ import { orderBy, reduceReducers } from '@utils';
 
 import * as fromRoot from 'reducers';
 import * as fromExecutionsList from './executions';
+import * as fromExecution from './execution';
 import { StPaginationComponent } from '@stratio/egeo/typings/st-pagination/st-pagination.component';
 
 export interface ExecutionsMonitoringState {
   executions: fromExecutionsList.State;
+  execution: fromExecution.State;
 }
 
 export interface State extends fromRoot.State {
   executions: ExecutionsMonitoringState;
 }
 
-export const reducers = reduceReducers(combineReducers({ executions: fromExecutionsList.reducer }));
+export const reducers = reduceReducers(combineReducers({ executions: fromExecutionsList.reducer, execution: fromExecution.reducer }));
 
 export const reducerToken = new InjectionToken<ActionReducerMap<ExecutionsMonitoringState>>('Reducers');
 
@@ -39,6 +41,14 @@ export const getExecutionsState = createSelector(
   getExecutionsMonitoringState,
   state => state.executions
 );
+
+export const getExecutionState = createSelector(
+  getExecutionsMonitoringState,
+  state => state.execution
+);
+
+export const getExecutionDetailInfo = createSelector(getExecutionState, state => state.execution);
+export const getExecutionDetailIsLoading = createSelector(getExecutionState, state => state.loading);
 
 export const getStatusFilter = createSelector(getExecutionsState, state => state.statusFilter);
 export const getTypeFilter = createSelector(getExecutionsState, state => state.typeFilter);
