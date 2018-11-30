@@ -108,6 +108,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
         val conn = getConnection(connectionProperties, outputName)
         conn.setAutoCommit(true)
         val schemaStr = JdbcUtils.schemaString(dataFrame, connectionProperties.url, connectionProperties.createTableColumnTypes)
+          .replace("FLOAT8[]", "DOUBLE PRECISION[]")
         val sql = s"CREATE TABLE $tableName ($schemaStr)"
         val statement = conn.createStatement
 

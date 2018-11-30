@@ -38,12 +38,13 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
 
     globalParametersFuture.onSuccess { case globalParameters =>
       val variablesNames = globalParameters.variables.map(_.name)
-      val variablesToAdd = DefaultCustomExampleParameters.filter { variable =>
+      val variablesToAdd = DefaultGlobalParameters.filter { variable =>
         !variablesNames.contains(variable.name)
       }
+      val newVariablesMap = DefaultGlobalParametersMap ++ ParameterList.parametersToMap(globalParameters.variables)
       log.debug(s"Variables not present in the actual global parameters: $variablesToAdd")
       updateGlobalParameters(globalParameters.copy(
-        variables = (DefaultCustomExampleParametersMap ++ ParameterList.parametersToMap(globalParameters.variables)).values.toSeq
+        variables = newVariablesMap.values.toSeq
       ))
     }
 

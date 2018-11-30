@@ -8,8 +8,8 @@ package com.stratio.sparta.plugin.workflow.output.postgres
 
 import java.io.{InputStream, Serializable => JSerializable}
 import java.sql.SQLException
-import scala.util.{Failure, Success, Try}
 
+import scala.util.{Failure, Success, Try}
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
@@ -27,6 +27,9 @@ import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.json.RowJsonHelper
+import org.apache.spark.sql.types.{ArrayType, MapType, StructType}
 
 class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
@@ -232,14 +235,14 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 upsert(dfUpsert, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, txSaveMode, isNewTable, dialect, upsertFields)
               }
               else if (postgresSaveMode == TransactionTypes.COPYIN) {
-                val schemaFieldsCount = dataFrame.schema.fields.length
+                val schema = dataFrame.schema
                 dataFrame.foreachPartition { rows =>
                   val conn = getConnection(connectionProperties, name)
                   val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
                   cm.copyIn(
-                    s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
-                    rowsToInputStream(rows, schemaFieldsCount)
+                    s"""COPY $tableName (${schema.fields.map(_.name).mkString(",")}) FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
+                    rowsToInputStream(rows, schema)
                   )
                 }
               } else {
@@ -316,9 +319,40 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
   //scalastyle:on
 
-  def rowsToInputStream(rows: Iterator[Row], fieldsCount: Int): InputStream = {
-    val bytes: Iterator[Byte] = rows.flatMap { row =>
-      val text = (row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n")
+  def rowsToInputStream(rows: Iterator[Row], schema: StructType): InputStream = {
+    val fieldsCount = schema.fields.length
+    val bytes: Iterator[Byte] = rows.flatMap { inputRow =>
+      val row = schema.fields.toSeq.map { field =>
+        val fieldIndex = inputRow.fieldIndex(field.name)
+        val value = inputRow.get(fieldIndex)
+
+        def jsonValue = {
+          val newRow = new GenericRowWithSchema(
+            Array(value),
+            StructType(inputRow.schema.fields(fieldIndex) :: Nil)
+          )
+          RowJsonHelper.toValueAsJSON(newRow, Map.empty)
+        }
+
+        field.dataType match {
+          case _: MapType =>
+            jsonValue
+          case _: ArrayType =>
+            jsonValue
+              .replace("[\"", "{{")
+              .replace("[", "{{")
+              .replace("\"]", "}}")
+              .replace("]", "}}")
+              .replace("\",\"", "}#{")
+              .replace(",", "}#{")
+              .replace("}#{", "},{")
+          case _: StructType =>
+            jsonValue
+          case _ => value.toString
+        }
+      }
+
+      val text = row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n"
       if (text.split(delimiter).length != fieldsCount)
         throw new RuntimeException(s"Row [$text] contains selected delimiter $delimiter in one or more fields")
       text.getBytes(encoding)
