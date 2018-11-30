@@ -29,15 +29,13 @@ object SecurityManagerHelper {
       log.info("Starting Gosec Sparta Dyplon security manager")
       val secManager = if (Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)) {
         Some(new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager])
-      } else if (Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)) {
-        Some(new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager])
       } else {
-        log.info("Authorization is not enabled, configure a security manager if needed")
-        None
+        Some(new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager])
       }
+
       secManager.foreach { manager =>
         manager.start()
-        log.info("Started Gosec Sparta Dyplon security manager")
+        log.info("Gosec Sparta Dyplon security manager started")
       }
       secManager
     }
@@ -56,7 +54,7 @@ object SecurityManagerHelper {
       val constr = securityManagerClass.getConstructor()
       val secManager = constr.newInstance().asInstanceOf[CrossdataSecurityManager]
       secManager.start()
-      log.debug("Started Gosec Crossdata Dyplon security manager")
+      log.debug("Gosec Crossdata Dyplon security manager started")
     }
 
 
@@ -64,7 +62,7 @@ object SecurityManagerHelper {
     case Success(value) =>
       value
     case Failure(e) =>
-      log.error("Incorrect value in security manager option, setting enabled value by default", e)
+      log.error("Incorrect value in security manager option, setting enabled value to false", e)
       true
   }
 
@@ -73,7 +71,7 @@ object SecurityManagerHelper {
       case Success(value) =>
         value
       case Failure(e) =>
-        log.error("Incorrect value in crossdata security manager option, setting enabled value by default", e)
+        log.error("Incorrect value in Crossdata security manager option, setting enabled value to false", e)
         true
     }
 
