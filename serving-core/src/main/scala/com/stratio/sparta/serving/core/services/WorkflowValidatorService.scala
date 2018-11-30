@@ -7,22 +7,12 @@ package com.stratio.sparta.serving.core.services
 
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowValidationMessage
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowValidation}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.apache.commons.lang.exception.ExceptionUtils
 import scalax.collection.Graph
 import scalax.collection.edge.LDiEdge
-import com.stratio.sparta.core.helpers.ExceptionHelper
-import com.stratio.sparta.core.models.WorkflowValidationMessage
-import com.stratio.sparta.serving.core.helpers.GraphHelper
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowValidation}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import org.apache.commons.lang.exception.ExceptionUtils
-import org.apache.curator.framework.CuratorFramework
-import scalax.collection.Graph
-import scalax.collection.edge.LDiEdge
-import scala.util.{Failure, Success, Try}
 
 import scala.util.{Failure, Success, Try}
 
@@ -35,7 +25,7 @@ class WorkflowValidatorService() {
     implicit val workflowToValidate: Workflow = workflow
     implicit val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
 
-    val validationResult = handleValidateError{
+    val validationResult = handleValidateError {
       new WorkflowValidation()
         .validateGroupName
         .validateName
@@ -53,6 +43,7 @@ class WorkflowValidatorService() {
         .validateInvalidGroupParameters
         .validateMesosConstraints
         .validatePlugins
+        .validateStepName
     }
 
     validationResult.copy(messages = validationResult.messages.distinct)
@@ -79,7 +70,7 @@ class WorkflowValidatorService() {
 
     implicit val workflowToValidate: Workflow = workflow
 
-    val validationResult = handleValidateError{
+    val validationResult = handleValidateError {
       new WorkflowValidation()
         .validateGroupName
         .validateName
@@ -95,7 +86,7 @@ class WorkflowValidatorService() {
     implicit val workflowToValidate: Workflow = workflow
     implicit val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
 
-    val validationResult = handleValidateError{
+    val validationResult = handleValidateError {
       new WorkflowValidation()
         .validateExistenceCorrectPath
         .validateErrorOutputs
@@ -113,7 +104,7 @@ class WorkflowValidatorService() {
     implicit val workflowToValidate: Workflow = workflow
     implicit val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
 
-    val validationResult = handleValidateError{
+    val validationResult = handleValidateError {
       new WorkflowValidation()
         .validateArityOfNodes
         .validateCheckpointCubes
@@ -128,22 +119,24 @@ class WorkflowValidatorService() {
       case Success(valid) => valid
       case Failure(e: Exception) => WorkflowValidation(valid = false,
         messages = Seq(WorkflowValidationMessage(s"Validation error " +
-          s"${getValidationStepFromStackTrace(e).fold(""){ stepError => s" during $stepError "}}" +
-          s": ${Try(ExceptionUtils.getRootCauseMessage(e)).filter(s => s.length < maxNumAllowedChars)
-            .getOrElse {
-              val exception = ExceptionHelper.toPrintableException(e)
-              if (exception.length > maxNumAllowedChars) exception.slice(0, maxNumAllowedChars) + " ..."
-              else exception
-            }}"
+          s"${getValidationStepFromStackTrace(e).fold("") { stepError => s" during $stepError " }}" +
+          s": ${
+            Try(ExceptionUtils.getRootCauseMessage(e)).filter(s => s.length < maxNumAllowedChars)
+              .getOrElse {
+                val exception = ExceptionHelper.toPrintableException(e)
+                if (exception.length > maxNumAllowedChars) exception.slice(0, maxNumAllowedChars) + " ..."
+                else exception
+              }
+          }"
         )))
     }
   }
 
-  private def getValidationStepFromStackTrace(exception: Exception): Option[String] ={
+  private def getValidationStepFromStackTrace(exception: Exception): Option[String] = {
     Try(ExceptionUtils.getStackTrace(exception).replaceAll("\\(.*\\)", "").split("\\s+"))
-      .toOption.fold(Some("")){ exceptionsArray =>
+      .toOption.fold(Some("")) { exceptionsArray =>
       exceptionsArray.find(error => error.startsWith("com.stratio.sparta.serving.core.models.workflow.WorkflowValidation"))
-        .fold(Some("")){ error => Some(error.split('.').last)}
+        .fold(Some("")) { error => Some(error.split('.').last) }
     }.notBlank
   }
 

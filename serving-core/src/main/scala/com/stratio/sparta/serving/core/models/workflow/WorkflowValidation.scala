@@ -11,6 +11,7 @@ import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.error.PostgresErrorImpl
+import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
@@ -279,6 +280,24 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
       combineWithAnd(lastValidation, validation)
     }
+  }
+
+  def validateStepName(implicit workflow: Workflow, graph: Graph[NodeGraph, LDiEdge]): WorkflowValidation = {
+    SparkContextFactory.getXDSession() match {
+      case Some(xdSession) =>
+        workflow.pipelineGraph.nodes.filter { node =>
+          node.stepType.contains("Transformation") || node.stepType.contains("Input")
+        }.map(_.name).foldLeft(this){case (lastValidation, name) =>
+          if(xdSession.catalog.tableExists("default", name)) {
+            lastValidation.copy(
+              valid = false,
+              messages = messages :+ WorkflowValidationMessage(s"The step name $name is already being used by a table in the default catalog")
+            )
+          } else lastValidation
+        }
+      case None => this
+    }
+
   }
 
   def combineWithAnd(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
