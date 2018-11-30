@@ -42,7 +42,7 @@ trait WorkflowHttpService extends BaseHttpService {
   override def routes(user: Option[LoggedUser] = None): Route =
     find(user) ~ findAll(user) ~ create(user) ~ run(user) ~
       update(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
-      removeList(user) ~ findList(user) ~ validate(user) ~ validateWithoutContext(user) ~
+      removeList(user) ~ findList(user) ~ validate(user) ~ validateSteps(user) ~ validateWithoutContext(user) ~
       createVersion(user) ~ findAllByGroup(user) ~ findAllByGroupDto(user) ~
       findAllDto(user) ~ rename(user) ~ move(user) ~ runWithExecutionContext(user) ~ runWithVariables(user) ~
       migrate(user) ~ validateWithContext(user) ~ runWithParametersView(user) ~ runWithParametersViewById(user) ~
@@ -412,6 +412,36 @@ trait WorkflowHttpService extends BaseHttpService {
             complete {
               for {
                 response <- (supervisor ? ValidateWorkflow(workflow, user))
+                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/validateSteps")
+  @ApiOperation(value = "Validate workflow steps.",
+    notes = "Validate workflow steps",
+    httpMethod = "POST",
+    response = classOf[WorkflowValidation])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "Workflow",
+      defaultValue = "",
+      value = "workflow in json",
+      dataType = "Workflow",
+      required = true,
+      paramType = "body")
+  ))
+  def validateSteps(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "validateSteps") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[Workflow]) { workflow =>
+            complete {
+              for {
+                response <- (supervisor ? ValidateWorkflowSteps(workflow, user))
                   .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
             }

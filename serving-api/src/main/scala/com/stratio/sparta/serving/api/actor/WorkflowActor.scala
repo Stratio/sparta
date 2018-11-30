@@ -58,6 +58,7 @@ class WorkflowActor(
     case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
+    case ValidateWorkflowSteps(workflow, user) => validateSteps(workflow, user)
     case ValidateWorkflowWithoutExContext(workflow, user) => validateWithoutExecutionContext(workflow, user)
     case ValidateWorkflowIdWithExContext(workflowIdExecutionContext, user) => validateWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
@@ -104,6 +105,31 @@ class WorkflowActor(
           ignoreCustomParams = true
         )).mapTo[Try[ValidationContextResult]]
       } yield manageValidationResult(response)
+    }
+  }
+
+  def validateSteps(workflowRaw: Workflow, user: Option[LoggedUser]): Unit = {
+    val authorizationId = workflowRaw.authorizationId
+    val action = Map(ResourceWorkflow -> Edit)
+
+    authorizeActionsByResourceId(user, action, authorizationId, Option(sender)) {
+      for {
+        validationContextResult <- (parametersStateActor ? ValidateExecutionContextToWorkflow(
+          workflowExecutionContext = WorkflowExecutionContext(workflowRaw, ExecutionContext()),
+          ignoreCustomParams = true
+        )).mapTo[Try[ValidationContextResult]]
+      } yield {
+        Try {
+          validationContextResult match {
+            case Success(result) =>
+              if (result.workflowValidation.valid)
+                workflowValidatorService.validateSinglePlugins(result.workflow)
+              else result.workflowValidation
+            case Failure(e) =>
+              throw e
+          }
+        }
+      }
     }
   }
 
@@ -346,6 +372,8 @@ object WorkflowActor extends SLF4JLogging {
                                               )
 
   case class ValidateWorkflow(workflow: Workflow, user: Option[LoggedUser])
+
+  case class ValidateWorkflowSteps(workflow: Workflow, user: Option[LoggedUser])
 
   case class ValidateWorkflowWithoutExContext(workflow: Workflow, user: Option[LoggedUser])
 

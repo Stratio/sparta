@@ -98,6 +98,19 @@ class WorkflowValidatorService() {
     validationResult.copy(messages = validationResult.messages.distinct)
   }
 
+  def validateSinglePlugins(workflow: Workflow): WorkflowValidation = {
+
+    //Is recommended send workflow with environment substitution applied
+    implicit val workflowToValidate: Workflow = workflow
+    implicit val graph: Graph[NodeGraph, LDiEdge] = GraphHelper.createGraph(workflow)
+
+    val validationResult = handleValidateError{
+      new WorkflowValidation().validatePlugins
+    }
+
+    validationResult.copy(messages = validationResult.messages.distinct)
+  }
+
   def validatePlugins(workflow: Workflow): WorkflowValidation = {
 
     //Is recommended send workflow with environment substitution applied
