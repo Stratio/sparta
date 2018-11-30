@@ -6,13 +6,12 @@
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import breeze.stats._
-import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
-import com.stratio.sparta.core.enumerators.WhenError.WhenError
 import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.core.helpers.CastingHelper
+import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{DataType, DoubleType}
+import org.apache.spark.sql.types._
 
 import scala.util.Try
 
@@ -34,9 +33,22 @@ class VarianceOperator(
       Try {
         val valuesFlattened = values.flatten
         if (valuesFlattened.nonEmpty)
-          variance(valuesFlattened.map(value =>
-            CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]))
+          checkingType(valuesFlattened)
         else 0d
       }
+    }
+
+  def checkingType(values: Iterable[Any]): Any =
+    values.head match {
+      case _: Double =>
+        variance(values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]))
+      case _: Long =>
+        variance(values.map(value => CastingHelper.castingToSchemaType(DoubleType, value.toString.toLong.toDouble).asInstanceOf[Double]))
+      case _: Int =>
+        variance(values.map(value => CastingHelper.castingToSchemaType(DoubleType, value.toString.toLong.toDouble).asInstanceOf[Double]))
+      case _: Float =>
+        variance(values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]))
+      case _ =>
+        throw new Exception(s"Unsupported type in VarianceOperator $name")
     }
 }

@@ -7,11 +7,10 @@ package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import java.util.Date
 
-import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
-import com.stratio.sparta.core.enumerators.WhenError.WhenError
 import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.core.helpers.CastingHelper
+import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
@@ -48,7 +47,7 @@ class MinOperator(
       }
     }
 
-  private[operators] def minCheckingType(values: Iterable[Any]): Any =
+  def minCheckingType(values: Iterable[Any]): Any =
     values.head match {
       case _: Double =>
         values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).min
@@ -67,6 +66,6 @@ class MinOperator(
       case _: Date =>
         values.map(CastingHelper.castingToSchemaType(DateType, _).asInstanceOf[Date]).min
       case _ =>
-        throw new Exception(s"Unsupported type in MinOperator")
+        throw new Exception(s"Unsupported type in MinOperator $name")
     }
 }

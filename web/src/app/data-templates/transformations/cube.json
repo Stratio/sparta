@@ -39,6 +39,7 @@
          "propertyId": "operators",
          "propertyName": "_OPERATORS_",
          "propertyType": "list",
+         "complexForm": true,
          "required": true,
          "fields": [
             {
@@ -105,7 +106,46 @@
                "width": 3,
                "tooltip": "Type of aggregation operator used.",
                "qa": "fragment-details-cube-operator-classType"
-            }
+            },
+           {
+             "propertyId": "type",
+             "propertyName": "_RETURN_TYPE_",
+             "propertyType": "select",
+             "required": false,
+             "values": [
+               {
+                 "label": "String",
+                 "value": "string"
+               },
+               {
+                 "label": "Long",
+                 "value": "long"
+               },
+               {
+                 "label": "Float",
+                 "value": "float"
+               },
+               {
+                 "label": "Double",
+                 "value": "double"
+               },
+               {
+                 "label": "Integer",
+                 "value": "integer"
+               },
+               {
+                 "label": "Date",
+                 "value": "date"
+               },
+               {
+                 "label": "Timestamp",
+                 "value": "timestamp"
+               }
+             ],
+             "width": 3,
+             "tooltip": "Type of aggregation value returned.",
+             "qa": "fragment-details-cube-operator-type"
+           }
          ],
          "tooltip": "List of operators assigned to the cube.",
          "qa": "fragment-details-cube-measures"

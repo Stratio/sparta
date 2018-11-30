@@ -37,6 +37,12 @@ class SumOperatorTest extends WordSpec with Matchers {
 
       val operator2 = new SumOperator("sum", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator2.processReduce(Seq(Some(1), Some(1))) should be(Some(2d))
+
+      val operator3 = new SumOperator("sum", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
+      operator3.processReduce(Seq(Some(1), Some(1))) should be(Some(2))
+
+      val operator4 = new SumOperator("sum", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
+      operator4.processReduce(Seq(Some(1L), Some(3L), None)) should be(Some(4L))
     }
 
     "associative process must be " in {

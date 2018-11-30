@@ -5,13 +5,12 @@
  */
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
-import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
-import com.stratio.sparta.core.enumerators.WhenError.WhenError
 import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.core.helpers.CastingHelper
+import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{DataType, DoubleType}
+import org.apache.spark.sql.types._
 
 import scala.util.Try
 
@@ -30,17 +29,33 @@ class SumOperator(
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     returnFromTryWithNullCheck("Error in SumOperator when reducing values") {
-      Try{
-        values.flatten.map(value => CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]).sum
+      Try {
+        sumCheckingType(values.flatten)
       }
     }
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] =
     returnFromTryWithNullCheck("Error in SumOperator when associating values") {
       Try {
-          extractValues(values, None)
-            .map(value => CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double])
-            .sum
+        sumCheckingType(extractValues(values, None))
       }
+    }
+
+  def sumCheckingType(values: Iterable[Any]): Any =
+    values.head match {
+      case _: Double =>
+        values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).sum
+      case _: Float =>
+        values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]).sum
+      case _: Int =>
+        values.map(CastingHelper.castingToSchemaType(IntegerType, _).asInstanceOf[Int]).sum
+      case _: Short =>
+        values.map(CastingHelper.castingToSchemaType(ShortType, _).asInstanceOf[Short]).sum
+      case _: Long =>
+        values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).sum
+      case _: java.sql.Timestamp =>
+        values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).sum
+      case _ =>
+        throw new Exception(s"Unsupported type in SumOperator $name")
     }
 }

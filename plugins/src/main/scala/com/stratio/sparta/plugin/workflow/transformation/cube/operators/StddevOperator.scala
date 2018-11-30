@@ -5,15 +5,13 @@
  */
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
-import breeze.linalg._
 import breeze.stats._
-import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
-import com.stratio.sparta.core.enumerators.WhenError.WhenError
 import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.core.helpers.CastingHelper
+import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{DataType, DoubleType}
+import org.apache.spark.sql.types._
 
 import scala.util.Try
 
@@ -35,9 +33,22 @@ class StddevOperator(
       Try {
         val valuesFlattened = values.flatten
         if (valuesFlattened.nonEmpty)
-          stddev(valuesFlattened.map(value =>
-            CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]))
+          checkingType(valuesFlattened)
         else 0d
       }
+    }
+
+  def checkingType(values: Iterable[Any]): Any =
+    values.head match {
+      case _: Double =>
+        stddev(values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]))
+      case _: Long =>
+        stddev(values.map(value => CastingHelper.castingToSchemaType(DoubleType, value.toString.toLong.toDouble).asInstanceOf[Double]))
+      case _: Int =>
+        stddev(values.map(value => CastingHelper.castingToSchemaType(DoubleType, value.toString.toLong.toInt).asInstanceOf[Double]))
+      case _: Float =>
+        stddev(values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]))
+      case _ =>
+        throw new Exception(s"Unsupported type in StddevOperator $name")
     }
 }

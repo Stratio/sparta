@@ -7,13 +7,12 @@ package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import breeze.linalg._
 import breeze.stats._
-import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
-import com.stratio.sparta.core.enumerators.WhenError.WhenError
 import com.stratio.sparta.core.enumerators.WhenFieldError.WhenFieldError
 import com.stratio.sparta.core.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.core.helpers.CastingHelper
+import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{DataType, DoubleType}
+import org.apache.spark.sql.types._
 
 import scala.util.Try
 
@@ -35,9 +34,24 @@ class MedianOperator(
       Try {
         val valuesFlattened = values.flatten
         if (valuesFlattened.nonEmpty)
-          median(DenseVector(valuesFlattened.map(value =>
-            CastingHelper.castingToSchemaType(defaultOutputType, value).asInstanceOf[Double]).toArray))
+          checkingType(valuesFlattened)
         else 0d
       }
+    }
+
+  def checkingType(values: Iterable[Any]): Any =
+    values.head match {
+      case _: Double =>
+        median(DenseVector(values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).toArray))
+      case _: Float =>
+        median(DenseVector(values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]).toArray))
+      case _: Int =>
+        median(DenseVector(values.map(CastingHelper.castingToSchemaType(IntegerType, _).asInstanceOf[Int]).toArray))
+      case _: Long =>
+        median(DenseVector(values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).toArray))
+      case _: java.sql.Timestamp =>
+        median(DenseVector(values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).toArray))
+      case _ =>
+        throw new Exception(s"Unsupported type in MedianOperator $name")
     }
 }
