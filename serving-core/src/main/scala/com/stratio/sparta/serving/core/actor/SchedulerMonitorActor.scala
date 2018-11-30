@@ -219,10 +219,8 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     }
   }
 
-  //scalastyle:on
-
-  def marathonStop(workflowExecution: WorkflowExecution): Unit = {
-    if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == Failed) {
+  def marathonStop(workflowExecution: WorkflowExecution, force: Boolean = false): Unit = {
+    if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == Failed || force) {
       log.info("Stop message received")
       scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
@@ -323,7 +321,6 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     }
   }
 
-  //scalastyle:off
   def checkStatus(id: String): Unit = {
     for {
       workflowExecution <- executionService.findExecutionById(id)
@@ -429,10 +426,9 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     } yield {
       executions.foreach { execution =>
         execution.id.foreach { idExecution =>
-          marathonStop(execution)
+          marathonStop(execution, force = true)
           log.info(s"The application with id $idExecution was marked ${execution.lastStatus.state} " +
             s"but it was running, therefore its termination was triggered")
-
         }
       }
     }
