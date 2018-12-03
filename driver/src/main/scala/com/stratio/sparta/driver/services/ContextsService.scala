@@ -143,10 +143,10 @@ case class ContextsService()
     }
   }
 
-  private[driver] def getErrorManager(workflow: Workflow): ErrorManager = {
+  private[driver] def getErrorManager(workflow: Workflow): NotificationManager = {
     if (workflow.debugMode.forall(mode => mode))
-      PostgresDebugErrorImpl(workflow)
-    else PostgresErrorImpl(workflow)
+      PostgresDebugNotificationManagerImpl(workflow)
+    else PostgresNotificationManagerImpl(workflow)
   }
 
   private[driver] def setDispatcherSettings(execution: WorkflowExecution, sparkContext: SparkContext): Unit = {

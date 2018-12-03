@@ -6,14 +6,13 @@
 package com.stratio.sparta.serving.core.error
 
 import java.util.Date
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
-
 import akka.event.Logging
 import akka.event.Logging.LogLevel
-import akka.event.slf4j.SLF4JLogging
-
+import akka.event.slf4j.{Logger, SLF4JLogging}
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
@@ -23,7 +22,9 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Not
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionStatus, ExecutionStatusUpdate, Workflow}
 import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
-trait ErrorManager extends SLF4JLogging {
+trait NotificationManager extends SLF4JLogging {
+
+  override lazy val log = Logger(s"${this.getClass.getPackage.getName}.NotificationManager")
 
   val workflow: Workflow
 
@@ -92,7 +93,7 @@ trait ErrorManager extends SLF4JLogging {
   }
 }
 
-trait PostgresError extends ErrorManager {
+trait PostgresNotificationManager extends NotificationManager {
 
   val defaultLogLevel = Logging.InfoLevel
 
@@ -117,7 +118,7 @@ trait PostgresError extends ErrorManager {
 
 }
 
-trait PostgresDebugError extends ErrorManager {
+trait PostgresDebugNotificationManager extends NotificationManager {
 
   val defaultLogLevel = Logging.DebugLevel
 
@@ -137,11 +138,11 @@ trait PostgresDebugError extends ErrorManager {
 
 }
 
-case class PostgresErrorImpl(workflow: Workflow) extends PostgresError
+case class PostgresNotificationManagerImpl(workflow: Workflow) extends PostgresNotificationManager
 
-case class PostgresDebugErrorImpl(workflow: Workflow) extends PostgresDebugError
+case class PostgresDebugNotificationManagerImpl(workflow: Workflow) extends PostgresDebugNotificationManager
 
-trait LogError extends ErrorManager with SLF4JLogging {
+trait LogNotificationManager extends NotificationManager with SLF4JLogging {
 
   def traceError(error: WorkflowError): Unit = log.error(s"This error was not saved to Postgres : $error")
 

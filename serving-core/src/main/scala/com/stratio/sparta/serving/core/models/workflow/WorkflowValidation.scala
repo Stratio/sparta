@@ -10,7 +10,7 @@ import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.serving.core.error.PostgresErrorImpl
+import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
@@ -147,13 +147,13 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
   def validatePlugins(implicit workflow: Workflow): WorkflowValidation = {
     val pluginsValidations = if (workflow.executionEngine == Streaming) {
       val plugins = JarsHelper.localUserPluginJars(workflow)
-      val errorManager = PostgresErrorImpl(workflow)
+      val errorManager = PostgresNotificationManagerImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else if (workflow.executionEngine == Batch) {
       val plugins = JarsHelper.localUserPluginJars(workflow)
-      val errorManager = PostgresErrorImpl(workflow)
+      val errorManager = PostgresNotificationManagerImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()

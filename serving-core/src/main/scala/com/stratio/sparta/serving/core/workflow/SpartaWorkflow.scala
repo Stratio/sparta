@@ -24,7 +24,7 @@ import com.stratio.sparta.core.{ContextBuilder, DistributedMonad, WorkflowContex
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
-import com.stratio.sparta.serving.core.error.ErrorManager
+import com.stratio.sparta.serving.core.error.NotificationManager
 import com.stratio.sparta.serving.core.exception.DriverException
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
@@ -49,7 +49,7 @@ import scalax.collection.edge.LDiEdge
 
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                                                              workflow: Workflow,
-                                                             errorManager: ErrorManager,
+                                                             errorManager: NotificationManager,
                                                              files: Seq[String] = Seq.empty,
                                                              userId: Option[String] = Properties.envOrNone(UserNameEnv)
                                                            )
