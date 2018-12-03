@@ -36,6 +36,7 @@ export class WizardEditorComponent {
   @Input() selectedNodeName = '';
   @Input() creationMode: any;
   @Input() selectedEdge: any;
+  @Input() debugResult: any;
 
   @Output() setEditorDirty = new EventEmitter();
   @Output() deselectEntityCreation = new EventEmitter();
