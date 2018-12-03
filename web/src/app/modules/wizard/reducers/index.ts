@@ -165,7 +165,7 @@ export const getEditionConfigMode = createSelector(
   getDebugResult,
   getServerStepValidation,
   getSelectedNodeSchemas,
-  getEdges,(editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
+  getEdges, (editionConfig: any, debugResult: any, stepValidation, schemas: any, edges: WizardEdge[]) => {
     return editionConfig && editionConfig.isEdition ?
       {
         ...editionConfig,
@@ -182,7 +182,7 @@ export const getEditionConfigMode = createSelector(
 
 export const showDebugConsole = createSelector(getDebugState, state => state.showDebugConsole);
 
-export const getConsoleDebugEntity = createSelector(getDebugState,state => state.showedDebugDataEntity);
+export const getConsoleDebugEntity = createSelector(getDebugState, state => state.showedDebugDataEntity);
 
 
 export const getConsoleDebugEntityData = createSelector(
@@ -218,7 +218,7 @@ export const getMenuOptions = createSelector(getEntitiesState, fromEntities.getM
 export const getWorkflowType = createSelector(getEntitiesState, fromEntities.getWorkflowType);
 export const getTemplates = createSelector(getEntitiesState, fromEntities.getTemplates);
 export const isShowedEntityDetails = createSelector(getWizardState, state => state.showEntityDetails);
-export const getSelectedEntities = createSelector(getWizardState, state => state.selectedEntity);
+export const getSelectedEntities = createSelector(getWizardState, state => state.selectedEntities);
 export const showSettings = createSelector(getWizardState, state => state.showSettings);
 export const isEntitySaved = createSelector(getWizardState, state => state.editionSaved);
 export const getWorkflowSettings = createSelector(getWizardState, state => state.settings);
@@ -238,6 +238,7 @@ export const getEnvironmentList = createSelector(getExternalDataState, state => 
 export const getCustomGroups = createSelector(getExternalDataState, state => state.customGroups);
 export const isShowingDebugConfig = createSelector(getDebugState, state => state.showExecutionConfig);
 export const getExecutionContexts = createSelector(getDebugState, state => state.executionContexts);
+export const getMultiselectionMode = createSelector(getWizardState, state => state.multiselectionMode);
 
 export const getParameters = createSelector(getExternalDataState, state => ({
   globalVariables: state.globalVariables,

@@ -31,7 +31,7 @@ export class ApiService {
    private requestOptions: any = {};
    private sessionGetParam = 'refresh-session';
    private timeout;
-   constructor(private http: HttpClient, private _store: Store<fromRoot.State>) { 
+   constructor(private http: HttpClient, private _store: Store<fromRoot.State>) {
       this.timeout = 20000;
       this._store.select(fromRoot.getSpartaTimeout)
       .pipe(take(1))
@@ -76,7 +76,7 @@ export class ApiService {
          _expiredSession = true;
          const windowTop = (window.screen.height - 600) / 2;
          const windowLeft = (window.screen.width - 600) / 2;
-         window.open('login?' + this.sessionGetParam + '=true', '_blank', `toolbar=yes,scrollbars=yes,resizable=yes, 
+         window.open('login?' + this.sessionGetParam + '=true', '_blank', `toolbar=yes,scrollbars=yes,resizable=yes,
         top=${windowTop > 0 ? windowTop : 0},
         left=${windowLeft > 0 ? windowLeft : 0},
         width=600,height=600`);

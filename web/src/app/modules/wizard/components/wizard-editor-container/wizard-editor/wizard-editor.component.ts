@@ -33,7 +33,8 @@ export class WizardEditorComponent {
   @Input() workflowEdges: Array<WizardEdgeModel> = [];
   @Input() editorPosition: ZoomTransform;
   @Input() serverStepValidations: any = {};
-  @Input() selectedNodeName = '';
+  @Input() selectedNodeNames = [];
+  @Input() multiselectionMode: boolean;
   @Input() creationMode: any;
   @Input() selectedEdge: any;
   @Input() debugResult: any;
@@ -69,8 +70,8 @@ export class WizardEditorComponent {
       status: true,
       name: edgeEvent.name,
       initPosition: {
-        x: edgeEvent.event.layerX,
-        y: edgeEvent.event.layerY
+        x: edgeEvent.event.clientX,
+        y: edgeEvent.event.clientY
       }
     };
   }

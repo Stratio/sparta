@@ -4,23 +4,20 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { async, TestBed, ComponentFixture } from '@angular/core/testing';
-import { SharedModule } from '@app/shared';
-import { FormListComponent } from '@app/shared/components/form-list/form-list.component';
-import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
-import { StCheckboxModule, StTextareaModule } from '@stratio/egeo';
-
-import { SpSelectModule } from '../sp-select/sp-select.module';
-import { ErrorMessagesService } from '../../../../services';
 import { FormGroup, FormArray, Validators } from '@angular/forms';
 import { DebugElement, Component, OnInit } from '@angular/core';
+import { async, TestBed, ComponentFixture } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { StCheckboxModule, StTextareaModule } from '@stratio/egeo';
+
+import { ErrorMessagesService } from '../../../../services';
+
 import { By } from '@angular/platform-browser';
-import { SpTextareaModule } from '@app/shared/components/sp-textarea/sp-textarea.module';
-import { HighlightTextareaModule } from '../highlight-textarea/hightlight-textarea.module';
+import { FormListComponent } from '@app/shared/components/form-list/form-list.component';
+
 import { SpInputError } from '@app/shared/components/sp-input/sp-input.models';
-import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-column-input.module';
+import { FormListModule, SpColumnInputModule, SpInputModule, SpTextareaModule, HighlightTextareaModule, SpSelectModule } from '@app/shared';
 
 let component: FormListComponent;
 let fixture: ComponentFixture<FormListComponent>;
@@ -156,7 +153,7 @@ describe('FormListComponent', () => {
             formControlName="kafka"
             name="kafka"
             [errors]="errors"
-            [forceValidations]="forceValidations" 
+            [forceValidations]="forceValidations"
             label="kafka"></form-list>
          </div>
       </form>
@@ -213,9 +210,12 @@ let reactiveComp: FormReactiveComponent;
 describe('FormListComponent in reactive form', () => {
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            imports: [FormsModule, ReactiveFormsModule, SharedModule, TranslateModule.forRoot(), SpInputModule, SpSelectModule],
-            declarations: [FormReactiveComponent],
-            providers: [ErrorMessagesService]
+            imports: [
+                ReactiveFormsModule,
+                FormListModule,
+                TranslateModule.forRoot()
+            ],
+            declarations: [FormReactiveComponent]
         })
             .compileComponents();  // compile template and css
     }));
@@ -234,7 +234,7 @@ describe('FormListComponent in reactive form', () => {
             reactiveComp.model.kafka = [];
             reactiveComp.forceValidations = true;
             reactiveFixture.detectChanges();
-            let errorMessage: DebugElement = reactiveFixture.debugElement.query(By.css('.st-input-error-layout'));
+            const errorMessage: DebugElement = reactiveFixture.debugElement.query(By.css('.st-input-error-layout'));
             expect(errorMessage).toBeDefined();
         });
 
@@ -247,7 +247,7 @@ describe('FormListComponent in reactive form', () => {
             ];
             reactiveComp.forceValidations = true;
             reactiveFixture.detectChanges();
-            let errorMessage: DebugElement = reactiveFixture.debugElement.query(By.css('.st-input-error-layout'));
+            const errorMessage: DebugElement = reactiveFixture.debugElement.query(By.css('.st-input-error-layout'));
             expect(errorMessage).toBeDefined();
         });
 

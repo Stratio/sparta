@@ -61,6 +61,7 @@ export const SELECT_EDGE_TYPE = '[Wizard] Select edge type';
 export const SHOW_NOTIFICATION = '[Wizard] Show notification';
 export const SHOW_GLOBAL_ERRORS = '[Wizard] Show global errors';
 export const SET_WORKFLOW_ID = '[Wizard] Set workflow Id';
+export const SET_MULTISELECTION_MODE = '[Wizard] Set multiselection mode';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -313,6 +314,10 @@ export class SetWorkflowIdAction implements Action {
     constructor(public workflowId: string) { }
 }
 
+export class SetMultiselectionModeAction implements Action {
+  readonly type = SET_MULTISELECTION_MODE;
+}
+
 export type Actions =
     ResetWizardAction |
     GetMenuTemplatesAction |
@@ -364,4 +369,5 @@ export type Actions =
     SelectEdgeTypeAction |
     ShowNotificationAction |
     ShowGlobalErrorsAction |
-    SetWorkflowIdAction;
+    SetWorkflowIdAction |
+    SetMultiselectionModeAction;

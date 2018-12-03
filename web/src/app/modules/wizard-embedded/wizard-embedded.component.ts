@@ -276,12 +276,17 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     const creationMode = event.creationMode;
     let entity: any = {};
     const entityData = creationMode.data;
-    entity = this._initializeStepService.initializeEntity(
-        this.workflowData.type,
-        entityData,
-        this.nodes
-    );
-
+    if (entityData.type === 'copy') {
+      // if its a copy, only xsets the position
+      entity = entityData.data;
+    } else {
+      /**  get the initial model value and validation errors */
+      entity = this._initializeStepService.initializeEntity(
+          this.workflowData.type,
+          entityData,
+          this.nodes
+      );
+    }
     entity.uiConfiguration = {
       position: event.position
     };
@@ -350,8 +355,8 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   drawEdge(edgeEvent) {
     this._connectorOrigin = edgeEvent.name;
     this.connectorInitPosition = {
-        x: edgeEvent.event.layerX,
-        y: edgeEvent.event.layerY
+        x: edgeEvent.event.clientX,
+        y: edgeEvent.event.clientY
     };
     this.drawingConnectionStatus = {
       status: true,

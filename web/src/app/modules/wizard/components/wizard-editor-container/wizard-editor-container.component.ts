@@ -53,7 +53,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   @ViewChild(WizardEditorComponent) editor: WizardEditorComponent;
   @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
-  public selectedNodeName = '';
+  public selectedNodeNames = [];
   public selectedNodeModel: WizardNode | any;
   public selectedEdge: WizardEdge;
   public isMobile = false;
@@ -71,6 +71,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   public genericError: any;
   public consoleDebugData: any;
   public isPipelinesNodeSelected: boolean;
+  public multiselectionMode: boolean;
 
   public editorRef: any;
 
@@ -84,7 +85,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       return;
     }
     if (event.keyCode === KEYS.ESC_KEYCODE) {
-      if (this.selectedNodeName.length) {
+      if (this.selectedNodeNames.length) {
         this._store.dispatch(new wizardActions.UnselectEntityAction());
       }
       this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
@@ -99,7 +100,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       if (this.selectedEdge) {
         this._store.dispatch(new wizardActions.UnselectSegmentAction());
       }
-      if (this.selectedNodeName) {
+      if (this.selectedNodeNames) {
         this._store.dispatch(new wizardActions.UnselectEntityAction());
       }
 
@@ -134,8 +135,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     this._store
       .select(fromWizard.getSelectedEntities)
       .takeUntil(this._componentDestroyed)
-      .subscribe(name => {
-        this.selectedNodeName = name;
+      .subscribe(names => {
+        this.selectedNodeNames = names;
         this._cd.markForCheck();
       });
     this._store
@@ -229,7 +230,13 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         this.isWorkflowDebugging = isDebugging;
         this._cd.markForCheck();
       });
-
+    this._store
+      .select(fromWizard.getMultiselectionMode)
+      .takeUntil(this._componentDestroyed)
+      .subscribe(mode => {
+        this.multiselectionMode = mode;
+        this._cd.markForCheck();
+      });
     this._store
       .select(fromWizard.getDebugResult)
       .takeUntil(this._componentDestroyed)
@@ -242,7 +249,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   }
 
   deleteSelection() {
-    if (this.selectedNodeName && this.selectedNodeName.length) {
+    if (this.selectedNodeNames && this.selectedNodeNames.length) {
       this.deleteConfirmModal(
         'Delete node',
         'This node and its relations will be deleted.',
@@ -263,16 +270,14 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     if (this.selectedEdge) {
       this._store.dispatch(new wizardActions.UnselectSegmentAction());
     }
-    if (this.selectedNodeName !== entity.name) {
-      const isPipelinesNodeEdition =
-        entity.classPrettyName && entity.classPrettyName === 'MlPipeline';
-      this._store.dispatch(
-        new wizardActions.SelectEntityAction(
-          entity.name,
-          isPipelinesNodeEdition
-        )
-      );
-    }
+    const isPipelinesNodeEdition =
+      entity.classPrettyName && entity.classPrettyName === 'MlPipeline';
+    this._store.dispatch(
+      new wizardActions.SelectEntityAction(
+        entity.name,
+        isPipelinesNodeEdition
+      )
+    );
 
     const isNodeSelected =
       this.selectedNodeModel && Object.keys(this.selectedNodeModel).length;
@@ -395,10 +400,10 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   }
 
   duplicateNode(): void {
-    if (this.selectedNodeName) {
+    if (this.selectedNodeNames.length) {
       const data = _cloneDeep(
         this.workflowNodes.find(
-          (node: any) => node.name === this.selectedNodeName
+          (node: any) => node.name === this.selectedNodeNames[this.selectedNodeNames.length - 1]
         )
       );
       data.name = this._initializeStepService.getNewEntityName(

@@ -33,11 +33,12 @@ import { WorkflowData } from '@app/wizard/wizard.models';
 })
 
 export class WizardHeaderComponent implements OnInit, OnDestroy {
-   @Input() isNodeSelected = false;
+   @Input() selectedNodeNumber = 0;
    @Input() isEdgeSelected = false;
    @Input() isPipelinesNodeSelected: boolean;
    @Input() isWorkflowDebugging: boolean;
    @Input() workflowData: WorkflowData;
+   @Input() multiselectionMode: boolean;
 
    @Output() onZoomIn = new EventEmitter();
    @Output() onZoomOut = new EventEmitter();
@@ -142,6 +143,10 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
    showGlobalErrors() {
       this._store.dispatch(new wizardActions.ShowGlobalErrorsAction());
+   }
+
+   multiSelect() {
+     this._store.dispatch(new wizardActions.SetMultiselectionModeAction());
    }
 
    selectedDebug(event) {

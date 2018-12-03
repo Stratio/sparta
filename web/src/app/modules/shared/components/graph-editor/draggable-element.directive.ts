@@ -4,17 +4,16 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { DOCUMENT } from '@angular/common';
 import {
   AfterContentInit,
   Directive,
   ElementRef,
   EventEmitter,
-  Inject,
   Input,
   NgZone,
   OnInit,
-  Output
+  Output,
+  OnDestroy
 } from '@angular/core';
 import * as d3 from 'd3';
 
@@ -24,10 +23,25 @@ import { select as d3Select } from 'd3-selection';
 
 import { DraggableElementPosition } from './graph-editor.models';
 
+const selectedDraggableElements = new Map();
+
 @Directive({ selector: '[draggable-element]' })
-export class DraggableElementDirective implements AfterContentInit, OnInit {
+export class DraggableElementDirective implements AfterContentInit, OnInit, OnDestroy {
 
   @Input() position: DraggableElementPosition;
+  @Input() multiDrag: boolean;
+
+  @Input() get selected() {
+    return this._selected;
+  }
+  set selected(value: boolean) {
+    if (value) {
+      selectedDraggableElements.set(this, this);
+    } else {
+      selectedDraggableElements.delete(this);
+    }
+    this._selected = value;
+  }
 
   @Output() positionChange = new EventEmitter<DraggableElementPosition>();
   @Output() onClickEvent = new EventEmitter();
@@ -38,27 +52,52 @@ export class DraggableElementDirective implements AfterContentInit, OnInit {
   private element: d3.Selection<any>;
   private lastUpdateCall: number;
 
+  private _selected: boolean;
+
+  constructor(private elementRef: ElementRef<SVGElement>, private _ngZone: NgZone) {
+    this.element = d3Select(this.elementRef.nativeElement);
+    this._onDrag = this._onDrag.bind(this);
+  }
+
+  /** lifecycle methods */
   ngOnInit(): void {
-    this.setPosition();
+    this._setPosition();
   }
 
   ngAfterContentInit() {
     this._ngZone.runOutsideAngular(() => {
       this.element
-        .on('click', this.onClick.bind(this))
+        .on('click', this._onClick.bind(this))
         .call(d3Drag()
-          .on('drag', this.dragmove.bind(this))
+          .on('drag', this._onDrag)
           .on('start', () => {
             d3Event.sourceEvent.stopPropagation();
-            this._document.body.classList.add('dragging');
-          }).on('end', () => {
-            this._document.body.classList.remove('dragging');
-          }));
+            this.setEditorDirty.emit();
+            document.body.classList.add('dragging');
+          }).on('end', () => document.body.classList.remove('dragging')));
     });
   }
 
-  dragmove() {
+  ngOnDestroy(): void {
+    selectedDraggableElements.delete(this);
+  }
+  /** lifecycle methods */
+
+  private _onDrag() {
     const event = d3Event;
+    if (this.multiDrag) {
+      selectedDraggableElements.forEach(ref => {
+        ref._dragmove(event);
+      });
+      if (!selectedDraggableElements.get(this)) {
+        this._dragmove(event);
+      }
+    } else {
+      this._dragmove(event);
+    }
+  }
+
+  private _dragmove(event) {
     this.position = {
       x: this.position.x + event.dx,
       y: this.position.y + event.dy
@@ -69,17 +108,16 @@ export class DraggableElementDirective implements AfterContentInit, OnInit {
     }
     this._ngZone.run(() => {
       this.positionChange.emit(this.position);
-      this.setEditorDirty.emit();
     });
-    this.lastUpdateCall = requestAnimationFrame(this.setPosition.bind(this));
+    this.lastUpdateCall = requestAnimationFrame(this._setPosition.bind(this));
   }
 
-  setPosition() {
+  private _setPosition() {
     const value = `translate(${this.position.x},${this.position.y})`;
     this.element.attr('transform', value);
   }
 
-  onClick() {
+  private _onClick() {
     d3Event.stopPropagation();
     this._ngZone.run(() => {
       this.clicks++;
@@ -93,14 +131,5 @@ export class DraggableElementDirective implements AfterContentInit, OnInit {
         }, 200);
       }
     });
-
-  }
-
-
-  constructor(private elementRef: ElementRef,
-    private _ngZone: NgZone,
-    @Inject(DOCUMENT) private _document: Document,
-  ) {
-    this.element = d3Select(this.elementRef.nativeElement);
   }
 }

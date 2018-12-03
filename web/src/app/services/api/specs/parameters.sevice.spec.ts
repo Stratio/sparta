@@ -8,9 +8,9 @@ import { TestBed, inject } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { Store } from '@ngrx/store';
 import { cloneDeep as _cloneDeep } from 'lodash';
-import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { USER_STORE_MOCK } from '@test/mocks/user';
 
-const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
+const initialStoreState: any = _cloneDeep(USER_STORE_MOCK);
 import { MockStore } from '@test/store-mock';
 
 import { ParametersService } from './../parameters.service';

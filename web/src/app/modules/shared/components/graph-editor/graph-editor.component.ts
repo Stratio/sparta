@@ -42,6 +42,7 @@ export class GraphEditorComponent implements OnInit {
   set editorPosition(value) {
     this._editorPosition = _cloneDeep(value);
     if (this._SVGParent) {
+      this._externalPosition = true;
       /** Update editor position */
       this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._editorPosition.x, this._editorPosition.y)
         .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
@@ -68,8 +69,6 @@ export class GraphEditorComponent implements OnInit {
   @Output() deselectNode = new EventEmitter<void>();
   @Output() removeConnector = new EventEmitter();
 
-  public showConnector = false;
-
   public eventTransform: ZoomTransform = { x: 0, y: 0, k: 1 };
 
   /** Selectors */
@@ -78,6 +77,9 @@ export class GraphEditorComponent implements OnInit {
   private _documentRef: d3.Selection<any>;
   private _connectorElement: d3.Selection<any>;
   private _connectorPosition: ZoomTransform = null;
+
+  /** when external position is true, it prevents sending a setEditorDirty event */
+  private _externalPosition = true;
 
   public drawingConnectionStatus: DrawingConnectorStatus = {
     status: false,
@@ -91,7 +93,9 @@ export class GraphEditorComponent implements OnInit {
     private _elementRef: ElementRef,
     private _cd: ChangeDetectorRef,
     private _ngZone: NgZone
-  ) { }
+  ) {
+    this._cd.detach();
+   }
 
   ngOnInit(): void {
     this._initSelectors();
@@ -121,20 +125,21 @@ export class GraphEditorComponent implements OnInit {
   }
 
   drawConnector(startPosition: ZoomTransform) {
+    const editorOffset: ClientRect = (<Element>this._SVGParent.node()).getBoundingClientRect();
     const connector: NodeConnector = {
       x1: startPosition.x,
-      y1: startPosition.y,
+      y1: startPosition.y - editorOffset.top,
       x2: 0,
       y2: 0
     };
     this._connectorElement.attr('d', ''); // reset connector position
-    this.showConnector = true;
+    this._connectorElement.classed('show', true);
     const w = this._documentRef
       .on('mousemove', drawConnector.bind(this))
       .on('mouseup', mouseup.bind(this));
 
     function mouseup() {
-      this.showConnector = false;
+      this._connectorElement.classed('show', false);
       w.on('mousemove', null).on('mouseup', null);
       this._cd.markForCheck();
       this.removeConnector.emit();
@@ -142,7 +147,7 @@ export class GraphEditorComponent implements OnInit {
 
     function drawConnector() {
       connector.x2 = d3Event.clientX - connector.x1;
-      connector.y2 = d3Event.clientY - connector.y1 - 135;
+      connector.y2 = d3Event.clientY - connector.y1 - editorOffset.top;
       this._connectorElement.attr('d', 'M ' + connector.x1 + ' ' + connector.y1 + ' l ' + connector.x2 + ' ' + connector.y2);
     }
   }
@@ -164,10 +169,6 @@ export class GraphEditorComponent implements OnInit {
     this._SVGParent.call(this.zoom.translateBy, translateX, Math.round(translateY + 135 / this._editorPosition.k));
   }
 
-  trackBySegmentFn(index: number, item: any) {
-    return index; // or item.id
-  }
-
   setDraggableEditor() {
     this._ngZone.runOutsideAngular(() => {
       /** zoom behaviour */
@@ -175,6 +176,11 @@ export class GraphEditorComponent implements OnInit {
         .scaleExtent([1 / 8, 4])
         .wheelDelta(this._deltaFn)
         .on('start', () => {
+          if (this._externalPosition) {
+            this._externalPosition = false;
+          } else {
+            this.setEditorDirty.emit();
+          }
           const sourceEvent = d3Event.sourceEvent;
           if (sourceEvent) {
             sourceEvent.preventDefault();
@@ -198,35 +204,5 @@ export class GraphEditorComponent implements OnInit {
   private _zoomed(): void {
     this._editorPosition = d3Event.transform;
     this._SVGContainer.attr('transform', d3Event.transform);
-    const sourceEvent = d3Event.sourceEvent;
-    if (sourceEvent) {
-      sourceEvent.preventDefault();
-      sourceEvent.stopPropagation();
-    }
-    if ((sourceEvent && sourceEvent.type === 'mousemove') || !_isEqual(this.eventTransform, d3Event.transform)) {
-      let emitChange = true;
-      if (!sourceEvent) {
-        const arrayZero = [1, 0, 0];
-        let res1: any[] = null;
-        let res2: any[] = null;
-        if (this.eventTransform) {
-          res1 = Object.keys(this.eventTransform).sort().map(key => {
-            return this.eventTransform[key];
-          });
-        }
-        if (d3Event.transform) {
-          res2 = Object.keys(d3Event.transform).sort().map(key => {
-            return d3Event.transform[key];
-          });
-        }
-        if (_isEqual(res1, arrayZero) || _isEqual(res2, arrayZero)) {
-          emitChange = false;
-        }
-      }
-      if (emitChange) {
-        this.setEditorDirty.emit();
-      }
-      this.eventTransform = _cloneDeep(d3Event.transform);
-    }
   }
 }

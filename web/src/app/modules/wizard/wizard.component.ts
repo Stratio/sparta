@@ -163,7 +163,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     this._store.select(fromWizard.getEditionConfigMode)
       .takeUntil(this._componentDestroyed)
       .subscribe(editionMode => {
-        this.editionConfigMode = editionMode;
+        this.editionConfigMode = editionMode || {};
         this._cd.markForCheck();
       });
     // show node/settings editor fullscreen layout

@@ -10,7 +10,7 @@ import { NO_ERRORS_SCHEMA, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { Store } from '@ngrx/store';
 
-import { of } from 'rxjs/observable/of';
+import { of } from 'rxjs';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import { TranslateMockModule, initTranslate } from '@test/translate-stub';
@@ -71,6 +71,11 @@ describe('[WizardHeaderComponent]', () => {
       initTranslate();
       fixture = TestBed.createComponent(WizardHeaderComponent);
       component = fixture.componentInstance;
+      component.workflowData = {
+        name: 'workflow',
+        type: 'Streaming',
+        version: '1'
+      };
       fixture.detectChanges();
       spyOn(component.onSaveWorkflow, 'emit');
    });

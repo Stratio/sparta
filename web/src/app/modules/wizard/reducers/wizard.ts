@@ -11,13 +11,13 @@ import * as wizardActions from './../actions/wizard';
 import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 import { WizardNode, WizardEdge, EdgeOption } from '@app/wizard/models/node';
-import {stat} from 'fs';
 
 export interface State {
   editionMode: boolean;
   workflowId: string;
   workflowGroup: string;
   workflowVersion: number;
+  multiselectionMode: boolean;
   loading: boolean;
   nodes: Array<WizardNode>;
   edges: Array<WizardEdge>;
@@ -36,7 +36,7 @@ export interface State {
   editionConfigType: any;
   editionConfigData: any;
   editionSaved: boolean;
-  selectedEntity: string;
+  selectedEntities: Array<string>;
   isPipelineEdition: boolean;
   showEntityDetails: boolean;
   selectedEdge: WizardEdge;
@@ -53,6 +53,7 @@ const initialState: State = {
   workflowGroup: '',
   workflowVersion: 0,
   loading: true,
+  multiselectionMode: false,
   serverStepValidations: {},
   settings: _cloneDeep(InitializeSchemaService.setDefaultWorkflowSettings(settingsTemplate)),
   svgPosition: {
@@ -76,7 +77,7 @@ const initialState: State = {
   editionSaved: false,
   entityNameValidation: false,
   selectedEdge: null,
-  selectedEntity: '',
+  selectedEntities: [],
   isPipelineEdition: false,
   showEntityDetails: false,
   showSettings: false,
@@ -109,17 +110,34 @@ export function reducer(state: State = initialState, action: any): State {
         entityNameValidation: action.payload
       };
     }
-    case wizardActions.SELECT_ENTITY: {
+    case wizardActions.SET_MULTISELECTION_MODE: {
       return {
         ...state,
-        selectedEntity: action.payload,
+        multiselectionMode: !state.multiselectionMode,
+        selectedEntities: !state.multiselectionMode ? state.selectedEntities : []
+      };
+    }
+    case wizardActions.SELECT_ENTITY: {
+      let selected;
+      if (state.multiselectionMode) {
+        if (state.selectedEntities.length && state.selectedEntities.indexOf(action.payload) > -1) {
+          selected = state.selectedEntities.filter(entity => entity !== action.payload);
+        } else {
+          selected = [...state.selectedEntities, action.payload];
+        }
+      } else {
+        selected = [action.payload];
+      }
+      return {
+        ...state,
+        selectedEntities: selected,
         isPipelineEdition: action.isPipelinesEdition
       };
     }
     case wizardActions.UNSELECT_ENTITY: {
       return {
         ...state,
-        selectedEntity: '',
+        selectedEntities: [],
         isPipelineEdition: false
       };
     }
@@ -167,10 +185,10 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.DELETE_ENTITY: {
       return {
         ...state,
-        selectedEntity: '',
-        nodes: state.nodes.filter((node: any) => state.selectedEntity !== node.name),
+        selectedEntities: [],
+        nodes: state.nodes.filter((node: any) => state.selectedEntities.indexOf(node.name) === -1),
         pristineWorkflow: false,
-        edges: state.edges.filter((edge: any) => state.selectedEntity !== edge.origin && state.selectedEntity !== edge.destination),
+        edges: state.edges.filter((edge: any) => state.selectedEntities.indexOf(edge.origin) === -1 && state.selectedEntities.indexOf(edge.destination) === -1),
         undoStates: getUndoState(state),
         redoStates: []
       };
@@ -247,7 +265,8 @@ export function reducer(state: State = initialState, action: any): State {
       };
     }
     case wizardActions.EDIT_ENTITY: {
-      const findEntity = state.nodes.find(node => node.name === state.selectedEntity);
+      const editedEntity = state.selectedEntities[state.selectedEntities.length - 1];
+      const findEntity = state.nodes.find(node => node.name === editedEntity);
       return {
         ...state,
         editionConfig: true,
@@ -321,7 +340,7 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         selectedEdge: action.payload,
-        selectedEntity: ''
+        selectedEntities: []
       };
     }
     case wizardActions.UNSELECT_SEGMENT: {
@@ -462,7 +481,7 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         showEntityDetails: true,
-        selectedEntity: ''
+        selectedEntities: []
       };
     }
     case debugActions.UPLOAD_DEBUG_FILE_COMPLETE: {
@@ -493,8 +512,9 @@ function getRedoState(state: any) {
 }
 
 export const getSelectedEntityData = (state: State) => {
-  return state.selectedEntity.length ?
-    state.nodes.find((node: any) => node.name === state.selectedEntity) : undefined;
+  const editedEntity = state.selectedEntities[state.selectedEntities.length - 1];
+  return editedEntity ?
+    state.nodes.find((node: any) => node.name === editedEntity) : undefined;
 };
 
 export const getWorkflowHeaderData = (state: State) => ({

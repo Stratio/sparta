@@ -7,18 +7,19 @@
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { StBreadcrumbsModule, StModalService, StModalResponse, StTextareaModule } from '@stratio/egeo';
 import { NO_ERRORS_SCHEMA, ChangeDetectionStrategy } from '@angular/core';
-import { of } from 'rxjs/observable/of';
+import { of } from 'rxjs';
 import { cloneDeep as _cloneDeep } from 'lodash';
 import { Location } from '@angular/common';
 import { Store } from '@ngrx/store';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { TranslateMockModule, initTranslate } from '@test/translate-stub';
-import { Router } from '@angular/router';
 import { MockStore } from '@test/store-mock';
 import * as workflowActions from './../../actions/workflow-list';
 import { WorkflowJsonModalComponent } from './workflow-json-modal.component';
-import { ROOT_STORE_MOCK } from '@test/root-store-mock';
-import { FormsModule } from '@angular/forms';
+import { REPOSITORY_STORE_MOCK } from '@test/mocks/repository';
+import { SpInputModule } from '@app/shared';
 
 
 let component: WorkflowJsonModalComponent;
@@ -28,7 +29,7 @@ let routeMock: Router;
 let modalServiceMock: StModalService;
 let mockLocation: Location;
 
-const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
+const initialStoreState: any = _cloneDeep(REPOSITORY_STORE_MOCK);
 
 describe('[WorkflowJsonModal]', () => {
 
@@ -47,6 +48,7 @@ describe('[WorkflowJsonModal]', () => {
             StBreadcrumbsModule,
             TranslateMockModule,
             FormsModule,
+            SpInputModule,
             StTextareaModule
          ],
          providers: [

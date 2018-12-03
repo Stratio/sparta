@@ -78,7 +78,7 @@
               class="button button-toolbar"
               spTitle="Edit"
               (click)="onEditEntity.emit()"
-              *ngIf="isNodeSelected"
+              *ngIf="selectedNodeNumber > 0"
               id="edit-node-button">
               <i class="icon-edit"></i>
             </button>
@@ -86,7 +86,7 @@
               class="button button-toolbar"
               spTitle="Duplicate"
               (click)="onDuplicateNode.emit()"
-              *ngIf="isNodeSelected"
+              *ngIf="selectedNodeNumber === 1"
               id="copy-node-button">
               <i class="icon-copy2"></i>
             </button>
@@ -94,10 +94,18 @@
               class="button button-toolbar"
               spTitle="Delete"
               (click)="deleteSelection.emit()"
-              *ngIf="isNodeSelected || isEdgeSelected"
+              *ngIf="selectedNodeNumber > 0 || isEdgeSelected"
               id="delete-node-button">
               <i class="icon-trash"></i>
             </button>
+            <button
+            class="button button-toolbar"
+            spTitle="Multi selection"
+            [ngClass]="{'selected-button': multiselectionMode}"
+            (click)="multiSelect()"
+            id="multi-selection">
+            <i class="icon-group"></i>
+          </button>
           </div>
           <div class="" style="float:right">
             <div [attr.disabled]="isWorkflowDebugging ? '' : null" class="button multi-button" id="debug-mode">

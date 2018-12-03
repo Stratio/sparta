@@ -10,10 +10,10 @@ import { Store } from '@ngrx/store';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import { WorkflowService } from './../workflow.service';
-import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { USER_STORE_MOCK } from '@test/mocks/user';
 import { MockStore } from '@test/store-mock';
 
-const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
+const initialStoreState: any = _cloneDeep(USER_STORE_MOCK);
 
 describe('[WorkflowService]', () => {
    const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);

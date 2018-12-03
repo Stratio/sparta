@@ -9,11 +9,11 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { Store } from '@ngrx/store';
 import { cloneDeep as _cloneDeep } from 'lodash';
 
-import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { USER_STORE_MOCK } from '@test/mocks/user';
 import { MockStore } from '@test/store-mock';
 import { CrossdataService } from './../crossdata.service';
 
-const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
+const initialStoreState: any = _cloneDeep(USER_STORE_MOCK);
 
 
 describe('[CrossdataService]', () => {

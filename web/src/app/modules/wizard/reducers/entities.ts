@@ -7,6 +7,7 @@
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as wizardActions from './../actions/wizard';
+
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.model';
 import { streamingInputsNames, batchInputsNames } from 'data-templates/inputs';
 import { streamingTransformationsNames, batchTransformationsNames } from 'data-templates/transformations';

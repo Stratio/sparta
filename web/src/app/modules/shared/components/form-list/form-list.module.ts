@@ -11,11 +11,13 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { SpSelectModule } from '../sp-select/sp-select.module';
 import { FormListComponent } from './form-list.component';
-import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
-import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
-import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-column-input.module';
+import { HighlightTextareaModule} from './../highlight-textarea/hightlight-textarea.module';
+import { SpInputModule } from './../sp-input/sp-input.module';
+import { SpColumnInputModule } from './../sp-column-input/sp-column-input.module';
+import { SpSelectModule } from './../sp-select/sp-select.module';
+
+import { ErrorMessagesService } from 'app/services';
 
 
 @NgModule({
@@ -37,6 +39,9 @@ import { SpColumnInputModule } from '@app/shared/components/sp-column-input/sp-c
    ],
    declarations: [
       FormListComponent
+   ],
+   providers: [
+     ErrorMessagesService
    ]
 })
 

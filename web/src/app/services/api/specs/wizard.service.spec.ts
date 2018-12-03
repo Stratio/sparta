@@ -11,9 +11,9 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 
 import { WizardApiService } from './../wizard.service';
 import { MockStore } from '@test/store-mock';
-import { ROOT_STORE_MOCK } from '@test/root-store-mock';
+import { USER_STORE_MOCK } from '@test/mocks/user';
 
-const initialStoreState: any = _cloneDeep(ROOT_STORE_MOCK);
+const initialStoreState: any = _cloneDeep(USER_STORE_MOCK);
 
 describe('[WizardService]', () => {
   const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);
