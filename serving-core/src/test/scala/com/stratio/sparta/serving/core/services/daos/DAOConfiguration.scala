@@ -32,4 +32,6 @@ trait DAOConfiguration extends JdbcSlickHelper
   SpartaConfig.postgresConfig = Option(updatedConf)
   val properties = ConfigFactory.parseProperties(slickConnectionProperties(updatedConf)).withFallback(updatedConf)
 
+  val queryTimeout = 20000
+
 }

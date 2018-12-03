@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.EntityAuthorization
+import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import org.joda.time.DateTime
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 
@@ -22,6 +23,7 @@ case class TemplateElement(
                             lastUpdateDate: Option[DateTime] = None,
                             supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
                             executionEngine: Option[ExecutionEngine] = Option(Streaming),
+                            supportedDataRelations: Option[Seq[DataType]] = None,
                             versionSparta: Option[String] = None
                           ) extends EntityAuthorization {
 

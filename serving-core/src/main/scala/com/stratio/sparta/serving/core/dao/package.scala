@@ -17,6 +17,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
+import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 //scalastyle:off
 package object daoTables {
@@ -205,10 +206,12 @@ package object daoTables {
 
     def executionEngine = column[Option[ExecutionEngine]]("execution_engine")
 
+    def supportedDataRelations = column[Option[Seq[DataType]]]("supported_data_relations")
+
     def versionSparta = column[Option[String]]("version_sparta")
 
     def * = (id.?, templateType, name, description, className, classPrettyName, configuration,
-      creationDate, lastUpdateDate, supportedEngines, executionEngine, versionSparta) <> ((TemplateElement.apply _).tupled, TemplateElement.unapply _)
+      creationDate, lastUpdateDate, supportedEngines, executionEngine, supportedDataRelations, versionSparta) <> ((TemplateElement.apply _).tupled, TemplateElement.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
 

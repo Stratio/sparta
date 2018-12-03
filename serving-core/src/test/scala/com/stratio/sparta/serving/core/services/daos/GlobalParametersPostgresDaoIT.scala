@@ -20,8 +20,11 @@ import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 @RunWith(classOf[JUnitRunner])
-class GlobalParametersPostgresDaoTestIT extends DAOConfiguration
+class GlobalParametersPostgresDaoIT extends DAOConfiguration
   with Matchers
   with WordSpecLike
   with BeforeAndAfterAll
@@ -30,9 +33,10 @@ class GlobalParametersPostgresDaoTestIT extends DAOConfiguration
   with ScalaFutures {
 
   val profile = PostgresProfile
+
   import profile.api._
+
   var db1: profile.api.Database = _
-  val queryTimeout : Int = 20000
 
   val paramVar_1 = ParameterVariable("PV1", Some("value1"))
   val paramVar_2 = ParameterVariable("PV2", Some("value2"))
@@ -45,9 +49,6 @@ class GlobalParametersPostgresDaoTestIT extends DAOConfiguration
 
   val globalParametersDao = new GlobalParametersPostgresDao()
 
-  PostgresFactory.invokeInitializationMethods()
-  PostgresFactory.invokeInitializationDataMethods()
-
   trait GlobalParametersDaoTrait extends GlobalParametersDao {
 
     override val profile = PostgresProfile
@@ -56,67 +57,66 @@ class GlobalParametersPostgresDaoTestIT extends DAOConfiguration
 
   override def beforeAll(): Unit = {
     db1 = Database.forConfig("", properties)
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.global_parameters CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
+    PostgresFactory.invokeInitializationMethods()
+    PostgresFactory.invokeInitializationDataMethods()
   }
 
   "A global parameter list" must {
     "be created" in new GlobalParametersDaoTrait {
 
-      whenReady(globalParametersDao.createGlobalParameters(globalParams_1), timeout(Span(queryTimeout, Milliseconds))) {
-        _ =>
-          whenReady(db.run(table.filter(_.name === paramVar_1.name).result).map(_.toList)){
-            result => result.head.name shouldBe paramVar_1.name
-          }
+      whenReady(globalParametersDao.createGlobalParameters(globalParams_1), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.name === paramVar_1.name).result).map(_.toList)) { result =>
+          result.head.name shouldBe paramVar_1.name
+        }
       }
     }
 
-    "be returned if the find method is called" in new GlobalParametersDaoTrait{
+    "be returned if the find method is called" in new GlobalParametersDaoTrait {
       val result = globalParametersDao.find().futureValue
 
       result shouldBe a[GlobalParameters]
     }
 
-    "return an environmental variable" in new GlobalParametersDaoTrait{
+    "return an environmental variable" in new GlobalParametersDaoTrait {
       val result = globalParametersDao.findGlobalParameterVariable(paramVar_1.name).futureValue
 
       result.name shouldBe paramVar_1.name
     }
 
-    "be updated, adding new variables and updating existing ones" in new GlobalParametersDaoTrait{
+    "be updated, adding new variables and updating existing ones" in new GlobalParametersDaoTrait {
+
       import profile.api._
 
-      whenReady(globalParametersDao.updateGlobalParameters(globalParams_2), timeout(Span(queryTimeout, Milliseconds))) {
-        _ =>
-          whenReady(db.run(table.filter(_.name === paramVar_1.name).result).map(_.toList)){
-            result =>
-              result.head.value shouldBe paramVar_1_mod.value
-          }
+      whenReady(globalParametersDao.updateGlobalParameters(globalParams_2), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.name === paramVar_1.name).result).map(_.toList)) { result =>
+          result.head.value shouldBe paramVar_1_mod.value
+        }
 
-          whenReady(db.run(table.filter(_.name === paramVar_2.name).result).map(_.toList)){
-            result =>
-              result.head.value shouldBe paramVar_2.value
-          }
+        whenReady(db.run(table.filter(_.name === paramVar_2.name).result).map(_.toList)) { result =>
+          result.head.value shouldBe paramVar_2.value
+        }
       }
     }
 
-    "be updated, inserting a new variable and update an existing one" in new GlobalParametersDaoTrait{
+    "be updated, inserting a new variable and update an existing one" in new GlobalParametersDaoTrait {
+
       import profile.api._
 
-      whenReady(globalParametersDao.upsertParameterVariable(paramVar_2_mod), timeout(Span(queryTimeout, Milliseconds))) {
-        _ =>
-          whenReady(db.run(table.filter(_.name === paramVar_2_mod.name).result).map(_.toList)) {
-            result => {
-              result.size shouldBe 1
-              result.head.value shouldBe paramVar_2_mod.value
-            }
-          }
+      whenReady(globalParametersDao.upsertParameterVariable(paramVar_2_mod), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.name === paramVar_2_mod.name).result).map(_.toList)) { result =>
+          result.size shouldBe 1
+          result.head.value shouldBe paramVar_2_mod.value
+        }
       }
 
-      whenReady(globalParametersDao.upsertParameterVariable(paramVar_3), timeout(Span(queryTimeout, Milliseconds))) {
-        _ =>
-          whenReady(db.run(table.filter(_.name === paramVar_3.name).result).map(_.toList)) {
-            result =>
-              result.head.value shouldBe paramVar_3.value
-          }
+      whenReady(globalParametersDao.upsertParameterVariable(paramVar_3), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.name === paramVar_3.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { result =>
+          result.head.value shouldBe paramVar_3.value
+        }
       }
     }
 
@@ -128,18 +128,23 @@ class GlobalParametersPostgresDaoTestIT extends DAOConfiguration
     }
 
     "deleted" in new GlobalParametersDaoTrait {
+
       import profile.api._
 
       val result = globalParametersDao.deleteGlobalParameters().futureValue
 
       if (result)
-        whenReady(db.run(table.result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) {
-          result => result.isEmpty shouldBe true
+        whenReady(db.run(table.result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { result =>
+          result.isEmpty shouldBe true
         }
     }
   }
 
   override def afterAll(): Unit = {
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.global_parameters CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
     db1.close()
   }
 }

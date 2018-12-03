@@ -42,7 +42,7 @@ class PostgresFactoryIT extends WordSpec with Matchers with BeforeAndAfterAll wi
   val updatedConf = ConfigFactory.parseString(host).withFallback(SpartaConfig.getPostgresConfig().get)
   SpartaConfig.postgresConfig = Option(updatedConf)
   val properties = ConfigFactory.parseProperties(slickConnectionProperties(updatedConf)).withFallback(updatedConf)
-  val queryTimeout: Int = 3000
+  val queryTimeout: Int = 20000
 
   import slick.jdbc.PostgresProfile.api._
 

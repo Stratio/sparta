@@ -21,6 +21,9 @@ import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowPostgresDaoIT extends DAOConfiguration
@@ -36,13 +39,9 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
   import profile.api._
 
   var db1: profile.api.Database = _
-  val queryTimeout: Int = 20000
   val postgresConf: Config = SpartaConfig.getPostgresConfig().get
 
   val workflowPostgresDao = new WorkflowPostgresDao()
-
-  PostgresFactory.invokeInitializationMethods()
-  PostgresFactory.invokeInitializationDataMethods()
 
   trait WorkflowDaoTrait extends WorkflowDao {
 
@@ -52,6 +51,12 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
 
   override def beforeAll(): Unit = {
     db1 = Database.forConfig("", properties)
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.workflow CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
+    PostgresFactory.invokeInitializationMethods()
+    PostgresFactory.invokeInitializationDataMethods()
   }
 
   "A workflow " must {
@@ -75,7 +80,7 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
       whenReady(workflowPostgresDao.createWorkflow(wf), timeout(Span(queryTimeout, Milliseconds))) { createdWF =>
         whenReady(workflowPostgresDao.createVersion(workflowVersion), timeout(Span(queryTimeout, Milliseconds))) { returnedWF =>
           returnedWF.version shouldBe newVersion
-          createdWF.version should not be equal (newVersion)
+          createdWF.version should not be equal(newVersion)
         }
       }
     }
@@ -99,6 +104,10 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
   }
 
   override def afterAll(): Unit = {
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.workflow CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
     db1.close()
   }
 

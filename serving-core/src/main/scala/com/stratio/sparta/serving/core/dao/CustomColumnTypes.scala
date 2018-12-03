@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import com.stratio.sparta.core.models.DebugResults
+import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 
 import scala.util.Try
@@ -75,6 +76,26 @@ object CustomColumnTypes extends SpartaSerializer {
   implicit val stringListMapper = MappedColumnType.base[Seq[String], String](
     objToSerialize => write(objToSerialize),
     objToDeSerialize => read[Seq[String]](objToDeSerialize)
+  )
+
+  implicit val supportedDataRelationsType = MappedColumnType.base[DataType, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[DataType](objToDeSerialize)
+  )
+
+  implicit val supportedDataRelationsSeqType = MappedColumnType.base[Seq[DataType], String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[Seq[DataType]](objToDeSerialize)
+  )
+
+  implicit val lineagePropertiesType = MappedColumnType.base[NodeLineageProperty, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[NodeLineageProperty](objToDeSerialize)
+  )
+
+  implicit val lineagePropertiesSeqType = MappedColumnType.base[Seq[NodeLineageProperty], String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[Seq[NodeLineageProperty]](objToDeSerialize)
   )
 
   implicit val parameterVariableSeqType = MappedColumnType.base[Seq[ParameterVariable], String](

@@ -19,8 +19,11 @@ import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 @RunWith(classOf[JUnitRunner])
-class GroupPostgresDaoTestIT extends DAOConfiguration
+class GroupPostgresDaoIT extends DAOConfiguration
   with Matchers
   with WordSpecLike
   with BeforeAndAfterAll
@@ -29,19 +32,17 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
   with ScalaFutures {
 
   val profile = PostgresProfile
-  import profile.api._
-  var db1: profile.api.Database = _
-  val queryTimeout : Int = 20000
 
-  val groupTest1 = Group(Some("id1"),"/home/testgroup")
+  import profile.api._
+
+  var db1: profile.api.Database = _
+
+  val groupTest1 = Group(Some("id1"), "/home/testgroup")
   val groupTest2 = Group(Some("id2"), "/home/testgroup2")
   val groupTest3 = Group(Some("id3"), "/home/testgroup/child")
   val groupTest1Updated = Group(Some("id1"), "/home/groupmodified")
 
   val groupPostgresDao = new GroupPostgresDao()
-
-  PostgresFactory.invokeInitializationMethods()
-  PostgresFactory.invokeInitializationDataMethods()
 
   trait GroupDaoTrait extends GroupDao {
 
@@ -52,6 +53,14 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
   override def beforeAll(): Unit = {
 
     db1 = Database.forConfig("", properties)
+
+    val actions = DBIO.seq(
+      sqlu"DROP TABLE IF EXISTS spartatest.groups CASCADE;"
+    )
+    Await.result(db1.run(actions), queryTimeout millis)
+
+    PostgresFactory.invokeInitializationMethods()
+    PostgresFactory.invokeInitializationDataMethods()
   }
 
   "An Sparta group" must {
@@ -61,14 +70,11 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
 
       groupPostgresDao.createFromGroup(groupTest2)
 
-      whenReady(groupPostgresDao.createFromGroup(groupTest1), timeout(Span(queryTimeout, Milliseconds))) {
-        _ =>
-          whenReady(db.run(table.filter(_.groupId === groupTest1.id.get).result).map(_.toList)) {
-            result => {
-              result.size shouldBe 1
-              groupPostgresDao.createFromGroup(groupTest3)
-            }
-          }
+      whenReady(groupPostgresDao.createFromGroup(groupTest1), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.groupId === groupTest1.id.get).result).map(_.toList)) { result =>
+          result.size shouldBe 1
+          groupPostgresDao.createFromGroup(groupTest3)
+        }
       }
     }
 
@@ -76,28 +82,28 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
 
       import profile.api._
 
-      whenReady(groupPostgresDao.update(groupTest1Updated), timeout(Span(queryTimeout, Milliseconds)))  {
+      whenReady(groupPostgresDao.update(groupTest1Updated), timeout(Span(queryTimeout, Milliseconds))) {
         _ =>
-          whenReady(db.run(table.filter(_.groupId === groupTest1Updated.id.get).result).map(_.toList)) {
-            result => result.head.name shouldBe "/home/groupmodified"
+          whenReady(db.run(table.filter(_.groupId === groupTest1Updated.id.get).result).map(_.toList)) { result =>
+            result.head.name shouldBe "/home/groupmodified"
           }
 
-          whenReady(db.run(table.filter(_.groupId === groupTest3.id.get).result).map(_.toList)) {
-            result => result.head.name shouldBe "/home/groupmodified/child"
+          whenReady(db.run(table.filter(_.groupId === groupTest3.id.get).result).map(_.toList)) { result =>
+            result.head.name shouldBe "/home/groupmodified/child"
           }
       }
     }
 
     "be found if an existing id is given" in new GroupDaoTrait {
 
-      whenReady(groupPostgresDao.findGroupByName("/home/groupmodified"), timeout(Span(queryTimeout, Milliseconds))) {
-        result => result.name shouldBe "/home/groupmodified"
+      whenReady(groupPostgresDao.findGroupByName("/home/groupmodified"), timeout(Span(queryTimeout, Milliseconds))) { result =>
+        result.name shouldBe "/home/groupmodified"
       }
     }
 
     "be found if an existing name is given" in new GroupDaoTrait {
-      whenReady(groupPostgresDao.findGroupById("id1"), timeout(Span(queryTimeout, Milliseconds))) {
-        result => result.id.get shouldBe "id1"
+      whenReady(groupPostgresDao.findGroupById("id1"), timeout(Span(queryTimeout, Milliseconds))) { result =>
+        result.id.get shouldBe "id1"
       }
     }
 
@@ -113,12 +119,13 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
 
   "All groups" must {
     "be deleted" in new GroupDaoTrait {
+
       import profile.api._
 
       val result = groupPostgresDao.deleteAllGroups().futureValue
       if (result)
-        whenReady(db.run(table.result).map(_.toList)){
-          result => result.size shouldBe 1
+        whenReady(db.run(table.result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { result =>
+          result.size shouldBe 1
         }
 
       assert(result === true)
@@ -126,6 +133,10 @@ class GroupPostgresDaoTestIT extends DAOConfiguration
   }
 
   override def afterAll(): Unit = {
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.groups CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
     db1.close()
   }
 }

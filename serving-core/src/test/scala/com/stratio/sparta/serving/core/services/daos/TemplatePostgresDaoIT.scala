@@ -9,6 +9,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.dao.TemplateDao
 import com.stratio.sparta.serving.core.factory.PostgresFactory
+import com.stratio.sparta.serving.core.models.enumerators.DataType
 import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, TemplateType}
 import com.stratio.sparta.serving.core.services.dao.TemplatePostgresDao
 import com.stratio.sparta.serving.core.utils.JdbcSlickHelper
@@ -20,8 +21,11 @@ import org.scalatest.time.{Milliseconds, Span}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import slick.jdbc.PostgresProfile
 
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+
 @RunWith(classOf[JUnitRunner])
-class TemplatePostgresDaoTestIT extends DAOConfiguration
+class TemplatePostgresDaoIT extends DAOConfiguration
   with Matchers
   with WordSpecLike
   with BeforeAndAfterAll
@@ -30,9 +34,10 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
   with ScalaFutures {
 
   val profile = PostgresProfile
+
   import profile.api._
+
   var db1: profile.api.Database = _
-  val queryTimeout: Int = 20000
   val postgresConf: Config = SpartaConfig.getPostgresConfig().get
 
   val templateElement_1 = TemplateElement(
@@ -40,7 +45,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     name = "templateInput",
     description = Some("Input template example"),
     className = "TestInputStep",
-    classPrettyName = "Test"
+    classPrettyName = "Test",
+    supportedDataRelations = Option(Seq(DataType.ValidData))
   )
 
   val templateElement_2 = TemplateElement(
@@ -48,7 +54,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     name = "templateTransformation",
     description = Some("Transformation template example"),
     className = "CastingTransformStep",
-    classPrettyName = "Casting"
+    classPrettyName = "Casting",
+    supportedDataRelations = Option(Seq(DataType.ValidData))
   )
 
   val templateElement_3 = TemplateElement(
@@ -56,7 +63,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     name = "templateOutput",
     description = Some("Output template example 1"),
     className = "ParquetOutputStep",
-    classPrettyName = "Parquet"
+    classPrettyName = "Parquet",
+    supportedDataRelations = Option(Seq(DataType.ValidData))
   )
 
   val templateElement_4 = TemplateElement(
@@ -64,7 +72,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     name = "templateOutput2",
     description = Some("Output template example 2"),
     className = "PostgresOutputStep",
-    classPrettyName = "Postgres"
+    classPrettyName = "Postgres",
+    supportedDataRelations = Option(Seq(DataType.ValidData))
   )
 
   val templateElement_5 = TemplateElement(
@@ -72,13 +81,11 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
     name = "templateInput2",
     description = Some("Input template example 2"),
     className = "AvroInputStep",
-    classPrettyName = "Avro"
+    classPrettyName = "Avro",
+    supportedDataRelations = Option(Seq(DataType.ValidData))
   )
 
   val templatePostgresDao = new TemplatePostgresDao()
-
-  PostgresFactory.invokeInitializationMethods()
-  PostgresFactory.invokeInitializationDataMethods()
 
   trait TemplateDaoTrait extends TemplateDao {
 
@@ -89,43 +96,45 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
   override def beforeAll(): Unit = {
 
     db1 = Database.forConfig("", properties)
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.template CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
+    PostgresFactory.invokeInitializationMethods()
+    PostgresFactory.invokeInitializationDataMethods()
   }
 
   "A template or templates " must {
     "be created" in new TemplateDaoTrait {
 
-      whenReady(templatePostgresDao.createTemplate(templateElement_1), timeout(Span(queryTimeout, Milliseconds))) {
-        _ => {
-          val result = db.run(table.filter(_.name === templateElement_1.name).result).map(_.toList).futureValue
+      whenReady(templatePostgresDao.createTemplate(templateElement_1), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.name === templateElement_1.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { result =>
 
           result.head.name shouldBe templateElement_1.name
 
-          if (result.nonEmpty) {
-            templatePostgresDao.createTemplate(templateElement_2)
-            templatePostgresDao.createTemplate(templateElement_3)
-            templatePostgresDao.createTemplate(templateElement_4)
+          whenReady(Future.sequence(Seq(
+            templatePostgresDao.createTemplate(templateElement_2),
+            templatePostgresDao.createTemplate(templateElement_3),
+            templatePostgresDao.createTemplate(templateElement_4),
             templatePostgresDao.createTemplate(templateElement_5)
+          )), timeout(Span(queryTimeout, Milliseconds))) { result2 =>
+            result2.isEmpty shouldBe false
           }
         }
       }
     }
 
     "be found and returned if they have the type specified" in new TemplateDaoTrait {
-      whenReady(templatePostgresDao.findByType(TemplateType.InputValue), timeout(Span(queryTimeout, Milliseconds))) {
-        result => {
-          result.head.name shouldBe templateElement_1.name
-          result.size shouldBe 2
-        }
+      whenReady(templatePostgresDao.findByType(TemplateType.InputValue), timeout(Span(queryTimeout, Milliseconds))) { result =>
+        result.head.name shouldBe templateElement_1.name
+        result.size shouldBe 2
       }
     }
 
     "be found and returned if its name and type matches the ones specified in the method" in new TemplateDaoTrait {
 
-      whenReady(templatePostgresDao.findByTypeAndName(TemplateType.TransformationValue, templateElement_2.name),
-        timeout(Span(queryTimeout, Milliseconds))) {
-        result => {
-          result.name shouldBe templateElement_2.name
-        }
+      whenReady(templatePostgresDao.findByTypeAndName(TemplateType.TransformationValue, templateElement_2.name), timeout(Span(queryTimeout, Milliseconds))) { result =>
+        result.name shouldBe templateElement_2.name
       }
     }
 
@@ -133,10 +142,8 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
       val templateId = templatePostgresDao.findByTypeAndName(templateElement_2.templateType,
         templateElement_2.name).futureValue.id
-      whenReady(templatePostgresDao.findByTypeAndId(TemplateType.TransformationValue, templateId.get),
-        timeout(Span(queryTimeout, Milliseconds))) {
-        result =>
-          result.name shouldBe templateElement_2.name
+      whenReady(templatePostgresDao.findByTypeAndId(TemplateType.TransformationValue, templateId.get), timeout(Span(queryTimeout, Milliseconds))) { result =>
+        result.name shouldBe templateElement_2.name
       }
     }
 
@@ -156,18 +163,14 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
         name = "templateInputModified",
         description = Some("Input template example has been changed"),
         className = "TestInputStep",
-        classPrettyName = "Test"
+        classPrettyName = "Test",
+        supportedDataRelations = Option(Seq(DataType.ValidData))
       )
 
-      whenReady(templatePostgresDao.updateTemplate(templateElement_1_modified), timeout(Span(queryTimeout, Milliseconds))) {
-        _ =>
-        {
-          whenReady(templatePostgresDao.findByTypeAndName(templateElement_1_modified.templateType,
-            templateElement_1_modified.name)) {
-            res =>
-              res.name shouldBe templateElement_1_modified.name
-              res.description shouldBe templateElement_1_modified.description
-          }
+      whenReady(templatePostgresDao.updateTemplate(templateElement_1_modified), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(templatePostgresDao.findByTypeAndName(templateElement_1_modified.templateType, templateElement_1_modified.name), timeout(Span(queryTimeout, Milliseconds))) { res =>
+          res.name shouldBe templateElement_1_modified.name
+          res.description shouldBe templateElement_1_modified.description
         }
       }
     }
@@ -176,53 +179,44 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
 
       val templateID = templatePostgresDao.findByTypeAndName(templateElement_2.templateType,
         templateElement_2.name).futureValue.id
-      whenReady(templatePostgresDao.deleteByTypeAndId(TemplateType.TransformationValue, templateID.get),
-        timeout(Span(queryTimeout, Milliseconds))) {
-        res =>
-          if (res) {
-            whenReady(db.run(table.filter(_.templateType === templateElement_2.templateType).result).map(_.toList),
-              timeout(Span(queryTimeout, Milliseconds))) {
-              finalRes => finalRes.isEmpty shouldBe true
-            }
+      whenReady(templatePostgresDao.deleteByTypeAndId(TemplateType.TransformationValue, templateID.get), timeout(Span(queryTimeout, Milliseconds))) { res =>
+        if (res) {
+          whenReady(db.run(table.filter(_.templateType === templateElement_2.templateType).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { finalRes =>
+            finalRes.isEmpty shouldBe true
           }
+        }
       }
     }
 
     "be deleted if its type and name matches with the ones specified in the method" in new TemplateDaoTrait {
 
-      whenReady(templatePostgresDao.deleteByTypeAndName(TemplateType.OutputValue, templateElement_3.name),
-        timeout(Span(queryTimeout, Milliseconds))) {
-        res =>
-          if (res) {
-            whenReady(db.run(table.filter(_.name === templateElement_3.name).result).map(_.toList),
-              timeout(Span(queryTimeout, Milliseconds))) {
-              finalRes => finalRes.isEmpty shouldBe true
-            }
+      whenReady(templatePostgresDao.deleteByTypeAndName(TemplateType.OutputValue, templateElement_3.name), timeout(Span(queryTimeout, Milliseconds))) { res =>
+        if (res) {
+          whenReady(db.run(table.filter(_.name === templateElement_3.name).result).map(_.toList), timeout(Span(queryTimeout, Milliseconds))) { finalRes =>
+            finalRes.isEmpty shouldBe true
           }
+        }
       }
     }
 
     "be deleted if its type matches with the one specified in the method" in new TemplateDaoTrait {
-      whenReady(templatePostgresDao.deleteByType(TemplateType.OutputValue),
-        timeout(Span(queryTimeout, Milliseconds))) {
-        res =>
-          if (res) {
-            whenReady(db.run(table.filter(_.templateType === TemplateType.OutputValue).result).map(_.toList),
-              timeout(Span(queryTimeout, Milliseconds))) {
-              finalRes => finalRes.isEmpty shouldBe true
-            }
+      whenReady(templatePostgresDao.deleteByType(TemplateType.OutputValue), timeout(Span(queryTimeout, Milliseconds))) { res =>
+        if (res) {
+          whenReady(db.run(table.filter(_.templateType === TemplateType.OutputValue).result).map(_.toList),
+            timeout(Span(queryTimeout, Milliseconds))) {
+            finalRes => finalRes.isEmpty shouldBe true
           }
+        }
       }
     }
   }
 
   "All templates" must {
     "be deleted disregarding its type" in new TemplateDaoTrait {
-      whenReady(templatePostgresDao.deleteAllTemplates(),
-        timeout(Span(queryTimeout, Milliseconds))) { res =>
+      whenReady(templatePostgresDao.deleteAllTemplates(), timeout(Span(queryTimeout, Milliseconds))) { res =>
         if (res) {
-          whenReady(db.run(table.result).map(_.toList)) {
-            query => query.isEmpty shouldBe true
+          whenReady(db.run(table.result), timeout(Span(queryTimeout, Milliseconds))) { query =>
+            query.isEmpty shouldBe true
           }
         }
       }
@@ -230,6 +224,10 @@ class TemplatePostgresDaoTestIT extends DAOConfiguration
   }
 
   override def afterAll(): Unit = {
+
+    val actions = DBIO.seq(sqlu"DROP TABLE IF EXISTS spartatest.template CASCADE;")
+    Await.result(db1.run(actions), queryTimeout millis)
+
     db1.close()
   }
 }
