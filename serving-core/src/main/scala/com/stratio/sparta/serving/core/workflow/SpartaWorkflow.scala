@@ -14,6 +14,7 @@ import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.SdkSchemaHelper.discardExtension
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
@@ -376,7 +377,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                 transform.data,
                 transform.step.outputOptions.copy(
                   stepName = stepName,
-                  tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType)
+                  tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType, transform.step.outputOptions.discardTableName)
                 ),
                 workflow.settings.errorsManagement,
                 errorOutputs,
@@ -471,8 +472,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     if (nodeName.contains(SdkSchemaHelper.discardExtension)) DataType.DiscardedData
     else DataType.ValidData
 
-  private[core] def nodeName(name: String, relationDataType: DataType): String =
+  private[core] def nodeName(
+                              name: String,
+                             relationDataType: DataType,
+                             discardTableName: Option[String] = None
+                            ): String =
     if (relationDataType == DataType.ValidData) name
+    else if(!name.contains(discardExtension) && discardTableName.isDefined) discardTableName.get
     else SdkSchemaHelper.discardTableName(name)
 
   private[core] def inputIdentificationName(step: InputStep[Underlying]): String =
@@ -552,7 +558,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         node.writer.uniqueConstraintName.notBlank,
         node.writer.uniqueConstraintFields.notBlank,
         node.writer.updateFields.notBlank,
-        node.writer.errorTableName.notBlank.orElse(Option(tableName))
+        node.writer.errorTableName.notBlank.orElse(Option(tableName)),
+        node.writer.discardTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[TransformStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
@@ -598,7 +605,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         node.writer.uniqueConstraintName.notBlank,
         node.writer.uniqueConstraintFields.notBlank,
         node.writer.updateFields.notBlank,
-        node.writer.errorTableName.notBlank.orElse(Option(tableName))
+        node.writer.errorTableName.notBlank.orElse(Option(tableName)),
+        node.writer.discardTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(

@@ -19,5 +19,6 @@ case class OutputOptions(
                           uniqueConstraintName: Option[String] = None,
                           uniqueConstraintFields: Option[String] = None,
                           updateFields: Option[String] = None,
-                          errorTableName: Option[String] = None
+                          errorTableName: Option[String] = None,
+                          discardTableName: Option[String] = None
                         )

@@ -592,6 +592,7 @@
    "_SAVEMODE_": "Save mode",
    "_TABLE_NAME_": "Table name",
    "_ERROR_TABLE_NAME_": "Errors table name",
+   "_DISCARD_TABLE_NAME_": "Discards table name",
    "_ERROR_SINK_": "Available in errors management",
    "_NEW_FILES_ONLY_": "New files only",
    "_FILTER_OUT_FILES_": "Filter",

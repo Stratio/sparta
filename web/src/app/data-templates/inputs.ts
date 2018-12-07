@@ -60,11 +60,11 @@ export const inputs = [
     parquetTemplate,
     restBatchTemplate,
     restStreamingTemplate,
+    sftpTemplate,
     testBatchTemplate,
     testStreamingTemplate,
     xmlBatchTemplate,
-    websocketTemplate,
-    sftpTemplate
+    websocketTemplate
 ];
 
 

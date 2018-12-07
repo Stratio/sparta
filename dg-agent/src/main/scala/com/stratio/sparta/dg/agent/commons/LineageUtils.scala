@@ -39,7 +39,8 @@ object LineageUtils {
           "constraintType" -> writer.constraintType.map(_.toString),
           "partitionBy" -> writer.partitionBy.map(_.toString),
           "primaryKey" -> writer.primaryKey.map(_.toString),
-          "errorTableName" -> writer.errorTableName.map(_.toString)
+          "errorTableName" -> writer.errorTableName.map(_.toString),
+          "discardTableName" -> writer.discardTableName.map(_.toString)
         )
         m.filter(p => p._2.isDefined && p._2.get.nonEmpty).map(p => (p._1, p._2.get))
       }

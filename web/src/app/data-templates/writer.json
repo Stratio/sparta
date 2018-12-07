@@ -7,6 +7,14 @@
       "tooltip": "Name used to persist the resulting data in a table, topic or queue. If this field is left blank Sparta will use the transformation name instead.",
       "qa": "table-name-writer-tableName"
    },
+  {
+    "propertyId": "discardTableName",
+    "propertyName": "_DISCARD_TABLE_NAME_",
+    "propertyType": "text",
+    "required": false,
+    "tooltip": "Name used to save the discarded data in a table, topic or similar. If this field is left blank Sparta will use the transformation name with '_discard' instead.",
+    "qa": "table-name-writer-discardTableName"
+  },
    {
       "propertyId": "errorTableName",
       "propertyName": "_ERROR_TABLE_NAME_",
@@ -128,7 +136,7 @@
       ],
       "tooltip": "If a table is created for the first time, the value inside this field will be used to compose its 'UNIQUE constraint' property. During the upsert, if this field is empty, the above Unique Constraint Name property will be used instead.",
       "qa": "constraint-by-writer"
-   }, 
+   },
     {
         "propertyId": "updateFields",
         "propertyName": "_UPDATE_FIELDS_",

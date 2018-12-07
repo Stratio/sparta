@@ -48,13 +48,12 @@ export const outputs = [
     mongodbTemplate,
     parquetTemplate,
     postgresTemplate,
+    printTemplate,
     redisTemplate,
     restTemplate,
-    printTemplate,
+    sftpTemplate,
     textTemplate,
-    xmlTemplate,
-    printTemplate,
-    sftpTemplate
+    xmlTemplate
 ];
 
 /*********************** */
