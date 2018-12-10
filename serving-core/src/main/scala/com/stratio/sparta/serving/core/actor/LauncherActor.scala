@@ -12,6 +12,8 @@ object LauncherActor {
 
   case class Launch(workflowIdExecutionContext: WorkflowIdExecutionContext, user: Option[LoggedUser])
 
+  case class LaunchExecution(executionId: String, user: Option[LoggedUser])
+
   case class Debug(workflowIdExecutionContext: WorkflowIdExecutionContext, user: Option[LoggedUser])
 
   case class Start(execution: WorkflowExecution)

@@ -64,8 +64,35 @@ class LauncherActor(
 
   def receiveApiActions(action: Any): Any = action match {
     case Launch(workflowIdExecutionContext, user) => launch(workflowIdExecutionContext, user)
+    case LaunchExecution(executionId, user) => launchExecution(executionId, user)
     case Debug(debugWorkflow, user) => debug(debugWorkflow, user)
     case _ => log.info("Unrecognized message in Launcher Actor")
+  }
+
+  def launchExecution(executionId: String, user: Option[LoggedUser]): Future[Any] = {
+    val sendResponseTo = sender
+    for {
+      execution <- executionService.findExecutionById(executionId)
+    } yield {
+      val actions = Map(ResourceWorkflow -> com.stratio.sparta.security.Status)
+      val workflowRaw = execution.getWorkflowToExecute
+      authorizeActionsByResourceId(user, actions, workflowRaw.authorizationId, Option(sendResponseTo)) {
+        for {
+          newExecution <- createExecution(
+            workflowRaw,
+            addParameterListsToExecutionContext(
+              workflowRaw.settings.global.parametersLists,
+              execution.genericDataExecution.executionContext
+            ),
+            Option(RunExecutionSettings(
+              execution.genericDataExecution.name,
+              execution.genericDataExecution.description
+            )),
+            user
+          )
+        } yield launchExecution(newExecution)
+      }
+    }
   }
 
   def launch(workflowIdExecutionContext: WorkflowIdExecutionContext, user: Option[LoggedUser]): Future[Any] = {

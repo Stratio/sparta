@@ -8,14 +8,15 @@ package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.Future
 import scala.util.Try
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.ExecutionActor._
+import com.stratio.sparta.serving.core.actor.LauncherActor.LaunchExecution
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
 
-class ExecutionActor()
+class ExecutionActor(launcherActor: ActorRef)
                     (implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -35,6 +36,7 @@ class ExecutionActor()
     case FindById(id, user) => findExecutionById(id, user)
     case DeleteAll(user) => deleteAllExecutions(user)
     case DeleteExecution(id, user) => deleteExecution(id, user)
+    case ReRunExecutionById(id, user) => reRunExecutionById(id, user)
     case Stop(id, user) => stopExecution(id, user)
     case ArchiveExecution(query, user) => archiveExecution(query, user)
     case QueryExecution(query, user) => findExecutionsByQuery(query, user)
@@ -57,6 +59,9 @@ class ExecutionActor()
       executionPgService.updateExecution(workflowExecution)
     }
   }
+
+  def reRunExecutionById(id: String, user: Option[LoggedUser]): Unit =
+    launcherActor.forward(LaunchExecution(id, user))
 
   def stopExecution(id: String, user: Option[LoggedUser]): Future[Any] = {
     val sendResponseTo = Option(sender)
@@ -175,6 +180,10 @@ object ExecutionActor {
   case class QueryExecution(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser])
 
   case class QueryExecutionDto(workflowExecutionQuery: WorkflowExecutionQuery, user: Option[LoggedUser])
+
+  case class ReRunExecutionById(id: String, user: Option[LoggedUser])
+
+  type ResponseReRun = Try[String]
 
   type ResponseWorkflowExecution = Try[WorkflowExecution]
 

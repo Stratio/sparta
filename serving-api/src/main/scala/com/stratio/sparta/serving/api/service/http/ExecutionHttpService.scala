@@ -31,7 +31,7 @@ trait ExecutionHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~ findAllDto(user) ~ dashboard(user) ~
     update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user) ~ stop(user) ~ archived(user) ~
-    findByQuery(user) ~ findByQueryDto(user)
+    findByQuery(user) ~ findByQueryDto(user) ~ reRun(user)
 
   @Path("/findByQuery")
   @ApiOperation(value = "Find executions from query.",
@@ -323,6 +323,36 @@ trait ExecutionHttpService extends BaseHttpService {
             response <- (supervisor ? Stop(id, user))
               .mapTo[Either[ResponseWorkflowExecution, UnauthorizedResponse]]
           } yield deletePostPutResponse(WorkflowServiceStop, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  @Path("/reRun/{id}")
+  @ApiOperation(value = "Re-run an execution by its id.",
+    notes = "Re-run an execution by its id.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(
+      name = "id",
+      value = "id of the execution",
+      dataType = "String",
+      required = true,
+      paramType = "path"
+    )
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def reRun(user: Option[LoggedUser] = None): Route = {
+    path(HttpConstant.ExecutionsPath / "reRun" / Segment) { id =>
+      post {
+        complete {
+          for {
+            response <- (supervisor ? ReRunExecutionById(id, user))
+              .mapTo[Either[ResponseReRun, UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowExecutionReRun, response, genericError, StatusCodes.OK)
         }
       }
     }
