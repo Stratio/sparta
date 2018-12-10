@@ -17,9 +17,28 @@
          "propertyId": "partitions",
          "propertyName": "_PARTITIONS_",
          "propertyType": "text",
-         "required": true,
+         "required": false,
          "tooltip": "Change the number of partitions associated to the Spark RDDs",
          "qa": "fragment-details-repartition-partitions"
+      },
+      {
+        "propertyId": "columns",
+        "propertyName": "_REPARTITION_BY_COLUMN_",
+        "propertyType": "list",
+        "required": false,
+        "tooltip": "Type the name of columns to repartition the dataframe",
+        "qa": "fragment-details-repartition-partitions",
+        "fields": [
+          {
+            "propertyId": "name",
+            "propertyName": "_NAME_",
+            "propertyType": "text",
+            "showSchemaFields": true,
+            "required": false,
+            "width": 8,
+            "qa": "fragment-details-field-name"
+          }
+        ]
       },
       {
          "propertyId": "inputSchemas",

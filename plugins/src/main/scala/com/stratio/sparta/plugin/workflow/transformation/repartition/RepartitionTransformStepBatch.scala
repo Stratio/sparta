@@ -28,16 +28,13 @@ class RepartitionTransformStepBatch(
   extends RepartitionTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
+
   override def transformWithSchema(
                                     inputData: Map[String, DistributedMonad[RDD]]
                                   ): (DistributedMonad[RDD], Option[StructType], Option[StructType]) = {
-    val rdd = applyHeadTransform(inputData) { (_, inputStream) =>
-      partitions.fold(inputStream.ds) { partition => inputStream.ds.repartition(partition) }
+    applyHeadTransformSchema(inputData) { (stepName, inputDistributedMonad) =>
+      val (rdd, schema, inputSchema) = applyPartition(inputDistributedMonad.ds, stepName)
+      (rdd, schema.orElse(getSchemaFromRdd(rdd)), inputSchema)
     }
-    val schema = getSchemaFromSessionOrModel(xDSession, name, inputsModel)
-      .orElse(getSchemaFromSessionOrModelOrRdd(xDSession, inputData.head._1, inputsModel, rdd.ds))
-
-    (rdd, schema, schema)
   }
-
 }

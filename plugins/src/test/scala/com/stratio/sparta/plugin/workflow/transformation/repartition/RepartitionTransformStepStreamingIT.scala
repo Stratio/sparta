@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.transformation.repartition
 
 import java.io.{Serializable => JSerializable}
 
+import akka.http.scaladsl.server.util.Tuple
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
@@ -25,13 +26,15 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class RepartitionTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A RepartitionTransformStepBatchIT" should "repartition RDD" in {
+  "A RepartitionTransformStepStreamingIT" should "repartition RDD" in {
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
-    val inputSchema = StructType(Seq(StructField("color", StringType)))
+    val inputSchema = StructType(Seq(StructField("color", StringType), StructField("age", StringType)))
     val dataQueue = new mutable.Queue[RDD[Row]]()
     val dataIn = Seq(
-      new GenericRowWithSchema(Array("blue"), inputSchema),
-      new GenericRowWithSchema(Array("red"), inputSchema)
+      new GenericRowWithSchema(Array("red", "12"), inputSchema),
+      new GenericRowWithSchema(Array("blue", "12"), inputSchema),
+      new GenericRowWithSchema(Array("red", "32"), inputSchema),
+      new GenericRowWithSchema(Array("red", "42"), inputSchema)
     )
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
@@ -43,15 +46,34 @@ class RepartitionTransformStepStreamingIT extends TemporalSparkContext with Matc
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("partitions" -> "100")
+      Map("partitions" -> "10", "columns" ->
+        """[
+          |{
+          |   "name": "age"
+          |}
+          |]""".stripMargin)
     ).transformWithDiscards(inputData)._1
 
-    result.ds.foreachRDD(rdd =>
-      assert(rdd.partitions.length == 100)
-    )
+    val totalEvents = ssc.sparkContext.longAccumulator("Number of events received")
+    var allSame: Boolean = false
+
+    result.ds.foreachRDD { rdd =>
+      val streamingEvents = rdd.partitions.length
+      totalEvents.add(streamingEvents)
+
+      val mapped = rdd.mapPartitionsWithIndex { case (index, iterator) =>
+        val myList = iterator.toList
+        myList.map(x => x + "-> " + index).iterator
+      }
+      val listWithSameAges = mapped.collect().filter(x => x.contains("12")).map(_.takeRight(1))
+      allSame = listWithSameAges.forall(_ == listWithSameAges.head)
+    }
 
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
+
+    assert(totalEvents.value==10L)
+    allSame shouldBe true
   }
 }
