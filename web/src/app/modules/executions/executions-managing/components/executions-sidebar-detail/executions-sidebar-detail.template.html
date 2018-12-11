@@ -79,12 +79,21 @@
       </div>
 
       <div *ngIf="activeOption.id === 'parameters'" class="execution-parameters">
-         <div *ngIf="parametersList">
-            <span class="egeo-title-mini title2">Parameters used</span>
-            <div class="values parameters" *ngFor="let parameter of objectKeys(parametersList)">
-               <span class="extraParam-name">{{parameter}}:</span> {{parametersList[parameter]}}
-            </div>   
-         </div>
+        <div *ngIf="parametersList2">
+            <div class="values parameters" *ngFor="let type of objectKeys(parametersList2)">
+              <div class="schema-title" [ngClass]="{'open' : openParameters && openParameters[type]}" (click)="toggleParameters(type)">
+                  <span>
+                    <span class="icon" [ngClass]="openParameters && openParameters[type] ? 'icon-arrow2_down' : 'icon-arrow2_right'"></span>
+                    <span class="egeo-title-mini param-title">{{type}}</span>
+                  </span>
+              </div>
+              <div *ngIf="openParameters && openParameters[type]" class="param-content">
+                  <div *ngFor="let parameter of parametersList2[type]">
+                        <span class="extraParam-name">{{parameter.name}}:</span> <span class="extraParam-value">{{parameter.value}}</span>
+                  </div>
+              </div>
+            </div>
+        </div>
       </div>
    </div>
 </div>

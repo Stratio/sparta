@@ -27,38 +27,46 @@ export class ExecutionsSidebarDetailComponent implements OnInit, OnChanges {
    public lastError: any;
    public execution: any;
    public executionContext: any;
-   public parametersList: Array<string>;
+   public parametersList2: any;
+   public openParameters: any = { Global: true };
 
-   public options: StHorizontalTab[] = [
-     {
+  public options: StHorizontalTab[] = [
+    {
       id: 'overview',
       text: 'Overview'
-     }, {
+    }, {
       id: 'parameters',
       text: 'Parameters'
-     }
-   ];
-   public activeOption = this.options[0];
+    }
+  ];
+  public activeOption = this.options[0];
 
-   constructor(private _cd: ChangeDetectorRef) { }
+  constructor(private _cd: ChangeDetectorRef) { }
 
-   ngOnInit() { }
+  ngOnInit() { }
 
-   ngOnChanges() {
-      if (this.executionData) {
-         this.execution = this.executionData && this.executionData.execution ? this.executionData.execution : null;
-         this.lastError = this.executionData.lastError;
-         this.parametersList = this.executionData.genericDataExecution.workflow.parametersUsedInExecution;
-         this._cd.detectChanges();
-      }
+  ngOnChanges() {
+    if (this.executionData) {
+      const parametersList = this.executionData.genericDataExecution.workflow.parametersUsedInExecution;
+      this.execution = this.executionData && this.executionData.execution ? this.executionData.execution : null;
+      this.lastError = this.executionData.lastError;
+      this.parametersList2 = {};
 
-   }
+      Object.keys(parametersList).forEach(key => {
+        this.parametersList2[key.split('.')[0]] = [...this.parametersList2[key.split('.')[0]] || [], { name: key.split('.')[1], value: parametersList[key] }];
+      });
+      this._cd.detectChanges();
+    }
 
-   changedOption(event: StHorizontalTab) {
-     this.activeOption = event;
-   }
+  }
+  toggleParameters(type) {
+    this.openParameters[type] = !this.openParameters[type];
+  }
+  changedOption(event: StHorizontalTab) {
+    this.activeOption = event;
+  }
 
-   onShowConsole() {
-      this.showConsole.emit();
-   }
+  onShowConsole() {
+    this.showConsole.emit();
+  }
 }

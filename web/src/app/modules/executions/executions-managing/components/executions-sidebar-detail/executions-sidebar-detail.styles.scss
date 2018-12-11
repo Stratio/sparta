@@ -1,130 +1,150 @@
 @import '~@stratio/egeo/theme/constants';
 
 :host {
-   display: block;
+  display: block;
 }
 
 .not-selected {
-   text-align: center;
-   min-height: 230px;
-   margin-top: 20px;
-   .execution-detail-image {
-      width: 140px;
-   }
-
-   .execution-info {
-    font-size: $egeo-font-size-xxsmall;
-    color: $neutral-10;
+  text-align: center;
+  min-height: 230px;
+  margin-top: 20px;
+  .execution-detail-image {
+     width: 140px;
   }
+
+  .execution-info {
+   font-size: $egeo-font-size-xxsmall;
+   color: $neutral-10;
+ }
 }
 
 .execution-group {
-  color: $action-secondary-06;
-  font-size: 14px;
+ color: $action-secondary-06;
+ font-size: 14px;
 }
 .description {
-   display: block;
-   font-size: $egeo-font-size-xxsmall;
-   display: block;
+  display: block;
+  font-size: $egeo-font-size-xxsmall;
+  display: block;
 }
 
 .date {
-  font-size: $egeo-font-size-xxsmall;
+ font-size: $egeo-font-size-xxsmall;
 }
 
 .title {
-   display: block;
-   margin-top: 10px;
+  display: block;
+  margin-top: 10px;
 }
 
 .title2 {
-   display: block;
-   margin-top: 15px;
+  display: block;
+  margin-top: 15px;
+  font-size: 14px;
+  color: $action-secondary-07;
 }
 
 
 .values {
-   display: block;
-   font-size: $egeo-font-size-xxsmall;
+  display: block;
+  font-size: $egeo-font-size-xxsmall;
+  &.parameters {
+     margin-top: 0;
+     .param-content {
+        padding: 10px 0 10px 0;
+     }
+  }
+  &.parameters .schema-title {
+     padding: 8px 0px 9px 0px;
+     border-top: 1px solid $neutral-05;
+     cursor: pointer;
+     &.open {
+        border-bottom: 1px solid $neutral-05;
+     }
+     .param-title {
+        margin-left: 6px;
+        display: inline-block;
+        font-size: $egeo-font-size-small;
+     }
+  }
+  &.parameters:last-child .schema-title {
+     border-bottom: 1px solid $neutral-05;
+  }
 }
 
 .status {
-   font-weight: 600;
-   color: #3c3c3c;
-   font-size: $egeo-font-size-xsmall;
-   background: rgba(205, 214, 223, 0.3);
-   padding: 3px 10px;
-   display: inline-block;
-   margin-bottom: 5px;
-   &.started {
-      background: rgba(12, 170, 112, 0.15);
-      color: #0baa70;
-      padding: 3px 10px;
-   }
-   &.failed {
-      color: $status-critical-default;
-      padding: 3px 10px;
-      background: rgba(170, 12, 112, 0.15);
-   }
+  font-weight: normal;
+  color: $action-secondary-07;
+  font-size: 13px;
+  background: $neutral-03;
+  padding: 3px 10px;
+  display: inline-block;
+  margin-bottom: 5px;
 }
 
 .status-advaced {
-  font-weight: 400;
+ font-weight: 400;
 }
 
 .execution-info-link {
-   font-family: $egeo-nunito-sans-semiBold;
-   cursor: pointer;
-   color: $action-primary-default;
-   display: block;
+  font-family: $egeo-nunito-sans-semiBold;
+  cursor: pointer;
+  color: $action-primary-default;
+  display: block;
 }
 
 .selected {
-    margin-top: 16px;
+   margin-top: 16px;
 }
 
 .errors {
-   font-size: 14px;
+  font-size: 14px;
 
-   .icon {
-      font-size: 13px;
-   }
-   .message {
-      display: block;
-      font-family: $egeo-nunito-sans-semiBold;
-      color: $status-critical-hover;
-      word-wrap: break-word;
-   }
-   .original-msg {
-      word-break: break-word;
-      color: $status-critical-hover;
-   }
+  .icon {
+     font-size: 13px;
+  }
+  .message {
+     display: block;
+     font-family: $egeo-nunito-sans-semiBold;
+     color: $status-critical-hover;
+     word-wrap: break-word;
+  }
+  .original-msg {
+     word-break: break-word;
+     color: $status-critical-hover;
+  }
 
-   .details {
-      color: #4a90e2;
-      font-size: 15px;
-      cursor: pointer;
-    }
+  .details {
+     color: #4a90e2;
+     font-size: 15px;
+     cursor: pointer;
+   }
 }
 
 .phase, .step {
-  display: block;
+ display: block;
 }
 
 .details-option{
-  width: 100%;
-  display: block;
-  padding-bottom: 25px;
+ width: 100%;
+ display: block;
+ margin-bottom: 25px;
+ border-bottom: 1px solid $neutral-05;
 }
-
 .extraParam-name {
-    font-weight: bold;
-    display: block;
+   font-weight: bold;
+   display: block;
+   margin-top: 10px;
+   font-size: 13px;
+}
+.extraParam-value {
+  font-family: $egeo-nunito-sans;
+  font-size: 13px;
 }
 
 .execution-parameters{
-  word-break: break-all;
+ word-break: break-all;
 }
 .parameters {
-  margin-top:10px;
+ margin-top:10px;
 }
