@@ -97,9 +97,9 @@ export class NodeJoinPathComponent implements AfterContentInit, OnChanges {
       const xdiff = (coordinates.x2 - coordinates.x1) * operator;
 
       /** Second coord (middle point, same y coor than the input) */
-      points.push([coordinates.x1 - 58, coordinates.y1]);
+      points.push([coordinates.x1 - 58 + position.offset, coordinates.y1]);
       /** Third coord (middle point, same y coor than the output)*/
-      points.push([coordinates.x2 - 58, coordinates.y2]);
+      points.push([coordinates.x2 - 58 + position.offset, coordinates.y2]);
       /** Last coord (output) */
       points.push([coordinates.x2 - 2, coordinates.y2]);
       return points;

@@ -170,7 +170,8 @@ onChangeOption(ev) {
 
   onDrop(event) {
       this.isDragging = false;
-      if (event.item.length === 1 && event.item[0].fieldType !== '*' && event.item[0].alias !== this.schema.fields[event.index].alias && event.item[0].alias !== 't2') {
+      const { item } = event;
+      if (item.length === 1 && item[0].fieldType !== '*' && item[0].alias && this.schema.fields[event.index].alias && item[0].alias !== this.schema.fields[event.index].alias && item[0].alias !== 't2') {
          const join: Join = {
             origin: event.item[0],
             destination: this.schema.fields[event.index],

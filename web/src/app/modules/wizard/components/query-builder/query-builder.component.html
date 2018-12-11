@@ -7,7 +7,7 @@
          [pathNumber]="i"
          [containerPosition]="containerPositions[path.initData.tableName]"
          [selectedFieldNames]="selectedInputFieldsNames"
-         *ngFor="let path of paths; let i = index;"></g>
+         *ngFor="let path of paths; let i = index;"></svg:g>
          <svg:defs>
            <marker id="box-connection" markerHeight="10" markerUnits="userSpaceOnUse" markerWidth="10" refX="7" refY="5" viewBox="0 0 10 10">
                <rect fill="white" height="10" stroke="#aab7c4" stroke-width="2" width="10"></rect>
@@ -25,7 +25,7 @@
          [pathNumber]="i"
          [containerPosition]="containerPositions[path.initData.tableName]"
          [selectedFieldNames]="selectedInputFieldsNames"
-         *ngFor="let path of joinPaths; let i = index;"></g>
+         *ngFor="let path of joinPaths; let i = index;"></svg:g>
          <svg:defs>
            <marker id="box-connection" markerHeight="10" markerUnits="userSpaceOnUse" markerWidth="10" refX="7" refY="5" viewBox="0 0 10 10">
                <rect fill="white" height="10" stroke="#aab7c4" stroke-width="2" width="10"></rect>
@@ -59,9 +59,9 @@
      [filter]="filter"></node-schema-output-box>
  </div>
 
- <div *ngIf="join.joins.length && inputSchemas.length" class="join-container">
+ <div *ngIf="join.joins.length && inputSchemas.length && inputSchemas.length > 1 && joinPaths && joinPaths.length" class="join-container">
       <div class="join-box">
-         <span class="icon icon-join" [ngClass]="getJoinIcon()"></span>
+         <span class="icon icon-join" [ngClass]="iconJoin"></span>
          <span class="icon icon-arrow2_down arrow" (click)="onToggleJoinsItems()" ></span>
       </div>
       <st-dropdown-menu

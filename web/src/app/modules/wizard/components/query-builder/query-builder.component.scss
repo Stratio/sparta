@@ -43,13 +43,13 @@
    }
  }
 
- .join-container {
-    width: 220px;
-   .join-box {
+.join-container {
+  width: 220px;
+  .join-box {
       background-color: $action-secondary-04;
       width: 70px;
       position: absolute;
-      top: 350px;
+      top: 300px;
       left: -30px;
       border-radius: 4px;
       display: flex;
@@ -57,31 +57,33 @@
       padding: 3px 0px 7px 0px;
       align-items: center;
       span {
-        width: 50%;
-        text-align: center;
-        font-size: $egeo-font-size-xxxsmall;
-        color: $neutral-00;
-        margin-top: 2px;
+          width: 50%;
+          text-align: center;
+          font-size: $egeo-font-size-xxxsmall;
+          color: $neutral-00;
+          margin-top: 2px;
       }
       span.arrow {
-         cursor: pointer;
+          cursor: pointer;
       }
       .icon-join {
-         width: 25px;
-         padding-left: 8px;
-         margin-top: 3px;
-         font-size: 20px;
+          width: 25px;
+          padding-left: 8px;
+          margin-top: 3px;
+          font-size: 20px;
       }
-   }
-   st-dropdown-menu {
-     position: absolute;
-     top: 385px;
-     left: -30px;
-     width: 220px;
-     z-index: 10;
-   }
-
- }
+  }
+  st-dropdown-menu {
+      position: absolute;
+      top: 385px;
+      left: -30px;
+      width: 220px;
+      z-index: 10;
+      .st-dropdown-menu-item i {
+          font-size: 18px;
+      }
+  }
+}
 
 
 .no-inputs {
