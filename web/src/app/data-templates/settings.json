@@ -44,6 +44,15 @@
           "tooltip": "Execution mode used to launch the available workflows. If 'Marathon' is selected the workflow will be launched as an independent application inside a docker.",
           "qa": "workflow-execution-mode"
         },
+        {
+          "propertyId": "mesosRole",
+          "propertyName": "SETTINGS._MESOS_ROLE_",
+          "width": 4,
+          "newRow": true,
+          "propertyType": "text",
+          "tooltip": "Mesos role are available only in Marathon mode. This roles are used exclusively for resource allocation).",
+          "qa": "mesos-role"
+        },
          {
             "propertyId": "mesosConstraint",
             "propertyName": "SETTINGS._MESOS_CONSTRAINT_",

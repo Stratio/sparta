@@ -21,18 +21,18 @@ hose {
     ITSERVICES = [
             ['HDFS': [
               'image': 'stratio/hdfs:2.6.0',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 9000
               ]
             ],
             ['POSTGRESQL':[
               'image': 'postgres:9.6',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 5432]
             ],
             ['ELASTIC': [
               'image': 'elasticsearch/elasticsearch:5.6.2',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 9200,
               'env': ['xpack.security.enabled=false'
                       ]
@@ -40,13 +40,13 @@ hose {
             ],
             ['ZOOKEEPER': [
               'image': 'jplock/zookeeper:3.5.2-alpha',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 2181
               ]
             ],
             ['KAFKA': [
               'image': 'wurstmeister/kafka:2.11-0.10.2.2',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 9092,
               'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181',
                 'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']
@@ -54,19 +54,19 @@ hose {
             ],
             ['CASSANDRA': [
               'image': 'stratio/cassandra-lucene-index:3.0.7.3',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 9042
               ]
             ],
             ['MONGODB': [
               'image': 'mongo:3.2',
-              'sleep': 60,
+              'sleep': 30,
               'healthcheck': 27017
              ]
             ],
             ['SFTP': [
                'image': 'atmoz/sftp',
-               'sleep': 60,
+               'sleep': 30,
                'healthcheck': 22,
                'cmd': 'foo:pass:1001',
                'volumes': [

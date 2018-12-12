@@ -89,7 +89,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
               addSparkUserConf(
                 addCalicoNetworkConf(
                   addPluginsFilesToConf(
-                    addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs),
+                    addMesosConf(sparkConfs ++ sparkConfFromSubmitArgs),
                     pluginsFiles
                   )))))))
     )
@@ -186,8 +186,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     }
   }
 
-  private[core] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] =
-    getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
+  private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
+    getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
     sparkConfs ++
@@ -255,14 +255,20 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     }
   }
 
+  private[core] def getMesosRoleConfs: Map[String, String] = {
+    val newRole = workflow.settings.global.mesosRole.notBlank.orElse(Properties.envOrNone(TenantEnv).notBlank)
+    newRole.fold(Map.empty[String, String]) { role =>
+      Map(SubmitMesosRoleConf -> role)
+    }
+  }
+
   private[core] def getMesosSecurityConfs: Map[String, String] = {
     val securityOptions = getSecurityConfigurations
 
     if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
-      (Properties.envOrNone(MesosRoleEnv).notBlank, Properties.envOrNone(TenantEnv).notBlank) match {
-        case (Some(role), Some(tenantName)) =>
+      Properties.envOrNone(TenantEnv).notBlank match {
+        case Some(tenantName) =>
           Map(
-            "spark.mesos.role" -> role,
             "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_ENABLE" -> "true",
             "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_VAULT_PATH" -> s"v1/userland/passwords/$tenantName/mesos"
           ) ++ securityOptions

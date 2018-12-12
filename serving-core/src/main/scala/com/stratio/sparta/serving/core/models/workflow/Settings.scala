@@ -30,7 +30,8 @@ case class GlobalSettings(
                            parametersLists: Seq[String] = Seq.empty[String],
                            parametersUsed: Seq[String] = Seq.empty[String],
                            udfsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
-                           udafsToRegister: Seq[UserUDF] = Seq.empty[UserUDF]
+                           udafsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
+                           mesosRole: Option[JsoneyString] = None
                          )
 
 case class GlobalSettingsDto(

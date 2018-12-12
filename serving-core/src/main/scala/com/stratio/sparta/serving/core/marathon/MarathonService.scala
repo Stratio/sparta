@@ -11,6 +11,7 @@ import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
+import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
@@ -19,11 +20,11 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant.EnvironmentCleaner
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant, SparkConstant}
 import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
+import com.stratio.sparta.serving.core.models.workflow.{SparkSubmitExecution, Workflow, WorkflowExecution}
 import com.stratio.sparta.serving.core.services.SparkSubmitService
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
@@ -194,17 +195,28 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
     }
   }
 
+  private def mesosRoleFromSubmit(sparkSubmitExecution: SparkSubmitExecution): Map[String, JsString] = {
+    sparkSubmitExecution.sparkConfigurations.flatMap { case (key, value) =>
+      if (key == SparkConstant.SubmitMesosRoleConf) {
+        Option(MesosRoleEnv, JsString(value))
+      } else None
+    }
+  }
+
+  private def envVariablesFromSubmit(sparkSubmitExecution: SparkSubmitExecution): Map[String, JsString] = {
+    sparkSubmitExecution.sparkConfigurations.flatMap { case (key, value) =>
+      if (key.startsWith("spark.mesos.driverEnv.")) {
+        Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
+      } else None
+    }
+  }
+
   //scalastyle:off
   private def addRequirements(app: CreateApp, workflowModel: Workflow, execution: WorkflowExecution): CreateApp = {
     val submitExecution = execution.sparkSubmitExecution.get
     val newCpus = submitExecution.sparkConfigurations.get("spark.driver.cores")
       .map(_.toDouble).getOrElse(app.cpus)
     val newMem = Try(getSOMemory / 2).getOrElse(512)
-    val envFromSubmit = submitExecution.sparkConfigurations.flatMap { case (key, value) =>
-      if (key.startsWith("spark.mesos.driverEnv.")) {
-        Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
-      } else None
-    }
     val (dynamicAuthEnv, newSecrets) = {
       val appRoleName = Properties.envOrNone(AppRoleNameEnv)
       if (useDynamicAuthentication && appRoleName.isDefined) {
@@ -213,10 +225,12 @@ case class MarathonService(context: ActorContext, execution: Option[WorkflowExec
       } else (Map.empty[String, JsString], Map.empty[String, Map[String, String]])
     }
     val newEnv = Option(
-      envProperties(workflowModel, execution, newMem) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
-        gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
-        calicoProperties ++ extraProperties ++ spartaExtraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
-        intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties
+      envProperties(workflowModel, execution, newMem) ++ mesosRoleFromSubmit(submitExecution) ++
+        envVariablesFromSubmit(submitExecution) ++ dynamicAuthEnv ++ vaultProperties ++
+        gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++
+        securityProperties ++ calicoProperties ++ extraProperties ++ spartaExtraProperties ++ postgresProperties ++
+        zookeeperProperties ++ spartaConfigProperties ++ intelligenceProperties ++ marathonAppProperties ++
+        configProperties ++ actorsProperties ++ marathonProperties
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||

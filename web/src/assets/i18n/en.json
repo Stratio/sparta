@@ -229,6 +229,7 @@
       "_ADD_REDIRECT_DATE_": "Add redirect date",
       "_REDIRECT_DATE_NAME_": "Redirect date column name",
       "_SEND_STEP_DATA_": "If output fails, send processed data",
+      "_MESOS_ROLE_": "Mesos role",
       "_MESOS_CONSTRAINT_": "Mesos constraint",
       "_MESOS_CONSTRAINT_OPERATOR_": "Constraint operator",
       "_SPARK_MESOS_SECURITY_ENABLE_": "Mesos security",
