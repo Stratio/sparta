@@ -148,6 +148,14 @@ export class ExecutionsEffect {
       .pipe(catchError(error => of(new executionsActions.GetExecutionErrorAction())))));
 
 
+  @Effect()
+  reRunExecution: Observable<any> = this.actions$
+    .pipe(ofType(executionsActions.RERUN_EXECUTION))
+    .pipe(map((action: any) => action.executionId))
+    .pipe(switchMap((executionId: string) => this._executionService.reRunExecution(executionId)
+      .pipe(map(() => new executionsActions.ReRunExecutionCompleteAction()))
+      .pipe(catchError(error => of(new executionsActions.ReRunExecutionErrorAction(error))))));
+
 
    constructor(
       private actions$: Actions,

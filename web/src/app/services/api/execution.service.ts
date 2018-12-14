@@ -71,4 +71,9 @@ export class ExecutionService extends ApiService {
     const options: any = {};
     return this.request(`workflowExecutions/${id}`, 'get', options);
   }
+
+  reRunExecution(executionId: string): Observable<any> {
+    const options: any = {};
+    return this.request(`/workflowExecutions/reRun/${executionId}`, 'post', options);
+  }
 }

@@ -77,6 +77,10 @@
                     id="run-button" (click)="onStopExecution.emit()">
                   <i class="icon-stop"></i>
                </button>
+               <button *ngIf="selectedExecutions.length === 1 && !showStopButton" spTitle="Stop selected executions" class="button button-toolbar"
+                    id="run-button" (click)="onReRunExecution.emit(selectedExecutions[0])">
+                  <i class="icon-play"></i>
+               </button>
                 <button *ngIf="selectedExecutions.length === 1"
                     spTitle="Delete selected execution"
                     class="button button-toolbar"

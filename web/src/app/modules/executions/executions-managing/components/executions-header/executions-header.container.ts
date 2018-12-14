@@ -38,6 +38,7 @@ import * as fromRoot from './../../reducers';
             (onRunExecutions)="onRunExecutions($event)"
             (onStopExecution)="stopExecution()"
             (onDeleteExecution)="deleteExecution($event)"
+            (onReRunExecution)="reRunExecution($event)"
             (onChangeStatusFilter)="changeStatusFilter($event)"
             (onChangeTypeFilter)="changeTypeFilter($event)"
             (onChangeTimeIntervalFilter)="changeTimeIntervalFilter($event)"
@@ -107,6 +108,10 @@ export class ExecutionsHeaderContainer implements OnInit {
 
    stopExecution() {
       this._store.dispatch(new executionActions.StopExecutionAction());
+   }
+
+   reRunExecution(executionId: string) {
+     this._store.dispatch(new executionActions.ReRunExecutionAction(executionId));
    }
 
    deleteExecution(executionId: string) {

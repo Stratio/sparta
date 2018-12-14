@@ -11,6 +11,8 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { RepositoryTableComponent } from './repository-table.component';
 import { RepositoryTableContainer } from './repository-table.container';
+import { WorkflowRenameModalComponent } from './../workflow-rename-modal/workflow-rename.component';
+import { WorkflowRenameModalModule } from './../workflow-rename-modal/workflow-rename-modal.module';
 
 import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
@@ -34,7 +36,8 @@ import { MoveGroupModalComponent } from './../move-group-modal/move-group.compon
        StTableModule,
        TranslateModule,
        MoveGroupModalModule,
-       StModalModule.withComponents([MoveGroupModalComponent])
+       WorkflowRenameModalModule,
+       StModalModule.withComponents([MoveGroupModalComponent, WorkflowRenameModalComponent])
     ],
     providers: [
       StModalService

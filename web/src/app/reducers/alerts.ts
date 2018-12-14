@@ -8,6 +8,8 @@ import * as inputActions from './../modules/templates/actions/input';
 import * as outputActions from './../modules/templates/actions/output';
 import * as transformationActions from './../modules/templates/actions/transformation';
 import * as repositoryActions from './../modules/repository/actions/workflow-list';
+import * as executionsActions from './../modules/executions/executions-managing/actions/executions';
+
 import * as wizardActions from './../modules/wizard/actions/wizard';
 import * as errorsActions from 'actions/errors';
 import * as environmentActions from './../modules/settings/environment/actions/environment';
@@ -180,8 +182,37 @@ export function reducer(state: State = initialState, action: any): State {
             }]
          });
       }
+      case executionsActions.RERUN_EXECUTION_COMPLETE: {
+         return Object.assign({}, state, {
+            currentAlert: [{
+               type: STALERT_SEVERITY.SUCCESS,
+               title: 'SUCCESS',
+               description: 'RUN_WORKFLOW',
+               params: {
+                  name: action.payload
+               }
+            }]
+         });
+      }
       case repositoryActions.RUN_WORKFLOW_ERROR: {
          let message = '';
+         try {
+            const error = JSON.parse(action.payload.error);
+            message = error.exception;
+         } catch (error) {
+            message = action.payload.message;
+         }
+         return Object.assign({}, state, {
+            currentAlert: [{
+               type: STALERT_SEVERITY.ERROR,
+               title: 'ERROR',
+               text: message,
+               duration: 4000
+            }]
+         });
+      }
+      case executionsActions.RERUN_EXECUTION_ERROR: {
+        let message = '';
          try {
             const error = JSON.parse(action.payload.error);
             message = error.exception;

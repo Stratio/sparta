@@ -28,6 +28,9 @@ export const SELECT_EXECUTIONS_ACTION = '[Executions Managing] Select execution'
 export const DESELECT_EXECUTIONS_ACTION = '[Executions Managing] Deselect execution';
 export const STOP_EXECUTIONS_ACTION = '[Executions Managing] Stop execution';
 export const STOP_EXECUTIONS_ACTION_COMPLETE = '[Executions Managing] Stop execution complete';
+export const RERUN_EXECUTION = '[Executions Managing] Rerun execution';
+export const RERUN_EXECUTION_COMPLETE = '[Executions Managing] Rerun execution complete';
+export const RERUN_EXECUTION_ERROR = '[Executions Managing] Rerun execution error';
 
 export const CHANGE_PAGINATION = '[Executions Managing] Change pagination';
 
@@ -225,6 +228,20 @@ export class GetExecutionErrorAction implements Action {
   readonly type = GET_EXECUTION_ERROR;
 }
 
+export class ReRunExecutionAction implements Action {
+  readonly type = RERUN_EXECUTION;
+  constructor(public executionId: string) {}
+}
+
+export class ReRunExecutionCompleteAction implements Action {
+  readonly type = RERUN_EXECUTION_COMPLETE;
+}
+
+export class ReRunExecutionErrorAction implements Action {
+  readonly type = RERUN_EXECUTION_ERROR;
+  constructor(public payload: any) {}
+}
+
 export type Actions = ListExecutionsAction
    | ListExecutionsFailAction
    | ListExecutionsCompleteAction
@@ -258,4 +275,7 @@ export type Actions = ListExecutionsAction
    | DeleteExecutionErrorAction
    | GetExecutionAction
    | GetExecutionCompleteAction
-   | GetExecutionErrorAction;
+   | GetExecutionErrorAction
+   | ReRunExecutionAction
+   | ReRunExecutionCompleteAction
+   | ReRunExecutionErrorAction;

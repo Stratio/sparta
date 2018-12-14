@@ -688,7 +688,7 @@
       "GENERATE_BACKUP_DESCRIPTION": "Backup generated correctly",
       "DELETE_BACKUP_DESCRIPTION": "The backup has been deleted",
       "DELETE_METADATA_DESCRIPTION": "Metadata has been deleted",
-      "RUN_WORKFLOW": "The workflow {{name}} is running!",
+      "RUN_WORKFLOW": "The execution has been created succesfully.",
       "STOP_WORKFLOW": "The workflow is stopping!",
       "DELETE_WORKFLOW": "Workflow/s have been deleted.",
       "DELETE_VERSION": "Version/s have been deleted.",
