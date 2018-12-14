@@ -83,7 +83,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
         fields: input.result.schema.fields.map(field => ({ column: field.name, fieldType: field.type, alias: `t${index + 1}`, table: input.result.step }))
       })).splice(0, 2);
 
-    debugResult && !debugResult.error && configuration.backup ?
+    configuration.backup ?
       this._store.dispatch(new queryBuilderActions.AddBackup({...configuration.backup, inputSchemaFields: this.inputSchemas })) :
       this._store.dispatch(new queryBuilderActions.InitQueryBuilder(this.inputSchemas));
 
