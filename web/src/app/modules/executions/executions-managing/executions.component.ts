@@ -75,7 +75,7 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
             }
          });
       this.executionsList$ = this._store.select(fromRoot.getFilteredSearchExecutionsList);
-      this.isLoading$ = this._store.select(fromRoot.getIsLoading)
+      this.isLoading$ = this._store.select(fromRoot.getIsLoading);
 
 
       this._store.select(fromRoot.isEmptyList)

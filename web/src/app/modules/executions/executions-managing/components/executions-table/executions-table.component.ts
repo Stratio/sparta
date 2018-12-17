@@ -29,11 +29,13 @@ export class ExecutionTableComponent {
   @Input() currentPage = 0;
   @Input() total = 0;
   @Input() currentOrder;
+  @Input() areAllSelected: Boolean = false;
 
   @Output() selectExecution = new EventEmitter<any>();
   @Output() deselectExecution = new EventEmitter<any>();
   @Output() onChangeOrder = new EventEmitter<Order>();
   @Output() onChangePage = new EventEmitter<any>();
+  @Output() allExecutionsToggled = new EventEmitter<any>();
 
   public fields: StTableHeader[];
   public generatedId: string;
@@ -56,6 +58,10 @@ export class ExecutionTableComponent {
     }
   }
 
+  toggleAllExecutions(isChecked: boolean) {
+    this.allExecutionsToggled.emit(isChecked);
+    this.areAllSelected = isChecked;
+  }
 
   showSparkUI(url: string) {
     window.open(url, '_blank');
@@ -68,7 +74,6 @@ export class ExecutionTableComponent {
   constructor(private route: Router, private _cd: ChangeDetectorRef) {
     this.generatedId = 'paginator-' + Math.floor((Math.random() * 1000) + 1);
     this.fields = [
-      { id: 'isChecked', label: '', sortable: false },
       { id: 'name', label: 'Name' },
       { id: 'context', label: 'Context' },
       { id: 'launchDateMillis', label: 'Launch Date' },

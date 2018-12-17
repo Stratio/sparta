@@ -18,13 +18,15 @@ import { Observable } from 'rxjs';
         <executions-managing-table [executionList]="executionList"
             [selectedExecutionsIds]="selectedExecutionsIds"
             [perPage]="perPage$ | async"
+            [areAllSelected]="allSelectedStates$ | async"
             [currentOrder]="currentOrder$ | async"
             [currentPage]="pageNumber$ | async"
             [total]="total$ | async"
             (onChangeOrder)="changeOrder($event)"
             (onChangePage)="changePage($event)"
             (selectExecution)="selectExecution($event)"
-            (deselectExecution)="deselectExecution($event)"></executions-managing-table>
+            (deselectExecution)="deselectExecution($event)"
+            (allExecutionsToggled)="toggleAllExecutions($event)"></executions-managing-table>
     `,
    changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -38,6 +40,7 @@ export class ExecutionsTableContainer implements OnInit {
    public pageNumber$: Observable<number>;
    public total$: Observable<number>;
    public currentOrder$: Observable<Order>;
+   public allSelectedStates$: Observable<Boolean>;
 
    constructor(private _store: Store<State>, private _modalService: StModalService) { }
 
@@ -45,6 +48,7 @@ export class ExecutionsTableContainer implements OnInit {
      this.pageNumber$ = this._store.select(fromRoot.getCurrentPage);
      this.perPage$ = this._store.select(fromRoot.getPerPageElements);
      this.total$ = this._store.select(fromRoot.getTotalElements);
+     this.allSelectedStates$ = this._store.select(fromRoot.getAllSelectedStates);
     }
 
    selectExecution(execution: any) {
@@ -63,6 +67,12 @@ export class ExecutionsTableContainer implements OnInit {
       this._store.dispatch(new executionActions.ChangePaginationAction($event));
    }
 
-
+   toggleAllExecutions(isChecked: boolean) {
+     if (isChecked) {
+      this._store.dispatch(new executionActions.ChangeExecutionsSelectAllExecutions());
+     } else {
+      this._store.dispatch(new executionActions.ChangeExecutionsDeselectAllExecutions());
+     }
+   }
 
 }

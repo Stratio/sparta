@@ -39,6 +39,9 @@ export const SEARCH_EXECUTION = '[Executions Managing] Search execution';
 
 export const CHANGE_ORDER = '[Executions Managing] Change order';
 
+export const SELECT_ALL_EXECUTIONS = '[Executions Managing] Select all executions';
+export const DESELECT_ALL_EXECUTIONS = '[Executions Managing] Deselect all executions';
+
 export const RESET_VALUES = '[Executions Managing] Reset values';
 
 export const GET_WORKFLOW_EXECUTION_INFO = '[Worflow] Get Workflow execution info';
@@ -151,6 +154,14 @@ export class SearchExecutionAction implements Action {
   constructor(public searchQuery: string) {}
 }
 
+export class ChangeExecutionsSelectAllExecutions implements Action {
+  readonly type = SELECT_ALL_EXECUTIONS;
+}
+
+export class ChangeExecutionsDeselectAllExecutions implements Action {
+  readonly type = DESELECT_ALL_EXECUTIONS;
+}
+
 export class ChangeExecutionsOrderAction implements Action {
   readonly type = CHANGE_ORDER;
   constructor(public order: Order) {}
@@ -244,6 +255,8 @@ export type Actions = ListExecutionsAction
    | SelectStatusFilterAction
    | SelectTimeIntervalFilterAction
    | SearchExecutionAction
+   | ChangeExecutionsSelectAllExecutions
+   | ChangeExecutionsDeselectAllExecutions
    | ChangeExecutionsOrderAction
    | ResetValuesAction
    | ChangePaginationAction

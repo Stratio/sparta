@@ -11,6 +11,9 @@
 <st-table [fields]="fields"
    [sortable]="true"
    [currentOrder]="currentOrder"
+   [selectableAll]="true"
+   [selectedAll]="areAllSelected"
+   (selectAll)="toggleAllExecutions($event)"
    qaTag="monitoring-table"
    class="execution-table checkbox-table"
    (changeOrder)="onChangeOrder.emit($event)">
