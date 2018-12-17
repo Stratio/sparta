@@ -12,6 +12,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.github.mustachejava.DefaultMustacheFactory
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecutionContext, WorkflowIdExecutionContext, _}
 import com.stratio.sparta.serving.core.services.dao.WorkflowPostgresDao
@@ -20,7 +21,6 @@ import org.json4s.jackson.Serialization._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 class ParametersListenerActor extends Actor with SpartaSerializer with SLF4JLogging {
 

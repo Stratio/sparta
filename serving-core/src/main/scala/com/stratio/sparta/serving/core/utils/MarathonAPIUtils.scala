@@ -14,9 +14,8 @@ import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.marathon.OauthTokenUtils.{expireToken, getToken}
 import com.stratio.sparta.serving.core.utils.MarathonApiError._
-import com.stratio.tikitakka.common.util.HttpRequestUtils
+import com.stratio.sparta.serving.core.utils.MarathonOauthTokenUtils.{expireToken, getToken}
 import net.minidev.json.JSONArray
 import org.slf4j.Logger
 
@@ -48,7 +47,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
 
   private[core] val DefaultTimeoutInMarathonRequests = 3000
 
-  def removeEmptyFoldersFromDCOS: Unit = {
+  def removeEmptyFoldersFromDCOS(): Unit = {
     outer.log.debug("Retrieving groups from MarathonAPI to purge the empty ones")
     val groupsToDelete = for {
       groupsToDeleteFuture <- retrieveEmptyGroups
@@ -107,12 +106,13 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
 
   def retrieveApps(): Future[String] = {
     val appsList = s"v2/apps?id=sparta/$marathonInstanceName/workflows&embed=apps.tasks"
+
     for {
-      responseMarathon <- doRequest[String](marathonApiUri.get,
+      responseMarathon <- doRequest(marathonApiUri.get,
         appsList,
         HttpMethods.GET,
         cookies = Seq(getToken))
-      responseAuth <- responseCheckedAuthorization(responseMarathon, Option(s"Correctly retrieved all apps inside $appsList"))
+      responseAuth <- responseCheckedAuthorization(responseMarathon._2, Option(s"Correctly retrieved all apps inside $appsList"))
     } yield responseAuth
   }.recoverWith {
     case exception: Exception =>
@@ -122,11 +122,11 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
     val groupsPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
     for {
-      groups <- doRequest[String](marathonApiUri.get,
+      groups <- doRequest(marathonApiUri.get,
         groupsPath,
         HttpMethods.GET,
         cookies = Seq(getToken))
-      responseAuth <- responseCheckedAuthorization(groups, Option(s"Correctly retrieved all sub-groups of $groupsPath"))
+      responseAuth <- responseCheckedAuthorization(groups._2, Option(s"Correctly retrieved all sub-groups of $groupsPath"))
     } yield parseFindingEmpty(responseAuth)
   }.recoverWith {
     case exception: Exception =>
@@ -136,11 +136,11 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   private[core] def sendDeleteForGroup(group: String): Unit = {
     val groupPath = s"v2/groups/$group"
     for {
-      resultHTTP <- doRequest[String](marathonApiUri.get,
+      resultHTTP <- doRequest(marathonApiUri.get,
         groupPath,
         HttpMethods.DELETE,
         cookies = Seq(getToken))
-      resultAuth <- responseCheckedAuthorization(resultHTTP, Option(s"Correctly deleted group with id $group"))
+      resultAuth <- responseCheckedAuthorization(resultHTTP._2, Option(s"Correctly deleted group with id $group"))
     } yield resultAuth
   }.recoverWith {
     case exception: Exception =>
@@ -153,19 +153,19 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
     import oauthUtils._
 
     for {
-      resultHTTP <- doRequest[String](marathonApiUri.get, groupPath, cookies = Seq(getToken))
-      resultAuth <- responseCheckedAuthorization(resultHTTP, Option(s"Correctly obtained groups with from path $groupPath"))
+      resultHTTP <- doRequest(marathonApiUri.get, groupPath, cookies = Seq(getToken))
+      resultAuth <- responseCheckedAuthorization(resultHTTP._2, Option(s"Correctly obtained groups with from path $groupPath"))
       seqApps = {
         extractAppsId(resultAuth) match {
           case Some(appsId) =>
             loggerMarathonUtils.debug(s"Applications IDs list retrieved from Marathon: ${appsId.mkString(",")}")
             Future.sequence {
               appsId.map { appId =>
-                val appResponse = doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
+                val appResponse = doRequest(marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
 
                 Try(Await.result(appResponse, DefaultTimeoutInMarathonRequests seconds)) match {
                   case Success(response) =>
-                    responseCheckedAuthorization(response, Option(s"Extracted info for appID $appId"))
+                    responseCheckedAuthorization(response._2, Option(s"Extracted info for appID $appId"))
                   case Failure(e: Exception) =>
                     responseUnExpectedError(e)
                 }

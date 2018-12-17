@@ -6,18 +6,17 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.util.{Failure, Success, Try}
-
 import akka.actor.{Actor, PoisonPill}
 import org.joda.time.DateTime
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, _}
+import com.stratio.sparta.serving.core.utils._
 
 class MarathonLauncherActor extends Actor
   with SchedulerUtils {
@@ -31,7 +30,7 @@ class MarathonLauncherActor extends Actor
 
   def doStartExecution(workflowExecution: WorkflowExecution): Unit = {
     Try {
-      new MarathonService(context, workflowExecution)
+      new MarathonService(context)
     } match {
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"
@@ -58,7 +57,7 @@ class MarathonLauncherActor extends Actor
             state = NotStarted
           )))
         Try {
-          marathonApp.launch()
+          marathonApp.launch(workflowExecution)
           workflowExecution.getWorkflowToExecute
         } match {
           case Success(_) =>

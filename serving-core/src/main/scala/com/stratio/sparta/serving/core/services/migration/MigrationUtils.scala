@@ -9,9 +9,10 @@ package com.stratio.sparta.serving.core.services.migration
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.{regexMatchingMoustacheVariable, version}
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration.WorkflowAndromeda
-import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}

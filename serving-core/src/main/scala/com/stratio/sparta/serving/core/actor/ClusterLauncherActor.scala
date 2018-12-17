@@ -11,11 +11,12 @@ import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Run, Start}
 import com.stratio.sparta.serving.core.constants.SparkConstant._
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
-import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils}
+import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.spark.launcher.SpartaLauncher
 import org.joda.time.DateTime
 

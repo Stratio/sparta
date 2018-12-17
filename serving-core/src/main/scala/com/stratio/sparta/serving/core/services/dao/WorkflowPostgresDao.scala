@@ -7,26 +7,26 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.lang.IgniteBiPredicate
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization.write
 import slick.jdbc.PostgresProfile
-
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.WorkflowDao
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
-import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 
 //scalastyle:off
 class WorkflowPostgresDao extends WorkflowDao {

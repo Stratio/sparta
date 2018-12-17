@@ -11,7 +11,6 @@ object MarathonConstant {
   /* Constant variables */
 
   val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
-  val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
   val HostMesosNativeLibPath = "/opt/mesosphere/lib"
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"

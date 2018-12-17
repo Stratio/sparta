@@ -7,19 +7,18 @@ package com.stratio.sparta.serving.core.services
 
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.{ForgetExecutionStatusActions, OnExecutionStatusChangeDo}
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
 import org.apache.spark.launcher.SparkAppHandle
-import scala.util.{Failure, Success, Try}
 
-import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
+import scala.util.{Failure, Success, Try}
 
 class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSerializer with SLF4JLogging {
 

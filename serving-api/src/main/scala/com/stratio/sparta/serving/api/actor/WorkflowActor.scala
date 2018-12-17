@@ -14,13 +14,14 @@ import akka.pattern.ask
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import com.stratio.sparta.serving.core.services.migration.{CassiopeiaMigrationService, MigrationUtils}
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class WorkflowActor(
                      launcherActor: ActorRef,

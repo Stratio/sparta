@@ -17,7 +17,7 @@ class EnvironmentCleanerActor extends Actor {
 
   override def receive: Receive = {
     case TriggerCleaning =>
-      utils.removeEmptyFoldersFromDCOS
+      utils.removeEmptyFoldersFromDCOS()
   }
 }
 

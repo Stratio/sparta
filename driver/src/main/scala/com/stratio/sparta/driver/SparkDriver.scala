@@ -12,11 +12,11 @@ import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.exception.{DriverException, ErrorManagerException}
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

@@ -7,19 +7,19 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
-import scala.concurrent.Future
 
+import scala.concurrent.Future
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import slick.jdbc.PostgresProfile
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.ParameterListDao
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterListAndContexts, ParameterListFromWorkflow, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow.Workflow
-import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 
 class ParameterListPostgresDao extends ParameterListDao {
 

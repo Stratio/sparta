@@ -19,6 +19,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankO
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -27,7 +28,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.utils.{PostgresDaoFactory, SchedulerUtils, SpartaClusterUtils}
+import com.stratio.sparta.serving.core.utils.{SchedulerUtils, SpartaClusterUtils}
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
 import org.joda.time.DateTime
@@ -398,9 +399,13 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
                             ): Unit = {
     // Kill all the workflows that are stored as RUNNING but that are actually STOPPED in Marathon.
     // Update the status with discrepancy as the StatusInfo and Stopped as Status
+    val runningButActuallyStoppedFiltered = runningButActuallyStopped.filter{ case (_, idExecution) =>
+      !scheduledActions.exists(task => task._1 == idExecution)
+    }
     val listNewStatuses = for {
-      (nameWorkflowExecution, idExecution) <- runningButActuallyStopped
+      (nameWorkflowExecution, idExecution) <- runningButActuallyStoppedFiltered
     } yield {
+
       val information = "Checker: there was a discrepancy between the monitored and the current status in Marathon" +
         " of the workflow  . Therefore, the workflow was terminated."
       log.info(information.replace("  ", s" with id $idExecution and name $nameWorkflowExecution "))

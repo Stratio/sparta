@@ -15,8 +15,9 @@ import slick.jdbc.PostgresProfile
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.TemplateDao
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.workflow.{NodeTemplateInfo, TemplateElement, Workflow}
-import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 
 class TemplatePostgresDao extends TemplateDao {
 

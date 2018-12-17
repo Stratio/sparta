@@ -20,6 +20,7 @@ import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateEx
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant.SpartaDriverClass
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
@@ -27,7 +28,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode.
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.joda.time.DateTime
 
 import scala.concurrent.Future

@@ -7,12 +7,13 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
-
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.TemplateActor._
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+
 import scala.concurrent.Future
 import scala.util.Try
 

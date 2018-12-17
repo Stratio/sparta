@@ -7,19 +7,19 @@
 package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
+
 import scala.concurrent.Future
 import scala.util.Try
-
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.lang.IgniteBiPredicate
 import slick.jdbc.PostgresProfile
-
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
 import com.stratio.sparta.serving.core.dao.GroupDao
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.workflow.Group
-import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 
 class GroupPostgresDao extends GroupDao {
 

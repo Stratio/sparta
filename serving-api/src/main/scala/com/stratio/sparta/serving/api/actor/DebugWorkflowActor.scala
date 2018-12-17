@@ -8,24 +8,23 @@ package com.stratio.sparta.serving.api.actor
 
 import scala.concurrent.Future
 import scala.util.Try
-
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
 import org.joda.time.DateTime
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
-
 import com.stratio.sparta.core.models.DebugResults
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.actor.LauncherActor.Debug
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class DebugWorkflowActor(
                           launcherActor: ActorRef

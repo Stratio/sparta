@@ -13,8 +13,9 @@ import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.utils.{JdbcSlickUtils, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.JdbcSlickUtils
 import org.apache.ignite.IgniteCache
 import org.apache.ignite.cache.query.ScanQuery
 import org.apache.ignite.lang.{IgniteFuture, IgniteInClosure}

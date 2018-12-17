@@ -8,9 +8,8 @@ package com.stratio.sparta.serving.core.services.migration
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
-import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.factory.{CuratorFactoryHolder, PostgresDaoFactory}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

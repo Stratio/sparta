@@ -6,15 +6,14 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.util.Try
-
 import akka.actor.Actor
-
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.GlobalParametersActor._
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class GlobalParametersActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize with SpartaSerializer {

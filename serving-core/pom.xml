@@ -251,17 +251,6 @@ This software – including all its source code – contains proprietary informa
             <artifactId>shapeless_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.stratio.tikitakka</groupId>
-            <artifactId>core</artifactId>
-            <version>0.4.0-RC3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.typesafe.akka</groupId>
-                    <artifactId>akka-http-core_${scala.binary.version}</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-http_${scala.binary.version}</artifactId>
         </dependency>

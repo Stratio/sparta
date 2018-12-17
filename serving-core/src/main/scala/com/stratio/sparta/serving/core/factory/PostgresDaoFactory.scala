@@ -4,14 +4,15 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.serving.core.factory
 
 import java.util.concurrent.ForkJoinPool
-import scala.concurrent.ExecutionContext
-import scala.util.Try
 
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.services.dao._
+
+import scala.concurrent.ExecutionContext
+import scala.util.Try
 
 /**
   * Utiliy class for manage dao object creation

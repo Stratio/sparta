@@ -6,21 +6,19 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.util.{Failure, Success, Try}
-
 import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
-
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.driver.services.ContextsService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.exception.ErrorManagerException
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.utils.PostgresDaoFactory
 
 class LocalLauncherActor() extends Actor with SLF4JLogging {
 

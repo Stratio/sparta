@@ -12,9 +12,10 @@ import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.ExecutionActor._
 import com.stratio.sparta.serving.core.actor.LauncherActor.LaunchExecution
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PostgresDaoFactory}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class ExecutionActor(launcherActor: ActorRef)
                     (implicit val secManagerOpt: Option[SpartaSecurityManager])
