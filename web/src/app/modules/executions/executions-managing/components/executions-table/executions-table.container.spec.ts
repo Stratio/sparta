@@ -77,13 +77,13 @@ describe('ExecutionTableComponent', () => {
     spyOn(mockStoreInstance, 'dispatch');
   });
 
-  fit('All checkboxes should be checked', () => {
+  it('All checkboxes should be checked', () => {
     const expectedAction = new executionActions.ChangeExecutionsSelectAllExecutions();
     component.toggleAllExecutions(true);
     expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
   });
 
-  fit('All checkboxes should be unchecked', () => {
+  it('All checkboxes should be unchecked', () => {
     const expectedAction = new executionActions.ChangeExecutionsDeselectAllExecutions();
     component.toggleAllExecutions(false);
     expect(mockStoreInstance.dispatch).toHaveBeenCalledWith(expectedAction);
