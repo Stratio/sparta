@@ -152,3 +152,8 @@ export const showUnarchiveButton = createSelector(
     return false;
   });
 
+export const getAllSelectedStates = createSelector(
+  getFilteredExecutionsList,
+  getSelectedExecutions,
+  (executions, selectedExecutions) => executions.length === selectedExecutions.length
+);
