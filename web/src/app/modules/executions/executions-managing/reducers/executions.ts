@@ -152,10 +152,22 @@ export function reducer(state: State = initialState, action: any): State {
          };
       }
       case executionActions.CHANGE_ORDER: {
+        return {
+           ...state,
+           order: action.order
+        };
+      }
+      case executionActions.SELECT_ALL_EXECUTIONS: {
          return {
             ...state,
-            order: action.order
+            selectedExecutionsIds: [...state.executionList.map(execution => execution.id)]
          };
+      }
+      case executionActions.DESELECT_ALL_EXECUTIONS: {
+        return {
+           ...state,
+           selectedExecutionsIds: []
+        };
       }
       case executionActions.CHANGE_PAGINATION: {
          return {
