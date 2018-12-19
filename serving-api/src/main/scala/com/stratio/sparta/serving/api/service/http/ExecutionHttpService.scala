@@ -3,11 +3,16 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import com.wordnik.swagger.annotations._
+import spray.http.StatusCodes
+import spray.routing._
+
 import com.stratio.sparta.serving.api.actor.ExecutionActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.constants.HttpConstant._
@@ -16,9 +21,6 @@ import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel.{WorkflowExecutionQuery, _}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
-import com.wordnik.swagger.annotations._
-import spray.http.StatusCodes
-import spray.routing._
 
 @Api(value = HttpConstant.ExecutionsPath, description = "Operations over workflow executions", position = 0)
 trait ExecutionHttpService extends BaseHttpService {
@@ -211,7 +213,7 @@ trait ExecutionHttpService extends BaseHttpService {
     }
   }
 
-  @Path("/{id}")
+  @Path("/{ids}")
   @ApiOperation(value = "Deletes an execution by its id",
     notes = "Deletes an executions by its id",
     httpMethod = "DELETE")
@@ -226,11 +228,11 @@ trait ExecutionHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def deleteById(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.ExecutionsPath / Segment) { (id) =>
+    path(HttpConstant.ExecutionsPath / Segments) { (ids) =>
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteExecution(id, user))
+            response <- (supervisor ? DeleteExecution(ids, user))
               .mapTo[Either[ResponseBoolean, UnauthorizedResponse]]
           } yield deletePostPutResponse(WorkflowExecutionDeleteById, response, genericError, StatusCodes.OK)
         }
@@ -380,12 +382,11 @@ trait ExecutionHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? ArchiveExecution(request, user))
-                .mapTo[Either[ResponseWorkflowExecution, UnauthorizedResponse]]
+                .mapTo[Either[ResponseWorkflowExecutions, UnauthorizedResponse]]
             } yield deletePostPutResponse(WorkflowExecutionArchived, response, genericError)
           }
         }
       }
     }
   }
-
 }

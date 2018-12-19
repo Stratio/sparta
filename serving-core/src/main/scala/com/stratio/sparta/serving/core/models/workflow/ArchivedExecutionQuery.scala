@@ -6,4 +6,4 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class ArchivedExecutionQuery(executionId: String, archived: Boolean)
+case class ArchivedExecutionQuery(executionIds: Seq[String], archived: Boolean)

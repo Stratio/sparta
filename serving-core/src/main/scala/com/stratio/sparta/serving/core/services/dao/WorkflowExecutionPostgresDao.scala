@@ -33,6 +33,7 @@ import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
 import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, NginxUtils}
+import scala.collection.JavaConverters._
 
 //scalastyle:off
 class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
@@ -70,7 +71,6 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
   }
 
-
   def findExecutionsByQuery(workflowExecutionQuery: WorkflowExecutionQuery): Future[(Seq[WorkflowExecution], Int)] = {
 
     val statusFilter = workflowExecutionQuery.status.map(_.toLowerCase) match {
@@ -91,7 +91,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       case Some(millis) => Some {
         val current = System.currentTimeMillis()
         val minusDate = current - millis
-        (new DateTime(minusDate),new DateTime(current))
+        (new DateTime(minusDate), new DateTime(current))
       }
       case None => None
     }
@@ -101,7 +101,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       .dinamicFilter(statusFilter)(status => t => t.resumedStatus.inSet(status))
       .dinamicFilter(execEngineFilter)(engine => t => t.executionEngine === engine)
       .dinamicFilter(workflowExecutionQuery.searchText)(search => t => t.searchText like s"%$search%")
-      .dinamicFilter(dateFilter)(date => t  => t.resumedDate >= date._1 && t.resumedDate <= date._2)
+      .dinamicFilter(dateFilter)(date => t => t.resumedDate >= date._1 && t.resumedDate <= date._2)
       .query
 
     for {
@@ -202,8 +202,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       upsertResult
     }
 
-
-    val updateWithZKFuture = updateFuture.map{ case (actualExecutionStatus, newExecutionWithStatus) =>
+    val updateWithZKFuture = updateFuture.map { case (actualExecutionStatus, newExecutionWithStatus) =>
       writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
       newExecutionWithStatus
     }
@@ -223,20 +222,20 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     updateStatus(ExecutionStatusUpdate(id, ExecutionStatus(WorkflowStatusEnum.Stopping)))
   }
 
-  def setArchived(execution: WorkflowExecution, archived: Boolean): Future[WorkflowExecution] = {
-    val executionUpdated = execution.copy(archived = Option(archived))
+  def setArchived(executions: Seq[WorkflowExecution], archived: Boolean): Future[Seq[WorkflowExecution]] = {
+    val executionsUpdated = executions.map(execution => execution.copy(archived = Option(archived)))
 
     Await.result(db.run(
-      table.filter(_.id === executionUpdated.getExecutionId)
+      table.filter(_.id.inSet(executionsUpdated.map(_.getExecutionId)))
         .map(execution => execution.archived)
-        .update(executionUpdated.archived)
+        .update(Option(archived))
         .transactionally
     ), AppConstant.DefaultApiTimeout seconds)
 
     if (archived) {
-      if (cacheEnabled) cache.remove(executionUpdated.getExecutionId)
-      Future(executionUpdated)
-    } else Future(executionUpdated).cached()
+      if (cacheEnabled) cache.removeAll(executionsUpdated.map(_.getExecutionId).toSet.asJava)
+      Future(executionsUpdated)
+    } else Future(executionsUpdated).cached()
   }
 
   def deleteAllExecutions(): Future[Boolean] =
@@ -251,15 +250,15 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       } else throw new ServerException("Impossible to delete the executions, its statuses must be stopped or failed to perform this action")
     } yield result
 
-  def deleteExecution(id: String): Future[Boolean] =
+  def deleteExecutions(ids: Seq[String]): Future[Boolean] =
     for {
-      execution <- findByIdHead(id)
+      executions <- findExecutionsByIds(ids)
       canDelete = {
-        val statuses = execution.statuses.map(_.state)
+        val statuses = executions.flatMap(_.statuses.map(_.state))
         statuses.contains(Failed) || statuses.contains(Stopped)
       }
       result <- if (canDelete) {
-        deleteYield(Seq(execution))
+        deleteYield(executions)
       } else throw new ServerException("Impossible to delete the execution, its status must be stopped or failed to perform this action")
     } yield result
 

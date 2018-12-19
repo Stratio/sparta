@@ -79,11 +79,11 @@ class ExecutionActor(launcherActor: ActorRef)
   def archiveExecution(archiveExecutionQuery: ArchivedExecutionQuery, user: Option[LoggedUser]): Future[Any] = {
     val sendResponseTo = Option(sender)
     for {
-      execById <- executionPgService.findExecutionById(archiveExecutionQuery.executionId)
+      executionsById <- executionPgService.findExecutionsByIds(archiveExecutionQuery.executionIds)
     } yield {
-      val authorizationId = execById.authorizationId
-      authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
-        executionPgService.setArchived(execById, archiveExecutionQuery.archived)
+      val authorizationIds = executionsById.map(_.authorizationId)
+      authorizeActionsByResourcesIds(user, Map(ResourceType -> Status), authorizationIds, sendResponseTo) {
+        executionPgService.setArchived(executionsById, archiveExecutionQuery.archived)
       }
     }
   }
@@ -143,14 +143,14 @@ class ExecutionActor(launcherActor: ActorRef)
     }
   }
 
-  def deleteExecution(id: String, user: Option[LoggedUser]): Future[Any] = {
+  def deleteExecution(ids: Seq[String], user: Option[LoggedUser]): Future[Any] = {
     val sendResponseTo = Option(sender)
     for {
-      execById <- executionPgService.findExecutionById(id)
+      executionsById <- executionPgService.findExecutionsByIds(ids)
     } yield {
-      val authorizationId = execById.authorizationId
-      authorizeActionsByResourceId(user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
-        executionPgService.deleteExecution(id)
+      val authorizationId = executionsById.map(_.authorizationId)
+      authorizeActionsByResourcesIds(user, Map(ResourceType -> Status), authorizationId, sendResponseTo) {
+        executionPgService.deleteExecutions(ids)
       }
     }
   }
@@ -162,7 +162,7 @@ object ExecutionActor {
 
   case class CreateExecution(workflowExecution: WorkflowExecution, user: Option[LoggedUser])
 
-  case class DeleteExecution(id: String, user: Option[LoggedUser])
+  case class DeleteExecution(id: Seq[String], user: Option[LoggedUser])
 
   case class DeleteAll(user: Option[LoggedUser])
 
