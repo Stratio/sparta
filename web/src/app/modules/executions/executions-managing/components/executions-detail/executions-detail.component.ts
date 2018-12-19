@@ -5,7 +5,7 @@
  */
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 
 
 import * as fromExecution from '../../reducers';
@@ -32,9 +32,9 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
    ngOnInit() {
       const id = this._route.snapshot.params.id;
       this._store.dispatch(new executionActions.GetExecutionAction(id));
-      this._store.select(fromExecution.getExecutionDetailInfo)
+      this._store.pipe(select(fromExecution.getExecutionDetailInfo))
       .pipe(takeUntil(this._componentDestroyed))
-      .subscribe(execution => {
+      .subscribe((execution: any) => {
          this.execution = execution;
          if (execution) {
             const { pipelineGraph } =  execution.genericDataExecution.workflow;
@@ -44,9 +44,9 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
          this._cd.markForCheck();
       });
 
-      this._store.select(fromExecution.getExecutionDetailIsLoading)
+      this._store.pipe(select(fromExecution.getExecutionDetailIsLoading))
       .pipe(takeUntil(this._componentDestroyed))
-      .subscribe(isLoading => {
+      .subscribe((isLoading: boolean) => {
          this.isLoading = isLoading;
          this._cd.markForCheck();
       });

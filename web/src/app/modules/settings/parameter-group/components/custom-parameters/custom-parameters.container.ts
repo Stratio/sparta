@@ -5,7 +5,7 @@
  */
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 
 import * as fromParameters from './../../reducers';
 import * as customParamsActions from './../../actions/custom';
@@ -55,12 +55,12 @@ export class CustomParametersContainer implements OnInit {
 
    private _init() {
       this._store.dispatch(new customParamsActions.ListCustomParamsAction());
-      this.customLists$ = this._store.select(fromParameters.getCustomList);
-      this.customParams$ = this._store.select(fromParameters.getCustomParams);
-      this.customContexts$ = this._store.select(fromParameters.getCustomContexts);
-      this.breadcrumbList$ = this._store.select(fromParameters.getSelectedList);
-      this._store.select(fromParameters.getCustomIsCreating)
-         .subscribe((isCreating: boolean) =>{
+      this.customLists$ = this._store.pipe(select(fromParameters.getCustomList));
+      this.customParams$ = this._store.pipe(select(fromParameters.getCustomParams));
+      this.customContexts$ = this._store.pipe(select(fromParameters.getCustomContexts));
+      this.breadcrumbList$ = this._store.pipe(select(fromParameters.getSelectedList));
+      this._store.pipe(select(fromParameters.getCustomIsCreating))
+         .subscribe((isCreating: boolean) => {
             this.creationMode = isCreating;
             this._cd.markForCheck();
          });

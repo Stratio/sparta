@@ -7,19 +7,19 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-<p *ngIf="execution">{{execution | json}}
+<section class="execution-details" *ngIf="execution">
   <graph-editor [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position">
-
-     <svg:g wizard-edge
-        *ngFor="let edge of edges; let i=index;"
-        [edge]="edge"
-        [selectedEdge]="''"
-        [initPosition]="edge.origin.uiConfiguration.position"
-        [endPosition]="edge.destination.uiConfiguration.position">
+    <svg:g wizard-edge
+      *ngFor="let edge of edges; let i=index;"
+      [edge]="edge"
+      [selectedEdge]="''"
+      [initPosition]="edge.origin.uiConfiguration.position"
+      [endPosition]="edge.destination.uiConfiguration.position">
     </svg:g> -->
     <svg:g wizard-node
       draggable-element *ngFor="let nodeData of nodes"
       [data]="nodeData"
+      [readonlyMode]="true"
       [createdNew]="nodeData.createdNew"
       [selected]="'' === nodeData.name"
       [(position)]="nodeData.uiConfiguration.position">
@@ -42,4 +42,5 @@
     </svg:defs>
   </svg>
 </html>
-</p>
+{{execution | json}}
+</section>

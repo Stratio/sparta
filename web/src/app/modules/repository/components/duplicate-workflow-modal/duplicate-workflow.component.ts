@@ -14,7 +14,7 @@ import {
    ViewChild
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import * as workflowActions from './../../actions/workflow-list';
@@ -51,14 +51,17 @@ export class DuplicateWorkflowComponent implements OnInit, OnDestroy {
 
    ngOnInit() {
       this._store.dispatch(new workflowActions.ResetModalAction());
-      this.openModal = this._store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
+      this.openModal = this._store.pipe(select(fromRoot.getShowModal))
+        .subscribe((modalOpen) => {
          if (!modalOpen) {
             this.onCloseDuplicateModal.emit();
          }
       });
       this.currentGroup = this.version.group;
       this.name = this.version.name;
-      this._store.select(fromRoot.getAllGroups).pipe(take(1)).subscribe((groups: any) => {
+      this._store.pipe(select(fromRoot.getAllGroups))
+        .pipe(take(1))
+        .subscribe((groups: any) => {
          this.parentGroup = this.currentGroup;
          this.groups = groups;
       });

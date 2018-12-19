@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -26,7 +26,7 @@ export class CrossdataComponent {
    constructor(public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef,
       private _store: Store<fromRoot.State>) {
       this.breadcrumbOptions = breadcrumbMenuService.getOptions();
-      this.sparkUILink$ = this._store.select(fromRoot.getSparkUILink);
+      this.sparkUILink$ = this._store.pipe(select(fromRoot.getSparkUILink));
    }
 
    public options: Array<any> = [

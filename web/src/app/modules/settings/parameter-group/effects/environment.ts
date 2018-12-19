@@ -6,7 +6,7 @@
 
 
 import { Injectable } from '@angular/core';
-import { Store, Action } from '@ngrx/store';
+import { Store, Action, select } from '@ngrx/store';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { Observable, of, forkJoin, iif, from } from 'rxjs';
 import { withLatestFrom, switchMap, mergeMap, map, catchError, delay } from 'rxjs/operators';
@@ -34,7 +34,7 @@ export class EnviromentParametersEffect {
    saveContext$: Observable<any> = this._actions$
       .pipe(ofType(environmentParametersActions.ADD_CONTEXT))
       .pipe(map((action: any) => action.payload))
-      .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
+      .pipe(withLatestFrom(this._store.pipe(select(state => state.parameterGroup.environment))))
       .pipe(switchMap(([name, state]) => {
          const { allVariables: parameters, list: { name: parent } } = state;
          const newContext = { name, parent, parameters };
@@ -53,7 +53,7 @@ export class EnviromentParametersEffect {
    saveEnvironment$: Observable<any> = this._actions$
       .pipe(ofType(environmentParametersActions.SAVE_PARAM))
       .pipe(map((action: any) => action.payload))
-      .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
+      .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.parameterGroup.environment))))
       .pipe(switchMap(([param, state]) => {
          const { name: oldParamName, value: { name: paramName, value, contexts } } = param;
          const { list, creationMode, allVariables } = state;
@@ -112,7 +112,7 @@ export class EnviromentParametersEffect {
    deleteEnvironment$: Observable<any> = this._actions$
       .pipe(ofType(environmentParametersActions.DELETE_ENVIRONMENT_PARAMS))
       .pipe(map((action: any) => action.payload))
-      .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
+      .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.parameterGroup.environment))))
       .pipe(switchMap(([param, state]) => {
          const { allVariables, list: { name, id } } = state;
          const index = allVariables.findIndex(env => env.name === param.param.name);
@@ -130,7 +130,7 @@ export class EnviromentParametersEffect {
    saveEnvironmentContext$: Observable<any> = this._actions$
       .pipe(ofType(environmentParametersActions.SAVE_ENVIRONMENT_CONTEXT))
       .pipe(map((action: any) => action.payload))
-      .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.environment)))
+      .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.parameterGroup.environment))))
       .pipe(switchMap(([context, state]) => {
         const { contexts } = state;
         const exist = contexts.findIndex(c => c.name === context.name) !== -1;

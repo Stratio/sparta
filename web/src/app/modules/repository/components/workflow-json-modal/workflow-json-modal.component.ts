@@ -6,7 +6,7 @@
 
 import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { Subscription } from 'rxjs';
 
@@ -80,8 +80,8 @@ export class WorkflowJsonModalComponent implements OnInit {
     }
 
     ngOnInit() {
-       this.isSaving$ = this.store.select(fromRoot.getSavingState);
-        this.serverErrorsSubscription = this.store.select(fromRoot.getModalError).subscribe((error: any) => {
+       this.isSaving$ = this.store.pipe(select(fromRoot.getSavingState));
+        this.serverErrorsSubscription = this.store.pipe(select(fromRoot.getModalError)).subscribe((error: any) => {
             if (error.error && error.error.length) {
                 try {
                     const parsed = JSON.parse(error.error);
@@ -97,7 +97,7 @@ export class WorkflowJsonModalComponent implements OnInit {
         });
 
         this.store.dispatch(new workflowActions.ResetModalAction());
-        this.openModal = this.store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
+        this.openModal = this.store.pipe(select(fromRoot.getShowModal)).subscribe((modalOpen) => {
             if (!modalOpen) {
                 this.onCloseJsonModal.emit();
             }

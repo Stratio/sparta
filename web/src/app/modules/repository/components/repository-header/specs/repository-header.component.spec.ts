@@ -8,7 +8,7 @@ import { ToolBarModule } from '../../../../shared/components/tool-bar/tool-bar.m
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import {  StModalService, StModalResponse } from '@stratio/egeo';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs/observable/of';
+import { of } from 'rxjs';
 
 import { TranslateMockModule, initTranslate } from '@test/translate-stub';
 import { Router } from '@angular/router';

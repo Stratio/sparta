@@ -6,10 +6,8 @@
 
 import { Injectable } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
 import { Observable, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { HttpErrorAction } from 'app/actions/errors';
@@ -33,7 +31,7 @@ export class ApiService {
    private timeout;
    constructor(private http: HttpClient, private _store: Store<fromRoot.State>) {
       this.timeout = 20000;
-      this._store.select(fromRoot.getSpartaTimeout)
+      this._store.pipe(select(fromRoot.getSpartaTimeout))
       .pipe(take(1))
       .subscribe(timeout => this.timeout = timeout < 1000 ? timeout * 1000 : timeout);
    }

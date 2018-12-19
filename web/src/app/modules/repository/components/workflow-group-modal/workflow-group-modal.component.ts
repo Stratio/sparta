@@ -5,7 +5,7 @@
  */
 import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, NgForm, Validators } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import * as workflowActions from './../../actions/workflow-list';
@@ -13,48 +13,48 @@ import * as fromRoot from './../../reducers';
 import { ErrorMessagesService } from 'app/services';
 
 @Component({
-    selector: 'workflow-group-modal',
-    templateUrl: './workflow-group-modal.component.html',
-    styleUrls: ['./workflow-group-modal.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'workflow-group-modal',
+  templateUrl: './workflow-group-modal.component.html',
+  styleUrls: ['./workflow-group-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowGroupModalComponent implements OnInit, OnDestroy {
 
-    @Output() onCloseGroupModal = new EventEmitter<string>();
+  @Output() onCloseGroupModal = new EventEmitter<string>();
 
-    public groupForm: FormGroup;
-    public forceValidations = false;
-    public name = '';
+  public groupForm: FormGroup;
+  public forceValidations = false;
+  public name = '';
 
-    private openModal$: Subscription;
+  private openModal$: Subscription;
 
-    constructor(private _store: Store<fromRoot.State>, public errorsService: ErrorMessagesService, private _fb: FormBuilder) {
-        _store.dispatch(new workflowActions.InitCreateGroupAction());
-        this.groupForm = _fb.group({
-            name: new FormControl('', [Validators.required])
-        });
+  constructor(private _store: Store<fromRoot.State>, public errorsService: ErrorMessagesService, private _fb: FormBuilder) {
+    _store.dispatch(new workflowActions.InitCreateGroupAction());
+    this.groupForm = _fb.group({
+      name: new FormControl('', [Validators.required])
+    });
+  }
+
+  createGroup() {
+    if (this.groupForm.valid) {
+      this._store.dispatch(new workflowActions.CreateGroupAction(this.groupForm.controls.name.value));
+    } else {
+      this.forceValidations = true;
     }
+  }
 
-    createGroup() {
-        if (this.groupForm.valid) {
-            this._store.dispatch(new workflowActions.CreateGroupAction(this.groupForm.controls.name.value));
-        } else {
-            this.forceValidations = true;
-        }
-    }
+  ngOnInit() {
+    this._store.dispatch(new workflowActions.ResetModalAction());
+    this.openModal$ = this._store.pipe(select(fromRoot.getShowModal)).subscribe((modalOpen) => {
+      if (!modalOpen) {
+        this.onCloseGroupModal.emit();
+      }
+    });
+  }
 
-    ngOnInit() {
-        this._store.dispatch(new workflowActions.ResetModalAction());
-        this.openModal$ = this._store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
-            if (!modalOpen) {
-                this.onCloseGroupModal.emit();
-            }
-        });
-    }
-
-    ngOnDestroy(): void {
-        this.openModal$ && this.openModal$.unsubscribe();
-    }
+  ngOnDestroy(): void {
+    this.openModal$ && this.openModal$.unsubscribe();
+  }
 
 }
 

@@ -12,7 +12,7 @@ import { Observable, of, iif, from, forkJoin } from 'rxjs';
 
 import * as transformationActions from './../actions/transformation';
 import * as errorActions from 'actions/errors';
-import { switchMap, map, mergeMap } from 'rxjs/operators';
+import { switchMap, map, mergeMap, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class TransformationEffect {
@@ -22,10 +22,10 @@ export class TransformationEffect {
       .pipe(ofType(transformationActions.LIST_TRANSFORMATION))
       .pipe(switchMap((response: any) => this.templatesService.getTemplateList('transformation')
          .pipe(map((transformationList: any) => new transformationActions.ListTransformationCompleteAction(transformationList)))
-         .catch(error => iif(() => error.statusText === 'Unknown Error',
+         .pipe(catchError(error => iif(() => error.statusText === 'Unknown Error',
             of(new transformationActions.ListTransformationFailAction('')),
             of(new errorActions.ServerErrorAction(error))
-         ))));
+         )))));
 
    @Effect()
    getTransformationTemplate$: Observable<Action> = this.actions$
@@ -33,10 +33,10 @@ export class TransformationEffect {
       .pipe(map((action: any) => action.payload))
       .pipe(switchMap((param: any) => this.templatesService.getTemplateById('transformation', param)
          .pipe(map((transformation: any) => new transformationActions.GetEditedTransformationCompleteAction(transformation)))
-         .catch(error => iif(() => error.statusText === 'Unknown Error',
+         .pipe(catchError(error => iif(() => error.statusText === 'Unknown Error',
             of(new transformationActions.GetEditedTransformationErrorAction('')),
             of(new errorActions.ServerErrorAction(error))
-         ))));
+         )))));
 
    @Effect()
    deleteTransformation$: Observable<Action> = this.actions$
@@ -47,13 +47,13 @@ export class TransformationEffect {
          transformations.map((transformation: any) => {
             joinObservables.push(this.templatesService.deleteTemplate('transformation', transformation.id));
          });
-         return forkJoin(joinObservables).mergeMap(results => [
+         return forkJoin(joinObservables).pipe(mergeMap(results => [
             new transformationActions.DeleteTransformationCompleteAction(transformations),
             new transformationActions.ListTransformationAction()]
-         ).catch(error => from([
+         )).pipe(catchError(error => from([
             new transformationActions.DeleteTransformationErrorAction(''),
             new errorActions.ServerErrorAction(error)
-         ]));
+         ])));
       }));
 
    @Effect()
@@ -62,10 +62,10 @@ export class TransformationEffect {
       .pipe(switchMap((data: any) => {
          const transformation = Object.assign(data.payload);
          delete transformation.id;
-         return this.templatesService.createTemplate(transformation).mergeMap(() => [
+         return this.templatesService.createTemplate(transformation).pipe(mergeMap(() => [
             new transformationActions.DuplicateTransformationCompleteAction(),
             new transformationActions.ListTransformationAction
-         ]).catch(error => of(new errorActions.ServerErrorAction(error)));
+         ])).pipe(catchError(error => of(new errorActions.ServerErrorAction(error))));
       }));
 
    @Effect()
@@ -75,7 +75,8 @@ export class TransformationEffect {
       .pipe(mergeMap(() => [
          new transformationActions.CreateTransformationCompleteAction(),
          new transformationActions.ListTransformationAction
-      ])).catch(error => of(new errorActions.ServerErrorAction(error)))));
+      ])).pipe(catchError(error => of(new errorActions.ServerErrorAction(error))))
+      ));
 
    @Effect()
    updateTransformation$: Observable<Action> = this.actions$
@@ -84,7 +85,7 @@ export class TransformationEffect {
          .pipe(mergeMap(() => [
             new transformationActions.UpdateTransformationCompleteAction(),
             new transformationActions.ListTransformationAction
-         ])).catch(error => of(new errorActions.ServerErrorAction(error)))));
+         ])).pipe(catchError(error => of(new errorActions.ServerErrorAction(error))))));
 
    constructor(
       private actions$: Actions,

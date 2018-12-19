@@ -7,8 +7,8 @@
 import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Subscription';
-import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs';
+import { Store, select } from '@ngrx/store';
 import { StAlertsService } from '@stratio/egeo';
 
 @Component({
@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this._alertSubscription = this._store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
+        this._alertSubscription = this._store.pipe(select(fromRoot.getCurrentAlert)).subscribe((alerts: any) => {
             if (alerts && alerts.length) {
                 alerts.map((alertNot: any) => {
                     if (alertNot.notranslate) {

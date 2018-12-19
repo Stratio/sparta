@@ -6,8 +6,8 @@
 import {
    Component, OnInit, OnDestroy, ChangeDetectionStrategy, Input, ChangeDetectorRef
  } from '@angular/core';
- import { Store } from '@ngrx/store';
- import { Subscription } from 'rxjs/Subscription';
+import { Store, select } from '@ngrx/store';
+ import { Subscription } from 'rxjs';
 
  import { ErrorMessagesService } from 'services';
  import * as fromWizard from './../../../reducers';
@@ -70,7 +70,7 @@ import {
        this.model.path = '';
      }
 
-     this._uploadFileSubscription = this._store.select(getDebugFile).subscribe((value) => {
+     this._uploadFileSubscription = this._store.pipe(select(getDebugFile)).subscribe((value) => {
        if (value) {
          this.model.fileUploaded = value;
          this._cd.markForCheck();

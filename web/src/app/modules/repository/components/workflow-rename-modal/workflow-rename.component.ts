@@ -5,17 +5,17 @@
  */
 
 import {
-   ChangeDetectionStrategy,
-   Component,
-   EventEmitter,
-   Input,
-   OnDestroy,
-   OnInit,
-   Output,
-   ViewChild
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import * as workflowActions from './../../actions/workflow-list';
@@ -24,67 +24,67 @@ import { ErrorMessagesService } from 'app/services';
 import { FOLDER_SEPARATOR } from './../../workflow.constants';
 
 @Component({
-   selector: 'workflow-rename-modal',
-   templateUrl: './workflow-rename.component.html',
-   styleUrls: ['./workflow-rename.component.scss'],
-   changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'workflow-rename-modal',
+  templateUrl: './workflow-rename.component.html',
+  styleUrls: ['./workflow-rename.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowRenameModalComponent implements OnInit, OnDestroy {
 
-   @Input() entityType = 'Group';
-   @Input() entityName = '';
-   @Output() onCloseRenameModal = new EventEmitter<string>();
+  @Input() entityType = 'Group';
+  @Input() entityName = '';
+  @Output() onCloseRenameModal = new EventEmitter<string>();
 
-   @ViewChild('renameForm') public renameForm: NgForm;
+  @ViewChild('renameForm') public renameForm: NgForm;
 
-   public forceValidations = false;
-   public name = '';
-   public currentGroup = '';
+  public forceValidations = false;
+  public name = '';
+  public currentGroup = '';
 
-   private openModal: Subscription;
+  private openModal: Subscription;
 
-   constructor(private _store: Store<fromRoot.State>,
-      public errorsService: ErrorMessagesService) {
-      _store.dispatch(new workflowActions.InitCreateGroupAction());
-   }
+  constructor(private _store: Store<fromRoot.State>,
+    public errorsService: ErrorMessagesService) {
+    _store.dispatch(new workflowActions.InitCreateGroupAction());
+  }
 
-   updateEntity() {
-      if (this.renameForm.valid) {
-         if (this.entityType === 'Group') {
-            this._store.dispatch(new workflowActions.RenameGroupAction({
-               oldName: this.entityName,
-               newName: this.currentGroup + FOLDER_SEPARATOR + this.name
-            }));
-         } else {
-            this._store.dispatch(new workflowActions.RenameWorkflowAction({
-               oldName: this.entityName,
-               newName: this.name
-            }));
-         }
-      } else {
-         this.forceValidations = true;
-      }
-   }
-
-   ngOnInit() {
+  updateEntity() {
+    if (this.renameForm.valid) {
       if (this.entityType === 'Group') {
-         const splittedName = this.entityName.split(FOLDER_SEPARATOR);
-         this.currentGroup = splittedName.slice(0, splittedName.length - 1).join(FOLDER_SEPARATOR);
-         this.name = splittedName[splittedName.length - 1];
+        this._store.dispatch(new workflowActions.RenameGroupAction({
+          oldName: this.entityName,
+          newName: this.currentGroup + FOLDER_SEPARATOR + this.name
+        }));
       } else {
-         this.name = this.entityName;
+        this._store.dispatch(new workflowActions.RenameWorkflowAction({
+          oldName: this.entityName,
+          newName: this.name
+        }));
       }
-      this._store.dispatch(new workflowActions.ResetModalAction());
-      this.openModal = this._store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
-         if (!modalOpen) {
-            this.onCloseRenameModal.emit();
-         }
-      });
-   }
+    } else {
+      this.forceValidations = true;
+    }
+  }
 
-   ngOnDestroy(): void {
-      this.openModal && this.openModal.unsubscribe();
-   }
+  ngOnInit() {
+    if (this.entityType === 'Group') {
+      const splittedName = this.entityName.split(FOLDER_SEPARATOR);
+      this.currentGroup = splittedName.slice(0, splittedName.length - 1).join(FOLDER_SEPARATOR);
+      this.name = splittedName[splittedName.length - 1];
+    } else {
+      this.name = this.entityName;
+    }
+    this._store.dispatch(new workflowActions.ResetModalAction());
+    this.openModal = this._store.pipe(select(fromRoot.getShowModal)).subscribe((modalOpen) => {
+      if (!modalOpen) {
+        this.onCloseRenameModal.emit();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.openModal && this.openModal.unsubscribe();
+  }
 
 }
 

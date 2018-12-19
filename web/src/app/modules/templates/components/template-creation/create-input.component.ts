@@ -7,7 +7,7 @@ import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, On
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { StDropDownMenuItem } from '@stratio/egeo';
 
 import * as inputActions from './../../actions/input';
@@ -60,7 +60,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
          };
       });
 
-      this.saveSubscription = this.store.select(fromTemplates.isInputSaved).subscribe((isSaved) => {
+      this.saveSubscription = this.store.pipe(select(fromTemplates.isInputSaved)).subscribe((isSaved) => {
          if (isSaved) {
             this.route.navigate(['templates', 'inputs']);
          }
@@ -98,7 +98,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
    getEditedTemplate(templateId: string) {
       this.store.dispatch(new inputActions.GetEditedInputAction(templateId));
-      this.selectedSubscription = this.store.select(fromTemplates.getEditedInput).subscribe((editedInput: any) => {
+      this.selectedSubscription = this.store.pipe(select(fromTemplates.getEditedInput)).subscribe((editedInput: any) => {
          if (!editedInput.id) {
             return;
          }

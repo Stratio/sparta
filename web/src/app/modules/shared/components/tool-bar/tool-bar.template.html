@@ -1,27 +1,27 @@
 <section class="tool-bar">
-    <div class="container">
-        <div class="tools-content">
-            <div class="row" *ngIf="!fullToolbar">
-                <div [ngClass]="largeTools ? 'col-sm-4': 'col-sm-8'" class="left-tools">
-                    <div class="breadcrumb-tool">
-                        <ng-content select="[breadcrumb]"></ng-content>
-                    </div>
-                    <div class="selection-tools">
-                        <ng-content select="[selection-tools]"></ng-content>
-                    </div>
-                </div>
-                <div class="right-tools" [ngClass]="largeTools ? 'col-sm-8': 'col-sm-4'">
-                    <div class="general-tools">
-                        <ng-content select="[general-tools]"></ng-content>
-                    </div>
-                </div>
-            </div>
-            <div class="row" class="full-toolbar" *ngIf="fullToolbar">
-                <div class="col-sm-12">
-                    <ng-content></ng-content>
-                </div>
-            </div>
+  <div class="container">
+    <div class="tools-content">
+      <div class="row" *ngIf="!fullToolbar">
+        <div [ngClass]="largeTools ? 'col-sm-4': 'col-sm-8'" class="left-tools">
+          <div class="breadcrumb-tool">
+            <ng-content select="[breadcrumb]"></ng-content>
+          </div>
+          <div class="selection-tools">
+            <ng-content select="[selection-tools]"></ng-content>
+          </div>
         </div>
-        <ng-content select="[alert]"></ng-content>
+        <div class="right-tools" [ngClass]="largeTools ? 'col-sm-8': 'col-sm-4'">
+          <div class="general-tools">
+            <ng-content select="[general-tools]"></ng-content>
+          </div>
+        </div>
+      </div>
+      <div class="row" class="full-toolbar" *ngIf="fullToolbar">
+        <div class="col-sm-12">
+          <ng-content></ng-content>
+        </div>
+      </div>
     </div>
+    <ng-content select="[alert]"></ng-content>
+  </div>
 </section>

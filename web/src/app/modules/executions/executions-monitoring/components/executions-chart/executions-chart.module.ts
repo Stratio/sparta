@@ -3,26 +3,19 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { SpartaBackups } from './backups.component';
+import { CommonModule } from '@angular/common';
+import { ChartsModule } from 'ng2-charts';
 
+import { ExecutionsChartComponent } from './executions-chart.component';
 
-const backupsRoutes: Routes = [
-   {
-      path: '',
-      component: SpartaBackups
-   }
-];
 
 @NgModule({
-   exports: [
-      RouterModule
-   ],
    imports: [
-      RouterModule.forChild(backupsRoutes)
-   ]
+     ChartsModule,
+     CommonModule
+   ],
+   declarations: [ExecutionsChartComponent],
+   exports: [ExecutionsChartComponent]
 })
-
-export class BackupsRoutingModule { }
+export class ExecutionsChartModule { }

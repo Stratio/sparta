@@ -10,6 +10,21 @@ $cloudy-black: #cdd6df;
         bottom:0;
     }
 }
+
+.header-container {
+    min-width: 48rem;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    width: 100%;
+    display: flex;
+    margin-right: auto;
+    margin-left: auto;
+    flex-wrap: wrap;
+
+    &.workflow-title {
+        padding-top: 12px;
+    }
+}
 .title-header {
    background-color: white;
    border-bottom: 1px solid $cloudy-black;
@@ -31,17 +46,11 @@ $cloudy-black: #cdd6df;
    background: white;
    border-bottom: 1px solid #ddd;
 
-   .button {
-       margin-left: 5px;
-   }
-
-   .undo-action {
-       margin-left: 25px;
-   }
 }
 
 .position-tools {
    display: inline-block;
+   margin-right: 20px;
 }
 
 .show-options {
@@ -58,10 +67,6 @@ $cloudy-black: #cdd6df;
 .st-logo {
    float: left;
    margin-top: 8px;
-}
-
-.undo-action {
-   margin-left: 15px;
 }
 
 .workflow-name {
@@ -117,6 +122,15 @@ $cloudy-black: #cdd6df;
    }
 }
 
+.selection-buttons {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  .button {
+    margin-left: 10px;
+  }
+}
+
 .validation-message {
    font-size: 14px;
    word-break: break-word;
@@ -128,37 +142,13 @@ $cloudy-black: #cdd6df;
    list-style: none;
 }
 
+.undo-action{
+  margin-right: 10px;
+}
+
 .validation-title {
    color: #333;
    font-family: $egeo-nunito-sans-semiBold;
-}
-
-.options-button {
-   display: inline-block;
-   background-color: #128bde;
-   color: #fff;
-   font-family: Nunito Sans Bold;
-   font-size: 1rem;
-   text-overflow: ellipsis;
-   border-radius: 4px;
-   line-height: 1.313rem;
-   cursor: pointer;
-   &[disabled] {
-      background-color: #ededed;
-   }
-   .main-button {
-      display: inline-block;
-      vertical-align: top;
-      padding: 0.56em 1.2em;
-   }
-   .secondary-button {
-      display: inline-block;
-      border-left: 1px solid white;
-      font-size: 14px;
-      margin: 2px 0;
-      padding: 0.56em 0.55em;
-      vertical-align: middle;
-   }
 }
 
 .workflow-type {
@@ -186,25 +176,12 @@ $cloudy-black: #cdd6df;
    }
 }
 
-.message {
-    .link {
-        color: $action-primary-default;
-        cursor: pointer;
-    }
+.global-buttons{
+  float: right;
+  .button {
+    margin-left: 10px;
+  }
 }
-
-.loading {
-    transform: scale(0.6);
-    display: inline-block;
-    position:relative;
-    bottom:-2px;
-}
-
-.icon-green {
-    color: $status-success-hover;
-    padding-right: 4px;
-}
-
 .multi-button{
     overflow: visible;
     border: 1px solid $neutral-03;

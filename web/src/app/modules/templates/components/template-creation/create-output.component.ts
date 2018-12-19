@@ -5,10 +5,10 @@
  */
 import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StDropDownMenuItem } from '@stratio/egeo';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 import * as outputActions from './../../actions/output';
 import * as fromTemplates from './../../reducers';
@@ -56,7 +56,7 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
             };
         });
 
-        this.saveSubscription = this.store.select(fromTemplates.isOutputSaved).subscribe((isSaved) => {
+        this.saveSubscription = this.store.pipe(select(fromTemplates.isOutputSaved)).subscribe((isSaved) => {
             if (isSaved) {
                 this.route.navigate(['templates', 'outputs']);
             }
@@ -95,7 +95,7 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
     getEditedTemplate(templateId: string) {
         this.store.dispatch(new outputActions.GetEditedOutputAction(templateId));
-        this.selectedSubscription = this.store.select(fromTemplates.getEditedOutput).subscribe((editedOutput: any) => {
+        this.selectedSubscription = this.store.pipe(select(fromTemplates.getEditedOutput)).subscribe((editedOutput: any) => {
             if (!editedOutput.id) {
                 return;
             }

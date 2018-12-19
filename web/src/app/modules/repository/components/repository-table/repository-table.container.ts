@@ -11,7 +11,7 @@ import {
    Output,
    OnInit
 } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Order } from '@stratio/egeo';
 import { Observable, Subscription } from 'rxjs';
 
@@ -65,8 +65,8 @@ export class RepositoryTableContainer implements OnInit {
    private _currentLevelSubscription: Subscription;
 
    ngOnInit(): void {
-      this.workflowVersions$ = this._store.select(getVersionsOrderedList);
-      this._currentLevelSubscription = this._store.select(getCurrentGroupLevel).subscribe((currentLevel: any) => {
+      this.workflowVersions$ = this._store.pipe(select(getVersionsOrderedList));
+      this._currentLevelSubscription = this._store.pipe(select(getCurrentGroupLevel)).subscribe((currentLevel: any) => {
           const levelSplitted = currentLevel.group.name.split('/');
           if (currentLevel.workflow.length) {
             this.previousLevel = {

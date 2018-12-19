@@ -31,7 +31,7 @@
 
     <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
     <div class="not-selected" *ngIf="(!entityData || !entityData.name) && !genericError && (!validations || !validations.valid === false || !validations.messages.length)">
-        <img src="assets/images/wizard-details.svg" class="workflow-detail-image" />
+        <img src="assets/images/planet.svg" class="workflow-detail-image" />
         <div class="workflow-info">{{'DASHBOARD.NODE_INFO' | translate}}</div>
     </div>
     <div class="selected" *ngIf="entityData && entityData.name">

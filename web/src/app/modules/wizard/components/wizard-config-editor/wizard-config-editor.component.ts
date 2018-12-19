@@ -13,18 +13,17 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 
 import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
 import { Environment } from '@models/environment';
-import { Subscription } from 'rxjs/Subscription';
 import { ErrorMessagesService, InitializeSchemaService } from 'services';
 import { writerTemplate } from 'data-templates/index';
 import { WizardService } from '@app/wizard/services/wizard.service';
@@ -114,14 +113,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       this.valueDictionary.inputStepsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
     }
     this._getMenuTabs();
-      this.validatedNameSubcription = this._store.select(fromWizard.getValidatedEntityName)
+      this.validatedNameSubcription = this._store.pipe(select(fromWizard.getValidatedEntityName))
          .pipe(takeUntil(this._componentDestroyed))
          .subscribe((validation: boolean) => {
             this.validatedName = validation;
             this._cd.markForCheck();
          });
 
-    this.saveSubscription = this._store.select(fromWizard.isEntitySaved)
+    this.saveSubscription = this._store.pipe(select(fromWizard.isEntitySaved))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((isEntitySaved) => {
         if (isEntitySaved) {
@@ -129,14 +128,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
           this._store.dispatch(new wizardActions.HideEditorConfigAction());
         }
       });
-    this._store.select(fromWizard.isShowedCrossdataCatalog)
+    this._store.pipe(select(fromWizard.isShowedCrossdataCatalog))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((showed: boolean) => {
         this.isShowedInfo = showed;
         this._cd.markForCheck();
       });
 
-      this._store.select(fromQueryBuilder.getQueryBuilderInnerState)
+      this._store.pipe(select(fromQueryBuilder.getQueryBuilderInnerState))
          .pipe(takeUntil(this._componentDestroyed))
          .subscribe((queryBuilder: any) => {
             this.queryBuilder = queryBuilder;
@@ -230,7 +229,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     if (this.entityFormModel.nodeTemplate && this.entityFormModel.nodeTemplate.id && this.entityFormModel.nodeTemplate.id.length) {
       this.isTemplate = true;
       const nodeTemplate = this.entityFormModel.nodeTemplate;
-      this._store.select(fromWizard.getTemplates).pipe(take(1)).subscribe((templates: any) => {
+      this._store.pipe(select(fromWizard.getTemplates)).pipe(take(1)).subscribe((templates: any) => {
         this.templateData = templates[this.config.editionType.stepType.toLowerCase()]
           .find((templateD: any) => templateD.id === nodeTemplate.id);
       });
@@ -288,7 +287,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
   }
 
   normalizeQueryConfiguration() {
-      const inputs = this.queryBuilder.inputSchemaFields.length;
       const usedInputs = [].concat.apply([], this.queryBuilder.outputSchemaFields
          .map(output => output.originFields.map(field => `${field.alias}.${field.table}`)))
          .filter((elem, index, self) => index === self.indexOf(elem));

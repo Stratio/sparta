@@ -6,7 +6,7 @@
 import {
   Component, OnInit, OnDestroy, ChangeDetectionStrategy, Input, ViewChild
 } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -58,7 +58,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
       this.fadeActive = true;
     });
     // get all error management outputs
-    this.store.select(fromWizard.getErrorsManagementOutputs).pipe(take(1)).subscribe((errorManagementOutputs: Array<string>) => {
+    this.store.pipe(select(fromWizard.getErrorsManagementOutputs)).pipe(take(1)).subscribe((errorManagementOutputs: Array<string>) => {
       this.errorManagementOutputs = errorManagementOutputs;
     });
     this.getFormTemplate();
@@ -69,7 +69,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
   }
 
   getFormTemplate() {
-    this.settingsSubscription = this.store.select(fromWizard.getWorkflowSettings).subscribe((currentSettings: any) => {
+    this.settingsSubscription = this.store.pipe(select(fromWizard.getWorkflowSettings)).subscribe((currentSettings: any) => {
       const settings = _cloneDeep(currentSettings);
       this.tags = settings.basic.tags;
       this.basicFormModel = settings.basic;

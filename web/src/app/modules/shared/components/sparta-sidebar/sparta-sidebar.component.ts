@@ -13,8 +13,10 @@ import {
    EventEmitter,
    Input,
    OnDestroy,
-   Output
+   Output,
+   OnInit
 } from '@angular/core';
+
 
 @Component({
    selector: 'sparta-sidebar',
@@ -22,35 +24,23 @@ import {
    styleUrls: ['./sparta-sidebar.styles.scss'],
    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpartaSidebarComponent implements AfterViewInit, OnDestroy {
-
+export class SpartaSidebarComponent implements OnInit {
    @Input() isVisible = false;
    @Input() showCloseButton = true;
    @Input() showScrollBar = false;
    @Input() fullHeight: boolean;
+   @Input() darkBorder = false;
    @Output() onCloseSidebar = new EventEmitter();
 
    public loaded = false;
    public minHeight: number;
 
    constructor(private _element: ElementRef, private _cd: ChangeDetectorRef) {
-      this._calculateFullHeight = this._calculateFullHeight.bind(this);
    }
 
-   ngAfterViewInit(): void {
-      if (this.fullHeight) {
-         this._calculateFullHeight();
-         window.addEventListener('resize', this._calculateFullHeight);
-      }
+   ngOnInit(): void {
+    this.loaded = true;
+  }
 
-   }
-   ngOnDestroy(): void {
-      window.removeEventListener('resize', this._calculateFullHeight);
-   }
 
-   private _calculateFullHeight() {
-      const rect = this._element.nativeElement.getBoundingClientRect();
-      this.minHeight = window.innerHeight - rect.top - 30;
-      this._cd.detectChanges();
-   }
 }

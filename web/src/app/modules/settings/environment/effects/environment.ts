@@ -6,18 +6,10 @@
 
 import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
-import { Effect, Actions } from '@ngrx/effects';
-
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/withLatestFrom';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
+import { Effect, Actions, ofType } from '@ngrx/effects';
 
 import { from, Observable } from 'rxjs';
+import { catchError, map, mergeMap, switchMap } from 'rxjs/operators';
 
 import { generateJsonFile } from '@utils';
 import * as errorActions from 'actions/errors';
@@ -30,53 +22,53 @@ export class EnvironmentEffect {
 
    @Effect()
    getEnvironmentList$: Observable<Action> = this.actions$
-      .ofType(environmentActions.LIST_ENVIRONMENT)
-      .switchMap((response: any) => this.environmentService.getEnvironment()
-         .map((environmentList: any) => new environmentActions.ListEnvironmentCompleteAction(environmentList))
-         .catch(error => from([
+      .pipe(ofType(environmentActions.LIST_ENVIRONMENT))
+      .pipe(switchMap((response: any) => this.environmentService.getEnvironment()
+         .pipe(map((environmentList: any) => new environmentActions.ListEnvironmentCompleteAction(environmentList)))
+         .pipe(catchError(error => from([
             new environmentActions.ListEnvironmentErrorAction(''),
             new errorActions.ServerErrorAction(error)
-         ]))
-      );
+         ])))
+      ));
 
 
    @Effect()
    saveEnvironmentList$: Observable<Action> = this.actions$
-      .ofType(environmentActions.SAVE_ENVIRONMENT)
-      .switchMap((response: any) => this.environmentService.updateEnvironment(response.payload)
-         .map(environmentList => new environmentActions.ListEnvironmentAction())
-         .catch(error => from([
+      .pipe(ofType(environmentActions.SAVE_ENVIRONMENT))
+      .pipe(switchMap((response: any) => this.environmentService.updateEnvironment(response.payload)
+         .pipe(map(environmentList => new environmentActions.ListEnvironmentAction()))
+         .pipe(catchError(error => from([
             new environmentActions.SaveEnvironmentErrorAction(''),
             new errorActions.ServerErrorAction(error)
-         ]))
+         ]))))
       );
 
    @Effect()
    importEnvironment$: Observable<Action> = this.actions$
-      .ofType(environmentActions.IMPORT_ENVIRONMENT)
-      .switchMap((response: any) => this.environmentService.importEnvironment(response.payload)
-         .mergeMap((environmentList: any) => [
+      .pipe(ofType(environmentActions.IMPORT_ENVIRONMENT))
+      .pipe(switchMap((response: any) => this.environmentService.importEnvironment(response.payload)
+         .pipe(mergeMap((environmentList: any) => [
             new environmentActions.ImportEnvironmentCompleteAction(),
             new environmentActions.ListEnvironmentAction()
-         ])
-         .catch(error => from([
+         ]))
+         .pipe(catchError(error => from([
             new environmentActions.ImportEnvironmentErrorAction(),
             new errorActions.ServerErrorAction(error)
-         ]))
-      );
+         ])))
+      ));
 
    @Effect()
    exportEnvironment$: Observable<Action> = this.actions$
-      .ofType(environmentActions.EXPORT_ENVIRONMENT)
-      .switchMap((response: any) => this.environmentService.exportEnvironment()
-         .map(envData => {
+      .pipe(ofType(environmentActions.EXPORT_ENVIRONMENT))
+      .pipe(switchMap((response: any) => this.environmentService.exportEnvironment()
+         .pipe(map(envData => {
             generateJsonFile('environment-data', envData);
             return new environmentActions.ExportEnvironmentCompleteAction();
-         }).catch(error => from([
+         })).pipe(catchError(error => from([
             new environmentActions.ExportEnvironmentErrorAction(),
             new errorActions.ServerErrorAction(error)
-         ]))
-      );
+         ])))
+      ));
 
    constructor(
       private actions$: Actions,

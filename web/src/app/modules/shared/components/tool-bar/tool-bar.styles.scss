@@ -1,29 +1,32 @@
 :host {
     display:block;
-    padding-bottom:70px;
 }
 
 .tool-bar {
    width: 100%;
    display: block;
    background: white;
+   height: 70px;
    position:fixed;
-   box-shadow: 0px 0px 10px rgba(144,144,144, 0.14);
    z-index: 100;
    top:70px;
+   left: 0;
+   transition: 0.3s transform;
+
+   &.hidden {
+      transform: translateY(-75px);
+   }
 }
 
 .breadcrumb-tool {
    float: left;
+   margin-top: 15px;
 }
 
 .left-tools {
    display: flex;
     min-height: 40px;
    justify-content: space-between;
-   &>div {
-      margin-top: auto;
-   }
 }
 
 .full-toolbar{

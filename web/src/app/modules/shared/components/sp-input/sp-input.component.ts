@@ -21,8 +21,9 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
-import { SpInputError, SpInputVariable } from './sp-input.models';
+import { Subscription } from 'rxjs';
+
+import { SpInputError } from './sp-input.models';
 import { StModalService } from '@stratio/egeo';
 import { VariableSelectorComponent } from '@app/shared/components/sp-input/variable-selector/variable-selector.component';
 

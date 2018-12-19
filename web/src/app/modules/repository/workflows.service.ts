@@ -7,8 +7,9 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
-import { Subscription } from 'rxjs/Subscription';
 import { ActivatedRoute, Router } from '@angular/router';
+
+import { Subscription } from 'rxjs';
 
 import { WorkflowGroupModalComponent } from './components/workflow-group-modal/workflow-group-modal.component';
 import { WorkflowJsonModalComponent } from './components/workflow-json-modal/workflow-json-modal.component';
@@ -18,57 +19,57 @@ import * as workflowActions from './actions/workflow-list';
 @Injectable()
 export class WorkflowsManagingService {
 
-    public workflowModalTitle: string;
-    public workflowModalCt: string;
-    public workflowJsonModalTitle: string;
+  public workflowModalTitle: string;
+  public workflowModalCt: string;
+  public workflowJsonModalTitle: string;
 
-    public modalSubscription: Subscription;
-    public createGroupModalTitle: string;
+  public modalSubscription: Subscription;
+  public createGroupModalTitle: string;
 
-    public showCreateJsonModal(): void {
-        this._modalService.show({
-            modalTitle: this.workflowJsonModalTitle,
-            maxWidth: 980,
-            outputs: {
-                onCloseJsonModal: this.onCloseJsonModal.bind(this)
-            },
-        }, WorkflowJsonModalComponent);
-    }
+  public showCreateJsonModal(): void {
+    this._modalService.show({
+      modalTitle: this.workflowJsonModalTitle,
+      maxWidth: 980,
+      outputs: {
+        onCloseJsonModal: this.onCloseJsonModal.bind(this)
+      },
+    }, WorkflowJsonModalComponent);
+  }
 
-    public runWorkflow(versionId: string, workflowName: string): void {
-        this.store.dispatch(new workflowActions.RunWorkflowAction({
-            id: versionId,
-            name: workflowName
-        }));
-    }
+  public runWorkflow(versionId: string, workflowName: string): void {
+    this.store.dispatch(new workflowActions.RunWorkflowAction({
+      id: versionId,
+      name: workflowName
+    }));
+  }
 
-    public onCloseJsonModal(action: any) {
-        this._modalService.close();
-    }
+  public onCloseJsonModal(action: any) {
+    this._modalService.close();
+  }
 
-    public createWorkflowGroup(): void {
-        this._modalService.show({
-            modalTitle: this.createGroupModalTitle,
-            maxWidth: 500,
-            outputs: {
-                onCloseGroupModal: () => this._modalService.close()
-            },
-        }, WorkflowGroupModalComponent);
-    }
+  public createWorkflowGroup(): void {
+    this._modalService.show({
+      modalTitle: this.createGroupModalTitle,
+      maxWidth: 500,
+      outputs: {
+        onCloseGroupModal: () => this._modalService.close()
+      },
+    }, WorkflowGroupModalComponent);
+  }
 
-    constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
-        private route: Router, private currentActivatedRoute: ActivatedRoute) {
-        const workflowModalCt = 'DASHBOARD.NEW_WORKFLOW';
-        const createGroupModalTitle = 'DASHBOARD.CREATE_GROUP_TITLE';
-        const workflowModalTitle = 'DASHBOARD.CHOOSE_METHOD';
-        const workflowJsonModalTitle = 'DASHBOARD.JSON_TITLE';
+  constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
+    private route: Router, private currentActivatedRoute: ActivatedRoute) {
+    const workflowModalCt = 'DASHBOARD.NEW_WORKFLOW';
+    const createGroupModalTitle = 'DASHBOARD.CREATE_GROUP_TITLE';
+    const workflowModalTitle = 'DASHBOARD.CHOOSE_METHOD';
+    const workflowJsonModalTitle = 'DASHBOARD.JSON_TITLE';
 
-        this.translate.get([workflowModalCt, workflowModalTitle, workflowJsonModalTitle, createGroupModalTitle]).subscribe(
-            (value: { [key: string]: string }) => {
-                this.workflowModalCt = value[workflowModalCt].toUpperCase();
-                this.workflowModalTitle = value[workflowModalTitle];
-                this.workflowJsonModalTitle = value[workflowJsonModalTitle];
-                this.createGroupModalTitle = value[createGroupModalTitle];
-            });
-    }
+    this.translate.get([workflowModalCt, workflowModalTitle, workflowJsonModalTitle, createGroupModalTitle]).subscribe(
+      (value: { [key: string]: string }) => {
+        this.workflowModalCt = value[workflowModalCt].toUpperCase();
+        this.workflowModalTitle = value[workflowModalTitle];
+        this.workflowJsonModalTitle = value[workflowJsonModalTitle];
+        this.createGroupModalTitle = value[createGroupModalTitle];
+      });
+  }
 }

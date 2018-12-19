@@ -5,8 +5,8 @@
  */
 
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Store, select } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import * as fromParameters from './../../reducers';
 import * as environmentParamsActions from './../../actions/environment';
@@ -54,12 +54,12 @@ export class EnvironmentParametersContainer implements OnInit {
     private _init() {
         this._store.dispatch(new environmentParamsActions.ListEnvironmentParamsAction());
         this.initRequest();
-        this.environmentParams$ = this._store.select(fromParameters.getEnvironmentVariables);
-        this.environmentContexts$ = this._store.select(fromParameters.getEnvironmentContexts);
+        this.environmentParams$ = this._store.pipe(select(fromParameters.getEnvironmentVariables));
+        this.environmentContexts$ = this._store.pipe(select(fromParameters.getEnvironmentContexts));
 
-        this.list$ = this._store.select(fromParameters.getListId);
+        this.list$ = this._store.pipe(select(fromParameters.getListId));
 
-        this._store.select(fromParameters.getEnvironmentIsCreating)
+        this._store.pipe(select(fromParameters.getEnvironmentIsCreating))
             .subscribe((isCreating: boolean) => {
                 this.creationMode = isCreating;
                 this._cd.markForCheck();

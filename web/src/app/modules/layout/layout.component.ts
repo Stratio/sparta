@@ -6,7 +6,7 @@
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { StHeaderMenuOption } from '@stratio/egeo';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 
 import { MenuService } from './../shared/services/menu.service';
@@ -48,8 +48,9 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
    ngOnInit(): void {
       this.menu = this.menuService.getMenu();
-      this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
-      this.usernameSubscription = this.store.select(fromRoot.getUsername).subscribe((userName: string) => {
+      this.showForbiddenError$ = this.store.pipe(select(fromRoot.showPersistentError));
+      this.usernameSubscription = this.store.pipe(select(fromRoot.getUsername))
+        .subscribe((userName: string) => {
          this.userName = userName;
       });
    }

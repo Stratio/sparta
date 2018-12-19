@@ -1,17 +1,29 @@
 @import '~@stratio/egeo/theme/constants';
 
+.repository-container {
+  margin-top: 70px;
+}
+
 .workflow-list {
    width: 100%;
-   transition: width 0.3s;
+   background: white;
+   padding: 10px 20px;
+   margin-top: 20px;
+   transition: max-width 0.3s;
+   max-width: 100%;
    &.compressed {
-       width: calc(100% - 410px);
+     max-width: calc(100vw - 415px - (100vw - 100%) / 2);
    }
+}
+
+.repository-sidebar {
+  height: 100%;
 }
 
 .workflow-detail-container {
     min-height: 100%;
     position: fixed;
-    top: 140px;
+    top: 141px;
     right: 0;
     bottom: 0;
 }
@@ -35,4 +47,8 @@
     position: absolute;
     right:0;
     top:0;
+}
+
+sparta-sidebar{
+  transition: 0.3s transform;
 }

@@ -4,13 +4,13 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { Component, OnInit, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { StTableHeader, StDropDownMenuItem } from '@stratio/egeo';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import * as fromCrossdata from './../../reducers';
 import * as crossdataActions from './../../actions/crossdata';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
 
 @Component({
    selector: 'crossdata-catalog',
@@ -44,9 +44,9 @@ export class CrossdataCatalogComponent implements OnInit, OnDestroy {
    ngOnInit() {
       this.store.dispatch(new crossdataActions.GetDatabasesAction());
       this.getTablesFromDatabase('default');
-      this.tableList$ = this.store.select(fromCrossdata.getTablesList);
-      this.store.select(fromCrossdata.getDatabases)
-         .takeUntil(this._componentDestroyed)
+      this.tableList$ = this.store.pipe(select(fromCrossdata.getTablesList));
+      this.store.pipe(select(fromCrossdata.getDatabases))
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((databases: Array<any>) => {
             this.databases = databases.map((database: any) => {
                return {
@@ -56,24 +56,24 @@ export class CrossdataCatalogComponent implements OnInit, OnDestroy {
             });
          });
 
-      this.store.select(fromCrossdata.getOpenedTables)
-         .takeUntil(this._componentDestroyed)
-         .subscribe((openedTables) => {
+      this.store.pipe(select(fromCrossdata.getOpenedTables))
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe((openedTables: string[]) => {
             this.openedTables = openedTables;
             this._cd.markForCheck();
          });
 
-      this.loadingTables$ = this.store.select(fromCrossdata.isLoadingTables);
+      this.loadingTables$ = this.store.pipe(select(fromCrossdata.isLoadingTables));
 
-      this.store.select(fromCrossdata.getSelectedTables)
-         .takeUntil(this._componentDestroyed)
+      this.store.pipe(select(fromCrossdata.getSelectedTables))
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((tables: Array<string>) => {
             this.selectedTables = tables;
          });
 
 
-      this.store.select(fromCrossdata.getSelectedDatabase)
-         .takeUntil(this._componentDestroyed)
+      this.store.pipe(select(fromCrossdata.getSelectedDatabase))
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((database: string) => {
             if (this.selectedDatabase !== database) {
                this.selectedDatabase = database;

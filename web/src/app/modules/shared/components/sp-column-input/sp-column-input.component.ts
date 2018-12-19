@@ -21,7 +21,7 @@ import {
 import {
    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR
 } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { uniq as _uniq } from 'lodash';
 import { SpColumnInputError, SpColumnInputVariable } from './sp-column-input.models';
 

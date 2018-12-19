@@ -24,10 +24,10 @@ export class InputEffect {
       .pipe(ofType(inputActions.LIST_INPUT))
       .pipe(switchMap((response: any) => this.templatesService.getTemplateList('input')
          .pipe(map((inputList: any) => new inputActions.ListInputCompleteAction(inputList)))
-         .catch(error => iif(() => error.statusText === 'Unknown Error',
+         .pipe(catchError(error => iif(() => error.statusText === 'Unknown Error',
             of(new inputActions.ListInputFailAction('')),
             of(new errorActions.ServerErrorAction(error))
-         ))));
+         )))));
 
    @Effect()
    getInputTemplate$: Observable<Action> = this.actions$
@@ -35,10 +35,10 @@ export class InputEffect {
       .pipe(map((action: any) => action.payload))
       .pipe(switchMap((param: any) => this.templatesService.getTemplateById('input', param)
          .pipe(map(input => new inputActions.GetEditedInputCompleteAction(input)))
-         .catch(error => iif(() => error.statusText === 'Unknown Error',
+         .pipe(catchError(error => iif(() => error.statusText === 'Unknown Error',
             of(new inputActions.GetEditedInputErrorAction('')),
             of(new errorActions.ServerErrorAction(error))
-         ))));
+         )))));
 
    @Effect()
    deleteInput$: Observable<Action> = this.actions$
@@ -52,9 +52,9 @@ export class InputEffect {
          return forkJoin(joinObservables).pipe(mergeMap(results => [
             new inputActions.DeleteInputCompleteAction(inputs),
             new inputActions.ListInputAction()
-         ])).catch(function (error) {
+         ])).pipe(catchError(function (error) {
             return of(new errorActions.ServerErrorAction(error));
-         });
+         }));
       }));
 
    @Effect()
@@ -66,7 +66,7 @@ export class InputEffect {
          return this.templatesService.createTemplate(input).pipe(mergeMap(() => [
             new inputActions.DuplicateInputCompleteAction(),
             new inputActions.ListInputAction
-         ])).catch((error: any) => of(new errorActions.ServerErrorAction(error)));
+         ])).pipe(catchError((error: any) => of(new errorActions.ServerErrorAction(error))));
       }));
 
    @Effect()
@@ -79,12 +79,12 @@ export class InputEffect {
 
    @Effect()
    updateInput$: Observable<Action> = this.actions$
-      .ofType(inputActions.UPDATE_INPUT)
+      .pipe(ofType(inputActions.UPDATE_INPUT))
       .pipe(switchMap((data: any) => this.templatesService.updateFragment(data.payload)
          .pipe(mergeMap(() => [
             new inputActions.UpdateInputCompleteAction(),
             new inputActions.ListInputAction
-         ])).catch((error: any) => of(new errorActions.ServerErrorAction(error)))));
+         ])).pipe(catchError((error: any) => of(new errorActions.ServerErrorAction(error))))));
 
    constructor(
       private actions$: Actions,

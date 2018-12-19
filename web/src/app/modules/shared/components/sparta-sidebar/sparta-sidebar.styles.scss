@@ -1,31 +1,39 @@
+@import '~@stratio/egeo/theme/constants';
+
 :host {
-   height: 100%;
    display: block;
 }
 
 .sidebar-container {
-   transition: 0.3s all;
+   display: none;
    height: 100%;
-   width: 0; 
+   width: 0;
    overflow: hidden;
    box-shadow: none;
-   margin-left:0px;
+   width: 387px;
+   margin-left: 30px;
 
-   &.show {
-      width: 387px;
-      margin-left: 30px;
-      box-shadow: 0 6px 10px 2px #dedede;
+   &.loaded {
+     display: block;
+     transition: 0.3s all;
+   }
+
+   &.hide {
+    margin-left:0px;
+    width: 0;
       /*margin-left: 35px;*/
    }
 }
 
 .sparta-sidebar {
-   background-color: #f3f6f8;
+   background-color: #fff;
+   border-top: 1px solid $neutral-02;
+   border-left: 1px solid $neutral-02;
    padding: 29px;
    width: 387px;
    height: 100%;
    position: relative;
-   box-shadow: 0 6px 10px 2px #dedede;
+   padding-bottom: 10px;
    min-height: 100%;
 
    &.scroll {
@@ -33,6 +41,10 @@
        width: 400px;
        padding-right: 30px;
        overflow-x: hidden;
+   }
+
+   &.dark-border{
+     border-color: #ddd;
    }
 }
 
@@ -45,4 +57,8 @@
         position: absolute;
         z-index: 10;
     }
+}
+
+.sidebar-content {
+  height: calc(100% - 24px);
 }

@@ -3,7 +3,14 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 
 @Component({
     selector: 'tool-bar',
@@ -15,6 +22,11 @@ export class ToolBarComponent {
 
     @Input() largeTools = false;
     @Input() fullToolbar = false;
+    @Input() hideOnScroll = false;
 
-    constructor() { }
+    public hiddenToolBar = false;
+    private _lastPosition = 0;
+
+    constructor(private _cd: ChangeDetectorRef) { }
+
 }

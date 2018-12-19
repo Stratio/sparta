@@ -8,13 +8,9 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<div>
+<div class="repository-container" [ngClass]="{'toolbar-showed' : hiddenToolBar}">
    <div #newWorkflowModal qaTag="workflow-modal"></div>
    <repository-header-container [showDetails]="showDetails"
-        [selectedWorkflows]="selectedWorkflows$ | async"
-        [selectedGroupsList]="selectedGroupsList$ | async"
-        [versionsListMode]="(workflowVersions$ | async) && (workflowVersions$ | async).length"
-        [selectedVersions]="selectedVersions$ | async"
         (showWorkflowInfo)="showWorkflowInfo()"></repository-header-container>
    <st-progress-bar class="loading-bar" *ngIf="isLoading$ | async"></st-progress-bar>
    <div class="container">
@@ -22,7 +18,11 @@
         <div class="row row-content">
             <div class="rightbar-ref" #rightbarRef></div>
             <div class="workflow-list" [ngClass]="{'compressed': showDetails}">
-                <workflow-table-header-container></workflow-table-header-container>
+                <workflow-table-header-container
+                  [selectedWorkflows]="selectedWorkflows$ | async"
+                  [versionsListMode]="(workflowVersions$ | async) && (workflowVersions$ | async).length"
+                  [selectedGroupsList]="selectedGroupsList$ | async"
+                  [selectedVersions]="selectedVersions$ | async"></workflow-table-header-container>
                 <repository-table-container [groupList]="groupsList$ | async"
                     [workflowList]="workflowList"
                     [selectedGroupsList]="selectedGroupsList$ | async"
@@ -31,8 +31,8 @@
                     [selectedWorkflows]="selectedWorkflows$ | async"
                     (showExecution)="showExecutionConfiguration($event)"></repository-table-container>
             </div>
-            <div class="workflow-detail-container" [style.right.px]="sidebarPosition">
-                <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
+            <div class="workflow-detail-container">
+                <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()" class="repository-sidebar">
                     <repository-detail class="workflow-detail"
                         [data]="selectedVersion  ? selectedVersion  : (selectedEntity$ | async)"></repository-detail>
                 </sparta-sidebar>

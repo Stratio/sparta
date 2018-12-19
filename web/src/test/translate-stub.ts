@@ -5,9 +5,8 @@
  */
 import { Pipe, PipeTransform, ModuleWithProviders } from '@angular/core';
 import {TranslateService, TranslateLoader,  TranslateModule} from '@ngx-translate/core';
-import { Observable } from 'rxjs/Observable';
+import { of, Observable } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs/observable/of';
 
 @Pipe({
    name: 'translate'

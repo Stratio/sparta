@@ -4,9 +4,18 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/Subscription';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
+import { Store, select } from '@ngrx/store';
+import { Subscription } from 'rxjs';
 
 import * as fromWizard from './../../../reducers';
 
@@ -14,10 +23,7 @@ import * as fromWizard from './../../../reducers';
   selector: 'parameters-group-selector',
   styleUrls: ['parameters-group-selector.component.scss'],
   templateUrl: 'parameters-group-selector.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(document:click)': 'onClick($event)'
-  }
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class ParametersGroupSelectorComponent implements OnInit {
@@ -40,14 +46,14 @@ export class ParametersGroupSelectorComponent implements OnInit {
   ngOnInit(): void { }
 
   constructor(private _eref: ElementRef, private _store: Store<fromWizard.State>) {
-    this._groupsSubscription = this._store.select(fromWizard.getCustomGroups)
+    this._groupsSubscription = this._store.pipe(select(fromWizard.getCustomGroups))
       .subscribe(customGroups => {
         this.customGroups = customGroups.filter(g => !g.parent);
         this.filteredCustomGroups = customGroups;
       });
   }
 
-
+  @HostListener('document:click', ['$event'])
   onClick(event: any): void {
     if (!this._eref.nativeElement.contains(event.target)) {
       this.isOpened = false;

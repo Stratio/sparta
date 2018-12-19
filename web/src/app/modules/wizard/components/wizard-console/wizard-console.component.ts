@@ -13,7 +13,7 @@ import {
   OnInit
 } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 
 import * as debugActions from './../../actions/debug';
 import * as fromWizard from './../../reducers';
@@ -68,7 +68,7 @@ export class WizardConsoleComponent implements OnInit {
     private _store: Store<fromWizard.State>) { }
 
   ngOnInit(): void {
-    this._store.select(fromWizard.getDebugConsoleSelectedTab).subscribe(selectedTab =>
+    this._store.pipe(select(fromWizard.getDebugConsoleSelectedTab)).subscribe(selectedTab =>
       this.selectedOption = this.options.find(option => option.id === selectedTab));
   }
 

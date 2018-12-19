@@ -1,0 +1,27 @@
+<div class="position-tools">
+  <div class="zoom-tools">
+    <button menu-action class="button button-toolbar zoom-in" spTitle="Zoom in" (click)="onZoomIn.emit()" id="zoom-in-button">
+      <i class="icon-zoom-in"></i>
+    </button>
+    <menu-options-list topPosition="10" rightPosition="-60">
+      <div class="percent">
+        {{(currentZoom * 100) | number:'1.0-0'}}%
+      </div>
+      <div class="zoom-tools__menu" menu-content>
+        <ul class="zoom-tools__menu-options">
+          <li (click)="onZoomIn.emit()">Zoom in<span class="icon icon-plus"></span></li>
+          <li (click)="onZoomOut.emit()">Zoom out<span class="icon icon-minus"></span></li>
+        </ul>
+        <ul>
+          <li (click)="onCenter.emit()">Zoom to fit<span class="icon">⇧ 1</span></li>
+          <li (click)="setZoom.emit(0.5)">50%</li>
+          <li (click)="setZoom.emit(1)">100%<span class="icon">⇧ 0</span></li>
+          <li (click)="setZoom.emit(2)">200%</li>
+        </ul>
+      </div>
+    </menu-options-list>
+    <button menu-action class="button button-toolbar zoom-out" spTitle="Zoom out" (click)="onZoomOut.emit()" id="zoom-out-button">
+      <i class="icon-zoom-out"></i>
+    </button>
+  </div>
+</div>

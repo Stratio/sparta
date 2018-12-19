@@ -17,14 +17,15 @@
     [isEdgeSelected]="selectedEdge && selectedEdge.origin"
     [isPipelinesNodeSelected]="isPipelinesNodeSelected"
     [multiselectionMode]="multiselectionMode"
+    [currentZoom]="editorPosition"
     [workflowData]="workflowData"
-    (onZoomOut)="editorRef.changeZoom(false)"
-    (onZoomIn)="editorRef.changeZoom(true)"
+    (onZoomOut)="editorRef.changeZoom(editorPosition.k * 0.8)"
+    (onZoomIn)="editorRef.changeZoom(editorPosition.k * 1.2)"
     (onCenter)="editorRef.centerWorkflow()"
+    (setZoom)="editorRef.changeZoom($event)"
     (onSaveWorkflow)="saveWorkflow($event)"
     (onEditEntity)="editButtonEntity()"
     (onEditPipelinesEntity)="editButtonPipelinesEntity()"
-    (onDuplicateNode)="duplicateNode()"
     (deleteSelection)="deleteSelection()">
   </wizard-header>
   <div class="editor" #editorArea>
@@ -35,19 +36,23 @@
       [selectedNodeNames]="selectedNodeNames"
       [editorPosition]="editorPosition"
       [multiselectionMode]="multiselectionMode"
+      [disableDrag]="multiselectionMode"
       [selectedEdge]="selectedEdge"
       [debugResult]="debugResult"
       (setEditorDirty)="setEditorDirty()"
       (createNode)="createNode($event)"
       (editEntity)="editEntity($event)"
+      (selectNodes)="selectNodes($event)"
       (selectNode)="selectNode($event)"
       (onCreateEdge)="createEdge($event)"
       (selectEdge)="selectEdge($event)"
+      (editorPositionChange)="editorPositionChange($event)"
       (showEdgeOptions)="showEdgeOptions($event)"
       (deselectEntityCreation)="deselectEntityCreation()"></wizard-editor>
   </div>
   <sparta-sidebar
     showScrollBar="true"
+    [darkBorder]="true"
     [isVisible]="isShowedEntityDetails$ | async"
     class="wizard-sidebar"
     (onCloseSidebar)="closeSideBar()">

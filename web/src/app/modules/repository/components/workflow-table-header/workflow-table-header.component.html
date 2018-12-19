@@ -1,2 +1,42 @@
-<workflow-breadcrumb class="breadcrumb" (changeFolder)="changeFolder.emit($event)" [levelOptions]="levelOptions"></workflow-breadcrumb>
-<st-search class="search-form" [value]="searchValue" (search)="onSearch.emit($event.text)"></st-search>
+<div class="subheader1">
+  <st-search class="subheader1__search" [value]="searchValue" (search)="onSearch.emit($event.text)"></st-search>
+  <div class="subheader1__buttons">
+    <div class="selection-actions">
+      <div class="button options-button"
+          id="new-execution"
+          [attr.disabled]="blockRunButton ? '' : null"
+          *ngIf="selectedVersionsInner.length && selectedVersionsInner.length === 1 && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
+          <div class="button-options"><!--
+              --><i class="primary-option icon-play" (click)="!blockRunButton && simpleRun()"></i><!--
+              --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="!blockRunButton && selectedExecution($event)">
+                  <div class="options">
+                      <i class="icon-arrow4_down"></i>
+                  </div>
+              </menu-options-list><!--
+          --></div>
+      </div>
+      <button class="button button-toolbar"
+          spTitle="Download selected version"
+          id="download-button"
+          (click)="downloadWorkflows.emit()"
+          *ngIf="selectedVersionsInner.length && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
+          <i class="icon-download"></i>
+      </button>
+      <button class="button button-toolbar"
+          id="delete-button"
+          spTitle="Delete selection"
+          (click)="deleteWorkflowConfirmModal()"
+          *ngIf="selectedVersionsInner.length || selectedGroupsListInner.length || selectedWorkflowsInner.length">
+          <i class="icon-trash"></i>
+      </button>
+      <menu-options-list topPosition="7" rightPosition="2" *ngIf="!versionsListMode" [options]="menuOptions" class="create-options" (selectedOption)="selectedMenuOption($event)">
+        <button class="button button-primary" id="create-entity-button" spTitle="Create workflow / group">New</button>
+      </menu-options-list>
+    </div>
+  </div>
+  <div class="clear"></div>
+</div>
+<div class="subheader2">
+  <workflow-breadcrumb class="subheader2__breadcrumb" (changeFolder)="changeFolder.emit($event)" [levelOptions]="levelOptions"></workflow-breadcrumb>
+  <div class="clear"></div>
+</div>

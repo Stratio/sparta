@@ -113,8 +113,7 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SET_MULTISELECTION_MODE: {
       return {
         ...state,
-        multiselectionMode: !state.multiselectionMode,
-        selectedEntities: !state.multiselectionMode ? state.selectedEntities : []
+        multiselectionMode: action.active,
       };
     }
     case wizardActions.SELECT_ENTITY: {
@@ -132,6 +131,12 @@ export function reducer(state: State = initialState, action: any): State {
         ...state,
         selectedEntities: selected,
         isPipelineEdition: action.isPipelinesEdition
+      };
+    }
+    case wizardActions.SELECT_MULTIPLE_STEPS: {
+      return {
+        ...state,
+        selectedEntities: [...state.selectedEntities, ...action.stepNames].filter((item, pos, arr) => arr.indexOf(item) === pos)
       };
     }
     case wizardActions.UNSELECT_ENTITY: {
@@ -488,6 +493,20 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         debugFile: action.payload
+      };
+    }
+    case wizardActions.PASTE_NODES_COMPLETE: {
+      return {
+        ...state,
+        nodes: [
+          ...state.nodes,
+          ...action.payload.nodes
+        ],
+        edges: [
+          ...state.edges,
+          ...action.payload.edges
+        ],
+        selectedEntities: action.payload.nodes.map(pastedNodes => pastedNodes.name)
       };
     }
     default:

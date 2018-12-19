@@ -7,8 +7,8 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/
 import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Store, select } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import { TemplatesBaseComponent } from './templates-base.component';
 import { BreadcrumbMenuService } from 'services';
@@ -27,14 +27,14 @@ export class OutputsComponent extends TemplatesBaseComponent {
 
     ngOnInit() {
         super.ngOnInit();
-        this.loaded$ = this.store.select(fromTemplates.isOutputsLoaded);
+        this.loaded$ = this.store.pipe(select(fromTemplates.isOutputsLoaded));
 
-        this.templateListSubscription = this.store.select(fromTemplates.getOutputList).subscribe((data: any) => {
+        this.templateListSubscription = this.store.pipe(select(fromTemplates.getOutputList)).subscribe((data: any) => {
             this.templateList = data;
             this._cd.markForCheck();
         });
-        this.selectedDisplayOption$ = this.store.select(fromTemplates.getSelectedOutputDisplayOption);
-        this.selectedTemplatesSubscription = this.store.select(fromTemplates.getSelectedOutputs).subscribe((data: any) => {
+        this.selectedDisplayOption$ = this.store.pipe(select(fromTemplates.getSelectedOutputDisplayOption));
+        this.selectedTemplatesSubscription = this.store.pipe(select(fromTemplates.getSelectedOutputs)).subscribe((data: any) => {
             this.selectedTemplates = data;
             this._cd.markForCheck();
         });
@@ -94,7 +94,7 @@ export class OutputsComponent extends TemplatesBaseComponent {
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_OUTPUT';
         const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_OUTPUT_MESSAGE_TITLE';
         const noItemsMessage = 'TEMPLATES.OUTPUTS.NO_ITEMS';
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, 
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle,
         deleteTemplateModalMessageTitle, noItemsMessage]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];

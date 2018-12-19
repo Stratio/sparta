@@ -16,7 +16,7 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 
 import { Observable, Subject } from 'rxjs';
@@ -34,11 +34,12 @@ import {
   WizardEdgeNodes,
   EdgeOption
 } from '@app/wizard/models/node';
-import { KEYS } from '@app/wizard/wizard.constants';
 import { ZoomTransform } from '@app/wizard/models/drag';
-import { WorkflowData } from '@app/wizard/wizard.models';
+import { WorkflowData } from '@app/wizard/models/data';
 import { WizardEditorComponent } from './wizard-editor/wizard-editor.component';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+
+import { takeUntil, take } from 'rxjs/operators';
 
 @Component({
   selector: 'wizard-editor-container',
@@ -81,16 +82,46 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   @ViewChild('editorArea') editorArea: ElementRef;
   @HostListener('document:keydown', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
-    if (this.hiddenContent) {
+    if (!(event.ctrlKey || event.metaKey) && this.hiddenContent) {
       return;
     }
-    if (event.keyCode === KEYS.ESC_KEYCODE) {
-      if (this.selectedNodeNames.length) {
-        this._store.dispatch(new wizardActions.UnselectEntityAction());
+
+    switch (event.keyCode) {
+      /** ESC */
+      case 27: {
+        if (this.selectedNodeNames.length) {
+          this._store.dispatch(new wizardActions.UnselectEntityAction());
+        }
+        this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+        break;
       }
-      this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
-    } else if (event.keyCode === KEYS.SUPR_KEYCODE) {
-      this.deleteSelection();
+      /** SUPR */
+      case 46: {
+        this.deleteSelection();
+        break;
+      }
+      /**  CTRL + C */
+      case 67: {
+        // save current workflow positions in the store and dispatch copy action on the next tick
+        this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
+        this._store.dispatch(new wizardActions.SaveEditorPosition(this.editorRef.editorPosition));
+        setTimeout(() => this._store.dispatch(new wizardActions.CopyNodesAction()));
+        break;
+      }
+      /** CTRL +  V */
+      case 86: {
+        // save current workflow positions in the store and dispatch copy action on the next tick
+        this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
+        this._store.dispatch(new wizardActions.SaveEditorPosition(this.editorRef.editorPosition));
+        setTimeout(() => this._store.dispatch(new wizardActions.PasteNodesAction()));
+        break;
+      }
+      /** SHIFT */
+      case 16: {
+        this._store.dispatch(new wizardActions.SetMultiselectionModeAction(true));
+        document.addEventListener('keyup', this._onkeyUp);
+        break;
+      }
     }
   }
 
@@ -116,46 +147,47 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     private _el: ElementRef,
     private store: Store<fromRoot.State>
   ) {
+    this._onkeyUp = this._onkeyUp.bind(this);
     this.isMobile = isMobile;
   }
 
   ngOnInit(): void {
     this.editorRef = this.editor.getEditorRef();
-    this.creationMode$ = this._store.select(fromWizard.isCreationMode);
+    this.creationMode$ = this._store.pipe(select(fromWizard.isCreationMode));
     this._store
-      .select(fromWizard.getSelectedEntityData)
-      .takeUntil(this._componentDestroyed)
+      .pipe(select(fromWizard.getSelectedEntityData))
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe(nodeModel => {
         this.selectedNodeModel = nodeModel;
         this._cd.markForCheck();
       });
-    this.isShowedEntityDetails$ = this._store.select(
+    this.isShowedEntityDetails$ = this._store.pipe(select(
       fromWizard.isShowedEntityDetails
-    );
+    ));
     this._store
       .select(fromWizard.getSelectedEntities)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(names => {
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((names: Array<string>) => {
         this.selectedNodeNames = names;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.getConsoleDebugEntityData)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe(debugData => {
         this.consoleDebugData = debugData;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.getWorkflowPosition)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(position => {
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((position: ZoomTransform) => {
         this.editorPosition = position;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.getWorkflowNodes)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe((data: Array<any>) => {
         this.workflowNodes = data;
         this._store.dispatch(new wizardActions.ValidateWorkflowAction());
@@ -163,7 +195,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       });
     this._store
       .select(fromWizard.getWorkflowEdges)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe((data: Array<WizardEdgeNodes>) => {
         this.workflowEdges = data;
         this._cd.markForCheck();
@@ -171,21 +203,21 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       });
     this._store
       .select(fromWizard.getSelectedRelation)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe((edge: WizardEdge) => {
         this.selectedEdge = edge;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.getServerStepValidation)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe((serverStepValidations: any) => {
         this.serverStepValidations = serverStepValidations;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.showDebugConsole)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe((showDebugConsole: any) => {
         this.showDebugConsole = showDebugConsole;
         this._cd.markForCheck();
@@ -193,8 +225,8 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
     this._store
       .select(fromWizard.getDebugResult)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(debugResult => {
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((debugResult: any) => {
         this.genericError =
           debugResult && debugResult.genericError
             ? debugResult.genericError
@@ -203,7 +235,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       });
     this._store
       .select(fromWizard.getEdgeOptions)
-      .takeUntil(this._componentDestroyed)
+      .pipe(takeUntil(this._componentDestroyed))
       .subscribe((edgeOptions: any) => {
         if (
           this.edgeOptions &&
@@ -225,27 +257,27 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       });
     this._store
       .select(fromWizard.isWorkflowDebugging)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(isDebugging => {
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((isDebugging: boolean) => {
         this.isWorkflowDebugging = isDebugging;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.getMultiselectionMode)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(mode => {
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((mode: boolean) => {
         this.multiselectionMode = mode;
         this._cd.markForCheck();
       });
     this._store
       .select(fromWizard.getDebugResult)
-      .takeUntil(this._componentDestroyed)
-      .subscribe(debugResult => {
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((debugResult: any) => {
         this.debugResult =
           debugResult && debugResult.steps ? debugResult.steps : {};
         this._cd.markForCheck();
       });
-    this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
+    this.showForbiddenError$ = this.store.pipe(select(fromRoot.showPersistentError));
   }
 
   deleteSelection() {
@@ -264,6 +296,10 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         new wizardActions.DeleteNodeRelationAction(this.selectedEdge)
       );
     }
+  }
+
+  editorPositionChange(position) {
+    this.editorPosition = position;
   }
 
   selectNode(entity: WizardNode) {
@@ -313,7 +349,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         messageTitle: 'Are you sure?',
         message: modalMessage
       })
-      .take(1)
+      .pipe(take(1))
       .subscribe((response: any) => {
         if (response === 1) {
           this._modalService.close();
@@ -399,25 +435,16 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     this._store.dispatch(new wizardActions.ShowEdgeOptionsAction(event));
   }
 
-  duplicateNode(): void {
-    if (this.selectedNodeNames.length) {
-      const data = _cloneDeep(
-        this.workflowNodes.find(
-          (node: any) => node.name === this.selectedNodeNames[this.selectedNodeNames.length - 1]
-        )
-      );
-      data.name = this._initializeStepService.getNewEntityName(
-        data.name,
-        this.workflowNodes
-      );
-      const newEntity: any = {
-        type: 'copy',
-        data: data
-      };
-      this._store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
-    }
+  selectNodes(event: Array<string>) {
+    this._store.dispatch(new wizardActions.SelectMultipleStepsAction(event));
   }
 
+  private _onkeyUp(evnt: any) {
+    if (evnt.keyCode === 16) {
+      document.removeEventListener('keyup', this._onkeyUp);
+      this._store.dispatch(new wizardActions.SetMultiselectionModeAction(false));
+    }
+  }
   ngOnDestroy(): void {
     this.store.dispatch(new errorsActions.ChangeRouteAction());
     this._componentDestroyed.next();

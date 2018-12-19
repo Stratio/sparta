@@ -1,4 +1,9 @@
 @import '~@stratio/egeo/theme/constants';
+
+:host {
+  margin-top: 70px;
+  display: block;
+}
 .menu-filters {
    vertical-align: top;
    display: inline-block;

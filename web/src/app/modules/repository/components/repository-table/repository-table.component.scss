@@ -37,7 +37,6 @@
         cursor: pointer;
         .show-options {
             color: $neutral-13;
-            font-weight: bold;
         }
         .group-name {
             color: $action-primary-default;
@@ -68,10 +67,6 @@
 .workflow-arrow{
     font-size:0.8rem;
     margin-left:0.3em;
-}
-
-.workflow-versions td:first-child{
-    padding-left:40px;
 }
 
 .spark-link {
@@ -130,6 +125,8 @@
 
 .show-options {
     padding: 6px 5px;
+    color: transparent;
+    font-size: 22px;
 }
 .workflow-row, .group-row {
 

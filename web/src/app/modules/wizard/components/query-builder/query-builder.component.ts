@@ -6,15 +6,13 @@
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, Input } from '@angular/core';
 import { InputSchema, OutputSchemaField, SelectedInputFieldsNames, SelectedInputFields, Path, ContainerPositions, JoinSchema, OrderBy, Join } from './models/SchemaFields';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil, debounceTime } from 'rxjs/operators';
 
 import { Store } from '@ngrx/store';
 
-import { isEqual as _isEqual } from 'lodash';
 import * as fromQueryBuilder from './reducers';
 import * as queryBuilderActions from './actions/queryBuilder';
-import { combineLatest } from 'rxjs';
 
 
 @Component({
@@ -92,7 +90,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initStore();
     this._store.select(fromQueryBuilder.getSelectedFields)
-      .takeUntil(this._subscriptionSubject)
+      .pipe(takeUntil(this._subscriptionSubject))
       .subscribe(selectedFields => {
         this.selectedInputFields = selectedFields;
         const selectedInputFieldsNames = {};
@@ -106,7 +104,7 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
 
 
     this._store.select(fromQueryBuilder.getRelationPathVisibility)
-      .takeUntil(this._subscriptionSubject)
+      .pipe(takeUntil(this._subscriptionSubject))
       .subscribe((visibility: boolean) => {
         setTimeout(() => {
           this.pathsVisible = visibility;
@@ -118,16 +116,16 @@ export class QueryBuilderComponent implements OnInit, OnDestroy {
       this.outputSchemaPositionSubject = new Subject<any>();
 
       this._store.select(fromQueryBuilder.getOutputSchemaFields)
-        .takeUntil(this._subscriptionSubject)
+        .pipe(takeUntil(this._subscriptionSubject))
         .subscribe((outputSchemaFields) => {
           this.outputSchemaFields = outputSchemaFields;
           this.getArrowCoordinates();
           this._cd.markForCheck();
         });
     const subjects = [];
-    this.inputSchemasPositionSubjects.forEach(subject => subjects.push(subject.debounceTime(0)));
+    this.inputSchemasPositionSubjects.forEach(subject => subjects.push(subject.pipe(debounceTime(0))));
     combineLatest(subjects)
-      .takeUntil(this._subscriptionSubject)
+      .pipe(takeUntil(this._subscriptionSubject))
       .subscribe(value => {
         this.schemaPositions = value;
         this.getArrowCoordinates();

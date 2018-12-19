@@ -6,7 +6,7 @@
 
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { GlobalParam } from '@app/settings/parameter-group/models/globalParam';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import * as fromParameters from '../../reducers';
 import * as alertParametersActions from '../../actions/alert';
 import * as customParametersActions from '../../actions/custom';
@@ -48,7 +48,7 @@ export class CustomParametersComponent implements OnInit {
    constructor(private _store: Store<fromParameters.State>, private _cd: ChangeDetectorRef) {}
 
    ngOnInit(): void {
-      this._store.select(fromParameters.showAlert).subscribe(alert => {
+      this._store.pipe(select(fromParameters.showAlert)).subscribe(alert => {
          this.showAlert = !!alert;
          if (alert) {
             this.alertMessage = alert;

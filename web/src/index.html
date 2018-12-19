@@ -2,95 +2,34 @@
 <html>
 
 <head>
-   <base href="/">
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="shortcut icon" type="image/png" href="assets/images/favicon.png">
-   <title>Stratio Sparta</title>
-   <style>
-      .sp-loading {
-         position: fixed;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         background: #eee;
-      }
+  <base href="/">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/png" href="assets/images/favicon.png">
+  <title>Stratio Sparta</title>
+  <style>
+    .st-spinner {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-top: -25px;
+      margin-left: -25px;
+    }
 
-      .sp-loading-advice {
-         top: 50%;
-         display: none;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         position: fixed;
-      }
-
-      .sp-loading-message {
-         margin-left: 5px;
-      }
-
-      .sp-loading-animation.sp-three-bounce .sp-child {
-         width: 20px;
-         height: 20px;
-         background-color: #37b5e4;
-         border-radius: 100%;
-         display: inline-block;
-         -webkit-animation: sp-three-bounce 1.4s ease-in-out 0s infinite both;
-         animation: sp-three-bounce 1.4s ease-in-out 0s infinite both;
-      }
-
-      .sp-loading-animation.sp-three-bounce .sp-bounce1 {
-         -webkit-animation-delay: -0.32s;
-         animation-delay: -0.32s;
-      }
-
-      .sp-loading-animation.sp-three-bounce .sp-bounce2 {
-         -webkit-animation-delay: -0.16s;
-         animation-delay: -0.16s;
-      }
-
-      @-webkit-keyframes sp-three-bounce {
-         0%,
-         80%,
-         100% {
-            -webkit-transform: scale(0);
-            transform: scale(0);
-         }
-         40% {
-            -webkit-transform: scale(1);
-            transform: scale(1);
-         }
-      }
-
-      @keyframes sp-three-bounce {
-         0%,
-         80%,
-         100% {
-            -webkit-transform: scale(0);
-            transform: scale(0);
-         }
-         40% {
-            -webkit-transform: scale(1);
-            transform: scale(1);
-         }
-      }
-
-   </style>
+  </style>
 </head>
 
 <body>
-   <st-app>
-      <div class="sp-loading">
-         <div class="sp-loading-advice">
-            <div class="sp-loading-animation sp-three-bounce">
-               <div class="sp-child sp-bounce1"></div>
-               <div class="sp-child sp-bounce2"></div>
-               <div class="sp-child sp-bounce3"></div>
-            </div>
-         </div>
-      </div>
-   </st-app>
+  <st-app>
+    <div class="st-spinner">
+      <svg class="circular" viewBox="25 25 50 50" width="100%" height="100%">
+        <circle class="path path--primary" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
+      </svg>
+    </div>
+  </st-app>
 </body>
 
 </html>

@@ -5,9 +5,8 @@
  */
 
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs/Subscription';
-import { Observable } from 'rxjs/Observable';
+import { Store, select } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs';
 import { StTableHeader } from '@stratio/egeo';
 
 import * as fromCrossdata from './../../reducers';
@@ -63,8 +62,9 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.isLoadingQuery$ = this.store.select(fromCrossdata.isLoadingQuery);
-        this.queryResultSubscription = this.store.select(fromCrossdata.getQueryResult).subscribe((result: any) => {
+        this.isLoadingQuery$ = this.store.pipe(select(fromCrossdata.isLoadingQuery));
+        this.queryResultSubscription = this.store.pipe(select(fromCrossdata.getQueryResult))
+          .subscribe((result: any) => {
             if (result) {
                 this.showResult = true;
             }
@@ -84,7 +84,7 @@ export class CrossdataQueries implements OnInit, OnDestroy {
             this._cd.markForCheck();
         });
 
-        this.queryErrorSubscription = this.store.select(fromCrossdata.getQueryError).subscribe((error: any) => {
+        this.queryErrorSubscription = this.store.pipe(select(fromCrossdata.getQueryError)).subscribe((error: any) => {
             this.queryError = error;
             this._cd.markForCheck();
         });

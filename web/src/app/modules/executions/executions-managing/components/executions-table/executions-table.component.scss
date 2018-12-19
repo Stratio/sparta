@@ -5,125 +5,172 @@
       background-color: $action-secondary-02;
    }
 }
-.execution-link {
-   display: inline-block;
-   cursor: pointer;
-   &:hover {
-      color: $action-secondary-07;
-      text-decoration: underline;
-   }
-}
 
-.execution-table {
-   display: block;
-   tr:hover {
-      cursor: pointer;
-   }
-
-   td {
-    padding:16px 20px;
-   }
-   st-checkbox{
-       pointer-events: none;
-   }
-}
-
-.icon-row {
-    margin-right: 8px;
-    margin-top: 1px;
-    width: 20px;
-    float: left;
-}
-
-.spark-link {
-   max-width: 10px;
-   padding-left: 0;
-   padding-right: 30px;
-   i {
-      color: $action-primary-default;
-      font-size: 20px;
-    margin-left: -15px;
-      line-height: 9px;
-   }
-}
-
-.tag-column {
-   label {
-      display: inline-block;
-      span {
-         max-width: 100px;
-         overflow: hidden;
-         text-overflow: ellipsis;
-         white-space: nowrap;
-         display: inline-block;
-      }
-   }
-}
-
-st-pagination {
-   display: block;
-}
-
-hr {
-   height: 1px;
-   background: $neutral-05;
-   margin: 24px 0;
-}
-
-.oval {
-   width: 12px;
-   height: 12px;
-   margin-right: 4px;
-   background-color: $status-success-default;
-   border-radius: 50%;
-   display: inline-block;
-   &.Stopped {
-   background-color: $neutral-06;
-   }
-   &.Failed {
-      background-color: $status-critical-default;
-   }
-}
-
-.status-field {
-   font-family: $egeo-nunito-sans-semiBold;
-   color: $neutral-11;
-   min-width: 80px;
-   display: block;
-}
-
-.starting-spinner {
-    width: 16px;
+  #executions-managing-table-element {
+  .execution-link {
     display: inline-block;
-    margin-top: -2px;
-    margin-left: -4px;
-    float: left;
-    margin-right: 4px;
-}
+    cursor: pointer;
+    &:hover {
+        color: $action-secondary-07;
+        text-decoration: underline;
+    }
+  }
 
-.all-executions button{
-   margin: 0 auto;
-   display: block;
-}
+  .execution-table {
+    display: block;
+    tr:hover {
+        cursor: pointer;
+    }
 
-.execution-group {
-    color: $action-secondary-05;
-    font-size: 14px;
-    line-height: 7px;
-    margin-top: 5px;
-    padding-left: 28px;
-}
+    td {
+      padding:16px 20px;
+      st-checkbox{
+        pointer-events: none;
+      }
+    }
 
-hr {
+  }
+
+  .icon-row {
+      margin-right: 8px;
+      margin-top: 1px;
+      width: 20px;
+      float: left;
+  }
+
+  .spark-link {
+    max-width: 10px;
+    padding-left: 0;
+    padding-right: 30px;
+    i {
+        color: $neutral-10;
+        font-size: 20px;
+        margin-left: -15px;
+        line-height: 9px;
+    }
+  }
+
+  .tag-column {
+    label {
+        display: inline-block;
+        span {
+          max-width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: inline-block;
+        }
+    }
+  }
+
+  st-pagination {
+    display: block;
+  }
+
+  hr {
     height: 1px;
-    background: #dedede;
+    background: $neutral-05;
     margin: 24px 0;
-}
+  }
 
-.empty-table {
+  .oval {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+    background-color: $status-success-default;
+    border-radius: 50%;
+    display: inline-block;
+    &.Stopped {
+    background-color: $neutral-06;
+    }
+    &.Failed {
+        background-color: $status-critical-default;
+    }
+  }
+
+  .status-field {
+    font-family: $egeo-nunito-sans-semiBold;
+    color: $neutral-11;
+    min-width: 80px;
+    display: block;
+  }
+
+  .starting-spinner {
+      width: 16px;
+      display: inline-block;
+      margin-top: -2px;
+      margin-left: -4px;
+      float: left;
+      margin-right: 4px;
+  }
+
+  .all-executions button{
+    margin: 0 auto;
+    display: block;
+  }
+
+  .execution-group {
+      color: $action-secondary-05;
+      font-size: 14px;
+      line-height: 7px;
+      margin-top: 5px;
+      padding-left: 28px;
+  }
+
+  hr {
+      height: 1px;
+      background: #dedede;
+      margin: 24px 0;
+  }
+
+  .empty-table {
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      font-size: 15px;
+      color: #555555;
+  }
+
+  /*tr {
+    display: flex;
+    td, th {
+      flex: 1;
+    }
+    th:nth-child(1), td:nth-child(1) {
+      width: 45px !important;
+      padding: 0px !important;
+      flex: none;
+      st-checkbox {
+        padding: 16px 12px;
+        display: block;
+      }
+    }
+    th:nth-child(2), td:nth-child(2) {
+      flex: 2;
+    }
+
+    th:last-child, td:last-child {
+      flex: none;
+      width: 20px!important;
+    }
+  }
+
+  tbody {
+    tr {
+      padding: 0 15px;
+      width: 100%;
+      box-sizing: content-box;
+    }
+  }
+  thead {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
-    text-align: center;
-    padding: 10px;
-    font-size: 15px;
-    color: #555555;
+    padding: 0 15px;
+    max-width: 1200px;
+    top: 150px;
+    width: 100%;
+    z-index: 100;
+  }*/
 }

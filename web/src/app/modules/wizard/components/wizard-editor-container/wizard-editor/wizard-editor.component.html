@@ -2,10 +2,13 @@
     class="editor-component"
     [editorPosition]="editorPosition"
     [creationMode]="creationMode"
+    [disableDrag]="disableDrag"
     [connectorPosition]="drawingConnectionStatus.initPosition"
     (setEditorDirty)="setEditorDirty.emit()"
     (deselectNode)="deselectEntityCreation.emit()"
+    (mousedown)="createSelector($event)"
     (createNode)="createNode.emit($event)"
+    (editorPositionChange)="editorPositionChange.emit($event)"
     (removeConnector)="removeConnector()">
 
     <svg:g wizard-edge
@@ -25,7 +28,9 @@
       (setEditorDirty)="setEditorDirty.emit()"
       (onClickEvent)="selectNode.emit(nodeData)">
         <svg:g wizard-node
+          #wnode
           [data]="nodeData"
+          [attr.node-name]="nodeData.name"
           [createdNew]="nodeData.createdNew"
           [debugResult]="debugResult && debugResult[nodeData.name] ? debugResult[nodeData.name] : {}"
           [serverStepValidation]="serverStepValidations[nodeData.name]"
@@ -34,4 +39,10 @@
           (onDrawConnector)="createEdge($event)"
           (onFinishConnector)="finishConnector($event)"></svg:g>
       </svg:g>
+      <svg:g parent-container>
+        <svg:g wizard-selector *ngIf="initialSelectionCoors"
+          [(position)]="initialSelectionCoors"
+          (finishSelection)="onFinishSelection($event)"></svg:g>
+      </svg:g>
+
   </graph-editor>

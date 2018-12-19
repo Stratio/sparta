@@ -8,10 +8,7 @@ import { Location } from '@angular/common';
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild, ViewContainerRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/distinctUntilChanged';
+import { Store, select } from '@ngrx/store';
 
 import { StModalService } from '@stratio/egeo';
 
@@ -23,8 +20,9 @@ import { WizardModalComponent } from './../../wizard-modal/wizard-modal.componen
 import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.model';
 import { Observable, Subject } from 'rxjs';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-import { WorkflowData } from '@app/wizard/wizard.models';
+import { WorkflowData } from '@app/wizard/models/data';
 
 @Component({
    selector: 'wizard-header',
@@ -39,15 +37,16 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
    @Input() isWorkflowDebugging: boolean;
    @Input() workflowData: WorkflowData;
    @Input() multiselectionMode: boolean;
+   @Input() currentZoom: any = {};
 
    @Output() onZoomIn = new EventEmitter();
    @Output() onZoomOut = new EventEmitter();
    @Output() onCenter = new EventEmitter();
+   @Output() setZoom = new EventEmitter<number>();
    @Output() onDelete = new EventEmitter();
    @Output() onSaveWorkflow = new EventEmitter<boolean>();
    @Output() onEditEntity = new EventEmitter();
    @Output() deleteSelection = new EventEmitter();
-   @Output() onDuplicateNode = new EventEmitter();
    @Output() onEditPipelinesEntity = new EventEmitter();
 
    @ViewChild('nameForm') public nameForm: NgForm;
@@ -86,39 +85,40 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       private _location: Location) { }
 
    ngOnInit(): void {
-      this.isShowedEntityDetails$ = this._store.select(fromWizard.isShowedEntityDetails).distinctUntilChanged();
-      this.isLoading$ = this._store.select(fromWizard.isLoading);
+      this.isShowedEntityDetails$ = this._store.pipe(select(fromWizard.isShowedEntityDetails))
+        .pipe(distinctUntilChanged());
+      this.isLoading$ = this._store.pipe(select(fromWizard.isLoading));
 
-      this._store.select(fromWizard.areUndoRedoEnabled)
-         .takeUntil(this._componentDestroyed)
+      this._store.pipe(select(fromWizard.areUndoRedoEnabled))
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((actions: any) => {
             this.undoEnabled = actions.undo;
             this.redoEnabled = actions.redo;
             this._cd.markForCheck();
          });
 
-      this._store.select(fromWizard.getValidationErrors)
-         .takeUntil(this._componentDestroyed)
+      this._store.pipe(select(fromWizard.getValidationErrors))
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((validations: any) => {
             this.validations = validations;
             this._cd.markForCheck();
          });
 
-      this._store.select(fromWizard.isPristine).distinctUntilChanged()
-         .takeUntil(this._componentDestroyed)
+      this._store.pipe(select(fromWizard.isPristine)).pipe(distinctUntilChanged())
+         .pipe(takeUntil(this._componentDestroyed))
          .subscribe((isPristine: boolean) => {
             this.isPristine = isPristine;
             this._cd.markForCheck();
          });
 
-      this._store.select(fromWizard.getDebugResult)
-         .takeUntil(this._componentDestroyed)
-         .subscribe(debugResult => {
+      this._store.pipe(select(fromWizard.getDebugResult))
+         .pipe(takeUntil(this._componentDestroyed))
+         .subscribe((debugResult: any) => {
             this.genericError = debugResult && debugResult.genericError ? debugResult.genericError : null;
             this._cd.markForCheck();
          });
 
-      this.menuOptions$ = this._store.select(fromWizard.getMenuOptions);
+      this.menuOptions$ = this._store.pipe(select(fromWizard.getMenuOptions));
    }
 
    selectedMenuOption($event: any): void {
@@ -143,10 +143,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
    showGlobalErrors() {
       this._store.dispatch(new wizardActions.ShowGlobalErrorsAction());
-   }
-
-   multiSelect() {
-     this._store.dispatch(new wizardActions.SetMultiselectionModeAction());
    }
 
    selectedDebug(event) {

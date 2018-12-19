@@ -28,9 +28,13 @@ const selectedDraggableElements = new Map();
 @Directive({ selector: '[draggable-element]' })
 export class DraggableElementDirective implements AfterContentInit, OnInit, OnDestroy {
 
+  /** Set the draggable element position */
   @Input() position: DraggableElementPosition;
+  /** Drag multiple selected elements simultaneously */
   @Input() multiDrag: boolean;
-
+  /** Set readonly mode */
+  @Input() readonlyMode: boolean;
+  /** Set element as selected */
   @Input() get selected() {
     return this._selected;
   }
@@ -48,15 +52,14 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   @Output() onDoubleClickEvent = new EventEmitter();
   @Output() setEditorDirty = new EventEmitter();
 
-  private clicks = 0;
-  private element: d3.Selection<any>;
-  private lastUpdateCall: number;
+  private _clicks = 0;
+  private _element: d3.Selection<any>;
+  private _lastUpdateCall: number;
 
   private _selected: boolean;
 
   constructor(private elementRef: ElementRef<SVGElement>, private _ngZone: NgZone) {
-    this.element = d3Select(this.elementRef.nativeElement);
-    this._onDrag = this._onDrag.bind(this);
+    this._element = d3Select(this.elementRef.nativeElement);
   }
 
   /** lifecycle methods */
@@ -66,15 +69,16 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
 
   ngAfterContentInit() {
     this._ngZone.runOutsideAngular(() => {
-      this.element
-        .on('click', this._onClick.bind(this))
-        .call(d3Drag()
-          .on('drag', this._onDrag)
+      this._element.on('click', this._onClick.bind(this));
+      if (!this.readonlyMode) {
+        this._element.call(d3Drag()
+          .on('drag', this._onDrag.bind(this))
           .on('start', () => {
             d3Event.sourceEvent.stopPropagation();
             this.setEditorDirty.emit();
             document.body.classList.add('dragging');
           }).on('end', () => document.body.classList.remove('dragging')));
+      }
     });
   }
 
@@ -102,32 +106,32 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
       x: this.position.x + event.dx,
       y: this.position.y + event.dy
     };
-    if (this.lastUpdateCall) {
-      cancelAnimationFrame(this.lastUpdateCall);
-      this.lastUpdateCall = null;
+    if (this._lastUpdateCall) {
+      cancelAnimationFrame(this._lastUpdateCall);
+      this._lastUpdateCall = null;
     }
     this._ngZone.run(() => {
       this.positionChange.emit(this.position);
     });
-    this.lastUpdateCall = requestAnimationFrame(this._setPosition.bind(this));
+    this._lastUpdateCall = requestAnimationFrame(this._setPosition.bind(this));
   }
 
   private _setPosition() {
     const value = `translate(${this.position.x},${this.position.y})`;
-    this.element.attr('transform', value);
+    this._element.attr('transform', value);
   }
 
   private _onClick() {
     d3Event.stopPropagation();
     this._ngZone.run(() => {
-      this.clicks++;
-      if (this.clicks === 1) {
+      this._clicks++;
+      if (this._clicks === 1) {
         this.onClickEvent.emit();
         setTimeout(() => {
-          if (this.clicks !== 1) {
+          if (this._clicks !== 1) {
             this.onDoubleClickEvent.emit();
           }
-          this.clicks = 0;
+          this._clicks = 0;
         }, 200);
       }
     });

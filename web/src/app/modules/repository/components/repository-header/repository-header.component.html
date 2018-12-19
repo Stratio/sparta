@@ -13,50 +13,15 @@
       <st-breadcrumbs [options]="levelOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="repository-breadcrumb"></st-breadcrumbs>
    </div>
    <div selection-tools>
-    <st-foreground-notifications *ngIf="notificationMessage" 
-        [status]="notificationMessage.status" 
+    <st-foreground-notifications *ngIf="notificationMessage"
+        [status]="notificationMessage.status"
         [text]="('DASHBOARD.' + notificationMessage.text) | translate"
         (visibleChange)="changeNotificationVisibility($event)"
         [autoCloseTime]="notificationMessage.autoCloseTime"
         [visible]="notificationMessage.visible"></st-foreground-notifications>
    </div>
    <div general-tools>
-      <div class="selection-actions">
-        <div class="button options-button"
-            id="new-execution"
-            [attr.disabled]="blockRunButton ? '' : null"
-            *ngIf="selectedVersionsInner.length && selectedVersionsInner.length === 1 && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
-            <div class="button-options"><!--
-                --><i class="primary-option icon-play" (click)="!blockRunButton && simpleRun()"></i><!--
-                --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="!blockRunButton && selectedExecution($event)">
-                    <div class="options">
-                        <i class="icon-arrow4_down"></i>
-                    </div>
-                </menu-options-list><!--
-            --></div>
-        </div>
-            
-         <button class="button button-toolbar"
-            spTitle="Download selected version"
-            id="download-button" 
-            (click)="downloadWorkflows.emit()" 
-            *ngIf="selectedVersionsInner.length && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
-            <i class="icon-download"></i>
-        </button>
-         <button class="button button-toolbar" 
-            id="delete-button"
-            spTitle="Delete selection"
-            (click)="deleteWorkflowConfirmModal()"
-            *ngIf="selectedVersionsInner.length || selectedGroupsListInner.length || selectedWorkflowsInner.length">
-            <i class="icon-trash"></i>
-        </button>
-      </div>
       <div class="general-tools">
-        <menu-options-list topPosition="7" rightPosition="-50" *ngIf="!versionsListMode" [options]="menuOptions" class="show-options" (selectedOption)="selectedMenuOption($event)">
-            <button class="button button-toolbar" id="create-entity-button" spTitle="Create workflow / group">
-                <i class="icon-plus"></i>
-            </button>
-        </menu-options-list>
          <button spTitle="Show info sidebar" class="button button-toolbar" id="info-button" (click)="showWorkflowInfo.emit()" [ngClass]="{'selected-button': showDetails}">
            <i class="icon-info1"></i>
          </button>

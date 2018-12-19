@@ -82,10 +82,12 @@ export function reducer(state: State = initialState, action: any): State {
 
       }
       case executionActions.SELECT_EXECUTIONS_ACTION: {
-         const { execution: { id } } = action;
          return {
             ...state,
-            selectedExecutionsIds: [id, ...state.selectedExecutionsIds]
+            selectedExecutionsIds: [
+              action.execution.id,
+              ...state.selectedExecutionsIds
+            ]
          };
       }
       case executionActions.DESELECT_EXECUTIONS_ACTION: {

@@ -16,7 +16,9 @@ import {
   EventEmitter,
   ChangeDetectorRef
 } from '@angular/core';
-import { WorkflowData } from '@app/wizard/wizard.models';
+import { take } from 'rxjs/operators';
+
+import { WorkflowData } from '@app/wizard/models/data';
 import { EditionConfigMode, WizardEdge, WizardNode } from '@app/wizard/models/node';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
@@ -65,7 +67,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
   @Output() savePipelinesWorkflow = new EventEmitter<any>();
 
-  @ViewChild('wizardPipelinesModal', {read: ViewContainerRef}) target: any;
+  @ViewChild('wizardPipelinesModal', { read: ViewContainerRef }) target: any;
   @ViewChild(GraphEditorComponent) editor: GraphEditorComponent;
 
   private _connectorOrigin = '';
@@ -74,7 +76,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     private _modalService: StModalService,
     private _cd: ChangeDetectorRef,
     private _initializeStepService: InitializeStepService,
-    private _nodeHelpers: NodeHelpersService) {}
+    private _nodeHelpers: NodeHelpersService) { }
 
   ngOnInit(): void {
     this.nodeDataEdited = _cloneDeep(this.nodeData);
@@ -195,12 +197,14 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
   weDuplicateNode(): void {
     if (this.selectedNode) {
+      const names = this.nodes.map(wNode => wNode.name);
+
       this.creationMode = {
         active: true,
         data: {
           data: {
             ...this.nodes.find(node => node.name === this.selectedNode),
-            name: this._initializeStepService.getNewEntityName(this.selectedNode, this.nodes)
+            name: this._initializeStepService.getNewStepName(this.selectedNode, names)
           },
           type: 'copy'
         }
@@ -251,7 +255,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       maxWidth: 500,
       messageTitle: 'Are you sure?',
       message: modalMessage,
-    }).take(1).subscribe((response: any) => {
+    }).pipe(take(1)).subscribe((response: any) => {
       if (response === 1) {
         this._modalService.close();
       } else if (response === 0) {
@@ -282,9 +286,9 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     } else {
       /**  get the initial model value and validation errors */
       entity = this._initializeStepService.initializeEntity(
-          this.workflowData.type,
-          entityData,
-          this.nodes
+        this.workflowData.type,
+        entityData,
+        this.nodes
       );
     }
     entity.uiConfiguration = {
@@ -305,7 +309,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   }
 
   weCloseEdition() {
-    this.editedNode =  null;
+    this.editedNode = null;
   }
 
   saveEdition(event) {
@@ -355,8 +359,8 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   drawEdge(edgeEvent) {
     this._connectorOrigin = edgeEvent.name;
     this.connectorInitPosition = {
-        x: edgeEvent.event.clientX,
-        y: edgeEvent.event.clientY
+      x: edgeEvent.event.clientX,
+      y: edgeEvent.event.clientY
     };
     this.drawingConnectionStatus = {
       status: true,
@@ -372,15 +376,15 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
   onCreateEdge(destinationEntity: any) {
     if (!this._connectorOrigin.length) {
-       return;
+      return;
     }
     const edge: WizardEdge = {
-       origin: this._connectorOrigin,
-       destination: destinationEntity.name
+      origin: this._connectorOrigin,
+      destination: destinationEntity.name
     };
 
-    const existsOrigin = _filter(this.edges, {origin: edge.origin});
-    const existsDestination = _filter(this.edges, {destination: edge.destination});
+    const existsOrigin = _filter(this.edges, { origin: edge.origin });
+    const existsDestination = _filter(this.edges, { destination: edge.destination });
     if (!existsOrigin.length && !existsDestination.length) {
       this.edges = [...this.edges, edge];
       this.isDirtyEditor = true;

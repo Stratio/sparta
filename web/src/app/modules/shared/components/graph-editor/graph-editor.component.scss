@@ -1,11 +1,14 @@
+:host {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .composition {
   width: 100%;
   height: 100%;
   user-select: none;
-  position: absolute;
   background: url('../../../../../assets/images/workflow-base.png') 11px 8px;
-  top: 0;
-  left: 0;
 }
 
 .connector-line {

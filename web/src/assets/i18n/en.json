@@ -90,7 +90,7 @@
       "RENAME_INPUT_PLACEHOLDER": "Current name",
       "RENAME_WORKFLOW_INPUT_LABEL": "Workflow name",
       "RENAME_GROUP_INPUT_LABEL": "Folder name",
-      "WORKFLOW_INFO": "Select a workflow to view its details",
+      "WORKFLOW_INFO": "Select a workflow or folder to view its details",
       "EXECUTION_INFO": "Select a execution to view its details",
       "NODE_INFO": "Select a node to view its details",
       "WORKFLOW_JSON": "Paste or upload json workflow definition",

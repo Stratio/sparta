@@ -8,7 +8,7 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { forkJoin, Observable, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, catchError } from 'rxjs/operators';
 
 import * as fromWizard from './../reducers';
 import * as externalDataActions from './../actions/externalData';
@@ -25,7 +25,7 @@ export class ExternalDataEffect {
          this._parametersService.getGlobalParameters()
       ])
       .pipe(map((response) => new externalDataActions.GetParamsListCompleteAction(response)))
-      .catch(error => of(new externalDataActions.GetParamsListErrorAction()))));
+      .pipe(catchError(error => of(new externalDataActions.GetParamsListErrorAction())))));
 
    constructor(
       private _actions$: Actions,
@@ -33,7 +33,5 @@ export class ExternalDataEffect {
       private _environmentService: EnvironmentService,
       private _parametersService: ParametersService
    ) { }
-
-
 }
 

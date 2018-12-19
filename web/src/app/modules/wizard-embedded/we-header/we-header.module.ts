@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { WeHeaderComponent } from '@app/wizard-embedded/we-header/we-header.component';
 import { FloatingMenuModule } from '@app/shared/components/floating-menu/floating-menu.module';
+import { WizardPositionToolModule } from '@app/wizard/components/wizard-position-tool/wizard-position-tool.module';
 
 @NgModule({
   exports: [
@@ -21,7 +22,8 @@ import { FloatingMenuModule } from '@app/shared/components/floating-menu/floatin
   imports: [
     CommonModule,
     FloatingMenuModule,
-    TranslateModule
+    TranslateModule,
+    WizardPositionToolModule
   ]
 })
 

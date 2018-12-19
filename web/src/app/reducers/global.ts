@@ -16,22 +16,24 @@ const initialState: State = {
     userName: '',
     editFromMonitoring: false,
     xDSparkUi: '',
-    timeout: 20000
+    timeout: 20
 };
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case userActions.GET_USER_PROFILE_COMPLETE: {
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 userName: action.payload.userName,
                 xDSparkUi: action.payload.xDSparkUi,
                 timeout: action.payload.timeout
-            });
+            };
         }
         case userActions.SET_EDIT_MONITORING_MODE: {
-            return Object.assign({}, state, {
+            return {
+               ...state,
                 editFromMonitoring: action.payload
-            });
+            };
         }
         default:
             return state;

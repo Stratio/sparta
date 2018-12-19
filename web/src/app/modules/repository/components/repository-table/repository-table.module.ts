@@ -6,7 +6,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StTableModule, StModalService, StModalModule } from '@stratio/egeo';
+import { StCheckboxModule, StTableModule, StModalService, StModalModule } from '@stratio/egeo';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { RepositoryTableComponent } from './repository-table.component';
@@ -18,6 +18,7 @@ import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 
 import { MoveGroupModalModule } from './../move-group-modal/move-group.module';
+
 import { MoveGroupModalComponent } from './../move-group-modal/move-group.component';
 
 
@@ -36,6 +37,7 @@ import { MoveGroupModalComponent } from './../move-group-modal/move-group.compon
        StTableModule,
        TranslateModule,
        MoveGroupModalModule,
+       StCheckboxModule,
        WorkflowRenameModalModule,
        StModalModule.withComponents([MoveGroupModalComponent, WorkflowRenameModalComponent])
     ],

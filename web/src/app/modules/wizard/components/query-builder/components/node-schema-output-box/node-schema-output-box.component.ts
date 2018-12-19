@@ -12,11 +12,10 @@ import {
    EventEmitter,
    HostListener,
    Input,
-   OnInit,
    Output
 } from '@angular/core';
 import { OutputSchemaField, OrderBy } from '@app/wizard/components/query-builder/models/SchemaFields';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs/';
 import { Store } from '@ngrx/store';
 
 import * as fromQueryBuilder from './../../reducers';

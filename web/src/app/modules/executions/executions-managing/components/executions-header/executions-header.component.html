@@ -7,97 +7,78 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-
-<tool-bar>
+<div id="executions-managing-header-element">
+  <tool-bar class="tool-bar" [hideOnScroll]="true">
     <div breadcrumb>
-        <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="executions-breadcrumb"></st-breadcrumbs>
+      <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="executions-breadcrumb"></st-breadcrumbs>
     </div>
-</tool-bar>
-<div class="container" *ngIf="!emptyTable">
-
-    <div class="row tool-bar">
-        <div class="col-sm-4">
-            <div class="executions-filters">
-                <span class="item">
-                    <st-dropdown-menu [items]="statuses"
-                        [active]="showedFilter === 'status'"
-                        [selectedItem]="statusFilterItem"
-                        (change)="onChangeStatusFilter.emit($event.value)">
-                        <span (click)="selectFilter($event, 'status')">{{statusFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
-                    </st-dropdown-menu>
-                </span>
-                <span class="item">
-                    <st-dropdown-menu [items]="workflowTypes"
-                        [active]="showedFilter === 'type'"
-                        [selectedItem]="typeFilterItem"
-                        (change)="onChangeTypeFilter.emit($event.value)">
-                        <span (click)="selectFilter($event, 'type')">{{typeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
-                    </st-dropdown-menu>
-                </span>
-                <span class="item">
-                    <st-dropdown-menu *ngIf="!isArchivedPage" [items]="timeIntervals"
-                        [active]="showedFilter === 'time'"
-                        [selectedItem]="timeIntervalFilterItem"
-                        (change)="onChangeTimeIntervalFilter.emit($event.value)">
-                        <span (click)="selectFilter($event, 'time')">{{timeIntervalFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
-                    </st-dropdown-menu>
-                </span>
-            </div>
+    <div general-tools>
+      <button spTitle="Sidebar info" class="button button-toolbar" id="info-button" (click)="showExecutionInfo.emit()" [ngClass]="{'selected-button': showDetails}">
+      <i class="icon-info1"></i>
+    </button>
+    </div>
+  </tool-bar>
+  <div *ngIf="!emptyTable">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="executions-bar">
+          <h2 class="egeo-title-large title">Executions</h2>
+          <div class="executions-filters">
+            <span class="item">
+            <st-dropdown-menu [items]="statuses" [active]="showedFilter === 'status'" [selectedItem]="statusFilterItem"
+              (change)="onChangeStatusFilter.emit($event.value)">
+              <span (click)="selectFilter($event, 'status')">{{statusFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+            </st-dropdown-menu>
+            </span>
+            <span class="item">
+            <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'type'" [selectedItem]="typeFilterItem"
+              (change)="onChangeTypeFilter.emit($event.value)">
+              <span (click)="selectFilter($event, 'type')">{{typeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+            </st-dropdown-menu>
+            </span>
+            <span class="item">
+            <st-dropdown-menu *ngIf="!isArchivedPage" [items]="timeIntervals" [active]="showedFilter === 'time'"
+              [selectedItem]="timeIntervalFilterItem" (change)="onChangeTimeIntervalFilter.emit($event.value)">
+              <span (click)="selectFilter($event, 'time')">{{timeIntervalFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+            </st-dropdown-menu>
+            </span>
+          </div>
         </div>
-        <div class="col-sm-4">
+      </div>
+    </div>
+    <div class="dynamic-subheader" [ngClass]="{'fixed': fixSubHeaders}">
+      <div class="dynamic-container">
+        <div class="row executions-tools">
+          <div class="col-sm-12">
             <div class="executions-search">
-                <st-search [placeholder]="'Search...'" qaTag="search-execution" [debounce]="200" (search)="onSearch.emit($event.text)" [value]="searchQuery"></st-search>
+              <st-search [placeholder]="'Search...'" qaTag="search-execution" [debounce]="200" (search)="onSearch.emit($event.text)" [value]="searchQuery"></st-search>
             </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="global-actions">
-                <div class="selection-tools">
-                <button *ngIf="false"
-                    spTitle="Download selected execution"
-                    class="button button-toolbar"
-                    id="download-button"
-                    (click)="downloadExecutions.emit()">
-                  <i class="icon-trash"></i>
-               </button>
-                <button *ngIf="showArchiveButton"
-                    spTitle="Archive selected executions"
-                    class="button button-toolbar"
-                    id="archive-button"
-                    (click)="archiveExecutions.emit()">
-                  <i class="icon-inbox2"></i>
-               </button>
-                <button *ngIf="showUnarchiveButton"
-                    spTitle="Unarchive selected executions" class="button button-toolbar" id="unarchive-button" (click)="unarchiveExecutions.emit()">
-                  <i class="icon-outbox"></i>
-               </button>
-                <button *ngIf="false" spTitle="Run selected executions" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
-                  <i class="icon-play"></i>
-               </button>
-                <button *ngIf="showStopButton" spTitle="Stop selected executions" class="button button-toolbar"
-                    id="run-button" (click)="onStopExecution.emit()">
-                  <i class="icon-stop"></i>
-               </button>
-               <button *ngIf="selectedExecutions.length === 1 && !showStopButton" spTitle="Stop selected executions" class="button button-toolbar"
-                    id="run-button" (click)="onReRunExecution.emit(selectedExecutions[0])">
-                  <i class="icon-play"></i>
-               </button>
-                <button *ngIf="selectedExecutions.length === 1"
-                    spTitle="Delete selected execution"
-                    class="button button-toolbar"
-                    id="delete-button"
-                    (click)="onDeleteExecution.emit(selectedExecutions[0])">
-                        <i class="icon-trash"></i>
-                    </button>
-                    <div class="separator"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-1">
-            <div class="execution-info">
-                <button spTitle="Show info sidebar" class="button button-toolbar" id="info-button" (click)="showExecutionInfo.emit()" [ngClass]="{'selected-button': showDetails}">
-               <i class="icon-info1"></i>
+            <div class="executions-buttons">
+              <button *ngIf="false" spTitle="Download selected execution" class="button button-toolbar" id="download-button" (click)="downloadExecutions.emit()">
+              <i class="icon-trash"></i>
+            </button>
+              <button *ngIf="showArchiveButton" spTitle="Archive selected executions" class="button button-toolbar" id="archive-button"
+                (click)="archiveExecutions.emit()">
+              <i class="icon-inbox2"></i>
+            </button>
+              <button *ngIf="showUnarchiveButton" spTitle="Unarchive selected executions" class="button button-toolbar" id="unarchive-button"
+                (click)="unarchiveExecutions.emit()">
+              <i class="icon-outbox"></i>
+            </button>
+              <button *ngIf="false" spTitle="Run selected executions" class="button button-toolbar" id="run-button" (click)="onRunExecutions.emit(selectedExecutions[0])">
+              <i class="icon-play"></i>
+            </button>
+              <button *ngIf="showStopButton" spTitle="Stop selected executions" class="button button-toolbar" id="run-button" (click)="onStopExecution.emit()">
+              <i class="icon-stop"></i>
+            </button>
+              <button *ngIf="selectedExecutions.length === 1" spTitle="Delete selected execution" class="button button-toolbar" id="delete-button"
+                (click)="onDeleteExecution.emit(selectedExecutions[0])">
+              <i class="icon-trash"></i>
             </button>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>

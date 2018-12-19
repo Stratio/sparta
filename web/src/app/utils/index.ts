@@ -160,3 +160,20 @@ export function mergeNoDuplicatedArrays(array1: any[], array2: any[], keyName: s
    }
    return result;
 }
+
+/**
+ * Copy content into the clipboard
+ *
+ * @param content [String] String to copy into the clipboard
+ */
+export function copyIntoClipboard(content: string) {
+    try {
+      const copyText = document.createElement('textarea');
+      copyText.value = content;
+      copyText.style.opacity = '0';
+      const el = document.body.appendChild(copyText);
+      el.select();
+      document.execCommand('copy');
+      el.remove();
+    } catch (e) { }
+  }

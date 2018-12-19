@@ -10,7 +10,7 @@
 
 <div class="wizard-header">
   <div class="title-header">
-    <div class="container">
+    <div class="header-container workflow-title">
       <div class="row">
         <div class="col-sm-12">
           <div class="header-info" *ngIf="workflowData.name.length">
@@ -33,94 +33,69 @@
   </div>
   <div #wizardModal qaTag="wizard-modal"></div>
   <div class="tool-header">
-    <div class="container">
+    <div class="header-container">
       <div class="row">
         <div class="col-xs-6">
-          <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options"
-            (selectedOption)="selectedMenuOption($event)">
+          <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async"
+            class="show-options" (selectedOption)="selectedMenuOption($event)">
             <div id="create-node-menu" menu-action>
               <button class="button button-toolbar" spTitle="Create node">
-                  <i class="icon-plus"></i>
+                <i class="icon-plus"></i>
               </button>
             </div>
           </floating-menu>
-          <div class="position-tools">
-            <button menu-action class="button button-toolbar" spTitle="Zoom in" (click)="onZoomIn.emit()" id="zoom-in-button">
-              <i class="icon-zoom-in"></i>
-            </button>
-            <button menu-action class="button button-toolbar" spTitle="Zoom out" (click)="onZoomOut.emit()" id="zoom-out-button">
-              <i class="icon-zoom-out"></i>
-            </button>
-            <button menu-action class="button button-toolbar" spTitle="Center workflow" (click)="onCenter.emit()" id="center-button">
-              <i class="icon-move"></i>
-            </button>
-            <button menu-action [disabled]="!undoEnabled" spTitle="Undo action" class="undo-action button button-toolbar" (click)="undoAction()"
-              id="undo-button">
-              <i class="icon-reload2"></i>
-            </button>
-            <button menu-action [disabled]="!redoEnabled" spTitle="Redo action" class="button button-toolbar" (click)="redoAction()"
-              id="redo-button">
-              <i class="icon-reload"></i>
-            </button>
-          </div>
+          <!-- position tool-->
+          <wizard-position-tool class="position-tools"
+            [currentZoom]="currentZoom.k"
+            (onZoomIn)="onZoomIn.emit($event)"
+            (onZoomOut)="onZoomOut.emit($event)"
+            (onCenter)="onCenter.emit($event)"
+            (setZoom)="setZoom.emit($event)"></wizard-position-tool>
+          <button menu-action [disabled]="!undoEnabled" spTitle="Undo action" class="undo-action button button-toolbar"
+            (click)="undoAction()" id="undo-button">
+            <i class="icon-reload2"></i>
+          </button>
+          <button menu-action [disabled]="!redoEnabled" spTitle="Redo action" class="button button-toolbar" (click)="redoAction()"
+            id="redo-button">
+            <i class="icon-reload"></i>
+          </button>
         </div>
         <div class="col-xs-6">
-          <div style="float:left">
-            <button
-              *ngIf="isPipelinesNodeSelected"
-              id="edit-pipeline-node-button"
-              class="button button-toolbar"
-              spTitle="Settings"
-              (click)="onEditPipelinesEntity.emit()">
+          <div class="selection-buttons">
+            <button *ngIf="isPipelinesNodeSelected" id="edit-pipeline-node-button" class="button button-toolbar"
+              spTitle="Settings" (click)="onEditPipelinesEntity.emit()">
               <i class="icon-tool"></i>
             </button>
-            <button
-              class="button button-toolbar"
-              spTitle="Edit"
-              (click)="onEditEntity.emit()"
-              *ngIf="selectedNodeNumber > 0"
+            <button class="button button-toolbar" spTitle="Edit" (click)="onEditEntity.emit()" *ngIf="selectedNodeNumber > 0"
               id="edit-node-button">
               <i class="icon-edit"></i>
             </button>
-            <button
-              class="button button-toolbar"
-              spTitle="Duplicate"
-              (click)="onDuplicateNode.emit()"
-              *ngIf="selectedNodeNumber === 1"
-              id="copy-node-button">
-              <i class="icon-copy2"></i>
-            </button>
-            <button
-              class="button button-toolbar"
-              spTitle="Delete"
-              (click)="deleteSelection.emit()"
-              *ngIf="selectedNodeNumber > 0 || isEdgeSelected"
+            <button class="button button-toolbar" spTitle="Delete" (click)="deleteSelection.emit()" *ngIf="selectedNodeNumber > 0 || isEdgeSelected"
               id="delete-node-button">
               <i class="icon-trash"></i>
             </button>
-            <button
-            class="button button-toolbar"
-            spTitle="Multi selection"
-            [ngClass]="{'selected-button': multiselectionMode}"
-            (click)="multiSelect()"
-            id="multi-selection">
-            <i class="icon-group"></i>
-          </button>
           </div>
-          <div class="" style="float:right">
+          <div class="global-buttons">
             <div [attr.disabled]="isWorkflowDebugging ? '' : null" class="button multi-button" id="debug-mode">
-              <div class="button-options"><!--
-                  --><i (click)="!isWorkflowDebugging && debugWorkflow()" spTitle="Run debug mode" class="primary-option icon-debug"></i><!--
-                  --><menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions" (selectedOption)="!isWorkflowDebugging && selectedDebug($event)">
-                      <div class="options">
-                          <i class="icon-arrow4_down"></i>
-                      </div>
-                  </menu-options-list><!--
-              --></div>
-          </div>
+              <div class="button-options">
+                <!--
+                  --><i (click)="!isWorkflowDebugging && debugWorkflow()" spTitle="Run debug mode"
+                  class="primary-option icon-debug"></i>
+                <!--
+                  -->
+                <menu-options-list class="execution-options" topPosition="10" rightPosition="0" [options]="runOptions"
+                  (selectedOption)="!isWorkflowDebugging && selectedDebug($event)">
+                  <div class="options">
+                    <i class="icon-arrow4_down"></i>
+                  </div>
+                </menu-options-list>
+                <!--
+              -->
+              </div>
+            </div>
             <button spTitle="Show node info" [ngClass]="{'selected-button': isShowedEntityDetails$ | async, 'errors' : (!validations.valid && validations.messages && validations.messages.length) || genericError}"
               class="button button-toolbar" id="show-info-button" (click)="toggleEntityInfo()">
-                <i class="icon-info1"></i>
+              <i class="icon-info1"></i>
             </button>
             <button spTitle="Workflow configuration" class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
               <i class="icon-cog"></i>

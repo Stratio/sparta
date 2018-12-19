@@ -4,12 +4,13 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import {
-   ChangeDetectionStrategy,
-   ChangeDetectorRef,
-   Component,
-   EventEmitter,
-   Input,
-   Output
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ViewEncapsulation
 } from '@angular/core';
 import { StTableHeader, Order } from '@stratio/egeo';
 import { Router } from '@angular/router';
@@ -18,7 +19,8 @@ import { Router } from '@angular/router';
    selector: 'executions-managing-table',
    styleUrls: ['executions-table.component.scss'],
    templateUrl: 'executions-table.component.html',
-   changeDetection: ChangeDetectionStrategy.OnPush
+   changeDetection: ChangeDetectionStrategy.OnPush,
+   encapsulation: ViewEncapsulation.None
 })
 
 export class ExecutionTableComponent {

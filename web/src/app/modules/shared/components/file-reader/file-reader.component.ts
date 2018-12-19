@@ -7,32 +7,32 @@ import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
-    selector: 'file-reader',
-    templateUrl: './file-reader.template.html',
-    styleUrls: ['./file-reader.styles.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'file-reader',
+  templateUrl: './file-reader.template.html',
+  styleUrls: ['./file-reader.styles.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FileReaderComponent implements OnInit {
 
-    @Input() text: String;
-    @Input() showFileName = false;
-    @Output() changedFile: EventEmitter<any> = new EventEmitter<any>();
+  @Input() text: String;
+  @Input() showFileName = false;
+  @Output() changedFile: EventEmitter<any> = new EventEmitter<any>();
 
-    public fileName = '';
+  public fileName = '';
 
-    public fileChangeEvent(fileInput: any): void {
-        if (fileInput.target.files && fileInput.target.files[0]) {
-            this.fileName = fileInput.target.files[0].name;
-            this._cd.markForCheck();
-            const reader = new FileReader();
-            reader.readAsText(fileInput.target.files[0], 'UTF-8');
-            reader.onload = (loadEvent: any) => {
-                this.changedFile.emit(loadEvent.target.result);
-            };
-        }
+  public fileChangeEvent(fileInput: any): void {
+    if (fileInput.target.files && fileInput.target.files[0]) {
+      this.fileName = fileInput.target.files[0].name;
+      this._cd.markForCheck();
+      const reader = new FileReader();
+      reader.readAsText(fileInput.target.files[0], 'UTF-8');
+      reader.onload = (loadEvent: any) => {
+        this.changedFile.emit(loadEvent.target.result);
+      };
     }
+  }
 
-    constructor(private _cd: ChangeDetectorRef) { }
+  constructor(private _cd: ChangeDetectorRef) { }
 
-    ngOnInit() { }
+  ngOnInit() { }
 }

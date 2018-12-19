@@ -5,7 +5,7 @@
  */
 
 import { createSelector } from 'reselect';
-import { ActionReducer, combineReducers, createFeatureSelector } from '@ngrx/store';
+import { createFeatureSelector } from '@ngrx/store';
 import { ActionReducerMap } from '@ngrx/store';
 
 import * as fromAlerts from './alerts';
@@ -20,13 +20,6 @@ export const reducers: ActionReducerMap<State> = {
     user: fromGlobal.reducer,
     alerts: fromAlerts.reducer,
 };
-
-// const developmentReducer: ActionReducer<State> = compose(combineReducers)(reducers);
-const productionReducer: ActionReducer<State> = combineReducers(reducers);
-
-export function reducer(state: any, action: any): any {
-    return productionReducer(state, action);
-}
 
 export const getUserState: any = (state: State) => state.user;
 export const getAlertsState: any = createFeatureSelector<fromAlerts.State>('alerts');

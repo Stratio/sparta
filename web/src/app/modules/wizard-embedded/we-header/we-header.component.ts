@@ -13,7 +13,7 @@ import {
   OnInit,
   Output
 } from '@angular/core';
-import { WorkflowData } from '@app/wizard/wizard.models';
+import { WorkflowData } from '@app/wizard/models/data';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from '@app/wizard/components/wizard-modal/wizard-modal.component';
 import { Router } from '@angular/router';
@@ -38,6 +38,7 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
   @Input() showDeleteButton: boolean;
   @Input() showEditAndCopyButton: boolean;
   @Input() isDirtyEditor: boolean;
+  @Input() currentZoom: number;
 
   @Input() dataSetOriginal: any;
   @Input() dataSetInEdition: any;
@@ -45,6 +46,7 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
   @Output() onSavePipelinesWorkflow = new EventEmitter<boolean>();
   @Output() selectedOption = new EventEmitter<any>();
   @Output() onZoomIn = new EventEmitter();
+  @Output() setZoom = new EventEmitter<number>();
   @Output() onZoomOut = new EventEmitter();
   @Output() onCenter = new EventEmitter();
   @Output() onEditButton = new EventEmitter();

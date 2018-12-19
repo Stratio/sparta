@@ -11,7 +11,6 @@ export * from './api/environment.service';
 export * from './api/templates.service';
 export * from './api/api.service';
 export * from './api/wizard.service';
-export * from './api/backup.service';
 export * from './api/resources.service';
 export * from './api/crossdata.service';
 export * from './api/parameters.service';

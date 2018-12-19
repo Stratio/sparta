@@ -17,6 +17,7 @@ import { EmptyTableBoxModule } from '@app/shared';
 
 import { ExecutionsMonitoringHeaderModule } from './components/executions-header/executions-header.module';
 import { ExecutionsMonitoringTableModule } from './components/executions-table/executions-table.module';
+import { ExecutionsChartModule } from './components/executions-chart/executions-chart.module';
 
 import { ExecutionsComponent } from './executions.component';
 import { ExecutionsRouterModule } from './executions.router';
@@ -30,6 +31,7 @@ import { ExecutionsRouterModule } from './executions.router';
         CommonModule,
         ExecutionsMonitoringHeaderModule,
         ExecutionsMonitoringTableModule,
+        ExecutionsChartModule,
         EmptyTableBoxModule,
         StoreModule.forFeature('executionsMonitoring', reducerToken),
         EffectsModule.forFeature([ExecutionsEffect]),

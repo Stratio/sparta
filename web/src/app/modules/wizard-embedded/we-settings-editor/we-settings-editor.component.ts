@@ -9,7 +9,7 @@ import { EditionConfigMode, WizardNode } from '@app/wizard/models/node';
 import { cloneDeep as _cloneDeep } from 'lodash';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import {ErrorMessagesService, InitializeSchemaService} from 'services';
-import {Store} from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import * as fromWizard from '@app/wizard/reducers';
 import { Subject } from 'rxjs';
 import * as wizardActions from '@app/wizard/actions/wizard';
@@ -64,7 +64,7 @@ export class WeSettingsEditorComponent implements OnInit, OnDestroy {
 
     this.helpOptions = this._initializeSchemaService.getHelpOptions(this.formTemplateSettings.properties);
 
-    this._store.select(fromWizard.getWorkflowNodes)
+    this._store.pipe(select(fromWizard.getWorkflowNodes))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe(nodes => {
         this._parentWorkflowNodes = nodes;

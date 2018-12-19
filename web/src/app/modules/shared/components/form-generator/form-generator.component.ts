@@ -6,7 +6,7 @@
 
 import {Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, OnDestroy, OnChanges} from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
    selector: 'form-generator',

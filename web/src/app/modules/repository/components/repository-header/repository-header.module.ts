@@ -13,9 +13,7 @@ import { StBreadcrumbsModule, StForegroundNotificationsModule } from '@stratio/e
 import { RepositoryHeaderContainer } from './repository-header.container';
 import { RepositoryHeaderComponent } from './repository-header.component';
 
-import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
-import { ToolBarModule } from '@app/shared/components/tool-bar/tool-bar.module';
-import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
+import { ToolBarModule, SpTitleModule } from '@app/shared';
 
 @NgModule({
    exports: [
@@ -28,7 +26,6 @@ import { SpTitleModule } from '@app/shared/components/sp-title/sp-title.module';
     ],
     imports: [
        CommonModule,
-       MenuOptionsListModule,
        StBreadcrumbsModule,
        StForegroundNotificationsModule,
        SpTitleModule,

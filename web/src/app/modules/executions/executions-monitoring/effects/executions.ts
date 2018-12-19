@@ -5,8 +5,8 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Effect, Actions } from '@ngrx/effects';
-import {  Store } from '@ngrx/store';
+import { Effect, Actions, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 
 import { Observable, timer, of } from 'rxjs';
 
@@ -15,30 +15,30 @@ import * as fromRoot from '../reducers';
 import { ExecutionService } from 'services/execution.service';
 
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
-import { switchMap, takeUntil, concatMap } from 'rxjs/operators';
+import { catchError, concatMap, switchMap, takeUntil, map } from 'rxjs/operators';
 
 
 @Injectable()
 export class ExecutionsEffect {
 
-   @Effect()
-   getExecutionsList$: Observable<any> = this.actions$
-      .ofType(executionsActions.LIST_EXECUTIONS)
-      .pipe(switchMap(() => timer(0, 5000)
-         .pipe(takeUntil(this.actions$.ofType(executionsActions.CANCEL_EXECUTION_POLLING)))
-         .pipe(concatMap(() => this._executionService.getDashboardExecutions()
-            .map(executions => {
-               return new executionsActions.ListExecutionsCompleteAction({
-             executionsSummary: executions.executionsSummary,
-             executionList: executions.lastExecutions.map(execution =>
-                this._executionHelperService.normalizeExecution(execution))
-         });
-        }).catch(err => of(new executionsActions.ListExecutionsFailAction()))))));
+  @Effect()
+  getExecutionsList$: Observable<any> = this.actions$
+    .pipe(ofType(executionsActions.LIST_EXECUTIONS))
+    .pipe(switchMap(() => timer(0, 5000)
+      .pipe(takeUntil(this.actions$.pipe(ofType(executionsActions.CANCEL_EXECUTION_POLLING))))
+      .pipe(concatMap(() => this._executionService.getDashboardExecutions()
+        .pipe(map((executions: any) => {
+          return new executionsActions.ListExecutionsCompleteAction({
+            executionsSummary: executions.executionsSummary,
+            executionList: executions.lastExecutions.map(execution =>
+              this._executionHelperService.normalizeExecution(execution))
+          });
+        })).pipe(catchError(err => of(new executionsActions.ListExecutionsFailAction())))))));
 
-   constructor(
-      private actions$: Actions,
-      private _executionHelperService: ExecutionHelperService,
-      private store: Store<fromRoot.State>,
-      private _executionService: ExecutionService
-   ) { }
+  constructor(
+    private actions$: Actions,
+    private _executionHelperService: ExecutionHelperService,
+    private store: Store<fromRoot.State>,
+    private _executionService: ExecutionService
+  ) { }
 }

@@ -7,8 +7,9 @@ import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/
 import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Store, select } from '@ngrx/store';
+
+import { Observable } from 'rxjs';
 
 import * as fromTemplates from './../../reducers';
 import * as inputActions from './../../actions/input';
@@ -28,15 +29,15 @@ export class InputsComponent extends TemplatesBaseComponent {
 
     ngOnInit() {
         super.ngOnInit();
-        this.templateListSubscription = this.store.select(fromTemplates.getInputList).subscribe((data: any) => {
+        this.templateListSubscription = this.store.pipe(select(fromTemplates.getInputList)).subscribe((data: any) => {
             this.templateList = data;
             this._cd.markForCheck();
         });
-        this.loaded$ = this.store.select(fromTemplates.isInputsLoaded);
+        this.loaded$ = this.store.pipe(select(fromTemplates.isInputsLoaded));
 
-        this.selectedDisplayOption$ = this.store.select(fromTemplates.getSelectedInputDisplayOption);
+        this.selectedDisplayOption$ = this.store.pipe(select(fromTemplates.getSelectedInputDisplayOption));
 
-        this.selectedTemplatesSubscription = this.store.select(fromTemplates.getSelectedInputs).subscribe((data: any) => {
+        this.selectedTemplatesSubscription = this.store.pipe(select(fromTemplates.getSelectedInputs)).subscribe((data: any) => {
             this.selectedTemplates = data;
             this._cd.markForCheck();
         });

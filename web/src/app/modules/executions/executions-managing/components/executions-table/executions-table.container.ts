@@ -3,8 +3,8 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { Store, select } from '@ngrx/store';
 import { StModalService, Order } from '@stratio/egeo';
 
 import { State } from './../../reducers';
@@ -45,10 +45,10 @@ export class ExecutionsTableContainer implements OnInit {
    constructor(private _store: Store<State>, private _modalService: StModalService) { }
 
    ngOnInit(): void {
-     this.pageNumber$ = this._store.select(fromRoot.getCurrentPage);
-     this.perPage$ = this._store.select(fromRoot.getPerPageElements);
-     this.total$ = this._store.select(fromRoot.getTotalElements);
-     this.allSelectedStates$ = this._store.select(fromRoot.getAllSelectedStates);
+     this.pageNumber$ = this._store.pipe(select(fromRoot.getCurrentPage));
+     this.perPage$ = this._store.pipe(select(fromRoot.getPerPageElements));
+     this.total$ = this._store.pipe(select(fromRoot.getTotalElements));
+     this.allSelectedStates$ = this._store.pipe(select(fromRoot.getAllSelectedStates));
     }
 
    selectExecution(execution: any) {

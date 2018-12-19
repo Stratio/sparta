@@ -6,7 +6,7 @@
 import { OnDestroy } from '@angular/core/core';
 import { Component, OnInit, Input, ChangeDetectorRef, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { StInputError } from '@stratio/egeo';
 import { ErrorMessagesService } from 'services';
 

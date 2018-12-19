@@ -69,6 +69,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
     this._initialEntityName = this.edge.origin.name;
     this._finalEntityName = this.edge.destination.name;
     this._supportedDataRelations = this.edge.origin.supportedDataRelations;
+    this._dataType = this.edge.dataType;
     const container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
 
     this._svgAuxDefs = container.append('defs')

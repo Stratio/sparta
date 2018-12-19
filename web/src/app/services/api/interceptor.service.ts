@@ -15,18 +15,19 @@ import {
 } from '@angular/common/http';
 import { Store } from '@ngrx/store';
 
-import 'rxjs/add/operator/do';
 import { Observable } from 'rxjs';
 
 import * as errorsActions from 'actions/errors';
 import * as fromRoot from 'reducers';
+
+import { tap } from 'rxjs/operators';
 
 
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
     constructor(private store: Store<fromRoot.State>) { }
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        return next.handle(request).do((event: HttpEvent<any>) => {
+        return next.handle(request).pipe(tap((event: HttpEvent<any>) => {
             if (event instanceof HttpResponse) {
 
             }
@@ -36,6 +37,6 @@ export class ApiInterceptor implements HttpInterceptor {
                     this.store.dispatch(new errorsActions.ForbiddenErrorAction(''));
                 }
             }
-        });
+        }));
     }
 };

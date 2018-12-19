@@ -7,11 +7,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { StProgressBarModule } from '@stratio/egeo';
+import { StProgressBarModule, StDropdownMenuModule } from '@stratio/egeo';
 import { WizardHeaderComponent } from './wizard-header.component';
 
-import { FloatingMenuModule } from '@app/shared/components/floating-menu/floating-menu.module';
-import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';
+import { WizardPositionToolModule } from '@app/wizard/components/wizard-position-tool/wizard-position-tool.module';
+import { SpTitleModule, FloatingMenuModule, MenuOptionsListModule } from '@app/shared';
 
 
 @NgModule({
@@ -26,7 +26,9 @@ import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/
     FloatingMenuModule,
     MenuOptionsListModule,
     StProgressBarModule,
-    TranslateModule
+    SpTitleModule,
+    TranslateModule,
+    WizardPositionToolModule
   ]
 })
 

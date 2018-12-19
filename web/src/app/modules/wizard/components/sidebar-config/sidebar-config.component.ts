@@ -23,12 +23,10 @@ import { StHorizontalTab } from '@stratio/egeo';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class SidebarConfigComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+export class SidebarConfigComponent implements OnInit,  OnChanges {
   @Input() isVisible = true;
   @Input() nodeData: any;
   @Input() showCrossdataCatalog: boolean;
-  @Input() rightReference: string;
-  @Input() topReference: string;
 
   @Output() toggleSidebar = new EventEmitter();
 
@@ -50,9 +48,7 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnChanges,
   private _nodeContainer: Element;
   private _nodeContainerTop: Element;
 
-  constructor(private _cd: ChangeDetectorRef) {
-    this._fn = this._calculatePosition.bind(this);
-  }
+  constructor(private _cd: ChangeDetectorRef) { }
 
   changeFormOption(event) {
     this.selectedOption = event.id;
@@ -69,32 +65,4 @@ export class SidebarConfigComponent implements OnInit, AfterViewInit, OnChanges,
         this.nodeData;
     }
   }
-
-  ngAfterViewInit(): void {
-    if (this.rightReference) {
-      this._nodeContainer = document.getElementById(this.rightReference);
-    }
-    if (this.topReference) {
-      this._nodeContainerTop = document.getElementById(this.topReference);
-    }
-    this._fn();
-    window.addEventListener('resize', this._fn);
-  }
-
-  ngOnDestroy(): void {
-    window.removeEventListener('resize', this._fn);
-  }
-
-  private _calculatePosition() {
-    if (this.rightReference) {
-      const rect = this._nodeContainer.getBoundingClientRect();
-      this.sidebarPosition = window.innerWidth - rect.right;
-    }
-    if (this.topReference) {
-      const topReference = this._nodeContainerTop.getBoundingClientRect();
-      this.sidebarTopPosition = topReference.top + topReference.height;
-    }
-    this._cd.markForCheck();
-  }
-
 }

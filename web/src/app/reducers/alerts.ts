@@ -3,7 +3,6 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import * as backupsActions from './../modules/settings/backups/actions/backups';
 import * as inputActions from './../modules/templates/actions/input';
 import * as outputActions from './../modules/templates/actions/output';
 import * as transformationActions from './../modules/templates/actions/transformation';
@@ -113,51 +112,6 @@ export function reducer(state: State = initialState, action: any): State {
                type: STALERT_SEVERITY.SUCCESS,
                title: 'SUCCESS',
                description: 'UPDATE_OUTPUT_DESCRIPTION'
-            }]
-         });
-      }
-      case backupsActions.EXECUTE_BACKUP_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'EXECUTE_BACKUP_DESCRIPTION'
-            }]
-         });
-      }
-      case backupsActions.UPLOAD_BACKUP_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'UPLOAD_BACKUP_DESCRIPTION'
-            }]
-         });
-      }
-      case backupsActions.GENERATE_BACKUP_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'GENERATE_BACKUP_DESCRIPTION'
-            }]
-         });
-      }
-      case backupsActions.DELETE_BACKUP_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'DELETE_BACKUP_DESCRIPTION'
-            }]
-         });
-      }
-      case backupsActions.DELETE_METADATA_COMPLETE: {
-         return Object.assign({}, state, {
-            currentAlert: [{
-               type: STALERT_SEVERITY.SUCCESS,
-               title: 'SUCCESS',
-               description: 'DELETE_METADATA_DESCRIPTION'
             }]
          });
       }

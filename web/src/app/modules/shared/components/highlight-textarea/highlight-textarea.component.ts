@@ -19,7 +19,8 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+
 import * as CodeMirror from 'codemirror/lib/codemirror';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/sql/sql';
@@ -96,7 +97,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   private sub: Subscription;
   private pristine = true;
   private valueChangeSub: Subscription;
-  private isPristine = true;
 
   constructor(private _cd: ChangeDetectorRef, private elementRef: ElementRef, private renderer: Renderer) { }
 

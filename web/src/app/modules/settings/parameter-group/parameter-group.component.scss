@@ -10,7 +10,11 @@
  */
 
  @import '~@stratio/egeo/theme/constants';
- 
+
+.parameters-container {
+  margin-top: 70px;
+}
+
 .tab-container {
     width: 100%;
     margin-top: 2em;

@@ -6,10 +6,10 @@
 
 import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StDropDownMenuItem } from '@stratio/egeo';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 import * as transformationActions from './../../actions/transformation';
 import * as fromTemplates from './../../reducers';
@@ -58,7 +58,7 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
             };
         });
 
-        this.saveSubscription = this.store.select(fromTemplates.isTransformationSaved).subscribe((isSaved) => {
+        this.saveSubscription = this.store.pipe(select(fromTemplates.isTransformationSaved)).subscribe((isSaved) => {
             if (isSaved) {
                 this.route.navigate(['templates', 'transformations']);
             }
@@ -97,7 +97,7 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
 
     getEditedTemplate(templateId: string) {
         this.store.dispatch(new transformationActions.GetEditedTransformationAction(templateId));
-        this.selectedSubscription = this.store.select(fromTemplates.getEditedTransformation).subscribe((editedTransformation: any) => {
+        this.selectedSubscription = this.store.pipe(select(fromTemplates.getEditedTransformation)).subscribe((editedTransformation: any) => {
             if (!editedTransformation.id) {
                 return;
             }

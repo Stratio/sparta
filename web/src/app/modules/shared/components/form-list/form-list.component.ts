@@ -17,7 +17,7 @@ import {
 import {
    ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
 } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 import { ErrorMessagesService } from 'app/services';
 
@@ -123,7 +123,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
       }
    }
 
-   //create empty item
+   // create empty item
    createItem(): FormGroup {
       return this.formBuilder.group(this.item);
    }

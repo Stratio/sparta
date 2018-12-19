@@ -19,7 +19,7 @@ import {
     templateUrl: './menu-options-list.component.html',
     styleUrls: ['./menu-options-list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-        host: {
+    host: {
         '(document:click)': 'onClick($event)'
     }
 })

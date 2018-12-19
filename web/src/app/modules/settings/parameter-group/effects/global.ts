@@ -8,7 +8,7 @@ import { Observable, of, from } from 'rxjs';
 import { withLatestFrom, switchMap, mergeMap, map, catchError } from 'rxjs/operators';
 
 import { Injectable } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 
 import * as fromParameters from './../reducers';
@@ -35,7 +35,7 @@ export class GlobalParametersEffect {
    saveGlobals$: Observable<any> = this._actions$
       .pipe(ofType(globalParametersActions.SAVE_GLOBAL_PARAMS))
       .pipe(map((action: any) => action.payload))
-      .pipe(withLatestFrom(this._store.select(state => state.parameterGroup.global)))
+      .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.parameterGroup.global))))
       .pipe(switchMap(([param, state]) => {
          const { allVariables } = state;
          const { name: oldName, value: { name, value } } = param;

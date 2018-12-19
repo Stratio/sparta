@@ -10,21 +10,21 @@ import { ValidateSchemaService } from '@app/wizard/services/validate-schema.serv
 @Injectable()
 export class InitializeStepService {
 
-  getNewEntityName(entityType: string, entities: Array<any>, index: number = 0): string {
+  getNewStepName(entityType: string, entities: Array<string>, index: number = 0): string {
     let name = entityType;
     if (index > 0) {
       name += '_' + index;
     }
     let valid = true;
     entities.forEach((ent: any) => {
-      if (ent.name === name) {
+      if (ent === name) {
         valid = false;
       }
     });
 
     if (!valid) {
       index++;
-      return this.getNewEntityName(entityType, entities, index);
+      return this.getNewStepName(entityType, entities, index);
     } else {
       return name;
     }
@@ -32,16 +32,18 @@ export class InitializeStepService {
 
   initializeEntity(workflowType: string, entityData: any, entities: any): any {
     let entity: any = {};
+    const names = entities.map(wNode => wNode.name);
+
     if (entityData.type === 'template') {
       entity = this.initializeSchemaService.setTemplateEntityModel(entityData.data);
       // outputs havent got writer
       if (entityData.stepType !== 'Output') {
         entity.writer = this.initializeSchemaService.getDefaultWriterModel();
       }
-      entity.name = this.getNewEntityName(entityData.data.name, entities);
+      entity.name = this.getNewStepName(entityData.data.name, names);
     } else {
       entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);
-      entity.name = this.getNewEntityName(entityData.value.name, entities);
+      entity.name = this.getNewStepName(entityData.value.name, names);
       // validation of the model
       const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
       if (errors && errors.length) {

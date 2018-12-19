@@ -8,7 +8,6 @@ import { Store } from '@ngrx/store';
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { cloneDeep as _cloneDeep } from 'lodash';
-import { Observable } from 'rxjs/Observable';
 import { StModalService, StModalResponse, StSearchModule } from '@stratio/egeo';
 import { of } from 'rxjs';
 

@@ -17,9 +17,8 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {ControlValueAccessor, Form, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validator} from '@angular/forms';
+import {ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validator} from '@angular/forms';
 
-import { StDropDownMenuGroup, StDropDownMenuItem } from '../st-dropdown-menu/st-dropdown-menu.interface';
 
 @Component({
   selector: 'ml-tag-input',
@@ -196,7 +195,7 @@ export class MlTagInputComponent implements ControlValueAccessor, Validator, OnI
           this.items.push(parsedValue);
         }
       }
-      setTimeout(this.onChange(this.items));
+      setTimeout(() => this.onChange(this.items));
       // this.formControl.setValue(this.items);
       this.isPristine = false;
       this._cd.markForCheck();

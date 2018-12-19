@@ -13,9 +13,8 @@ import {
    ViewChild,
    ViewContainerRef
 } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import { Store, select } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs';
 
 import * as fromRoot from './reducers';
 import * as pluginsActions from './actions/plugins';
@@ -60,14 +59,14 @@ export class PluginsComponent implements OnInit, OnDestroy {
    ngOnInit() {
       this._modalService.container = this.target;
       this.store.dispatch(new pluginsActions.ListPluginsAction());
-      this.pluginsListSubscription = this.store.select(fromRoot.getPluginsList).subscribe((pluginsList: any) => {
+      this.pluginsListSubscription = this.store.pipe(select(fromRoot.getPluginsList)).subscribe((pluginsList: any) => {
          this.pluginsList = pluginsList;
          this._cd.markForCheck();
       });
 
-      this.loaded$ = this.store.select(fromRoot.isLoaded);
+      this.loaded$ = this.store.pipe(select(fromRoot.isLoaded));
 
-      this.selectedPluginsSubscription = this.store.select(fromRoot.getSelectedPlugins).subscribe((selectedPlugins: Array<string>) => {
+      this.selectedPluginsSubscription = this.store.pipe(select(fromRoot.getSelectedPlugins)).subscribe((selectedPlugins: Array<string>) => {
          this.selectedPlugins = selectedPlugins;
          this._cd.markForCheck();
       });

@@ -35,15 +35,12 @@
           </button>
         </div>
       </floating-menu>
-      <button id="zoom-in-button" class="button button-toolbar" (click)="onZoomIn.emit()" spTitle="Zoom in">
-        <i class="icon-zoom-in"></i>
-      </button>
-      <button id="zoom-out-button" class="button button-toolbar" (click)="onZoomOut.emit()" spTitle="Zoom out">
-        <i class="icon-zoom-out"></i>
-      </button>
-      <button id="center-button" class="button button-toolbar" (click)="onCenter.emit()" spTitle="Center workflow">
-        <i class="icon-move"></i>
-      </button>
+      <wizard-position-tool class="we-header__position-tools"
+        [currentZoom]="currentZoom"
+        (onZoomIn)="onZoomIn.emit()"
+        (onZoomOut)="onZoomOut.emit()"
+        (onCenter)="onCenter.emit()"
+        (setZoom)="setZoom.emit($event)"></wizard-position-tool>
     </div>
     <div>
       <button

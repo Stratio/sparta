@@ -26,7 +26,6 @@ body {
     min-height: 100%;
 }
 
-
 body.dragging-console {
   pointer-events: none;
   -webkit-touch-callout: none;
@@ -72,13 +71,9 @@ button.selected-button {
 }
 
 st-table.custom-table {
-    tbody {
-        background: white;
-    }
-
-    .st-table__header{
-        background: transparent;
-    }
+  .st-table__header{
+      background: transparent;
+  }
 }
 
 
@@ -122,13 +117,48 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
 }
 
 .checkbox-table{
-    th:nth-child(1), td:nth-child(1)  {
+   td:nth-child(1) {
+      visibility: hidden;
+   }
+
+   td:nth-child(1) label{
+     pointer-events: none;
+   }
+    th:nth-child(1), th:nth-child(1) label, td:nth-child(1)  {
         width: 5px!important;
         padding-right: 0px!important;
+    }
+
+    .th:nth-child(2), th:nth-child(2) label, td:nth-child(2){
+      padding-left: 0!important;
+    }
+
+    tr:hover {
+      td:nth-child(1){
+        visibility: visible;
+      }
+    }
+
+    &.active-selection{
+      td:nth-child(1) {
+        visibility: visible;
+      }
     }
 }
 
 .parameter-dropdown .st-dropdown-menu {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
     border: none;
+}
+
+.toolbar-showed {
+  tool-bar {
+    .tool-bar{
+      transform: translateY(-75px);
+    }
+  }
+
+  sparta-sidebar {
+    transform: translateY(-75px);
+  }
 }

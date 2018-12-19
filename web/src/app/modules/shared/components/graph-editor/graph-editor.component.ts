@@ -20,7 +20,7 @@ import { event as d3Event } from 'd3-selection';
 import { zoom as d3Zoom } from 'd3-zoom';
 import { select as d3Select } from 'd3-selection';
 import { zoomIdentity } from 'd3-zoom';
-import { cloneDeep as _cloneDeep, isEqual as _isEqual } from 'lodash';
+import { cloneDeep as _cloneDeep } from 'lodash';
 import { WizardNode, WizardEdge } from '@app/wizard/models/node';
 import { ZoomTransform, CreationData, NodeConnector, DrawingConnectorStatus } from '@app/wizard/models/drag';
 
@@ -35,6 +35,21 @@ export class GraphEditorComponent implements OnInit {
 
   @Input() workflowID = '';
   @Input() workflowEdges: Array<WizardEdge> = [];
+  @Input() get disableDrag() {
+    return this._disableDrag;
+  }
+  set disableDrag(value) {
+    this._disableDrag = value;
+    if (value) {
+      if (this.zoom) {
+        this._SVGParent.on('.zoom', null);
+      }
+    } else {
+      if (this._SVGParent) {
+        this._SVGParent.call(this.zoom);
+      }
+    }
+  }
   @Input()
   get editorPosition(): ZoomTransform {
     return this._editorPosition;
@@ -64,10 +79,14 @@ export class GraphEditorComponent implements OnInit {
     }
   }
 
+  @Input() maxScale = 4;
+  @Input() minScale = 0.1;
+
   @Output() createNode = new EventEmitter<any>();
   @Output() setEditorDirty = new EventEmitter();
   @Output() deselectNode = new EventEmitter<void>();
   @Output() removeConnector = new EventEmitter();
+  @Output() editorPositionChange = new EventEmitter<ZoomTransform>();
 
   public eventTransform: ZoomTransform = { x: 0, y: 0, k: 1 };
 
@@ -77,7 +96,7 @@ export class GraphEditorComponent implements OnInit {
   private _documentRef: d3.Selection<any>;
   private _connectorElement: d3.Selection<any>;
   private _connectorPosition: ZoomTransform = null;
-
+  private _disableDrag = false;
   /** when external position is true, it prevents sending a setEditorDirty event */
   private _externalPosition = true;
 
@@ -95,7 +114,7 @@ export class GraphEditorComponent implements OnInit {
     private _ngZone: NgZone
   ) {
     this._cd.detach();
-   }
+  }
 
   ngOnInit(): void {
     this._initSelectors();
@@ -114,12 +133,12 @@ export class GraphEditorComponent implements OnInit {
   }
 
   clickDetected($event: any) {
-    if (this.creationMode.active) {
+    if (this.creationMode && this.creationMode.active) {
       const position = {
         x: ($event.offsetX - this._editorPosition.x) / this._editorPosition.k,
         y: ($event.offsetY - this._editorPosition.y) / this._editorPosition.k
       };
-      this.createNode.emit({position, creationMode: this.creationMode});
+      this.createNode.emit({ position, creationMode: this.creationMode });
     }
     this.deselectNode.emit();
   }
@@ -152,18 +171,31 @@ export class GraphEditorComponent implements OnInit {
     }
   }
 
-  changeZoom(zoomIn: boolean) {
-    this._editorPosition.k += (zoomIn ? 0.2 : -0.2) * this._editorPosition.k;
-    this.zoom.scaleTo(this._SVGParent, this._editorPosition.k);
+  changeZoom(k: number) {
+    if (k < this.minScale) {
+      k = this.minScale;
+    } else if (k > this.maxScale) {
+      k = this.maxScale;
+    }
+    this._editorPosition = {
+      x: this._editorPosition.x,
+      y: this._editorPosition.y,
+      k
+    };
+    this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(0, 0)
+      .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
+    this._ngZone.run(() => {
+      this.editorPositionChange.emit(this._editorPosition);
+    });
   }
 
   centerWorkflow(): void {
     const container = (<Element>this._SVGContainer.node()).getBoundingClientRect();
-    const _SVGParent = (<Element>this._SVGParent.node()).getBoundingClientRect();
+    const SVGParent = (<Element>this._SVGParent.node()).getBoundingClientRect();
     const containerWidth = container.width;
     const containerHeight = container.height;
-    const svgWidth = _SVGParent.width;
-    const svgHeight = _SVGParent.height;
+    const svgWidth = SVGParent.width;
+    const svgHeight = SVGParent.height;
     const translateX = Math.round(((svgWidth - containerWidth) / 2 - container.left) / this._editorPosition.k);
     const translateY = Math.round(((svgHeight - containerHeight) / 2 - container.top) / this._editorPosition.k);
     this._SVGParent.call(this.zoom.translateBy, translateX, Math.round(translateY + 135 / this._editorPosition.k));
@@ -173,18 +205,13 @@ export class GraphEditorComponent implements OnInit {
     this._ngZone.runOutsideAngular(() => {
       /** zoom behaviour */
       this.zoom = d3Zoom()
-        .scaleExtent([1 / 8, 4])
+        .scaleExtent([this.minScale, this.maxScale])
         .wheelDelta(this._deltaFn)
         .on('start', () => {
           if (this._externalPosition) {
             this._externalPosition = false;
           } else {
             this.setEditorDirty.emit();
-          }
-          const sourceEvent = d3Event.sourceEvent;
-          if (sourceEvent) {
-            sourceEvent.preventDefault();
-            sourceEvent.stopPropagation();
           }
         })
         .on('zoom', this._zoomed.bind(this));
@@ -202,7 +229,13 @@ export class GraphEditorComponent implements OnInit {
 
   /** Update element scale and position */
   private _zoomed(): void {
+    const oldK = this._editorPosition.k;
     this._editorPosition = d3Event.transform;
+    if (this._editorPosition.k !== oldK) {
+      this._ngZone.run(() => {
+        this.editorPositionChange.emit(this._editorPosition);
+      });
+    }
     this._SVGContainer.attr('transform', d3Event.transform);
   }
 }

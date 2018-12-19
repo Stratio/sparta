@@ -14,7 +14,7 @@ import {
     ViewChild
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
 import * as workflowActions from './../../actions/workflow-list';
@@ -54,12 +54,16 @@ export class MoveGroupModalComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this._store.dispatch(new workflowActions.ResetModalAction());
-        this._store.select(fromRoot.getAllGroups).pipe(take(1)).subscribe((groups: any) => {
+        this._store.pipe(select(fromRoot.getAllGroups))
+          .pipe(take(1))
+          .subscribe((groups: any) => {
             this.groups = groups;
         });
 
         if (this.workflow) {
-            this._store.select(fromRoot.getCurrentGroupLevel).pipe(take(1)).subscribe((current: any) => {
+            this._store.pipe(select(fromRoot.getCurrentGroupLevel))
+              .pipe(take(1))
+              .subscribe((current: any) => {
                 this.parentGroup = current.group.name;
                 this.group = current.group;
             });
@@ -67,7 +71,7 @@ export class MoveGroupModalComponent implements OnInit, OnDestroy {
             const split = this.currentGroup.split(FOLDER_SEPARATOR);
             this.parentGroup = split.slice(0, split.length - 1).join(FOLDER_SEPARATOR);
         }
-        this.openModal = this._store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
+        this.openModal = this._store.pipe(select(fromRoot.getShowModal)).subscribe((modalOpen) => {
             if (!modalOpen) {
                 this.onCloseMoveGroup.emit();
             }

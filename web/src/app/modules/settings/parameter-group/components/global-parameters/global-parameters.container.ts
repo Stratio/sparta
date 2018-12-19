@@ -5,8 +5,8 @@
  */
 
 import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
+import { Store, select } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 import * as fromParameters from './../../reducers';
 import * as globalParamsActions from './../../actions/global';
@@ -44,8 +44,8 @@ export class GlobalParametersContainer implements OnInit {
     private _init() {
         this._store.dispatch(new globalParamsActions.ListGlobalParamsAction());
         this.initRequest();
-        this.globalParams$ = this._store.select(fromParameters.getGlobalVariables);
-        this._store.select(fromParameters.getIsCreating)
+        this.globalParams$ = this._store.pipe(select(fromParameters.getGlobalVariables));
+        this._store.pipe(select(fromParameters.getIsCreating))
             .subscribe((isCreating: boolean) => this.creationMode = isCreating);
     }
 

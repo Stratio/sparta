@@ -9,18 +9,18 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
 import { Store } from '@ngrx/store';
-import { ApiService} from './api.service';
+import { ApiService } from './api.service';
 import * as fromRoot from 'reducers';
 
 @Injectable()
 export class GlobalConfigService extends ApiService {
 
-    constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
-        super(_http, _store);
-    }
+  constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
+    super(_http, _store);
+  }
 
-    getConfig(): Observable<any> {
-        const options: any = {};
-        return this.request('config', 'get', options);
-    }
+  getConfig(): Observable<any> {
+    const options: any = {};
+    return this.request('config', 'get', options);
+  }
 }

@@ -4,18 +4,12 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import { Location } from '@angular/common';
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild, ViewContainerRef } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Store } from '@ngrx/store';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Store, select } from '@ngrx/store';
 
-import 'rxjs/add/operator/takeUntil';
-import 'rxjs/add/operator/distinctUntilChanged';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
-import { StModalService } from '@stratio/egeo';
 
 import * as fromWizard from './../../reducers';
 import * as wizardActions from './../../actions/wizard';
@@ -37,9 +31,9 @@ export class WizardNotificationsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     let handler;
-    this._store.select(fromWizard.getWizardNofications)
-      .takeUntil(this._componentDestroyed)
-      .subscribe((notification) => {
+    this._store.pipe(select(fromWizard.getWizardNofications))
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((notification: any) => {
         if ((notification.message && notification.message.length) || notification.templateType) {
           this.notification = {
             ...this.notification,

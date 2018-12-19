@@ -36,7 +36,7 @@
          <span>{{'WIZARD.CANCEL' | translate}}</span>
       </button>
       <button class="button button-primary" (click)="saveForm()" id="save-node-button">
-         <span>{{'WIZARD.SAVE' | translate}}</span>
+         <span>Accept</span>
       </button>
       <sp-help
         *ngIf="isShowedHelp"
@@ -93,7 +93,6 @@
       [nodeData]="config"
       [showCrossdataCatalog]="showCrossdataCatalog"
       [isVisible]="isShowedInfo"
-      rightReference="save-node-button"
       topReference="wizard-config-editor-header"
       (toggleSidebar)="toggleInfo()">
     </sidebar-config>

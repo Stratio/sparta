@@ -11,12 +11,12 @@
 <div class="workflow-detail">
    <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
    <div class="not-selected" *ngIf="!data || !data.type">
-      <img src="assets/images/workflow-detail.png" class="workflow-detail-image" />
+      <img src="assets/images/planet.svg" class="workflow-detail-image" />
       <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
    </div>
    <div class="selected" *ngIf="data && data.type === 'version'">
       <!--<span class="status" [ngClass]="workflowData.status.status.toLowerCase()">
-          {{('DASHBOARD.' + (workflowData.formattedStatus | uppercase)) | translate}} 
+          {{('DASHBOARD.' + (workflowData.formattedStatus | uppercase)) | translate}}
           <span class="advanced-status" *ngIf="workflowData.status.status.toUpperCase() !== workflowData.formattedStatus.toUpperCase()"> / {{('DASHBOARD.' + (workflowData.status.status | uppercase)) | translate}}</span>
       </span>-->
       <h3 class="egeo-title-medium version-title">{{workflowData.name}} - v{{workflowData.version}}</h3>

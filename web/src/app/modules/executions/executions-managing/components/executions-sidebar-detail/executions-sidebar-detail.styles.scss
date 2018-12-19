@@ -2,6 +2,16 @@
 
 :host {
   display: block;
+  height: 100%;
+}
+
+.execution-detail, .selected {
+  height: 100%;
+}
+
+.execution-details, .execution-parameters {
+  height: calc(100% - 48px);
+  overflow-y: auto;
 }
 
 .not-selected {
@@ -10,6 +20,7 @@
   margin-top: 20px;
   .execution-detail-image {
      width: 140px;
+     margin-top: 20px;
   }
 
   .execution-info {

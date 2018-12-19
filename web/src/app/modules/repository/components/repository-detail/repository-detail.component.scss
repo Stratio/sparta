@@ -20,11 +20,13 @@
    min-height: 230px;
    .workflow-detail-image {
       width: 140px;
+      margin-top: 20px;
    }
 
    .workflow-info {
     font-size: $egeo-font-size-xxsmall;
     color: $neutral-10;
+    margin-top: 1.2em;
   }
 }
 

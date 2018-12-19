@@ -246,7 +246,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedVersionsData: [],
             notification: {
                text: 'DELETE_VERSION',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -305,7 +305,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedEntities: [],
             notification: {
                text: 'RENAME_GROUP',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -317,7 +317,7 @@ export function reducer(state: State = initialState, action: any): State {
             showModal: false,
             notification: {
                text: 'CREATE_GROUP',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -343,7 +343,7 @@ export function reducer(state: State = initialState, action: any): State {
             saving: true,
             notification: {
                text: 'CREATED_WORKFLOW',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -365,7 +365,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedEntities: [],
             notification: {
                text: 'RENAME_WORKFLOW',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -403,7 +403,7 @@ export function reducer(state: State = initialState, action: any): State {
             workflowsVersionsList: [workflow],
             notification: {
                text: 'GENERATE_NEW_VERSION',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -419,7 +419,7 @@ export function reducer(state: State = initialState, action: any): State {
             workflowsVersionsList,
             notification: {
                text: 'MOVE_WORKFLOW',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -459,7 +459,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedGroups: [],
             notification: {
                text: 'DELETE_WORKFLOW',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -472,7 +472,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedVersionsData: [],
             notification: {
                text: 'DELETE_SINGLE_VERSION',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }
@@ -494,7 +494,7 @@ export function reducer(state: State = initialState, action: any): State {
             selectedEntities: [],
             notification: {
                text: 'DELETE_SINGLE_GROUP',
-               status: 'success',
+               status: 'neutral',
                autoCloseTime: 5000,
                visible: true
             }

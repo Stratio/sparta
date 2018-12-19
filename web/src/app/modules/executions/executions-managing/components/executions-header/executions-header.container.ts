@@ -11,7 +11,7 @@ import {
    Output,
    OnInit
 } from '@angular/core';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
 import { State } from './../../reducers';
@@ -24,6 +24,7 @@ import * as fromRoot from './../../reducers';
         <executions-managing-header [selectedExecutions]="selectedExecutions"
             [isArchivedPage]="isArchivedPage"
             [showDetails]="showDetails"
+            [fixSubHeaders]="fixSubHeaders"
             [statusFilter]="statusFilter$ | async"
             [showStopButton]="showStopButton$ | async"
             [showArchiveButton]="showArchiveButton$ | async"
@@ -53,6 +54,7 @@ export class ExecutionsHeaderContainer implements OnInit {
    @Input() showDetails: boolean;
    @Input() emptyTable: boolean;
    @Input() isArchivedPage: boolean;
+   @Input() fixSubHeaders: boolean;
 
    @Output() showExecutionInfo = new EventEmitter<void>();
 
@@ -66,14 +68,14 @@ export class ExecutionsHeaderContainer implements OnInit {
    constructor(private _store: Store<State>) { }
 
    ngOnInit(): void {
-      this.statusFilter$ = this._store.select(fromRoot.getStatusFilter);
-      this.typeFilter$ = this._store.select(fromRoot.getTypeFilter);
-      this.timeIntervalFilter$ = this._store.select(fromRoot.getTimeIntervalFilter);
+      this.statusFilter$ = this._store.pipe(select(fromRoot.getStatusFilter));
+      this.typeFilter$ = this._store.pipe(select(fromRoot.getTypeFilter));
+      this.timeIntervalFilter$ = this._store.pipe(select(fromRoot.getTimeIntervalFilter));
       if (this.isArchivedPage) {
-         this.showUnarchiveButton$ = this._store.select(fromRoot.showUnarchiveButton);
+         this.showUnarchiveButton$ = this._store.pipe(select(fromRoot.showUnarchiveButton));
       } else {
-         this.showStopButton$ = this._store.select(fromRoot.showStopButton);
-         this.showArchiveButton$ = this._store.select(fromRoot.showArchiveButton);
+         this.showStopButton$ = this._store.pipe(select(fromRoot.showStopButton));
+         this.showArchiveButton$ = this._store.pipe(select(fromRoot.showArchiveButton));
       }
 
    }

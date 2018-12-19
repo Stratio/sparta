@@ -12,8 +12,8 @@ import {
 } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo/';
 import { BreadcrumbMenuService } from 'app/services';
-import { Observable } from 'rxjs/Observable';
-import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
+import { Store, select } from '@ngrx/store';
 
 import * as fromParameters from './reducers';
 import * as alertParametersActions from './actions/alert';
@@ -50,8 +50,8 @@ export class ParameterGroupComponent implements OnInit {
    }
 
    ngOnInit() {
-      this.isLoading$ = this._store.select(fromParameters.isLoading);
-      this._store.select(fromParameters.showAlert).subscribe(alert => {
+      this.isLoading$ = this._store.pipe(select(fromParameters.isLoading));
+      this._store.pipe(select(fromParameters.showAlert)).subscribe(alert => {
          this.showAlert = !!alert.text;
          if (alert) {
             this.alertMessage = alert;

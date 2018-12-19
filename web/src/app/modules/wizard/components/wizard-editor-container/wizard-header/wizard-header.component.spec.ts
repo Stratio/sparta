@@ -17,7 +17,7 @@ import { TranslateMockModule, initTranslate } from '@test/translate-stub';
 import { Router } from '@angular/router';
 import { MockStore } from '@test/store-mock';
 import { WizardHeaderComponent } from './wizard-header.component';
-import { WIZARD_STORE_MOCK } from '@test/wizard-store-mock';
+import { WIZARD_STORE_MOCK } from '@test/mocks/wizard';
 
 
 let component: WizardHeaderComponent;
@@ -31,12 +31,6 @@ describe('[WizardHeaderComponent]', () => {
 
    const initialStoreState: any = _cloneDeep(WIZARD_STORE_MOCK);
    const mockStoreInstance: MockStore<any> = new MockStore(initialStoreState);
-   const originalSetTimeout = window.setTimeout;
-   const originalClearTimeout = window.clearTimeout;
-   window.setTimeout = function (funcToCall, millis) {
-      funcToCall();
-      return 0;
-   };
 
    window.clearTimeout = function (id) {};
    beforeEach(async(() => {
@@ -82,8 +76,6 @@ describe('[WizardHeaderComponent]', () => {
 
    afterEach(() => {
       mockStoreInstance.next(initialStoreState);
-      window.setTimeout = originalSetTimeout;
-      window.clearTimeout = originalClearTimeout;
    });
 
    describe('User can save the new workflow when workflow has been edited', () => {
@@ -100,7 +92,7 @@ describe('[WizardHeaderComponent]', () => {
       });
 
       it('While wizard is loading, progress bar is displayed and button save is disabled', () => {
-            let loadingWizardStore = _cloneDeep(initialStoreState);
+            const loadingWizardStore = _cloneDeep(initialStoreState);
             loadingWizardStore.wizard.wizard.loading = true;
             mockStoreInstance.next(loadingWizardStore);
             fixture.detectChanges();
@@ -108,7 +100,7 @@ describe('[WizardHeaderComponent]', () => {
             expect(fixture.nativeElement.querySelector('.loading-bar')).not.toBeNull();
             expect(fixture.nativeElement.querySelector('#save-button').disabled).toBeTruthy();
 
-            let editedWizardStore = _cloneDeep(initialStoreState);
+            const editedWizardStore = _cloneDeep(initialStoreState);
             editedWizardStore.wizard.wizard.loading = false;
             mockStoreInstance.next(editedWizardStore);
             fixture.detectChanges();
