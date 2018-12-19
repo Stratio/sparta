@@ -7,6 +7,7 @@ package com.stratio.sparta.plugin.workflow.output.kafka
 
 import java.util.UUID
 
+import com.sksamuel.elastic4s.mappings.FieldType
 import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
 import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStepStreaming
 import com.stratio.sparta.core.models.OutputOptions
@@ -14,7 +15,7 @@ import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -23,7 +24,8 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
 
   val topics = Seq(
     s"topicTest-${UUID.randomUUID().toString}",
-    s"topicTest2-${UUID.randomUUID().toString}"
+    s"topicTest2-${UUID.randomUUID().toString}",
+    s"topicTest3-${UUID.randomUUID().toString}"
   )
 
   override def beforeAll(): Unit = {
@@ -35,6 +37,81 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
   }
 
   "KafkaOutputStep " should {
+
+    "Send all the records in Binary format" in {
+      val hostPort =
+        s"""[
+           |{
+           |    "port": "9092",
+           |    "host": "$hosts"
+           |}]
+           | """.stripMargin
+
+      val props = Map(
+        "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
+        "value.serializer.outputFormat" -> "BINARY"
+      )
+      val output = new KafkaOutputStep("kafka1", sparkSession.get, props)
+      val schema = StructType(Seq(StructField("price", DataTypes.ByteType)))
+      val data1 = Seq(
+        new GenericRowWithSchema(Array(12.toByte), schema),
+        new GenericRowWithSchema(Array(15.toByte), schema)
+      )
+      val rdd = sc.get.parallelize(data1).asInstanceOf[RDD[Row]]
+      val data = sparkSession.get.createDataFrame(rdd, schema)
+      val saveOpts = Map("tableName" -> topics.head)
+
+      log.info("Send dataframe to kafka")
+
+      output.save(data, SaveModeEnum.Append, saveOpts)
+
+      output.cleanUp()
+
+      val topicsProp =
+        s"""[
+           |{
+           |   "topic":"${topics.head}"
+           |}]
+           | """.stripMargin
+      val propsConsumer = Map(
+        "storeOffsetInKafka" -> "false",
+        "value.deserializer" -> "row",
+        "value.deserializer.inputFormat" -> "BINARY",
+        "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
+        "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
+        "auto.offset.reset" -> "earliest"
+      )
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
+      val distributedStream = input.init
+      val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
+
+      log.info("Evaluate the DStream")
+
+      distributedStream.ds.foreachRDD(rdd => {
+        if (!rdd.isEmpty()) {
+          val count = rdd.count()
+          log.info(s"EVENTS COUNT : $count")
+          totalEvents.add(count)
+        } else log.info("RDD is empty")
+        log.info(s"TOTAL EVENTS : $totalEvents")
+        val streamingRegisters = rdd.collect()
+        if (!rdd.isEmpty())
+          streamingRegisters.foreach{row =>
+            val elemToCheck = row.get(0).asInstanceOf[Array[Byte]].map(_.toChar).mkString
+            assert(data1.map(_.toString()).contains(elemToCheck))}
+      })
+
+      ssc.get.start()
+
+      log.info("Started Streaming")
+
+      ssc.get.awaitTerminationOrTimeout(SparkTimeOut)
+
+      log.info("Finished Streaming")
+
+      totalEvents.value should ===(data1.size)
+    }
 
     "Send all the records in Json format" in {
       val hostPort =
@@ -57,7 +134,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       )
       val rdd = sc.get.parallelize(data1).asInstanceOf[RDD[Row]]
       val data = sparkSession.get.createDataFrame(rdd, schema)
-      val saveOpts = Map("tableName" -> topics.head)
+      val saveOpts = Map("tableName" -> topics(1))
 
       log.info("Send dataframe to kafka")
 
@@ -68,7 +145,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       val topicsProp =
         s"""[
            |{
-           |   "topic":"${topics.head}"
+           |   "topic":"${topics(1)}"
            |}]
            | """.stripMargin
       val propsConsumer = Map(

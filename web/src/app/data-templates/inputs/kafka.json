@@ -86,6 +86,10 @@
              {
                 "label": "Avro",
                 "value": "AVRO"
+             },
+             {
+               "label": "Binary",
+               "value": "BINARY"
              }
           ],
           "default": "STRING",

@@ -8,13 +8,18 @@ package com.stratio.sparta.plugin.workflow.input.kafka
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
-import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
-import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.plugin.common.kafka.KafkaBase
+import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
+import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
+import com.stratio.sparta.plugin.models.TopicModel
+import org.apache.kafka.clients.consumer.ConsumerConfig._
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
@@ -27,11 +32,6 @@ import org.json4s.jackson.Serialization._
 import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
-import DistributedMonad.Implicits._
-import com.stratio.sparta.plugin.models.TopicModel
-import com.stratio.sparta.core.helpers.SdkSchemaHelper
-import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
-import org.apache.kafka.clients.consumer.ConsumerConfig._
 
 class KafkaInputStepStreaming(
                                name: String,
@@ -100,7 +100,7 @@ class KafkaInputStepStreaming(
           WorkflowValidationMessage(s"the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG", name)
       )
 
-    if(debugOptions.isDefined && !validDebuggingOptions)
+    if (debugOptions.isDefined && !validDebuggingOptions)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)

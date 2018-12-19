@@ -15,11 +15,11 @@ import com.stratio.sparta.core.enumerators.InputFormatEnum
 import com.twitter.bijection.Injection
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer}
+import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer,ByteArrayDeserializer}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.{GenericRow, GenericRowWithSchema}
 import org.apache.spark.sql.json.RowJsonHelper._
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{BinaryType, StringType, StructField, StructType}
 
 import scala.collection.JavaConversions._
 import scala.util.Try
@@ -28,9 +28,11 @@ import scala.util.Try
 class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
 
   private val stringDeserializer = new StringDeserializer
+  private val byteDeserializer = new ByteArrayDeserializer
   private var inputFormat = InputFormatEnum.STRING
   private var jsonSchema: Option[StructType] = None
   private var stringSchema: Option[StructType] = None
+  private var binarySchema: Option[StructType] = None
   private var jsonConf: Map[String, String] = Map.empty[String, String]
   private var avroConf: Map[String, String] = Map.empty[String, String]
   private var avroSparkSchema: Option[StructType] = None
@@ -93,9 +95,14 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
         val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", "raw").toString
 
         stringSchema = Option(StructType(Seq(StructField(outputFieldName, StringType))))
+      case InputFormatEnum.BINARY =>
+        val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", "raw").toString
+
+        binarySchema = Option(StructType(Seq(StructField(outputFieldName, BinaryType))))
     }
 
     stringDeserializer.configure(configs, isKey)
+    byteDeserializer.configure(configs, isKey)
   }
 
   //scalastyle:on
@@ -120,6 +127,8 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
           case _ =>
             throw new Exception("Impossible to parse Avro data without schema and converter")
         }
+      case InputFormatEnum.BINARY =>
+        new GenericRowWithSchema(Array(byteDeserializer.deserialize(topic, data)), binarySchema.get)
       case _ =>
         new GenericRowWithSchema(Array(stringDeserializer.deserialize(topic, data)), stringSchema.get)
     }
@@ -127,5 +136,5 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
 
   override def close(): Unit =
     stringDeserializer.close()
-
+    byteDeserializer.close()
 }

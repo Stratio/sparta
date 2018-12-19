@@ -85,6 +85,8 @@ class RowSerializer extends Serializer[Row] {
         byteArraySerializer.serialize(topic, injection.apply(record))
       case OutputFormatEnum.ROW =>
         stringSerializer.serialize(topic, data.mkString(delimiter))
+      case OutputFormatEnum.BINARY =>
+        byteArraySerializer.serialize(topic, data.toString().getBytes)
       case _ =>
         stringSerializer.serialize(topic, RowJsonHelper.toJSON(data, jsonConf))
     }

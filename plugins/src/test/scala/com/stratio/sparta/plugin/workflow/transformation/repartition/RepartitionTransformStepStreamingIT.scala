@@ -26,7 +26,7 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class RepartitionTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A RepartitionTransformStepStreamingIT" should "repartition RDD" in {
+  "A RepartitionTransformStepBatchIT" should "repartition RDD" in {
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val inputSchema = StructType(Seq(StructField("color", StringType), StructField("age", StringType)))
     val dataQueue = new mutable.Queue[RDD[Row]]()

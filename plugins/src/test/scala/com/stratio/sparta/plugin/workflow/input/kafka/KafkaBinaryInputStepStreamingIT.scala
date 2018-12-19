@@ -7,14 +7,14 @@ package com.stratio.sparta.plugin.workflow.input.kafka
 
 import java.util.UUID
 
-import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
-import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.OutputOptions
+import com.stratio.sparta.plugin.common.kafka.KafkaBinarySuiteBase
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class KafkaInputStepStreamingIT extends KafkaSuiteBase {
+class KafkaBinaryInputStepStreamingIT extends KafkaBinarySuiteBase {
 
   val topics = Seq(
     s"topicTest-${UUID.randomUUID().toString}",
@@ -48,6 +48,7 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
            | """.stripMargin
 
       val props = Map(
+        "value.deserializer.inputFormat" -> "BINARY",
         "storeOffsetInKafka" -> "false",
         "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
@@ -100,7 +101,6 @@ class KafkaInputStepStreamingIT extends KafkaSuiteBase {
            | """.stripMargin
 
       val props = Map(
-        "value.deserializer.inputFormat"->"STRING",
         "storeOffsetInKafka" -> "true",
         "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
