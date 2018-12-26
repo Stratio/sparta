@@ -97,7 +97,7 @@ export class SpHelpComponent implements OnInit, AfterContentInit {
    }
 
    showSpartaDoc() {
-      window.open('https://stratio.atlassian.net/wiki/spaces/SPARTA2x0x/overview');
+      window.open('https://stratio.atlassian.net/wiki/spaces/SPARTA2x4x/overview');
    }
 
    moveBox(e) {

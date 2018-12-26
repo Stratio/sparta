@@ -98,7 +98,11 @@ case class WorkflowExecutionDto(
                                  executionEngine: Option[ExecutionEngine] = None,
                                  searchText: Option[String] = None,
                                  totalCount :Int = 0
-                               ) extends Dto
+                               ) extends Dto with EntityAuthorization {
+
+  def authorizationId: String = genericDataExecution.workflow.authorizationId
+
+}
 
 case class MarathonExecutionDto(sparkURI: Option[String] = None) extends Dto
 

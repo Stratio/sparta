@@ -89,7 +89,7 @@ This software – including all its source code – contains proprietary informa
                         <executions>
                             <execution>
                                 <id>copy CROSSDATA PLUGIN</id>
-                                <phase>compile</phase>
+                                <phase>package</phase>
                                 <goals>
                                     <goal>copy</goal>
                                 </goals>
@@ -106,7 +106,7 @@ This software – including all its source code – contains proprietary informa
                                 <artifactItem>
                                     <groupId>com.stratio.gosec.dyplon.plugins</groupId>
                                     <artifactId>dyplon-crossdata</artifactId>
-                                    <version>0.15.1-eff78cb</version>
+                                    <version>0.15.2-52bd567</version>
                                     <type>jar</type>
                                 </artifactItem>
                             </artifactItems>

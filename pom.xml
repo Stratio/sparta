@@ -103,15 +103,15 @@ This software – including all its source code – contains proprietary informa
         <scalaj.version>2.4.1</scalaj.version>
         <commons-configuration.version>1.6</commons-configuration.version>
         <apache.spark.version>2.2.0</apache.spark.version>
-        <stratio.spark.version>2.1.0-f969ad8</stratio.spark.version>
+        <stratio.spark.version>2.2.1-41544ae</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <crossdata-auth-iface.version>0.3.0-b599046</crossdata-auth-iface.version>
-        <gosec.dyplon.version>0.15.0-99ffc72</gosec.dyplon.version>
+        <gosec.dyplon.version>0.15.1-ce0061f</gosec.dyplon.version>
         <gosec.dyplon.facade.version>0.1.0-c945a71</gosec.dyplon.facade.version>
         <dg.commons.version>0.8.0-9bf0b64</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.14.1-e4edd9d</crossdata.version>
+        <crossdata.version>2.14.3-2da6f37</crossdata.version>
         <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>

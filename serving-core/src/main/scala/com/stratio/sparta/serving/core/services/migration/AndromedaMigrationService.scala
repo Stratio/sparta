@@ -108,7 +108,7 @@ class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
         val globalVariables = ParameterList.parametersToMap(environmentAndromeda.variables.flatMap { variable =>
           if (DefaultGlobalParameters.exists(parameter => parameter.name == variable.name))
             if (variable.name == "SPARK_EXECUTOR_BASE_IMAGE" && (variable.value == "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0" || variable.value == "qa.stratio.com/stratio/stratio-spark:2.2.0.5"))
-              Option(ParameterVariable(variable.name, Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8")))
+              Option(ParameterVariable(variable.name, Option("qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.2.1-41544ae")))
             else if (variable.name == "SPARK_DRIVER_JAVA_OPTIONS" && variable.value == "-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml")
               Option(ParameterVariable(variable.name, Option("-Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml")))
             else if (variable.name == "SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS")

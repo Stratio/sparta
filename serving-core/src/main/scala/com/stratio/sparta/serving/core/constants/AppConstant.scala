@@ -184,7 +184,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultGlobalParameters = Seq(
     new ParameterVariable("DEFAULT_OUTPUT_FIELD", "raw"),
     new ParameterVariable("DEFAULT_DELIMITER", ","),
-    new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE", "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.1.0-f969ad8"),
+    new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE", "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.2.1-41544ae"),
     new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS", s"$spartaFileEncoding -Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml"),
     new ParameterVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS", s"$spartaFileEncoding  -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
     new ParameterVariable("SPARK_STREAMING_CHECKPOINT_PATH", "sparta/checkpoint"),

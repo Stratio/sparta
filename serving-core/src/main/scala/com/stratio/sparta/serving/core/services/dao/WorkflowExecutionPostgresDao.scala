@@ -102,8 +102,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       .dinamicFilter(statusFilter)(status => t => t.resumedStatus.inSet(status))
       .dinamicFilter(execEngineFilter)(engine => t => t.executionEngine === engine)
       .dinamicFilter(workflowExecutionQuery.searchText)(search => t => t.searchText like s"%$search%")
-      .dinamicFilter(dateFilter)(date => t => t.resumedDate >= date._1 && t.resumedDate <= date._2)
-      .query
+      .dinamicFilter(dateFilter)(date => t  => t.resumedDate >= date._1 && t.resumedDate <= date._2)
+      .query.sortBy(_.resumedDate.desc)
 
     for {
       result <- db.run(query.drop(workflowExecutionQuery.page * workflowExecutionQuery.offset).take(workflowExecutionQuery.offset).result)
