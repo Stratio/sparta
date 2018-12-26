@@ -32,6 +32,7 @@ trait SpartaSerializer {
       new EnumNameSerializer(WorkflowExecutionEngine) +
       new EnumNameSerializer(WorkflowExecutionMode) +
       new EnumNameSerializer(DataType) +
+      new EnumNameSerializer(DateGranularity) +
       new EnumNameSerializer(PhaseEnum)
   }
 

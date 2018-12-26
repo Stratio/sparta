@@ -8,16 +8,6 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 
-import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.util.control.NonFatal
-import scala.util.{Failure, Properties, Success, Try}
-import org.apache.ignite.cache.query.ScanQuery
-import org.apache.ignite.lang.IgniteBiPredicate
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization.write
-import slick.jdbc.PostgresProfile
-import slick.lifted.CanBeQueryCondition
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.constants.SparkConstant.{SubmitAppNameConf, SubmitUiProxyPrefix}
@@ -33,7 +23,18 @@ import com.stratio.sparta.serving.core.models.workflow.DtoModelImplicits._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService.ExecutionIdKey
 import com.stratio.sparta.serving.core.utils.{JdbcSlickConnection, NginxUtils}
+import org.apache.ignite.cache.query.ScanQuery
+import org.apache.ignite.lang.IgniteBiPredicate
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization.write
+import slick.jdbc.PostgresProfile
+import slick.lifted.CanBeQueryCondition
+
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.util.control.NonFatal
+import scala.util.{Failure, Properties, Success, Try}
 
 //scalastyle:off
 class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
@@ -113,6 +114,33 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   }
 
   def createDashboardView(): Future[DashboardView] = getOptimizedDashboardView
+
+  def executionsByDate(executionsByDateQuery: WorkflowExecutionsByDateQuery): Future[WorkflowExecutionsByDate] = {
+    val initialQuery = table.filter(data => data.resumedDate.isDefined && data.executionEngine.isDefined)
+    val startDateQuery = executionsByDateQuery.startDate match {
+      case Some(startDate) => initialQuery.filter(_.resumedDate >= startDate)
+      case None => initialQuery
+    }
+    val endDateQuery = executionsByDateQuery.endDate match {
+      case Some(endDate) => startDateQuery.filter(_.resumedDate <= endDate)
+      case None => startDateQuery
+    }
+    val dateTruncationUDF = SimpleFunction.binary[String, Option[DateTime], DateTime]("date_trunc")
+    val aggregatedQuery = endDateQuery
+      .groupBy { data =>
+        (data.executionEngine, dateTruncationUDF(executionsByDateQuery.dateGranularity.toString, data.resumedDate))
+      }.map { case ((executionEngine, date), group) =>
+        (group.length, executionEngine, date)
+      }
+
+    for {
+      result <- db.run(aggregatedQuery.result)
+    } yield {
+      WorkflowExecutionsByDate(result.map { case (total, executionEngine, date) =>
+        ExecutionByDate(total, date, executionEngine)
+      })
+    }
+  }
 
   def findExecutionById(id: String): Future[WorkflowExecution] = findByIdHead(id)
 
@@ -362,9 +390,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   private def writeExecutionStatusInZk(workflowExecutionStatusChange: WorkflowExecutionStatusChange): Unit = {
     synchronized {
-      import workflowExecutionStatusChange._
-
       import AppConstant._
+      import workflowExecutionStatusChange._
 
       Try {
         if (CuratorFactoryHolder.existsPath(ExecutionsStatusChangesZkPath))

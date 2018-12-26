@@ -33,7 +33,7 @@ trait ExecutionHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~ findAllDto(user) ~ dashboard(user) ~
     update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user) ~ stop(user) ~ archived(user) ~
-    findByQuery(user) ~ findByQueryDto(user) ~ reRun(user)
+    findByQuery(user) ~ findByQueryDto(user) ~ reRun(user) ~ executionsByDate(user)
 
   @Path("/findByQuery")
   @ApiOperation(value = "Find executions from query.",
@@ -119,6 +119,35 @@ trait ExecutionHttpService extends BaseHttpService {
             response <- (supervisor ? CreateDashboardView(user))
               .mapTo[Either[ResponseDashboardView, UnauthorizedResponse]]
           } yield getResponse(context, WorkflowExecutionDashboard, response, genericError)
+      }
+    }
+  }
+
+  @Path("/executionsByDate")
+  @ApiOperation(value = "Aggregate executions by date",
+    notes = "Returns the execution summary by date",
+    httpMethod = "POST",
+    response = classOf[WorkflowExecutionsByDate])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "executionsByDate",
+      value = "execution by date query json",
+      dataType = "com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionsByDateQuery",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)))
+  def executionsByDate(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.ExecutionsPath / "executionsByDate") {
+      post {
+        entity(as[WorkflowExecutionsByDateQuery]) { request =>
+          complete {
+            for {
+              response <- (supervisor ? ExecutionsByDateQuery(request, user))
+                .mapTo[Either[ResponseWorkflowExecutionsByDate, UnauthorizedResponse]]
+            } yield deletePostPutResponse(ErrorModel.WorkflowExecutionsByDate, response, genericError)
+          }
+        }
       }
     }
   }

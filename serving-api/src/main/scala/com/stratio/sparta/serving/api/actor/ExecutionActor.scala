@@ -32,6 +32,7 @@ class ExecutionActor(launcherActor: ActorRef)
     case CreateExecution(workflowExecution, user) => createExecution(workflowExecution, user)
     case Update(workflowExecution, user) => updateExecution(workflowExecution, user)
     case CreateDashboardView(user) => createDashboardView(user)
+    case ExecutionsByDateQuery(executionsByDateQuery, user) => executionsByDate(executionsByDateQuery, user)
     case FindAll(user) => findAllExecutions(user)
     case FindAllDto(user) => findAllExecutionsDto(user)
     case FindById(id, user) => findExecutionById(id, user)
@@ -91,6 +92,11 @@ class ExecutionActor(launcherActor: ActorRef)
   def createDashboardView(user: Option[LoggedUser]): Unit =
     authorizeActions(user, Map(DashboardResourceType -> View)) {
       executionPgService.createDashboardView()
+    }
+
+  def executionsByDate(executionsByDateQuery: WorkflowExecutionsByDateQuery, user: Option[LoggedUser]): Unit =
+    authorizeActions(user, Map(DashboardResourceType -> View)) {
+      executionPgService.executionsByDate(executionsByDateQuery)
     }
 
   def findAllExecutions(user: Option[LoggedUser]): Unit =
@@ -168,6 +174,8 @@ object ExecutionActor {
 
   case class CreateDashboardView(user: Option[LoggedUser])
 
+  case class ExecutionsByDateQuery(executionsByDateQuery: WorkflowExecutionsByDateQuery, user: Option[LoggedUser])
+
   case class FindAll(user: Option[LoggedUser])
 
   case class FindAllDto(user: Option[LoggedUser])
@@ -193,4 +201,6 @@ object ExecutionActor {
   type ResponseWorkflowExecutionsDto = Try[Seq[WorkflowExecutionDto]]
 
   type ResponseDashboardView = Try[DashboardView]
+
+  type ResponseWorkflowExecutionsByDate = Try[WorkflowExecutionsByDate]
 }

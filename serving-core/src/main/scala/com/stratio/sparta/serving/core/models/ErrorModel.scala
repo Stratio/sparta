@@ -55,6 +55,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowExecutionQuery = "585"
   val WorkflowExecutionQueryDto = "586"
   val WorkflowExecutionReRun = "587"
+  val WorkflowExecutionsByDate = "588"
 
   /* Crossdata Service 600-624 */
   val CrossdataServiceUnexpected = "600"
@@ -280,6 +281,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowExecutionDeleteById -> "Error deleting workflow execution",
     WorkflowExecutionUpdate -> "Error updating workflow execution",
     WorkflowExecutionCreate -> "Error creating workflow execution",
+    WorkflowExecutionsByDate -> "Error aggregating workflow executions by date",
     DriverServiceUnexpected -> "Unexpected behaviour in driver service",
     DriverServiceUpload -> "Error uploading driver",
     DriverServiceFindAll -> "Error obtaining all drivers",
