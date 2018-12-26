@@ -42,7 +42,6 @@ export class WizardEditorComponent {
   @Input() creationMode: any;
   @Input() selectedEdge: any;
   @Input() debugResult: any;
-  @Input() enableDrag = false;
   @Input() disableEvents: boolean;
 
   @Output() setEditorDirty = new EventEmitter();

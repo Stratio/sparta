@@ -66,4 +66,9 @@ export class WizardApiService extends ApiService {
     const options: any = {};
     return this.request('debug/downloadFile/' + path, 'get', options);
   }
+
+  getMlModels() {
+    const options: any = {};
+    return this.request('mlModels', 'get', options);
+  }
 }

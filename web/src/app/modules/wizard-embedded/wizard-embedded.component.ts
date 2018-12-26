@@ -67,7 +67,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public drawingConnectionStatus: any;
   public connectorInitPosition: any;
 
-  public enableDrag = false;
   public multiselection = false;
 
   @Input() workflowData: WorkflowData;
@@ -117,11 +116,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
         this.deselectAll();
         break;
       }
-      /** SPACE */
-      case 32: {
-        this.enableDrag = true;
-        break;
-      }
       /** SUPR */
       case 46: {
         this.weDeleteSelection();
@@ -157,11 +151,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
         case 17: {
             this._ctrlDown = false;
             break;
-        }
-        /** SPACE */
-        case 32: {
-          this.enableDrag = false;
-          break;
         }
         /** SHIFT */
         case 16: {
@@ -308,7 +297,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     this._nodeHelpers.edges = this.edges;
 
     if (this.multiselection) {
-      console.log(this.selectedNodes.indexOf(event.name))
       this.selectedNodes = this.selectedNodes.indexOf(event.name) > -1 ? this.selectedNodes.filter(nod => nod !== event.name) : [...this.selectedNodes, event.name];
     } else {
       this.deselectAll();

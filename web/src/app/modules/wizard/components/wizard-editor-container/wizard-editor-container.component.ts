@@ -99,11 +99,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
         break;
       }
-      /** SPACE */
-      case 32: {
-        this._store.dispatch(new wizardActions.SetDraggableModeAction(true));
-        break;
-      }
       /** SUPR */
       case 46: {
         this.deleteSelection();
@@ -114,7 +109,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         if (!this._ctrlDown) {
           return;
         }
-        console.log("copy")
         // save current workflow positions in the store and dispatch copy action on the next tick
         this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
         this._store.dispatch(new wizardActions.SaveEditorPosition(this.editorRef.editorPosition));
@@ -147,11 +141,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         case 17: {
             this._ctrlDown = false;
             break;
-        }
-        /** SPACE */
-        case 32: {
-          this._store.dispatch(new wizardActions.SetDraggableModeAction(false));
-          break;
         }
      }
   }
@@ -298,13 +287,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((mode: boolean) => {
         this.multiselectionMode = mode;
-        this._cd.markForCheck();
-      });
-    this._store
-      .select(fromWizard.getDraggableMode)
-      .pipe(takeUntil(this._componentDestroyed))
-      .subscribe((mode: boolean) => {
-        this.draggableMode = mode;
         this._cd.markForCheck();
       });
     this._store

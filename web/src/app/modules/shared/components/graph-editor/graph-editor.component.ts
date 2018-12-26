@@ -36,24 +36,6 @@ export class GraphEditorComponent implements OnInit {
 
   @Input() workflowID = '';
   @Input() workflowEdges: Array<WizardEdge> = [];
-  @Input() get enableDrag() {
-    return this._enableDrag;
-  }
-  set enableDrag(value) {
-    this._enableDrag = value;
-
-    if (this._SVGParent) {
-      this._SVGParent.classed('drag-enabled', value);
-    }
-    if (!value && this.zoom) {
-      this._SVGParent.on('mousedown.zoom', null);
-    } else {
-      if (this._SVGParent) {
-        this.setDraggableEditor();
-        this._setCurrentPosition();
-      }
-    }
-  }
   @Input()
   get editorPosition(): ZoomTransform {
     return this._editorPosition;
@@ -93,6 +75,20 @@ export class GraphEditorComponent implements OnInit {
   @Output() finishSelection = new EventEmitter<any>();
 
 
+  get enableDrag() {
+    return this._enableDrag;
+  }
+  set enableDrag(value) {
+    this._enableDrag = value;
+    this._SVGParent.classed('drag-enabled', value);
+    if (!value) {
+      this._SVGParent.on('mousedown.zoom', null);
+    } else {
+      this.setDraggableEditor();
+      this._setCurrentPosition();
+    }
+  }
+
   public eventTransform: ZoomTransform = { x: 0, y: 0, k: 1 };
   public drawingConnectionStatus: DrawingConnectorStatus = {
     status: false,
@@ -130,9 +126,7 @@ export class GraphEditorComponent implements OnInit {
     this.setDraggableEditor();
     this._setCurrentPosition();
     this._SVGParent.classed('drag-enabled', this.enableDrag);
-    if (!this.enableDrag) {
-      this._SVGParent.on('mousedown.zoom', null);
-    }
+    this._SVGParent.on('mousedown.zoom', null);
   }
 
   private _initSelectors() {
@@ -162,6 +156,11 @@ export class GraphEditorComponent implements OnInit {
           this._isShiftPressed = true;
           break;
         }
+        /** SPACE */
+        case 32: {
+          this.enableDrag = true;
+          break;
+        }
       }
     }
   }
@@ -186,6 +185,11 @@ export class GraphEditorComponent implements OnInit {
       /** SHIFT */
       case 16: {
         this._isShiftPressed = false;
+        break;
+      }
+      /** SPACE */
+      case 32: {
+        this.enableDrag = false;
         break;
       }
     }
@@ -317,6 +321,6 @@ export class GraphEditorComponent implements OnInit {
 
   private _setCurrentPosition() {
     this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._editorPosition.x, this._editorPosition.y)
-          .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
+      .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
   }
 }

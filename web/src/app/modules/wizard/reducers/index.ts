@@ -240,7 +240,7 @@ export const isShowingDebugConfig = createSelector(getDebugState, state => state
 export const getExecutionContexts = createSelector(getDebugState, state => state.executionContexts);
 export const getMultiselectionMode = createSelector(getWizardState, state => state.multiselectionMode);
 export const getDraggableMode = createSelector(getWizardState, state => state.draggableMode);
-
+export const getMlModels = createSelector(getExternalDataState, state => state.mlModels);
 export const getParameters = createSelector(getExternalDataState, state => ({
   globalVariables: state.globalVariables,
   environmentVariables: state.environmentVariables,

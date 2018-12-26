@@ -19,27 +19,24 @@
       "width": 6
     }
   ],
-  "advancedSettings": [
-     {
-      "name" : "global",
+  "advancedSettings": [{
+      "name": "global",
       "listCompressed": true,
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "executionMode",
           "propertyName": "SETTINGS._EXECUTION_MODE_",
           "required": true,
           "propertyType": "select",
           "width": 4,
           "default": "marathon",
-          "values": [
-             {
-                "label": "Local",
-                "value": "local"
-             },
-             {
-                "label": "Marathon",
-                "value": "marathon"
-             }
+          "values": [{
+              "label": "Local",
+              "value": "local"
+            },
+            {
+              "label": "Marathon",
+              "value": "marathon"
+            }
           ],
           "tooltip": "Execution mode used to launch the available workflows. If 'Marathon' is selected the workflow will be launched as an independent application inside a docker.",
           "qa": "workflow-execution-mode"
@@ -53,51 +50,50 @@
           "tooltip": "Mesos role are available only in Marathon mode. This roles are used exclusively for resource allocation).",
           "qa": "mesos-role"
         },
-         {
-            "propertyId": "mesosConstraint",
-            "propertyName": "SETTINGS._MESOS_CONSTRAINT_",
-            "width": 4,
-            "newRow": true,
-            "propertyType": "text",
-            "tooltip": "Mesos constraints are available only in Marathon mode. Constraints limit where apps run in order to leave room for optimization either for fault tolerance (by spreading a task out on multiple nodes) or locality (by running all tasks of an applications on the same node).",
-            "qa": "mesos-constraint"
-         },
-         {
-            "propertyId": "mesosConstraintOperator",
-            "propertyName": "SETTINGS._MESOS_CONSTRAINT_OPERATOR_",
-            "required": true,
-            "propertyType": "select",
-            "width": 4,
-            "default": "CLUSTER",
-            "values": [
-               {
-                  "label": "CLUSTER",
-                  "value": "CLUSTER"
-               },
-               {
-                  "label": "LIKE",
-                  "value": "LIKE"
-               },
-               {
-                  "label": "UNLIKE",
-                  "value": "UNLIKE"
-               },
-               {
-                  "label": "MAX_PER",
-                  "value": "MAX_PER"
-               },
-               {
-                  "label": "UNIQUE",
-                  "value": "UNIQUE"
-               },
-               {
-                  "label": "GROUP_BY",
-                  "value": "GROUP_BY"
-               }
-            ],
-            "tooltip": "All Marathon operators are supported when the field name is @hostname.",
-            "qa": "mesos-constraint-operator"
-         },
+        {
+          "propertyId": "mesosConstraint",
+          "propertyName": "SETTINGS._MESOS_CONSTRAINT_",
+          "width": 4,
+          "newRow": true,
+          "propertyType": "text",
+          "tooltip": "Mesos constraints are available only in Marathon mode. Constraints limit where apps run in order to leave room for optimization either for fault tolerance (by spreading a task out on multiple nodes) or locality (by running all tasks of an applications on the same node).",
+          "qa": "mesos-constraint"
+        },
+        {
+          "propertyId": "mesosConstraintOperator",
+          "propertyName": "SETTINGS._MESOS_CONSTRAINT_OPERATOR_",
+          "required": true,
+          "propertyType": "select",
+          "width": 4,
+          "default": "CLUSTER",
+          "values": [{
+              "label": "CLUSTER",
+              "value": "CLUSTER"
+            },
+            {
+              "label": "LIKE",
+              "value": "LIKE"
+            },
+            {
+              "label": "UNLIKE",
+              "value": "UNLIKE"
+            },
+            {
+              "label": "MAX_PER",
+              "value": "MAX_PER"
+            },
+            {
+              "label": "UNIQUE",
+              "value": "UNIQUE"
+            },
+            {
+              "label": "GROUP_BY",
+              "value": "GROUP_BY"
+            }
+          ],
+          "tooltip": "All Marathon operators are supported when the field name is @hostname.",
+          "qa": "mesos-constraint-operator"
+        },
         {
           "propertyId": "preExecutionSqlSentences",
           "propertyName": "SETTINGS._INITIAL_SQL_SENTENCES_",
@@ -110,8 +106,8 @@
             "propertyId": "sentence",
             "propertyName": "SETTINGS._SQL_SENTENCE_",
             "propertyType": "textarea",
-             "contentType": "SQL",
-             "width": 8,
+            "contentType": "SQL",
+            "width": 8,
             "required": false,
             "tooltip": "SQL sentence",
             "qa": "workflow-input-sql-sentence"
@@ -126,87 +122,86 @@
           "tooltip": "SQL sentences that will be executed after the workflow ends. It only applies to batch workflows",
           "qa": "workflow-output-sql-sentences",
           "fields": [{
-             "propertyId": "sentence",
-             "propertyName": "SETTINGS._SQL_SENTENCE_",
-             "propertyType": "textarea",
-             "contentType": "SQL",
-             "width": 8,
-             "required": false,
-             "tooltip": "SQL sentence",
-             "qa": "workflow-output-sql-sentence"
+            "propertyId": "sentence",
+            "propertyName": "SETTINGS._SQL_SENTENCE_",
+            "propertyType": "textarea",
+            "contentType": "SQL",
+            "width": 8,
+            "required": false,
+            "tooltip": "SQL sentence",
+            "qa": "workflow-output-sql-sentence"
           }]
         },
-         {
-            "propertyId": "udfsToRegister",
-            "propertyName": "SETTINGS._USER_UDFS_",
-            "propertyType": "list",
-            "tooltip": "Custom UDFS created by the user",
-            "qa": "workflow-user-udfs",
-            "fields": [{
-               "propertyId": "name",
-               "propertyName": "SETTINGS._UDF_NAME",
-               "propertyType": "text",
-               "regexp": "",
-               "default": "",
-               "required": false,
-               "qa": "workflow-udf-name"
-            }]
-         },
-         {
-            "propertyId": "udafsToRegister",
-            "propertyName": "SETTINGS._USER_UDAFS_",
-            "propertyType": "list",
-            "tooltip": "Custom UDAFS created by the user",
-            "qa": "workflow-user-udafs",
-            "fields": [{
-               "propertyId": "name",
-               "propertyName": "SETTINGS._UDF_NAME",
-               "propertyType": "text",
-               "regexp": "",
-               "default": "",
-               "required": false,
-               "qa": "workflow-udaf-name"
-            }]
-         },
-         {
-            "propertyId": "userPluginsJars",
-            "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
-            "propertyType": "list",
-            "tooltip": "Custom jars, containing plugins created by the user, that will be used in the Spark jobs. The user may add library jars or Sparta plugins that extend the Sparta SDK",
-            "qa": "workflow-user-plugins-jars",
-            "fields": [{
-               "propertyId": "jarPath",
-               "propertyName": "SETTINGS._JAR_PATH",
-               "propertyType": "text",
-               "regexp": "",
-               "default": "",
-               "required": false,
-               "qa": "workflow-jar-path"
-            }]
-         },
-         {
-            "propertyId": "addAllUploadedPlugins",
-            "propertyName": "SETTINGS._ADD_ALL_UPLOADED_PLUGINS_",
-            "propertyType": "boolean",
-            "required": true,
-            "default": true,
-            "width": "auto",
-            "tooltip": "Enables or disables all the uploaded plugins for this workflow.",
-            "qa": "spark-streaming-addplugins"
-         }
+        {
+          "propertyId": "udfsToRegister",
+          "propertyName": "SETTINGS._USER_UDFS_",
+          "propertyType": "list",
+          "tooltip": "Custom UDFS created by the user",
+          "qa": "workflow-user-udfs",
+          "fields": [{
+            "propertyId": "name",
+            "propertyName": "SETTINGS._UDF_NAME",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "required": false,
+            "qa": "workflow-udf-name"
+          }]
+        },
+        {
+          "propertyId": "udafsToRegister",
+          "propertyName": "SETTINGS._USER_UDAFS_",
+          "propertyType": "list",
+          "tooltip": "Custom UDAFS created by the user",
+          "qa": "workflow-user-udafs",
+          "fields": [{
+            "propertyId": "name",
+            "propertyName": "SETTINGS._UDF_NAME",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "required": false,
+            "qa": "workflow-udaf-name"
+          }]
+        },
+        {
+          "propertyId": "userPluginsJars",
+          "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
+          "propertyType": "list",
+          "tooltip": "Custom jars, containing plugins created by the user, that will be used in the Spark jobs. The user may add library jars or Sparta plugins that extend the Sparta SDK",
+          "qa": "workflow-user-plugins-jars",
+          "fields": [{
+            "propertyId": "jarPath",
+            "propertyName": "SETTINGS._JAR_PATH",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "required": false,
+            "qa": "workflow-jar-path"
+          }]
+        },
+        {
+          "propertyId": "addAllUploadedPlugins",
+          "propertyName": "SETTINGS._ADD_ALL_UPLOADED_PLUGINS_",
+          "propertyType": "boolean",
+          "required": true,
+          "default": true,
+          "width": "auto",
+          "tooltip": "Enables or disables all the uploaded plugins for this workflow.",
+          "qa": "spark-streaming-addplugins"
+        }
       ]
     },
-     {
-      "name" : "streamingSettings",
-      "properties": [
-        {
+    {
+      "name": "streamingSettings",
+      "properties": [{
           "propertyId": "window",
           "propertyName": "SETTINGS._SPARK_STREAMING_WINDOW_",
           "propertyType": "text",
           "default": "{{{Global.SPARK_STREAMING_WINDOW}}}",
           "tooltip": "Streaming window assigned to Spark",
           "required": true,
-           "width": 4,
+          "width": 4,
           "qa": "spark-streaming-window"
         },
         {
@@ -214,25 +209,25 @@
           "propertyName": "SETTINGS._WORKFLOW_REMEMBER_FIELD_",
           "propertyType": "text",
           "tooltip": "Set each DStream in this context to remember the RDDs that were generated inside the time-frame of the specified duration.",
-           "width": 4,
+          "width": 4,
           "qa": "spark-streaming-remember-number"
         },
-         {
-            "propertyId": "blockInterval",
-            "propertyName": "SETTINGS._SPARK_BLOCK_INTERVAL_",
-            "propertyType": "text",
-            "width": 4,
-            "default": "{{{Global.SPARK_STREAMING_BLOCK_INTERVAL}}}",
-            "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark.",
-            "qa": "workflow-spark-blockInterval"
-         },
+        {
+          "propertyId": "blockInterval",
+          "propertyName": "SETTINGS._SPARK_BLOCK_INTERVAL_",
+          "propertyType": "text",
+          "width": 4,
+          "default": "{{{Global.SPARK_STREAMING_BLOCK_INTERVAL}}}",
+          "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark.",
+          "qa": "workflow-spark-blockInterval"
+        },
         {
           "propertyId": "backpressure",
           "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_",
           "propertyType": "switch",
           "required": true,
           "default": false,
-           "width": "auto",
+          "width": "auto",
           "tooltip": "Enables or disables Spark Streaming's internal backpressure mechanism.",
           "qa": "spark-streaming-backpressure"
         },
@@ -242,126 +237,114 @@
           "propertyType": "text",
           "tooltip": "Initial maximum receiving rate at which each receiver will receive data for the first batch. Only available with receiver inputs.",
           "required": false,
-           "visible": [
-              [
-                 {
-                    "propertyId": "backpressure",
-                    "value": true
-                 }
-              ]
-           ],
-           "width": 4,
+          "visible": [
+            [{
+              "propertyId": "backpressure",
+              "value": true
+            }]
+          ],
+          "width": 4,
           "qa": "spark-streaming-backpressure-initial-rate"
         },
-         {
-            "propertyId": "backpressureMaxRate",
-            "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_MAX_RATE_",
-            "propertyType": "text",
-            "tooltip": "Get the max rate limit, only available with receiver inputs.",
-            "required": false,
-            "visible": [
-               [
-                  {
-                     "propertyId": "backpressure",
-                     "value": true
-                  }
-               ]
-            ],
-            "width": 4,
-            "qa": "spark-streaming-backpressure-max-rate"
-         },
-         {
-            "propertyId": "stopGracefully",
-            "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
-            "propertyType": "switch",
-            "required": true,
-            "width": "auto",
-            "default": true,
-            "tooltip": "Gracefully stops the streaming contexts when shutting down the Spark applications",
-            "qa": "workflow-spark-stopGracefully"
-         },
         {
-          "name" : "checkpointSettings",
-          "properties": [
-             {
-                "propertyId": "enableCheckpointing",
-                "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
-                "propertyType": "switch",
-                "width": "auto",
-                "required": true,
-                "default": true,
-                "tooltip": "Enables checkpointing in the streaming process. The Spark job will save the RDDs in the specified path in HDFS. It is a mandatory requirement when the workflow has any cubes in it.",
-                "qa": "workflow-enable-checkpoint"
-             },
-               {
-                  "propertyId": "checkpointPath",
-                  "propertyName": "SETTINGS._CHECKPOINT_PATH_",
-                  "propertyType": "text",
-                  "default": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}",
-                  "required": false,
-                  "tooltip": "Used only if the checkpointing feature is activated. When selecting Marathon as deploy mode, the checkpoint path must be one located in a HDFS node(sparta/checkpoint). When deploying locally the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint).",
-                  "visible": [
-                     [
-                        {
-                           "propertyId": "enableCheckpointing",
-                           "value": true
-                        }
-                     ]
-                  ],
-                  "qa": "workflow-checkpoint-path"
-               },
+          "propertyId": "backpressureMaxRate",
+          "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_MAX_RATE_",
+          "propertyType": "text",
+          "tooltip": "Get the max rate limit, only available with receiver inputs.",
+          "required": false,
+          "visible": [
+            [{
+              "propertyId": "backpressure",
+              "value": true
+            }]
+          ],
+          "width": 4,
+          "qa": "spark-streaming-backpressure-max-rate"
+        },
+        {
+          "propertyId": "stopGracefully",
+          "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
+          "propertyType": "switch",
+          "required": true,
+          "width": "auto",
+          "default": true,
+          "tooltip": "Gracefully stops the streaming contexts when shutting down the Spark applications",
+          "qa": "workflow-spark-stopGracefully"
+        },
+        {
+          "name": "checkpointSettings",
+          "properties": [{
+              "propertyId": "enableCheckpointing",
+              "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
+              "propertyType": "switch",
+              "width": "auto",
+              "required": true,
+              "default": true,
+              "tooltip": "Enables checkpointing in the streaming process. The Spark job will save the RDDs in the specified path in HDFS. It is a mandatory requirement when the workflow has any cubes in it.",
+              "qa": "workflow-enable-checkpoint"
+            },
+            {
+              "propertyId": "checkpointPath",
+              "propertyName": "SETTINGS._CHECKPOINT_PATH_",
+              "propertyType": "text",
+              "default": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}",
+              "required": false,
+              "tooltip": "Used only if the checkpointing feature is activated. When selecting Marathon as deploy mode, the checkpoint path must be one located in a HDFS node(sparta/checkpoint). When deploying locally the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint).",
+              "visible": [
+                [{
+                  "propertyId": "enableCheckpointing",
+                  "value": true
+                }]
+              ],
+              "qa": "workflow-checkpoint-path"
+            },
 
-               {
-                  "propertyId": "autoDeleteCheckpoint",
-                  "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
-                  "propertyType": "boolean",
-                  "width": "auto",
-                  "required": true,
-                  "default": true,
-                  "float": true,
-                  "tooltip": "Only used when the checkpointing feature is enabled. Auto-deletes the stored checkpoint.",
-                  "visible": [
-                     [
-                        {
-                           "propertyId": "enableCheckpointing",
-                           "value": true
-                        }
-                     ]
-                  ],
-                  "qa": "workflow-delete-checkpoint"
-               },
-               {
-                  "propertyId": "addTimeToCheckpointPath",
-                  "propertyName": "SETTINGS._ADD_TIME_TO_CHECKPOINT_",
-                  "width": "auto",
-                  "propertyType": "boolean",
-                  "required": true,
-                  "default": false,
-                  "tooltip": "Only used when the checkpointing feature is enabled. Adds the current time to checkpoint path. Be careful if you need HA in your streaming process.",
-                  "visible": [
-                     [
-                        {
-                           "propertyId": "enableCheckpointing",
-                           "value": true
-                        }
-                     ]
-                  ],
-                  "qa": "workflow-add-timestamp-checkpoint"
-               }
+            {
+              "propertyId": "autoDeleteCheckpoint",
+              "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
+              "propertyType": "boolean",
+              "width": "auto",
+              "required": true,
+              "default": true,
+              "float": true,
+              "tooltip": "Only used when the checkpointing feature is enabled. Auto-deletes the stored checkpoint.",
+              "visible": [
+                [{
+                  "propertyId": "enableCheckpointing",
+                  "value": true
+                }]
+              ],
+              "qa": "workflow-delete-checkpoint"
+            },
+            {
+              "propertyId": "addTimeToCheckpointPath",
+              "propertyName": "SETTINGS._ADD_TIME_TO_CHECKPOINT_",
+              "width": "auto",
+              "propertyType": "boolean",
+              "required": true,
+              "default": false,
+              "tooltip": "Only used when the checkpointing feature is enabled. Adds the current time to checkpoint path. Be careful if you need HA in your streaming process.",
+              "visible": [
+                [{
+                  "propertyId": "enableCheckpointing",
+                  "value": true
+                }]
+              ],
+              "qa": "workflow-add-timestamp-checkpoint"
+            }
           ]
         }
       ]
     },
-     {
-      "name" : "sparkSettings",
-      "properties": [
-        {
+    {
+      "name": "sparkSettings",
+      "properties": [{
           "propertyId": "sparkKerberos",
           "propertyName": "SETTINGS._SPARK_KERBEROS_ENABLE_",
           "propertyType": "boolean",
           "width": "auto",
           "default": true,
-           "float": true,
+          "float": true,
           "tooltip": "Enables Kerberos integration by sending the principal and keytab arguments, if they are available, as parameters to the spark-submit.",
           "qa": "workflow-spark-kerberos"
         },
@@ -371,169 +354,165 @@
           "propertyType": "boolean",
           "width": "auto",
           "default": true,
-           "float": true,
+          "float": true,
           "tooltip": "Enables TLS connection to datastores and sends the options through the spark-submit.",
           "qa": "workflow-spark-datastore-tls"
         },
         {
-           "propertyId": "sparkMesosSecurity",
-           "propertyName": "SETTINGS._SPARK_MESOS_SECURITY_ENABLE_",
-           "propertyType": "boolean",
-           "width": "auto",
-           "default": true,
-           "tooltip": "Enables MESOS security and send options through the spark submit",
-           "qa": "workflow-spark-enable-mesos"
+          "propertyId": "sparkMesosSecurity",
+          "propertyName": "SETTINGS._SPARK_MESOS_SECURITY_ENABLE_",
+          "propertyType": "boolean",
+          "width": "auto",
+          "default": true,
+          "tooltip": "Enables MESOS security and send options through the spark submit",
+          "qa": "workflow-spark-enable-mesos"
         },
         {
-           "name": "submitArguments",
-           "listCompressed": true,
-            "properties": [
-               {
-                  "propertyId": "userArguments",
-                  "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENTS_",
-                  "propertyType": "list",
-                  "required": false,
-                  "tooltip": "Spark submit arguments added when the workflow is executed on a Spark cluster. Values set here will override the property file options",
-                  "qa": "workflow-spark-submit-argument",
-                  "fields": [
-                     {
-                       "propertyId": "submitArgument",
-                       "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_KEY_",
-                       "position": "left",
-                       "propertyType": "text",
-                       "regexp": "",
-                       "default": "",
-                        "width": 4,
-                       "required": false,
-                       "tooltip": "Spark submit argument with the structure --xxx.",
-                       "qa": "workflow-spark-submit-argument-key"
-                     },
-                     {
-                       "propertyId": "submitValue",
-                       "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_VALUE_",
-                       "position": "right",
-                       "propertyType": "text",
-                       "regexp": "",
-                       "default": "Argument value.",
-                        "width": 4,
-                       "required": false,
-                       "qa": "workflow-spark-submit-argument-value"
-                     }
-                  ]
-               },
-               {
-                  "propertyId": "driverJavaOptions",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
+          "name": "submitArguments",
+          "listCompressed": true,
+          "properties": [{
+              "propertyId": "userArguments",
+              "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENTS_",
+              "propertyType": "list",
+              "required": false,
+              "tooltip": "Spark submit arguments added when the workflow is executed on a Spark cluster. Values set here will override the property file options",
+              "qa": "workflow-spark-submit-argument",
+              "fields": [{
+                  "propertyId": "submitArgument",
+                  "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_KEY_",
+                  "position": "left",
                   "propertyType": "text",
+                  "regexp": "",
+                  "default": "",
                   "width": 4,
-                  "float": true,
-                  "default": "{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}",
-                  "tooltip": "Extra Java options to pass to the driver",
-                  "qa": "workflow-spark-driverJavaOptions"
-               }
-            ]
-         },
+                  "required": false,
+                  "tooltip": "Spark submit argument with the structure --xxx.",
+                  "qa": "workflow-spark-submit-argument-key"
+                },
+                {
+                  "propertyId": "submitValue",
+                  "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_VALUE_",
+                  "position": "right",
+                  "propertyType": "text",
+                  "regexp": "",
+                  "default": "Argument value.",
+                  "width": 4,
+                  "required": false,
+                  "qa": "workflow-spark-submit-argument-value"
+                }
+              ]
+            },
+            {
+              "propertyId": "driverJavaOptions",
+              "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
+              "propertyType": "text",
+              "width": 4,
+              "float": true,
+              "default": "{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}",
+              "tooltip": "Extra Java options to pass to the driver",
+              "qa": "workflow-spark-driverJavaOptions"
+            }
+          ]
+        },
         {
           "name": "sparkConf",
           "listCompressed": true,
-          "properties": [
-            {
-                "name": "sparkResourcesConf",
-                "listCompressed": true,
-                "properties": [
-                   {
-                      "propertyId": "coresMax",
-                      "propertyName": "SETTINGS._SPARK_CORES_MAX_",
-                      "propertyType": "text",
-                      "default": "{{{Global.SPARK_CORES_MAX}}}",
-                      "width": 4,
-                      "float": true,
-                      "tooltip": "Maximum amount of CPU cores to request for the application.",
-                      "qa": "workflow-spark-coresMax"
-                   },
-                   {
-                      "propertyId": "mesosExtraCores",
-                      "propertyName": "SETTINGS._SPARK_EXTRA_CORES_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "tooltip": "Extra amount of CPUs to request per task.",
-                      "qa": "workflow-spark-mesosExtraCores"
-                   },
-                   {
-                      "propertyId": "driverCores",
-                      "propertyName": "SETTINGS._SPARK_DRIVER_CORES_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{{Global.SPARK_DRIVER_CORES}}}",
-                      "float": true,
-                      "tooltip": "Number of cores assigned to the Spark Driver.",
-                      "qa": "workflow-spark-driverCores"
-                   },
-                   {
-                      "propertyId": "driverMemory",
-                      "propertyName": "SETTINGS._SPARK_DRIVER_MEMORY_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{{Global.SPARK_DRIVER_MEMORY}}}",
-                      "tooltip": "Memory assigned to the Spark Driver.",
-                      "qa": "workflow-spark-driverMemory"
-                   },
-                   {
-                      "propertyId": "executorCores",
-                      "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{{Global.SPARK_EXECUTOR_CORES}}}",
-                      "float": true,
-                      "tooltip": "Number of cores to use on each executor.",
-                      "qa": "workflow-spark-executorCores"
-                   },
-                   {
-                      "propertyId": "executorMemory",
-                      "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
-                      "propertyType": "text",
-                      "default": "{{{Global.SPARK_EXECUTOR_MEMORY}}}",
-                      "width": 4,
-                      "tooltip": "Amount of memory to use per executor process.",
-                      "qa": "workflow-spark-executorMemory"
-                   },
-                   {
-                      "propertyId": "localityWait",
-                      "propertyName": "SETTINGS._SPARK_LOCALITY_WAIT_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{{Global.SPARK_LOCALITY_WAIT}}}",
-                      "tooltip": "Period of time to wait to launch a data-local task before giving up and launching it on a less-local node.",
-                      "qa": "workflow-spark-localityWait"
-                   },
-                   {
-                      "propertyId": "taskMaxFailures",
-                      "propertyName": "SETTINGS._SPARK_TASK_MAX_FAILURES_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{{Global.SPARK_TASK_MAX_FAILURES}}}",
-                      "tooltip": "Number of failures of any particular task before giving up on the job.",
-                      "qa": "workflow-spark-taskMaxFailures"
-                   },
-                   {
-                      "propertyId": "sparkMemoryFraction",
-                      "propertyName": "SETTINGS._SPARK_MEMORY_FRACTION_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{{Global.SPARK_MEMORY_FRACTION}}}",
-                      "tooltip": "Fraction of (heap space - 300MB) used for execution and storage.",
-                      "qa": "workflow-spark-memory-fraction"
-                   },
-                   {
-                      "propertyId": "sparkParallelism",
-                      "propertyName": "SETTINGS._SPARK_DEFAULT_PARALLELISM_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "tooltip": "Default number of partitions in RDDs returned by transformations like join, reduceByKey, and parallelize when not set by user.",
-                      "qa": "workflow-spark-default-parallelism"
-                   }
-                ]
-             },
+          "properties": [{
+              "name": "sparkResourcesConf",
+              "listCompressed": true,
+              "properties": [{
+                  "propertyId": "coresMax",
+                  "propertyName": "SETTINGS._SPARK_CORES_MAX_",
+                  "propertyType": "text",
+                  "default": "{{{Global.SPARK_CORES_MAX}}}",
+                  "width": 4,
+                  "float": true,
+                  "tooltip": "Maximum amount of CPU cores to request for the application.",
+                  "qa": "workflow-spark-coresMax"
+                },
+                {
+                  "propertyId": "mesosExtraCores",
+                  "propertyName": "SETTINGS._SPARK_EXTRA_CORES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Extra amount of CPUs to request per task.",
+                  "qa": "workflow-spark-mesosExtraCores"
+                },
+                {
+                  "propertyId": "driverCores",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_CORES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "{{{Global.SPARK_DRIVER_CORES}}}",
+                  "float": true,
+                  "tooltip": "Number of cores assigned to the Spark Driver.",
+                  "qa": "workflow-spark-driverCores"
+                },
+                {
+                  "propertyId": "driverMemory",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_MEMORY_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "{{{Global.SPARK_DRIVER_MEMORY}}}",
+                  "tooltip": "Memory assigned to the Spark Driver.",
+                  "qa": "workflow-spark-driverMemory"
+                },
+                {
+                  "propertyId": "executorCores",
+                  "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "{{{Global.SPARK_EXECUTOR_CORES}}}",
+                  "float": true,
+                  "tooltip": "Number of cores to use on each executor.",
+                  "qa": "workflow-spark-executorCores"
+                },
+                {
+                  "propertyId": "executorMemory",
+                  "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
+                  "propertyType": "text",
+                  "default": "{{{Global.SPARK_EXECUTOR_MEMORY}}}",
+                  "width": 4,
+                  "tooltip": "Amount of memory to use per executor process.",
+                  "qa": "workflow-spark-executorMemory"
+                },
+                {
+                  "propertyId": "localityWait",
+                  "propertyName": "SETTINGS._SPARK_LOCALITY_WAIT_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "{{{Global.SPARK_LOCALITY_WAIT}}}",
+                  "tooltip": "Period of time to wait to launch a data-local task before giving up and launching it on a less-local node.",
+                  "qa": "workflow-spark-localityWait"
+                },
+                {
+                  "propertyId": "taskMaxFailures",
+                  "propertyName": "SETTINGS._SPARK_TASK_MAX_FAILURES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "{{{Global.SPARK_TASK_MAX_FAILURES}}}",
+                  "tooltip": "Number of failures of any particular task before giving up on the job.",
+                  "qa": "workflow-spark-taskMaxFailures"
+                },
+                {
+                  "propertyId": "sparkMemoryFraction",
+                  "propertyName": "SETTINGS._SPARK_MEMORY_FRACTION_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "{{{Global.SPARK_MEMORY_FRACTION}}}",
+                  "tooltip": "Fraction of (heap space - 300MB) used for execution and storage.",
+                  "qa": "workflow-spark-memory-fraction"
+                },
+                {
+                  "propertyId": "sparkParallelism",
+                  "propertyName": "SETTINGS._SPARK_DEFAULT_PARALLELISM_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Default number of partitions in RDDs returned by transformations like join, reduceByKey, and parallelize when not set by user.",
+                  "qa": "workflow-spark-default-parallelism"
+                }
+              ]
+            },
             {
               "propertyId": "userSparkConf",
               "propertyName": "SETTINGS._SPARK_CONF_",
@@ -541,296 +520,282 @@
               "required": false,
               "tooltip": "Spark configuration properties. Values set here will override the ones set in the configuration file.",
               "qa": "workflow-spark-conf",
-              "fields": [
-                 {
-                   "propertyId": "sparkConfKey",
-                   "propertyName": "SETTINGS._SPARK_CONF_KEY_",
-                   "position": "left",
-                   "propertyType": "text",
-                   "regexp": "",
-                   "default": "",
-                    "width": 4,
-                   "required": false,
-                   "tooltip": "Spark configuration property with the structure spark.xxx",
-                   "qa": "workflow-sparkConfKey"
-                 },
-                 {
-                   "propertyId": "sparkConfValue",
-                   "propertyName": "SETTINGS._SPARK_CONF_VALUE_",
-                   "position": "right",
-                   "propertyType": "text",
-                   "regexp": "",
-                   "default": "",
-                    "width": 4,
-                   "required": false,
-                    "tooltip": "Property value.",
-                   "qa": "workflow-sparkConfValue"
-                 }
+              "fields": [{
+                  "propertyId": "sparkConfKey",
+                  "propertyName": "SETTINGS._SPARK_CONF_KEY_",
+                  "position": "left",
+                  "propertyType": "text",
+                  "regexp": "",
+                  "default": "",
+                  "width": 4,
+                  "required": false,
+                  "tooltip": "Spark configuration property with the structure spark.xxx",
+                  "qa": "workflow-sparkConfKey"
+                },
+                {
+                  "propertyId": "sparkConfValue",
+                  "propertyName": "SETTINGS._SPARK_CONF_VALUE_",
+                  "position": "right",
+                  "propertyType": "text",
+                  "regexp": "",
+                  "default": "",
+                  "width": 4,
+                  "required": false,
+                  "tooltip": "Property value.",
+                  "qa": "workflow-sparkConfValue"
+                }
               ]
             },
-             {
-                "propertyId": "executorExtraJavaOptions",
-                "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
-                "propertyType": "text",
-                "width": 4,
-                "default": "{{{Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}",
-                "tooltip": "Extra Java options to pass to the executors.",
-                "qa": "workflow-spark-executorJavaOptions"
-             },
-             {
-                "propertyId": "executorDockerImage",
-                "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
-                "propertyType": "text",
-                "width": 4,
-                "default": "{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}",
-                "tooltip": "Specifies which spark docker image should be used for the executors in order to run over Mesos Clusters.",
-                "qa": "workflow-spark-executorDockerImage"
-             },
-             {
-                "propertyId": "sparkLocalDir",
-                "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
-                "propertyType": "text",
-                "width": 4,
-                "default": "{{{Global.SPARK_LOCAL_PATH}}}",
-                "tooltip": "Set the Spark home in Mesos deployments.",
-                "qa": "workflow-spark-home"
-             },
-             {
-                "propertyId": "sparkUser",
-                "propertyName": "SETTINGS._SPARK_USER_",
-                "propertyType": "text",
-                "width": 4,
-                "tooltip": "Sets the Spark user in Mesos deployments: this user will be the one in charge of deploying the docker app in the node. If not specified, it will be set to the Sparta tenant name of the deployed instance.",
-                "qa": "workflow-spark-user"
-             },
             {
-                "propertyId": "coarse",
-                "propertyName": "SETTINGS._SPARK_COARSE_",
-                "propertyType": "boolean",
-                "newRow": true,
-                "required": true,
-                "width": "auto",
-                "default": true,
-                "tooltip": "Enables coarse mode as the granularity level, this is recommended in Streaming Applications over Mesos clusters. If assigned to false the default mode is set to fine-grained.",
-                "qa": "workflow-spark-coarse"
-             },
-             {
-                "propertyId": "sparkKryoSerialization",
-                "propertyName": "SETTINGS._SPARK_KRYO_",
-                "propertyType": "boolean",
-                "required": true,
-                "width": "auto",
-                "default": false,
-                "tooltip": "Enables Kryo Serialization.",
-                "qa": "workflow-spark-Kryo"
-             },
-             {
-                "propertyId": "sparkSqlCaseSensitive",
-                "propertyName": "SETTINGS._SPARK_SQL_CASE_SENSITIVE_",
-                "propertyType": "boolean",
-                "required": true,
-                "width": "auto",
-                "default": true,
-                "tooltip": "Activates case-sensitive feature in SQL queries.",
-                "qa": "workflow-spark-case-sensitive"
-             },
-             {
-                "propertyId": "logStagesProgress",
-                "propertyName": "SETTINGS._SPARK_LOG_STAGES_PROGRESS_",
-                "propertyType": "boolean",
-                "required": true,
-                "width": "auto",
-                "default": false,
-                "tooltip": "Show stages progress in logs.",
-                "qa": "workflow-spark-logStagesProgress"
-             },
-             {
-                "propertyId": "hdfsTokenCache",
-                "propertyName": "SETTINGS._SPARK_HDFS_DISABLE_CACHE_",
-                "propertyType": "boolean",
-                "required": true,
-                "width": "auto",
-                "default": true,
-                "tooltip": "If selected, it disables the HDFS cache for token delegation.",
-                "qa": "workflow-spark-hdfsDisableCache"
-             }
+              "propertyId": "executorExtraJavaOptions",
+              "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
+              "propertyType": "text",
+              "width": 4,
+              "default": "{{{Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}",
+              "tooltip": "Extra Java options to pass to the executors.",
+              "qa": "workflow-spark-executorJavaOptions"
+            },
+            {
+              "propertyId": "executorDockerImage",
+              "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
+              "propertyType": "text",
+              "width": 4,
+              "default": "{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}",
+              "tooltip": "Specifies which spark docker image should be used for the executors in order to run over Mesos Clusters.",
+              "qa": "workflow-spark-executorDockerImage"
+            },
+            {
+              "propertyId": "sparkLocalDir",
+              "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
+              "propertyType": "text",
+              "width": 4,
+              "default": "{{{Global.SPARK_LOCAL_PATH}}}",
+              "tooltip": "Set the Spark home in Mesos deployments.",
+              "qa": "workflow-spark-home"
+            },
+            {
+              "propertyId": "sparkUser",
+              "propertyName": "SETTINGS._SPARK_USER_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Sets the Spark user in Mesos deployments: this user will be the one in charge of deploying the docker app in the node. If not specified, it will be set to the Sparta tenant name of the deployed instance.",
+              "qa": "workflow-spark-user"
+            },
+            {
+              "propertyId": "coarse",
+              "propertyName": "SETTINGS._SPARK_COARSE_",
+              "propertyType": "boolean",
+              "newRow": true,
+              "required": true,
+              "width": "auto",
+              "default": true,
+              "tooltip": "Enables coarse mode as the granularity level, this is recommended in Streaming Applications over Mesos clusters. If assigned to false the default mode is set to fine-grained.",
+              "qa": "workflow-spark-coarse"
+            },
+            {
+              "propertyId": "sparkKryoSerialization",
+              "propertyName": "SETTINGS._SPARK_KRYO_",
+              "propertyType": "boolean",
+              "required": true,
+              "width": "auto",
+              "default": false,
+              "tooltip": "Enables Kryo Serialization.",
+              "qa": "workflow-spark-Kryo"
+            },
+            {
+              "propertyId": "sparkSqlCaseSensitive",
+              "propertyName": "SETTINGS._SPARK_SQL_CASE_SENSITIVE_",
+              "propertyType": "boolean",
+              "required": true,
+              "width": "auto",
+              "default": true,
+              "tooltip": "Activates case-sensitive feature in SQL queries.",
+              "qa": "workflow-spark-case-sensitive"
+            },
+            {
+              "propertyId": "logStagesProgress",
+              "propertyName": "SETTINGS._SPARK_LOG_STAGES_PROGRESS_",
+              "propertyType": "boolean",
+              "required": true,
+              "width": "auto",
+              "default": false,
+              "tooltip": "Show stages progress in logs.",
+              "qa": "workflow-spark-logStagesProgress"
+            },
+            {
+              "propertyId": "hdfsTokenCache",
+              "propertyName": "SETTINGS._SPARK_HDFS_DISABLE_CACHE_",
+              "propertyType": "boolean",
+              "required": true,
+              "width": "auto",
+              "default": true,
+              "tooltip": "If selected, it disables the HDFS cache for token delegation.",
+              "qa": "workflow-spark-hdfsDisableCache"
+            }
           ]
         }
       ]
     },
-     {
-        "name" : "errorsManagement",
-        "properties": [
-           {
-              "name": "genericErrorManagement",
-              "properties": [
-                 {
-                    "propertyId": "whenError",
-                    "propertyName": "SETTINGS._ERROR_WHEN_ERROR_",
-                    "required": true,
-                    "propertyType": "select",
-                    "width": 4,
-                    "default": "Error",
-                    "values": [
-                       {
-                          "label": "Error",
-                          "value": "Error"
-                       },
-                       {
-                          "label": "Discard",
-                          "value": "Discard"
-                       }
-                    ],
-                    "tooltip": "Controls the error handling policy applied globally to the application. If 'Error' is chosen, the application will stop if any type of error is encountered. If 'Discard' is chosen, the application will ignore any thrown errors and exceptions.",
-                    "qa": "workflow-errors-whenError"
-                 }
+    {
+      "name": "errorsManagement",
+      "properties": [{
+          "name": "genericErrorManagement",
+          "properties": [{
+            "propertyId": "whenError",
+            "propertyName": "SETTINGS._ERROR_WHEN_ERROR_",
+            "required": true,
+            "propertyType": "select",
+            "width": 4,
+            "default": "Error",
+            "values": [{
+                "label": "Error",
+                "value": "Error"
+              },
+              {
+                "label": "Discard",
+                "value": "Discard"
+              }
+            ],
+            "tooltip": "Controls the error handling policy applied globally to the application. If 'Error' is chosen, the application will stop if any type of error is encountered. If 'Discard' is chosen, the application will ignore any thrown errors and exceptions.",
+            "qa": "workflow-errors-whenError"
+          }]
+        },
+        {
+          "name": "transformationStepsManagement",
+          "properties": [{
+              "propertyId": "whenError",
+              "propertyName": "SETTINGS._ERROR_WHEN_ERROR_",
+              "propertyType": "select",
+              "width": 4,
+              "default": "Error",
+              "values": [{
+                  "label": "Error",
+                  "value": "Error"
+                },
+                {
+                  "label": "Discard",
+                  "value": "Discard"
+                }
+              ],
+              "tooltip": "Specifies which policy to follow when an error occurs on any transformation. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted.",
+              "qa": "workflow-errors-whenError"
+            },
+            {
+              "propertyId": "whenRowError",
+              "propertyName": "SETTINGS._ERROR_WHEN_ROW_ERROR_",
+              "propertyType": "select",
+              "width": 4,
+              "default": "RowError",
+              "values": [{
+                  "label": "Error",
+                  "value": "RowError"
+                },
+                {
+                  "label": "Discard",
+                  "value": "RowDiscard"
+                }
+              ],
+              "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
+              "qa": "workflow-errors-whenRowError"
+            },
+            {
+              "propertyId": "whenFieldError",
+              "propertyName": "SETTINGS._ERROR_WHEN_FIELD_ERROR_",
+              "propertyType": "select",
+              "width": 4,
+              "default": "FieldError",
+              "values": [{
+                  "label": "Error",
+                  "value": "FieldError"
+                },
+                {
+                  "label": "Null",
+                  "value": "Null"
+                }
+              ],
+              "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
+              "qa": "workflow-errors-whenFieldError"
+            }
+          ]
+        },
+        {
+          "name": "transactionsManagement",
+          "properties": [{
+              "propertyId": "sendToOutputs",
+              "propertyName": "SETTINGS._ERROR_SAVE_TO_OUTPUTS_",
+              "propertyType": "list",
+              "tooltip": "Sends data to the Output step(s) marked for error management when an error occurs.",
+              "qa": "workflow-errors-sendToOutputs",
+              "fields": [{
+                  "propertyId": "outputStepName",
+                  "propertyName": "SETTINGS._OUTPUT_STEP_NAME_",
+                  "propertyType": "select",
+                  "tooltip": "Specifies a table/output name where the error will be stored.",
+                  "qa": "workflow-errors-outputStepName",
+                  "externalValueKey": "outputErrors",
+                  "values": []
+                },
+                {
+                  "propertyId": "omitSaveErrors",
+                  "propertyName": "SETTINGS._OMIT_ERRORS_",
+                  "propertyType": "boolean",
+                  "default": true,
+                  "tooltip": "If selected, it will discard any error or exception thrown while saving the application errors to the error management Output step(s).",
+                  "qa": "workflow-errors-omitSaveErrors"
+                },
+                {
+                  "propertyId": "addRedirectDate",
+                  "propertyName": "SETTINGS._ADD_REDIRECT_DATE_",
+                  "propertyType": "boolean",
+                  "default": false,
+                  "tooltip": "Adds a new column with the current timestamp to all the redirected elements.",
+                  "qa": "workflow-errors-addRedirectDate"
+                },
+                {
+                  "propertyId": "redirectDateColName",
+                  "propertyName": "SETTINGS._REDIRECT_DATE_NAME_",
+                  "propertyType": "text",
+                  "width": 3,
+                  "tooltip": "Specifies the column name where the current timestamp will be stored if the above property is enabled.",
+                  "default": "redirectDate",
+                  "visible": [
+                    [{
+                      "propertyId": "addRedirectDate",
+                      "value": true
+                    }]
+                  ],
+                  "qa": "workflow-errors-redirectDateColName"
+                }
               ]
-           },
-           {
-              "name": "transformationStepsManagement",
-              "properties": [
-                 {
-                    "propertyId": "whenError",
-                    "propertyName": "SETTINGS._ERROR_WHEN_ERROR_",
-                    "propertyType": "select",
-                    "width": 4,
-                    "default": "Error",
-                    "values": [
-                       {
-                          "label": "Error",
-                          "value": "Error"
-                       },
-                       {
-                          "label": "Discard",
-                          "value": "Discard"
-                       }
-                    ],
-                    "tooltip": "Specifies which policy to follow when an error occurs on any transformation. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted.",
-                    "qa": "workflow-errors-whenError"
-                 },
-                 {
-                    "propertyId": "whenRowError",
-                    "propertyName": "SETTINGS._ERROR_WHEN_ROW_ERROR_",
-                    "propertyType": "select",
-                    "width": 4,
-                    "default": "RowError",
-                    "values": [
-                       {
-                          "label": "Error",
-                          "value": "RowError"
-                       },
-                       {
-                          "label": "Discard",
-                          "value": "RowDiscard"
-                       }
-                    ],
-                    "tooltip": "Specifies which policy to follow when a row-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Discard' is chosen, no error will be prompted and the row will be omitted.",
-                    "qa": "workflow-errors-whenRowError"
-                 },
-                 {
-                    "propertyId": "whenFieldError",
-                    "propertyName": "SETTINGS._ERROR_WHEN_FIELD_ERROR_",
-                    "propertyType": "select",
-                    "width": 4,
-                    "default": "FieldError",
-                    "values": [
-                       {
-                          "label": "Error",
-                          "value": "FieldError"
-                       },
-                       {
-                          "label": "Null",
-                          "value": "Null"
-                       }
-                    ],
-                    "tooltip": "Specifies which policy to follow when a field-level error arises. If 'Error' is chosen, the application will stop and the error trace will be written to the log. If 'Null' is chosen, no error will be prompted and the field value will be set to null.",
-                    "qa": "workflow-errors-whenFieldError"
-                 }
-              ]
-           },
-           {
-              "name": "transactionsManagement",
-              "properties": [
-                 {
-                    "propertyId": "sendToOutputs",
-                    "propertyName": "SETTINGS._ERROR_SAVE_TO_OUTPUTS_",
-                    "propertyType": "list",
-                    "tooltip": "Sends data to the Output step(s) marked for error management when an error occurs.",
-                    "qa": "workflow-errors-sendToOutputs",
-                    "fields": [
-                       {
-                          "propertyId": "outputStepName",
-                          "propertyName": "SETTINGS._OUTPUT_STEP_NAME_",
-                          "propertyType": "select",
-                          "tooltip": "Specifies a table/output name where the error will be stored.",
-                          "qa": "workflow-errors-outputStepName",
-                          "externalValueKey": "outputErrors",
-                          "values": []
-                       },
-                       {
-                          "propertyId": "omitSaveErrors",
-                          "propertyName": "SETTINGS._OMIT_ERRORS_",
-                          "propertyType": "boolean",
-                          "default": true,
-                          "tooltip": "If selected, it will discard any error or exception thrown while saving the application errors to the error management Output step(s).",
-                          "qa": "workflow-errors-omitSaveErrors"
-                       },
-                       {
-                          "propertyId": "addRedirectDate",
-                          "propertyName": "SETTINGS._ADD_REDIRECT_DATE_",
-                          "propertyType": "boolean",
-                          "default": false,
-                          "tooltip": "Adds a new column with the current timestamp to all the redirected elements.",
-                          "qa": "workflow-errors-addRedirectDate"
-                       },
-                       {
-                          "propertyId": "redirectDateColName",
-                          "propertyName": "SETTINGS._REDIRECT_DATE_NAME_",
-                          "propertyType": "text",
-                          "width": 3,
-                          "tooltip": "Specifies the column name where the current timestamp will be stored if the above property is enabled.",
-                          "default": "redirectDate",
-                          "visible": [
-                             [
-                                {
-                                   "propertyId": "addRedirectDate",
-                                   "value": true
-                                }
-                             ]
-                          ],
-                          "qa": "workflow-errors-redirectDateColName"
-                       }
-                    ]
-                 },
-                 {
-                    "propertyId": "sendInputData",
-                    "propertyName": "SETTINGS._SEND_INPUT_DATA_",
-                    "propertyType": "boolean",
-                    "default": true,
-                    "tooltip": "Send the data of all input steps to error Outputs",
-                    "qa": "workflow-errors-sendInputData"
-                 },
-                 {
-                    "propertyId": "sendPredecessorsData",
-                    "propertyName": "SETTINGS._SEND_PREDECESSORS_DATA_",
-                    "propertyType": "boolean",
-                    "default": true,
-                    "tooltip": "Send the predecessors data for the current step to error Outputs",
-                    "qa": "workflow-errors-sendInputData"
-                 },
-                 {
-                    "propertyId": "sendStepData",
-                    "propertyName": "SETTINGS._SEND_STEP_DATA_",
-                    "propertyType": "boolean",
-                    "default": false,
-                    "tooltip": "Send the data of the transformation step to error Outputs, only available when the error is generated on save process",
-                    "qa": "workflow-errors-sendStepData"
-                 }
-              ]
-           }
-        ]
-     }
+            },
+            {
+              "propertyId": "sendInputData",
+              "propertyName": "SETTINGS._SEND_INPUT_DATA_",
+              "propertyType": "boolean",
+              "default": true,
+              "tooltip": "Send the data of all input steps to error Outputs",
+              "qa": "workflow-errors-sendInputData"
+            },
+            {
+              "propertyId": "sendPredecessorsData",
+              "propertyName": "SETTINGS._SEND_PREDECESSORS_DATA_",
+              "propertyType": "boolean",
+              "default": true,
+              "tooltip": "Send the predecessors data for the current step to error Outputs",
+              "qa": "workflow-errors-sendInputData"
+            },
+            {
+              "propertyId": "sendStepData",
+              "propertyName": "SETTINGS._SEND_STEP_DATA_",
+              "propertyType": "boolean",
+              "default": false,
+              "tooltip": "Send the data of the transformation step to error Outputs, only available when the error is generated on save process",
+              "qa": "workflow-errors-sendStepData"
+            }
+          ]
+        }
+      ]
+    }
   ],
-  "helpLinks": [
-  ]
+  "helpLinks": []
 }

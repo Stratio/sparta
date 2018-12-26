@@ -12,26 +12,42 @@ import { switchMap, map, catchError } from 'rxjs/operators';
 
 import * as fromWizard from './../reducers';
 import * as externalDataActions from './../actions/externalData';
-import { EnvironmentService, ParametersService } from 'app/services';
+import { EnvironmentService } from 'app/services/api/environment.service';
+import { ParametersService } from 'app/services/api/parameters.service';
+import { WizardApiService } from 'app/services/api/wizard.service';
 
 @Injectable()
 export class ExternalDataEffect {
 
-   @Effect()
-   getParamList$: Observable<any> = this._actions$
-      .pipe(ofType(externalDataActions.GET_PARAMS_LIST))
-      .pipe(switchMap(() => forkJoin([
-         this._parametersService.getParamList(),
-         this._parametersService.getGlobalParameters()
-      ])
-      .pipe(map((response) => new externalDataActions.GetParamsListCompleteAction(response)))
-      .pipe(catchError(error => of(new externalDataActions.GetParamsListErrorAction())))));
+  @Effect()
+  getParamList$: Observable<any> = this._actions$
+    .pipe(ofType(externalDataActions.GET_PARAMS_LIST))
+    .pipe(switchMap(() => forkJoin([
+      this._parametersService.getParamList(),
+      this._parametersService.getGlobalParameters()
+    ]).pipe(map((response) => new externalDataActions.GetParamsListCompleteAction(response)))
+      .pipe(catchError(error =>
+        of(new externalDataActions.GetParamsListErrorAction())
+      ))
+    ));
 
-   constructor(
-      private _actions$: Actions,
-      private _store: Store<fromWizard.State>,
-      private _environmentService: EnvironmentService,
-      private _parametersService: ParametersService
-   ) { }
+  @Effect()
+  getMlModels$: Observable<any> = this._actions$
+    .pipe(ofType(externalDataActions.GET_ML_MODELS))
+    .pipe(switchMap(() =>
+      this._wizardApiService.getMlModels()
+      .pipe(map((response) => new externalDataActions.GetMlModelsListCompleteAction(response)))
+      .pipe(catchError(error =>
+        of(new externalDataActions.GetMlModelsListErrorAction())
+      ))
+    ));
+
+  constructor(
+    private _actions$: Actions,
+    private _store: Store<fromWizard.State>,
+    private _environmentService: EnvironmentService,
+    private _wizardApiService: WizardApiService,
+    private _parametersService: ParametersService
+  ) { }
 }
 

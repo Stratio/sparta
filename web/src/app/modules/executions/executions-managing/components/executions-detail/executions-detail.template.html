@@ -8,7 +8,7 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 <section class="execution-details" *ngIf="execution">
-  <graph-editor [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position">
+  <graph-editor class="execution__details-editor" [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position">
     <svg:g wizard-edge
       *ngFor="let edge of edges; let i=index;"
       [edge]="edge"
@@ -25,10 +25,9 @@
       [(position)]="nodeData.uiConfiguration.position">
     </svg:g>
   </graph-editor>
-  <html
-  xmlns:svg="http://www.w3.org/XML/1998/namespace"
+
+<svg class="arrow-defs" xmlns:svg="http://www.w3.org/XML/1998/namespace"
   xmlns="http://www.w3.org/1999/xhtml">
-  <svg>
     <svg:defs>
       <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
         <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
@@ -41,6 +40,4 @@
       </svg:marker>
     </svg:defs>
   </svg>
-</html>
-{{execution | json}}
 </section>

@@ -9,20 +9,40 @@ export const GET_PARAMS_LIST = '[Wizard] Get params list';
 export const GET_PARAMS_LIST_COMPLETE = '[Wizard] Get params list complete';
 export const GET_PARAMS_LIST_ERROR = '[Wizard] Get params list error';
 
+export const GET_ML_MODELS = '[Wizard] Get mlModels list';
+export const GET_ML_MODELS_COMPLETE = '[Wizard] Get mlModels list complete';
+export const GET_ML_MODELS_ERROR = '[Wizard] Get mlModels list error';
+
 export class GetParamsListAction implements Action {
-    readonly type = GET_PARAMS_LIST;
+  readonly type = GET_PARAMS_LIST;
 }
 
 export class GetParamsListCompleteAction implements Action {
-    readonly type = GET_PARAMS_LIST_COMPLETE;
-    constructor(public payload: any) { }
+  readonly type = GET_PARAMS_LIST_COMPLETE;
+  constructor(public payload: any) { }
 }
 
 export class GetParamsListErrorAction implements Action {
-    readonly type = GET_PARAMS_LIST_ERROR;
+  readonly type = GET_PARAMS_LIST_ERROR;
+}
+
+export class GetMlModelsListAction implements Action {
+  readonly type = GET_ML_MODELS;
+}
+
+export class GetMlModelsListCompleteAction implements Action {
+  readonly type = GET_ML_MODELS_COMPLETE;
+  constructor(public payload: any) { }
+}
+
+export class GetMlModelsListErrorAction implements Action {
+  readonly type = GET_ML_MODELS_ERROR;
 }
 
 export type Actions =
-    GetParamsListAction |
-    GetParamsListCompleteAction |
-    GetParamsListErrorAction;
+  GetParamsListAction |
+  GetParamsListCompleteAction |
+  GetParamsListErrorAction |
+  GetMlModelsListAction |
+  GetMlModelsListCompleteAction |
+  GetMlModelsListErrorAction;

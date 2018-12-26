@@ -40,6 +40,7 @@ export class WizardComponent implements OnInit, OnDestroy {
   public parameters: any = [];
   public showDebugConfig$: Observable<boolean>;
   public executionContexts$: Observable<any>;
+  public mlModelsList: Array<string> = [];
 
   public workflowData: WorkflowData;
   public pipelinesMenu: any = [
@@ -80,6 +81,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     const id = this._route.snapshot.params.id;
     this.isEdit = (id && id.length);
     this._store.dispatch(new externalDataActions.GetParamsListAction());
+    this._store.dispatch(new externalDataActions.GetMlModelsListAction());
     this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings
     const type = this._route.snapshot.params.type === 'streaming' ? Engine.Streaming : Engine.Batch;
     if (this.isEdit) {
@@ -188,6 +190,12 @@ export class WizardComponent implements OnInit, OnDestroy {
         this._cd.markForCheck();
       });
 
+    this._store.pipe(select(fromWizard.getMlModels))
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((mlModelsList: Array<string>) => {
+        this.mlModelsList = mlModelsList;
+        this._cd.markForCheck();
+      });
     this.showDebugConfig$ = this._store.pipe(select(fromWizard.isShowingDebugConfig));
 
     function compare(a, b) {

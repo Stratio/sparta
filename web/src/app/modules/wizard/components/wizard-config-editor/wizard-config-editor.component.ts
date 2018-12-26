@@ -32,7 +32,7 @@ import { StepType } from 'app/models/enums';
 import { EditionConfigMode } from '@app/wizard/models/node';
 
 import * as fromQueryBuilder from '../query-builder/reducers';
-import {take, takeUntil} from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 
 
 @Component({
@@ -48,6 +48,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
   @Input() workflowType: string;
   @Input() parameters;
   @Input() environmentList: Array<Environment> = [];
+  @Input() mlModelsList: Array<string> = [];
   @ViewChild('entityForm') public entityForm: NgForm;
 
   public basicSettings: any = [];
@@ -84,25 +85,25 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     id: 'Writer',
     text: 'Writer'
   },
-    {
-      id: 'Mocks',
-      text: 'Mock Data'
-    }];
+  {
+    id: 'Mocks',
+    text: 'Mock Data'
+  }];
   private saveSubscription: Subscription;
   private validatedNameSubcription: Subscription;
 
-   ngOnInit(): void {
-      setTimeout(() => {
-         this.fadeActive = true;
-         this._cd.markForCheck();
-      });
-      this.valueDictionary.parameters = this.parameters;
-      if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
-         let attrs = [];
-         this.config.schemas.inputs.forEach(input => attrs = attrs.concat(this._getInputSchema(input)));
-         this.valueDictionary.formFieldsVariables = [...attrs];
-         this.valueDictionary.formFieldsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
-      }
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.fadeActive = true;
+      this._cd.markForCheck();
+    });
+    this.valueDictionary.parameters = this.parameters;
+    if (this.config.schemas && this.config.schemas.inputs && this.config.schemas.inputs.length) {
+      let attrs = [];
+      this.config.schemas.inputs.forEach(input => attrs = attrs.concat(this._getInputSchema(input)));
+      this.valueDictionary.formFieldsVariables = [...attrs];
+      this.valueDictionary.formFieldsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
+    }
 
     if (this.config.inputSteps && this.config.inputSteps.length) {
       this.valueDictionary.inputStepsVariables = [...this.config.inputSteps.map(step => ({
@@ -112,13 +113,17 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       }))];
       this.valueDictionary.inputStepsVariables.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
     }
+    this.valueDictionary.mlModelsList = this.mlModelsList.map(model => ({
+      label: model,
+      value: model
+    }));
     this._getMenuTabs();
-      this.validatedNameSubcription = this._store.pipe(select(fromWizard.getValidatedEntityName))
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((validation: boolean) => {
-            this.validatedName = validation;
-            this._cd.markForCheck();
-         });
+    this.validatedNameSubcription = this._store.pipe(select(fromWizard.getValidatedEntityName))
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((validation: boolean) => {
+        this.validatedName = validation;
+        this._cd.markForCheck();
+      });
 
     this.saveSubscription = this._store.pipe(select(fromWizard.isEntitySaved))
       .pipe(takeUntil(this._componentDestroyed))
@@ -135,12 +140,12 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
         this._cd.markForCheck();
       });
 
-      this._store.pipe(select(fromQueryBuilder.getQueryBuilderInnerState))
-         .pipe(takeUntil(this._componentDestroyed))
-         .subscribe((queryBuilder: any) => {
-            this.queryBuilder = queryBuilder;
-            this._cd.markForCheck();
-         });
+    this._store.pipe(select(fromQueryBuilder.getQueryBuilderInnerState))
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((queryBuilder: any) => {
+        this.queryBuilder = queryBuilder;
+        this._cd.markForCheck();
+      });
 
     this.getFormTemplate();
     this.visualQueryBuilder = true;
@@ -287,39 +292,39 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
   }
 
   normalizeQueryConfiguration() {
-      const usedInputs = [].concat.apply([], this.queryBuilder.outputSchemaFields
-         .map(output => output.originFields.map(field => `${field.alias}.${field.table}`)))
-         .filter((elem, index, self) => index === self.indexOf(elem));
-      let joinClause = null;
-      let fromClause = null;
-      if (usedInputs.length > 1 ||  this.queryBuilder.join.type.includes('RIGHT_ONLY') ||  this.queryBuilder.join.type.includes('LEFT_ONLY')) {
-         // JOIN
-         if (this.queryBuilder.join && this.queryBuilder.join.joins && this.queryBuilder.join.joins.length) {
-               const origin = this.queryBuilder.join.joins[0].origin;
-               const destination = this.queryBuilder.join.joins[0].destination;
-               const leftTable = { tableName: origin.table, alias: origin.alias };
-               const rightTable = { tableName: destination.table, alias: destination.alias };
-               const joinTypes = this.queryBuilder.join.type;
-               const joinConditions = this.queryBuilder.join.joins.map(join => ({ leftField: join.origin.column, rightField: join.destination.column }));
-               joinClause = { leftTable, rightTable, joinTypes, joinConditions };
-         } else {
-            joinClause = {
-               leftTable: { tableName: this.queryBuilder.inputSchemaFields[0].name, alias:  this.queryBuilder.inputSchemaFields[0].alias },
-               rightTable: { tableName: this.queryBuilder.inputSchemaFields[1].name, alias:  this.queryBuilder.inputSchemaFields[1].alias },
-               joinTypes: 'CROSS'
-            };
-         }
+    const usedInputs = [].concat.apply([], this.queryBuilder.outputSchemaFields
+      .map(output => output.originFields.map(field => `${field.alias}.${field.table}`)))
+      .filter((elem, index, self) => index === self.indexOf(elem));
+    let joinClause = null;
+    let fromClause = null;
+    if (usedInputs.length > 1 || this.queryBuilder.join.type.includes('RIGHT_ONLY') || this.queryBuilder.join.type.includes('LEFT_ONLY')) {
+      // JOIN
+      if (this.queryBuilder.join && this.queryBuilder.join.joins && this.queryBuilder.join.joins.length) {
+        const origin = this.queryBuilder.join.joins[0].origin;
+        const destination = this.queryBuilder.join.joins[0].destination;
+        const leftTable = { tableName: origin.table, alias: origin.alias };
+        const rightTable = { tableName: destination.table, alias: destination.alias };
+        const joinTypes = this.queryBuilder.join.type;
+        const joinConditions = this.queryBuilder.join.joins.map(join => ({ leftField: join.origin.column, rightField: join.destination.column }));
+        joinClause = { leftTable, rightTable, joinTypes, joinConditions };
       } else {
-         // FROM
-         if (this.queryBuilder.inputSchemaFields.length || this.queryBuilder.outputSchemaFields.length) {
-            const table = this.queryBuilder.inputSchemaFields[0];
-            const ouputTable = this.queryBuilder.outputSchemaFields[0] || [];
-            fromClause = {
-               tableName: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].table : table.name,
-               alias: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].alias : table.alias
-            };
-         }
+        joinClause = {
+          leftTable: { tableName: this.queryBuilder.inputSchemaFields[0].name, alias: this.queryBuilder.inputSchemaFields[0].alias },
+          rightTable: { tableName: this.queryBuilder.inputSchemaFields[1].name, alias: this.queryBuilder.inputSchemaFields[1].alias },
+          joinTypes: 'CROSS'
+        };
       }
+    } else {
+      // FROM
+      if (this.queryBuilder.inputSchemaFields.length || this.queryBuilder.outputSchemaFields.length) {
+        const table = this.queryBuilder.inputSchemaFields[0];
+        const ouputTable = this.queryBuilder.outputSchemaFields[0] || [];
+        fromClause = {
+          tableName: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].table : table.name,
+          alias: ouputTable.originFields && ouputTable.originFields.length ? ouputTable.originFields[0].alias : table.alias
+        };
+      }
+    }
 
 
 
@@ -327,12 +332,12 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     const selectClauses = this.queryBuilder.outputSchemaFields
       .map(output => {
         if (output.column) {
-          return  {
+          return {
             expression: output.expression,
             alias: output.column
           };
         } else {
-          return  {
+          return {
             expression: output.expression
           };
         }
@@ -347,7 +352,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     const orderByClauses = this.queryBuilder.outputSchemaFields
       .map((output, position) => {
         const order = !output.order ? output.order : output.order === 'orderAsc' ? 'ASC' : 'DESC';
-        return { field: output.expression , order , position };
+        return { field: output.expression, order, position };
       })
       .filter(output => !!output.order);
 
@@ -392,7 +397,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     private _cd: ChangeDetectorRef,
     private _wizardService: WizardService,
     public errorsService: ErrorMessagesService
-  ) {}
+  ) { }
 
   ngOnDestroy(): void {
     this._componentDestroyed.next();

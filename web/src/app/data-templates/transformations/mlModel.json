@@ -19,7 +19,8 @@
       {
          "propertyId": "model",
          "propertyName": "_MODEL_",
-         "propertyType": "text",
+         "propertyType": "select",
+         "externalValueKey": "mlModelsList",
          "required": true,
          "tooltip": "Model name to apply. This model must be stored in the Intelligence model repository.",
          "qa": "fragment-details-mlmodel-model"

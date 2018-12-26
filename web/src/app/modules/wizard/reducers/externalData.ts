@@ -10,12 +10,14 @@ export interface State {
   globalVariables: Array<any>;
   environmentVariables: Array<any>;
   customGroups: any;
-};
+  mlModels: Array<string>;
+}
 
 const initialState: State = {
   globalVariables: [],
   environmentVariables: [],
-  customGroups: []
+  customGroups: [],
+  mlModels: []
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -28,6 +30,12 @@ export function reducer(state: State = initialState, action: any): State {
         globalVariables: action.payload[1].variables,
         environmentVariables: groups.find(group => group.name === 'Environment').parameters,
         customGroups: groups.filter(group => group.name !== 'Environment')
+      };
+    }
+    case externalDataActions.GET_ML_MODELS_COMPLETE: {
+      return {
+        ...state,
+        mlModels: action.payload.map(mlModel => mlModel.name)
       };
     }
     default:
