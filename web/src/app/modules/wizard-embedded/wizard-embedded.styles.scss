@@ -14,10 +14,14 @@
   background-color: white;
   @include createFlexBox(column, normal, flex-start, nowrap);
 
-  DIV.we__editor {
+  .we__editor {
     width: 100%;
     height: calc(100% - #{$wizardHeaderHeight});
     position: relative;
     @include createFlexBox(column, center, center, nowrap);
+    &-sidebar {
+      top: 135px;
+    }
   }
+
 }

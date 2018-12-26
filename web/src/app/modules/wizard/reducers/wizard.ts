@@ -17,6 +17,7 @@ export interface State {
   workflowId: string;
   workflowGroup: string;
   workflowVersion: number;
+  draggableMode: boolean;
   multiselectionMode: boolean;
   loading: boolean;
   nodes: Array<WizardNode>;
@@ -54,6 +55,7 @@ const initialState: State = {
   workflowVersion: 0,
   loading: true,
   multiselectionMode: false,
+  draggableMode: false,
   serverStepValidations: {},
   settings: _cloneDeep(InitializeSchemaService.setDefaultWorkflowSettings(settingsTemplate)),
   svgPosition: {
@@ -116,6 +118,12 @@ export function reducer(state: State = initialState, action: any): State {
         multiselectionMode: action.active,
       };
     }
+    case wizardActions.SET_DRAGGABLE_MODE: {
+      return {
+        ...state,
+        draggableMode: action.active
+      };
+    }
     case wizardActions.SELECT_ENTITY: {
       let selected;
       if (state.multiselectionMode) {
@@ -136,7 +144,7 @@ export function reducer(state: State = initialState, action: any): State {
     case wizardActions.SELECT_MULTIPLE_STEPS: {
       return {
         ...state,
-        selectedEntities: [...state.selectedEntities, ...action.stepNames].filter((item, pos, arr) => arr.indexOf(item) === pos)
+        selectedEntities: !state.multiselectionMode ? action.stepNames : [...state.selectedEntities, ...action.stepNames].filter((item, pos, arr) => arr.indexOf(item) === pos)
       };
     }
     case wizardActions.UNSELECT_ENTITY: {

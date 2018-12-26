@@ -12,6 +12,7 @@
   <div class="wizard-content">
     <wizard-editor-container
       #editorContainer
+      [class.disable-events]="editionConfigMode.isEdition || showSettings"
       [hiddenContent]="editionConfigMode.isEdition || showSettings"
       [workflowData]="workflowData">
     </wizard-editor-container>

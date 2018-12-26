@@ -1,5 +1,16 @@
 @import '../../../../../../node_modules/@stratio/egeo/theme/constants';
 
+:host {
+  position: fixed;
+  right: 0;
+  top: 70px;
+  bottom: 0;
+}
+
+.catalog {
+  height: 100%;
+}
+
 .entity-categories{
   padding-bottom: 30px;
   display: block;
@@ -17,9 +28,3 @@
   word-break: break-all;
 }
 
-.catalog {
-  position: fixed;
-  right: 0;
-  top: 70px;
-  min-height: 100%;
-}

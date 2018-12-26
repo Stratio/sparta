@@ -36,7 +36,7 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
   @Input() nodeName: string;
   @Input() menuData: Array<FloatingMenuModel>;
   @Input() showDeleteButton: boolean;
-  @Input() showEditAndCopyButton: boolean;
+  @Input() showEditButton: boolean;
   @Input() isDirtyEditor: boolean;
   @Input() currentZoom: number;
 
@@ -50,7 +50,6 @@ export class WeHeaderComponent implements OnInit, OnDestroy {
   @Output() onZoomOut = new EventEmitter();
   @Output() onCenter = new EventEmitter();
   @Output() onEditButton = new EventEmitter();
-  @Output() onDuplicateNode = new EventEmitter();
   @Output() deleteSelection = new EventEmitter();
   @Output() onEditSettings = new EventEmitter();
   @Output() onShowInfo = new EventEmitter();

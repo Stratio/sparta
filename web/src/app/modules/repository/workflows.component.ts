@@ -12,14 +12,14 @@ import {
   ChangeDetectorRef,
   AfterViewInit,
   ElementRef
-} from "@angular/core";
-import { Store, select } from "@ngrx/store";
-import { StModalService } from "@stratio/egeo";
+} from '@angular/core';
+import { Store, select } from '@ngrx/store';
+import { StModalService } from '@stratio/egeo';
 
-import { Observable, Subscription } from "rxjs";
-import { distinctUntilChanged } from "rxjs/operators";
+import { Observable, Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 
-import * as workflowActions from "./actions/workflow-list";
+import * as workflowActions from './actions/workflow-list';
 import {
   State,
   getWorkflowsOrderedList,
@@ -34,19 +34,19 @@ import {
   getShowExecutionConfig,
   getExecutionContexts,
   getBlockRunButtonState
-} from "./reducers";
-import { WorkflowsManagingService } from "./workflows.service";
-import { DataDetails } from "./models/data-details";
-import { GroupWorkflow, Group } from "./models/workflows";
+} from './reducers';
+import { WorkflowsManagingService } from './workflows.service';
+import { DataDetails } from './models/data-details';
+import { GroupWorkflow, Group } from './models/workflows';
 
 @Component({
-  selector: "sparta-manage-workflows",
-  styleUrls: ["workflows.styles.scss"],
-  templateUrl: "workflows.template.html"
+  selector: 'sparta-manage-workflows',
+  styleUrls: ['workflows.styles.scss'],
+  templateUrl: 'workflows.template.html'
 })
 export class WorkflowsManagingComponent implements OnInit, OnDestroy {
-  @ViewChild("newWorkflowModal", { read: ViewContainerRef }) target: any;
-  @ViewChild("rightbarRef", { read: ElementRef }) rightbarRef: ElementRef;
+  @ViewChild('newWorkflowModal', { read: ViewContainerRef }) target: any;
+  @ViewChild('rightbarRef', { read: ElementRef }) rightbarRef: ElementRef;
   public workflowList: GroupWorkflow[] = [];
   public showDetails = true;
 
@@ -179,6 +179,6 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     this._groupList$ && this._groupList$.unsubscribe();
     this._selectedVersion && this._selectedVersion.unsubscribe();
     this._store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
-    document.removeEventListener("scroll", this._onScroll);
+    document.removeEventListener('scroll', this._onScroll);
   }
 }

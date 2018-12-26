@@ -34,35 +34,41 @@
     fill: $status-success-hover;
   }
 
+
   .input-step {
     stroke: #fcb66c;
-    &.active {
-      fill: #fbf3ec;
-    }
   }
+
   .output-step {
     stroke: #78c7dd;
-    &.active {
-      fill: #f5fbfd;
-    }
   }
+
   .transformation-step {
     stroke: #c59ddb;
-    &.active {
-      fill: #f9f5fb;
-    }
   }
 
   .preprocessing-step {
     stroke: #128bdd;
-    &.active {
-      fill: #f9f5fb;
-    }
   }
 
   .algorithm-step {
     stroke: #fdbd2b;
-    &.active {
+  }
+
+  &.active {
+    .input-step {
+      fill: #fbf3ec;
+    }
+    .output-step {
+      fill: #f5fbfd;
+    }
+    .transformation-step {
+       fill: #f9f5fb;
+    }
+    .preprocessing-step{
+       fill: #f9f5fb;
+    }
+    .algorithm-step{
       fill: #f9f5fb;
     }
   }
@@ -91,7 +97,8 @@
     cursor: pointer;
   }
   &:hover .origin .relation,
-  &.creation-mode .destination .relation {
+  &.creation-mode .destination .relation,
+  &.active .relation {
     transform: scale(1);
   }
   &.creation-mode:hover .destination .relation, .origin .relation:hover {

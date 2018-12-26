@@ -14,6 +14,7 @@ import { StoreModule } from '@ngrx/store';
 import { WizardRoutingModule } from './wizard.router';
 import { WizardModalComponent } from './components/wizard-modal/wizard-modal.component';
 import { WizardService } from './services/wizard.service';
+import { WizardToolsService } from './services/wizard-tools.service';
 import { ValidateSchemaService } from './services/validate-schema.service';
 import { WizardEffect } from './effects/wizard';
 import { DebugEffect } from './effects/debug';
@@ -54,6 +55,7 @@ import { WizardComponent } from './wizard.component';
   ],
   providers: [
     WizardService,
+    WizardToolsService,
     ValidateSchemaService,
     StModalService
   ]

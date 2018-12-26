@@ -239,6 +239,7 @@ export const getCustomGroups = createSelector(getExternalDataState, state => sta
 export const isShowingDebugConfig = createSelector(getDebugState, state => state.showExecutionConfig);
 export const getExecutionContexts = createSelector(getDebugState, state => state.executionContexts);
 export const getMultiselectionMode = createSelector(getWizardState, state => state.multiselectionMode);
+export const getDraggableMode = createSelector(getWizardState, state => state.draggableMode);
 
 export const getParameters = createSelector(getExternalDataState, state => ({
   globalVariables: state.globalVariables,

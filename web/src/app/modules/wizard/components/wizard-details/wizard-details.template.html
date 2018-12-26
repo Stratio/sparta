@@ -10,7 +10,8 @@
 
 <div class="workflow-detail">
     <div class="egeo-title-extra-large overview" *ngIf="(!entityData || !entityData.name) && (genericError || (validations && validations.valid === false && validations.messages.length))">
-        Overview</div>
+        Overview
+    </div>
     <div class="validation-errors" *ngIf="(!entityData || !entityData.name) && validations && validations.valid === false && validations.messages.length">
         <div class="egeo-title-mini">Validation errors</div>
         <div class="validation-error-message" *ngFor="let messageObject of validations.messages">

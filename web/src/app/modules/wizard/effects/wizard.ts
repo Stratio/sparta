@@ -21,6 +21,7 @@ import { InitializeWorkflowService, TemplatesService } from 'services/initialize
 import { WorkflowService } from 'services/workflow.service';
 import { WizardEdge, WizardNode } from '@app/wizard/models/node';
 import { WizardService } from '@app/wizard/services/wizard.service';
+import { WizardToolsService } from '@app/wizard/services/wizard-tools.service';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
 
 @Injectable()
@@ -176,7 +177,10 @@ export class WizardEffect {
       });
       sessionStorage.setItem('sp-copy-clipboard', value);
       copyIntoClipboard(value);
-      return new wizardActions.ValidateWorkflowErrorAction();
+      return new wizardActions.ShowNotificationAction({
+        type: 'default',
+        templateType: 'copySelection'
+      });
     }));
 
   @Effect()
@@ -189,31 +193,11 @@ export class WizardEffect {
 
       if (clipboardContent.length) {
         try {
-          const nodesMap: any = {};
           const model = JSON.parse(clipboardContent);
           if (model.objectIdType === 'workflow' && model.workflowType === entities.workflowType) {
-            const names = wizardState.nodes.map(wNode => wNode.name);
-            console.log(names)
-            const nodes = this.getNodesPosition(model.nodes, wizardState.svgPosition).map(wNode => {
-              const newName = this._initializeStepService.getNewStepName(wNode.name, names);
-              nodesMap[wNode.name] = newName;
-              names.push(newName);
-              return {
-                ...wNode,
-                name: newName
-              };
-            });
-            const edges = model.edges.map(edge => {
-              return {
-                ...edge,
-                origin: nodesMap[edge.origin],
-                destination: nodesMap[edge.destination]
-              };
-            });
-            return new wizardActions.PasteNodesCompleteAction({
-              nodes,
-              edges
-            });
+            const names: Array<string> = wizardState.nodes.map(wNode => wNode.name);
+            const normalizedData = this._wizardToolsService.normalizeCopiedSteps(model.nodes, model.edges, names, wizardState.svgPosition);
+            return new wizardActions.PasteNodesCompleteAction(normalizedData);
           }
         } catch (error) {
           return { type: 'NO_ACTION'};
@@ -222,34 +206,6 @@ export class WizardEffect {
       return { type: 'NO_ACTION'};
     }));
 
-  getNodesPosition(nodes: Array<WizardNode>, svgPosition: any) {
-    const coors: any = {};
-    nodes.forEach(wNode => {
-      const x = wNode.uiConfiguration.position.x;
-      const y = wNode.uiConfiguration.position.y;
-      if (!coors.x1 || coors.x1 > x) {
-        coors.x1 = x;
-      }
-      if (!coors.x2 || coors.x2 < x) {
-        coors.x2 = x;
-      }
-      if (!coors.y1 || coors.y1 > y) {
-        coors.y1 = y;
-      }
-      if (!coors.y2 || coors.y2 < y) {
-        coors.y2 = y;
-      }
-    });
-
-    const xdiff = coors.x1 + svgPosition.x / svgPosition.k;
-    const ydiff = coors.y1 + svgPosition.y / svgPosition.k;
-
-    nodes.forEach(wNode => {
-      wNode.uiConfiguration.position.x -= xdiff;
-      wNode.uiConfiguration.position.y -= ydiff;
-    });
-    return nodes;
-  }
 
   redirectOnSave() {
     window.history.length > 2 ? this._location.back() : this._route.navigate(['repository']);
@@ -263,6 +219,7 @@ export class WizardEffect {
     private _templatesService: TemplatesService,
     private _initializeStepService: InitializeStepService,
     private _initializeWorkflowService: InitializeWorkflowService,
+    private _wizardToolsService: WizardToolsService,
     private _route: Router,
     private _currentActivatedRoute: ActivatedRoute,
     private _location: Location

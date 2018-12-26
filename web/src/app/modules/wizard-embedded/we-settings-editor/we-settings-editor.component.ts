@@ -90,7 +90,5 @@ export class WeSettingsEditorComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this._componentDestroyed.next();
     this._componentDestroyed.unsubscribe();
-
-    console.info('DESTROY: WeSettingsEditorComponent');
   }
 }

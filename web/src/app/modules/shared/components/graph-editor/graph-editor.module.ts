@@ -8,6 +8,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { GraphEditorComponent } from './graph-editor.component';
+import { GraphSelectorComponent } from './graph-selector/graph-selector.component';
+
 import { DraggableElementDirective } from './draggable-element.directive';
 
 
@@ -18,6 +20,7 @@ import { DraggableElementDirective } from './draggable-element.directive';
   ],
   declarations: [
     GraphEditorComponent,
+    GraphSelectorComponent,
     DraggableElementDirective
   ],
   imports: [

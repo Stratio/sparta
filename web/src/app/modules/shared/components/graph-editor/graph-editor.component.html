@@ -8,13 +8,16 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 
-<svg class="composition" (click)="clickDetected($event)"
+<svg class="composition" (click)="clickDetected($event)" (mousedown)="createSelector($event)"
   xmlns:svg="http://www.w3.org/XML/1998/namespace"
   xmlns="http://www.w3.org/1999/xhtml">
   <svg:g class="svg-container">
     <ng-content></ng-content>
   </svg:g>
   <ng-content select="[parent-container]"></ng-content>
+  <svg:g graph-selector *ngIf="initialSelectionCoors"
+        [(position)]="initialSelectionCoors"
+        (finishSelection)="onFinishSelection($event)"></svg:g>
   <svg:path
     stroke="#777"
     stroke-width="2"

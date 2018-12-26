@@ -20,7 +20,6 @@ import { Store, select } from '@ngrx/store';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 
 import { Observable, Subject } from 'rxjs';
-import { cloneDeep as _cloneDeep } from 'lodash';
 
 import * as fromWizard from './../../reducers';
 import * as fromRoot from 'reducers';
@@ -73,26 +72,36 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   public consoleDebugData: any;
   public isPipelinesNodeSelected: boolean;
   public multiselectionMode: boolean;
+  public draggableMode: boolean;
 
   public editorRef: any;
 
   public showForbiddenError$: Observable<any>;
   private _componentDestroyed = new Subject();
-
+  private _ctrlDown = false;
   @ViewChild('editorArea') editorArea: ElementRef;
   @HostListener('document:keydown', ['$event'])
   onKeydownHandler(event: KeyboardEvent) {
-    if (!(event.ctrlKey || event.metaKey) && this.hiddenContent) {
+    if (this.hiddenContent) {
       return;
     }
-
     switch (event.keyCode) {
+      /** CTRL */
+      case 17: {
+          this._ctrlDown = true;
+          break;
+      }
       /** ESC */
       case 27: {
         if (this.selectedNodeNames.length) {
           this._store.dispatch(new wizardActions.UnselectEntityAction());
         }
         this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+        break;
+      }
+      /** SPACE */
+      case 32: {
+        this._store.dispatch(new wizardActions.SetDraggableModeAction(true));
         break;
       }
       /** SUPR */
@@ -102,6 +111,10 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       }
       /**  CTRL + C */
       case 67: {
+        if (!this._ctrlDown) {
+          return;
+        }
+        console.log("copy")
         // save current workflow positions in the store and dispatch copy action on the next tick
         this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
         this._store.dispatch(new wizardActions.SaveEditorPosition(this.editorRef.editorPosition));
@@ -110,6 +123,9 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       }
       /** CTRL +  V */
       case 86: {
+        if (!this._ctrlDown) {
+          return;
+        }
         // save current workflow positions in the store and dispatch copy action on the next tick
         this._store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.workflowNodes));
         this._store.dispatch(new wizardActions.SaveEditorPosition(this.editorRef.editorPosition));
@@ -123,6 +139,21 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         break;
       }
     }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyupHandler(event: KeyboardEvent) {
+     switch (event.keyCode) {
+        case 17: {
+            this._ctrlDown = false;
+            break;
+        }
+        /** SPACE */
+        case 32: {
+          this._store.dispatch(new wizardActions.SetDraggableModeAction(false));
+          break;
+        }
+     }
   }
 
   @HostListener('click', ['$event'])
@@ -267,6 +298,13 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((mode: boolean) => {
         this.multiselectionMode = mode;
+        this._cd.markForCheck();
+      });
+    this._store
+      .select(fromWizard.getDraggableMode)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((mode: boolean) => {
+        this.draggableMode = mode;
         this._cd.markForCheck();
       });
     this._store

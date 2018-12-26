@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *
@@ -7,6 +6,7 @@ import { CommonModule } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';

@@ -38,10 +38,12 @@ export class WizardEditorComponent {
   @Input() serverStepValidations: any = {};
   @Input() selectedNodeNames = [];
   @Input() multiselectionMode: boolean;
+  @Input() draggableMode: boolean;
   @Input() creationMode: any;
   @Input() selectedEdge: any;
   @Input() debugResult: any;
-  @Input() disableDrag = false;
+  @Input() enableDrag = false;
+  @Input() disableEvents: boolean;
 
   @Output() setEditorDirty = new EventEmitter();
   @Output() deselectEntityCreation = new EventEmitter();
@@ -107,14 +109,6 @@ export class WizardEditorComponent {
 
   trackBySegmentFn(index: number, item: any) {
     return index; // or item.id
-  }
-
-  createSelector(event) {
-    this.initialSelectionCoors = {
-      x: event.layerX,
-      y: event.layerY
-    };
-    this._cd.markForCheck();
   }
 
   onFinishSelection(event) {

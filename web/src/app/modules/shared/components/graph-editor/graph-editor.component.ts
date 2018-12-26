@@ -10,6 +10,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Input,
   NgZone,
   OnInit,
@@ -35,18 +36,21 @@ export class GraphEditorComponent implements OnInit {
 
   @Input() workflowID = '';
   @Input() workflowEdges: Array<WizardEdge> = [];
-  @Input() get disableDrag() {
-    return this._disableDrag;
+  @Input() get enableDrag() {
+    return this._enableDrag;
   }
-  set disableDrag(value) {
-    this._disableDrag = value;
-    if (value) {
-      if (this.zoom) {
-        this._SVGParent.on('.zoom', null);
-      }
+  set enableDrag(value) {
+    this._enableDrag = value;
+
+    if (this._SVGParent) {
+      this._SVGParent.classed('drag-enabled', value);
+    }
+    if (!value && this.zoom) {
+      this._SVGParent.on('mousedown.zoom', null);
     } else {
       if (this._SVGParent) {
-        this._SVGParent.call(this.zoom);
+        this.setDraggableEditor();
+        this._setCurrentPosition();
       }
     }
   }
@@ -58,9 +62,7 @@ export class GraphEditorComponent implements OnInit {
     this._editorPosition = _cloneDeep(value);
     if (this._SVGParent) {
       this._externalPosition = true;
-      /** Update editor position */
-      this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._editorPosition.x, this._editorPosition.y)
-        .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
+      this._setCurrentPosition();
     }
   }
   @Input() workflowNodes: Array<WizardNode> = [];
@@ -81,14 +83,24 @@ export class GraphEditorComponent implements OnInit {
 
   @Input() maxScale = 4;
   @Input() minScale = 0.1;
+  @Input() disableEvents = false;
 
   @Output() createNode = new EventEmitter<any>();
   @Output() setEditorDirty = new EventEmitter();
   @Output() deselectNode = new EventEmitter<void>();
   @Output() removeConnector = new EventEmitter();
   @Output() editorPositionChange = new EventEmitter<ZoomTransform>();
+  @Output() finishSelection = new EventEmitter<any>();
+
 
   public eventTransform: ZoomTransform = { x: 0, y: 0, k: 1 };
+  public drawingConnectionStatus: DrawingConnectorStatus = {
+    status: false,
+    name: ''
+  };
+  public _editorPosition: ZoomTransform;
+  public initialSelectionCoors: any;
+
 
   /** Selectors */
   private _SVGParent: d3.Selection<any>;
@@ -96,16 +108,11 @@ export class GraphEditorComponent implements OnInit {
   private _documentRef: d3.Selection<any>;
   private _connectorElement: d3.Selection<any>;
   private _connectorPosition: ZoomTransform = null;
-  private _disableDrag = false;
+  private _enableDrag = true;
   /** when external position is true, it prevents sending a setEditorDirty event */
   private _externalPosition = true;
+  private _isShiftPressed = false;
 
-  public drawingConnectionStatus: DrawingConnectorStatus = {
-    status: false,
-    name: ''
-  };
-
-  public _editorPosition: ZoomTransform;
   private zoom: any;
 
   constructor(
@@ -118,10 +125,14 @@ export class GraphEditorComponent implements OnInit {
 
   ngOnInit(): void {
     this._initSelectors();
-    this.setDraggableEditor();
     // Set initial position
-    this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._editorPosition.x, this._editorPosition.y)
-      .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
+    this._SVGParent.on('click', this.clickDetected.bind(this));
+    this.setDraggableEditor();
+    this._setCurrentPosition();
+    this._SVGParent.classed('drag-enabled', this.enableDrag);
+    if (!this.enableDrag) {
+      this._SVGParent.on('mousedown.zoom', null);
+    }
   }
 
   private _initSelectors() {
@@ -130,6 +141,54 @@ export class GraphEditorComponent implements OnInit {
     this._SVGParent = element.select('.composition');
     this._SVGContainer = this._SVGParent.select('.svg-container');
     this._connectorElement = element.select('.connector-line');
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydownHandler(event: KeyboardEvent) {
+    if (!this.disableEvents) {
+      switch (event.keyCode) {
+        /** PLUS */
+        case 107: {
+          this.changeZoom(this._editorPosition.k * 1.2);
+          break;
+        }
+        /** MINUS */
+        case 109: {
+          this.changeZoom(this._editorPosition.k * 0.8);
+          break;
+        }
+        /** SHIFT */
+        case 16: {
+          this._isShiftPressed = true;
+          break;
+        }
+      }
+    }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyupHandler(event: KeyboardEvent) {
+    switch (event.keyCode) {
+      /** 1 */
+      case 49: {
+        if (this._isShiftPressed) {
+          this.centerWorkflow();
+        }
+        break;
+      }
+      /** 0 */
+      case 48: {
+        if (this._isShiftPressed) {
+          this.changeZoom(1);
+        }
+        break;
+      }
+      /** SHIFT */
+      case 16: {
+        this._isShiftPressed = false;
+        break;
+      }
+    }
   }
 
   clickDetected($event: any) {
@@ -182,8 +241,7 @@ export class GraphEditorComponent implements OnInit {
       y: this._editorPosition.y,
       k
     };
-    this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(0, 0)
-      .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
+    this._setCurrentPosition();
     this._ngZone.run(() => {
       this.editorPositionChange.emit(this._editorPosition);
     });
@@ -222,6 +280,24 @@ export class GraphEditorComponent implements OnInit {
     });
   }
 
+  createSelector(event) {
+    if (this.enableDrag) {
+      this.initialSelectionCoors = null;
+    } else {
+      this.initialSelectionCoors = {
+        x: event.offsetX,
+        y: event.offsetY
+      };
+    }
+    this._cd.reattach();
+  }
+
+  onFinishSelection(event) {
+    this.finishSelection.emit(event);
+    this.initialSelectionCoors = null;
+    setTimeout(() => this._cd.detach());
+  }
+
   /** wheel delta  */
   private _deltaFn() {
     return -d3Event.deltaY * (d3Event.deltaMode ? 0.0387 : 0.002258);
@@ -237,5 +313,10 @@ export class GraphEditorComponent implements OnInit {
       });
     }
     this._SVGContainer.attr('transform', d3Event.transform);
+  }
+
+  private _setCurrentPosition() {
+    this._SVGParent.call(this.zoom.transform, zoomIdentity.translate(this._editorPosition.x, this._editorPosition.y)
+          .scale(this._editorPosition.k === 0 ? 1 : this._editorPosition.k));
   }
 }

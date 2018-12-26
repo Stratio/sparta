@@ -16,15 +16,14 @@
     [currentZoom]="svgPosition.k"
     [isDirtyEditor]="isDirtyEditor"
     [menuData]="menuData"
-    [showDeleteButton]="selectedEdge || selectedNode.length"
-    [showEditAndCopyButton]="selectedNode && selectedNode.length"
+    [showDeleteButton]="selectedEdge || selectedNodes.length"
+    [showEditButton]="selectedNodes.length"
     (selectedOption)="onSelectedOption($event)"
     (onZoomIn)="editor.changeZoom(svgPosition.k * 1.2)"
     (onZoomOut)="editor.changeZoom(svgPosition.k * 0.8)"
     (setZoom)="editor.changeZoom($event)"
     (onCenter)="editor.centerWorkflow()"
-    (onEditButton)="weEditNode(selectedNode)"
-    (onDuplicateNode)="weDuplicateNode()"
+    (onEditButton)="weEditNode(selectedNodes[selectedNodes.length - 1])"
     (deleteSelection)="weDeleteSelection()"
     (onShowInfo)="isShowedInfo = !isShowedInfo"
     (onEditSettings)="weEditSettings()"
@@ -35,8 +34,11 @@
     <graph-editor
       [(editorPosition)]="svgPosition"
       [creationMode]="creationMode"
+      [disableEvents]="editedNode || settingsPipelinesWorkflow"
       [connectorPosition]="connectorInitPosition"
+      [enableDrag]="enableDrag"
       (setEditorDirty)="weSetEditorDirty()"
+      (finishSelection)="onCreateSelectionRect($event)"
       (deselectNode)="deselectAll()"
       (createNode)="createNode($event)"
       (removeConnector)="removeConnector()">
@@ -49,26 +51,32 @@
         [endPosition]="edge.destination.uiConfiguration.position"
         (selectEdge)="weSelectEdge($event)">
       </svg:g>
-
-      <svg:g wizard-node
-        draggable-element *ngFor="let nodeData of nodes;"
-        [data]="nodeData"
-        [createdNew]="nodeData.createdNew"
-        [serverStepValidation]="serverStepValidations[nodeData.name]"
-        [selected]="selectedNode === nodeData.name"
+      <svg:g draggable-element
+        draggableGroupName="pipeline"
         [(position)]="nodeData.uiConfiguration.position"
-        [drawingConnectionStatus]="drawingConnectionStatus"
-        (onDrawConnector)="drawEdge($event)"
-        (onFinishConnector)="onCreateEdge($event)"
-        (setEditorDirty)="weSetEditorDirty()"
+        [multiDrag]="multiselection"
+        [selected]="selectedNodes.indexOf(nodeData.name) > -1"
         (onDoubleClickEvent)="weEditNode(nodeData)"
-        (onClickEvent)="weSelectNode(nodeData)">
+        (setEditorDirty)="weSetEditorDirty()"
+        (onClickEvent)="weSelectNode(nodeData)"
+        *ngFor="let nodeData of nodes;">
+        <svg:g wizard-node
+          [data]="nodeData"
+          [attr.node-name]="nodeData.name"
+          [createdNew]="nodeData.createdNew"
+          [serverStepValidation]="serverStepValidations[nodeData.name]"
+          [selected]="selectedNodes.indexOf(nodeData.name) > -1"
+          [drawingConnectionStatus]="drawingConnectionStatus"
+          (onDrawConnector)="drawEdge($event)"
+          (onFinishConnector)="onCreateEdge($event)">
+        </svg:g>
       </svg:g>
     </graph-editor>
 
     <selected-entity *ngIf="creationMode.active"></selected-entity>
 
     <sidebar-config
+      class="we__editor-sidebar"
       [nodeData]="editedNodeEditionMode"
       [isVisible]="isShowedInfo"
       topReference="we-header"

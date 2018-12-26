@@ -12,6 +12,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  NgZone,
   OnDestroy,
   Output,
   ViewEncapsulation
@@ -19,12 +20,12 @@ import {
 import { select as d3Select } from 'd3-selection';
 
 @Component({
-  selector: '[wizard-selector]',
+  selector: '[graph-selector]',
   template: '',
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class WizardSelectorComponent implements AfterViewInit, OnDestroy {
+export class GraphSelectorComponent implements AfterViewInit, OnDestroy {
 
   @Input() position: { x: number; y: number };
   @Output() finishSelection = new EventEmitter<any>();
@@ -33,7 +34,7 @@ export class WizardSelectorComponent implements AfterViewInit, OnDestroy {
   private x: number;
   private y: number;
 
-  constructor(private _cd: ChangeDetectorRef, private _el: ElementRef) {
+  constructor(private _cd: ChangeDetectorRef, private _el: ElementRef, private _ngZone: NgZone) {
     this._cd.detach();
     this._move = this._move.bind(this);
     this._mouseUp = this._mouseUp.bind(this);
@@ -50,16 +51,19 @@ export class WizardSelectorComponent implements AfterViewInit, OnDestroy {
       .attr('stroke', '#333')
       .attr('stroke-width', '0.5')
       .attr('x', this.position.x)
-      .attr('y', this.position.y);
+      .attr('y', this.position.y)
+      .style('pointer-events', 'none');
+
   }
 
   ngOnDestroy(): void {
-    document.removeEventListener('mousemove', this._move);
-    document.removeEventListener('mouseup', this._mouseUp);
+    this._ngZone.runOutsideAngular(() => {
+      document.removeEventListener('mousemove', this._move);
+      document.removeEventListener('mouseup', this._mouseUp);
+    });
   }
 
   private _move(event) {
-    console.log("a")
     const yt = event.clientY - 135;
     const diffX = this.position.x - event.clientX;
     const diffY = this.position.y - yt;
@@ -71,10 +75,11 @@ export class WizardSelectorComponent implements AfterViewInit, OnDestroy {
       .attr('x', x)
       .attr('y', y)
       .attr('width', Math.abs(diffX) + 'px')
-      .attr('height', Math.abs(diffY) + 'px');
+      .attr('height', Math.abs(diffY) + 'px')
+      .style('pointer-events', 'all');
   }
 
-  private _mouseUp() {
+  private _mouseUp(event) {
     this.finishSelection.emit(<Element>this._rect.node().getBoundingClientRect());
   }
 }

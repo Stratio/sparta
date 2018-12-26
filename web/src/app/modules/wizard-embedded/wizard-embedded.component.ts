@@ -7,25 +7,31 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  HostListener,
   Input,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
   ViewContainerRef,
+  ElementRef,
   EventEmitter,
   ChangeDetectorRef
 } from '@angular/core';
 import { take } from 'rxjs/operators';
+import { ENTITY_BOX } from '@app/wizard/wizard.constants';
 
 import { WorkflowData } from '@app/wizard/models/data';
 import { EditionConfigMode, WizardEdge, WizardNode } from '@app/wizard/models/node';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 import { CreationData } from '@app/wizard/models/drag';
+import { WizardToolsService } from '@app/wizard/services/wizard-tools.service';
+
 import { filter as _filter, cloneDeep as _cloneDeep } from 'lodash';
 import { NodeHelpersService } from '@app/wizard-embedded/_services/node-helpers.service';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+import { copyIntoClipboard } from '@utils';
 
 import { GraphEditorComponent } from '@app/shared/components/graph-editor/graph-editor.component';
 
@@ -42,7 +48,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public editedNode: WizardNode;
   public editedNodeEditionMode: any;
   public nodeDataEdited: EditionConfigMode;
-  public selectedNode = '';
+  public selectedNodes = [];
   public selectedEdge;
   public creationMode: CreationData = {
     active: false,
@@ -61,6 +67,9 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public drawingConnectionStatus: any;
   public connectorInitPosition: any;
 
+  public enableDrag = false;
+  public multiselection = false;
+
   @Input() workflowData: WorkflowData;
   @Input() nodeData: EditionConfigMode;
   @Input() menuData: Array<FloatingMenuModel>;
@@ -71,11 +80,14 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   @ViewChild(GraphEditorComponent) editor: GraphEditorComponent;
 
   private _connectorOrigin = '';
+  private _ctrlDown = false;
 
   constructor(
     private _modalService: StModalService,
     private _cd: ChangeDetectorRef,
     private _initializeStepService: InitializeStepService,
+    private _el: ElementRef,
+    private _wizardToolsService: WizardToolsService,
     private _nodeHelpers: NodeHelpersService) { }
 
   ngOnInit(): void {
@@ -87,6 +99,92 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       this.nodeName = this.nodeDataEdited.editionType.data.name;
     }
     this._modalService.container = this.target;
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydownHandler(event: KeyboardEvent) {
+    if (this.editedNode || this.settingsPipelinesWorkflow) {
+      return;
+    }
+    switch (event.keyCode) {
+      /** CTRL */
+      case 17: {
+        this._ctrlDown = true;
+        break;
+      }
+      /** ESC */
+      case 27: {
+        this.deselectAll();
+        break;
+      }
+      /** SPACE */
+      case 32: {
+        this.enableDrag = true;
+        break;
+      }
+      /** SUPR */
+      case 46: {
+        this.weDeleteSelection();
+        break;
+      }
+      /**  CTRL + C */
+      case 67: {
+        if (!this._ctrlDown) {
+          return;
+        }
+        // copy
+        break;
+      }
+      /** CTRL +  V */
+      case 86: {
+        if (!this._ctrlDown) {
+          return;
+        }
+        // paste
+        break;
+      }
+      /** SHIFT */
+      case 16: {
+        this.multiselection = true;
+        break;
+      }
+    }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  onKeyupHandler(event: KeyboardEvent) {
+     switch (event.keyCode) {
+        case 17: {
+            this._ctrlDown = false;
+            break;
+        }
+        /** SPACE */
+        case 32: {
+          this.enableDrag = false;
+          break;
+        }
+        /** SHIFT */
+        case 16: {
+          this.multiselection = false;
+          break;
+        }
+        /**  CTRL + C */
+        case 67: {
+          if (!this._ctrlDown) {
+            return;
+          }
+          this._copyIntoClipboard();
+          break;
+        }
+        /** CTRL +  V */
+        case 86: {
+          if (!this._ctrlDown) {
+            return;
+          }
+          this._pasteFromClipboard();
+          break;
+        }
+     }
   }
 
   private readData() {
@@ -138,6 +236,34 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     });
   }
 
+  private _copyIntoClipboard() {
+    const nodes = this.nodes.filter(wNode => this.selectedNodes.indexOf(wNode.name) > -1);
+    const edges = this.edges.filter(edge => this.selectedNodes.indexOf(edge.origin) > -1 && this.selectedNodes.indexOf(edge.destination) > -1);
+    const value = JSON.stringify({
+      objectIdType: 'pipeline',
+      nodes,
+      edges
+    });
+    sessionStorage.setItem('sp-copy-clipboard', value);
+    copyIntoClipboard(value);
+  }
+
+  private _pasteFromClipboard() {
+    const clipboardContent = sessionStorage.getItem('sp-copy-clipboard');
+    if (clipboardContent.length) {
+      try {
+        const model = JSON.parse(clipboardContent);
+        if (model.objectIdType === 'pipeline') {
+          const names: Array<string> = this.nodes.map(wNode => wNode.name);
+          const normalizedData = this._wizardToolsService.normalizeCopiedSteps(model.nodes, model.edges, names, this.editor.editorPosition);
+          this.nodes = [...this.nodes, ...normalizedData.nodes];
+          this.edges = [...this.edges, ...normalizedData.edges];
+          this._wrapNodeEditionMode();
+        }
+      } catch (error) { }
+    }
+  }
+
   weSavePipelinesWorkflow(save: boolean = true) {
     const data = this.nodeDataEdited.editionType.data;
     if (save) {
@@ -178,15 +304,21 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   }
 
   weSelectNode(event: WizardNode) {
-    this.deselectAll();
     this._nodeHelpers.nodes = this.nodes;
     this._nodeHelpers.edges = this.edges;
 
-    this.selectedNode = event.name;
+    if (this.multiselection) {
+      console.log(this.selectedNodes.indexOf(event.name))
+      this.selectedNodes = this.selectedNodes.indexOf(event.name) > -1 ? this.selectedNodes.filter(nod => nod !== event.name) : [...this.selectedNodes, event.name];
+    } else {
+      this.deselectAll();
+      this.selectedNodes = [event.name];
+    }
+
     this.editedNodeEditionMode = this.nodesEditionMode.find(node => node.editionType.data.name === event.name);
     this.editedNodeEditionMode['schemas'] = {
       type: 'pipelines',
-      tree: this._nodeHelpers.getInputFields(this.nodes.find(node => node.name === this.selectedNode))
+      tree: this._nodeHelpers.getInputFields(this.nodes.find(node => node.name === this.selectedNodes[this.selectedNodes.length - 1]))
     };
   }
 
@@ -195,41 +327,26 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     this.selectedEdge = event;
   }
 
-  weDuplicateNode(): void {
-    if (this.selectedNode) {
-      const names = this.nodes.map(wNode => wNode.name);
-
-      this.creationMode = {
-        active: true,
-        data: {
-          data: {
-            ...this.nodes.find(node => node.name === this.selectedNode),
-            name: this._initializeStepService.getNewStepName(this.selectedNode, names)
-          },
-          type: 'copy'
-        }
-      };
-    }
-  }
-
   weDeleteSelection() {
-    if (this.selectedNode && this.selectedNode.length) {
-      this.deleteConfirmModal('Delete node', 'This node and its relations will be deleted.', () => {
-        const nodeToDelete = this.nodes.find(element => element.name === this.selectedNode);
-        if (nodeToDelete) {
-          const edgesToDelete = _filter(this.edges, edge => {
-            return (edge.origin === this.selectedNode || edge.destination === this.selectedNode);
-          });
-          edgesToDelete.forEach(edge => {
-            this.edges.splice(this.edges.indexOf(edge), 1);
-          });
-          this.nodes.splice(this.nodes.indexOf(nodeToDelete), 1);
+    if (this.selectedNodes && this.selectedNodes.length) {
+      this.deleteConfirmModal('Delete nodes', 'This nodes and its relations will be deleted.', () => {
+        this.selectedNodes.forEach(selectedNode => {
+          const nodeToDelete = this.nodes.find(element => element.name === selectedNode);
+          if (nodeToDelete) {
+            const edgesToDelete = _filter(this.edges, edge => {
+              return (edge.origin === selectedNode || edge.destination === selectedNode);
+            });
+            edgesToDelete.forEach(edge => {
+              this.edges.splice(this.edges.indexOf(edge), 1);
+            });
+            this.nodes.splice(this.nodes.indexOf(nodeToDelete), 1);
 
-          this._wrapNodeEditionMode();
+            this._wrapNodeEditionMode();
 
-          this.isDirtyEditor = true;
-        }
-        this.deselectAll();
+            this.isDirtyEditor = true;
+          }
+          this.deselectAll();
+        });
       });
     }
     if (this.selectedEdge) {
@@ -303,7 +420,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   }
 
   deselectAll() {
-    this.selectedNode = '';
+    this.selectedNodes = [];
     this.selectedEdge = null;
     this.editedNodeEditionMode = this.nodeDataEdited;
   }
@@ -314,7 +431,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
 
   saveEdition(event) {
     this.nodes = this.nodes.map(e => {
-      if (e.name === this.selectedNode) {
+      if (e.name === this.selectedNodes[this.selectedNodes.length - 1]) {
         const selectedNode = event;
         selectedNode.createdNew = false;
         return selectedNode;
@@ -324,10 +441,10 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     });
     this.edges = this.edges.map(e => {
       const edge = e;
-      if (e.origin === this.selectedNode) {
+      if (e.origin === this.selectedNodes[this.selectedNodes.length - 1]) {
         edge.origin = event.name;
       }
-      if (e.destination === this.selectedNode) {
+      if (e.destination === this.selectedNodes[this.selectedNodes.length - 1] ) {
         edge.destination = event.name;
       }
       return edge;
@@ -391,11 +508,22 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     }
   }
 
+  onCreateSelectionRect(event) {
+    const selectedNodes = [];
+    const nodes = this._el.nativeElement.querySelectorAll('g[wizard-node]');
+    [].forEach.call(nodes, (wNode) => {
+      const position = wNode.getBoundingClientRect();
+      if ((position.left + ENTITY_BOX.width * this.editor.editorPosition.k) >= event.left && event.right > position.left && (position.top + ENTITY_BOX.height * this.editor.editorPosition.k) >= event.top && event.bottom > position.top) {
+        selectedNodes.push(wNode.getAttribute('node-name'));
+      }
+    });
+    this.selectedNodes = !this.multiselection ? selectedNodes : [...this.selectedNodes, ...selectedNodes].filter((item, pos, arr) => arr.indexOf(item) === pos);
+    this._wrapNodeEditionMode();
+  }
+
   trackByEdgeFn(index: number, item: any) {
     return index;
   }
 
-  ngOnDestroy(): void {
-    console.info('DESTROY: WizardEmbeddedComponent');
-  }
+  ngOnDestroy(): void { }
 }

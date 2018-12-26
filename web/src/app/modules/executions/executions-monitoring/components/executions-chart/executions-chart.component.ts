@@ -66,7 +66,7 @@ export class ExecutionsChartComponent {
   public getDate(days: number) {
     const date = new Date();
     date.setDate(date.getDate() - days);
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return date.getDate() + ' ' + months[date.getMonth()];
   }
 

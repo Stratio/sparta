@@ -48,16 +48,8 @@
         class="button button-toolbar"
         spTitle="Edit"
         (click)="onEditButton.emit()"
-        *ngIf="showEditAndCopyButton">
+        *ngIf="showEditButton">
         <i class="icon-edit"></i>
-      </button>
-      <button
-        id="copy-node-button"
-        class="button button-toolbar"
-        spTitle="Duplicate"
-        (click)="onDuplicateNode.emit()"
-        *ngIf="showEditAndCopyButton">
-        <i class="icon-copy2"></i>
       </button>
       <button
         id="delete-node-button"

@@ -23,7 +23,7 @@ import { select as d3Select } from 'd3-selection';
 
 import { DraggableElementPosition } from './graph-editor.models';
 
-const selectedDraggableElements = new Map();
+const selectedDraggableElements = {};
 
 @Directive({ selector: '[draggable-element]' })
 export class DraggableElementDirective implements AfterContentInit, OnInit, OnDestroy {
@@ -34,16 +34,21 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   @Input() multiDrag: boolean;
   /** Set readonly mode */
   @Input() readonlyMode: boolean;
+  /** Draggable group name for multidrag */
+  @Input() draggableGroupName = 'global';
   /** Set element as selected */
   @Input() get selected() {
     return this._selected;
   }
   set selected(value: boolean) {
-    if (value) {
-      selectedDraggableElements.set(this, this);
-    } else {
-      selectedDraggableElements.delete(this);
+    if (this._draggableGroup) {
+      if (value) {
+        this._draggableGroup.set(this, this);
+      } else {
+        this._draggableGroup.delete(this);
+      }
     }
+
     this._selected = value;
   }
 
@@ -57,6 +62,7 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   private _lastUpdateCall: number;
 
   private _selected: boolean;
+  private _draggableGroup: Map<any, any>;
 
   constructor(private elementRef: ElementRef<SVGElement>, private _ngZone: NgZone) {
     this._element = d3Select(this.elementRef.nativeElement);
@@ -64,6 +70,15 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
 
   /** lifecycle methods */
   ngOnInit(): void {
+    if (!selectedDraggableElements[this.draggableGroupName]) {
+      selectedDraggableElements[this.draggableGroupName] = new Map();
+    }
+    this._draggableGroup = selectedDraggableElements[this.draggableGroupName];
+    if (this._selected) {
+      this._draggableGroup.set(this, this);
+    } else {
+      this._draggableGroup.delete(this);
+    }
     this._setPosition();
   }
 
@@ -83,17 +98,17 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   }
 
   ngOnDestroy(): void {
-    selectedDraggableElements.delete(this);
+    this._draggableGroup.delete(this);
   }
   /** lifecycle methods */
 
   private _onDrag() {
     const event = d3Event;
     if (this.multiDrag) {
-      selectedDraggableElements.forEach(ref => {
+      this._draggableGroup.forEach(ref => {
         ref._dragmove(event);
       });
-      if (!selectedDraggableElements.get(this)) {
+      if (!this._draggableGroup.get(this)) {
         this._dragmove(event);
       }
     } else {

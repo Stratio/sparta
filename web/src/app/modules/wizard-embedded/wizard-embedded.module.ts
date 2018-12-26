@@ -20,6 +20,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge.module';
 import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node.module';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
+import { WizardToolsService } from '@app/wizard/services/wizard-tools.service';
 
 import { GraphEditorModule, SpartaSidebarModule } from '@app/shared';
 
@@ -46,7 +47,8 @@ import { GraphEditorModule, SpartaSidebarModule } from '@app/shared';
   ],
   providers: [
     InitializeStepService,
-    NodeHelpersService
+    NodeHelpersService,
+    WizardToolsService
   ]
 })
 

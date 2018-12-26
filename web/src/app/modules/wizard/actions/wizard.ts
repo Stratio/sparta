@@ -61,6 +61,7 @@ export const SELECT_EDGE_TYPE = '[Wizard] Select edge type';
 export const SHOW_NOTIFICATION = '[Wizard] Show notification';
 export const SHOW_GLOBAL_ERRORS = '[Wizard] Show global errors';
 export const SET_WORKFLOW_ID = '[Wizard] Set workflow Id';
+export const SET_DRAGGABLE_MODE = '[Wizard] Set draggable mode';
 export const SET_MULTISELECTION_MODE = '[Wizard] Set multiselection mode';
 export const COPY_NODES = '[Wizard] Copy nodes action';
 export const PASTE_NODES = '[Wizard] Paste nodes action';
@@ -340,6 +341,11 @@ export class SelectMultipleStepsAction implements Action {
   constructor(public stepNames: Array<string>) {}
 }
 
+export class SetDraggableModeAction implements Action {
+  readonly type = SET_DRAGGABLE_MODE;
+  constructor(public active: boolean) { }
+}
+
 export type Actions =
   ResetWizardAction |
   GetMenuTemplatesAction |
@@ -396,4 +402,5 @@ export type Actions =
   CopyNodesAction |
   PasteNodesAction |
   PasteNodesCompleteAction |
-  SelectMultipleStepsAction;
+  SelectMultipleStepsAction |
+  SetDraggableModeAction;

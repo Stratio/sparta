@@ -14,3 +14,7 @@
   height: 100%;
   position: absolute;
 }
+
+.disable-events{
+  pointer-events: none;
+}

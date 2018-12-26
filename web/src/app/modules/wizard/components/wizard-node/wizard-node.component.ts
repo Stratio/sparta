@@ -54,8 +54,8 @@ export class WizardNodeComponent implements OnInit {
     return this._selectedNode;
   }
   set selected(value: boolean) {
-    if (this._selectedNode !== value && this._nodeRectElement) {
-      this._nodeRectElement.classed('active', value);
+    if (this._selectedNode !== value && this._containerElement) {
+      this._containerElement.classed('active', value);
     }
     this._selectedNode = value;
   }
@@ -108,6 +108,8 @@ export class WizardNodeComponent implements OnInit {
     this._ngZone.runOutsideAngular(() => {
       const nodeElement = d3Select(this._el);
       this._containerElement = nodeElement.select('.sparta-node-box');
+      this._containerElement.classed('active', this.selected);
+
       if (this.createdNew) {
         this._containerElement.classed('created-new', true);
       }
@@ -144,8 +146,7 @@ export class WizardNodeComponent implements OnInit {
       .attr('rx', 6)
       .attr('ry', 6)
       .attr('stroke-linecap', 'round')
-      .attr('class', 'entity ' + this.data.stepType.toLowerCase() + '-step')
-      .classed('active', this.selected);
+      .attr('class', 'entity ' + this.data.stepType.toLowerCase() + '-step');
     if (this._selectedNode) {
       this._nodeRectElement.classed('selected', true);
     }

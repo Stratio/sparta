@@ -19,6 +19,9 @@
         <loading-spinner class="loading"></loading-spinner>
         <span>{{'WIZARD.NOTIFICATION.DEBUG_RUN' | translate}}</span>
       </div>
+      <div class="message" *ngSwitchCase="'copySelection'">
+        <span>{{'WIZARD.NOTIFICATION.STEPS_COPIED' | translate}}</span>
+      </div>
     </div>
   </div>
 </sp-foreground-notifications>

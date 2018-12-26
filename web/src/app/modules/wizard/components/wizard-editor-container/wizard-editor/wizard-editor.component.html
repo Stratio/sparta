@@ -2,15 +2,15 @@
     class="editor-component"
     [editorPosition]="editorPosition"
     [creationMode]="creationMode"
-    [disableDrag]="disableDrag"
+    [enableDrag]="enableDrag"
     [connectorPosition]="drawingConnectionStatus.initPosition"
+    [disableEvents]="disableEvents"
     (setEditorDirty)="setEditorDirty.emit()"
     (deselectNode)="deselectEntityCreation.emit()"
-    (mousedown)="createSelector($event)"
     (createNode)="createNode.emit($event)"
     (editorPositionChange)="editorPositionChange.emit($event)"
+    (finishSelection)="onFinishSelection($event)"
     (removeConnector)="removeConnector()">
-
     <svg:g wizard-edge
       *ngFor="let edge of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
       [edge]="edge"
@@ -21,6 +21,7 @@
       (showEdgeOptions)="showEdgeOptions.emit($event)">
     </svg:g>
     <svg:g draggable-element *ngFor="let nodeData of workflowNodes;"
+      draggableGroupName="workflow"
       [(position)]="nodeData.uiConfiguration.position"
       [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
       [multiDrag]="multiselectionMode"
@@ -39,10 +40,4 @@
           (onDrawConnector)="createEdge($event)"
           (onFinishConnector)="finishConnector($event)"></svg:g>
       </svg:g>
-      <svg:g parent-container>
-        <svg:g wizard-selector *ngIf="initialSelectionCoors"
-          [(position)]="initialSelectionCoors"
-          (finishSelection)="onFinishSelection($event)"></svg:g>
-      </svg:g>
-
   </graph-editor>

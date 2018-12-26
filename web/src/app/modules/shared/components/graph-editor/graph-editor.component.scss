@@ -9,6 +9,10 @@
   height: 100%;
   user-select: none;
   background: url('../../../../../assets/images/workflow-base.png') 11px 8px;
+
+  &.drag-enabled {
+    cursor: pointer;
+  }
 }
 
 .connector-line {

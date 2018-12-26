@@ -786,7 +786,8 @@
         "DEBUG_SUCCESS": "Execution in debug mode has been successful",
         "DEBUG_FAIL": "The execution in debug mode has errors",
         "DEBUG_GENERIC_FAIL": "There has been a generic error when executing the debug",
-        "DEBUG_RUN": "Workflow debug mode is running"
+        "DEBUG_RUN": "Workflow debug mode is running",
+        "STEPS_COPIED": "The selected steps have been copied"
       }
    },
    "ERRORS": {

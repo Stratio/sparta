@@ -4,18 +4,19 @@
 #we-header {
   height: 135px;
   min-height: $wizardHeaderHeight;
+
   @include createFlexBox(column, normal, normal, nowrap);
 
   & > DIV {
     height: 50%;
     @include createFlexBox(row, center, space-between, nowrap);
-    & > DIV {
-      margin: 0 110px;
-    }
   }
 
   & > DIV.we-header__info {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
     background-color: black;
+
     A {
       color: white;
       cursor: pointer;
@@ -37,7 +38,10 @@
   }
 
   & > DIV.we-header__control {
-    border: 1px solid #dddddd;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #ddd;
     floating-menu {
       margin-left: -7px;
     }
