@@ -445,17 +445,29 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     if (execution.genericDataExecution.executionMode == marathon) {
       val marathonId = WorkflowHelper.getMarathonId(execution)
       val sparkUri = NginxUtils.buildSparkUI(WorkflowHelper.getExecutionDeploymentId(execution))
+      val workflowToExecute = execution.getWorkflowToExecute
+
+      import workflowToExecute.settings.sparkSettings.sparkConf.sparkHistoryServerConf._
+
+      val sparkHistoryUri = {
+        if(enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined)
+          Option(s"${sparkHistoryServerMonitoringURL.get.toString}/history/${execution.getExecutionId}/jobs")
+        else None
+      }
+
       execution.copy(
         marathonExecution = execution.marathonExecution match {
           case Some(mExecution) =>
             Option(mExecution.copy(
               marathonId = marathonId,
-              sparkURI = sparkUri
+              sparkURI = sparkUri,
+              historyServerURI = sparkHistoryUri
             ))
           case None =>
             Option(MarathonExecution(
               marathonId = marathonId,
-              sparkURI = sparkUri
+              sparkURI = sparkUri,
+              historyServerURI = sparkHistoryUri
             ))
         }
       )

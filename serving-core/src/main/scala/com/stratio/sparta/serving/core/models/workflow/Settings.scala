@@ -77,6 +77,7 @@ case class SubmitArguments(
 
 case class SparkConf(
                       sparkResourcesConf: SparkResourcesConf = SparkResourcesConf(),
+                      sparkHistoryServerConf: SparkHistoryServerConf = SparkHistoryServerConf(),
                       userSparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
                       coarse: Option[Boolean] = None,
                       sparkUser: Option[JsoneyString] = None,
@@ -103,6 +104,12 @@ case class SparkResourcesConf(
                                sparkMemoryFraction: Option[JsoneyString] = Option(JsoneyString("0.6")),
                                sparkParallelism: Option[JsoneyString] = None
                              )
+
+case class SparkHistoryServerConf(
+                                   enableHistoryServerMonitoring: Boolean = false,
+                                   sparkHistoryServerLogDir: Option[JsoneyString] = None,
+                                   sparkHistoryServerMonitoringURL: Option[JsoneyString] = None
+                                 )
 
 case class UserSubmitArgument(
                                submitArgument: JsoneyString,

@@ -138,7 +138,9 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         sparkParallelism.notBlank,
       SubmitBlockIntervalConf -> workflow.settings.streamingSettings.blockInterval.notBlank,
       SubmitKryoSerializationConf -> workflow.settings.sparkSettings.sparkConf.sparkKryoSerialization
-        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None)
+        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
+      SubmitHistoryEventLogEnabled -> Option(workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf.enableHistoryServerMonitoring.toString),
+      SubmitHistoryEventLogDir -> workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf.sparkHistoryServerLogDir.map(_.toString).notBlank
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
 

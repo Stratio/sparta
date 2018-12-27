@@ -234,6 +234,10 @@
       "_MESOS_CONSTRAINT_OPERATOR_": "Constraint operator",
       "_SPARK_MESOS_SECURITY_ENABLE_": "Mesos security",
       "_SPARK_DEFAULT_PARALLELISM_": "Default parallelism",
+      "_SPARK_ENABLE_HISTORY_SERVER_MONITORING_": "Enable history server monitoring",
+      "_SPARK_HISTORY_SERVER_LOG_DIR_": "Logging directory",
+      "_SPARK_HISTORY_SERVER_MONITORING_URL_": "Monitoring URL",
+
       "_SPARK_KRYO_": "Use Kryo Serialization",
       "_SPARK_SQL_CASE_SENSITIVE_": "Case sensitive in SQL",
       "_NAME_": "Name",
@@ -740,6 +744,7 @@
       "SUBMITARGUMENTS": "Submit Arguments",
       "SPARKCONF": "Spark Configuration",
       "SPARKRESOURCESCONF": "Resources",
+      "SPARKHISTORYSERVERPROPERTIES": "History Server Properties",
       "SPARKDOCKERCONF": "Docker",
       "SPARKMESOSCONF": "Mesos",
       "CHECKPOINTSETTINGS": "Checkpoint",

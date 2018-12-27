@@ -514,6 +514,56 @@
               ]
             },
             {
+              "name": "sparkHistoryServerProperties",
+              "listCompressed": true,
+              "properties": [
+                {
+                  "propertyId": "enableHistoryServerMonitoring",
+                  "propertyName": "SETTINGS._SPARK_ENABLE_HISTORY_SERVER_MONITORING_",
+                  "propertyType": "boolean",
+                  "newRow": true,
+                  "required": false,
+                  "width": "auto",
+                  "default": false,
+                  "qa": "workflow-spark-enable-history-server-monitoring"
+                },
+                {
+                  "propertyId": "sparkHistoryServerLogDir",
+                  "propertyName": "SETTINGS._SPARK_HISTORY_SERVER_LOG_DIR_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "required": false,
+                  "tooltip": "the base logging directory. eg: hdfs://namenode/shared/spark-logs",
+                  "visible": [
+                    [
+                      {
+                        "propertyId": "enableHistoryServerMonitoring",
+                        "value": true
+                      }
+                    ]
+                  ],
+                  "qa": "workflow-spark-history-server-log-dir"
+                },
+                {
+                  "propertyId": "sparkHistoryServerMonitoringURL",
+                  "propertyName": "SETTINGS._SPARK_HISTORY_SERVER_MONITORING_URL_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "required": false,
+                  "tooltip": "URL to list incomplete and completed applications and attempts. http://<server-url>:18080 by default",
+                  "visible": [
+                    [
+                      {
+                        "propertyId": "enableHistoryServerMonitoring",
+                        "value": true
+                      }
+                    ]
+                  ],
+                  "qa": "workflow-spark-history-server-monitoring-url"
+                }
+              ]
+            },
+            {
               "propertyId": "userSparkConf",
               "propertyName": "SETTINGS._SPARK_CONF_",
               "propertyType": "list",

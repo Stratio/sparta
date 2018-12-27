@@ -72,6 +72,8 @@ object SparkConstant {
   val SubmitMesosConstraintConf = "spark.mesos.constraints"
   val SubmitMasterConf = "spark.master"
   val SubmitUiProxyPrefix = "spark.ui.proxyBase"
+  val SubmitHistoryEventLogEnabled = "spark.eventLog.enabled"
+  val SubmitHistoryEventLogDir = "spark.eventLog.dir"
 
 
   // Properties only available in spark-submit
