@@ -1,42 +1,42 @@
-  <graph-editor
-    class="editor-component"
-    [editorPosition]="editorPosition"
-    [creationMode]="creationMode"
-    [connectorPosition]="drawingConnectionStatus.initPosition"
-    [disableEvents]="disableEvents"
+<graph-editor
+  class="editor-component"
+  [editorPosition]="editorPosition"
+  [creationMode]="creationMode"
+  [connectorPosition]="drawingConnectionStatus.initPosition"
+  [disableEvents]="disableEvents"
+  (setEditorDirty)="setEditorDirty.emit()"
+  (deselectNode)="deselectEntityCreation.emit()"
+  (createNode)="createNode.emit($event)"
+  (editorPositionChange)="editorPositionChange.emit($event)"
+  (finishSelection)="onFinishSelection($event)"
+  (removeConnector)="removeConnector()">
+  <svg:g wizard-edge
+    *ngFor="let edge of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
+    [edge]="edge"
+    [selectedEdge]="selectedEdge"
+    [initPosition]="edge.origin.uiConfiguration.position"
+    [endPosition]="edge.destination.uiConfiguration.position"
+    (selectEdge)="selectEdge.emit($event)"
+    (showEdgeOptions)="showEdgeOptions.emit($event)">
+  </svg:g>
+  <svg:g draggable-element *ngFor="let nodeData of workflowNodes;"
+    draggableGroupName="workflow"
+    [(position)]="nodeData.uiConfiguration.position"
+    [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
+    [multiDrag]="multiselectionMode"
+    (onDoubleClickEvent)="editEntity.emit(nodeData)"
     (setEditorDirty)="setEditorDirty.emit()"
-    (deselectNode)="deselectEntityCreation.emit()"
-    (createNode)="createNode.emit($event)"
-    (editorPositionChange)="editorPositionChange.emit($event)"
-    (finishSelection)="onFinishSelection($event)"
-    (removeConnector)="removeConnector()">
-    <svg:g wizard-edge
-      *ngFor="let edge of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
-      [edge]="edge"
-      [selectedEdge]="selectedEdge"
-      [initPosition]="edge.origin.uiConfiguration.position"
-      [endPosition]="edge.destination.uiConfiguration.position"
-      (selectEdge)="selectEdge.emit($event)"
-      (showEdgeOptions)="showEdgeOptions.emit($event)">
+    (onClickEvent)="selectNode.emit(nodeData)">
+      <svg:g wizard-node
+        #wnode
+        [data]="nodeData"
+        [attr.node-name]="nodeData.name"
+        [createdNew]="nodeData.createdNew"
+        [debugResult]="debugResult && debugResult[nodeData.name] ? debugResult[nodeData.name] : {}"
+        [serverStepValidation]="serverStepValidations[nodeData.name]"
+        [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
+        [drawingConnectionStatus]="drawingConnectionStatus"
+        (onDrawConnector)="createEdge($event)"
+        (onFinishConnector)="finishConnector($event)"></svg:g>
     </svg:g>
-    <svg:g draggable-element *ngFor="let nodeData of workflowNodes;"
-      draggableGroupName="workflow"
-      [(position)]="nodeData.uiConfiguration.position"
-      [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
-      [multiDrag]="multiselectionMode"
-      (onDoubleClickEvent)="editEntity.emit(nodeData)"
-      (setEditorDirty)="setEditorDirty.emit()"
-      (onClickEvent)="selectNode.emit(nodeData)">
-        <svg:g wizard-node
-          #wnode
-          [data]="nodeData"
-          [attr.node-name]="nodeData.name"
-          [createdNew]="nodeData.createdNew"
-          [debugResult]="debugResult && debugResult[nodeData.name] ? debugResult[nodeData.name] : {}"
-          [serverStepValidation]="serverStepValidations[nodeData.name]"
-          [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
-          [drawingConnectionStatus]="drawingConnectionStatus"
-          (onDrawConnector)="createEdge($event)"
-          (onFinishConnector)="finishConnector($event)"></svg:g>
-      </svg:g>
-  </graph-editor>
+</graph-editor>

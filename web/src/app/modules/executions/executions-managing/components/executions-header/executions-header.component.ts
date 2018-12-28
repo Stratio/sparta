@@ -65,7 +65,7 @@ export class ExecutionsHeaderComponent implements OnInit {
 
 
   @Output() downloadExecutions = new EventEmitter<void>();
-  @Output() onRunExecutions = new EventEmitter<any>();
+  @Output() onReRunExecution = new EventEmitter<string>();
   @Output() onStopExecution = new EventEmitter<any>();
   @Output() onSearch = new EventEmitter<any>();
   @Output() showExecutionInfo = new EventEmitter<void>();

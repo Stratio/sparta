@@ -12,23 +12,23 @@
    <div class="container">
      <div class="row">
        <div class="col-sm-12">
-    <executions-chart class="chart"></executions-chart>
-    <div *ngIf="(executionsList$ | async)?.length" class="table-wrapper">
-        <span class="table-title">Latest executions</span>
-        <div class="table-container">
-          <div class="executions-list">
-              <executions-table [executionList]="executionsList$ | async"></executions-table>
+          <executions-chart [chartData]="chartData$ | async" class="chart"></executions-chart>
+          <div *ngIf="(executionsList$ | async)?.length" class="table-wrapper">
+              <span class="table-title">Latest executions</span>
+              <div class="table-container">
+                <div class="executions-list">
+                    <executions-table [executionList]="executionsList$ | async"></executions-table>
+                </div>
+              </div>
+          </div>
+          <div *ngIf="!(executionsList$ | async)?.length && !(isLoading$ | async)" class="empty-wrapper">
+              <empty-table-box
+                (redirectTo)="goToRepository()"
+                [title]="'EXECUTIONS.EMPTY_TITLE' | translate"
+                [text]="'EXECUTIONS.EMPTY_TEXT' | translate"
+                [button]="'EXECUTIONS.EMPTY_LINK' | translate"></empty-table-box>
           </div>
         </div>
-    </div>
-    <div *ngIf="!(executionsList$ | async)?.length && !(isLoading$ | async)" class="empty-wrapper">
-        <empty-table-box
-          (redirectTo)="goToRepository()"
-          [title]="'EXECUTIONS.EMPTY_TITLE' | translate"
-          [text]="'EXECUTIONS.EMPTY_TEXT' | translate"
-          [button]="'EXECUTIONS.EMPTY_LINK' | translate"></empty-table-box>
-    </div>
-     </div>
      </div>
    </div>
 </div>

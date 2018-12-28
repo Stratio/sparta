@@ -128,12 +128,12 @@
     color: transparent;
     font-size: 22px;
 }
-.workflow-row, .group-row {
 
-   td:last-child {
-      float: right;
-   }
-}
+
+  td:last-child > *{
+    float: right;
+  }
+
 
 .version-title-name {
     font-size: $egeo-font-size-large;

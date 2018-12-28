@@ -36,7 +36,6 @@ import * as fromRoot from './../../reducers';
             (archiveExecutions)="archiveExecutions()"
             (unarchiveExecutions)="unarchiveExecutions()"
             (showExecutionInfo)="showExecutionInfo.emit()"
-            (onRunExecutions)="onRunExecutions($event)"
             (onStopExecution)="stopExecution()"
             (onDeleteExecution)="deleteExecution($event)"
             (onReRunExecution)="reRunExecution($event)"
@@ -93,8 +92,6 @@ export class ExecutionsHeaderContainer implements OnInit {
    searchExecutions(text: string) {
       this._store.dispatch(new executionActions.SearchExecutionAction(text));
    }
-
-   onRunExecutions(execution: any) { }
 
    changeStatusFilter(status: string) {
       this._store.dispatch(new executionActions.SelectStatusFilterAction(status));

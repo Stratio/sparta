@@ -8,7 +8,16 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 <section class="execution-details" *ngIf="execution">
-  <graph-editor class="execution__details-editor" [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position">
+  <div class="execution-details__header">
+      <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Streaming'" />
+      <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Batch'" />
+      <span class="title egeo-title-extra-large">{{execution.genericDataExecution.workflow.name}}</span>
+      <a [routerLink]="['/executions']" class="link">Return to executions list</a>
+  </div>
+  <graph-editor class="execution-details__editor"
+  [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position"
+  [multiselectionEnabled]="false"
+  (deselectNode)="selectStep(null)">
     <svg:g wizard-edge
       *ngFor="let edge of edges; let i=index;"
       [edge]="edge"
@@ -16,19 +25,16 @@
       [initPosition]="edge.origin.uiConfiguration.position"
       [endPosition]="edge.destination.uiConfiguration.position">
     </svg:g> -->
-    <svg:g wizard-node
-      draggable-element *ngFor="let nodeData of nodes"
-      [data]="nodeData"
+    <svg:g draggable-element
+      *ngFor="let nodeData of nodes"
+      [(position)]="nodeData.uiConfiguration.position"
       [readonlyMode]="true"
-      [createdNew]="nodeData.createdNew"
-      [selected]="'' === nodeData.name"
-      [(position)]="nodeData.uiConfiguration.position">
-    </svg:g>
-  </graph-editor>
-
-<svg class="arrow-defs" xmlns:svg="http://www.w3.org/XML/1998/namespace"
-  xmlns="http://www.w3.org/1999/xhtml">
-    <svg:defs>
+      (onClickEvent)="selectStep(nodeData)">
+      <svg:g wizard-node
+        [data]="nodeData"
+        [selected]="selectedStep && selectedStep.name === nodeData.name">
+      </svg:g>
+      <svg:defs>
       <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
         <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
       </svg:marker>
@@ -39,5 +45,18 @@
         <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
       </svg:marker>
     </svg:defs>
-  </svg>
+    </svg:g>
+  </graph-editor>
+  <sparta-sidebar [isVisible]="true" [darkBorder]="true" [showCloseButton]="false">
+    <div class="sidebar-content" *ngIf="selectedStep">
+      <div class="egeo-title-medium">{{selectedStep.name}}</div>
+      <div>{{selectedStep.stepType}} - {{selectedStep.classPrettyName}}</div>
+      <div class="configuration">
+        <div class="property" *ngFor="let prop of keys(selectedStep.configuration)">
+          <div class="label">{{prop}}</div>
+          <div class="value">{{selectedStep.configuration[prop]}}</div>
+        </div>
+      </div>
+    </div>
+  </sparta-sidebar>
 </section>

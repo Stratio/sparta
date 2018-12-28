@@ -16,6 +16,7 @@ import { ExecutionService } from 'services/execution.service';
 
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 import { catchError, concatMap, switchMap, takeUntil, map } from 'rxjs/operators';
+import { ExecutionPeriodsService } from '../services/execution-periods.service';
 
 
 @Injectable()
@@ -33,12 +34,30 @@ export class ExecutionsEffect {
             executionList: executions.lastExecutions.map(execution =>
               this._executionHelperService.normalizeExecution(execution))
           });
-        })).pipe(catchError(err => of(new executionsActions.ListExecutionsFailAction())))))));
+        })).pipe(
+          catchError(err => of(new executionsActions.ListExecutionsFailAction()))
+        ))
+      ))
+    );
+
+  @Effect()
+  getExecutionPeriodData: Observable<any> = this.actions$
+    .pipe(ofType(executionsActions.SET_GRAPH_DATA_PERIOD))
+    .pipe(map((action: any) => action.payload))
+    .pipe(switchMap((payload: any) => {
+
+      return this._executionPeriodsService.getExecutionPeriodData(payload)
+        .pipe(map((response: any) => {
+          return new executionsActions.GetGraphDataPeriodCompleteAction(response);
+        }));
+
+    }));
+
 
   constructor(
     private actions$: Actions,
     private _executionHelperService: ExecutionHelperService,
-    private store: Store<fromRoot.State>,
+    private _executionPeriodsService: ExecutionPeriodsService,
     private _executionService: ExecutionService
   ) { }
 }

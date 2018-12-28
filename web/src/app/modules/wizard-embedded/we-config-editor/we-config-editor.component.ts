@@ -152,7 +152,5 @@ export class WeConfigEditorComponent implements OnInit, OnDestroy {
     return output;
   }
 
-  ngOnDestroy(): void {
-    console.info('DESTROY: WeConfigEditorComponent');
-  }
+  ngOnDestroy(): void { }
 }

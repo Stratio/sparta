@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
@@ -16,7 +16,8 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
    selector: 'executions-detail',
    templateUrl: './executions-detail.template.html',
-   styleUrls: ['./executions-detail.styles.scss']
+   styleUrls: ['./executions-detail.styles.scss'],
+   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ExecutionsDetailComponent implements OnInit, OnDestroy {
 
@@ -24,6 +25,8 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
    public execution: any;
    public edges: any = [];
    public nodes: any = [];
+   public selectedStep: any;
+   public keys = Object.keys;
 
    private _componentDestroyed = new Subject();
 
@@ -52,7 +55,7 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
       });
    }
 
-   getEdgesMap(nodes, edges) {
+   getEdgesMap(nodes: Array<any>, edges: Array<any>) {
     const nodesMap = nodes.reduce(function (map, obj) {
       map[obj.name] = obj;
       return map;
@@ -62,6 +65,10 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
       destination: nodesMap[edge.destination],
       dataType: edge.dataType
     }));
+  }
+
+  selectStep(stepName: string) {
+    this.selectedStep = stepName;
   }
 
   ngOnDestroy(): void {

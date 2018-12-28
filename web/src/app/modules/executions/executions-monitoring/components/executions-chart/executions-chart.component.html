@@ -2,12 +2,10 @@
   <canvas baseChart
         height="240px"
         width="100%"
-        [datasets]="lineChartData"
-        [labels]="lineChartLabels"
+        [datasets]="values"
+        [labels]="labels"
         [options]="lineChartOptions"
         [colors]="lineChartColors"
         [legend]="lineChartLegend"
-        [chartType]="lineChartType"
-        (chartHover)="chartHovered($event)"
-        (chartClick)="chartClicked($event)"></canvas>
+        [chartType]="lineChartType"></canvas>
 </div>

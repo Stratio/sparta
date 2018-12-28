@@ -15,7 +15,7 @@ const executionsRoutes: Routes = [
    },
    {
      path: ':id',
-     component: ExecutionsDetailComponent
+     loadChildren: './components/executions-detail/executions-detail.module#ExecutionsDetailModule'
    }
 ];
 

@@ -74,6 +74,19 @@ export class ExecutionService extends ApiService {
 
   reRunExecution(executionId: string): Observable<any> {
     const options: any = {};
-    return this.request(`/workflowExecutions/reRun/${executionId}`, 'post', options);
+    return this.request(`workflowExecutions/reRun/${executionId}`, 'post', options);
+  }
+
+  getExecutionsByDate(granularity: string, startDate: string, endDate: string) {
+    const options: any = {
+      body:
+      {
+        'dateGranularity': granularity,
+        'startDate': startDate,
+        'endDate': endDate
+      }
+
+    };
+    return this.request('workflowExecutions/executionsByDate', 'post', options);
   }
 }

@@ -39,7 +39,7 @@ export const getExecutionsState = createSelector(
    state => state.executionsMonitoring
 );
 export const getTableOrder = createSelector(getExecutionsState, state => state.order);
-
+export const getChartData = createSelector(getExecutionsState, state => state.graphData);
 export const getExecutionsList = createSelector(
    getExecutionsState,
    state => state.executionList

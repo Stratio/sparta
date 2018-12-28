@@ -215,6 +215,8 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
             [e.name]: e.errors.map(err => err.message)
           });
         }
+      } else {
+        this.serverStepValidations = {};
       }
       return {
         editionType: {
@@ -418,6 +420,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   }
 
   saveEdition(event) {
+    console.log(event)
     this.nodes = this.nodes.map(e => {
       if (e.name === this.selectedNodes[this.selectedNodes.length - 1]) {
         const selectedNode = event;

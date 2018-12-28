@@ -21,6 +21,7 @@ import { ExecutionsChartModule } from './components/executions-chart/executions-
 
 import { ExecutionsComponent } from './executions.component';
 import { ExecutionsRouterModule } from './executions.router';
+import { ExecutionPeriodsService } from './services/execution-periods.service';
 
 
 @NgModule({
@@ -38,7 +39,7 @@ import { ExecutionsRouterModule } from './executions.router';
         ExecutionsRouterModule,
         TranslateModule
     ],
-    providers: [ExecutionHelperService, reducerProvider]
+    providers: [ExecutionHelperService, ExecutionPeriodsService, reducerProvider]
 })
 
 export class ExecutionsMonitoringModule {

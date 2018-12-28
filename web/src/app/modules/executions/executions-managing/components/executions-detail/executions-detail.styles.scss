@@ -1,7 +1,69 @@
-.execution__details-editor {
-  height: 100vh;
+@import '~@stratio/egeo/theme/constants';
+.execution-details {
   position: absolute;
-  width: 100%;
   top: 0;
   left: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 9999;
+}
+
+.execution-details__header{
+  border-bottom: 1px solid #cdd6df;
+  height: 67px;
+  background: white;
+  min-width: 48rem;
+  padding: 9px 0;
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+
+  .workflow-type {
+    float: left;
+    font-size: 28px;
+    line-height: 43px;
+    margin-top: 8px;
+    width: 28px;
+  }
+  .title {
+    margin-left: 24px;
+    float: left;
+    margin-top: 6px;
+  }
+
+  .link {
+    color: $action-primary-default;
+    float: right;
+    margin-top: 10px;
+    margin-right: 25px;
+    cursor: pointer;
+    &:hover {
+        color: $action-primary-hover;
+    }
+  }
+}
+
+.execution-details__editor {
+ height: calc(100vh - 67px);
+}
+
+sparta-sidebar{
+  position: fixed;
+  right: 0;
+  top: 66px;
+  z-index: 100;
+  bottom: 0;
+
+  .configuration{
+    margin-top: 10px;
+  }
+  .property {
+    margin-top: 8px;
+
+    .label {
+      font-family: $egeo-nunito-sans-semiBold;
+    }
+  }
 }

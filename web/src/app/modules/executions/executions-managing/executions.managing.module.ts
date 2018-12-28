@@ -13,9 +13,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { reducerToken, reducerProvider } from './reducers';
 import { ExecutionsEffect } from './effects/executions';
 import { ExecutionHelperService } from 'app/services/helpers/execution.service';
-import { ExecutionsDetailComponent } from './components/executions-detail/executions-detail.component';
 
-import { EmptyTableBoxModule, SpartaSidebarModule, GraphEditorModule } from '@app/shared';
+import { EmptyTableBoxModule, SpartaSidebarModule } from '@app/shared';
 
 import { ExecutionsConsoleModule } from './components/executions-console/executions-console.module';
 import { ExecutionsSidebarDetailModule } from './components/executions-sidebar-detail/executions-sidebar-detail.module';
@@ -27,15 +26,11 @@ import { ExecutionsManagingComponent } from './executions.component';
 
 
 import { ExecutionsRouterModule } from './executions.router';
-import { EdgeOptionsModule } from '@app/wizard/components/edge-options/edge-options.module';
-import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node.module';
-import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge.module';
 
 
 @NgModule({
    declarations: [
-      ExecutionsManagingComponent,
-      ExecutionsDetailComponent
+      ExecutionsManagingComponent
    ],
    imports: [
       CommonModule,
@@ -49,11 +44,7 @@ import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge
       StoreModule.forFeature('executions', reducerToken),
       EffectsModule.forFeature([ExecutionsEffect]),
       ExecutionsRouterModule,
-      TranslateModule,
-      GraphEditorModule,
-      WizardNodeModule,
-      EdgeOptionsModule,
-      WizardEdgeModule
+      TranslateModule
    ],
    providers: [reducerProvider, ExecutionHelperService]
 })

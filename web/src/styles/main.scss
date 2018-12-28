@@ -76,6 +76,12 @@ st-table.custom-table {
   }
 }
 
+st-table {
+  th, td {
+    border-bottom: 1px solid #f1f1f1;
+  }
+}
+
 
 .filterSelect {
    #database-selection {
@@ -117,7 +123,7 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
 }
 
 .checkbox-table{
-   td:nth-child(1) {
+   td:nth-child(1) > * {
       visibility: hidden;
    }
 
@@ -134,13 +140,13 @@ perfect-scrollbar.scroll-bar-sql-builder>.ps.ps--active-y>.ps__rail-y {
     }
 
     tr:hover {
-      td:nth-child(1){
+      td:nth-child(1) > *{
         visibility: visible;
       }
     }
 
     &.active-selection{
-      td:nth-child(1) {
+      td:nth-child(1) > * {
         visibility: visible;
       }
     }

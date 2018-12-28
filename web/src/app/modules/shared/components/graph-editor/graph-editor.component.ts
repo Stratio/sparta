@@ -52,6 +52,7 @@ export class GraphEditorComponent implements OnInit {
   @Input() selectedNodeName = '';
   @Input() selectedEdge: WizardEdge;
   @Input() serverStepValidations: any = {};
+  @Input() multiselectionEnabled = true;
 
   @Input() get connectorPosition() {
     return this._connectorPosition;
@@ -104,7 +105,7 @@ export class GraphEditorComponent implements OnInit {
   private _documentRef: d3.Selection<any>;
   private _connectorElement: d3.Selection<any>;
   private _connectorPosition: ZoomTransform = null;
-  private _enableDrag = true;
+  private _enableDrag: boolean;
   /** when external position is true, it prevents sending a setEditorDirty event */
   private _externalPosition = true;
   private _isShiftPressed = false;
@@ -125,8 +126,7 @@ export class GraphEditorComponent implements OnInit {
     this._SVGParent.on('click', this.clickDetected.bind(this));
     this.setDraggableEditor();
     this._setCurrentPosition();
-    this._SVGParent.classed('drag-enabled', this.enableDrag);
-    this._SVGParent.on('mousedown.zoom', null);
+    this.enableDrag = false;
   }
 
   private _initSelectors() {
@@ -158,7 +158,9 @@ export class GraphEditorComponent implements OnInit {
         }
         /** SPACE */
         case 32: {
-          this.enableDrag = true;
+          if (!this.enableDrag) {
+            this.enableDrag = true;
+          }
           break;
         }
       }
@@ -287,13 +289,14 @@ export class GraphEditorComponent implements OnInit {
   createSelector(event) {
     if (this.enableDrag) {
       this.initialSelectionCoors = null;
-    } else {
+    } else if (this.multiselectionEnabled) {
       this.initialSelectionCoors = {
         x: event.offsetX,
         y: event.offsetY
       };
+      this._cd.reattach();
+
     }
-    this._cd.reattach();
   }
 
   onFinishSelection(event) {

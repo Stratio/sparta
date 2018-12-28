@@ -11,55 +11,77 @@ import { isEqual } from 'lodash';
 import { Order } from '@stratio/egeo';
 
 const images = {
-   running: 'runIcon',
-   failed: 'failIcon',
-   stopped: 'stopIcon',
-   archived: 'archiveIcon'
+  running: 'runIcon',
+  failed: 'failIcon',
+  stopped: 'stopIcon',
+  archived: 'archiveIcon'
 };
 
 export interface State {
-   executionList: Array<any>;
-   executionInfo: any;
-   loading: boolean;
-   filters: Array<any>;
-   order: Order;
+  executionList: Array<any>;
+  executionInfo: any;
+  loading: boolean;
+  filters: Array<any>;
+  order: Order;
+  graphData: {
+    period: string;
+    times: Array<any>;
+    batchTotal: any;
+    streamingTotal: any;
+  };
 }
 
 const initialState: State = {
-   executionList: [],
-   executionInfo: null,
-   loading: false,
-   filters: [
-      { name: 'running', value: 0, image: 'runIcon'},
-      { name: 'stopped', value: 0, image: 'stopIcon'},
-      { name: 'failed', value: 0, image: 'failIcon'},
-      { name: 'archived', value: 0, image: 'archiveIcon'}
-   ],
-    order: {
-      orderBy: 'startDateWithStatus',
-      type: 0
-   }
+  executionList: [],
+  executionInfo: null,
+  loading: false,
+  filters: [
+    { name: 'running', value: 0, image: 'runIcon' },
+    { name: 'stopped', value: 0, image: 'stopIcon' },
+    { name: 'failed', value: 0, image: 'failIcon' },
+    { name: 'archived', value: 0, image: 'archiveIcon' }
+  ],
+  order: {
+    orderBy: 'startDateWithStatus',
+    type: 0
+  },
+  graphData: {
+    period: 'DAY',
+    times: [],
+    batchTotal: {
+      data: [],
+      label: 'Batch'
+    },
+    streamingTotal: [{
+      data: [],
+      label: 'Streaming'
+    }]
+  }
 };
 
 export function reducer(state: State = initialState, action: any): State {
 
-   switch (action.type) {
-      case executionActions.LIST_EXECUTIONS_COMPLETE: {
-         const { executionList, executionsSummary: summary } = action.payload;
-
-         const filters = Object.keys(summary)
-            .map(key => ({ name: key, value: summary[key], image: images[key] }));
-         return {
-            ...state,
-            loading: false,
-            executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList,
-            filters: isEqual(filters, state.filters) ? state.filters : filters
-         };
-      }
-
-      default:
-         return state;
-   }
+  switch (action.type) {
+    case executionActions.LIST_EXECUTIONS_COMPLETE: {
+      const { executionList, executionsSummary: summary } = action.payload;
+      const filters = Object.keys(summary)
+        .map(key => ({ name: key, value: summary[key], image: images[key] }));
+      return {
+        ...state,
+        loading: false,
+        executionList: isEqual(executionList, state.executionList) ? state.executionList : executionList,
+        filters: isEqual(filters, state.filters) ? state.filters : filters
+      };
+    }
+    case executionActions.GET_GRAPH_DATA_PERIOD_COMPLETE: {
+      return {
+        ...state,
+        graphData: action.payload
+      };
+    }
+    default:
+      return state;
+  }
 }
 
 
