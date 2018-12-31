@@ -1,9 +1,12 @@
-<div class="card">
-  <h2 class="card__title">{{cards[selectedCard].title}}</h2>
-  <img class="card__img" [attr.src]="cards[selectedCard].image" />
-  <p class="card__description">{{cards[selectedCard].description}}</p>
+<div class="cards-wrapper">
+  <div class="cards-container" [style.transform]="'translateX(' +  (-530 * selectedCard) + 'px)'">
+    <div class="card" *ngFor="let card of cards">
+      <h2 class="card__title">{{card.title}}</h2>
+      <img class="card__img" [attr.src]="card.image" />
+      <p class="card__description">{{card.description}}</p>
+    </div>
+  </div>
 </div>
-
 <div>
   <div class="card-selector">
     <div class="card-selector__point"

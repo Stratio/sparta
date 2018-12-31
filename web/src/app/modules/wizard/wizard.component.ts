@@ -85,7 +85,6 @@ export class WizardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const id = this._route.snapshot.params.id;
     this.isEdit = (id && id.length);
-
     const showHelpCards = localStorage.getItem('sparta-cards-help');
     if (!showHelpCards) {
       this._showCardsModal();

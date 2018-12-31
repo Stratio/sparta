@@ -121,7 +121,7 @@ export class WizardNodeComponent implements OnInit {
       this.createNodeContent();
       this.generateEntries();
       nodeElement.on('mouseup', () => {
-        if (this.data.stepType !== StepType.Input && this._drawingConectionStatus.status) {
+        if (this.data.stepType !== StepType.Input && this._drawingConectionStatus && this._drawingConectionStatus.status) {
           this.onFinishConnector.emit(this.data);
         }
       });

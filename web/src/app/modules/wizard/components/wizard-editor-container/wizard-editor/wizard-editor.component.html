@@ -5,7 +5,7 @@
   [connectorPosition]="drawingConnectionStatus.initPosition"
   [disableEvents]="disableEvents"
   (setEditorDirty)="setEditorDirty.emit()"
-  (deselectNode)="deselectEntityCreation.emit()"
+  (disableSelection)="disableSelection.emit()"
   (createNode)="createNode.emit($event)"
   (editorPositionChange)="editorPositionChange.emit($event)"
   (finishSelection)="onFinishSelection($event)"

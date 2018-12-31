@@ -138,12 +138,14 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         selectedEntities: selected,
+        selectedEdge: null,
         isPipelineEdition: action.isPipelinesEdition
       };
     }
     case wizardActions.SELECT_MULTIPLE_STEPS: {
       return {
         ...state,
+        selectedEdge: null,
         selectedEntities: !state.multiselectionMode ? action.stepNames : [...state.selectedEntities, ...action.stepNames].filter((item, pos, arr) => arr.indexOf(item) === pos)
       };
     }

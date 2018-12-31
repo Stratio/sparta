@@ -2,11 +2,21 @@
 
 :host {
   width: 100%;
+};
+
+.cards-wrapper {
+  width: 530px;
+  overflow: hidden;
+}
+.cards-container {
+  width: 1590px;
+  transition: 0.3s transform;
 }
 
 .card {
   height: 430px;
-  min-width: 530px;
+  width: 530px;
+  float: left;
 
   &__title {
     font-family: $egeo-nunito-sans-light;

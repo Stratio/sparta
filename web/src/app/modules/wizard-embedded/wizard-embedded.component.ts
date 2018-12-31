@@ -330,9 +330,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
               this.edges.splice(this.edges.indexOf(edge), 1);
             });
             this.nodes.splice(this.nodes.indexOf(nodeToDelete), 1);
-
             this._wrapNodeEditionMode();
-
             this.isDirtyEditor = true;
           }
           this.deselectAll();
@@ -420,7 +418,6 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   }
 
   saveEdition(event) {
-    console.log(event)
     this.nodes = this.nodes.map(e => {
       if (e.name === this.selectedNodes[this.selectedNodes.length - 1]) {
         const selectedNode = event;
@@ -509,6 +506,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       }
     });
     this.selectedNodes = !this.multiselection ? selectedNodes : [...this.selectedNodes, ...selectedNodes].filter((item, pos, arr) => arr.indexOf(item) === pos);
+    this.selectedEdge = null;
     this._wrapNodeEditionMode();
   }
 

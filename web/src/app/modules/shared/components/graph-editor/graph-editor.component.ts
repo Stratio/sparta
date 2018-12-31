@@ -70,7 +70,7 @@ export class GraphEditorComponent implements OnInit {
 
   @Output() createNode = new EventEmitter<any>();
   @Output() setEditorDirty = new EventEmitter();
-  @Output() deselectNode = new EventEmitter<void>();
+  @Output() disableSelection = new EventEmitter<void>();
   @Output() removeConnector = new EventEmitter();
   @Output() editorPositionChange = new EventEmitter<ZoomTransform>();
   @Output() finishSelection = new EventEmitter<any>();
@@ -205,7 +205,7 @@ export class GraphEditorComponent implements OnInit {
       };
       this.createNode.emit({ position, creationMode: this.creationMode });
     }
-    this.deselectNode.emit();
+    this.disableSelection.emit();
   }
 
   drawConnector(startPosition: ZoomTransform) {

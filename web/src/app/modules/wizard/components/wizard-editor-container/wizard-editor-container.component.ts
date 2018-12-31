@@ -145,20 +145,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
      }
   }
 
-  @HostListener('click', ['$event'])
-  clickout(event: any) {
-    if (this.editorArea.nativeElement.contains(event.target)) {
-      if (this.selectedEdge) {
-        this._store.dispatch(new wizardActions.UnselectSegmentAction());
-      }
-      if (this.selectedNodeNames) {
-        this._store.dispatch(new wizardActions.UnselectEntityAction());
-      }
-
-      this.isPipelinesNodeSelected = false;
-    }
-  }
-
   constructor(
     private _modalService: StModalService,
     private _initializeStepService: InitializeStepService,
@@ -435,7 +421,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     this.isPipelinesNodeSelected = false;
   }
 
-  deselectEntityCreation() {
+  disableSelection() {
     this._store.dispatch(new wizardActions.DeselectedCreationEntityAction());
   }
 

@@ -45,7 +45,7 @@ export class WizardEditorComponent {
   @Input() disableEvents: boolean;
 
   @Output() setEditorDirty = new EventEmitter();
-  @Output() deselectEntityCreation = new EventEmitter();
+  @Output() disableSelection = new EventEmitter();
   @Output() createNode = new EventEmitter<any>();
   @Output() onCreateEdge = new EventEmitter<WizardEdge>();
   @Output() selectNode = new EventEmitter<WizardNode>();
