@@ -4,9 +4,11 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-import {ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
+import { StModalService } from '@stratio/egeo';
+
 import { Store, select } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 
@@ -23,6 +25,7 @@ import { WorkflowData } from '@app/wizard/models/data';
 import { streamingPreprocessingNames, batchPreprocessingNames } from 'data-templates/pipelines/pipelines-preprocessing';
 import { streamingAlgorithmNames, batchAlgorithmNames } from 'data-templates/pipelines/pipelines-algorithm';
 import { takeUntil } from 'rxjs/operators';
+import { WizardHelpCardsComponent } from './components/wizard-help-cards/wizard-help-cards.component';
 
 @Component({
   selector: 'wizard',
@@ -59,6 +62,7 @@ export class WizardComponent implements OnInit, OnDestroy {
   ];
 
   @ViewChild('editorContainer') _editor: ElementRef;
+  @ViewChild('wizardCardsModal', { read: ViewContainerRef }) target: any;
 
   private _componentDestroyed = new Subject();
 
@@ -66,6 +70,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     private _store: Store<fromWizard.State>,
     private _route: ActivatedRoute,
     private _cd: ChangeDetectorRef,
+    private _stModalService: StModalService,
     @Inject(DOCUMENT) private _document: any,
     private _wizardService: WizardService
   ) {
@@ -80,6 +85,12 @@ export class WizardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const id = this._route.snapshot.params.id;
     this.isEdit = (id && id.length);
+
+    const showHelpCards = localStorage.getItem('sparta-cards-help');
+    if (!showHelpCards) {
+      this._showCardsModal();
+    }
+
     this._store.dispatch(new externalDataActions.GetParamsListAction());
     this._store.dispatch(new externalDataActions.GetMlModelsListAction());
     this._store.dispatch(new wizardActions.ResetWizardAction(this.isEdit));  // Reset wizard to default settings
@@ -93,7 +104,6 @@ export class WizardComponent implements OnInit, OnDestroy {
       this._store.dispatch(new wizardActions.GetMenuTemplatesAction());    // Get menu templates
     }
     this.executionContexts$ = this._store.pipe(select(fromWizard.getExecutionContexts));
-
     // Retrieves the workflow type from store (in edition mode, is updated after the get workflow data request)
     this._store.pipe(select(fromWizard.getWorkflowType))
       .pipe(takeUntil(this._componentDestroyed))
@@ -226,6 +236,23 @@ export class WizardComponent implements OnInit, OnDestroy {
 
   executeWorkflow(event) {
     this._store.dispatch(new debugActions.InitDebugWorkflowAction(event));
+  }
+
+  private _showCardsModal() {
+    this._stModalService.container = this.target;
+    this._stModalService.show({
+      outputs: {
+        closeCardsModal: this._onCloseCardsModal.bind(this)
+      },
+      maxWidth: 600
+   }, WizardHelpCardsComponent);
+  }
+
+  private _onCloseCardsModal(close) {
+    this._stModalService.close();
+    if (close) {
+      localStorage.setItem('sparta-cards-help', 'true');
+    }
   }
 
   ngOnDestroy(): void {

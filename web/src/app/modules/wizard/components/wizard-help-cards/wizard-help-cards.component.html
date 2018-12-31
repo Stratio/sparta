@@ -1,0 +1,18 @@
+<div class="card">
+  <h2 class="card__title">{{cards[selectedCard].title}}</h2>
+  <img class="card__img" [attr.src]="cards[selectedCard].image" />
+  <p class="card__description">{{cards[selectedCard].description}}</p>
+</div>
+
+<div>
+  <div class="card-selector">
+    <div class="card-selector__point"
+      (click)="selectedCard = i"
+      [ngClass]="{'selected': i === selectedCard}"
+      *ngFor="let card of cards; let i = index;"></div>
+  </div>
+</div>
+<div class="card-actions">
+  <st-checkbox [checked]="doNotShow" (change)="toggleDoNotShow($event)">Do not show more</st-checkbox>
+  <a (click)="closeCardsModal.emit(doNotShow)">Skip</a>
+</div>

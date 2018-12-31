@@ -1,0 +1,59 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+  width: 100%;
+}
+
+.card {
+  height: 430px;
+  min-width: 530px;
+
+  &__title {
+    font-family: $egeo-nunito-sans-light;
+    font-size: 25px;
+    text-align: center;
+  }
+
+  &__img {
+    margin: 20px auto;
+    display: block;
+  }
+
+  &__description {
+    color: $neutral-11;
+    margin-top: 10px;
+    font-size: 16px;
+  }
+}
+
+.card-selector {
+  margin: 0 auto;
+  display: inline-block;
+  float: none;
+  display: table;
+  &__point {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #15b4f1;
+    display: inline-block;
+    margin: 0 10px;
+    transition: 0.3s opacity;
+    opacity: 0.2;
+    cursor: pointer;
+
+    &.selected {
+      opacity: 1;
+    }
+  }
+}
+
+.card-actions{
+  margin-top: 20px;
+  a {
+    color: $action-primary-default;
+    float: right;
+    text-decoration: none;
+    cursor: pointer;
+  }
+}

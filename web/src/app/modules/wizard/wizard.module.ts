@@ -26,7 +26,8 @@ import { CustomExecutionModule } from '@app/custom-execution/custom-execution.mo
 import { WizardEmbeddedModule } from '@app/wizard-embedded/wizard-embedded.module';
 import { SelectedEntityModule } from '@app/wizard/components/selected-entity/selected-entity.module';
 import {WizardNotificationsModule} from '@app/wizard/components/wizard-notifications/wizard-notifications.module';
-
+import { WizardHelpCardsComponent } from './components/wizard-help-cards/wizard-help-cards.component';
+import { WizardHelpCardsModule } from './components/wizard-help-cards/wizard-help-cards.module';
 import { WizardEditorContainerModule } from './components/wizard-editor-container/wizard-editor-container.module';
 import { WizardSettingsModule } from './components/wizard-settings/wizard-settings.module';
 import { WizardConfigEditorModule } from './components/wizard-config-editor/wizard-config-editor.module';
@@ -40,7 +41,7 @@ import { WizardComponent } from './wizard.component';
   ],
   imports: [
     CommonModule,
-    StModalModule.withComponents([WizardModalComponent]),
+    StModalModule.withComponents([WizardModalComponent, WizardHelpCardsComponent]),
     StoreModule.forFeature('wizard', reducers),
     EffectsModule.forFeature([DebugEffect, WizardEffect, ExternalDataEffect]),
     WizardRoutingModule,
@@ -48,6 +49,7 @@ import { WizardComponent } from './wizard.component';
     WizardConfigEditorModule,
     WizardEmbeddedModule,
     WizardEditorContainerModule,
+    WizardHelpCardsModule,
     SelectedEntityModule,
     TranslateModule,
     WizardNotificationsModule,

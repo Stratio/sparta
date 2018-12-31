@@ -47,8 +47,6 @@ export class ExecutionPeriodsService {
             return data;
           }));
         const initialValues = new Array(times.length).fill(0);
-
-
         const batchTotal = times.map(time => batchData[time] || 0);
         const streamingTotal = times.map(time => streamingData[time] || 0);
 
