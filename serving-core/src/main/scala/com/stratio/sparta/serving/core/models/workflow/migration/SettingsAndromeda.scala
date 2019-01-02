@@ -12,6 +12,6 @@ import com.stratio.sparta.serving.core.models.workflow.{SparkSettings, Streaming
 case class SettingsAndromeda(
                               global: GlobalSettingsCassiopea = GlobalSettingsCassiopea(),
                               streamingSettings: StreamingSettings = StreamingSettings(),
-                              sparkSettings: SparkSettings = SparkSettings(),
+                              sparkSettings: SparkSettingsOrion = SparkSettingsOrion(),
                               errorsManagement: ErrorsManagement = ErrorsManagement()
                             )

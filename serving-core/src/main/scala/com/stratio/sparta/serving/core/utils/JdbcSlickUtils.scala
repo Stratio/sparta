@@ -25,6 +25,26 @@ trait JdbcSlickUtils {
   import profile.api._
 
   val db: Database
+
+  // Check if the property is defined in the schemaName configuration (sparta.postgres.schemaName),
+  // if not, check if currentSchema is defined in the extraParameters otherwise set to public
+  val dbSchemaName: Option[String] = {
+
+    lazy val schemaNameFromConfig: Option[String] =
+      Try(SpartaConfig.getPostgresConfig().get.getString("schemaName")).toOption.notBlank
+
+    lazy val schemaNameFromExtraParams: Option[String] =
+      Try(SpartaConfig.getPostgresConfig().get.getString("extraParams")).toOption.notBlank
+        .fold(Option("")) { extraParameters =>
+          extraParameters.split("&", -1)
+            .find(condition => condition.startsWith("currentSchema"))
+            .map(_.replace("currentSchema=", ""))
+        }.notBlank
+
+    lazy val defaultSchema = AppConstant.instanceName.getOrElse("sparta-server")
+
+    schemaNameFromConfig.orElse(schemaNameFromExtraParams).orElse(Some(defaultSchema))
+  }
 }
 
 trait JdbcSlickHelper {

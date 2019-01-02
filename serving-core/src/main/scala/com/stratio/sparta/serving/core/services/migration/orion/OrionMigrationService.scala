@@ -4,12 +4,17 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.services.migration
+package com.stratio.sparta.serving.core.services.migration.orion
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.factory.{CuratorFactoryHolder, PostgresDaoFactory}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.workflow.migration._
+import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, Workflow}
+import com.stratio.sparta.serving.core.services.migration.andromeda.AndromedaMigrationService
+import com.stratio.sparta.serving.core.services.migration.cassiopea.CassiopeiaMigrationService
+import com.stratio.sparta.serving.core.services.migration.zookeeper.{ZkEnvironmentService, ZkGroupService}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -18,49 +23,49 @@ import scala.util.{Failure, Success, Try}
 
 class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
 
-  private val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
+  import MigrationModelImplicits._
+
   private val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
-  private val workflowZkService = new ZkWorkflowService(CuratorFactoryHolder.getInstance())
   private val environmentZkService = new ZkEnvironmentService(CuratorFactoryHolder.getInstance())
 
   private val andromedaMigrationService = new AndromedaMigrationService()
   private val cassiopeiaMigrationService = new CassiopeiaMigrationService()
 
   private val groupPostgresService = PostgresDaoFactory.groupPgService
-  private val workflowPostgresService = PostgresDaoFactory.workflowPgService
-  private val templatePostgresService = PostgresDaoFactory.templatePgService
   private val paramListPostgresService = PostgresDaoFactory.parameterListPostgresDao
   private val globalParameterPostgresService = PostgresDaoFactory.globalParametersService
 
   def executeMigration(): Unit = {
-
     orionEnvironmentMigration()
-    orionTemplatesMigration()
     orionGroupsMigration()
-    orionWorkflowsMigration()
   }
 
-  private def orionTemplatesMigration(): Unit = {
-
-    val cassiopeaTemplates = cassiopeiaMigrationService.cassiopeiaTemplatesMigrated().getOrElse(Seq.empty)
-    val andromedaTemplates = andromedaMigrationService.andromedaTemplatesMigrated(cassiopeaTemplates).getOrElse(Seq.empty)
-
+  def orionWorkflowsMigrated(): Try[(Seq[Workflow], Seq[WorkflowOrion], Seq[WorkflowAndromeda], Seq[WorkflowCassiopeia])] =
     Try {
-      Await.result(templatePostgresService.upsertList(andromedaTemplates), 20 seconds)
-    } match {
-      case Success(_) =>
-        log.info("Templates migrated to Orion")
-        Try {
-          andromedaTemplates.foreach(template => templateZkService.create(template))
-          templateZkService.deletePath()
-        } match {
-          case Success(_) =>
-            log.info("Andromeda templates moved to backup folder in Zookeeper")
-          case Failure(e) =>
-            log.error(s"Error moving templates to backup folder. ${ExceptionHelper.toPrintableException(e)}", e)
-        }
-      case Failure(e) =>
-        log.error(s"Error migrating Orion templates. ${ExceptionHelper.toPrintableException(e)}", e)
+      val (cassiopeiaToAndromedaWorkflows, cassiopeaWorkflows) = cassiopeiaMigrationService.cassiopeaWorkflowsMigrated()
+        .getOrElse((Seq.empty, Seq.empty))
+      val (andromedaToOrionWorkflows, andromedaWorkflows) = andromedaMigrationService.andromedaWorkflowsMigrated(cassiopeiaToAndromedaWorkflows)
+        .getOrElse((Seq.empty, Seq.empty))
+      val hydraWorkflows = andromedaToOrionWorkflows.map { orionWorkflow =>
+        val hydraWorkflow: Workflow = orionWorkflow
+        hydraWorkflow
+      }
+
+      (hydraWorkflows, andromedaToOrionWorkflows, andromedaWorkflows ++ cassiopeiaToAndromedaWorkflows, cassiopeaWorkflows)
+    }
+
+  def orionTemplatesMigrated(): Try[(Seq[TemplateElement], Seq[TemplateElementOrion], Seq[TemplateElementOrion])] = {
+    Try {
+      val (cassiopeiaTemplatesToAndromeda, cassiopeiaTemplates) = cassiopeiaMigrationService.cassiopeiaTemplatesMigrated()
+        .getOrElse((Seq.empty, Seq.empty))
+      val (orionTemplates, andromedaTemplates) = andromedaMigrationService.andromedaTemplatesMigrated(cassiopeiaTemplatesToAndromeda)
+        .getOrElse((Seq.empty, Seq.empty))
+      val hydraTemplates = orionTemplates.map { orionTemplate =>
+        val template: TemplateElement = orionTemplate
+        template
+      }
+
+      (hydraTemplates, andromedaTemplates ++ cassiopeiaTemplatesToAndromeda, cassiopeiaTemplates)
     }
   }
 
@@ -84,30 +89,6 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
         }
       case Failure(e) =>
         log.error(s"Error migrating Orion groups. ${ExceptionHelper.toPrintableException(e)}", e)
-    }
-  }
-
-  private def orionWorkflowsMigration(): Unit = {
-
-    val andromedaWorkflows = cassiopeiaMigrationService.cassiopeaWorkflowsMigrated().getOrElse(Seq.empty)
-    val orionWorkflows = andromedaMigrationService.andromedaWorkflowsMigrated(andromedaWorkflows).getOrElse(Seq.empty)
-
-    Try {
-      Await.result(workflowPostgresService.upsertList(orionWorkflows), 20 seconds)
-    } match {
-      case Success(_) =>
-        log.info("Workflows migrated to Orion")
-        Try {
-          orionWorkflows.foreach(workflow => workflowZkService.create(workflow))
-          workflowZkService.deletePath()
-        } match {
-          case Success(_) =>
-            log.info("Andromeda workflows moved to backup folder in Zookeeper")
-          case Failure(e) =>
-            log.error(s"Error moving workflows to backup folder. ${ExceptionHelper.toPrintableException(e)}", e)
-        }
-      case Failure(e) =>
-        log.error(s"Error migrating workflows. ${ExceptionHelper.toPrintableException(e)}", e)
     }
   }
 

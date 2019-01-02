@@ -70,7 +70,7 @@
     "DG_HOST": "pg-0001.postgrestls.mesos",
     "SPARTA_PLUGIN_LDAP_MAPPING_GROUP_DESCRIPTION": "description",
     "CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT": "4041",
-    "CROSSDATA_SERVER_CONFIG_SPARK_DOCKER_IMAGE": "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0",
+    "SPARK_EXECUTOR_BASE_IMAGE": "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-1.0.0",
     "CROSSDATA_CORE_CATALOG_PREFIX": "crossdataCluster",
     "SPARTA_MARATHON_MESOSPHERE_PACKAGES": "/opt/mesosphere/packages",
     "DG_PORT": "5432",

@@ -15,7 +15,7 @@ import com.stratio.sparta.serving.core.models.workflow.{SparkSettings, SqlSenten
 case class SettingsCassiopea(
                               global: GlobalSettingsCassiopea = GlobalSettingsCassiopea(),
                               streamingSettings: StreamingSettings = StreamingSettings(),
-                              sparkSettings: SparkSettings = SparkSettings(),
+                              sparkSettings: SparkSettingsOrion = SparkSettingsOrion(),
                               errorsManagement: ErrorsManagement = ErrorsManagement()
                             )
 

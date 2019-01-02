@@ -11,7 +11,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.{regexMatchingMoustacheVariable, version}
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.models.workflow.migration.WorkflowAndromeda
+import com.stratio.sparta.serving.core.models.workflow.migration.{TemplateElementOrion, WorkflowAndromeda, WorkflowOrion}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -91,16 +91,16 @@ class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
   private def andromedaMigrationNewJsoney(value: JsoneyString): JsoneyString =
     JsoneyString(regexMatchingMoustacheVariable.replaceAllIn(value.toString, matchEnvironmentVariables))
 
-  def fromAndromedaToOrionTemplate(template: TemplateElement): TemplateElement = {
+  def fromAndromedaToOrionTemplate(template: TemplateElementOrion): TemplateElementOrion = {
     val newConfig: Map[String, JsoneyString] = for {
       (key, value: JsoneyString) <- template.configuration
     } yield {
       key -> andromedaMigrationNewJsoney(value)
     }
-    template.copy(versionSparta = Some(version), configuration = newConfig)
+    template.copy(versionSparta = Some(AppConstant.OrionVersion), configuration = newConfig)
   }
 
-  def fromAndromedaToOrionWorkflow(workflow: WorkflowAndromeda): Workflow = {
+  def fromAndromedaToOrionWorkflow(workflow: WorkflowAndromeda): WorkflowOrion = {
     val workflowWithJsoneySubstitution: WorkflowAndromeda = workflow.copy(
       pipelineGraph =
         workflow.pipelineGraph.copy(nodes =
@@ -211,8 +211,6 @@ class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
                 .map(value => andromedaMigrationNewJsoney(value)),
               sparkLocalDir = workflow.settings.sparkSettings.sparkConf.sparkLocalDir
                 .map(value => andromedaMigrationNewJsoney(value)),
-              executorDockerImage = workflow.settings.sparkSettings.sparkConf.executorDockerImage
-                .map(value => andromedaMigrationNewJsoney(value)),
               executorExtraJavaOptions = workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions
                 .map(value => andromedaMigrationNewJsoney(value))
             )
@@ -228,7 +226,7 @@ class MigrationUtils private(private val refreshDB: Boolean, timeout: Int) {
         )
       }
     )
-    val orionWorkflow: Workflow = workflowWithJsoneySubstitution
+    val orionWorkflow: WorkflowOrion = workflowWithJsoneySubstitution
     val globalSetting = orionWorkflow.settings.global.copy(preExecutionSqlSentences = workflowWithJsoneySubstitution.settings.global.initSqlSentences)
     orionWorkflow.copy(settings = orionWorkflow.settings.copy(global = globalSetting))
   }

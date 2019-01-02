@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.serving.core.services.migration
+package com.stratio.sparta.serving.core.services.migration.cassiopea
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
@@ -12,8 +12,8 @@ import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration._
+import com.stratio.sparta.serving.core.services.migration.zookeeper.ZkTemplateService
 import org.json4s.jackson.Serialization.read
 
 import scala.collection.JavaConversions
@@ -30,12 +30,12 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
 
   lazy val explodeFields = List("schema.fromRow", "schema.inputMode", "schema.fields", "schema.sparkSchema")
 
-  private def migrateSelect(cassiopeiaTemplate: TemplateElement): TemplateElement = {
+  private def migrateSelect(cassiopeiaTemplate: TemplateElementOrion): TemplateElementOrion = {
     cassiopeiaTemplate.copy(configuration = cassiopeiaTemplate.configuration.filterNot(kv => kv._1 == "delimiter") ++ Map("selectType" -> JsoneyString("EXPRESSION")),
       versionSparta = Some(AppConstant.AndromedaVersion))
   }
 
-  private def migrateExplode(cassiopeiaTemplate: TemplateElement): TemplateElement = {
+  private def migrateExplode(cassiopeiaTemplate: TemplateElementOrion): TemplateElementOrion = {
     val newConfig =
       cassiopeiaTemplate.configuration.get("schema.inputMode") match {
         case (Some(mode)) if mode.isInstanceOf[JsoneyString] && mode.toString.equals("SPARKFORMAT") =>
@@ -46,24 +46,28 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
     cassiopeiaTemplate.copy(configuration = newConfig.asInstanceOf[Map[String, JsoneyString]], versionSparta = Some(AppConstant.AndromedaVersion))
   }
 
-  def cassiopeiaTemplatesMigrated(): Try[Seq[TemplateElement]] = {
+  def cassiopeiaTemplatesMigrated(): Try[(Seq[TemplateElementOrion], Seq[TemplateElementOrion])] = {
     log.info(s"Migrating templates from Cassiopeia")
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.TemplatesZkPath)) {
-        templateService.findAll.filterNot(_.versionSparta.isDefined).map { template =>
+        val templatesInZk = templateService.findAll
+        val cassiopeiaTemplates = templatesInZk.filterNot(_.versionSparta.isDefined)
+        val cassiopeiaTemplatesToAndromeda = templatesInZk.filterNot(_.versionSparta.isDefined).map { template =>
           if (template.classPrettyName == "Select")
             migrateSelect(template)
           else if (template.classPrettyName == "Explode")
             migrateExplode(template)
           else template.copy(versionSparta = Some(AppConstant.AndromedaVersion))
         }
-      } else Seq.empty
+
+        (cassiopeiaTemplatesToAndromeda, cassiopeiaTemplates)
+      } else (Seq.empty, Seq.empty)
     }
   }
 
   /** WORKFLOWS **/
 
-  def cassiopeaWorkflowsMigrated(): Try[Seq[WorkflowAndromeda]] = {
+  def cassiopeaWorkflowsMigrated(): Try[(Seq[WorkflowAndromeda], Seq[WorkflowCassiopeia])] = {
     log.info(s"Migrating workflows from Cassiopeia")
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
@@ -71,7 +75,7 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
         val cassiopeiaWorkflows = JavaConversions.asScalaBuffer(children).toList.map(id =>
           cassiopieaWorkflowExistsById(id)
         )
-        cassiopeiaWorkflows.flatMap { cassiopeiaWorkFlow =>
+        val andromedaWorkflows = cassiopeiaWorkflows.flatMap { cassiopeiaWorkFlow =>
           cassiopeiaWorkFlow.map { workflow =>
             Try {
               val andromedaWorkflow: WorkflowAndromeda = workflow
@@ -85,7 +89,8 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
             }
           }
         }
-      } else Seq.empty
+        (andromedaWorkflows, cassiopeiaWorkflows.flatten)
+      } else (Seq.empty, Seq.empty)
     }
   }
 

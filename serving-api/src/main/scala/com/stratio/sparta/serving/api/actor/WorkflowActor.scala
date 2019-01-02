@@ -20,7 +20,8 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration.{WorkflowAndromeda, WorkflowCassiopeia}
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
-import com.stratio.sparta.serving.core.services.migration.{CassiopeiaMigrationService, MigrationUtils}
+import com.stratio.sparta.serving.core.services.migration.MigrationUtils
+import com.stratio.sparta.serving.core.services.migration.cassiopea.CassiopeiaMigrationService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class WorkflowActor(

@@ -606,15 +606,6 @@
               "qa": "workflow-spark-executorJavaOptions"
             },
             {
-              "propertyId": "executorDockerImage",
-              "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
-              "propertyType": "text",
-              "width": 4,
-              "default": "{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}",
-              "tooltip": "Specifies which spark docker image should be used for the executors in order to run over Mesos Clusters.",
-              "qa": "workflow-spark-executorDockerImage"
-            },
-            {
               "propertyId": "sparkLocalDir",
               "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
               "propertyType": "text",

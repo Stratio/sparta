@@ -18,7 +18,8 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.PostgresFactory
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
-import com.stratio.sparta.serving.core.services.migration.OrionMigrationService
+import com.stratio.sparta.serving.core.services.migration.hydra.HydraMigrationService
+import com.stratio.sparta.serving.core.services.migration.orion.OrionMigrationService
 import com.stratio.sparta.serving.core.utils.SpartaIgnite
 import com.typesafe.config.ConfigFactory
 import org.apache.ignite.Ignition
@@ -54,16 +55,22 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       log.info("Initializing Sparta Postgres schemas ...")
       PostgresFactory.invokeInitializationMethods()
 
-      log.info("Initializing Sparta Postgres data ...")
-      PostgresFactory.invokeInitializationDataMethods()
-
       if (Try(SpartaConfig.getDetailConfig().get.getBoolean("migration.enable")).getOrElse(true)) {
-        //await to data initialization in database
-        Thread.sleep(500)
-        val migration = new OrionMigrationService()
-        migration.executeMigration()
-      }
+        log.info("Initializing Sparta Postgres schema migration ...")
+        val migrationOrion = new OrionMigrationService()
+        val migrationHydra = new HydraMigrationService()
+        migrationHydra.executePostgresMigration()
 
+        log.info("Initializing Sparta Postgres data ...")
+        PostgresFactory.invokeInitializationDataMethods()
+
+        Thread.sleep(500)
+        migrationOrion.executeMigration()
+        migrationHydra.executeMigration()
+      } else {
+        log.info("Initializing Sparta Postgres data ...")
+        PostgresFactory.invokeInitializationDataMethods()
+      }
 
       log.info("Initializing Dyplon authorization plugins ...")
       implicit val secManager = SecurityManagerHelper.securityManager

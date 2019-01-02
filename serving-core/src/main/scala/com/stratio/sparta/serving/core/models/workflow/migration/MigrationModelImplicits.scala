@@ -6,7 +6,8 @@
 package com.stratio.sparta.serving.core.models.workflow.migration
 
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.workflow.{GlobalSettings, Settings, Workflow}
+import com.stratio.sparta.serving.core.models.enumerators.DataType
+import com.stratio.sparta.serving.core.models.workflow._
 
 object MigrationModelImplicits {
 
@@ -38,8 +39,8 @@ object MigrationModelImplicits {
       errorsManagement = cassiopeaSettings.errorsManagement
     )
 
-  implicit def andromedaWorkflowToOrion(workflowAndromeda: WorkflowAndromeda): Workflow =
-    Workflow(
+  implicit def andromedaWorkflowToOrion(workflowAndromeda: WorkflowAndromeda): WorkflowOrion =
+    WorkflowOrion(
       id = workflowAndromeda.id,
       name = workflowAndromeda.name,
       description = workflowAndromeda.description,
@@ -53,18 +54,73 @@ object MigrationModelImplicits {
       group = workflowAndromeda.group,
       tags = workflowAndromeda.tags,
       debugMode = None,
-      versionSparta = Option(AppConstant.version),
+      versionSparta = Option(AppConstant.OrionVersion),
       parametersUsedInExecution = None,
       executionId = None,
       groupId = workflowAndromeda.group.id
     )
 
-  implicit def andromedaSettingsToOrion(andromedaSettings: SettingsAndromeda): Settings =
-    Settings(
+  implicit def orionWorkflowToHydra(workflowOrion: WorkflowOrion): Workflow =
+    Workflow(
+      id = workflowOrion.id,
+      name = workflowOrion.name,
+      description = workflowOrion.description,
+      settings = workflowOrion.settings,
+      pipelineGraph = workflowOrion.pipelineGraph,
+      executionEngine = workflowOrion.executionEngine,
+      uiSettings = workflowOrion.uiSettings,
+      creationDate = workflowOrion.creationDate,
+      lastUpdateDate = workflowOrion.lastUpdateDate,
+      version = workflowOrion.version,
+      group = workflowOrion.group,
+      tags = workflowOrion.tags,
+      debugMode = None,
+      versionSparta = Option(AppConstant.version),
+      parametersUsedInExecution = None,
+      executionId = None,
+      groupId = workflowOrion.group.id
+    )
+
+  implicit def andromedaSettingsToOrion(andromedaSettings: SettingsAndromeda): SettingsOrion =
+    SettingsOrion(
       global = andromedaSettings.global,
       streamingSettings = andromedaSettings.streamingSettings,
       sparkSettings = andromedaSettings.sparkSettings,
       errorsManagement = andromedaSettings.errorsManagement
+    )
+
+  implicit def orionSettingsToHydra(orionSettings: SettingsOrion): Settings =
+    Settings(
+      global = orionSettings.global,
+      streamingSettings = orionSettings.streamingSettings,
+      sparkSettings = orionSettings.sparkSettings,
+      errorsManagement = orionSettings.errorsManagement
+    )
+
+  implicit def orionSparkSettingsToHydra(orionSparkSettings: SparkSettingsOrion): SparkSettings =
+    SparkSettings(
+      master = orionSparkSettings.master,
+      sparkKerberos = orionSparkSettings.sparkKerberos,
+      sparkDataStoreTls = orionSparkSettings.sparkDataStoreTls,
+      sparkMesosSecurity = orionSparkSettings.sparkMesosSecurity,
+      killUrl = orionSparkSettings.killUrl,
+      submitArguments = orionSparkSettings.submitArguments,
+      sparkConf = orionSparkSettings.sparkConf
+    )
+
+  implicit def orionSparkConfToHydra(orionSparkConf: SparkConfOrion): SparkConf =
+    SparkConf(
+      sparkResourcesConf = orionSparkConf.sparkResourcesConf,
+      sparkHistoryServerConf = SparkHistoryServerConf(),
+      userSparkConf = orionSparkConf.userSparkConf,
+      coarse = orionSparkConf.coarse,
+      sparkUser = orionSparkConf.sparkUser,
+      sparkLocalDir = orionSparkConf.sparkLocalDir,
+      sparkKryoSerialization = orionSparkConf.sparkKryoSerialization,
+      sparkSqlCaseSensitive = orionSparkConf.sparkSqlCaseSensitive,
+      logStagesProgress = orionSparkConf.logStagesProgress,
+      hdfsTokenCache = orionSparkConf.hdfsTokenCache,
+      executorExtraJavaOptions = orionSparkConf.executorExtraJavaOptions
     )
 
   implicit def cassiopeaGlobalSettingsToOrion(cassiopeaGlobalSettings: GlobalSettingsCassiopea): GlobalSettings =
@@ -80,6 +136,23 @@ object MigrationModelImplicits {
       parametersUsed = Seq.empty,
       udafsToRegister = Seq.empty,
       udfsToRegister = Seq.empty
+    )
+
+  implicit def templateOrionToHydra(templateOrion: TemplateElementOrion): TemplateElement =
+    TemplateElement(
+      id = templateOrion.id,
+      templateType = templateOrion.templateType,
+      name = templateOrion.name,
+      description = templateOrion.description,
+      className = templateOrion.className,
+      classPrettyName = templateOrion.classPrettyName,
+      configuration = templateOrion.configuration,
+      creationDate = templateOrion.creationDate,
+      lastUpdateDate = templateOrion.lastUpdateDate,
+      supportedEngines = templateOrion.supportedEngines,
+      executionEngine = templateOrion.executionEngine,
+      supportedDataRelations = Option(Seq(DataType.ValidData, DataType.ValidData)),
+      versionSparta = Option(AppConstant.version)
     )
 
 

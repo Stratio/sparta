@@ -53,11 +53,12 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20
-  val DefaultVersion = "2.4.0"
+  val DefaultVersion = "2.5.0"
   lazy val version = Try(SpartaConfig.getDetailConfig().get.getString("version"))
     .toOption.notBlank.getOrElse(DefaultVersion)
   val CassiopeaVersion = ""
   val AndromedaVersion = "2.3.0"
+  val OrionVersion = "2.4.1"
 
   //Debug Options
   val DebugSparkWindow = 1000
@@ -104,8 +105,12 @@ object AppConstant extends ZookeeperUtils {
   //Migration
   lazy val WorkflowsZkPath = s"$BaseZkPath/workflows"
   lazy val WorkflowsOldZkPath = s"$BaseZkPath-old/workflows"
+  lazy val WorkflowsOldCassiopeiaZkPath = s"$BaseZkPath-old/workflowsCassiopeia"
+  lazy val WorkflowsOldZkAndromedaPath = s"$BaseZkPath-old/workflowsAndromeda"
   lazy val TemplatesZkPath = s"$BaseZkPath/templates"
   lazy val TemplatesOldZkPath = s"$BaseZkPath-old/templates"
+  lazy val TemplatesOldCassiopeiaZkPath = s"$BaseZkPath-old/templatesCassiopeia"
+  lazy val TemplatesOldAndromedaZkPath = s"$BaseZkPath-old/templatesAndromeda"
   lazy val EnvironmentZkPath = s"$BaseZkPath/environment"
   lazy val EnvironmentOldZkPath = s"$BaseZkPath-old/environment"
   lazy val GroupZkPath = s"$BaseZkPath/group"
@@ -184,7 +189,6 @@ object AppConstant extends ZookeeperUtils {
   val DefaultGlobalParameters = Seq(
     new ParameterVariable("DEFAULT_OUTPUT_FIELD", "raw"),
     new ParameterVariable("DEFAULT_DELIMITER", ","),
-    new ParameterVariable("SPARK_EXECUTOR_BASE_IMAGE", "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.2.1-41544ae"),
     new ParameterVariable("SPARK_DRIVER_JAVA_OPTIONS", s"$spartaFileEncoding -Dconfig.file=/etc/sds/sparta/spark/reference.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml -Djava.util.logging.config.file=file:///etc/sds/sparta/log4j2.xml"),
     new ParameterVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS", s"$spartaFileEncoding  -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC"),
     new ParameterVariable("SPARK_STREAMING_CHECKPOINT_PATH", "sparta/checkpoint"),
