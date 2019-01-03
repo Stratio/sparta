@@ -41,10 +41,10 @@ export class ExecutionService extends ApiService {
     return this.request('workflowExecutions/findByQueryDto', 'post', options);
   }
 
-  archiveExecution(executionId: string, archived: boolean): Observable<any> {
+  archiveExecution(executionIds: Array<string>, archived: boolean): Observable<any> {
     const options = {
       body: {
-        executionId,
+        executionIds,
         archived
       }
     };
@@ -62,9 +62,9 @@ export class ExecutionService extends ApiService {
     return this.request('workflowExecutions/' + id, 'get', options);
   }
 
-  deleteExecution(id: string) {
+  deleteExecution(ids: string) {
     const options: any = {};
-    return this.request('workflowExecutions/' + id, 'delete', options);
+    return this.request('workflowExecutions/' + ids, 'delete', options);
   }
 
   getExecutionById(id): Observable<any> {

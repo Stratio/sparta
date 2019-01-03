@@ -76,7 +76,7 @@
                 (click)="onStopExecution.emit()">
                 <i class="icon-stop"></i>
               </button>
-              <button *ngIf="selectedExecutions.length === 1" spTitle="Delete selected execution" class="button button-toolbar"
+              <button *ngIf="selectedExecutions.length >= 1" spTitle="Delete selected execution" class="button button-toolbar"
                 id="delete-button" (click)="onDeleteExecution.emit(selectedExecutions[0])">
                 <i class="icon-trash"></i>
               </button>

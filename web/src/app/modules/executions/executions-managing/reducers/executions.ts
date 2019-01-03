@@ -209,7 +209,7 @@ export function reducer(state: State = initialState, action: any): State {
          return {
             ...state,
             selectedExecutionsIds: [],
-            executionList: state.executionList.filter(execution => execution.id !== action.executionId)
+            executionList: state.executionList.filter(execution => !action.executionIds.includes(execution.id))
          };
       }
       default:

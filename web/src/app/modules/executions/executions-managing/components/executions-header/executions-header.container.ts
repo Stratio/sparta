@@ -37,7 +37,7 @@ import * as fromRoot from './../../reducers';
             (unarchiveExecutions)="unarchiveExecutions()"
             (showExecutionInfo)="showExecutionInfo.emit()"
             (onStopExecution)="stopExecution()"
-            (onDeleteExecution)="deleteExecution($event)"
+            (onDeleteExecutions)="deleteExecutions($event)"
             (onReRunExecution)="reRunExecution($event)"
             (onChangeStatusFilter)="changeStatusFilter($event)"
             (onChangeTypeFilter)="changeTypeFilter($event)"
@@ -113,7 +113,7 @@ export class ExecutionsHeaderContainer implements OnInit {
      this._store.dispatch(new executionActions.ReRunExecutionAction(executionId));
    }
 
-   deleteExecution(executionId: string) {
-      this._store.dispatch(new executionActions.DeleteExecutionAction(executionId));
+   deleteExecutions(executionIds: string) {
+      this._store.dispatch(new executionActions.DeleteExecutionAction(executionIds));
    }
 }
