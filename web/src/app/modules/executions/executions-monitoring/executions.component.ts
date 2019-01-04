@@ -25,29 +25,31 @@ import { Observable } from 'rxjs';
 
 export class ExecutionsComponent implements OnInit, OnDestroy {
 
-   public executionsList$: Observable<any>;
-   public executionsSummary$: Observable<any>;
-   public isLoading$: Observable<boolean>;
-   public chartData$: Observable<any>;
+  public executionsList$: Observable<any>;
+  public executionsSummary$: Observable<any>;
+  public isLoading$: Observable<boolean>;
+  public chartData$: Observable<any>;
 
-   private _intervalHandler;
-   constructor(private _store: Store<State>, private _router: Router) { }
+  constructor(private _store: Store<State>, private _router: Router) { }
 
-   ngOnInit() {
-      this._store.dispatch(new executionsActions.ListExecutionsAction());
-      this._store.dispatch(new executionsActions.SetGraphDataPeriodAction('DAY'));
-      this.executionsList$ = this._store.pipe(select(fromRoot.getExecutionOrderedList));
-      this.executionsSummary$ = this._store.pipe(select(fromRoot.getExecutionsFilters));
-      this.isLoading$ = this._store.pipe(select(fromRoot.getIsLoading));
-      this.chartData$ = this._store.pipe(select(fromRoot.getChartData));
-   }
+  ngOnInit() {
+    this._store.dispatch(new executionsActions.ListExecutionsAction());
+    this._store.dispatch(new executionsActions.SetGraphDataPeriodAction('DAY'));
+    this.executionsList$ = this._store.pipe(select(fromRoot.getExecutionOrderedList));
+    this.executionsSummary$ = this._store.pipe(select(fromRoot.getExecutionsFilters));
+    this.isLoading$ = this._store.pipe(select(fromRoot.getIsLoading));
+    this.chartData$ = this._store.pipe(select(fromRoot.getChartData));
+  }
 
-   goToRepository() {
-      this._router.navigate(['repository']);
-   }
+  goToRepository() {
+    this._router.navigate(['repository']);
+  }
 
-   ngOnDestroy(): void {
-      clearInterval(this._intervalHandler);
-      this._store.dispatch(new executionsActions.CancelExecutionPollingAction());
-    }
+  updatePeriod(period: string) {
+    this._store.dispatch(new executionsActions.SetGraphDataPeriodAction(period));
+  }
+
+  ngOnDestroy(): void {
+    this._store.dispatch(new executionsActions.CancelExecutionPollingAction());
+  }
 }

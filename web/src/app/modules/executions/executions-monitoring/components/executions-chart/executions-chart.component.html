@@ -1,11 +1,27 @@
-<div class="chart-container" style="height:300px">
-  <canvas baseChart
-        height="240px"
-        width="100%"
-        [datasets]="values"
-        [labels]="labels"
-        [options]="lineChartOptions"
-        [colors]="lineChartColors"
-        [legend]="lineChartLegend"
-        [chartType]="lineChartType"></canvas>
-</div>
+<section class="chart-executions" >
+  <header class="chart-executions__options">
+    <h2 class="chart-executions__title">{{'EXECUTIONS.CHART_TITLE' | translate:{periodTitle: periodTitle | translate } }}</h2>
+    <nav>
+      <ul>
+        <li>
+          <button class="selected" (click)="selectPeriod($event, 'DAY')">{{'EXECUTIONS.PERIODS.DAY' | translate}}</button>
+        </li>
+        <li>
+          <button (click)="selectPeriod($event, 'WEEK')">{{'EXECUTIONS.PERIODS.WEEK' | translate}}</button>
+        </li>
+        <li>
+          <button (click)="selectPeriod($event, 'MONTH')">{{'EXECUTIONS.PERIODS.MONTH' | translate}}</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <div class="chart-executions__canvas-container">
+      <canvas baseChart
+      [datasets]="values"
+      [labels]="labels"
+      [options]="lineChartOptions"
+      [colors]="lineChartColors"
+      [legend]="lineChartLegend"
+      [chartType]="lineChartType"></canvas>
+  </div>
+</section>

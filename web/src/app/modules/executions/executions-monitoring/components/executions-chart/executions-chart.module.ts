@@ -6,6 +6,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartsModule } from 'ng2-charts';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ExecutionsChartComponent } from './executions-chart.component';
 
@@ -13,7 +14,8 @@ import { ExecutionsChartComponent } from './executions-chart.component';
 @NgModule({
    imports: [
      ChartsModule,
-     CommonModule
+     CommonModule,
+     TranslateModule
    ],
    declarations: [ExecutionsChartComponent],
    exports: [ExecutionsChartComponent]

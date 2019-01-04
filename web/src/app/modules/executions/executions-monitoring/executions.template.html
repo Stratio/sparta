@@ -12,7 +12,7 @@
    <div class="container">
      <div class="row">
        <div class="col-sm-12">
-          <executions-chart [chartData]="chartData$ | async" class="chart"></executions-chart>
+          <executions-chart (periodChange)="updatePeriod($event)" [chartData]="chartData$ | async" class="chart"></executions-chart>
           <div *ngIf="(executionsList$ | async)?.length" class="table-wrapper">
               <span class="table-title">Latest executions</span>
               <div class="table-container">

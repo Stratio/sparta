@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { ChangeDetectionStrategy, Component, Input, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'executions-chart',
@@ -14,10 +14,12 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, ChangeDetectorRef } 
 
 export class ExecutionsChartComponent implements OnInit {
 
+  @Output() periodChange: EventEmitter<string> = new EventEmitter<string>();
 
   @Input() get chartData() {
     return this._chartData;
   }
+
   set chartData(data) {
     this._chartData = data;
     this.labels.length = 0;
@@ -33,6 +35,9 @@ export class ExecutionsChartComponent implements OnInit {
   public lineChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
+    tooltips: {
+      displayColors: false
+    },
 
     scales: {
       xAxes: [{
@@ -75,9 +80,27 @@ export class ExecutionsChartComponent implements OnInit {
   ];
   public lineChartLegend = true;
   public lineChartType = 'line';
+  public periodTitle: string;
 
   constructor(private _cd: ChangeDetectorRef) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.periodTitle = 'EXECUTIONS.PERIODS.DAY';
+  }
+
+  public selectPeriod (ev, period) {
+    const currentButton: Element = ev.currentTarget;
+    const buttons: NodeList = ev.currentTarget.parentElement.parentElement.querySelectorAll('button');
+    const periodTitles: Object = {
+      'DAY': 'EXECUTIONS.PERIODS.DAY',
+      'WEEK': 'EXECUTIONS.PERIODS.WEEK',
+      'MONTH': 'EXECUTIONS.PERIODS.MONTH'
+    };
+    this.periodTitle = periodTitles[period];
+
+    buttons.forEach((button: Element) => button.classList.remove('selected'));
+    currentButton.classList.add('selected');
+    this.periodChange.emit(period);
+  }
 
 }

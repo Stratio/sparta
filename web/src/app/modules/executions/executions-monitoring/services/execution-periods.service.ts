@@ -7,9 +7,10 @@
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import { ExecutionService } from 'app/services/api/execution.service';
-import { take, map } from 'rxjs/operators';
+import { take, map, filter, tap } from 'rxjs/operators';
 import { Engine } from '@models/enums';
 import { Observable } from 'rxjs';
+import { AnyFn } from '@ngrx/store/src/selector';
 
 @Injectable()
 export class ExecutionPeriodsService {
@@ -19,57 +20,133 @@ export class ExecutionPeriodsService {
   ) { }
 
   getExecutionPeriodData(period: string): Observable<any> {
-    switch (period) {
-      case 'DAY':
-        return this._getDayPeriod();
-      case 'WEEK':
-        return this._getWeekPeriod();
-      case 'MONTH':
-        return this._getMonthPeriod();
-    }
+
+    return this._getPeriod(period)
+    .pipe(map((res: any) => res.executionsSummaryByDate))
+    .pipe(map((executions: any) => this._disjoinEjecutions(executions, period)))
+    .pipe(map((data: any) => {
+      const periodArray: Array<any> = this._getPeriodArray(period);
+      const batchTotal = this._getEjecutionsData(periodArray.map(periodsItem => periodsItem.data), data.batchData);
+      const streamingTotal = this._getEjecutionsData(periodArray.map(periodsItem => periodsItem.data), data.streamingData);
+
+      return {
+        period,
+        times: periodArray.map(time => time.label),
+        batchTotal: {
+          data: batchTotal,
+          label: 'Batch'
+        },
+        streamingTotal: {
+          data: streamingTotal,
+          label: 'Streaming'
+        }
+      };
+    }));
   }
 
-  private _getDayPeriod(): Observable<any> {
-    const currentHour = new Date().getHours();
-    const times = [];
-    for (let i = 0; i < 24; i++) {
-      const h = currentHour + i + 1;
-      times.push(h > 23 ? h - 24 : h);
+  private _getPeriodArray(period: string): Array<Object> {
+    const times: Array<Object> = [];
+    const now: moment.Moment = moment();
+    const granularitys: Object = Object.freeze({
+      'DAY': {
+        singular: 'hour',
+        plural: 'hours',
+        length: 23,
+        getMethod: 'hour'
+      },
+      'WEEK': {
+        singular: 'day',
+        plural: 'days',
+        length: 6,
+        getMethod: 'isoWeekday'
+      },
+      'MONTH': {
+        singular: 'day',
+        plural: 'days',
+        length: 30,
+        getMethod: 'date'
+      }
+    });
+    const granularity = granularitys[period];
+    const past: moment.Moment = now.clone().subtract(granularity.length, granularity.plural);
+
+    while (now.diff(past, granularity.plural) > 0) {
+      times.push({
+        label: period === 'WEEK' ? past.format('dddd') : past[granularity.getMethod]().toString(),
+        data: past[granularity.getMethod]()
+      });
+      past.add(1, granularity.singular);
     }
+    times.push({
+      label: period === 'WEEK' ? past.format('dddd') : past[granularity.getMethod]().toString(),
+      data: past[granularity.getMethod]()
+    });
+
+    return times;
+  }
+
+  private _disjoinEjecutions(executions: Array<any>, period: string): Object {
+    const engines = [Engine.Batch, Engine.Streaming];
+    const [batchData, streamingData] = engines.map(
+      engine => executions
+        .filter(data => data.executionEngine === engine)
+        .map(data => {
+          data.period = period === 'DAY'
+            ? moment(data.date).hour()
+            : period === 'WEEK'
+              ? moment(data.date).day()
+              : moment(data.date).date();
+          return data;
+        })
+    );
+    return {
+      batchData,
+      streamingData
+    };
+  }
+
+  private _getPeriod(period): Observable<Object> {
+    const momentPeriods: Object = {
+      'DAY': {
+        substractPeriod: 'days',
+        requestPeriod: 'HOUR',
+        daysLeft: 1
+      },
+      'WEEK': {
+        substractPeriod: 'days',
+        requestPeriod: 'DAY',
+        daysLeft: 7
+      },
+      'MONTH': {
+        substractPeriod: 'days',
+        requestPeriod: 'DAY',
+        daysLeft: 30
+      }
+    };
+    const periodData = momentPeriods[period];
+
     return this._executionService.getExecutionsByDate(
-      'HOUR', moment().subtract(1, 'days').minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z',
-      moment().minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z')
-      .pipe(map((res: any) => {
-        const engines = [Engine.Batch, Engine.Streaming];
-        const [batchData, streamingData] = engines.map(engine => res.executionsSummaryByDate
-          .filter(data => data.executionEngine === engine).map(data => {
-            data.date = moment(data.date).valueOf();
-            return data;
-          }));
-        const initialValues = new Array(times.length).fill(0);
-        const batchTotal = times.map(time => batchData[time] || 0);
-        const streamingTotal = times.map(time => streamingData[time] || 0);
-
-        return {
-          period: 'DAY',
-          times: times.map(time => time.toString()),
-          batchTotal: {
-            data: batchTotal,
-            label: 'Batch'
-          },
-          streamingTotal: {
-            data: streamingTotal,
-            label: 'Streaming'
-          },
-        };
-      }));
+      periodData.requestPeriod,
+      moment().subtract(periodData.daysLeft, periodData.substractPeriod).minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z',
+      moment().minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+    );
   }
 
-  private _getWeekPeriod(): Observable<any> {
-    return this._executionService.getExecutionsByDate('HOUR', moment().subtract(1, 'days').minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z', moment().minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z');
+  private _getEjecutionsData(times, executionsData): Array<number> {
+    const initialEjecutions = Array.from(times, time => Object({
+      executions: 0,
+      period: time
+    }));
+
+    executionsData.forEach(execution => {
+      const initialExecutionsFiltered: Array<Object> = initialEjecutions.filter(batchValue => batchValue.period === execution.period);
+      const initialExecution: any = initialExecutionsFiltered && initialExecutionsFiltered.length
+        ? initialExecutionsFiltered[0]
+        : { executions: 0 };
+        initialExecution.executions = execution.total;
+    });
+
+    return initialEjecutions.map(data => data.executions);
   }
 
-  private _getMonthPeriod(): Observable<any> {
-    return this._executionService.getExecutionsByDate('HOUR', moment().subtract(1, 'days').minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z', moment().minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z');
-  }
 }

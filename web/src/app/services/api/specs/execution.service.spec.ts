@@ -93,11 +93,11 @@ describe('[ExecutionService]', () => {
 
       it('should can archive execution', () => {
          const body = {
-            executionId: '1',
+            executionIds: ['1'],
             archived: true
          };
          const url = 'workflowExecutions/archived';
-         service.archiveExecution(body.executionId, body.archived).subscribe(response => {
+         service.archiveExecution(body.executionIds, body.archived).subscribe(response => {
             expect(response).toEqual('OK');
          });
          const req = http.expectOne(url);
