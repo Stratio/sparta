@@ -86,7 +86,12 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
             <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__</value>
           </property>
         </configuration>
+        __HADOOP_CORE_SITE_EXTRA_PROPERTIES__
 EOF
+
+ if [[ -v HADOOP_CORE_SITE_EXTRA_PROPERTIES ]]; then
+   sed -i "s|.*__HADOOP_CORE_SITE_EXTRA_PROPERTIES__.*|${HADOOP_CORE_SITE_EXTRA_PROPERTIES}s|" "${HADOOP_CONF_DIR}/core-site.xml"
+ fi
 
 sed -i "s#__<HADOOP_SECURITY_AUTH>__#$HADOOP_SECURITY_AUTH#" "${HADOOP_CONF_DIR}/core-site.xml" \
 && INFO "[HADOOP-CONF] hadoop.security.authentication configured in core-site.xml" \
@@ -133,7 +138,12 @@ cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
                <value>__<HADOOP_MAP_REDUCE_FRAMEWORK_NAME>__</value>
           </property>
         </configuration>
+        __HADOOP_HDFS_SITE_EXTRA_PROPERTIES__
 EOF
+
+ if [[ -v HADOOP_HDFS_SITE_EXTRA_PROPERTIES ]]; then
+   sed -i "s|.*__HADOOP_HDFS_SITE_EXTRA_PROPERTIES__.*|${HADOOP_HDFS_SITE_EXTRA_PROPERTIES}s|" "${HADOOP_CONF_DIR}/hdfs-site.xml"
+ fi
 
 sed -i "s#__<SPARTA_PRINCIPAL_NAME>__#$SPARTA_PRINCIPAL_NAME#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && INFO "[HADOOP-CONF] yarn.resourcemanager.principal in hdfs-site.xml" \

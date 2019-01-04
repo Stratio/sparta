@@ -87,10 +87,16 @@ function initSparkEnvOptions() {
 function initHdfs() {
 
   if [[ -v HADOOP_USER_NAME ]]; then
-    echo "" >> ${VARIABLES}
     echo "export HADOOP_USER_NAME=${HADOOP_USER_NAME}" >> ${VARIABLES}
-    echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_USER_NAME=${HADOOP_USER_NAME}" >> ${SYSTEM_VARIABLES}
+  fi
+
+  if [[ ! -v HADOOP_CORE_SITE_EXTRA_PROPERTIES ]]; then
+   HADOOP_CORE_SITE_EXTRA_PROPERTIES=""
+  fi
+
+  if [[ ! -v HADOOP_HDFS_SITE_EXTRA_PROPERTIES ]]; then
+   HADOOP_HDFS_SITE_EXTRA_PROPERTIES=""
   fi
 
   if [[ ! -v HADOOP_CONF_FROM_URI ]]; then

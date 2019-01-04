@@ -13,6 +13,8 @@ import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.factory.SparkContextFactory
+import com.stratio.sparta.serving.core.factory.SparkContextFactory.maybeWithHdfsUgiService
 import com.typesafe.config.Config
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
@@ -26,7 +28,16 @@ case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation])
 
   lazy private val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig()
 
-  def reLogin(): Unit = ugiOption.foreach(ugi => ugi.checkTGTAndReloginFromKeytab())
+  def reLogin(): Unit = {
+    ugiOption.foreach { ugi =>
+      ugi.checkTGTAndReloginFromKeytab()
+
+      maybeWithHdfsUgiService {
+        SparkContextFactory.getXDSession().foreach(xdSession => xdSession.sql("REFRESH DATABASES"))
+        SparkContextFactory.getXDSession().foreach(xdSession => xdSession.sql("REFRESH TABLES"))
+      }
+    }
+  }
 
   def runFunction(function: ⇒ Unit): Unit =
     ugiOption match {
@@ -117,7 +128,7 @@ case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation])
       val reloadTime = Try(hdfsConfig.get.getString(ReloadKeyTabTime)).toOption.notBlank
         .getOrElse(DefaultReloadKeyTabTime)
 
-      log.debug(s"Initializing keyTab reload task with time: $reloadTime")
+      log.info(s"Initializing keyTab reload task with time: $reloadTime")
 
       SchedulerSystem.scheduler.schedule(0 seconds,
         AggregationTimeHelper.parseValueToMilliSeconds(reloadTime) milli)(reLogin())
@@ -194,7 +205,7 @@ object HdfsService extends SLF4JLogging {
         log.debug(s"The HDFS configuration have been created for read files with conf located at: $confDir")
       case None =>
         hdfsConfig.foreach { config =>
-          if(config.hasPath(HdfsMaster) && config.hasPath(HdfsPort)) {
+          if (config.hasPath(HdfsMaster) && config.hasPath(HdfsPort)) {
             val master = config.getString(HdfsMaster)
             val port = config.getInt(HdfsPort)
             val hdfsPath = s"hdfs://$master:$port"

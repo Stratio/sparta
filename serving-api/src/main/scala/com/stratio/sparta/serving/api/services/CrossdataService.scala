@@ -10,6 +10,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper._
 
 import scala.util.{Failure, Success, Try}
@@ -18,26 +19,30 @@ class CrossdataService() extends SLF4JLogging {
 
   def listTables(dbName: Option[String], temporary: Boolean, userId: Option[String]): Try[Array[Table]] =
     Try {
+      val session = getAndUpdateSession(userId)
+
       (dbName.notBlank, temporary) match {
         case (Some(database), true) =>
-          getOrCreateStandAloneXDSession(userId).catalog.listTables(database).collect().filter(_.isTemporary)
+          session.catalog.listTables(database).collect().filter(_.isTemporary)
         case (Some(database), false) =>
-          getOrCreateStandAloneXDSession(userId).catalog.listTables(database).collect().filterNot(_.isTemporary)
+          session.catalog.listTables(database).collect().filterNot(_.isTemporary)
         case (None, true) =>
-          getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()
+          session.catalog.listDatabases().collect().flatMap(db =>
+            session.catalog.listTables(db.name).collect()
           ).filter(_.isTemporary)
         case (None, false) =>
-          getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()
+          session.catalog.listDatabases().collect().flatMap(db =>
+            session.catalog.listTables(db.name).collect()
           ).filterNot(_.isTemporary)
       }
     }
 
   def listAllTables(userId: Option[String]): Try[Array[Table]] =
     Try {
-      getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-        Try(getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()) match {
+      val session = getAndUpdateSession(userId)
+
+      session.catalog.listDatabases().collect().flatMap(db =>
+        Try(session.catalog.listTables(db.name).collect()) match {
           case Success(table) => Option(table)
           case Failure(e) =>
             log.debug(s"Error obtaining tables from database ${db.name}", e)
@@ -47,24 +52,32 @@ class CrossdataService() extends SLF4JLogging {
     }
 
   def listDatabases(userId: Option[String]): Try[Array[Database]] =
-    Try(getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect())
+    Try {
+      val session = getAndUpdateSession(userId)
+
+      session.catalog.listDatabases().collect()
+    }
 
   def listColumns(tableName: String, dbName: Option[String], userId: Option[String]): Try[Array[Column]] =
     Try {
+      val session = getAndUpdateSession(userId)
+
       dbName match {
         case Some(database) =>
-          getOrCreateStandAloneXDSession(userId).catalog.listColumns(database, tableName).collect()
+          session.catalog.listColumns(database, tableName).collect()
         case None =>
-          val table = getOrCreateStandAloneXDSession(userId).catalog.listDatabases().collect().flatMap(db =>
-            getOrCreateStandAloneXDSession(userId).catalog.listTables(db.name).collect()
+          val table = session.catalog.listDatabases().collect().flatMap(db =>
+            session.catalog.listTables(db.name).collect()
           ).find(_.name == tableName).getOrElse(throw new Exception(s"Unable to find table $tableName in XDCatalog"))
-          getOrCreateStandAloneXDSession(userId).catalog.listColumns(table.database, table.name).collect()
+          session.catalog.listColumns(table.database, table.name).collect()
       }
     }
 
   def executeQuery(query: String, userId: Option[String]): Try[Array[Map[String, Any]]] =
     Try {
-      getOrCreateStandAloneXDSession(userId).sql(query.trim)
+      val session = getAndUpdateSession(userId)
+
+      session.sql(query.trim)
         .collect()
         .map { row =>
           row.schema.fields.zipWithIndex.map { case (field, index) =>
@@ -78,4 +91,13 @@ class CrossdataService() extends SLF4JLogging {
           }.toMap
         }
     }
+
+  private def getAndUpdateSession(userId: Option[String]): XDSession = {
+    val session = getOrCreateStandAloneXDSession(userId)
+
+    session.sql("REFRESH DATABASES")
+    session.sql("REFRESH TABLES")
+
+    session
+  }
 }

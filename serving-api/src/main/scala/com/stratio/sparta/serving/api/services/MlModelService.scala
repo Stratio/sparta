@@ -42,7 +42,8 @@ class MlModelService() extends SLF4JLogging {
             else None
           }
         case Failure(e) =>
-          throw new Exception(s"Intelligence model repository client not configured. ${e.getLocalizedMessage}")
+          log.warn(s"Intelligence model repository client not configured. ${e.getLocalizedMessage}")
+          Seq.empty[IntelligenceModel]
       }
     }
 }

@@ -150,6 +150,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       val errorMessage = s"An error was encountered while clearing cached tables"
       val okMessage = s"Cached tables cleared successfully"
       errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+        xDSession.sql("REFRESH DATABASES")
+        xDSession.sql("REFRESH TABLES")
         xDSession.catalog.clearCache()
         xDSession.sessionState.catalog.clearTempTables()
       }
