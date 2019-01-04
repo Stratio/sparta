@@ -29,7 +29,7 @@ class BasicPostgresService extends JdbcSlickUtils with SLF4JLogging with SpartaS
 
   def executeSql(sql : String): Unit = {
       Try(Await.result(db.run(sqlu"#$sql"), AppConstant.DefaultApiTimeout seconds)) match {
-        case Success(_) =>
+        case Success(result) =>
           log.debug(s"Sql $sql executed successfully")
         case Failure(e) =>
           throw e

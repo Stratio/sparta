@@ -19,6 +19,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
 //scalastyle:off
 package object daoTables {
 
@@ -105,6 +106,56 @@ package object daoTables {
 
     def * = (id.?, name, description, settings, pipelineGraph, executionEngine, uiSettings, creationDate, lastUpdateDate,
       version, group, tags, debugMode, versionSparta, parametersUsedInExecution, executionId, groupId) <> ((Workflow.apply _).tupled, Workflow.unapply _)
+
+    def pk = primaryKey(s"pk_$tableName", id)
+
+    def uniqueWorkflowIndex = index(s"pk_${tableName}_uniqueWorkflow", (name, groupId, version), unique = true)
+
+    def fk = foreignKey(s"fk_${tableName}_group", groupId.get, TableQuery[GroupTable])(_.groupId, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
+
+    def groupIndex = index(s"idx_${tableName}_group", groupId)
+  }
+
+  class WorkflowOrionTable(tag: Tag) extends Table[WorkflowOrion](tag, dbSchemaName, WorkflowTableName) {
+
+    import CustomColumnTypes._
+
+    def id = column[String]("workflow_id")
+
+    def name = column[String]("name")
+
+    def description = column[String]("description")
+
+    def settings = column[SettingsOrion]("settings")
+
+    def pipelineGraph = column[PipelineGraph]("pipeline_graph")
+
+    def executionEngine = column[ExecutionEngine]("execution_engine")
+
+    def uiSettings = column[Option[UiSettings]]("ui_settings")
+
+    def creationDate = column[Option[DateTime]]("creation_date")
+
+    def lastUpdateDate = column[Option[DateTime]]("last_update_date")
+
+    def version = column[Long]("version")
+
+    def group = column[Group]("group")
+
+    def tags = column[Option[Seq[String]]]("tags")
+
+    def debugMode = column[Option[Boolean]]("debug_mode")
+
+    def versionSparta = column[Option[String]]("version_sparta")
+
+    def parametersUsedInExecution = column[Option[Map[String, String]]]("parameters_used_in_execution")
+
+    def executionId = column[Option[String]]("execution_id")
+
+    def groupId = column[Option[String]]("group_id")
+
+    def * = (id.?, name, description, settings, pipelineGraph, executionEngine, uiSettings, creationDate, lastUpdateDate,
+      version, group, tags, debugMode, versionSparta, parametersUsedInExecution, executionId, groupId) <> ((WorkflowOrion.apply _).tupled, WorkflowOrion.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
 
@@ -212,6 +263,42 @@ package object daoTables {
 
     def * = (id.?, templateType, name, description, className, classPrettyName, configuration,
       creationDate, lastUpdateDate, supportedEngines, executionEngine, supportedDataRelations, versionSparta) <> ((TemplateElement.apply _).tupled, TemplateElement.unapply _)
+
+    def pk = primaryKey(s"pk_$tableName", id)
+
+    def templateNameIndex = index(s"idx_${tableName}_name", name, unique = true)
+  }
+
+  class TemplateOrionTable(tag: Tag) extends Table[TemplateElementOrion](tag, dbSchemaName, TemplateTableName) {
+
+    import CustomColumnTypes._
+
+    def id = column[String]("id")
+
+    def templateType = column[String]("template_type")
+
+    def name = column[String]("name")
+
+    def description = column[Option[String]]("description")
+
+    def className = column[String]("class_name")
+
+    def classPrettyName = column[String]("class_pretty_name")
+
+    def configuration = column[Map[String, JsoneyString]]("configuration")
+
+    def creationDate = column[Option[DateTime]]("creation_date")
+
+    def lastUpdateDate = column[Option[DateTime]]("last_update_date")
+
+    def supportedEngines = column[Seq[ExecutionEngine]]("supported_engines") //(executionEngineSeqType)
+
+    def executionEngine = column[Option[ExecutionEngine]]("execution_engine")
+
+    def versionSparta = column[Option[String]]("version_sparta")
+
+    def * = (id.?, templateType, name, description, className, classPrettyName, configuration,
+      creationDate, lastUpdateDate, supportedEngines, executionEngine, versionSparta) <> ((TemplateElementOrion.apply _).tupled, TemplateElementOrion.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
 

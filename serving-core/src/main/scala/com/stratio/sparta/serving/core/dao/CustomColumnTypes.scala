@@ -16,6 +16,7 @@ import org.json4s.jackson.Serialization._
 import com.stratio.sparta.core.models.DebugResults
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.workflow.migration.SettingsOrion
 
 import scala.util.Try
 
@@ -56,6 +57,11 @@ object CustomColumnTypes extends SpartaSerializer {
   implicit val executionSettings = MappedColumnType.base[Settings, String](
     objToSerialize => write(objToSerialize),
     objToDeSerialize => read[Settings](objToDeSerialize)
+  )
+
+  implicit val executionOrionSettings = MappedColumnType.base[SettingsOrion, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[SettingsOrion](objToDeSerialize)
   )
 
   implicit val groupType = MappedColumnType.base[Group, String](

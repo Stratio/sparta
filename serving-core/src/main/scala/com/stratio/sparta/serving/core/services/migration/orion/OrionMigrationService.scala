@@ -25,15 +25,60 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
 
   import MigrationModelImplicits._
 
-  private val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
-  private val environmentZkService = new ZkEnvironmentService(CuratorFactoryHolder.getInstance())
+  private lazy val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
+  private lazy val environmentZkService = new ZkEnvironmentService(CuratorFactoryHolder.getInstance())
 
-  private val andromedaMigrationService = new AndromedaMigrationService()
-  private val cassiopeiaMigrationService = new CassiopeiaMigrationService()
+  private lazy val andromedaMigrationService = new AndromedaMigrationService()
+  private lazy val cassiopeiaMigrationService = new CassiopeiaMigrationService()
 
-  private val groupPostgresService = PostgresDaoFactory.groupPgService
-  private val paramListPostgresService = PostgresDaoFactory.parameterListPostgresDao
-  private val globalParameterPostgresService = PostgresDaoFactory.globalParametersService
+  private lazy val groupPostgresService = PostgresDaoFactory.groupPgService
+  private lazy val paramListPostgresService = PostgresDaoFactory.parameterListPostgresDao
+  private lazy val globalParameterPostgresService = PostgresDaoFactory.globalParametersService
+  private lazy val templateOrionPostgresService = Try(new TemplateOrionPostgresDao()) match {
+    case Success(service) =>
+      Option(service)
+    case Failure(e) =>
+      log.error(s"Error creating template service for Orion. ${ExceptionHelper.toPrintableException(e)}", e)
+      None
+  }
+  private lazy val workflowOrionPostgresService = Try(new WorkflowOrionPostgresDao()) match {
+    case Success(service) =>
+      Option(service)
+    case Failure(e) =>
+      log.warn(s"Error creating workflow service for Orion. ${ExceptionHelper.toPrintableException(e)}", e)
+      None
+  }
+
+  private var templatesPgOrion = Seq.empty[TemplateElementOrion]
+  private var workflowsPgOrion = Seq.empty[WorkflowOrion]
+
+  def loadOrionPgData(): Unit = {
+    templatesPgOrion = templateOrionPostgresService.map { service =>
+      Try {
+        Await.result(service.findAllTemplates(), 20 seconds)
+      } match {
+        case Success(templates) =>
+          log.info(s"Templates in orion: ${templates.map(_.name).mkString(",")}")
+          templates
+        case Failure(e) =>
+          log.warn(s"Error reading templates in Orion. ${ExceptionHelper.toPrintableException(e)}", e)
+          Seq.empty[TemplateElementOrion]
+      }
+    }.getOrElse(Seq.empty[TemplateElementOrion])
+
+    workflowsPgOrion = workflowOrionPostgresService.map { service =>
+      Try {
+        Await.result(service.findAllWorkflows(), 20 seconds)
+      } match {
+        case Success(workflows) =>
+          log.info(s"Workflows in Orion: ${workflows.map(_.name).mkString(",")}")
+          workflows
+        case Failure(e) =>
+          log.warn(s"Error reading workflows in Orion. ${ExceptionHelper.toPrintableException(e)}", e)
+          Seq.empty[WorkflowOrion]
+      }
+    }.getOrElse(Seq.empty[WorkflowOrion])
+  }
 
   def executeMigration(): Unit = {
     orionEnvironmentMigration()
@@ -46,26 +91,26 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
         .getOrElse((Seq.empty, Seq.empty))
       val (andromedaToOrionWorkflows, andromedaWorkflows) = andromedaMigrationService.andromedaWorkflowsMigrated(cassiopeiaToAndromedaWorkflows)
         .getOrElse((Seq.empty, Seq.empty))
-      val hydraWorkflows = andromedaToOrionWorkflows.map { orionWorkflow =>
+      val hydraWorkflows = (andromedaToOrionWorkflows ++ workflowsPgOrion).map { orionWorkflow =>
         val hydraWorkflow: Workflow = orionWorkflow
         hydraWorkflow
       }
 
-      (hydraWorkflows, andromedaToOrionWorkflows, andromedaWorkflows ++ cassiopeiaToAndromedaWorkflows, cassiopeaWorkflows)
+      (hydraWorkflows, workflowsPgOrion, andromedaWorkflows ++ cassiopeiaToAndromedaWorkflows, cassiopeaWorkflows)
     }
 
-  def orionTemplatesMigrated(): Try[(Seq[TemplateElement], Seq[TemplateElementOrion], Seq[TemplateElementOrion])] = {
+  def orionTemplatesMigrated(): Try[(Seq[TemplateElement], Seq[TemplateElementOrion], Seq[TemplateElementOrion], Seq[TemplateElementOrion])] = {
     Try {
       val (cassiopeiaTemplatesToAndromeda, cassiopeiaTemplates) = cassiopeiaMigrationService.cassiopeiaTemplatesMigrated()
         .getOrElse((Seq.empty, Seq.empty))
       val (orionTemplates, andromedaTemplates) = andromedaMigrationService.andromedaTemplatesMigrated(cassiopeiaTemplatesToAndromeda)
         .getOrElse((Seq.empty, Seq.empty))
-      val hydraTemplates = orionTemplates.map { orionTemplate =>
+      val hydraTemplates = (orionTemplates ++ templatesPgOrion).map { orionTemplate =>
         val template: TemplateElement = orionTemplate
         template
       }
 
-      (hydraTemplates, andromedaTemplates ++ cassiopeiaTemplatesToAndromeda, cassiopeiaTemplates)
+      (hydraTemplates, templatesPgOrion, andromedaTemplates ++ cassiopeiaTemplatesToAndromeda, cassiopeiaTemplates)
     }
   }
 

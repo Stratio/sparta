@@ -23,9 +23,9 @@ import scala.util.{Failure, Success, Try}
 
 class AndromedaMigrationService() extends SLF4JLogging with SpartaSerializer {
 
-  private val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
-  private val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
-  private val environmentZkService = new ZkEnvironmentService(CuratorFactoryHolder.getInstance())
+  private lazy val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
+  private lazy val groupZkService = new ZkGroupService(CuratorFactoryHolder.getInstance())
+  private lazy val environmentZkService = new ZkEnvironmentService(CuratorFactoryHolder.getInstance())
 
   /** TEMPLATES **/
 

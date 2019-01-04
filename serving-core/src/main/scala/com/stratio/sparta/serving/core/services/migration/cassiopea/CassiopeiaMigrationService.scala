@@ -24,7 +24,7 @@ class CassiopeiaMigrationService() extends SLF4JLogging with SpartaSerializer {
 
   import MigrationModelImplicits._
 
-  private val templateService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
+  private lazy val templateService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
 
   /** TEMPLATES **/
 

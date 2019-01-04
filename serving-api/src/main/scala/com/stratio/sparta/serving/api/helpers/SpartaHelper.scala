@@ -57,16 +57,17 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
 
       if (Try(SpartaConfig.getDetailConfig().get.getBoolean("migration.enable")).getOrElse(true)) {
         log.info("Initializing Sparta Postgres schema migration ...")
-        val migrationOrion = new OrionMigrationService()
-        val migrationHydra = new HydraMigrationService()
-        migrationHydra.executePostgresMigration()
+        val orionMigrationService = new OrionMigrationService()
+        orionMigrationService.loadOrionPgData()
+        val hydraMigrationService = new HydraMigrationService(orionMigrationService)
+        hydraMigrationService.executePostgresMigration()
 
         log.info("Initializing Sparta Postgres data ...")
         PostgresFactory.invokeInitializationDataMethods()
 
         Thread.sleep(500)
-        migrationOrion.executeMigration()
-        migrationHydra.executeMigration()
+        orionMigrationService.executeMigration()
+        hydraMigrationService.executeMigration()
       } else {
         log.info("Initializing Sparta Postgres data ...")
         PostgresFactory.invokeInitializationDataMethods()

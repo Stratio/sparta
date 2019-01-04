@@ -31,4 +31,5 @@ object PostgresDaoFactory {
   lazy val globalParametersService = new GlobalParametersPostgresDao()
   lazy val parameterListPostgresDao = new ParameterListPostgresDao()
   lazy val templatePgService = new TemplatePostgresDao()
+
 }

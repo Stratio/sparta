@@ -19,16 +19,14 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-class HydraMigrationService extends SLF4JLogging with SpartaSerializer {
+class HydraMigrationService(orionMigrationService: OrionMigrationService) extends SLF4JLogging with SpartaSerializer {
 
-  private val workflowZkService = new ZkWorkflowService(CuratorFactoryHolder.getInstance())
-  private val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
+  private lazy val workflowZkService = new ZkWorkflowService(CuratorFactoryHolder.getInstance())
+  private lazy val templateZkService = new ZkTemplateService(CuratorFactoryHolder.getInstance())
 
-  private val workflowPostgresService = PostgresDaoFactory.workflowPgService
-  private val templatePostgresService = PostgresDaoFactory.templatePgService
-  private val basicPostgresService = new BasicPostgresService()
-
-  private val orionMigrationService = new OrionMigrationService()
+  private lazy val workflowPostgresService = PostgresDaoFactory.workflowPgService
+  private lazy val templatePostgresService = PostgresDaoFactory.templatePgService
+  private lazy val basicPostgresService = new BasicPostgresService()
 
   def executeMigration(): Unit = {
     hydraTemplatesMigration()
@@ -38,7 +36,8 @@ class HydraMigrationService extends SLF4JLogging with SpartaSerializer {
   def executePostgresMigration(): Unit =
     Try {
       basicPostgresService.dbSchemaName.foreach{schema =>
-        val templatesSql = s"ALTER TABLE IF EXISTS ${basicPostgresService.profile.quoteIdentifier(s"$schema.$TemplateTableName")} ADD COLUMN IF NOT EXISTS supported_data_relations character varying;"
+        val schemaName = basicPostgresService.profile.quoteIdentifier(schema)
+        val templatesSql = s"ALTER TABLE IF EXISTS $schemaName.$TemplateTableName ADD COLUMN IF NOT EXISTS supported_data_relations character varying;"
         basicPostgresService.executeSql(templatesSql)
       }
     } match {
@@ -76,8 +75,8 @@ class HydraMigrationService extends SLF4JLogging with SpartaSerializer {
 
   private def hydraTemplatesMigration(): Unit = {
 
-    val (hydraTemplates, andromedaTemplates, cassiopeiaTemplates) = orionMigrationService.orionTemplatesMigrated()
-      .getOrElse((Seq.empty, Seq.empty, Seq.empty))
+    val (hydraTemplates, orionTemplates, andromedaTemplates, cassiopeiaTemplates) = orionMigrationService.orionTemplatesMigrated()
+      .getOrElse((Seq.empty, Seq.empty, Seq.empty, Seq.empty))
 
     Try {
       Await.result(templatePostgresService.upsertList(hydraTemplates), 20 seconds)

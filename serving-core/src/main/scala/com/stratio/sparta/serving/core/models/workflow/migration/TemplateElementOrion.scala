@@ -7,24 +7,23 @@ package com.stratio.sparta.serving.core.models.workflow.migration
 
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.EntityAuthorization
-import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
-import org.joda.time.DateTime
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
+import org.joda.time.DateTime
 
 case class TemplateElementOrion(
-                            id: Option[String] = None,
-                            templateType: String,
-                            name: String,
-                            description: Option[String],
-                            className: String,
-                            classPrettyName: String,
-                            configuration: Map[String, JsoneyString] = Map(),
-                            creationDate: Option[DateTime] = None,
-                            lastUpdateDate: Option[DateTime] = None,
-                            supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
-                            executionEngine: Option[ExecutionEngine] = Option(Streaming),
-                            versionSparta: Option[String] = None
-                          ) extends EntityAuthorization {
+                                 id: Option[String] = None,
+                                 templateType: String,
+                                 name: String,
+                                 description: Option[String],
+                                 className: String,
+                                 classPrettyName: String,
+                                 configuration: Map[String, JsoneyString] = Map(),
+                                 creationDate: Option[DateTime] = None,
+                                 lastUpdateDate: Option[DateTime] = None,
+                                 supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
+                                 executionEngine: Option[ExecutionEngine] = Option(Streaming),
+                                 versionSparta: Option[String] = None
+                               ) extends EntityAuthorization {
 
   def authorizationId: String = name
 }

@@ -1,0 +1,25 @@
+/*
+ * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+ *
+ * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
+ */
+
+package com.stratio.sparta.serving.core.services.migration.orion
+
+import com.stratio.sparta.serving.core.models.workflow.migration.TemplateElementOrion
+import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
+import slick.jdbc.PostgresProfile
+
+import scala.concurrent.Future
+
+class TemplateOrionPostgresDao extends TemplateOrionDao {
+
+  override val profile = PostgresProfile
+  override val db = JdbcSlickConnection.getDatabase
+
+  import profile.api._
+
+  def findAllTemplates(): Future[Seq[TemplateElementOrion]] =
+    db.run(table.filter(t => t.versionSparta like s"%2.4%").result)
+
+}
