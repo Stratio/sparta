@@ -12,7 +12,7 @@ import akka.http.scaladsl.model.headers.RawHeader
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.plugin.common.rest.BodyFormat.BodyFormat
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper.HasError
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import scala.collection.immutable
 import scala.concurrent.duration.{Duration, FiniteDuration}

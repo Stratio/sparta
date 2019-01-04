@@ -11,8 +11,8 @@ import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.ErrorValidations
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper.HasError
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 

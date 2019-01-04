@@ -12,7 +12,8 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.factory.SparkContextFactory
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
+import com.stratio.sparta.serving.core.helpers.{ErrorValidationsHelper, JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.DeployMode
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
@@ -83,20 +84,39 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
     else this
   }
 
+  //scalastyle:off
   def validateSparkCores(implicit workflow: Workflow): WorkflowValidation = {
-    if ((workflow.settings.global.executionMode == marathon ||
-      workflow.settings.global.executionMode == dispatcher) &&
-      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isDefined &&
-      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
-      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble <
-        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble)
-      copy(
-        valid = false,
-        messages = messages :+ WorkflowValidationMessage(s"The total number of executor cores (max cores) should be greater than" +
-          s" the number of executor cores")
-      )
-    else this
+    if (workflow.settings.global.executionMode == marathon ||
+      workflow.settings.global.executionMode == dispatcher) {
+
+      val coresValidations = scala.collection.mutable.ListBuffer.empty[(HasError, String)]
+
+      if (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isDefined &&
+        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
+        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble <
+          workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble)
+        coresValidations += true -> s"The total number of executor cores (max cores) should be greater than the number of executor cores"
+
+      if (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isEmpty ||
+        (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isDefined &&
+          workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble < 1.0))
+        coresValidations += true -> s"The total number of executor cores (max cores) is empty or 0"
+
+      if (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isEmpty ||
+        (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
+          workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble < 1.0))
+        coresValidations += true -> s"The number of cores by executor is empty or 0"
+
+      if (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores.notBlank.isEmpty ||
+        (workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores.notBlank.isDefined &&
+          workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores.get.toString.toDouble < 1.0))
+        coresValidations += true -> s"The number of driver cores is empty or 0"
+
+      ErrorValidationsHelper.validateWorkflow(coresValidations, Option(this))
+    } else this
   }
+
+  //scalastyle:on
 
   def validateCheckpointCubes(implicit workflow: Workflow): WorkflowValidation =
     workflow.pipelineGraph.nodes.find(node => node.className == "CubeTransformStep") match {
@@ -287,8 +307,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
       case Some(xdSession) =>
         workflow.pipelineGraph.nodes.filter { node =>
           node.stepType.contains("Transformation") || node.stepType.contains("Input")
-        }.map(_.name).foldLeft(this){case (lastValidation, name) =>
-          if(xdSession.catalog.tableExists("default", name)) {
+        }.map(_.name).foldLeft(this) { case (lastValidation, name) =>
+          if (xdSession.catalog.tableExists("default", name)) {
             lastValidation.copy(
               valid = false,
               messages = messages :+ WorkflowValidationMessage(s"The step name $name is already being used by a table in the default catalog")

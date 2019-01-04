@@ -12,8 +12,8 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions}
 import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.plugin.common.rest.RestConfig
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper.HasError
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
 import org.apache.spark.sql.{Row, RowFactory}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

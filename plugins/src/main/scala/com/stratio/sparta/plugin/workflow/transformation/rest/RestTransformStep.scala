@@ -13,8 +13,8 @@ import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.workflow.step.TransformStep
 import com.stratio.sparta.plugin.common.rest._
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper
-import com.stratio.sparta.plugin.helper.ErrorValidationsHelper.HasError
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, _}
