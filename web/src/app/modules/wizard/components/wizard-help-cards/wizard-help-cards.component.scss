@@ -9,13 +9,11 @@
   overflow: hidden;
 }
 .cards-container {
-  width: 1590px;
   transition: 0.3s transform;
 }
 
 .card {
   height: 430px;
-  width: 530px;
   float: left;
 
   &__title {

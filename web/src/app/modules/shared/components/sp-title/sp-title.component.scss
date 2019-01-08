@@ -18,6 +18,8 @@
     transform: translateX(-50%);
     z-index:99999;
     padding: 4px 9px;
+    min-width: 120%;
+    line-height: 14px;
     border-radius: 3px;
     transition:visibility 0s linear;
     pointer-events: none;

@@ -65,7 +65,7 @@ export class ExecutionTableComponent {
     this.areAllSelected = isChecked;
   }
 
-  showSparkUI(url: string) {
+  showURI(url: string) {
     window.open(url, '_blank');
   }
 

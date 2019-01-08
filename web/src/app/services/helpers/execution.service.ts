@@ -41,6 +41,7 @@ export class ExecutionHelperService {
          name,
          version,
          sparkURI: localExecution ? localExecution.sparkURI : marathonExecution && marathonExecution.sparkURI || '',
+         historyServerURI: localExecution ? localExecution.historyServerURI : marathonExecution && marathonExecution.historyServerURI || '',
          endDate,
          endDateMillis,
          endDateFormatted,

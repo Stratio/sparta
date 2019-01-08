@@ -167,20 +167,26 @@ export class WizardEffect {
     .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.entities))))
     .pipe(map(([[action, wizardState], entities]) => {
       const selectedNodes = wizardState.selectedEntities;
-      const nodes = wizardState.nodes.filter(wNode => selectedNodes.indexOf(wNode.name) > -1);
-      const edges = wizardState.edges.filter(edge => selectedNodes.indexOf(edge.origin) > -1 && selectedNodes.indexOf(edge.destination) > -1);
-      const value = JSON.stringify({
-        objectIdType: 'workflow',
-        workflowType: entities.workflowType,
-        nodes,
-        edges
-      });
-      sessionStorage.setItem('sp-copy-clipboard', value);
-      copyIntoClipboard(value);
-      return new wizardActions.ShowNotificationAction({
-        type: 'default',
-        templateType: 'copySelection'
-      });
+      if (selectedNodes && selectedNodes.length) {
+        const nodes = wizardState.nodes.filter(wNode => selectedNodes.indexOf(wNode.name) > -1);
+        const edges = wizardState.edges.filter(edge => selectedNodes.indexOf(edge.origin) > -1 && selectedNodes.indexOf(edge.destination) > -1);
+        const value = JSON.stringify({
+          objectIdType: 'workflow',
+          workflowType: entities.workflowType,
+          nodes,
+          edges
+        });
+        sessionStorage.setItem('sp-copy-clipboard', value);
+        copyIntoClipboard(value);
+        return new wizardActions.ShowNotificationAction({
+          type: 'default',
+          templateType: 'copySelection'
+        });
+      } else {
+        return {
+          type: 'NO_ACTION'
+        };
+      }
     }));
 
   @Effect()
@@ -190,7 +196,6 @@ export class WizardEffect {
     .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.entities))))
     .pipe(map(([[action, wizardState], entities]) => {
       const clipboardContent = sessionStorage.getItem('sp-copy-clipboard');
-
       if (clipboardContent.length) {
         try {
           const model = JSON.parse(clipboardContent);
@@ -200,10 +205,10 @@ export class WizardEffect {
             return new wizardActions.PasteNodesCompleteAction(normalizedData);
           }
         } catch (error) {
-          return { type: 'NO_ACTION'};
+          return { type: 'NO_ACTION' };
         }
       }
-      return { type: 'NO_ACTION'};
+      return { type: 'NO_ACTION' };
     }));
 
 

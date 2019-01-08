@@ -47,17 +47,25 @@ hr {
    margin-bottom: 32px;
 }
 
-.spark-link {
-   max-width: 10px;
-   padding-left: 0;
-   padding-right: 30px;
-   i {
+.execution-links {
+  padding-left: 0;
+  padding-right: 30px;
+  padding-left: 0px!important;
+  width: 70px !important;
+  padding-right: 10px!important;
+
+&__container {
+    float: right;
+  }
+  a {
+    display: inline-block;
+    margin-left: 6px;
+    cursor: pointer;
+  }
+  i {
       color: $neutral-10;
       font-size: 20px;
-      margin-left: -15px;
-      line-height: 9px;
-      cursor: pointer;
-   }
+  }
 }
 
 .starting-spinner {

@@ -71,6 +71,10 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
     this.selectedStep = stepName;
   }
 
+  getTypeof(property: any) {
+    return typeof property;
+  }
+
   ngOnDestroy(): void {
     this._componentDestroyed.next();
     this._componentDestroyed.unsubscribe();

@@ -61,5 +61,4 @@
   </sparta-sidebar>
 </section>
 <notification-alert *ngIf="showForbiddenError$ | async" (onClose)="hideAlert()"></notification-alert>
-<wizard-console *ngIf="showDebugConsole" [genericError]="genericError" [debugData]="consoleDebugData"></wizard-console>
 <edge-options *ngIf="edgeOptions.active" [edgeOptions]="edgeOptions"></edge-options>

@@ -9,14 +9,15 @@
 -->
 <section class="execution-details" *ngIf="execution">
   <div class="execution-details__header">
-      <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Streaming'" />
-      <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Batch'" />
-      <span class="title egeo-title-extra-large">{{execution.genericDataExecution.workflow.name}}</span>
-      <a [routerLink]="['/executions']" class="link">Return to executions list</a>
+    <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Streaming'" />
+    <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Batch'" />
+    <span class="title egeo-title-extra-large">{{execution.genericDataExecution.workflow.name}}</span>
+    <a [routerLink]="['/executions']" class="link">Return to executions list</a>
   </div>
   <graph-editor class="execution-details__editor"
   [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position"
   [multiselectionEnabled]="false"
+  (click)="selectedStep = ''"
   (deselectNode)="selectStep(null)">
     <svg:g wizard-edge
       *ngFor="let edge of edges; let i=index;"
@@ -48,13 +49,17 @@
     </svg:g>
   </graph-editor>
   <sparta-sidebar [isVisible]="true" [darkBorder]="true" [showCloseButton]="false">
+    <div class="not-selected" *ngIf="!selectedStep">
+      <img src="assets/images/planet.svg" class="step-detail-image" />
+      <div class="step-info">Select a step to view its details</div>
+    </div>
     <div class="sidebar-content" *ngIf="selectedStep">
       <div class="egeo-title-medium">{{selectedStep.name}}</div>
       <div>{{selectedStep.stepType}} - {{selectedStep.classPrettyName}}</div>
       <div class="configuration">
         <div class="property" *ngFor="let prop of keys(selectedStep.configuration)">
           <div class="label">{{prop}}</div>
-          <div class="value">{{selectedStep.configuration[prop]}}</div>
+          <div class="value">{{getTypeof(selectedStep.configuration[prop]) === 'object' ? (selectedStep.configuration[prop] | json) : selectedStep.configuration[prop]}}</div>
         </div>
       </div>
     </div>

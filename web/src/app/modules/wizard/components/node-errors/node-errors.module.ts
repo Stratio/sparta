@@ -9,6 +9,7 @@ import {NodeErrorsComponent} from '@app/wizard/components/node-errors/node-error
 import {NodeSchemaModule} from '@app/wizard/components/node-schema/node-schema.module';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { SpTitleModule } from '@app/shared';
 
 @NgModule({
   exports: [
@@ -20,7 +21,8 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [
     CommonModule,
     NodeSchemaModule,
-    TranslateModule
+    TranslateModule,
+    SpTitleModule
   ]
 })
 

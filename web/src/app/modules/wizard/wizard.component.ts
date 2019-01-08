@@ -45,6 +45,10 @@ export class WizardComponent implements OnInit, OnDestroy {
   public executionContexts$: Observable<any>;
   public mlModelsList: Array<string> = [];
 
+  public showDebugConsole: boolean;
+  public genericError: any;
+  public consoleDebugData: any;
+
   public workflowData: WorkflowData;
   public pipelinesMenu: any = [
     {
@@ -203,6 +207,33 @@ export class WizardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((mlModelsList: Array<string>) => {
         this.mlModelsList = mlModelsList;
+        this._cd.markForCheck();
+      });
+
+    this._store
+      .select(fromWizard.showDebugConsole)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((showDebugConsole: any) => {
+        this.showDebugConsole = showDebugConsole;
+        this._cd.markForCheck();
+      });
+
+    this._store
+      .select(fromWizard.getDebugResult)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe((debugResult: any) => {
+        this.genericError =
+          debugResult && debugResult.genericError
+            ? debugResult.genericError
+            : null;
+        this._cd.markForCheck();
+      });
+
+    this._store
+      .select(fromWizard.getConsoleDebugEntityData)
+      .pipe(takeUntil(this._componentDestroyed))
+      .subscribe(debugData => {
+        this.consoleDebugData = debugData;
         this._cd.markForCheck();
       });
     this.showDebugConfig$ = this._store.pipe(select(fromWizard.isShowingDebugConfig));

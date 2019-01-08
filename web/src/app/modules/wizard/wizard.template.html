@@ -52,6 +52,8 @@
 </custom-execution-container>
 
 <wizard-notifications></wizard-notifications>
+<wizard-console *ngIf="showDebugConsole && !(editionConfigMode.isEdition && editionConfigMode.isPipelinesEdition)" [genericError]="genericError" [debugData]="consoleDebugData"></wizard-console>
+
 <div #wizardCardsModal id="wizard-cards-modal" qaTag="wizard-cards-modal"></div>
 
 <html

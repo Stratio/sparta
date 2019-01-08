@@ -11,42 +11,119 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  Output
+  Output,
+  HostListener
 } from '@angular/core';
 
 @Component({
-    selector: 'menu-options-list',
-    templateUrl: './menu-options-list.component.html',
-    styleUrls: ['./menu-options-list.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        '(document:click)': 'onClick($event)'
-    }
+  selector: 'menu-options-list',
+  templateUrl: './menu-options-list.component.html',
+  styleUrls: ['./menu-options-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MenuOptionsListComponent  {
-   @Input() options: MenuOptionListGroup[] = [];
-   @Input() topPosition: number;
-   @Input() rightPosition: number;
-   @Output() selectedOption = new EventEmitter<String>();
-   public showMenu = false;
-   public position;
+export class MenuOptionsListComponent {
 
-   constructor(private _eref: ElementRef, private _cd: ChangeDetectorRef) { }
+  @Input() options: MenuOptionListGroup[] = [];
+  @Input() topPosition: number;
+  @Input() rightPosition: number;
+  @Output() selectedOption = new EventEmitter<String>();
 
-   activateMenu(event) {
-     this.showMenu = !this.showMenu;
-   }
+  public showMenu = false;
+  public position;
 
-   onClick(event: any): void {
-     if (this.showMenu && !this._eref.nativeElement.contains(event.target)) {
+  public selectedGroup = 0;
+  public selectedGroupItem = 0;
+  public activeKeys = false;
+
+  constructor(private _eref: ElementRef, private _cd: ChangeDetectorRef) { }
+
+  activateMenu(event) {
+    this.showMenu = !this.showMenu;
+    this._resetKeyPosition();
+  }
+
+  onClick(event: any): void {
+    if (this.showMenu && !this._eref.nativeElement.contains(event.target)) {
       this.showMenu = false;
-     }
-   }
+      this._resetKeyPosition();
+    }
+  }
 
-   selectOption(option: MenuOption) {
+  onEscape() {
+    this.showMenu = false;
+  }
+
+  onNavigate(downKey: boolean) {
+    if (this.activeKeys) {
+      if (downKey) {
+        this.setNextItem();
+      } else {
+        this.setPreviousItem();
+      }
+    } else {
+      this.activeKeys = true;
+      if (!downKey) {
+        this.setPreviousItem();
+      }
+    }
+  }
+
+  selectOption(option: MenuOption) {
     this.selectedOption.emit(option.id);
     this.showMenu = false;
-   }
+    this._resetKeyPosition();
+  }
+
+  onEnterDown() {
+    if (this.activeKeys) {
+      this.selectOption(this.options[this.selectedGroup].options[this.selectedGroupItem]);
+    }
+  }
+
+  enter(group: number, item: number) {
+    this.activeKeys = true;
+    this.selectedGroup = group;
+    this.selectedGroupItem = item;
+  }
+
+  leave() {
+    this._resetKeyPosition();
+  }
+
+  private setPreviousItem() {
+    if (this.selectedGroupItem > 0) {
+      this.selectedGroupItem -= 1;
+      return;
+    }
+    if (this.selectedGroup > 0) {
+      this.selectedGroup -= 1;
+    } else {
+      this.selectedGroup = this.options.length - 1;
+    }
+    // select the last one of the group
+    this.selectedGroupItem = this.options[this.selectedGroup].options.length - 1;
+  }
+
+  private setNextItem() {
+    if (this.selectedGroupItem < this.options[this.selectedGroup].options.length - 1) {
+      this.selectedGroupItem += 1;
+      return;
+    }
+    if (this.selectedGroup === this.options.length - 1) {
+      this.selectedGroup = 0;
+    } else {
+      this.selectedGroup += 1;
+    }
+    // select the first one of the group
+    this.selectedGroupItem = 0;
+  }
+
+  private _resetKeyPosition() {
+    this.selectedGroup = 0;
+    this.selectedGroupItem = 0;
+    this.activeKeys = false;
+  }
+
 }
 
 export interface MenuOptionListGroup {

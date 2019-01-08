@@ -9,76 +9,76 @@
 -->
 
 <div class="workflow-detail">
-   <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
-   <div class="not-selected" *ngIf="!data || !data.type">
-      <img src="assets/images/planet.svg" class="workflow-detail-image" />
-      <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
-   </div>
-   <div class="selected" *ngIf="data && data.type === 'version'">
-      <!--<span class="status" [ngClass]="workflowData.status.status.toLowerCase()">
+  <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
+  <div class="not-selected" *ngIf="!data || !data.type">
+    <img src="assets/images/planet.svg" class="workflow-detail-image" />
+    <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
+  </div>
+  <div class="selected" *ngIf="data && data.type === 'version'">
+    <!--<span class="status" [ngClass]="workflowData.status.status.toLowerCase()">
           {{('DASHBOARD.' + (workflowData.formattedStatus | uppercase)) | translate}}
           <span class="advanced-status" *ngIf="workflowData.status.status.toUpperCase() !== workflowData.formattedStatus.toUpperCase()"> / {{('DASHBOARD.' + (workflowData.status.status | uppercase)) | translate}}</span>
       </span>-->
-      <h3 class="egeo-title-medium version-title">{{workflowData.name}} - v{{workflowData.version}}</h3>
-      <span class="description">{{workflowData.description}}</span>
-      <div *ngIf="workflowData.settings && workflowData.settings.executionMode">
-         <span class="title egeo-title-mini">Execution mode</span>
-         <span class="values">{{workflowData.settings.executionMode}}</span>
-      </div>
-      <div *ngIf="inputs && inputs.length">
-         <span class="title egeo-title-mini">
-             <div class="accordion" (click)="showInputs = !showInputs">
-                <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showInputs}"></span>
-                {{'GLOBAL.INPUTS' | translate}}
-             </div>
-        </span>
-         <div *ngIf="showInputs">
-             <span class="values value-list" *ngFor="let input of inputs">{{input}}</span>
-         </div>
-      </div>
-      <div *ngIf="transformations && transformations.length">
-         <span class="title egeo-title-mini">
-            <div class="accordion" (click)="showTransformations = !showTransformations">
-                <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showTransformations}"></span>
-                {{'GLOBAL.TRANSFORMATIONS' | translate}}
-            </div>
-        </span>
-         <div *ngIf="showTransformations">
-             <span class="values value-list" *ngFor="let transformation of transformations">{{transformation}}</span>
-         </div>
-      </div>
-      <div *ngIf="outputs && outputs.length">
-         <span class="title egeo-title-mini">
-            <div class="accordion" (click)="showOutputs = !showOutputs">
-                <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showOutputs}"></span>
-                {{'GLOBAL.OUTPUTS' | translate}}
-            </div>
-        </span>
-         <div *ngIf="showOutputs">
-             <span class="values value-list" *ngFor="let output of outputs">{{output}}</span>
+    <h3 class="egeo-title-medium version-title">{{workflowData.name}} - v{{workflowData.version}}</h3>
+    <span class="description">{{workflowData.description}}</span>
+    <div *ngIf="workflowData.settings && workflowData.settings.executionMode">
+      <span class="title egeo-title-mini">Execution mode</span>
+      <span class="values">{{workflowData.settings.executionMode}}</span>
+    </div>
+    <div *ngIf="inputs && inputs.length">
+      <span class="title egeo-title-mini">
+        <div class="accordion" (click)="showInputs = !showInputs">
+          <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showInputs}"></span>
+          {{'GLOBAL.INPUTS' | translate}}
         </div>
+      </span>
+      <div *ngIf="showInputs">
+        <span class="values value-list" *ngFor="let input of inputs">{{input}}</span>
       </div>
-   </div>
+    </div>
+    <div *ngIf="transformations && transformations.length">
+      <span class="title egeo-title-mini">
+        <div class="accordion" (click)="showTransformations = !showTransformations">
+          <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showTransformations}"></span>
+          {{'GLOBAL.TRANSFORMATIONS' | translate}}
+        </div>
+      </span>
+      <div *ngIf="showTransformations">
+        <span class="values value-list" *ngFor="let transformation of transformations">{{transformation}}</span>
+      </div>
+    </div>
+    <div *ngIf="outputs && outputs.length">
+      <span class="title egeo-title-mini">
+        <div class="accordion" (click)="showOutputs = !showOutputs">
+          <span class="order-icon icon-arrow2_down" [ngClass]="{'active' : showOutputs}"></span>
+          {{'GLOBAL.OUTPUTS' | translate}}
+        </div>
+      </span>
+      <div *ngIf="showOutputs">
+        <span class="values value-list" *ngFor="let output of outputs">{{output}}</span>
+      </div>
+    </div>
+  </div>
 
-   <div class="selected" *ngIf="data && data.type === 'workflow'">
-      <h3 class="egeo-title-medium">{{workflowData.name}}</h3>
-      <span class="type">{{data.type}}</span>
-      <div>
-         <span class="title egeo-title-mini">Number of versions</span>
-         <span class="values">{{workflowData.versions.length}}</span>
-      </div>
-      <div *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length">
-         <span class="title egeo-title-mini">Last update</span>
-         <span class="values">{{workflowData.lastUpdate}}</span>
-      </div>
-   </div>
+  <div class="selected" *ngIf="data && data.type === 'workflow'">
+    <h3 class="egeo-title-medium">{{workflowData.name}}</h3>
+    <span class="type">{{data.type}}</span>
+    <div>
+      <span class="title egeo-title-mini">Number of versions</span>
+      <span class="values">{{workflowData.versions.length}}</span>
+    </div>
+    <div *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length">
+      <span class="title egeo-title-mini">Last update</span>
+      <span class="values">{{workflowData.lastUpdate}}</span>
+    </div>
+  </div>
 
-   <div class="selected" *ngIf="data && data.type === 'group'">
-      <h3 class="egeo-title-medium">{{groupLabel}}</h3>
-      <span class="type">{{data.type}}</span>
-      <div>
-         <span class="title egeo-title-mini">{{'DASHBOARD.COMPLETE_PATH' | translate}}</span>
-         <span class="values">{{workflowData.name}}</span>
-      </div>
-   </div>
+  <div class="selected" *ngIf="data && data.type === 'group'">
+    <h3 class="egeo-title-medium">{{groupLabel}}</h3>
+    <span class="type">{{data.type}}</span>
+    <div>
+      <span class="title egeo-title-mini">{{'DASHBOARD.COMPLETE_PATH' | translate}}</span>
+      <span class="values">{{workflowData.name}}</span>
+    </div>
+  </div>
 </div>

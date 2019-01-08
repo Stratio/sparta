@@ -19,6 +19,8 @@ import * as errorActions from 'actions/errors';
 import { WizardService } from '@app/wizard/services/wizard.service';
 import { WizardApiService, WorkflowService } from 'app/services';
 import { getWorkflowId } from './../reducers';
+import { copyIntoClipboard } from '@utils';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class DebugEffect {
@@ -118,7 +120,7 @@ export class DebugEffect {
     .pipe(switchMap((workflowId: string) => this._wizardApiService.getDebugResult(workflowId)
       .pipe(map(result => new debugActions.GetDebugResultCompleteAction(result)))
       .pipe(catchError(error => of(new debugActions.GetDebugResultErrorAction())))
-      )
+    )
     );
 
   @Effect()
@@ -150,9 +152,19 @@ export class DebugEffect {
       .pipe(catchError(error => of(new debugActions.DownloadDebugFileErrorAction()))))
     );
 
+  @Effect()
+  exportSchema$: Observable<any> = this._actions$
+    .pipe(ofType(debugActions.EXPORT_DEBUG_SCHEMA))
+    .pipe(map((action: any) => action.payload))
+    .pipe(map((schema: any) => {
+      copyIntoClipboard(JSON.stringify(schema, null, 2));
+      return new wizardActions.ShowNotificationAction({message: 'SCHEMA_COPIED'});
+    }));
+
   constructor(
     private _actions$: Actions,
     private _store: Store<fromWizard.State>,
+    private _translateService: TranslateService,
     private _wizardService: WizardService,
     private _workflowService: WorkflowService,
     private _wizardApiService: WizardApiService

@@ -67,3 +67,18 @@ sparta-sidebar{
     }
   }
 }
+
+.not-selected {
+  text-align: center;
+  min-height: 230px;
+  margin-top: 20px;
+  .step-detail-image {
+     width: 140px;
+     margin-top: 20px;
+  }
+
+  .step-info {
+   font-size: $egeo-font-size-xxsmall;
+   color: $neutral-10;
+ }
+}

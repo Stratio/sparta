@@ -38,15 +38,24 @@
       float: left;
   }
 
-  .spark-link {
-    max-width: 10px;
+  .execution-links {
     padding-left: 0;
     padding-right: 30px;
+    padding-left: 0px!important;
+    width: 70px !important;
+    padding-right: 10px!important;
+
+  &__container {
+      float: right;
+    }
+    a {
+      display: inline-block;
+      margin-left: 6px;
+
+    }
     i {
         color: $neutral-10;
         font-size: 20px;
-        margin-left: -15px;
-        line-height: 9px;
     }
   }
 

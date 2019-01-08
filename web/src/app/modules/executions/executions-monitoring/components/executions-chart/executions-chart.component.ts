@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { ChangeDetectionStrategy, Component, Input, OnInit, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'executions-chart',
@@ -12,7 +12,7 @@ import { ChangeDetectionStrategy, Component, Input, OnInit, ChangeDetectorRef, O
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class ExecutionsChartComponent implements OnInit {
+export class ExecutionsChartComponent {
 
   @Output() periodChange: EventEmitter<string> = new EventEmitter<string>();
 
@@ -80,13 +80,9 @@ export class ExecutionsChartComponent implements OnInit {
   ];
   public lineChartLegend = true;
   public lineChartType = 'line';
-  public periodTitle: string;
+  public periodTitle = 'EXECUTIONS.PERIODS.DAY';
 
   constructor(private _cd: ChangeDetectorRef) { }
-
-  ngOnInit(): void {
-    this.periodTitle = 'EXECUTIONS.PERIODS.DAY';
-  }
 
   public selectPeriod (ev, period) {
     const currentButton: Element = ev.currentTarget;

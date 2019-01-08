@@ -3,9 +3,18 @@
     --><div class="action-link" (click)="activateMenu($event)">
       <ng-content></ng-content>
     </div><!--
-    --><div class="menu-options" [style.marginTop.px]="topPosition" [style.marginRight.px]="rightPosition" [ngClass]="{'active': showMenu, 'right-position': position === 'right'}">
-      <div class="group" *ngFor="let group of options">
-        <div [attr.id]="option.id + '-option'" class="group-option" (click)="selectOption(option)" *ngFor="let option of group.options" [ngClass]="option.color === 'critical' ? 'critical-color' : ''">
+    --><div class="menu-options"
+        *ngIf="showMenu"
+        eventHandler
+        (onKeyNavigationEvent)="onNavigate($event)"
+        (onClickEvent)="onClick($event)"
+        (onEscapeDown)="onEscape()"
+        (onEnterDown)="onEnterDown()"
+        [style.marginTop.px]="topPosition"
+        [style.marginRight.px]="rightPosition"
+        [ngClass]="{'right-position': position === 'right'}">
+      <div class="group" *ngFor="let group of options; let i = index;">
+        <div [ngClass]="{'selected': activeKeys && i === selectedGroup && j === selectedGroupItem}" (mouseenter)="enter(i,j)" (mouseleave)="leave()" [attr.id]="option.id + '-option'" class="group-option" (click)="selectOption(option)" *ngFor="let option of group.options; let j = index;" [ngClass]="option.color === 'critical' ? 'critical-color' : ''">
           <span [className]="'icon ' + option.icon" *ngIf="option.icon"></span>
           <span class="option-name">{{option.label}}</span>
         </div>

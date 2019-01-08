@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { StSearchModule } from '@stratio/egeo';
 
-import { MenuOptionsListModule } from '@app/shared';
+import { MenuOptionsListModule, SpTitleModule } from '@app/shared';
 
 import { WorkflowTableHeaderComponent } from './workflow-table-header.component';
 import { WorkflowTableHeaderContainer } from './workflow-table-header.container';
@@ -29,6 +29,7 @@ import { WorkflowBreadcrumbComponent } from './workflow-breadcrumb/workflow-brea
        CommonModule,
        MenuOptionsListModule,
        StSearchModule,
+       SpTitleModule,
        TranslateModule,
     ]
 })

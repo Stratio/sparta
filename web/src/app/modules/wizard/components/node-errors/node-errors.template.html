@@ -52,12 +52,16 @@
     </div>
     <div *ngIf="inputSchemasOpened">
       <div *ngFor="let schema of inputSchemas">
-        <div>
+        <div class="schemas-container">
           <div (click)="toggleSchema(schema)" class="schema-section">
             <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : schema.expanded}"></span>
             <span class="schema-name">{{schema.name}}</span>
           </div>
-          <span class="debug-data-link" (click)="showConsole('Data', schema.name)">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
+          <div class="schema-links">
+            <i class="icon icon-debug" spTitle="Show debug data" (click)="showConsole('Data', schema.name)"></i>
+            <i class="icon icon-copy2" spTitle="Copy" (click)="exportDebugSchema(schema.name, 'inputs')"></i>
+          </div>
+          <div style="clear: both;"></div>
         </div>
         <node-schema *ngIf="schema.expanded" [schema]="schema.tree"></node-schema>
       </div>
@@ -72,12 +76,16 @@
     </div>
     <div *ngIf="outputSchemasOpened">
       <div *ngFor="let outputSchema of outputsSchemas">
-         <div>
+          <div class="schemas-container">
             <div (click)="toggleSchema(outputSchema)" class="schema-section">
                <span class="schema-arrow icon-arrow4_down" [ngClass]="{'expanded' : outputSchema.expanded}"></span>
                <span class="schema-name">{{outputSchema.name}}</span>
             </div>
-            <span class="debug-data-link" (click)="showConsole('Data', outputSchema.name)">{{'WIZARD.VIEW_DEBUG_DATA' | translate}}</span>
+            <div class="schema-links">
+              <i class="icon icon-debug" spTitle="Show debug data" (click)="showConsole('Data', outputSchema.name)"></i>
+              <i class="icon icon-copy2" spTitle="Copy" (click)="exportDebugSchema(outputSchema.name, 'outputs')"></i>
+            </div>
+            <div style="clear: both;"></div>
          </div>
          <node-schema *ngIf="outputSchema.expanded" [schema]="outputSchema.tree"></node-schema>
       </div>

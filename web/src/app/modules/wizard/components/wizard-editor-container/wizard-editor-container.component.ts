@@ -177,13 +177,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         this.selectedNodeNames = names;
         this._cd.markForCheck();
       });
-    this._store
-      .select(fromWizard.getConsoleDebugEntityData)
-      .pipe(takeUntil(this._componentDestroyed))
-      .subscribe(debugData => {
-        this.consoleDebugData = debugData;
-        this._cd.markForCheck();
-      });
+
     this._store
       .select(fromWizard.getWorkflowPosition)
       .pipe(takeUntil(this._componentDestroyed))
@@ -219,24 +213,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((serverStepValidations: any) => {
         this.serverStepValidations = serverStepValidations;
-        this._cd.markForCheck();
-      });
-    this._store
-      .select(fromWizard.showDebugConsole)
-      .pipe(takeUntil(this._componentDestroyed))
-      .subscribe((showDebugConsole: any) => {
-        this.showDebugConsole = showDebugConsole;
-        this._cd.markForCheck();
-      });
-
-    this._store
-      .select(fromWizard.getDebugResult)
-      .pipe(takeUntil(this._componentDestroyed))
-      .subscribe((debugResult: any) => {
-        this.genericError =
-          debugResult && debugResult.genericError
-            ? debugResult.genericError
-            : null;
         this._cd.markForCheck();
       });
     this._store
@@ -290,7 +266,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     if (this.selectedNodeNames && this.selectedNodeNames.length) {
       this.deleteConfirmModal(
         'Delete node',
-        'This node and its relations will be deleted.',
+        'This nodes and its relations will be deleted: ' + this.selectedNodeNames.join(', '),
         () => {
           this._store.dispatch(new wizardActions.DeleteEntityAction());
           this.isPipelinesNodeSelected = false;

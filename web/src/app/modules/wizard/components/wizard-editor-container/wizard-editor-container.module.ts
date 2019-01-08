@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { WizardEditorContainer } from './wizard-editor-container.component';
 import { WizardHeaderModule } from './wizard-header/wizard-header.module';
 
-import { WizardConsoleModule } from '@app/wizard/components/wizard-console/wizard-console.module';
 import { WizardDetailsModule } from '@app/wizard/components/wizard-details/wizard-details.module';
 import { EdgeOptionsModule } from '@app/wizard/components/edge-options/edge-options.module';
 
@@ -31,7 +30,6 @@ import { InitializeStepService } from '@app/wizard/services/initialize-step.serv
     EdgeOptionsModule,
     NotificationAlertModule,
     SpartaSidebarModule,
-    WizardConsoleModule,
     WizardDetailsModule,
     WizardEditorModule,
     WizardHeaderModule

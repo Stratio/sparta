@@ -1,6 +1,6 @@
 <div class="cards-wrapper">
-  <div class="cards-container" [style.transform]="'translateX(' +  (-530 * selectedCard) + 'px)'">
-    <div class="card" *ngFor="let card of cards">
+  <div class="cards-container" [style.width.%]="100 * cards.length" [style.transform]="'translateX(' +  ((-100 / cards.length) * selectedCard) + '%)'">
+    <div class="card" [style.width.%]="100 / cards.length" *ngFor="let card of cards">
       <h2 class="card__title">{{card.title}}</h2>
       <img class="card__img" [attr.src]="card.image" />
       <p class="card__description">{{card.description}}</p>

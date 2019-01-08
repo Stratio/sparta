@@ -8,11 +8,13 @@ import { CommonModule } from '@angular/common';
 import { StTableModule, StSpinnerModule } from '@stratio/egeo';
 
 import { ExecutionsTableComponent } from './executions-table.component';
+import { SpTitleModule } from '@app/shared';
 
 
 @NgModule({
    imports: [
      CommonModule,
+     SpTitleModule,
      StTableModule,
      StSpinnerModule
    ],

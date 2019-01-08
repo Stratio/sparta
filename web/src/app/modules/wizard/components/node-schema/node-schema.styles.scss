@@ -1,12 +1,12 @@
 @import '~@stratio/egeo/theme/constants';
 
 :host {
-  padding-bottom: 30px;
   font-size: $egeo-font-size-xxsmall;
 }
 
 .marker {
   display: inline-block;
+  padding-right: 18px;
   width: 15px;
   font-size: 13px;
 }
@@ -21,7 +21,7 @@
 .node-name {
    white-space: nowrap;
    span {
-      margin-right: 10px;
+      display:inline-block;
       white-space: nowrap;
    }
 }

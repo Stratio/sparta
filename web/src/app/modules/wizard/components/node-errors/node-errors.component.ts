@@ -47,6 +47,13 @@ export class NodeErrorsComponent implements OnChanges {
     this._store.dispatch(new debugActions.ShowEntityDebugSchema(schemaName));
   }
 
+  public exportDebugSchema(schemaName: string, entityType: any) {
+    const exportSchema = this.schemas[entityType].find(schema => schema.result.step === schemaName);
+    if (exportSchema) {
+      this._store.dispatch(new debugActions.ExportDebugSchemaAction(exportSchema.result));
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.schemas) {
       this._setSchemaValue(changes.schemas.currentValue);

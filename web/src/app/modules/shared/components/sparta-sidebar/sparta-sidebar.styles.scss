@@ -36,10 +36,10 @@
    min-height: 100%;
 
    &.scroll {
-       overflow-y: scroll;
-       width: 400px;
-       padding-right: 30px;
-       overflow-x: hidden;
+    overflow-y: scroll;
+    width: 400px;
+    padding-right: 30px;
+    overflow-x: hidden;
    }
 
    &.dark-border{
@@ -50,11 +50,11 @@
 .sidebar-header {
     padding-bottom:10px;
     .close-button{
-        font-size: 18px;
-        cursor: pointer;
-        right: 28px;
-        position: absolute;
-        z-index: 10;
+      font-size: 18px;
+      cursor: pointer;
+      right: 28px;
+      position: absolute;
+      z-index: 10;
     }
 }
 

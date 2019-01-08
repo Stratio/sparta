@@ -8,6 +8,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WizardHelpCardsComponent } from './wizard-help-cards.component';
 import { StCheckboxModule } from '@stratio/egeo';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import { StCheckboxModule } from '@stratio/egeo';
   ],
   imports: [
     CommonModule,
-    StCheckboxModule
+    StCheckboxModule,
+    TranslateModule
   ]
 })
 

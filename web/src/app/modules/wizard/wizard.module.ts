@@ -32,6 +32,7 @@ import { WizardEditorContainerModule } from './components/wizard-editor-containe
 import { WizardSettingsModule } from './components/wizard-settings/wizard-settings.module';
 import { WizardConfigEditorModule } from './components/wizard-config-editor/wizard-config-editor.module';
 import { WizardComponent } from './wizard.component';
+import { WizardConsoleModule } from './components/wizard-console/wizard-console.module';
 
 
 @NgModule({
@@ -47,6 +48,7 @@ import { WizardComponent } from './wizard.component';
     WizardRoutingModule,
     CustomExecutionModule,
     WizardConfigEditorModule,
+    WizardConsoleModule,
     WizardEmbeddedModule,
     WizardEditorContainerModule,
     WizardHelpCardsModule,

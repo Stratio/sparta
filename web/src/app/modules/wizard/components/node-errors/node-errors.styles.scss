@@ -95,7 +95,6 @@
    font-family: $egeo-nunito-sans-semiBold;
 }
 
-
 .schemas{
   margin-bottom: 20px;
   .schema-title {
@@ -131,6 +130,7 @@
 .schema-section {
   cursor: pointer;
   padding-left: 10px;
+  float: left;
   display: inline-block;
   margin-top: 12px;
 }
@@ -160,6 +160,19 @@ node-schema {
   font-size: $egeo-font-size-xxsmall;
   cursor: pointer;
   font-family: $egeo-nunito-sans;
+}
+
+.schema-links{
   float: right;
   margin-top: 13px;
+
+  .icon {
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 7px;
+    font-weight: 100;
+    &:before {
+      color: $action-secondary-05;
+    }
+  }
 }

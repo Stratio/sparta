@@ -9,13 +9,17 @@ import { NgModule } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { MenuOptionsListComponent } from './menu-options-list.component';
+import { EventHandlerDirective } from './menu-options-group.directive';
 
 @NgModule({
-   imports: [
-     CommonModule,
-     TranslateModule
-   ],
-   declarations: [MenuOptionsListComponent],
-   exports: [MenuOptionsListComponent]
+  imports: [
+    CommonModule,
+    TranslateModule
+  ],
+  declarations: [
+    EventHandlerDirective,
+    MenuOptionsListComponent
+  ],
+  exports: [MenuOptionsListComponent]
 })
 export class MenuOptionsListModule { }

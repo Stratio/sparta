@@ -156,8 +156,8 @@ export class GraphEditorComponent implements OnInit {
           this._isShiftPressed = true;
           break;
         }
-        /** SPACE */
-        case 32: {
+        /** SPACE and ALT*/
+        case 32: case 18: {
           if (!this.enableDrag) {
             this.enableDrag = true;
           }
@@ -189,8 +189,8 @@ export class GraphEditorComponent implements OnInit {
         this._isShiftPressed = false;
         break;
       }
-      /** SPACE */
-      case 32: {
+      /** SPACE and ALT*/
+      case 32: case 18: {
         this.enableDrag = false;
         break;
       }

@@ -9,8 +9,10 @@ import {
   Component,
   ViewEncapsulation,
   Output,
-  EventEmitter
+  EventEmitter,
+  HostListener
 } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 
 @Component({
@@ -45,7 +47,26 @@ export class WizardHelpCardsComponent {
     }
   ];
 
-  toggleDoNotShow (event) {
+  constructor(private _translateService: TranslateService) { }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydownHandler(event: KeyboardEvent) {
+    switch (event.keyCode) {
+      case 39:
+        this.selectedCard = this.selectedCard + 1 === this.cards.length ? 0 : this.selectedCard + 1;
+        event.preventDefault();
+        break;
+      case 37:
+        this.selectedCard = this.selectedCard === 0 ? this.cards.length - 1 : this.selectedCard - 1;
+        event.preventDefault();
+        break;
+      case 27:
+        this.closeCardsModal.emit(false);
+        event.preventDefault();
+    }
+  }
+
+  toggleDoNotShow(event) {
     this.doNotShow = event.checked;
   }
 }

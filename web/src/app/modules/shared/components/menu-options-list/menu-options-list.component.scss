@@ -25,20 +25,19 @@
 .menu-options {
   position: absolute;
   margin-bottom: 20px;
-    white-space: nowrap;
-    z-index: 90;
-    background: white;
-    top: 100%;
-    margin-right: -20px;
-    right: 0;
-    margin-top: -2px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
-    display: none;
-    overflow: hidden;
-   &.active {
-      display:block;
-   }
+  white-space: nowrap;
+  z-index: 90;
+  background: white;
+  top: 100%;
+  margin-right: -20px;
+  right: 0;
+  margin-top: -2px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  display: block;
+  opacity: 1;
+  overflow: hidden;
+  animation: fadeInFromNone 0.35s ease-out;
 }
 
 .group {
@@ -62,14 +61,25 @@
     display: inline-block;
   }
 
-  &:hover {
-    background-color: $action-secondary-01;
-  }
-
   &.critical-color {
     .icon, .option-name {
       color: $status-critical-hover;
     }
   }
+
+
+  &.selected {
+    background-color: $action-secondary-01;
+  }
 }
 
+
+@keyframes fadeInFromNone {
+  0% {
+      max-height: 0;
+  }
+  100% {
+      display: block;
+      max-height: 400px;
+  }
+}

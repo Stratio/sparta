@@ -17,15 +17,10 @@
 }
 
 .repository-sidebar {
-  height: 100%;
-}
-
-.workflow-detail-container {
-    min-height: 100%;
-    position: fixed;
-    top: 141px;
-    right: 0;
-    bottom: 0;
+  position: fixed;
+  top: 141px;
+  right: 0;
+  bottom: 0;
 }
 
 .loading-bar{
@@ -50,5 +45,5 @@
 }
 
 sparta-sidebar{
-  transition: 0.3s transform;
+  transition: 0.3s transform, 0.3s height;
 }
