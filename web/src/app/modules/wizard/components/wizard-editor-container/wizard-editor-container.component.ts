@@ -73,6 +73,7 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
   public isPipelinesNodeSelected: boolean;
   public multiselectionMode: boolean;
   public draggableMode: boolean;
+  public multiDrag: boolean;
 
   public editorRef: any;
 
@@ -88,8 +89,9 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     switch (event.keyCode) {
       /** CTRL */
       case 17: {
-          this._ctrlDown = true;
-          break;
+        this._ctrlDown = true;
+        this._store.dispatch(new wizardActions.SetMultiselectionModeAction(true));
+        break;
       }
       /** ESC */
       case 27: {
@@ -126,10 +128,9 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         setTimeout(() => this._store.dispatch(new wizardActions.PasteNodesAction()));
         break;
       }
-      /** SHIFT */
-      case 16: {
-        this._store.dispatch(new wizardActions.SetMultiselectionModeAction(true));
-        document.addEventListener('keyup', this._onkeyUp);
+      /** SPACE and ALT*/
+      case 32: case 18: {
+        this.multiDrag = true;
         break;
       }
     }
@@ -137,12 +138,18 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
 
   @HostListener('document:keyup', ['$event'])
   onKeyupHandler(event: KeyboardEvent) {
-     switch (event.keyCode) {
-        case 17: {
-            this._ctrlDown = false;
-            break;
-        }
-     }
+    switch (event.keyCode) {
+      case 17: {
+        this._ctrlDown = false;
+        this._store.dispatch(new wizardActions.SetMultiselectionModeAction(false));
+        break;
+      }
+      /** SPACE and ALT*/
+      case 32: case 18: {
+        this.multiDrag = false;
+        break;
+      }
+    }
   }
 
   constructor(
@@ -153,11 +160,12 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     private _el: ElementRef,
     private store: Store<fromRoot.State>
   ) {
-    this._onkeyUp = this._onkeyUp.bind(this);
     this.isMobile = isMobile;
   }
 
   ngOnInit(): void {
+    this._onBlur = this._onBlur.bind(this);
+    window.addEventListener('blur', this._onBlur);
     this.editorRef = this.editor.getEditorRef();
     this.creationMode$ = this._store.pipe(select(fromWizard.isCreationMode));
     this._store
@@ -421,15 +429,16 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
     this._store.dispatch(new wizardActions.SelectMultipleStepsAction(event));
   }
 
-  private _onkeyUp(evnt: any) {
-    if (evnt.keyCode === 16) {
-      document.removeEventListener('keyup', this._onkeyUp);
-      this._store.dispatch(new wizardActions.SetMultiselectionModeAction(false));
-    }
+  private _onBlur() {
+    this._ctrlDown = false;
+    this.multiDrag = false;
+    this._store.dispatch(new wizardActions.SetMultiselectionModeAction(false));
   }
+
   ngOnDestroy(): void {
     this.store.dispatch(new errorsActions.ChangeRouteAction());
     this._componentDestroyed.next();
     this._componentDestroyed.unsubscribe();
+    window.removeEventListener('blur', this._onBlur);
   }
 }

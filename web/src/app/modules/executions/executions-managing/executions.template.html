@@ -8,8 +8,8 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 <div #newExecutionsModalMonitoring qaTag="executions-modal"></div>
-<div class="executions-container" [ngClass]="{'toolbar-showed' : hiddenToolBar}" [hidden]="executionInfo" *ngIf="!(showInitialMode | async)">
-  <div class="container">
+<div class="executions-container" [ngClass]="{'toolbar-showed' : hiddenToolBar}" *ngIf="!(showInitialMode | async)">
+  <div class="container" [hidden]="executionInfo">
     <div class="row">
       <div class="col-sm-12">
         <div class="content" [ngClass]="{'compressed' : showDetails}">

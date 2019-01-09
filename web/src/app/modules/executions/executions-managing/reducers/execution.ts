@@ -36,10 +36,6 @@ export function reducer(state: State = initialState, action: any): State {
       return state;
     }
 
-    case executionActions.GET_EXECUTION_ERROR: {
-      return state;
-    }
-
     default:
       return state;
   }

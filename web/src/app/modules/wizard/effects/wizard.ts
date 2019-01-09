@@ -175,7 +175,7 @@ export class WizardEffect {
           workflowType: entities.workflowType,
           nodes,
           edges
-        });
+        }, null, 2);
         sessionStorage.setItem('sp-copy-clipboard', value);
         copyIntoClipboard(value);
         return new wizardActions.ShowNotificationAction({

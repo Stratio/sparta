@@ -40,9 +40,7 @@ export class ExecutionInfoComponent {
       { id: 'value', label: 'Value' }
    ];
 
-
-   constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
-
+   constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) {}
 
    changeOrderArguments(event: any): void {
       this.orderByArguments = event.orderBy;

@@ -32,18 +32,23 @@ export class WizardHelpCardsComponent {
   public cards = [
     {
       title: 'Multiple steps can be selected at once',
-      image: 'assets/images/card1.svg',
+      image: 'assets/images/card-selection.png',
       description: 'You can select all the objects within a rectangular area of the canvas by dragging the mouse over that area where these steps are located or using the CTRL key to select them one by one.'
     },
     {
       title: 'How to zoom in and zoom out',
-      image: 'assets/images/card2.svg',
+      image: 'assets/images/card-zoom.png',
       description: 'Clicking on the percentage indicator you will display a popup menu with the full zoom options available.'
     },
     {
-      title: 'How To Navigate Around Workflow Canvas ',
-      image: 'assets/images/card3.svg',
+      title: 'How To Navigate Around Workflow Canvas',
+      image: 'assets/images/card-navigate.png',
       description: 'To pan the entire workflow, simply press and hold down the spacebar or Alt and move the mouse cursor over the canvas view.'
+    },
+    {
+      title: 'Copy and paste any workflow box anywhere',
+      image: 'assets/images/card-copy.png',
+      description: 'Press Ctrl+C to copy and Ctrl+V to paste any single or multiple box selected in any workflow you want.'
     }
   ];
 

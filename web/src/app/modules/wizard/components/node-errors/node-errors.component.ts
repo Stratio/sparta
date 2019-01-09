@@ -50,7 +50,7 @@ export class NodeErrorsComponent implements OnChanges {
   public exportDebugSchema(schemaName: string, entityType: any) {
     const exportSchema = this.schemas[entityType].find(schema => schema.result.step === schemaName);
     if (exportSchema) {
-      this._store.dispatch(new debugActions.ExportDebugSchemaAction(exportSchema.result));
+      this._store.dispatch(new debugActions.ExportDebugSchemaAction(exportSchema.result.schema));
     }
   }
 

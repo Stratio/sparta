@@ -68,6 +68,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
   public connectorInitPosition: any;
 
   public multiselection = false;
+  public multiDrag = false;
 
   @Input() workflowData: WorkflowData;
   @Input() nodeData: EditionConfigMode;
@@ -90,6 +91,8 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     private _nodeHelpers: NodeHelpersService) { }
 
   ngOnInit(): void {
+    this._onBlur = this._onBlur.bind(this);
+    window.addEventListener('blur', this._onBlur);
     this.nodeDataEdited = _cloneDeep(this.nodeData);
     this.editedNodeEditionMode = this.nodeDataEdited;
     this._nodeHelpers.parentNode = this.nodeDataEdited;
@@ -109,6 +112,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       /** CTRL */
       case 17: {
         this._ctrlDown = true;
+        this.multiselection = true;
         break;
       }
       /** ESC */
@@ -142,38 +146,44 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
         this.multiselection = true;
         break;
       }
+      /** SPACE and ALT*/
+      case 32: case 18: {
+        this.multiDrag = true;
+        break;
+      }
     }
   }
 
   @HostListener('document:keyup', ['$event'])
   onKeyupHandler(event: KeyboardEvent) {
-     switch (event.keyCode) {
-        case 17: {
-            this._ctrlDown = false;
-            break;
+    switch (event.keyCode) {
+      case 17: {
+        this._ctrlDown = false;
+        this.multiselection = false;
+        break;
+      }
+      /**  CTRL + C */
+      case 67: {
+        if (!this._ctrlDown) {
+          return;
         }
-        /** SHIFT */
-        case 16: {
-          this.multiselection = false;
-          break;
+        this._copyIntoClipboard();
+        break;
+      }
+      /** CTRL +  V */
+      case 86: {
+        if (!this._ctrlDown) {
+          return;
         }
-        /**  CTRL + C */
-        case 67: {
-          if (!this._ctrlDown) {
-            return;
-          }
-          this._copyIntoClipboard();
-          break;
-        }
-        /** CTRL +  V */
-        case 86: {
-          if (!this._ctrlDown) {
-            return;
-          }
-          this._pasteFromClipboard();
-          break;
-        }
-     }
+        this._pasteFromClipboard();
+        break;
+      }
+      /** SPACE and ALT*/
+      case 32: case 18: {
+        this.multiDrag = false;
+        break;
+      }
+    }
   }
 
   private readData() {
@@ -432,7 +442,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       if (e.origin === this.selectedNodes[this.selectedNodes.length - 1]) {
         edge.origin = event.name;
       }
-      if (e.destination === this.selectedNodes[this.selectedNodes.length - 1] ) {
+      if (e.destination === this.selectedNodes[this.selectedNodes.length - 1]) {
         edge.destination = event.name;
       }
       return edge;
@@ -514,5 +524,13 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  ngOnDestroy(): void { }
+  private _onBlur() {
+    this._ctrlDown = false;
+    this.multiDrag = false;
+    this.multiselection = false;
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('blur', this._onBlur);
+  }
 }

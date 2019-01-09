@@ -15,6 +15,7 @@ import {
   NgZone,
   OnInit,
   Output,
+  OnDestroy,
 } from '@angular/core';
 import * as d3 from 'd3';
 import { event as d3Event } from 'd3-selection';
@@ -32,7 +33,7 @@ import { ZoomTransform, CreationData, NodeConnector, DrawingConnectorStatus } fr
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class GraphEditorComponent implements OnInit {
+export class GraphEditorComponent implements OnDestroy, OnInit {
 
   @Input() workflowID = '';
   @Input() workflowEdges: Array<WizardEdge> = [];
@@ -127,6 +128,12 @@ export class GraphEditorComponent implements OnInit {
     this.setDraggableEditor();
     this._setCurrentPosition();
     this.enableDrag = false;
+    this._onBlur = this._onBlur.bind(this);
+    window.addEventListener('blur', this._onBlur);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('blur', this._onBlur);
   }
 
   private _initSelectors() {
@@ -135,6 +142,11 @@ export class GraphEditorComponent implements OnInit {
     this._SVGParent = element.select('.composition');
     this._SVGContainer = this._SVGParent.select('.svg-container');
     this._connectorElement = element.select('.connector-line');
+  }
+
+  private _onBlur() {
+    this._isShiftPressed = false;
+    this.enableDrag = false;
   }
 
   @HostListener('document:keydown', ['$event'])

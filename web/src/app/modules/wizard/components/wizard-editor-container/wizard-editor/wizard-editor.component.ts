@@ -43,6 +43,7 @@ export class WizardEditorComponent {
   @Input() selectedEdge: any;
   @Input() debugResult: any;
   @Input() disableEvents: boolean;
+  @Input() multiDrag: boolean;
 
   @Output() setEditorDirty = new EventEmitter();
   @Output() disableSelection = new EventEmitter();

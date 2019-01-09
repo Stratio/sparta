@@ -46,7 +46,7 @@ export class ExecutionsTableComponent {
       this.route.navigate(['executions']);
    }
 
-   showSparkUI(url: string) {
+   showURI (url: string) {
       window.open(url, '_blank');
    }
 

@@ -1,4 +1,3 @@
-import { ɵpad } from '@angular/core';
 /*
  * © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
  *

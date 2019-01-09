@@ -27,8 +27,9 @@ export class ExecutionsHeaderComponent {
     if (status === 'archived') {
       this._router.navigate(['archived']);
     } else {
-      this._store.dispatch(new SelectStatusFilterAction(status.charAt(0).toUpperCase() + status.slice(1)));
-      this._router.navigate(['executions']);
+      this._router.navigate(['executions']).then(() => {
+        this._store.dispatch(new SelectStatusFilterAction(status.charAt(0).toUpperCase() + status.slice(1)));
+      });
     }
   }
 }

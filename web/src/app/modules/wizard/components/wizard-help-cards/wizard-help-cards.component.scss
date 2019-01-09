@@ -25,6 +25,9 @@
   &__img {
     margin: 20px auto;
     display: block;
+    height: 262px;
+    image-rendering: optimizeQuality;
+    image-rendering: optimizeSpeed;
   }
 
   &__description {
