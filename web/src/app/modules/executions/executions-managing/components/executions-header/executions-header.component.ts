@@ -71,7 +71,7 @@ export class ExecutionsHeaderComponent implements OnInit {
   @Output() showExecutionInfo = new EventEmitter<void>();
   @Output() archiveExecutions = new EventEmitter<void>();
   @Output() unarchiveExecutions = new EventEmitter<void>();
-  @Output() onDeleteExecutions = new EventEmitter<void>();
+  @Output() onDeleteExecutions = new EventEmitter<any>();
 
   @Output() onChangeStatusFilter = new EventEmitter<string>();
   @Output() onChangeTypeFilter = new EventEmitter<string>();
