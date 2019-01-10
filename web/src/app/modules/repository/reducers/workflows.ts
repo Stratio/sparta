@@ -340,13 +340,7 @@ export function reducer(state: State = initialState, action: any): State {
       case workflowActions.SAVE_JSON_WORKFLOW: {
          return {
             ...state,
-            saving: true,
-            notification: {
-               text: 'CREATED_WORKFLOW',
-               status: 'neutral',
-               autoCloseTime: 5000,
-               visible: true
-            }
+            saving: true
          };
       }
       case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
@@ -354,7 +348,13 @@ export function reducer(state: State = initialState, action: any): State {
             ...state,
             showModal: false,
             reload: true,
-            saving: false
+            saving: false,
+            notification: {
+               text: 'CREATED_WORKFLOW',
+               status: 'success',
+               autoCloseTime: 5000,
+               visible: true
+            }
          };
       }
       case workflowActions.RENAME_WORKFLOW_COMPLETE: {
