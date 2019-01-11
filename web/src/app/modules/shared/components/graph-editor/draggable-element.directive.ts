@@ -30,8 +30,6 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
 
   /** Set the draggable element position */
   @Input() position: DraggableElementPosition;
-  /** Drag multiple selected elements simultaneously */
-  @Input() multiDrag: boolean;
   /** Set readonly mode */
   @Input() readonlyMode: boolean;
   /** Draggable group name for multidrag */
@@ -104,14 +102,10 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
 
   private _onDrag() {
     const event = d3Event;
-    if (this.multiDrag) {
-      this._draggableGroup.forEach(ref => {
-        ref._dragmove(event);
-      });
-      if (!this._draggableGroup.get(this)) {
-        this._dragmove(event);
-      }
-    } else {
+    this._draggableGroup.forEach(ref => {
+      ref._dragmove(event);
+    });
+    if (!this._draggableGroup.get(this)) {
       this._dragmove(event);
     }
   }

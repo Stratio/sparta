@@ -6,12 +6,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StLabelModule } from '@stratio/egeo';
 
 import { SpColumnInputComponent } from './sp-column-input.component';
-import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
 
 @NgModule({
-   imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
+   imports: [CommonModule, FormsModule, ReactiveFormsModule, StLabelModule],
    declarations: [SpColumnInputComponent],
    exports: [SpColumnInputComponent]
 })

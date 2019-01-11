@@ -27,7 +27,6 @@ export { SpColumnInputModule } from './sp-column-input/sp-column-input.module';
 export { SpForegroundNotificationsModule } from './sp-foreground-notifications/sp-foreground-notifications.module';
 export { SpHelpModule } from './sp-help/sp-help.module';
 export { SpInputModule } from './sp-input/sp-input.module';
-export { SpLabelModule } from './sp-label/sp-label.module';
 export { SpPopoverModule } from './sp-popover/sp-popover.module';
 export { SpSelectModule } from './sp-select/sp-select.module';
 export { SpTextareaModule } from './sp-textarea/sp-textarea.module';

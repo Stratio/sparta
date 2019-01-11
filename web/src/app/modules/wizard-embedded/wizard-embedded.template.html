@@ -52,7 +52,6 @@
       <svg:g draggable-element
         draggableGroupName="pipeline"
         [(position)]="nodeData.uiConfiguration.position"
-        [multiDrag]="multiDrag"
         [selected]="selectedNodes.indexOf(nodeData.name) > -1"
         (onDoubleClickEvent)="weEditNode(nodeData)"
         (setEditorDirty)="weSetEditorDirty()"

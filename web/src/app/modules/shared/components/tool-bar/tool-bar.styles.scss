@@ -16,6 +16,10 @@
    &.hidden {
       transform: translateY(-75px);
    }
+
+   &__container {
+     padding: 0 30px;
+   }
 }
 
 .breadcrumb-tool {

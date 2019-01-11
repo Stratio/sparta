@@ -23,7 +23,6 @@
     draggableGroupName="workflow"
     [(position)]="nodeData.uiConfiguration.position"
     [selected]="selectedNodeNames.indexOf(nodeData.name) > -1"
-    [multiDrag]="multiDrag"
     (onDoubleClickEvent)="editEntity.emit(nodeData)"
     (setEditorDirty)="setEditorDirty.emit()"
     (onClickEvent)="selectNode.emit(nodeData)">

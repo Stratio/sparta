@@ -29,9 +29,10 @@ export class ExecutionPeriodsService {
       const batchTotal = this._getEjecutionsData(periodArray.map(periodsItem => periodsItem.data), data.batchData);
       const streamingTotal = this._getEjecutionsData(periodArray.map(periodsItem => periodsItem.data), data.streamingData);
 
+      const times = periodArray.map(time => time.label);
       return {
         period,
-        times: periodArray.map(time => time.label),
+        times: period === 'DAY' ? times.map(val => val % 2 ? '' : `${val.padStart(2, '0')}:00`) : times,
         batchTotal: {
           data: batchTotal,
           label: 'Batch'

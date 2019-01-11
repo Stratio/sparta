@@ -26,6 +26,11 @@
 .history-row {
     cursor: default;
     border-bottom: 1px solid #eaeff5;
+
+    .return-link{
+      float: left;
+      visibility: visible;
+    }
 }
 
 .workflow-table,

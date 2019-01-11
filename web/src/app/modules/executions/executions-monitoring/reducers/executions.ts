@@ -52,10 +52,10 @@ const initialState: State = {
       data: [],
       label: 'Batch'
     },
-    streamingTotal: [{
+    streamingTotal: {
       data: [],
       label: 'Streaming'
-    }]
+    }
   }
 };
 

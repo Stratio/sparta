@@ -7,12 +7,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StLabelModule } from '@stratio/egeo';
 
 import { SpTextareaComponent } from './sp-textarea.component';
-import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
 
 @NgModule({
-   imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
+   imports: [CommonModule, FormsModule, ReactiveFormsModule, StLabelModule],
    declarations: [SpTextareaComponent],
    exports: [SpTextareaComponent]
 })

@@ -35,10 +35,10 @@ export class NodeTreeDataComponent implements OnChanges {
 
       if (Array.isArray(this.nodeData)) {
         this.dataType = 'array';
-        this.nodeData = this.data.map((item) => ({
+        this.nodeData = this.data.map((item, index) => ({
           value: item,
           type: typeof item,
-          open: true
+          open: index < 10
         }));
       } else if (typeof this.data === 'object') {
         this.dataType = 'object';

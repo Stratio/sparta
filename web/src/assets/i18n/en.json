@@ -71,8 +71,6 @@
       "GENERATE_NEW_VERSION": "The version of the workflow has been generated succesfully",
       "CREATED_WORKFLOW": "Workflow has been created succesfully",
       "ENVIRONMENT": "Environment",
-       "CREATED_WORKFLOW": "Workflow has been created succesfully",
-       "ENVIRONMENT": "Environment",
       "NAME_PLACEHOLDER": "Workflow name",
       "DESCRIPTION_PLACEHOLDER": "Workflow description",
       "WORKFLOW_NAME": "Name",
@@ -767,7 +765,7 @@
       "INPUT_STEPS": "Input steps",
       "DEBUG_DATA_FLOWING": "Data succesfully flowing",
       "VIEW_ERROR_DETAILS": "View details",
-      "GENERIC_ERROR": "Oops!. Data not flowing correctly. There are one or more generic errors",
+      "GENERIC_ERROR": " Oops! Data not flowing correctly. There are one or more generic errors. ",
       "QUERY_BUILDER": {
         "NO_INPUT_SCHEMAS": "You must add at least one input and run a debug execution to use this query builder."
       },

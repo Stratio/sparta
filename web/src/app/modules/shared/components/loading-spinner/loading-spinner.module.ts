@@ -7,7 +7,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
-import { FormListComponent } from './form-list.component';
 import {LoadingSpinnerComponent} from './loading-spinner.component';
 
 @NgModule({
