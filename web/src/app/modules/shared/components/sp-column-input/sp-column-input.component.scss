@@ -144,9 +144,9 @@
     align-items: center;
     justify-content: center;
     border-radius: 0px 5px 5px 0px;
-    border-left: solid 1px $input-field-onfocus;
+    border-left: solid 1px #b5b5b5;
     .icon {
-        color: $action-primary-default;
-        font-size: 10px;
+      color: $action-primary-default;
+      font-size: 10px;
     }
 }

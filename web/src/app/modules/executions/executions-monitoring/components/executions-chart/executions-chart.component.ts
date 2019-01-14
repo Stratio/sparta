@@ -85,7 +85,7 @@ export class ExecutionsChartComponent implements OnInit {
       pointBorderColor: 'rgba(0, 0, 0, 0)',
       pointHoverBackgroundColor: '#fff',
       pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-      scaleOverride : true,
+      scaleOverride : true
     },
     { // grey
       backgroundColor: 'rgba(10,10,10, 0.1)',
@@ -93,8 +93,7 @@ export class ExecutionsChartComponent implements OnInit {
       pointBackgroundColor: 'rgba(0, 0, 0, 0)',
       pointBorderColor: 'rgba(0, 0, 0, 0)',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-      max: 3
+      pointHoverBorderColor: 'rgba(148,159,177,0.8)'
     }
   ];
   public lineChartLegend = true;
@@ -102,7 +101,6 @@ export class ExecutionsChartComponent implements OnInit {
   public periodTitle = 'EXECUTIONS.PERIODS.DAY';
 
   constructor(private _cd: ChangeDetectorRef) { }
-
   ngOnInit(): void {
     this._initialized = true;
   }

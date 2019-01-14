@@ -185,7 +185,13 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         this.selectedNodeNames = names;
         this._cd.markForCheck();
       });
-
+      this._store
+        .select(fromWizard.isPipelinesNodeSelected)
+        .pipe(takeUntil(this._componentDestroyed))
+        .subscribe((isSelected) => {
+          this.isPipelinesNodeSelected = isSelected;
+          this._cd.markForCheck();
+        });
     this._store
       .select(fromWizard.getWorkflowPosition)
       .pipe(takeUntil(this._componentDestroyed))
@@ -277,7 +283,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         'This nodes and its relations will be deleted: ' + this.selectedNodeNames.join(', '),
         () => {
           this._store.dispatch(new wizardActions.DeleteEntityAction());
-          this.isPipelinesNodeSelected = false;
         }
       );
     }
@@ -304,11 +309,6 @@ export class WizardEditorContainer implements OnInit, OnDestroy {
         isPipelinesNodeEdition
       )
     );
-
-    const isNodeSelected =
-      this.selectedNodeModel && Object.keys(this.selectedNodeModel).length;
-    this.isPipelinesNodeSelected =
-      isNodeSelected && this.selectedNodeModel.classPrettyName === 'MlPipeline';
   }
 
   public deleteConfirmModal(

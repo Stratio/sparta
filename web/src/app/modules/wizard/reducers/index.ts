@@ -136,6 +136,13 @@ export const getSelectedNodeSchemas = createSelector(
     }
   });
 
+export const isPipelinesNodeSelected = createSelector(
+  getSelectedNodeData,
+  (selectedNode: WizardNode) => {
+    return !!(selectedNode && selectedNode.classPrettyName === 'MlPipeline');
+  }
+);
+
 export const getSelectedEntityData = createSelector(
   getSelectedNodeData,
   getDebugResult,
