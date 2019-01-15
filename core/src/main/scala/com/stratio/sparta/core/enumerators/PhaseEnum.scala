@@ -20,5 +20,5 @@ object PhaseEnum extends Enumeration {
   val Launch = Value("Launch")
   val Stop = Value("Stop")
   val Validate = Value("Validate")
-
+  val Lineage = Value("Lineage")
 }

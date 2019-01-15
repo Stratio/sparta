@@ -17,6 +17,7 @@ import scala.util.Try
 trait GraphStep extends CustomProperties {
 
   /* GLOBAL VARIABLES */
+  val name: String
 
   lazy val customKey = "customOptions"
   lazy val customPropertyKey = "customOptionsKey"
@@ -62,12 +63,11 @@ trait GraphStep extends CustomProperties {
     Try(DataType.fromJson(raw)).getOrElse(LegacyTypeStringParser.parse(raw))
 
 
-  def lineageProperties(): Map[String, String] = properties.asInstanceOf[Map[String, String]]
+  def lineageProperties(): Map[String, String] = Map.empty
 
 }
 
 object GraphStep {
-
   val SparkSubmitConfMethod = "getSparkSubmitConfiguration"
   val SparkConfMethod = "getSparkConfiguration"
 }

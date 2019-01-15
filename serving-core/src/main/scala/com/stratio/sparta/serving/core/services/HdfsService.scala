@@ -24,6 +24,7 @@ import org.apache.hadoop.security.UserGroupInformation
 import scala.concurrent.duration._
 import scala.util.{Failure, Properties, Success, Try}
 
+
 case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation]) extends SLF4JLogging {
 
   lazy private val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig()
@@ -138,17 +139,17 @@ case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation])
 
 object HdfsService extends SLF4JLogging {
 
+  lazy val hdfsConfig = SpartaConfig.getHdfsConfig()
+  lazy val configuration  = hdfsConfiguration(hdfsConfig)
+
   def getPrincipalName(hdfsConfig: Option[Config]): Option[String] =
     Option(System.getenv(SystemPrincipalName)).orElse(Try(hdfsConfig.get.getString(PrincipalName)).toOption.notBlank)
-
 
   def getKeyTabPath(hdfsConfig: Option[Config]): Option[String] =
     Option(System.getenv(SystemKeyTabPath)).orElse(Try(hdfsConfig.get.getString(KeytabPath)).toOption.notBlank)
 
-  def apply(): HdfsService = {
-    val hdfsConfig = SpartaConfig.getHdfsConfig()
-    val configuration = hdfsConfiguration(hdfsConfig)
 
+  def apply(): HdfsService = {
     log.debug("Creating HDFS connection ...")
 
     Option(System.getenv(SystemHadoopConfDir)).foreach { hadoopConfDir =>

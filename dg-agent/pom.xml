@@ -18,44 +18,6 @@ This software – including all its source code – contains proprietary informa
 
     <dependencies>
         <dependency>
-            <groupId>com.stratio.governance</groupId>
-            <artifactId>sender</artifactId>
-            <version>${dg.commons.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.scalatest</groupId>
-                    <artifactId>scalatest_${scala.binary.version}</artifactId>
-                </exclusion>
-            <exclusion>
-                    <groupId>org.scalacheck</groupId>
-                    <artifactId>scalacheck_${scala.binary.version}</artifactId>
-            </exclusion>
-                <exclusion>
-                <groupId>org.scalactic</groupId>
-                <artifactId>scalactic_${scala.binary.version}</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.governance</groupId>
-            <artifactId>model</artifactId>
-            <version>${dg.commons.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.scalatest</groupId>
-                    <artifactId>scalatest_${scala.binary.version}</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.scalacheck</groupId>
-                    <artifactId>scalacheck_${scala.binary.version}</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.scalactic</groupId>
-                    <artifactId>scalactic_${scala.binary.version}</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-actor_${scala.binary.version}</artifactId>
         </dependency>
@@ -78,11 +40,26 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.stratio.sparta</groupId>
             <artifactId>serving-core</artifactId>
             <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>com.typesafe.play</groupId>-->
-                    <!--<artifactId>play-json_${scala.binary.version}</artifactId>-->
-                <!--</exclusion>-->
+            <!--<exclusion>-->
+            <!--<groupId>com.typesafe.play</groupId>-->
+            <!--<artifactId>play-json_${scala.binary.version}</artifactId>-->
+            <!--</exclusion>-->
             <!--</exclusions>-->
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-sql-${apache.spark.version}_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-core-${apache.spark.version}_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-streaming-${apache.spark.version}_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.scala-graph</groupId>

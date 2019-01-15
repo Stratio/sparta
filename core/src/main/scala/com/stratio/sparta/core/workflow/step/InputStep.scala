@@ -11,8 +11,8 @@ import com.google.common.io.Files
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.enumerators.InputFormatEnum
 import com.stratio.sparta.core.models.OutputOptions
-import com.stratio.sparta.core.properties.{JsoneyStringSerializer, Parameterizable}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.properties.{JsoneyStringSerializer, Parameterizable}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
@@ -24,12 +24,12 @@ import scala.util.Try
 
 
 abstract class InputStep[Underlying[Row]](
-                          val name: String,
-                          val outputOptions: OutputOptions,
-                          @transient private[sparta] val ssc: Option[StreamingContext],
-                          @transient private[sparta] val sparkSession: XDSession,
-                          properties: Map[String, JSerializable]
-                        ) extends Parameterizable(properties) with GraphStep {
+                                           val name: String,
+                                           val outputOptions: OutputOptions,
+                                           @transient private[sparta] val ssc: Option[StreamingContext],
+                                           @transient private[sparta] val sparkSession: XDSession,
+                                           properties: Map[String, JSerializable]
+                                         ) extends Parameterizable(properties) with GraphStep {
 
   /* GLOBAL VARIABLES */
 
@@ -82,15 +82,11 @@ abstract class InputStep[Underlying[Row]](
   }
 
   protected def getSerializerForInput(path: Option[String]): Option[InputFormatEnum.Value] =
-    getFileExtension(path) match{
+    path.map(Files.getFileExtension) match{
       case Some(extension) =>  Try(InputFormatEnum.withName(extension.toUpperCase)).map(Some(_)).getOrElse(None)
       case _ => None
     }
 
-
-  /* PRIVATE METHODS */
-
-  private def getFileExtension(path: Option[String]): Option[String] = path.map(Files.getFileExtension)
 }
 
 object InputStep {

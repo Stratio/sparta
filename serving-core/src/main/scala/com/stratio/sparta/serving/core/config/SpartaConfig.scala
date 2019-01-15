@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
   */
+//scalastyle:off
 object SpartaConfig extends SLF4JLogging {
 
   private var mainConfig: Option[Config] = None
@@ -30,6 +31,7 @@ object SpartaConfig extends SLF4JLogging {
   private var securityConfig: Option[Config] = None
   private var intelligenceConfig: Option[Config] = None
   private var igniteConfig: Option[Config] = None
+  private var lineageConfig: Option[Config] = None
 
   def getSpartaConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initMainConfig(fromConfig)
@@ -87,6 +89,10 @@ object SpartaConfig extends SLF4JLogging {
     if(force) initIgniteConfig(fromConfig)
     else igniteConfig.orElse(initIgniteConfig(fromConfig))
 
+  def getLineageConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initLineageConfig(fromConfig)
+    else lineageConfig.orElse(initLineageConfig(fromConfig))
+
   def daemonicAkkaConfig: Config = mainConfig match {
     case Some(mainSpartaConfig) =>
       mainSpartaConfig.withFallback(ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
@@ -95,7 +101,6 @@ object SpartaConfig extends SLF4JLogging {
 
 
   /* PRIVATE METHODS */
-
   private[config] def initConfig(
                                   node: String,
                                   configFactory: SpartaConfigFactory = SpartaConfigFactory()
@@ -188,5 +193,11 @@ object SpartaConfig extends SLF4JLogging {
     val configFactory = SpartaConfigFactory(fromConfig)
     igniteConfig = initConfig(ConfigIgnite, configFactory)
     igniteConfig
+  }
+
+  private[config] def initLineageConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    lineageConfig = initConfig(ConfigLineage, configFactory)
+    lineageConfig
   }
 }

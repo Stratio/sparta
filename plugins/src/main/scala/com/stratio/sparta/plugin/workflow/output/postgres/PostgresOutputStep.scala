@@ -9,30 +9,32 @@ package com.stratio.sparta.plugin.workflow.output.postgres
 import java.io.{InputStream, Serializable => JSerializable}
 import java.sql.SQLException
 
-import scala.util.{Failure, Success, Try}
-import org.apache.spark.sql._
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
-import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
-import org.apache.spark.sql.jdbc._
-import org.postgresql.copy.CopyManager
-import org.postgresql.core.BaseConnection
-import org.apache.spark.sql.functions._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.enumerators.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.enumerators.ConstraintType
+import com.stratio.sparta.core.workflow.lineage.JdbcLineage
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
+import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
+import org.apache.spark.sql.jdbc._
 import org.apache.spark.sql.json.RowJsonHelper
 import org.apache.spark.sql.types.{ArrayType, MapType, StructType}
+import org.postgresql.copy.CopyManager
+import org.postgresql.core.BaseConnection
+
+import scala.util.{Failure, Success, Try}
 
 class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
-  extends OutputStep(name, xDSession, properties) {
+  extends OutputStep(name, xDSession, properties) with JdbcLineage {
 
   lazy val url = properties.getString("url", "")
   lazy val delimiter = properties.getString("delimiter", "\t")
@@ -45,9 +47,14 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val dropTemporalTableSuccess = Try(properties.getBoolean("dropTemporalTableSuccess")).getOrElse(true)
   lazy val dropTemporalTableFailure = Try(properties.getBoolean("dropTemporalTableFailure")).getOrElse(false)
 
+
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
   val urlWithSSL = if (tlsEnable) url + securityUri else url
+
+  override lazy val lineageResource = ""
+
+  override lazy val lineageUri: String = url
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -85,6 +92,8 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       exists
     }
   }
+
+  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties
 
   //scalastyle:off
   private[postgres] def constraintSql(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: String, outputName: String,

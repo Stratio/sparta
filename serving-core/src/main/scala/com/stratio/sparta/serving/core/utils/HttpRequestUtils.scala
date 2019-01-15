@@ -11,6 +11,7 @@ import java.net.HttpCookie
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpEntity, _}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
@@ -30,12 +31,13 @@ trait HttpRequestUtils extends SLF4JLogging {
                  resource: String,
                  method: HttpMethod = HttpMethods.GET,
                  body: Option[String] = None,
-                 cookies: Seq[HttpCookie] = Seq.empty[HttpCookie]
+                 cookies: Seq[HttpCookie] = Seq.empty[HttpCookie],
+                 headers: Seq[RawHeader] = Seq.empty[RawHeader]
                )(implicit ev: Unmarshaller[ResponseEntity, String]): Future[(String, String)] = {
 
     log.debug(s"Sending HTTP request [${method.value}] to $uri/$resource")
 
-    val request = createRequest(uri, resource, method, body, cookies)
+    val request = createRequest(uri, resource, method, body, cookies, headers)
     for {
       response <- httpSystem.singleRequest(request)
       status = {
@@ -51,13 +53,14 @@ trait HttpRequestUtils extends SLF4JLogging {
                              resource: String,
                              method: HttpMethod,
                              body: Option[String],
-                             cookies: Seq[HttpCookie]
+                             cookies: Seq[HttpCookie],
+                             headers: Seq[RawHeader]
                            ): HttpRequest =
     HttpRequest(
       uri = s"$url/$resource",
       method = method,
       entity = createRequestEntityJson(body),
-      headers = createHeaders(cookies)
+      headers = createHeaders(cookies) ++ headers
     )
 
   def createRequestEntityJson(body: Option[String]): RequestEntity =
@@ -71,5 +74,4 @@ trait HttpRequestUtils extends SLF4JLogging {
 
   def createHeaders(cookies: Seq[HttpCookie]): List[HttpHeader] =
     cookies.map(c => headers.Cookie(c.getName, c.getValue)).toList
-
 }

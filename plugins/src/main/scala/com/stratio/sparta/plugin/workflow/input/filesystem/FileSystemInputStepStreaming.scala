@@ -9,20 +9,21 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.sql.Row
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.hadoop.fs.Path
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.InputStep
-import org.apache.hadoop.io.{LongWritable, Text}
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import DistributedMonad.Implicits._
+import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
+import com.stratio.sparta.core.workflow.step.InputStep
+import org.apache.hadoop.fs.Path
+import org.apache.hadoop.io.{LongWritable, Text}
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 
 class FileSystemInputStepStreaming(
                                     name: String,
@@ -31,9 +32,19 @@ class FileSystemInputStepStreaming(
                                     xDSession: XDSession,
                                     properties: Map[String, JSerializable]
                                   ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties)
-  with SLF4JLogging {
+  with SLF4JLogging with HdfsLineage {
 
   lazy val path: String = properties.getString("path", "").trim
+
+  override lazy val lineagePath: String = path
+
+  override lazy val lineageResourceSuffix: Option[String] = {
+    val regex = ".*\\.(csv|avro|json|xml|txt)$"
+
+    if (lineagePath.matches(regex))
+      lineagePath.split("/").lastOption
+    else None
+  }
 
   protected def defaultFilter(path: Path): Boolean =
     !path.getName.startsWith(".") && !path.getName.endsWith("_COPYING_") &&
@@ -62,6 +73,8 @@ class FileSystemInputStepStreaming(
 
     validation
   }
+
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
 
   def init(): DistributedMonad[DStream] = {
     require(path.nonEmpty, "Input path can not be empty")

@@ -7,9 +7,10 @@ package com.stratio.sparta.plugin.workflow.output.csv
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.common.csv.CsvBase
 import org.apache.spark.sql.DataFrame
@@ -21,7 +22,7 @@ class CsvOutputStep(
                      name: String,
                      xDSession: XDSession,
                      properties: Map[String, JSerializable]
-                   ) extends OutputStep(name, xDSession, properties) with CsvBase{
+                   ) extends OutputStep(name, xDSession, properties) with CsvBase with HdfsLineage {
 
   lazy val path: String = properties.getString("path", "").trim
   lazy val header = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
@@ -30,6 +31,10 @@ class CsvOutputStep(
   lazy val charset = properties.getString("charset", None)
   lazy val codecOption = properties.getString("codec", None).notBlank
   lazy val compressExtension = properties.getString("compressExtension", None).notBlank.getOrElse(".gz")
+
+  override lazy val lineagePath: String = path
+
+  override lazy val lineageResourceSuffix: Option[String] = None
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
@@ -64,6 +69,8 @@ class CsvOutputStep(
     validation
   }
 
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(path.nonEmpty, "Input path cannot be empty")
     require(delimiter.nonEmpty, "Delimiter field cannot be empty")
@@ -87,5 +94,4 @@ class CsvOutputStep(
 
     applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).csv(pathWithExtension)
   }
-
 }

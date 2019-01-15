@@ -9,13 +9,14 @@ import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.SecurityHelper.getDataStoreUri
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.JdbcLineage
 import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.plugin.helper.SecurityHelper.getDataStoreUri
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
@@ -30,7 +31,7 @@ class JdbcInputStepBatch(
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
                         )
-  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with JdbcLineage {
 
   lazy val url = properties.getString("url", None)
   lazy val table = properties.getString("dbtable", None)
@@ -39,6 +40,10 @@ class JdbcInputStepBatch(
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
   val urlWithSSL = url.map(inputUrl => if (tlsEnable) inputUrl + securityUri else inputUrl)
+
+  override lazy val lineageResource: String = table.getOrElse("")
+
+  override lazy val lineageUri: String = url.getOrElse("")
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -81,6 +86,8 @@ class JdbcInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
+  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties
+
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(urlWithSSL.nonEmpty, "JDBC url must be provided")
     require(table.nonEmpty, "Table must be provided")
@@ -99,5 +106,3 @@ class JdbcInputStepBatch(
     (df.rdd, Option(df.schema))
   }
 }
-
-

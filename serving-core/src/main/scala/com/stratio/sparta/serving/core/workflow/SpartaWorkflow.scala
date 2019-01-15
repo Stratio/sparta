@@ -106,6 +106,18 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
   }
 
+  def lineageProperties(inOutNodes: Seq[String]): Map[String, Map[String, String]] = {
+    val phaseEnum = PhaseEnum.Lineage
+    val errorMessage = s"An error was encountered while extracting the lineage properties."
+    val okMessage = s"Lineage properties successfully extracted."
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+
+      steps.filter(step => inOutNodes.contains(step.name)).map{ step =>
+        step.name -> step.lineageProperties()
+      }.toMap.filter(_._2.nonEmpty)
+    }
+  }
+
   //scalastyle:off
   /**
     * Initialize the Spark contexts, create the steps for setup and cleanup functions and execute the workflow.
@@ -476,8 +488,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
   private[core] def nodeName(
                               name: String,
-                             relationDataType: DataType,
-                             discardTableName: Option[String] = None
+                              relationDataType: DataType,
+                              discardTableName: Option[String] = None
                             ): String =
     if (relationDataType == DataType.ValidData) name
     else if(!name.contains(discardExtension) && discardTableName.isDefined) discardTableName.get

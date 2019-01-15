@@ -6,281 +6,129 @@
 
 package com.stratio.sparta.dg.agent.commons
 
-import scala.util.{Properties, Try}
+import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
+import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
+import com.stratio.sparta.dg.agent.models.LineageWorkflow
+import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
+import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
+import org.apache.spark.sql.Dataset
+import org.apache.spark.streaming.dstream.DStream
+
+import scala.util.Properties
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
-import org.joda.time.DateTime
-import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.EventType
-import com.stratio.governance.commons.agent.model.metadata.lineage.{TransformationMetadataProperties, _}
-import com.stratio.governance.commons.agent.model.metadata.sparta.SpartaType
-import com.stratio.governance.commons.agent.model.metadata.{MetadataPath, OperationCommandType, SourceType}
-//import com.stratio.sparta.dg.agent.commons.WorkflowStatusUtils.fromDatetimeToLongWithDefault
-import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
-import com.stratio.sparta.serving.core.constants.MarathonConstant
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Failed, Finished, Started}
-import com.stratio.sparta.serving.core.models.workflow._
 
-/**
-  * Utilitary object for dg-workflows methods
-  */
 //scalastyle:off
-object LineageUtils {
+object LineageUtils extends ContextBuilderImplicits{
 
-  val tenantName = Properties.envOrElse(MarathonConstant.DcosServiceName, "sparta")
+  val StartKey = "startedAt"
+  val FinishedKey = "finishedAt"
+  val ErrorKey = "error"
+  val UrlKey = "executionUrl"
 
-  implicit def writerToMap(writer: WriterGraph): Map[String, String] = {
-    writer.tableName match {
-      case Some(t) if t.toString.nonEmpty => {
-        val m = Map("tableName" -> writer.tableName.map(_.toString),
-          "saveMode" -> Option(writer.saveMode.toString),
-          "uniqueConstraintFields" -> writer.uniqueConstraintFields.map(_.toString),
-          "uniqueConstraintName" -> writer.uniqueConstraintName.map(_.toString),
-          "constraintType" -> writer.constraintType.map(_.toString),
-          "partitionBy" -> writer.partitionBy.map(_.toString),
-          "primaryKey" -> writer.primaryKey.map(_.toString),
-          "errorTableName" -> writer.errorTableName.map(_.toString),
-          "discardTableName" -> writer.discardTableName.map(_.toString)
-        )
-        m.filter(p => p._2.isDefined && p._2.get.nonEmpty).map(p => (p._1, p._2.get))
-      }
-      case _ => Map.empty[String, String]
-    }
-  }
+  lazy val spartaVHost = Properties.envOrNone("HAPROXY_HOST").getOrElse("sparta")
+  lazy val spartaInstanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
 
-  def lineageProperties(metadataPath: MetadataPath, node: NodeGraph) = {
-    if (node.lineageProperties.nonEmpty)
-      node.configuration.filter(p => node.lineageProperties.contains(p._1)).map {
-        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
-      }
-    else
-      node.configuration.map {
-        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
-      }
-  }
-
-  def lineageWriterProperties(metadataPath: MetadataPath, node: NodeGraph) = {
-    if (node.lineageProperties.nonEmpty)
-      node.writer.filter(p => node.lineageProperties.contains(p._1)).map {
-        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
-      }
-    else
-      node.writer.map {
-        case (k, v) => TransformationMetadataProperties(metadataPath, k, v.toString)
-      }
-  }
-
-  def workflowMetadataPathString(workflow: Workflow, extraPath: String*): MetadataPath = {
-    val path = MetadataPath(Seq(
-      LineageUtils.tenantName,
-      workflow.group.name.substring(1).replaceAll("/", "_") ++ "_" ++
-        workflow.name ++ "_" ++ workflow.version.toString).map(_.toString)
-      ++ extraPath
-    )
-    path
-  }
-
-  def inputMetadataLineage(
-                            workflow: Workflow,
-                            graph: Graph[NodeGraph, LDiEdge],
-                            executionId: String,
-                            operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
-                          ): List[InputMetadata] = {
-    workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(InputStep.StepType)).map(
-      n => {
-        val metadataPath = workflowMetadataPathString(workflow, executionId, n.name)
-        val input = InputMetadata(
-          name = n.name,
-          key = workflow.id.get,
-          metadataPath = metadataPath,
-          outcomingNodes = graph.get(n).diSuccessors.map(s =>
-            workflowMetadataPathString(workflow, executionId, s.name)).toSeq,
-          agentVersion = SpartaType.agentVersion,
-          serverVersion = SpartaType.serverVersion,
-          tags = workflow.tags.getOrElse(Seq.empty).toList,
-          sourceType = SourceType.SPARTA,
-          modificationTime = workflow.lastUpdateDate.map(_.getMillis),
-          customType = SpartaType.INPUT,
-          operationCommandType = operationCommandType
-        )
-        input.properties ++= lineageProperties(metadataPath, n)
-        input.properties ++= lineageWriterProperties(metadataPath, n)
-        input
-      }
-    ).toList
-  }
-
-  def outputMetadataLineage(
-                             workflow: Workflow,
-                             graph: Graph[NodeGraph, LDiEdge],
-                             executionId: String,
-                             operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
-                           ): List[OutputMetadata] = {
-    workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(OutputStep.StepType)).map(
-      n => {
-        val metadataPath = workflowMetadataPathString(workflow, executionId, n.name)
-        val output = OutputMetadata(
-          name = n.name,
-          key = workflow.id.get,
-          metadataPath = metadataPath,
-          incomingNodes = graph.get(n).diPredecessors.map(pred =>
-            workflowMetadataPathString(workflow, executionId, pred.name)).toSeq,
-          agentVersion = SpartaType.agentVersion,
-          serverVersion = SpartaType.serverVersion,
-          tags = workflow.tags.getOrElse(Seq.empty).toList,
-          sourceType = SourceType.SPARTA,
-          modificationTime = workflow.lastUpdateDate.map(_.getMillis),
-          customType = SpartaType.OUTPUT,
-          operationCommandType = operationCommandType
-        )
-        output.properties ++= lineageProperties(metadataPath, n)
-        output
-      }
-    ).toList
-  }
-
-  def transformationMetadataLineage(
-                                     workflow: Workflow,
-                                     graph: Graph[NodeGraph, LDiEdge],
-                                     executionId: String,
-                                     operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
-                                   ): List[TransformationMetadata] = {
-    workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
-      n => {
-        val metadataPath = workflowMetadataPathString(workflow, executionId, n.name)
-        val transformation = TransformationMetadata(
-          name = n.name,
-          key = workflow.id.get,
-          metadataPath = metadataPath,
-          outcomingNodes = graph.get(n).diSuccessors.map(s =>
-            workflowMetadataPathString(workflow, s.name)).toSeq,
-          incomingNodes = graph.get(n).diPredecessors.map(pred =>
-            workflowMetadataPathString(workflow, executionId, pred.name)).toSeq,
-          agentVersion = SpartaType.agentVersion,
-          serverVersion = SpartaType.serverVersion,
-          tags = workflow.tags.getOrElse(Seq.empty).toList,
-          sourceType = SourceType.SPARTA,
-          modificationTime = workflow.lastUpdateDate.map(_.getMillis),
-          customType = SpartaType.TRANSFORMATION,
-          operationCommandType = operationCommandType
-        )
-        transformation.properties ++= lineageProperties(metadataPath, n)
-        transformation.properties ++= lineageWriterProperties(metadataPath, n)
-        transformation
-      }
-    ).toList
-  }
-
-  def tenantMetadataLineage(): List[TenantMetadata] = {
-
-    val metadataPath = MetadataPath(s"$tenantName")
-    val tenantData = TenantMetadata(
-      name = tenantName,
-      key = tenantName,
-      metadataPath = metadataPath,
-      agentVersion = SpartaType.agentVersion,
-      serverVersion = SpartaType.serverVersion,
-      tags = List(),
-      sourceType = SourceType.SPARTA,
-      customType = SpartaType.TENANT)
-    val props = Map[String, String](
-      "oauthEnable" -> Try(Properties.envOrElse("SECURITY_OAUTH2_ENABLE", "false").toBoolean).getOrElse(false).toString,
-      "gosecEnable" -> Try(Properties.envOrElse("ENABLE_GOSEC_AUTH", "false").toBoolean).getOrElse(false).toString,
-      "xdCatalogEnable" -> Try(Properties.envOrElse("CROSSDATA_CORE_ENABLE_CATALOG", "false").toBoolean).getOrElse(false).toString,
-      "mesosHostnameConstraint" -> Properties.envOrElse("MESOS_HOSTNAME_CONSTRAINT", ""),
-      "mesosAttributeConstraint" -> Properties.envOrElse("MESOS_ATTRIBUTE_CONSTRAINT", "")
-    )
-    tenantData.properties ++= props.map {
-      case (k, v) => TenantMetadataProperties(metadataPath, k, v)
-    }
-
-    val tenantList = List(tenantData)
-    tenantList
-  }
-
-  def executionStatusMetadataLineage(executionStatusChange: WorkflowExecutionStatusChange): Option[List[WorkflowStatusMetadata]] = {
-    if (checkIfProcessableStatus(executionStatusChange)) {
-      val wfError = executionStatusChange.newExecution.genericDataExecution.lastError
-      val workflow = executionStatusChange.newExecution.getWorkflowToExecute
-      val lastStatus = executionStatusChange.newExecution.lastStatus
-      val metadataSerialized = new WorkflowStatusMetadata(
-        name = workflow.name,
-        status = mapSparta2GovernanceStatuses(lastStatus.state),
-        error = if (lastStatus.state == Failed && wfError.isDefined)
-          Some(executionStatusChange.newExecution.genericDataExecution.lastError.get.message) else Some(""),
-        key = executionStatusChange.newExecution.getExecutionId,
-        metadataPath = workflowMetadataPathString(workflow, executionStatusChange.newExecution.getExecutionId, "status"),
-        agentVersion = SpartaType.agentVersion,
-        serverVersion = SpartaType.serverVersion,
-        tags = workflow.tags.getOrElse(Seq.empty).toList,
-        sourceType = SourceType.SPARTA,
-        modificationTime = fromDatetimeToLongWithDefault(lastStatus.lastUpdateDate),
-        accessTime = fromDatetimeToLongWithDefault(lastStatus.lastUpdateDate),
-        customType = SpartaType.STATUS
-      )
-
-      Some(List(metadataSerialized))
-    }
-    else None
-  }
-
-  def workflowMetadataLineage(
-                               workflow: Workflow,
-                               executionId: String,
-                               operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN
-                             ): List[WorkflowMetadata] = {
-
-    val workflowMetadata = WorkflowMetadata(
-      name = workflow.name,
-      key = workflow.id.get,
-      description = workflow.description,
-      metadataPath = workflowMetadataPathString(workflow, executionId),
-      agentVersion = SpartaType.agentVersion,
-      serverVersion = SpartaType.serverVersion,
-      tags = workflow.tags.getOrElse(Seq.empty).toList,
-      sourceType = SourceType.SPARTA,
-      modificationTime = fromDatetimeToLongWithDefault(workflow.lastUpdateDate),
-      customType = SpartaType.WORKFLOW,
-      operationCommandType = operationCommandType
-    )
-    val props = Map[String, String](
-      "executionMode" -> workflow.executionEngine.toString,
-      "mesosConstraints" -> workflow.settings.global.mesosConstraint.getOrElse("").toString,
-      "kerberosEnabled" -> workflow.settings.sparkSettings.sparkDataStoreTls.toString,
-      "tlsEnabled" -> workflow.settings.sparkSettings.sparkKerberos.toString,
-      "mesosSecurityEnabled" -> workflow.settings.sparkSettings.sparkMesosSecurity.toString)
-
-    workflowMetadata.properties ++= props.map(kv => WorkflowMetadataProperties(workflowMetadataPathString(workflow, executionId), kv._1, kv._2))
-    val workflowList = List(workflowMetadata)
-
-    workflowList
-  }
-
-  def fromDatetimeToLongWithDefault(dateTime: Option[DateTime]): Option[Long] =
-    dateTime.fold(Some(System.currentTimeMillis())) { dt => Some(dt.getMillis) }
-
-  def checkIfProcessableStatus(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
+  def checkIfProcessableWorkflow(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
     val eventStatus = executionStatusChange.newExecution.lastStatus.state
-    eventStatus == Started || eventStatus == Finished || eventStatus == Failed
+    val exEngine = executionStatusChange.newExecution.executionEngine.get
+
+    (exEngine == Batch && eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed) ||
+      (exEngine == Streaming && eventStatus == WorkflowStatusEnum.Started
+        || eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed)
   }
 
-  def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value): EventType =
-    spartaStatus match {
-      case Started => EventType.Running
-      case Finished => EventType.Success
-      case Failed => EventType.Failed
+  def getOutputNodesWithWriter(workflow: Workflow): Seq[(String, String)] = {
+    import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
+
+    val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
+
+    workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == OutputStep.StepType)
+      .sorted
+      .flatMap { outputNode =>
+        val outNodeGraph = graph.get(outputNode)
+        val predecessors = outNodeGraph.diPredecessors.toList
+        predecessors.map { node =>
+          val writerName = node.writer.tableName.map(_.toString).getOrElse("")
+          val tableName = if (writerName.nonEmpty) writerName else node.name
+
+          outNodeGraph.name -> tableName
+        }
+      }.sorted
+  }
+
+  def getAllStepsProperties(workflow: Workflow) : Map[String, Map[String, String]] = {
+
+    val errorManager = PostgresNotificationManagerImpl(workflow)
+    val inOutNodes = workflow.pipelineGraph.nodes.filter(node =>
+      node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType).map(_.name)
+
+    if (workflow.executionEngine == Streaming) {
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.lineageProperties(inOutNodes)
+    } else if (workflow.executionEngine == Batch) {
+      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.lineageProperties(inOutNodes)
+    } else Map.empty
+  }
+
+  def setExecutionUrl(executionId: String): String = {
+    "https://" + spartaVHost  + "/" + spartaInstanceName + "/#/executions/" + executionId
+  }
+
+  def setExecutionProperties(newExecution: WorkflowExecution): Map[String,String] = {
+    Map(
+      StartKey -> newExecution.genericDataExecution.startDate.getOrElse(None).toString,
+      FinishedKey -> newExecution.resumedDate.getOrElse(None).toString,
+      ErrorKey -> newExecution.genericDataExecution.lastError.toString,
+      UrlKey -> setExecutionUrl(newExecution.getExecutionId))
+  }
+
+  def updateLineageWorkflow(responseWorkflow: LineageWorkflow, newWorkflow: LineageWorkflow) : LineageWorkflow = {
+    LineageWorkflow (
+      id = responseWorkflow.id,
+      name = responseWorkflow.name,
+      description = responseWorkflow.description,
+      tenant = responseWorkflow.tenant,
+      properties = newWorkflow.properties,
+      transactionId = responseWorkflow.transactionId,
+      actorType = responseWorkflow.actorType,
+      jobType = responseWorkflow.jobType,
+      statusCode = newWorkflow.statusCode,
+      version = responseWorkflow.version,
+      listActorMetaData = responseWorkflow.listActorMetaData
+    )
+  }
+
+  def mapSparta2GovernanceJobType(executionEngine: ExecutionEngine): String =
+    executionEngine match {
+      case Streaming => "STREAM"
+      case Batch => "BATCH"
     }
-}
 
-object LineageItem extends Enumeration {
+  def mapSparta2GovernanceStepType(stepType: String): String =
+    stepType match {
+      case InputStep.StepType => "IN"
+      case OutputStep.StepType => "OUT"
+    }
 
-  type lineageItem = Value
+  def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value): String =
+    spartaStatus match {
+      case Started => "RUNNING"
+      case Finished => "FINISHED"
+      case Failed => "ERROR"
+    }
 
-  val Workflow = Value("workflow")
-  val Input = Value("input")
-  val Output = Value("output")
-  val Transformation = Value("transformation")
-  val Status = Value("status")
-
-  implicit def value2String(value: Value): String = value.toString
+  def mapSparta2GovernanceDataStoreType(dataStoreType: String): String =
+    dataStoreType match {
+      case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" => "HDFS"
+      case "Jdbc" | "Postgres" => "SQL"
+    }
 }

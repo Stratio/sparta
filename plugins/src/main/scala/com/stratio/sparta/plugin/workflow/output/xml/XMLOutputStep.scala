@@ -7,25 +7,28 @@ package com.stratio.sparta.plugin.workflow.output.xml
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.OutputStep
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
-import scala.util.Try
-
 class XMLOutputStep (name: String,
                      xDSession: XDSession,
                      properties: Map[String, JSerializable]
-                    ) extends OutputStep(name, xDSession, properties) {
+                    ) extends OutputStep(name, xDSession, properties) with HdfsLineage {
 
   lazy val path: Option[String] = properties.getString("path", None).notBlank
   lazy val rowTag = properties.getString("rowTag", None)
 
   // val DEFAULT_ROOT_TAG = "ROWS", we cannot refer to it since it belongs to a private class
   lazy val rootTag = properties.getString("rootTag", "ROWS")
+
+  override lazy val lineagePath: String = path.getOrElse("")
+
+  override lazy val lineageResourceSuffix: Option[String] = None
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
@@ -49,6 +52,8 @@ class XMLOutputStep (name: String,
     validation
   }
 
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(path.nonEmpty, "Output path cannot be empty")
     require(rowTag.nonEmpty, "RowTag cannot be empty")
@@ -57,9 +62,9 @@ class XMLOutputStep (name: String,
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
     val tableName = getTableNameFromOptions(options)
     val optionsParsed = Map(
-        "rowTag" -> rowTag.get,
-        "rootTag" -> rootTag
-      )
+      "rowTag" -> rowTag.get,
+      "rootTag" -> rootTag
+    )
     val fullPath = s"$pathParsed$tableName.xml"
 
     validateSaveMode(saveMode)

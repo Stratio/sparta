@@ -9,19 +9,20 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{ErrorsManagement, OutputOptions}
 import com.stratio.sparta.core.properties.Parameterizable
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, Row, SaveMode}
 
+
 abstract class OutputStep[Underlying[Row]](
-                           val name: String,
-                           @transient private[sparta] val xDSession: XDSession,
-                           properties: Map[String, JSerializable]
-                         ) extends Parameterizable(properties) with GraphStep with SLF4JLogging {
+                                            val name: String,
+                                            @transient private[sparta] val xDSession: XDSession,
+                                            properties: Map[String, JSerializable]
+                                          ) extends Parameterizable(properties) with GraphStep with SLF4JLogging {
 
   import OutputStep._
 
@@ -37,12 +38,12 @@ abstract class OutputStep[Underlying[Row]](
     * @param outputOptions Options to save
     */
   private[sparta] def writeTransform(
-                      inputData: DistributedMonad[Underlying],
-                      outputOptions: OutputOptions,
-                      errorsManagement: ErrorsManagement,
-                      errorOutputs: Seq[OutputStep[Underlying]],
-                      predecessors: Seq[String]
-                    ): Unit =
+                                      inputData: DistributedMonad[Underlying],
+                                      outputOptions: OutputOptions,
+                                      errorsManagement: ErrorsManagement,
+                                      errorOutputs: Seq[OutputStep[Underlying]],
+                                      predecessors: Seq[String]
+                                    ): Unit =
     inputData.write(outputOptions, xDSession, errorsManagement, errorOutputs, predecessors)(save)
 
   /**

@@ -9,7 +9,11 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
@@ -17,9 +21,6 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import DistributedMonad.Implicits._
-import com.stratio.sparta.core.helpers.SdkSchemaHelper
-import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 
 class FileSystemInputStepBatch(
                                 name: String,
@@ -28,12 +29,22 @@ class FileSystemInputStepBatch(
                                 xDSession: XDSession,
                                 properties: Map[String, JSerializable]
                               ) extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties)
-  with SLF4JLogging {
+  with SLF4JLogging with HdfsLineage {
 
   lazy val pathKey = "path"
   lazy val path: Option[String] = properties.getString(pathKey, None)
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
+
+  override lazy val lineagePath: String = path.getOrElse("")
+
+  override lazy val lineageResourceSuffix: Option[String] = {
+    val regex = ".*\\.(csv|avro|json|xml|txt)$"
+
+    if (lineagePath.matches(regex))
+      lineagePath.split("/").lastOption
+    else None
+  }
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -64,6 +75,8 @@ class FileSystemInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(path.nonEmpty, "Input path cannot be empty")
 
@@ -73,5 +86,4 @@ class FileSystemInputStepBatch(
 
     (rdd, Option(outputSchema))
   }
-
 }

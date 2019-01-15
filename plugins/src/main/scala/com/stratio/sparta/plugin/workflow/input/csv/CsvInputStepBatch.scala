@@ -13,28 +13,31 @@ import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.plugin.common.csv.CsvBase
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-import java.nio.charset.Charset
-
-import com.stratio.sparta.plugin.common.csv.CsvBase
 
 class CsvInputStepBatch(
-                          name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable]
-                        )
-  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with CsvBase{
+                         name: String,
+                         outputOptions: OutputOptions,
+                         ssc: Option[StreamingContext],
+                         xDSession: XDSession,
+                         properties: Map[String, JSerializable]
+                       )
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with CsvBase with HdfsLineage {
 
   lazy val pathKey = "path"
   lazy val path: Option[String] = properties.getString(pathKey, None)
   lazy val delimiter: Option[String] = properties.getString("delimiter", None)
   lazy val charset: Option[String] = properties.getString("charset", None)
+
+  override lazy val lineagePath: String = path.getOrElse("")
+
+  override lazy val lineageResourceSuffix: Option[String] = Option(".csv")
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -83,6 +86,8 @@ class CsvInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(path.nonEmpty, "The input path cannot be empty")
 
@@ -98,4 +103,3 @@ class CsvInputStepBatch(
   }
 
 }
-

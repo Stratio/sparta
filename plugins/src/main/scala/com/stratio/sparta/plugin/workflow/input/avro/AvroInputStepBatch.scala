@@ -8,20 +8,20 @@ package com.stratio.sparta.plugin.workflow.input.avro
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.databricks.spark.avro._
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.plugin.helper.SchemaHelper
+import org.apache.avro.Schema
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-import com.databricks.spark.avro._
-import com.stratio.sparta.plugin.helper.SchemaHelper
-import com.stratio.sparta.core.helpers.SdkSchemaHelper
-import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
-import org.apache.avro.Schema
-import org.apache.spark.sql.Row
 
 class AvroInputStepBatch(
                           name: String,
@@ -30,13 +30,17 @@ class AvroInputStepBatch(
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
                         )
-  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with HdfsLineage {
 
   lazy val pathKey = "path"
   lazy val schemaKey = "schema.provided"
   lazy val path: Option[String] = properties.getString(pathKey, None)
   lazy val schemaProvided: Option[String] = properties.getString(schemaKey, None)
   lazy val avroSchema: Option[Schema] = schemaProvided.map(schema => AvroInputStepBatch.getAvroSchema(schema))
+
+  override lazy val lineagePath: String = path.getOrElse("")
+
+  override lazy val lineageResourceSuffix: Option[String] = Option(".avro")
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -53,7 +57,7 @@ class AvroInputStepBatch(
         messages = validation.messages :+ WorkflowValidationMessage(s"the input path cannot be empty", name)
       )
 
-    if(debugOptions.isDefined && !validDebuggingOptions)
+    if (debugOptions.isDefined && !validDebuggingOptions)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"$errorDebugValidation", name)
@@ -79,6 +83,9 @@ class AvroInputStepBatch(
 
     (df.rdd, Option(df.schema))
   }
+
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+
 }
 
 object AvroInputStepBatch {
@@ -92,5 +99,3 @@ object AvroInputStepBatch {
       newSchema
     }
 }
-
-

@@ -13,6 +13,7 @@ import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.InputStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
@@ -26,10 +27,14 @@ class ParquetInputStepBatch(
                              xDSession: XDSession,
                              properties: Map[String, JSerializable]
                            )
-  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with HdfsLineage {
 
   lazy val pathKey = "path"
   lazy val path: Option[String] = properties.getString(pathKey, None)
+
+  override lazy val lineagePath: String = path.getOrElse("")
+
+  override lazy val lineageResourceSuffix: Option[String] = None
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -59,6 +64,9 @@ class ParquetInputStepBatch(
   def init(): DistributedMonad[RDD] = {
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
+
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(path.nonEmpty, "The input path cannot be empty")

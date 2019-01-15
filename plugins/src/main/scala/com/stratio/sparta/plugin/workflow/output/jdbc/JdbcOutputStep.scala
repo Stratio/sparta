@@ -8,23 +8,25 @@ package com.stratio.sparta.plugin.workflow.output.jdbc
 
 import java.io.{Serializable => JSerializable}
 
-import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.enumerators.SaveModeEnum.SpartaSaveMode
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.lineage.JdbcLineage
+import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.plugin.enumerations.TransactionTypes
+import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.helper.SecurityHelper._
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.apache.spark.sql.jdbc.{SpartaJdbcUtils, TxSaveMode}
-import com.stratio.sparta.plugin.enumerations.TransactionTypes
-import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.plugin.helper.SecurityHelper._
-import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.enumerators.SaveModeEnum.SpartaSaveMode
-import com.stratio.sparta.core.workflow.step.OutputStep
+
+import scala.util.{Failure, Success, Try}
 
 class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
-  extends OutputStep(name, xDSession, properties) {
+  extends OutputStep(name, xDSession, properties) with JdbcLineage {
 
   lazy val url = properties.getString("url")
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
@@ -33,6 +35,10 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
   val urlWithSSL = if (tlsEnable) url + securityUri else url
+
+  override lazy val lineageResource = ""
+
+  override lazy val lineageUri: String = url
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -47,6 +53,8 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
 
     validation
   }
+
+  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite,
