@@ -31,9 +31,9 @@ class CsvInputStepBatch(
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with CsvBase with HdfsLineage {
 
   lazy val pathKey = "path"
-  lazy val path: Option[String] = properties.getString(pathKey, None)
-  lazy val delimiter: Option[String] = properties.getString("delimiter", None)
-  lazy val charset: Option[String] = properties.getString("charset", None)
+  lazy val path: Option[String] = properties.getString(pathKey, None).notBlank
+  lazy val delimiter: Option[String] = properties.getString("delimiter", None).notBlank
+  lazy val charset: Option[String] = propertiesWithCustom.getString("charset", None).notBlank
 
   override lazy val lineagePath: String = path.getOrElse("")
 
@@ -60,16 +60,10 @@ class CsvInputStepBatch(
         messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
       )
 
-    if (charset.isEmpty)
+    if (charset.exists(ch => !isCharsetSupported(ch)))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"encoding cannot be empty", name)
-      )
-
-    if (!isCharsetSupported(charset.get))
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"encoding is not valid", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"encoding charset is not valid", name)
       )
 
     if(debugOptions.isDefined && !validDebuggingOptions)

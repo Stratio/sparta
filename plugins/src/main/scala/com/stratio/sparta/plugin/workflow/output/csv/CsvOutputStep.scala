@@ -27,10 +27,10 @@ class CsvOutputStep(
   lazy val path: String = properties.getString("path", "").trim
   lazy val header = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
-  lazy val delimiter = properties.getString("delimiter", None)
-  lazy val charset = properties.getString("charset", None)
-  lazy val codecOption = properties.getString("codec", None).notBlank
-  lazy val compressExtension = properties.getString("compressExtension", None).notBlank.getOrElse(".gz")
+  lazy val delimiter = properties.getString("delimiter", None).notBlank
+  lazy val charset = propertiesWithCustom.getString("charset", None).notBlank
+  lazy val codecOption = propertiesWithCustom.getString("codec", None).notBlank
+  lazy val compressExtension = propertiesWithCustom.getString("compressExtension", None).notBlank.getOrElse(".gz")
 
   override lazy val lineagePath: String = path
 
@@ -54,16 +54,10 @@ class CsvOutputStep(
         messages = validation.messages :+ WorkflowValidationMessage(s"delimiter cannot be empty", name)
       )
 
-    if (charset.isEmpty)
+    if (charset.exists(ch => !isCharsetSupported(ch)))
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"encoding cannot be empty", name)
-      )
-
-    if (!isCharsetSupported(charset.get))
-      validation = ErrorValidations(
-        valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"encoding is not valid", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"encoding charset is not valid", name)
       )
 
     validation
