@@ -78,7 +78,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     synchronized {
       val conn = getConnection(connectionProperties, outputName)
       var exists = false
-      val statement = conn.prepareStatement(s"SELECT true FROM pg_indexes WHERE schemaname != 'pg_catalog' AND tablename = '${connectionProperties.table}' AND indexname = '$uniqueConstraintName'")
+      val statement = conn.prepareStatement(s"SELECT true FROM pg_catalog.pg_constraint con INNER JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid " +
+        s"INNER JOIN pg_catalog.pg_namespace nsp  ON nsp.oid = connamespace WHERE nsp.nspname = '${Try(connectionProperties.table.split('.')(0)).getOrElse("public")}' " +
+        s"AND con.conname = '$uniqueConstraintName'")
       try {
         val rs = statement.executeQuery()
         while (rs.next())
