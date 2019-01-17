@@ -12,7 +12,7 @@
    <tr st-table-row [attr.id]="execution.id + '-row'" *ngFor="let execution of executionList; let i = index;">
       <td st-table-cell st-table-row-content>
          <label [attr.id]="execution.id + '-link'">
-            <div class="execution-link">
+            <div class="execution-link" (click)="goToWorkflow($event, execution.id)">
                <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="execution.executionEngine"
                   *ngIf="execution.executionEngine === Engine.Streaming" />
                <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="execution.executionEngine"

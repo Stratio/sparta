@@ -5,6 +5,15 @@
    td {
     padding:16px 20px;
    }
+
+  .execution-link {
+    display: inline-block;
+    cursor: pointer;
+    &:hover {
+        color: $action-secondary-07;
+        text-decoration: underline;
+    }
+  }
 }
 
 .icon-row {

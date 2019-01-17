@@ -39,6 +39,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   @Input() workflowID = '';
   @Input() initPosition: WizardNodePosition;
   @Input() endPosition: WizardNodePosition;
+  @Input() activedEdge: Boolean;
 
   @Output() selectEdge = new EventEmitter<any>();
   @Output() showEdgeOptions = new EventEmitter<any>();
@@ -123,6 +124,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
         this._dataType = this.edge.dataType;
         this._edgeElement.classed('special', this._dataType && this._dataType !== 'ValidData');
       }
+      this._edgeElement.classed('actived', this.activedEdge);
     });
   }
 

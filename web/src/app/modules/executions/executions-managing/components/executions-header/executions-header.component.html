@@ -68,7 +68,7 @@
                 id="unarchive-button" (click)="unarchiveExecutions.emit()">
                 <i class="icon-outbox"></i>
               </button>
-              <button *ngIf="selectedExecutions.length === 1 && !showStopButton" spTitle="Stop selected executions"
+              <button *ngIf="selectedExecutions.length === 1 && !showStopButton" spTitle="Play selected executions"
                 class="button button-toolbar" id="run-button" (click)="onReRunExecution.emit(selectedExecutions[0])">
                 <i class="icon-play"></i>
               </button>

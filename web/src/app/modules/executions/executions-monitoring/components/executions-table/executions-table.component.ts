@@ -46,9 +46,14 @@ export class ExecutionsTableComponent {
       this.route.navigate(['executions']);
    }
 
-   showURI (url: string) {
-      window.open(url, '_blank');
-   }
+  showURI (url: string) {
+    window.open(url, '_blank');
+  }
 
+  goToWorkflow(ev, id) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.route.navigate(['executions', id]);
+  }
 
 }

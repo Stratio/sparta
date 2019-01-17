@@ -14,6 +14,7 @@
     *ngFor="let edge of workflowEdges; trackBy: trackBySegmentFn; let i=index;"
     [edge]="edge"
     [selectedEdge]="selectedEdge"
+    [activedEdge]="selectedNodeNames.includes(edge.destination.name) || selectedNodeNames.includes(edge.origin.name)"
     [initPosition]="edge.origin.uiConfiguration.position"
     [endPosition]="edge.destination.uiConfiguration.position"
     (selectEdge)="selectEdge.emit($event)"
