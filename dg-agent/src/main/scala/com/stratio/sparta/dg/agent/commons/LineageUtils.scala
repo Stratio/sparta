@@ -26,10 +26,10 @@ import scalax.collection.edge.LDiEdge
 //scalastyle:off
 object LineageUtils extends ContextBuilderImplicits{
 
-  val StartKey = "startedAt"
-  val FinishedKey = "finishedAt"
-  val ErrorKey = "error"
-  val UrlKey = "executionUrl"
+  val StartKey = "StartedAt"
+  val FinishedKey = "FinishedAt"
+  val ErrorKey = "Error"
+  val UrlKey = "Link"
 
   lazy val spartaVHost = Properties.envOrNone("HAPROXY_HOST").getOrElse("sparta")
   lazy val spartaInstanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
