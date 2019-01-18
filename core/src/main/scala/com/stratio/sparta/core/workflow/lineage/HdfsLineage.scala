@@ -15,6 +15,8 @@ trait HdfsLineage {
   val lineagePath : String
   val lineageResourceSuffix: Option[String]
 
+  lazy val DomainSuffix = "." + Properties.envOrElse("MESOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
+
   def getHdfsLineageProperties : Map[String, String] = {
     val newPath = stripPrefixAndFormatPath(lineagePath)
     val resource = lineageResourceSuffix.fold("") {suffix => getFileSystemResource(newPath, suffix) }
@@ -51,9 +53,8 @@ trait HdfsLineage {
       val propValues = (hdfsConfFile.get \\ "property" \ "value").map(_.toString.stripPrefix("<value>").stripSuffix("</value>"))
       val mapOfProps = propNames.zip(propValues).toMap
 
-      mapOfProps.get("fs.defaultFS").flatMap(_.toLowerCase.stripPrefix("hdfs://").split("\\.").lift(0))
+      mapOfProps.get("fs.defaultFS").flatMap(_.toLowerCase.stripPrefix("hdfs://").split(":").headOption).map(_.stripSuffix(DomainSuffix))
     } else
       None
   }
-
 }
