@@ -196,7 +196,7 @@ export class WizardEffect {
     .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.entities))))
     .pipe(map(([[action, wizardState], entities]) => {
       const clipboardContent = sessionStorage.getItem('sp-copy-clipboard');
-      if (clipboardContent.length) {
+      if (clipboardContent && clipboardContent.length) {
         try {
           const model = JSON.parse(clipboardContent);
           if (model.objectIdType === 'workflow' && model.workflowType === entities.workflowType) {

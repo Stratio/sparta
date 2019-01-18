@@ -299,6 +299,9 @@ export class GraphEditorComponent implements OnDestroy, OnInit {
   }
 
   createSelector(event) {
+    if (event.button !== 0) {
+      return;
+    }
     if (this.enableDrag) {
       this.initialSelectionCoors = null;
     } else if (this.multiselectionEnabled) {

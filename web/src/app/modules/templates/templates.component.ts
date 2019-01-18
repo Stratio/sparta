@@ -30,8 +30,6 @@ export class TemplatesComponent {
 
     constructor(private _router: Router) { }
 
-    ngOnInit(): void { }
-
     changeTabOption(option: StHorizontalTab) {
         this.selectedOption = option.id;
         this._router.navigate(['templates', option.id]);

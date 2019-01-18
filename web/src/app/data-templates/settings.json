@@ -395,7 +395,6 @@
                   "position": "right",
                   "propertyType": "text",
                   "regexp": "",
-                  "default": "Argument value.",
                   "width": 4,
                   "required": false,
                   "qa": "workflow-spark-submit-argument-value"
