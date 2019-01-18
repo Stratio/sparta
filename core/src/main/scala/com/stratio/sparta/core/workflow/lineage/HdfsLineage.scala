@@ -15,7 +15,7 @@ trait HdfsLineage {
   val lineagePath : String
   val lineageResourceSuffix: Option[String]
 
-  lazy val DomainSuffix = "." + Properties.envOrElse("MESOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
+  lazy val DomainSuffix = "." + Properties.envOrElse("EOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
 
   def getHdfsLineageProperties : Map[String, String] = {
     val newPath = stripPrefixAndFormatPath(lineagePath)

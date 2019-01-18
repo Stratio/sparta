@@ -47,7 +47,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   lazy val postEndpoint = Try(SpartaConfig.getLineageConfig().get.getString("post.endpoint"))
     .getOrElse("v1/lineage/actor")
   lazy val getEndpoint = Try(SpartaConfig.getLineageConfig().get.getString("get.endpoint"))
-    .getOrElse("/v1/lineage/actor/searchByTransactionId?transactionId=")
+    .getOrElse("v1/lineage/actor/searchByTransactionId?transactionId=")
 
   lazy val actorTypeKey = "SPARTA"
 

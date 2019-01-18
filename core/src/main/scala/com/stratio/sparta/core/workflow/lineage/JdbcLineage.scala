@@ -17,7 +17,7 @@ trait JdbcLineage {
   lazy val PostgresPrefix = "jdbc:postgresql://"
   lazy val SqlServerPrefix = "jdbc:sqlserver://"
   lazy val VipSuffix = ".marathon.l4lb.thisdcos.directory"
-  lazy val DomainSuffix = "." + Properties.envOrElse("MESOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
+  lazy val DomainSuffix = "." + Properties.envOrElse("EOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
   lazy val MesosDNSSuffix = ".mesos"
   lazy val PoolMesosDNSSuffix = ".marathon.mesos"
   lazy val OracleName = "oracle"
