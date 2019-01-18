@@ -46,6 +46,8 @@ object AppConstant extends ZookeeperUtils {
   val PluginsLocation = "pluginsLocation"
   val DefaultPluginsLocation = "plugins"
   val AwaitWorkflowChangeStatus = "awaitWorkflowChangeStatus"
+  val SchedulerStopMaxCount = "scheduler.stop.maxCount"
+  val DefaultSchedulerStopMaxCount = 3
   val ModelRepositoryUrlKey = "repository.url"
   val DefaultModelRepositoryUrl = "http://localhost:11000"
   val DefaultAwaitWorkflowChangeStatus = "360s"

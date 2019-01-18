@@ -61,24 +61,47 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
     }
   }
 
-  def checkDiscrepancy(activeWorkflowsInZK: Map[String, String]): Future[(Map[String, String], Seq[String])] = {
-    for {
-      runningWorkflows <- retrieveApps()
-      listRunningWorkflows <- Future(extractWorkflowStatus(runningWorkflows))
-      res <- Future {
-        listRunningWorkflows match {
-          case Some(workflows) =>
-            (activeWorkflowsInZK.filterNot(mapItem =>
-              workflows.contains(mapItem._1)),
-              workflows.filterNot(workflowName =>
-                activeWorkflowsInZK.contains(workflowName)))
-          case None =>
-            (activeWorkflowsInZK, Seq.empty[String])
-        }
+  def checkDiscrepancy(
+                        startedExecutionsInDatabase: Map[String, String] //[(MarathonID, ExecutionID)]
+                      ): Future[(Map[String, String], Seq[String])] = {
+    Try {
+      val discrepancyResponse = for {
+        runningAppsInDcos <- retrieveApps()
+        runningExecutionsInDcos = extractWorkflowAppsFromMarathonResponse(runningAppsInDcos)
+      } yield extractDiscrepancyFromDatabaseAndDcos(startedExecutionsInDatabase, runningExecutionsInDcos)
+
+      discrepancyResponse.recoverWith {
+        case _ : UnExpectedError =>
+          Future.successful(Map.empty[String, String], Seq.empty[String])
+        case exception: Exception =>
+          responseUnExpectedErrorWithResponse(exception, (Map.empty[String, String], Seq.empty[String]))
+        case _ =>
+          Future.successful(Map.empty[String, String], Seq.empty[String])
       }
-    } yield res
+    } match {
+      case Success(result) =>
+        result
+      case Failure(exception: Exception) =>
+        responseUnExpectedErrorWithResponse(exception, (Map.empty[String, String], Seq.empty[String]))
+      case _ =>
+        Future.successful(Map.empty[String, String], Seq.empty[String])
+    }
   }
 
+  def extractDiscrepancyFromDatabaseAndDcos(
+                                             startedExecutionsInDatabase: Map[String, String], //[(MarathonID, ExecutionID)]
+                                             runningInDcos: Option[Seq[String]]
+                                     ): (Map[String, String], Seq[String]) = {
+    runningInDcos match {
+      case Some(executionsRunningInDcos) =>
+        (
+          startedExecutionsInDatabase.filterNot { case (marathonId, _) => executionsRunningInDcos.contains(marathonId) },
+          executionsRunningInDcos.filterNot(marathonId => startedExecutionsInDatabase.contains(marathonId))
+        )
+      case None =>
+        (startedExecutionsInDatabase, Seq.empty[String])
+    }
+  }
 
   private[core] def responseUnauthorized(): Future[Nothing] = {
     expireToken()
@@ -93,6 +116,11 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
     Future.failed(problem)
   }
 
+  private[core] def responseUnExpectedErrorWithResponse[T](exception: Exception, response: T): Future[T] = {
+    val problem = UnExpectedError(exception)
+    log.warn(problem.getMessage, problem.ex)
+    Future.successful(response)
+  }
 
   private[core] def responseCheckedAuthorization(response: String, successfulLog: Option[String]): Future[String] = {
     if (response.contains(UnauthorizedKey))
@@ -106,17 +134,19 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
 
   def retrieveApps(): Future[String] = {
     val appsList = s"v2/apps?id=sparta/$marathonInstanceName/workflows&embed=apps.tasks"
-
-    for {
+    val appsInDcosResponse = for {
       responseMarathon <- doRequest(marathonApiUri.get,
         appsList,
         HttpMethods.GET,
         cookies = Seq(getToken))
       responseAuth <- responseCheckedAuthorization(responseMarathon._2, Option(s"Correctly retrieved all apps inside $appsList"))
     } yield responseAuth
-  }.recoverWith {
-    case exception: Exception =>
-      responseUnExpectedError(exception)
+
+    appsInDcosResponse.recoverWith {
+      case exception: Exception =>
+        responseUnExpectedError(exception)
+    }
+
   }
 
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
@@ -242,7 +272,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
     }
   }
 
-  private[core] def extractWorkflowStatus(json: String): Option[Seq[String]] = {
+  private[core] def extractWorkflowAppsFromMarathonResponse(json: String): Option[Seq[String]] = {
     val queryPath = "$.apps[*].id"
 
     if (json.trim.nonEmpty) {

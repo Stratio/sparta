@@ -71,7 +71,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
         val mockMarathon = mock[MarathonAPIUtils](CALLS_REAL_METHODS)
         doReturn(Future(testJSON)).when(mockMarathon).retrieveApps()
         when(mockMarathon.checkDiscrepancy(Map.empty[String, String])).thenCallRealMethod()
-        when(mockMarathon.extractWorkflowStatus(testJSON)).thenCallRealMethod()
+        when(mockMarathon.extractWorkflowAppsFromMarathonResponse(testJSON)).thenCallRealMethod()
         whenReady(mockMarathon.checkDiscrepancy(mapMarathonWorkflowIDs)) { res =>
           assert(res._2.isEmpty)
         }
@@ -84,7 +84,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
             res._1 === Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-v0/5678" -> "5678") &&
               res._2 === Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234"))
         }
-        val extractApp = mockMarathon.extractWorkflowStatus(testJSON)
+        val extractApp = mockMarathon.extractWorkflowAppsFromMarathonResponse(testJSON)
         extractApp should be(Some(Seq("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234")))
       }
     }

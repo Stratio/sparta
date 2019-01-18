@@ -20,14 +20,15 @@ class InconsistentStatusCheckerActor extends Actor with SLF4JLogging {
 
   override def receive: Receive = {
     case msg@CheckConsistency(_) =>
-      waitForMarathonAnswer(sender, msg.runningInDatabase)
+      waitForMarathonAnswer(sender, msg.startedWorkflowsInDatabase)
   }
 
-  def waitForMarathonAnswer(sendResultTo: ActorRef, currentRunningWorkflows: Map[String, String]): Unit = {
+  //currentRunningWorkflows[(MarathonID, ExecutionID)]
+  def waitForMarathonAnswer(sendResultTo: ActorRef, startedExecutionsInDatabase: Map[String, String]): Unit = {
     for {
-      (runningButActuallyStopped, stoppedButActuallyRunning) <- utils.checkDiscrepancy(currentRunningWorkflows)
+      (startedInDatabaseButStoppedInDcos, stoppedInDatabaseButRunningInDcos) <- utils.checkDiscrepancy(startedExecutionsInDatabase)
     } yield {
-      sendResultTo ! InconsistentStatuses(runningButActuallyStopped, stoppedButActuallyRunning)
+      sendResultTo ! InconsistentStatuses(startedInDatabaseButStoppedInDcos, stoppedInDatabaseButRunningInDcos)
     }
   }
 

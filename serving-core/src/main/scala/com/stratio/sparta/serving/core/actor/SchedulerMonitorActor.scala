@@ -17,6 +17,7 @@ import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
@@ -57,13 +58,14 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
 
   type SchedulerAction = WorkflowExecution => Unit
 
-  private val onStatusChangeActions = scala.collection.mutable.Buffer[SchedulerAction]()
-  private val invalidStartupStateActions = scala.collection.mutable.Buffer[SchedulerAction]()
-  private val scheduledActions = scala.collection.mutable.Buffer[(String, Cancellable)]()
-  private val propertyCheckInterval = "marathon.checkInterval"
-  private val defaultTimeInterval = "1m"
-  private val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
-  private lazy val checkTaskMarathon: Cancellable = {
+  val executionsStoppedInDbButRunningInDcosState = scala.collection.mutable.HashMap.empty[String, (String, Int)]
+  val onStatusChangeActions = scala.collection.mutable.Buffer[SchedulerAction]()
+  val invalidStartupStateActions = scala.collection.mutable.Buffer[SchedulerAction]()
+  val scheduledActions = scala.collection.mutable.Buffer[(String, Cancellable)]()
+  val propertyCheckInterval = "marathon.checkInterval"
+  val defaultTimeInterval = "1m"
+  val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
+  lazy val checkTaskMarathon: Cancellable = {
     scheduleMsg(propertyCheckInterval,
       defaultTimeInterval,
       propertyCheckInterval,
@@ -71,6 +73,10 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       self,
       TriggerCheck)
   }
+
+  lazy val maxAttemptsCount: Int = Try {
+    SpartaConfig.getDetailConfig().get.getInt(SchedulerStopMaxCount)
+  }.toOption.getOrElse(DefaultSchedulerStopMaxCount)
 
   override def supervisorStrategy: SupervisorStrategy = AllForOneStrategy() {
     case _ => Restart
@@ -105,8 +111,9 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       executeActions(newExecution, invalidStartupStateActions)
     case TriggerCheck =>
       checkForOrphanedWorkflows()
-    case msg@InconsistentStatuses(_, _) =>
-      cleanOrphanedWorkflows(msg.runningButActuallyStopped, msg.stoppedButActuallyRunning)
+    case InconsistentStatuses(startedInDatabaseButStoppedInDcos, stoppedInDatabaseRunningInDcos) =>
+      val workflowsToCleanInDatabase = getStatedInDbButStoppedInDcosAndUpdateState(startedInDatabaseButStoppedInDcos)
+      cleanOrphanedWorkflows(workflowsToCleanInDatabase, stoppedInDatabaseRunningInDcos)
   }
 
   def executeActions(
@@ -386,20 +393,43 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     for {
       executions <- executionService.findExecutionsByStatus(SchedulerMonitorActor.runningStates)
     } yield {
-      val currentRunningWorkflows: Map[String, String] = fromExecutionsToMapMarathonIdExecutionId(executions)
+      val startedExecutionsInDatabase: Map[String, String] = fromExecutionsToMapMarathonIdExecutionId(executions)
 
-      inconsistentStatusCheckerActor ! CheckConsistency(currentRunningWorkflows)
+      inconsistentStatusCheckerActor ! CheckConsistency(startedExecutionsInDatabase)
     }
   }
 
+  def getStatedInDbButStoppedInDcosAndUpdateState(
+                                                   startedInDatabaseButStoppedInDcos: Map[String, String]
+                                                 ): Map[String, String] = {
+    startedInDatabaseButStoppedInDcos.foreach { case (marathonId, executionId) =>
+      executionsStoppedInDbButRunningInDcosState.get(marathonId) match {
+        case Some((_, attempts)) =>
+          log.debug(s"Increasing counter with inconsistent state over Database and Marathon with id: $marathonId and attempts: $attempts")
+          executionsStoppedInDbButRunningInDcosState.update(marathonId, (executionId, attempts + 1))
+        case None =>
+          log.debug(s"Creating counter with inconsistent state over Database and Marathon with id: $marathonId")
+          executionsStoppedInDbButRunningInDcosState += (marathonId -> ((executionId, 1)))
+      }
+    }
+    executionsStoppedInDbButRunningInDcosState.flatMap{ case (marathonId, (executionId, attempts)) =>
+      if(attempts >= maxAttemptsCount){
+        log.debug(s"The counter for inconsistent state over Database and Marathon with id: $marathonId" +
+          s" is greater or equal to max attempts: $attempts." +
+          s" It will be removed from the state and will be sent to clean function")
+        executionsStoppedInDbButRunningInDcosState.remove(marathonId)
+        Option(marathonId -> executionId)
+      } else None
+    }.toMap
+  }
 
   def cleanOrphanedWorkflows(
-                              runningButActuallyStopped: Map[String, String],
-                              stoppedButActuallyRunning: Seq[String]
+                              startedInDatabaseButStoppedInDcos: Map[String, String],
+                              stoppedInDatabaseButRunningInDcos: Seq[String]
                             ): Unit = {
     // Kill all the workflows that are stored as RUNNING but that are actually STOPPED in Marathon.
     // Update the status with discrepancy as the StatusInfo and Stopped as Status
-    val runningButActuallyStoppedFiltered = runningButActuallyStopped.filter{ case (_, idExecution) =>
+    val runningButActuallyStoppedFiltered = startedInDatabaseButStoppedInDcos.filter{ case (_, idExecution) =>
       !scheduledActions.exists(task => task._1 == idExecution)
     }
     val listNewStatuses = for {
@@ -415,12 +445,20 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       )
     }
 
-    listNewStatuses.foreach(newStatus => executionService.updateStatus(newStatus))
+    listNewStatuses.foreach { newStatus =>
+      Try(executionService.updateStatus(newStatus)) match {
+        case Success(execution) =>
+          log.debug(s"Stopped correctly the execution ${execution.getExecutionId} with workflow ${execution.genericDataExecution.workflow.name}")
+        case Failure(exception) =>
+          log.warn(s"Error stopping execution ${newStatus.id} with exception ${ExceptionHelper.toPrintableException(exception)}")
+      }
+    }
+
 
     // Kill all the workflow executions that are stored as STOPPED but that are actually RUNNING in Marathon.
     // Reuse the last Status because it might have failed just the previous DELETE Rest call for that appID
     // and overwriting the status could cause the loss of useful info
-    val seqStoppedAsExecutionId = fromDCOSName2ExecutionId(stoppedButActuallyRunning)
+    val seqStoppedAsExecutionId = fromDCOSName2ExecutionId(stoppedInDatabaseButRunningInDcos)
 
     if (seqStoppedAsExecutionId.nonEmpty) {
       log.info(s" Stopped but running: ${seqStoppedAsExecutionId.map(id => s"Application stopped: $id").mkString(",")}")
@@ -451,11 +489,11 @@ object SchedulerMonitorActor {
 
   object RetrieveWorkflowsEnv extends Notification
 
-  case class CheckConsistency(runningInDatabase: Map[String, String]) extends Notification
+  case class CheckConsistency(startedWorkflowsInDatabase: Map[String, String]) extends Notification
 
   case class InconsistentStatuses(
-                                   runningButActuallyStopped: Map[String, String],
-                                   stoppedButActuallyRunning: Seq[String]
+                                   startedInDatabaseButStoppedInDcos: Map[String, String], //(MarathonId, ExecutionId)
+                                   stoppedInDatabaseRunningInDcos: Seq[String]
                                  ) extends Notification
 
   val stopStates = Seq(Stopped, Failed, Stopping)
