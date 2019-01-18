@@ -15,7 +15,6 @@ import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.dao.WorkflowExecutionPostgresDao
 import org.apache.spark.launcher.SparkAppHandle
 
 import scala.util.{Failure, Success, Try}
@@ -62,7 +61,7 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
                     )))
                 case Failure(exception) =>
                   val error = s"Problems encountered while killing workflow with Spark Handler"
-                  log.warn(error)
+                  log.warn(s"$error with exception: ${exception.getLocalizedMessage}")
                   val wError = WorkflowError(
                     error,
                     PhaseEnum.Stop,

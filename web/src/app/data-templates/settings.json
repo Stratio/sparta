@@ -513,7 +513,7 @@
               ]
             },
             {
-              "name": "sparkHistoryServerProperties",
+              "name": "sparkHistoryServerConf",
               "listCompressed": true,
               "properties": [
                 {

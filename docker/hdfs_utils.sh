@@ -40,9 +40,19 @@ function generate_hdfs-conf-from-uri() {
   wget "${HADOOP_CONF_URI}/core-site.xml"
   wget "${HADOOP_CONF_URI}/hdfs-site.xml"
 
-  if [ -v SPARTA_PRINCIPAL_NAME ] ; then
-    RESOURCE_MANAGER_PRINCIPAL_PROP="<configuration>\n  <property>\n    <name>yarn.resourcemanager.principal</name>\n    <value>${SPARTA_PRINCIPAL_NAME}</value>\n  </property> "
-    sed -i "s#<configuration>#$RESOURCE_MANAGER_PRINCIPAL_PROP#" "hdfs-site.xml"
+  if [[ -v SPARTA_PRINCIPAL_NAME ]] ; then
+    # Check if the property has already been defined count=1 or not count=0
+    count=$(xmlstarlet sel -t -v "count(/configuration/property[name='yarn.resourcemanager.principal'])" "hdfs-site.xml")
+
+    if [[ ${count} == 0 ]]; then
+     xmlstarlet ed -L -a '/configuration/property[last()]' -t elem -n 'xx' \
+         -s '/configuration/xx' -t elem -n 'name' -v "yarn.resourcemanager.principal"\
+         -s '/configuration/xx' -t elem -n 'value' -v "${SPARTA_PRINCIPAL_NAME}"\
+         -r '/configuration/xx' -v 'property' "hdfs-site.xml"
+    else
+        xmlstarlet ed -L -u "/configuration/property[name='yarn.resourcemanager.principal']/value" \
+        -v "${SPARTA_PRINCIPAL_NAME}" "hdfs-site.xml"
+    fi
   fi
 
   cp core-site.xml "${CORE_SITE}"

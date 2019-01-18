@@ -6,19 +6,15 @@
 package com.stratio.sparta.driver.services
 
 
-import scala.util.Try
-import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig.getCrossdataConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
 import com.stratio.sparta.serving.core.error._
-import com.stratio.sparta.serving.core.factory.{PostgresDaoFactory, SparkContextFactory}
+import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
@@ -26,6 +22,12 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
+
+import scala.util.{Properties, Try}
 
 
 case class ContextsService()
@@ -111,14 +113,17 @@ case class ContextsService()
         }
       }
 
-      getXDSession().foreach(session => setDispatcherSettings(execution, session.sparkContext))
+      getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
       spartaWorkflow.setup()
       ssc.start
       notifyWorkflowExecutionStarted(execution)
+      getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
       ssc.awaitTermination()
     } finally {
+      log.debug("Executing cleanUp in workflow steps ...")
       spartaWorkflow.cleanUp()
-      SparkContextFactory.stopStreamingContext(stopGracefully = true, stopSparkContext = true)
+      log.debug("CleanUp in workflow steps executed")
+      stopContexts()
     }
   }
 
@@ -136,10 +141,14 @@ case class ContextsService()
       spartaWorkflow.setup()
       notifyWorkflowExecutionStarted(execution)
       spartaWorkflow.stages()
-      getXDSession().foreach(session => setDispatcherSettings(execution, session.sparkContext))
+      getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
+      getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
       spartaWorkflow.postExecutionStep()
     } finally {
+      log.debug("Executing cleanUp in workflow steps ...")
       spartaWorkflow.cleanUp()
+      log.debug("CleanUp in workflow steps executed")
+      stopContexts()
     }
   }
 
@@ -160,6 +169,24 @@ case class ContextsService()
           ))
         )
       }
+  }
+
+  private[driver] def setSparkHistoryServerURI(execution: WorkflowExecution, sparkContext: SparkContext): Unit = {
+    import execution.genericDataExecution.workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf._
+    if(execution.marathonExecution.isDefined && enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined) {
+      val applicationId = sparkContext.applicationId
+      val historyServerURI =
+        if (enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined)
+          Option(s"${sparkHistoryServerMonitoringURL.get.toString}/history/$applicationId/jobs")
+        else None
+
+      log.debug(s"Setting sparkHistoryServerMonitoringURL to ${historyServerURI.getOrElse("None")} for execution ${execution.id.getOrElse("No id")} with spark.app.id = $applicationId")
+
+      executionService.updateExecutionSparkURI(execution.copy(
+        marathonExecution =
+          Option(execution.marathonExecution.get.copy(historyServerURI = historyServerURI)
+          )))
+    }
   }
 
   private[driver] def extractSparkApplicationId(contextId: String): String = {

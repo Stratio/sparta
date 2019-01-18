@@ -2,7 +2,7 @@
 
 ## 2.5.0 (upcoming)
 
-* Pending changelog
+* [SPARTA-2654] Added integration with Spark History Server
 
 ## 2.4.0-926650d (Built: November 01, 2018 | Released: November 02, 2018)
 

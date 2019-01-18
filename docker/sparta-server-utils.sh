@@ -29,7 +29,7 @@ function initSparkUICrossdata() {
         echo "" >> ${VARIABLES}
         echo "export APPLICATION_WEB_PROXY_BASE=/workflows-${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}/crossdata-sparkUI" >> ${VARIABLES}
         echo "" >> ${SYSTEM_VARIABLES}
-        echo "APPLICATION_WEB_PROXY_BASE=/workflows-${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}/crossdata-sparkUI" >> ${SYSTEM_VARIABLES}
+        echo "export APPLICATION_WEB_PROXY_BASE=/workflows-${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}/crossdata-sparkUI" >> ${SYSTEM_VARIABLES}
         echo "" >> ${VARIABLES}
     fi
 }

@@ -104,7 +104,7 @@ case class WorkflowExecutionDto(
 
 }
 
-case class MarathonExecutionDto(sparkURI: Option[String] = None) extends Dto
+case class MarathonExecutionDto(sparkURI: Option[String] = None, historyServerURI: Option[String] = None) extends Dto
 
 case class GenericDataExecutionDto(
                                     executionMode: WorkflowExecutionMode,

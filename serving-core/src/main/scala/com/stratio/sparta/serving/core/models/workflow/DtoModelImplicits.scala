@@ -63,9 +63,13 @@ object DtoModelImplicits {
     }
 
   implicit def marathonExecutionToDto(marathonExecution: Option[MarathonExecution]): Option[MarathonExecutionDto] = {
-    marathonExecution.flatMap { marathonEx =>
-      marathonEx.sparkURI.map(_ => MarathonExecutionDto(marathonEx.sparkURI))
-    }
+    marathonExecution.map(
+      mExec =>
+        MarathonExecutionDto(
+          sparkURI= mExec.sparkURI,
+          historyServerURI = mExec.historyServerURI
+        )
+    )
   }
 
   implicit def nodeToDto(node: NodeGraph): NodeGraphDto = NodeGraphDto(node.name, node.stepType)

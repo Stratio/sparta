@@ -87,6 +87,8 @@ object SparkContextFactory extends SLF4JLogging {
     xdSession.get(sessionId)
   }
 
+  def getSparkContext: Option[SparkContext] = sc
+
   def getOrCreateStandAloneXDSession(userId: Option[String]): XDSession =
     getOrCreateXDSession(withStandAloneExtraConf = true, userId, forceStop = false)
 
@@ -233,6 +235,27 @@ object SparkContextFactory extends SLF4JLogging {
 
   def getStreamingContext: StreamingContext =
     ssc.getOrElse(throw new Exception("Streaming Context not initialized"))
+
+  def stopContexts(): Unit = synchronized {
+    stopStreamingContext(stopGracefully = true)
+    stopSparkContext()
+  }
+
+  def stopSparkContext(): Unit = {
+    sc.fold(log.debug("Spark Context is empty")) { sparkContext =>
+      try {
+        log.debug(s"Stopping Spark Context named: ${sparkContext.appName}")
+        Try(sparkContext.stop()) match {
+          case Success(_) =>
+            log.debug("Spark Context has been stopped")
+          case Failure(error) =>
+            log.debug("Spark Context not properly stopped", error)
+        }
+      } finally {
+        sc = None
+      }
+    }
+  }
 
   def stopStreamingContext(stopGracefully: Boolean = false, stopSparkContext: Boolean = false): Unit = synchronized {
     ssc.orElse(StreamingContext.getActive()).fold(log.debug("Spark Streaming Context is empty")) { streamingContext =>

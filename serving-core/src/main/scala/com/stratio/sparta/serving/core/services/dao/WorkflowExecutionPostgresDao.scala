@@ -130,8 +130,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       .groupBy { data =>
         (data.executionEngine, dateTruncationUDF(executionsByDateQuery.dateGranularity.toString, data.resumedDate))
       }.map { case ((executionEngine, date), group) =>
-        (group.length, executionEngine, date)
-      }
+      (group.length, executionEngine, date)
+    }
 
     for {
       result <- db.run(aggregatedQuery.result)
@@ -169,6 +169,18 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     if (cacheEnabled)
       findByIdHead(execution.id.get).cached()
     else Future(execution)
+  }
+
+  def updateExecutionSparkURI(execution: WorkflowExecution): Future[WorkflowExecution] = {
+    Await.result(
+      db.run(
+        table.filter(_.id === execution.getExecutionId)
+        .map(oldExecution => oldExecution.marathonExecution)
+        .update(execution.marathonExecution)
+        .transactionally),
+      AppConstant.DefaultApiTimeout seconds
+    )
+    Future(execution).cached()
   }
 
   def updateStatus(
@@ -445,29 +457,18 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     if (execution.genericDataExecution.executionMode == marathon) {
       val marathonId = WorkflowHelper.getMarathonId(execution)
       val sparkUri = NginxUtils.buildSparkUI(WorkflowHelper.getExecutionDeploymentId(execution))
-      val workflowToExecute = execution.getWorkflowToExecute
-
-      import workflowToExecute.settings.sparkSettings.sparkConf.sparkHistoryServerConf._
-
-      val sparkHistoryUri = {
-        if(enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined)
-          Option(s"${sparkHistoryServerMonitoringURL.get.toString}/history/${execution.getExecutionId}/jobs")
-        else None
-      }
 
       execution.copy(
         marathonExecution = execution.marathonExecution match {
           case Some(mExecution) =>
             Option(mExecution.copy(
               marathonId = marathonId,
-              sparkURI = sparkUri,
-              historyServerURI = sparkHistoryUri
+              sparkURI = sparkUri
             ))
           case None =>
             Option(MarathonExecution(
               marathonId = marathonId,
-              sparkURI = sparkUri,
-              historyServerURI = sparkHistoryUri
+              sparkURI = sparkUri
             ))
         }
       )
