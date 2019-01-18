@@ -2,7 +2,45 @@
 
 ## 2.5.0 (upcoming)
 
-* [SPARTA-2654] Added integration with Spark History Server
+* New steps:
+    - [SPARTA-2527] SFTP input
+    - [SPARTA-2463] SFTP output 
+ 
+* Improvements and new features:
+    - [SPARTA-2472] [SPARTA-2563] [SPARTA-2580] **Multi-selection** in frontend, **keyboard shortcut** and wizard help
+    - [SPARTA-2613][SPARTA-2614] New endpoint for multi-selection in backend
+    - [SPARTA-2607] [SPARTA-2626] Orion to Hydra metadata migration
+    - [SPARTA-2464] Integration with new Data Governance API
+    - [SPARTA-2568] [SPARTA-2587] [SPARTA-2652] Upgrade spark version to 2.2.0-2.2.0-0e24995 and crossdata version to 2.15.0-24f463e
+    - [SPARTA-2429] Configurable mesos role for each workflow and user-defined discarded table name[SPARTA-2560]
+    - [SPARTA-2458] Re-launch a stopped execution
+    - [SPARTA-2654] Added integration with Spark History Server
+    - Allowing more types inside Cubes
+    - [SPARTA-2559][SPARTA-2553] Improved overall Sparta failure-handling
+    - Added new validations and fixed validation messages inside a Mlpipeline
+ 
+* Bug fixing:
+    - Fixed some bugs wrt Execution list pagination
+    - [SPARTA-2291] Handling failures in starting/ending application via Marathon API
+       
+* AI Pipeline new features:
+    - Algorithms:
+       Classification, Clustering, Frequent Pattern Mining, Recommendation and Regression
+    - Pre-processing steps (for a detailed list please consult the documentation)
+   
+## 2.4.1 (December 24, 2018)
+
++ [SPARTA-2619] Upgrade spark dyplon and xd versions
++ Support all andromeda sparta versions in migration process
++ Fix global variables initialization
++ Order by date in executions view
+* [SPARTA-2512] Fix problems generating new version of workflow
+* [SPARTA-2542] Fix marathon API requests
+* [SPARTA-2559] Fix actors lifecycle
+* [SPARTA-2559] Fix dashboard requests delay
+* [SPARTA-2536] Added pagination in executions
+* [SPARTA-2533] Added slick, java and akka tuning properties
+
 
 ## 2.4.0-926650d (Built: November 01, 2018 | Released: November 02, 2018)
 
