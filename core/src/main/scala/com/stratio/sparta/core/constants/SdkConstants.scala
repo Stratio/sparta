@@ -22,6 +22,7 @@ object SdkConstants {
 
   val WorkflowIdKey = "workflowId"
   val ModelRepositoryUrl = "modelRepositoryUrl"
+  val ModelRepositoryPath = "modelRepositoryPath"
 
   private[sparta] lazy val PathKey = "path"
   private[sparta] lazy val ResourceKey = "resource"

@@ -3,9 +3,19 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.plugin.workflow.transformation.mlModel
 
 import java.io.{Serializable => JSerializable}
+import scala.util.{Failure, Success, Try}
+
+import org.apache.spark.ml.PipelineModel
+import org.apache.spark.ml.linalg.UdtConversions
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.streaming.StreamingContext
 
 import com.stratio.intelligence.mlmodelrepository.client.MlModelsRepositoryClient
 import com.stratio.sparta.core.DistributedMonad
@@ -14,15 +24,9 @@ import com.stratio.sparta.core.helpers.{SSLHelper, SdkSchemaHelper}
 import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.TransformStep
+import com.stratio.sparta.plugin.enumerations.MlModelSelectionType
 import com.stratio.sparta.plugin.helper.SchemaHelper.{getSchemaFromSessionOrModelOrRdd, parserInputSchema}
 import com.stratio.sparta.plugin.helper.SparkStepHelper
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.streaming.StreamingContext
-
-import scala.util.{Failure, Success, Try}
 
 abstract class MlModelTransformStep[Underlying[Row]](
                                                       name: String,
@@ -36,11 +40,14 @@ abstract class MlModelTransformStep[Underlying[Row]](
 
   lazy val ErrorModelMessage = s"It's mandatory to specify the model"
   lazy val ErrorUrlMessage = "It's mandatory to specify the model repository URL"
+  lazy val ErrorPathMessage = "It's mandatory to specify the model repository path"
   lazy val ErrorClientMessage = s"Error creating the repository client"
   lazy val ErrorExistsMessage = s"The model not exists in the repository"
 
+  lazy val modelSelection = MlModelSelectionType.withName(properties.getString("selectMlType", "ML_MODEL_URL").toUpperCase)
   lazy val modelName = properties.getString("model", None).notBlank
   lazy val modelRepositoryUrl = properties.getString(SdkConstants.ModelRepositoryUrl, None).notBlank
+  lazy val modelRepositoryPath = properties.getString("path", None).notBlank
 
   def modelRepositoryClient: Try[MlModelsRepositoryClient] = Try {
     MlModelTransformStep.getMlRepositoryClient(
@@ -49,16 +56,20 @@ abstract class MlModelTransformStep[Underlying[Row]](
     )
   }
 
+  //scalastyle:off
   def requirements(): Unit = {
-    require(modelName.nonEmpty, ErrorModelMessage)
-    require(modelRepositoryUrl.nonEmpty, ErrorUrlMessage)
-
-    modelRepositoryClient match {
-      case Success(client) =>
-        require(client.checkIfModelExists(modelName.get).toOption.forall(modelExists => modelExists), ErrorExistsMessage)
-      case Failure(e) =>
-        throw new IllegalArgumentException(s"$ErrorClientMessage.${e.getLocalizedMessage}")
+    if (modelSelection.equals(MlModelSelectionType.ML_MODEL_URL)) {
+      require(modelName.nonEmpty, ErrorModelMessage)
+      require(modelRepositoryUrl.nonEmpty, ErrorUrlMessage)
+      modelRepositoryClient match {
+        case Success(client) =>
+          require(client.checkIfModelExists(modelName.get).toOption.forall(modelExists => modelExists), ErrorExistsMessage)
+        case Failure(e) =>
+          throw new IllegalArgumentException(s"$ErrorClientMessage.${e.getLocalizedMessage}")
+      }
     }
+    else
+      require(modelRepositoryPath.nonEmpty, ErrorUrlMessage)
   }
 
   override def cleanUp(options: Map[String, String]): Unit =
@@ -90,37 +101,44 @@ abstract class MlModelTransformStep[Underlying[Row]](
       }
     }
 
-    if (modelName.isEmpty)
+    if (modelSelection.equals(MlModelSelectionType.ML_MODEL_URL) && modelName.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(ErrorModelMessage, name)
       )
 
-    if (modelRepositoryUrl.isEmpty)
+    if (modelSelection.equals(MlModelSelectionType.ML_MODEL_URL) && modelRepositoryUrl.isEmpty)
       validation = ErrorValidations(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(ErrorUrlMessage, name)
       )
 
-    modelRepositoryClient match {
-      case Success(client) =>
-        if (client.checkIfModelExists(modelName.get).toOption.exists(modelExists => !modelExists))
+    if (modelSelection.equals(MlModelSelectionType.ML_MODEL_PATH) && modelRepositoryPath.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(ErrorUrlMessage, name)
+      )
+
+    if (modelSelection.equals(MlModelSelectionType.ML_MODEL_URL))
+      modelRepositoryClient match {
+        case Success(client) =>
+          if (client.checkIfModelExists(modelName.get).toOption.exists(modelExists => !modelExists))
+            validation = ErrorValidations(
+              valid = false,
+              messages = validation.messages :+ WorkflowValidationMessage(ErrorExistsMessage, name)
+            )
+        case Failure(e) =>
           validation = ErrorValidations(
             valid = false,
-            messages = validation.messages :+ WorkflowValidationMessage(ErrorExistsMessage, name)
+            messages = validation.messages :+ WorkflowValidationMessage(s"$ErrorClientMessage.${e.getLocalizedMessage}", name)
           )
-      case Failure(e) =>
-        validation = ErrorValidations(
-          valid = false,
-          messages = validation.messages :+ WorkflowValidationMessage(s"$ErrorClientMessage.${e.getLocalizedMessage}", name)
-        )
-        throw new RuntimeException(s"$ErrorClientMessage.${e.getLocalizedMessage}")
-    }
+          throw new RuntimeException(s"$ErrorClientMessage.${e.getLocalizedMessage}")
+      }
 
     validation
   }
 
-
+  //scalastyle:off
   def executeMlModel(stepName: String, stepData: RDD[Row]): (RDD[Row], Option[StructType], Option[StructType]) = {
     var resultSchema: Option[StructType] = None
     var inputSchema: Option[StructType] = None
@@ -141,16 +159,26 @@ abstract class MlModelTransformStep[Underlying[Row]](
       }
 
       if (executeModel) {
-        val sparkModel = modelRepositoryClient.get.getSparkPipelineModel(modelName.get) match {
-          case Success(pipelineModel) =>
-            pipelineModel
-          case Failure(e) =>
-            throw new RuntimeException("Error obtaining pipeline model from intelligence repository", e)
-        }
+        val sparkModel = if (modelSelection.equals(MlModelSelectionType.ML_MODEL_URL))
+          modelRepositoryClient.get.getSparkPipelineModel(modelName.get) match {
+            case Success(pipelineModel) =>
+              pipelineModel
+            case Failure(e) =>
+              throw new RuntimeException("Error obtaining pipeline model from intelligence repository", e)
+          }
+        else
+          PipelineModel.load(modelRepositoryPath.get)
+
         val df = sparkModel.transform(inputDataFrame)
-        df.createOrReplaceTempView(name)
-        resultSchema = Option(df.schema)
-        df.rdd
+        val newSchema = UdtConversions.newSchema(df.schema)
+        val newRdd = df.rdd.map { row =>
+          UdtConversions.convertRow(row, newSchema)
+        }
+        val newDf = xDSession.createDataFrame(newRdd, newSchema)
+
+        newDf.createOrReplaceTempView(name)
+        resultSchema = Option(newSchema)
+        newDf.rdd
       } else {
         resultSchema = Option(StructType(Nil))
         stepData.filter(_ => false)

@@ -16,15 +16,57 @@
    "classPrettyName": "MlModel",
    "description": "Apply machine learning models to input streams",
    "properties": [
-      {
-         "propertyId": "model",
-         "propertyName": "_MODEL_",
-         "propertyType": "select",
-         "externalValueKey": "mlModelsList",
-         "required": true,
-         "tooltip": "Model name to apply. This model must be stored in the Intelligence model repository.",
-         "qa": "fragment-details-mlmodel-model"
-      },
+     {
+       "propertyId": "selectMlType",
+       "propertyName": "_SELECT_TYPE_",
+       "required": true,
+       "propertyType": "select",
+       "default": "ML_MODEL_URL",
+       "values": [
+         {
+           "label": "MlModel by Url",
+           "value": "ML_MODEL_URL"
+         },
+         {
+           "label": "MlModel by path",
+           "value": "ML_MODEL_PATH"
+         }
+       ],
+       "qa": "workflow-transformation-ml-type"
+     },
+     {
+       "propertyId": "model",
+       "propertyName": "_MODEL_",
+       "propertyType": "select",
+       "externalValueKey": "mlModelsList",
+       "required": false,
+       "visible": [
+        [
+          {
+            "propertyId": "selectMlType",
+            "value": "ML_MODEL_URL"
+          }
+        ]
+       ],
+       "tooltip": "Model name to apply. This model must be stored in the Intelligence model repository.",
+       "qa": "fragment-details-mlmodel-model"
+     },
+     {
+       "propertyId": "path",
+       "propertyName": "_PATH_",
+       "propertyType": "text",
+       "required": false,
+       "visible": [
+         [
+           {
+             "propertyId": "selectMlType",
+             "value": "ML_MODEL_PATH"
+           }
+         ]
+       ],
+       "tooltip": "Path to a MlModel.",
+       "qa": "fragment-details-mlmodel-path"
+     },
       {
          "propertyId": "inputSchemas",
          "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
