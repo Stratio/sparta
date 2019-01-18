@@ -74,6 +74,8 @@ object SparkConstant {
   val SubmitUiProxyPrefix = "spark.ui.proxyBase"
   val SubmitHistoryEventLogEnabled = "spark.eventLog.enabled"
   val SubmitHistoryEventLogDir = "spark.eventLog.dir"
+  val SubmitExecutorSecurityHdfsEnable = "spark.executorEnv.SPARK_SECURITY_HDFS_ENABLE"
+  val SubmitExecutorSecurityHdfsUri = "spark.executorEnv.SPARK_SECURITY_HDFS_CONF_URI"
 
 
   // Properties only available in spark-submit

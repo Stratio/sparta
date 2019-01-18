@@ -84,14 +84,15 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
           submitArgsFiltered(submitArgs))),
       addExecutorLogConf(
         addKerberosConfs(
-          addTlsConfs(
-            addPluginsConfs(
-              addSparkUserConf(
-                addCalicoNetworkConf(
-                  addPluginsFilesToConf(
-                    addMesosConf(sparkConfs ++ sparkConfFromSubmitArgs),
-                    pluginsFiles
-                  )))))))
+          addExecutorHdfsSecurityConfs(
+            addTlsConfs(
+              addPluginsConfs(
+                addSparkUserConf(
+                  addCalicoNetworkConf(
+                    addPluginsFilesToConf(
+                      addMesosConf(sparkConfs ++ sparkConfFromSubmitArgs),
+                      pluginsFiles
+                    ))))))))
     )
   }
 
@@ -281,6 +282,23 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     } else {
       log.warn("Mesos security is enabled but the properties are wrong")
       Map.empty[String, String]
+    }
+  }
+
+  private[core] def addExecutorHdfsSecurityConfs(sparkConfs: Map[String, String]): Map[String, String] = {
+    val enableExecutorHdfsSecurity =  Try{
+      Properties.envOrElse("SPARK_SECURITY_HDFS_ENABLE", "false").toBoolean
+    }.getOrElse(false)
+    val executorHdfsUri = Properties.envOrNone("SPARK_SECURITY_HDFS_CONF_URI").notBlank
+
+    (enableExecutorHdfsSecurity, executorHdfsUri) match {
+      case (true, Some(execHdfsUri)) =>
+        Map(
+          SubmitExecutorSecurityHdfsEnable -> "true",
+          SubmitExecutorSecurityHdfsUri -> execHdfsUri
+        ) ++ sparkConfs
+      case (_,_) =>
+        Map.empty[String,String]
     }
   }
 
