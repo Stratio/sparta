@@ -10,6 +10,7 @@ import { Store } from '@ngrx/store';
 
 import * as debugActions from './../../actions/debug';
 import * as fromWizard from './../../reducers';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'node-errors',
@@ -56,7 +57,7 @@ export class NodeErrorsComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.schemas) {
-      this._setSchemaValue(changes.schemas.currentValue);
+      this._setSchemaValue(cloneDeep(changes.schemas.currentValue));
     }
   }
 
@@ -114,7 +115,12 @@ export class NodeErrorsComponent implements OnChanges {
     let children = [];
     if (typeof nodeSchema.type === 'object') {
       if (nodeSchema.type.type === 'array') {
-        children = nodeSchema.type.elementType.fields.map((field) => this._getTreeNodeSchema(field));
+        if (typeof nodeSchema.type.elementType === 'object') {
+          children = nodeSchema.type.elementType.fields.map((field) => this._getTreeNodeSchema(field));
+
+        } else {
+          nodeSchema.type.type = nodeSchema.type.type + `(${nodeSchema.type.elementType})`;
+        }
       } else if (nodeSchema.type.type === 'struct') {
         children = nodeSchema.type.fields.map((field) => this._getTreeNodeSchema(field));
       }
