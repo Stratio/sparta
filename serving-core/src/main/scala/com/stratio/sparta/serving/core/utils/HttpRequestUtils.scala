@@ -10,11 +10,12 @@ import java.net.HttpCookie
 
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
-import akka.http.scaladsl.Http
+import akka.http.scaladsl.{ConnectionContext, Http, HttpsConnectionContext}
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpEntity, _}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
+import com.stratio.sparta.core.helpers.SSLHelper
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -23,6 +24,9 @@ trait HttpRequestUtils extends SLF4JLogging {
 
   implicit val system: ActorSystem
   implicit val actorMaterializer: ActorMaterializer
+
+  private lazy val sslContext = ConnectionContext.https(SSLHelper.getSSLContextV2(withHttps = true))
+  private lazy val withoutSSLContext = ConnectionContext.https(SSLHelper.getSSLContextV2(withHttps = false))
 
   lazy val httpSystem = Http(system)
 
@@ -39,7 +43,7 @@ trait HttpRequestUtils extends SLF4JLogging {
 
     val request = createRequest(uri, resource, method, body, cookies, headers)
     for {
-      response <- httpSystem.singleRequest(request)
+      response <- httpSystem.singleRequest(request, getSSLContextFromURI(uri))
       status = {
         val status = response.status.value
         status
@@ -63,7 +67,7 @@ trait HttpRequestUtils extends SLF4JLogging {
       headers = createHeaders(cookies) ++ headers
     )
 
-  def createRequestEntityJson(body: Option[String]): RequestEntity =
+  private def createRequestEntityJson(body: Option[String]): RequestEntity =
     body match {
       case Some(jsBody) =>
         log.trace(s"body: $jsBody")
@@ -72,6 +76,12 @@ trait HttpRequestUtils extends SLF4JLogging {
         HttpEntity.Empty
     }
 
-  def createHeaders(cookies: Seq[HttpCookie]): List[HttpHeader] =
+  private def createHeaders(cookies: Seq[HttpCookie]): List[HttpHeader] =
     cookies.map(c => headers.Cookie(c.getName, c.getValue)).toList
+
+  private def getSSLContextFromURI(uri: String): HttpsConnectionContext = {
+    if(uri.toLowerCase.contains("https"))
+      sslContext
+    else withoutSSLContext
+  }
 }
