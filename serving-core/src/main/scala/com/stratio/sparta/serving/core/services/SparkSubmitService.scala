@@ -298,7 +298,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
           SubmitExecutorSecurityHdfsUri -> execHdfsUri
         ) ++ sparkConfs
       case (_,_) =>
-        Map.empty[String,String]
+        sparkConfs
     }
   }
 
