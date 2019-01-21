@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.5.0 (upcoming)
+## 2.6.0 (upcoming)
+
+* Pending changelog
+
+## 2.5.0-b014c21 (Built: January 21, 2019 | Pre-release)
 
 * New steps:
     - [SPARTA-2527] SFTP input
@@ -27,7 +31,7 @@
     - Algorithms:
        Classification, Clustering, Frequent Pattern Mining, Recommendation and Regression
     - Pre-processing steps (for a detailed list please consult the documentation)
-   
+
 ## 2.4.1 (December 24, 2018)
 
 + [SPARTA-2619] Upgrade spark dyplon and xd versions

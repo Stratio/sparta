@@ -1,6 +1,8 @@
 # Version History
 
 
+#### 2.5.0-b014c21 (Built: January 21, 2019 | Pre-release)
+
 #### 2.4.1-f74f99f (Built: December 24, 2018 | Released: January 11, 2019)
 
 #### 2.4.0-926650d (Built: November 01, 2018 | Released: November 02, 2018)
