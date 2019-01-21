@@ -9,6 +9,8 @@
 
 #### 2.3.0-fe00b41 (Built: August 02, 2018 | Pre-release)
 
+#### 2.2.5-2d779cc (Built: January 21, 2019 | Pre-release)
+
 #### 2.2.4-57da0fc (Built: December 14, 2018 | Released: December 21, 2018)
 
 #### 2.2.3-eec304e (Built: November 28, 2018 | Released: November 28, 2018)
