@@ -53,8 +53,6 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   private _svgAuxDefs: any;
   private _edgeElement: any;
 
-  private _initialEntityName: string;
-  private _finalEntityName: string;
   private _supportedDataRelations: Array<string>;
 
   private _internalUUID: string;
@@ -67,8 +65,6 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   }
 
   ngAfterContentInit(): void {
-    this._initialEntityName = this.edge.origin.name;
-    this._finalEntityName = this.edge.destination.name;
     this._supportedDataRelations = this.edge.origin.supportedDataRelations;
     this._dataType = this.edge.dataType;
     const container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
@@ -92,15 +88,15 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
         const event = d3Event;
         event.preventDefault();
         this.selectEdge.emit({
-          origin: this._initialEntityName,
-          destination: this._finalEntityName
+          origin: this.edge.origin.name,
+          destination: this.edge.destination.name
         });
         this.showEdgeOptions.emit({
           clientX: event.clientX,
           clientY: event.clientY,
           relation: {
-            initialEntityName: this._initialEntityName,
-            finalEntityName: this._finalEntityName
+            initialEntityName: this.edge.origin.name,
+            finalEntityName: this.edge.destination.name
           },
           edgeType: this._dataType,
           supportedDataRelations: this._supportedDataRelations
@@ -113,8 +109,8 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     this._ngZone.runOutsideAngular(() => {
       if (this._edgeElement && changes.selectedEdge) {
-        this._edgeElement.classed('selected', this.selectedEdge && this.selectedEdge.origin === this._initialEntityName
-          && this.selectedEdge.destination === this._finalEntityName ? true : false);
+        this._edgeElement.classed('selected', this.selectedEdge && this.selectedEdge.origin === this.edge.origin.name
+          && this.selectedEdge.destination === this.edge.destination.name ? true : false);
       }
       if (changes.initPosition || changes.endPosition) {
         this.getPosition(this.initPosition.x, this.initPosition.y, this.endPosition.x, this.endPosition.y);
@@ -157,10 +153,9 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   selectedge() {
     // stop graph-editor click detection
     d3Event.stopPropagation();
-
     this.selectEdge.emit({
-      origin: this._initialEntityName,
-      destination: this._finalEntityName
+      origin: this.edge.origin.name,
+      destination: this.edge.destination.name
     });
   }
 
