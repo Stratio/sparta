@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 2.5.0-b014c21 (Built: January 21, 2019 | Pre-release)
+## 2.5.0-6e9fdfd (Built: January 23, 2019 | Pre-release)
 
 * New steps:
     - [SPARTA-2527] SFTP input
