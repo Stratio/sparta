@@ -26,7 +26,7 @@ export class AppComponent implements OnInit, OnDestroy {
         let lang: string = navigator.language.split('-')[0];
         lang = /(es|en)/gi.test(lang) ? lang : 'en';
         _translate.setDefaultLang('en');
-        _translate.use(lang);
+        _translate.use('en');
     }
 
     ngOnInit(): void {
