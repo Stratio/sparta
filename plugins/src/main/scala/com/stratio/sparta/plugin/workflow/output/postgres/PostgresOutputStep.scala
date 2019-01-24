@@ -27,7 +27,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.apache.spark.sql.jdbc._
 import org.apache.spark.sql.json.RowJsonHelper
-import org.apache.spark.sql.types.{ArrayType, MapType, StructType}
+import org.apache.spark.sql.types.{ArrayType, MapType, NullType, StructType}
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
 
@@ -37,9 +37,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   extends OutputStep(name, xDSession, properties) with JdbcLineage {
 
   lazy val url = properties.getString("url", "")
-  lazy val delimiter = properties.getString("delimiter", "\t")
-  lazy val newLineSubstitution = properties.getString("newLineSubstitution", " ")
-  lazy val quotesSubstitution = properties.getString("newQuotesSubstitution", """\b""")
+  lazy val delimiter = cleanPropertyChars(properties.getString("delimiter", "\t"))
+  lazy val newLineSubstitution = cleanPropertyChars(properties.getString("newLineSubstitution", " "))
+  lazy val quotesSubstitution = cleanPropertyChars(properties.getString("newQuotesSubstitution", "\b"))
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = TransactionTypes.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
@@ -251,13 +251,16 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
               else if (postgresSaveMode == TransactionTypes.COPYIN) {
                 val schema = dataFrame.schema
                 dataFrame.foreachPartition { rows =>
-                  val conn = getConnection(connectionProperties, name)
-                  val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+                  if(rows.nonEmpty) {
+                    val (rowsStream, empty) = rowsToInputStream(rows, schema)
+                    if(!empty) {
+                      val conn = getConnection(connectionProperties, name)
+                      val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+                      val copySentence = s"""COPY $tableName (${schema.fields.map(_.name).mkString(",")}) FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')"""
 
-                  cm.copyIn(
-                    s"""COPY $tableName (${schema.fields.map(_.name).mkString(",")}) FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
-                    rowsToInputStream(rows, schema)
-                  )
+                      cm.copyIn(copySentence, rowsStream)
+                    }
+                  }
                 }
               } else {
                 val txOne = if (txSaveMode.txType == TransactionTypes.ONE_TRANSACTION) {
@@ -331,15 +334,12 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     }
   }
 
-  //scalastyle:on
-
-  def rowsToInputStream(rows: Iterator[Row], schema: StructType): InputStream = {
+  def rowsToInputStream(rows: Iterator[Row], schema: StructType): (InputStream, Boolean) = {
     val fieldsCount = schema.fields.length
-    val bytes: Iterator[Byte] = rows.flatMap { inputRow =>
+    val bytes = rows.flatMap { inputRow =>
       val row = schema.fields.toSeq.map { field =>
         val fieldIndex = inputRow.fieldIndex(field.name)
         val value = inputRow.get(fieldIndex)
-
         def jsonValue = {
           val newRow = new GenericRowWithSchema(
             Array(value),
@@ -348,7 +348,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
           RowJsonHelper.toValueAsJSON(newRow, Map.empty)
         }
 
-        field.dataType match {
+        val newValue = field.dataType match {
           case _: MapType =>
             jsonValue
           case _: ArrayType =>
@@ -362,26 +362,51 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
               .replace("}#{", "},{")
           case _: StructType =>
             jsonValue
-          case _ => value.toString
+          case _: NullType => "null"
+          case _ => Option(value).fold("null") {_.toString}
         }
+
+        if(newValue.contains(delimiter))
+          throw new RuntimeException(s"Row with value[$newValue] contains the delimiter string [${delimiter}]")
+
+        newValue
       }
 
-      val text = row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n"
-      if (text.split(delimiter).length != fieldsCount)
-        throw new RuntimeException(s"Row [$text] contains selected delimiter $delimiter in one or more fields")
-      text.getBytes(encoding)
-    }
+      if(row.nonEmpty){
+        if (row.length != fieldsCount)
+          throw new RuntimeException(s"Row with values [${row.mkString(",")}] has discrepancy with the schema fields $fieldsCount")
 
-    new InputStream {
+        val text = row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n"
+        text.getBytes(encoding)
+      } else {
+        "".getBytes(encoding)
+      }
+    }
+    val bytesEmpty = bytes.isEmpty
+
+    (new InputStream {
       override def read(): Int =
         if (bytes.hasNext) bytes.next & 0xff
         else -1
-    }
+    }, bytesEmpty)
   }
+
+  //scalastyle:on
 
   override def cleanUp(options: Map[String, String]): Unit = {
     log.info(s"Closing connections in Postgres Output: $name")
     closeConnection(name)
+  }
+
+  private def cleanPropertyChars(property: String): String = {
+    property match {
+      case """\n""" => "\n"
+      case """\b""" => "\b"
+      case """\t""" => "\t"
+      case """\r""" => "\r"
+      case """\f""" => "\f"
+      case _ => property
+    }
   }
 }
 
