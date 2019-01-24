@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 2.5.0-f10d9c2 (Built: January 23, 2019 | Pre-release)
+## 2.5.0-062b5c9 (Built: January 24, 2019 | Pre-release)
 
 * New steps:
     - [SPARTA-2527] SFTP input
@@ -15,7 +15,7 @@
     - [SPARTA-2613][SPARTA-2614] New endpoint for multi-selection in backend
     - [SPARTA-2607] [SPARTA-2626] Orion to Hydra metadata migration
     - [SPARTA-2464] Integration with new Data Governance API
-    - [SPARTA-2568] [SPARTA-2587] [SPARTA-2652] Upgrade spark version to 2.2.0-2.2.0-0e24995 and crossdata version to 2.15.0-24f463e
+    - [SPARTA-2568] [SPARTA-2587] [SPARTA-2652] Upgrade spark version to 2.2.0-2.2.0-0e24995 and crossdata version to 2.15.1-8d96ee8
     - [SPARTA-2429] Configurable mesos role for each workflow and user-defined discarded table name[SPARTA-2560]
     - [SPARTA-2458] Re-launch a stopped execution
     - [SPARTA-2654] Added integration with Spark History Server
