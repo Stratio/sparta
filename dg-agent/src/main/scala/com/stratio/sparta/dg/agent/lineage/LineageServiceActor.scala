@@ -162,9 +162,10 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
 
       val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
         props.get(ServiceKey).map { serviceName =>
-          val metaDataPath = MetadataPath(serviceName, props.get(PathKey), props.get(ResourceKey)).toString
-          val dataStoreType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.classPrettyName
           val stepType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.stepType.toLowerCase
+          val dataStoreType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.classPrettyName
+          val extraPath = props.get(PathKey).map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), props.get(ResourceKey)))
+          val metaDataPath = MetadataPath(serviceName, extraPath, props.get(ResourceKey)).toString
 
           ActorMetadata(
             `type` = LineageUtils.mapSparta2GovernanceStepType(stepType),

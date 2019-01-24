@@ -74,7 +74,7 @@ class FileSystemInputStepStreaming(
     validation
   }
 
-  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
   def init(): DistributedMonad[DStream] = {
     require(path.nonEmpty, "Input path can not be empty")
