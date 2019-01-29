@@ -48,6 +48,8 @@ class StddevOperator(
         stddev(values.map(value => CastingHelper.castingToSchemaType(DoubleType, value.toString.toLong.toInt).asInstanceOf[Double]))
       case _: Float =>
         stddev(values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]))
+      case _: String =>
+        stddev(values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]))
       case _ =>
         throw new Exception(s"Unsupported type in StddevOperator $name")
     }

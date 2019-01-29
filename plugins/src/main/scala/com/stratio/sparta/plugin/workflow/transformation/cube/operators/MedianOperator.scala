@@ -51,6 +51,8 @@ class MedianOperator(
         median(DenseVector(values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).toArray))
       case _: java.sql.Timestamp =>
         median(DenseVector(values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).toArray))
+      case _: String =>
+        median(DenseVector(values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).toArray))
       case _ =>
         throw new Exception(s"Unsupported type in MedianOperator $name")
     }
