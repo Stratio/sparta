@@ -54,12 +54,17 @@ const initialState: State = {
 export function reducer(state: State = initialState, action: any): State {
    switch (action.type) {
       case executionActions.LIST_EXECUTIONS_COMPLETE: {
-         const [execution, ...rest] = action.payload;
+
+         const execution = action.payload && action.payload.length ? action.payload[0] : null;
+         const total = execution && execution.totalCount ? execution.totalCount : action.payload ? action.payload.length : 0;
          return {
             ...state,
             executionList: action.payload,
             loading: false,
-            pagination: { ...state.pagination, total: execution && execution.totalCount ? execution.totalCount : action.payload ? action.payload.length : 0 }
+            pagination: {
+              ...state.pagination,
+              total: total
+            }
          };
       }
       case executionActions.LIST_EXECUTIONS_EMPTY: {
@@ -161,7 +166,10 @@ export function reducer(state: State = initialState, action: any): State {
       case executionActions.SELECT_ALL_EXECUTIONS: {
          return {
             ...state,
-            selectedExecutionsIds: [...state.executionList.map(execution => execution.id)]
+            selectedExecutionsIds: [
+              ...(state.isArchivedPage
+                ? state.archivedExecutionList
+                : state.executionList).map(execution => execution.id)]
          };
       }
       case executionActions.DESELECT_ALL_EXECUTIONS: {

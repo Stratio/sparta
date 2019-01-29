@@ -64,6 +64,7 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
 
   constructor(private elementRef: ElementRef<SVGElement>, private _ngZone: NgZone) {
     this._element = d3Select(this.elementRef.nativeElement);
+    this._setPosition = this._setPosition.bind(this);
   }
 
   /** lifecycle methods */
@@ -81,18 +82,16 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   }
 
   ngAfterContentInit() {
-    this._ngZone.runOutsideAngular(() => {
-      this._element.on('click', this._onClick.bind(this));
-      if (!this.readonlyMode) {
-        this._element.call(d3Drag()
-          .on('drag', this._onDrag.bind(this))
-          .on('start', () => {
-            d3Event.sourceEvent.stopPropagation();
-            this.setEditorDirty.emit();
-            document.body.classList.add('dragging');
-          }).on('end', () => document.body.classList.remove('dragging')));
-      }
-    });
+    this._element.on('click', this._onClick.bind(this));
+    if (!this.readonlyMode) {
+      this._element.call(d3Drag()
+        .on('drag', this._onDrag.bind(this))
+        .on('start', () => {
+          d3Event.sourceEvent.stopPropagation();
+          this.setEditorDirty.emit();
+          document.body.classList.add('dragging');
+        }).on('end', () => document.body.classList.remove('dragging')));
+    }
   }
 
   ngOnDestroy(): void {
@@ -119,10 +118,8 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
       cancelAnimationFrame(this._lastUpdateCall);
       this._lastUpdateCall = null;
     }
-    this._ngZone.run(() => {
-      this.positionChange.emit(this.position);
-    });
-    this._lastUpdateCall = requestAnimationFrame(this._setPosition.bind(this));
+    this.positionChange.emit(this.position);
+    this._lastUpdateCall = requestAnimationFrame(this._setPosition);
   }
 
   private _setPosition() {
@@ -132,17 +129,16 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
 
   private _onClick() {
     d3Event.stopPropagation();
-    this._ngZone.run(() => {
-      this._clicks++;
-      if (this._clicks === 1) {
-        this.onClickEvent.emit();
-        setTimeout(() => {
-          if (this._clicks !== 1) {
-            this.onDoubleClickEvent.emit();
-          }
-          this._clicks = 0;
-        }, 200);
-      }
-    });
+    this._clicks++;
+    if (this._clicks === 1) {
+      this.onClickEvent.emit();
+      setTimeout(() => {
+        if (this._clicks !== 1) {
+          this.onDoubleClickEvent.emit();
+        }
+        this._clicks = 0;
+      }, 200);
+    }
+
   }
 }

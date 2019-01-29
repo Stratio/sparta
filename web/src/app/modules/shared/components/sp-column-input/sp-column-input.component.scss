@@ -150,3 +150,10 @@
       font-size: 10px;
     }
 }
+
+.st-input.error + .variable-selector {
+  border-color: #ec445c;
+  .icon {
+    color: #ec445c;
+  }
+}
