@@ -287,9 +287,9 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def addExecutorHdfsSecurityConfs(sparkConfs: Map[String, String]): Map[String, String] = {
     val enableExecutorHdfsSecurity =  Try{
-      Properties.envOrElse("SPARK_SECURITY_HDFS_ENABLE", "false").toBoolean
+      Properties.envOrElse("HADOOP_CONF_FROM_URI", "false").toBoolean
     }.getOrElse(false)
-    val executorHdfsUri = Properties.envOrNone("SPARK_SECURITY_HDFS_CONF_URI").notBlank
+    val executorHdfsUri = Properties.envOrNone("HADOOP_CONF_URI").notBlank
 
     (enableExecutorHdfsSecurity, executorHdfsUri) match {
       case (true, Some(execHdfsUri)) =>
