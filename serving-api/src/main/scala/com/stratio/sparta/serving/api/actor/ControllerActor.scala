@@ -290,17 +290,14 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
 
     override def baseUrl: String = {
       val marathonLBPath = for {
-        marathonLB_host <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_VHOST").notBlank
-        marathonLB_path <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_PATH").notBlank
+        marathonLB_host <- AppConstant.virtualHost
+        marathonLB_path <- AppConstant.virtualPath
       } yield {
-        val ssl = Properties.envOrElse("SECURITY_TLS_ENABLE", "false").toBoolean
-        s"http${if (ssl) "s" else ""}:" + s"//${marathonLB_host + marathonLB_path}"
+        val protocol = if (AppConstant.securityTLSEnable) "https" else "http"
+        s"$protocol://$marathonLB_host$marathonLB_path"
       }
 
-      marathonLBPath match {
-        case Some(marathonLBpath) => marathonLBpath
-        case None => "/"
-      }
+      marathonLBPath.getOrElse("/")
     }
   }
 }

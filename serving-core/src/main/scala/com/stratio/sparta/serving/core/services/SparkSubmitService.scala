@@ -423,9 +423,7 @@ object SparkSubmitService {
   val ExecutionIdKey = "executionId"
   val PluginsKey = "plugins"
 
-  lazy val spartaTenant = Properties.envOrElse(MarathonConstant.DcosServiceName,
-    Properties.envOrElse("TENANT_NAME", "sparta"))
-  lazy val spartaLocalAppName = s"$spartaTenant-spark-standalone"
+  lazy val spartaLocalAppName = s"${AppConstant.spartaTenant}-spark-standalone"
   lazy val extraSparkJarsPath = Try(SpartaConfig.getCrossdataConfig().get.getString("session.sparkjars-path"))
     .getOrElse("/opt/sds/sparta/repo")
   lazy val mapExtraSparkJars: Seq[String] = Seq(

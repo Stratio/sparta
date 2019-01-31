@@ -89,13 +89,17 @@ object AppConstant extends ZookeeperUtils {
   val SystemHostName = "HOSTNAME"
   val DefaultFSProperty = "fs.defaultFS"
 
-  //Zookeeper
-  val DefaultZKPath = "/stratio/sparta/sparta"
-
+  //Postgres
   val PostgresDaos="com.stratio.sparta.serving.core.services.dao"
 
-  //Zookeeper paths
   val instanceName = Properties.envOrNone(MarathonConstant.DcosServiceName)
+  val spartaTenant = instanceName.getOrElse(Properties.envOrElse("TENANT_NAME", "sparta-server"))
+  val securityTLSEnable = Try(Properties.envOrElse(MarathonConstant.SpartaTLSEnableEnv, "false").toBoolean).getOrElse(false)
+  val virtualHost = Properties.envOrNone(MarathonConstant.ServerMarathonLBHostEnv).notBlank
+  val virtualPath = Properties.envOrNone(MarathonConstant.ServerMarathonLBPathEnv).notBlank
+
+  //Zookeeper
+  val DefaultZKPath = "/stratio/sparta/sparta"
   lazy val BaseZkPath: String = (retrievePathFromEnv, instanceName, retrieveFromConf) match {
     case (Some(path), _, _ ) if checkIfValidPath(path) => path
     case (_, Some(instance), _)=> s"/stratio/sparta/$instance"
@@ -119,7 +123,6 @@ object AppConstant extends ZookeeperUtils {
   lazy val GroupZkPath = s"$BaseZkPath/group"
   lazy val GroupOldZkPath = s"$BaseZkPath-old/group"
 
-
   //Ignite
   val IgniteEnabled = "enabled"
   val IgniteInstanceName = "instance.name"
@@ -134,9 +137,6 @@ object AppConstant extends ZookeeperUtils {
   val IgnitePersistencePath = "persistence.persistencePath"
   val IgniteMemoryInitialSize ="memory.initialSizeMB"
   val IgniteMemoryMaxSize ="memory.maxSizeMB"
-
-  //Marathon
-  val marathonInstanceName = AppConstant.instanceName.fold("sparta-server") { x => x }
 
   lazy val ClusterSeedNodesZkPath = s"$BaseZkPath/seedNodes"
 

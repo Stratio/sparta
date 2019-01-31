@@ -159,13 +159,14 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
       responseUnauthorized()
     else if (errorServerErrors.exists(response.contains(_))) responseUnExpectedError(ServerError(response))
     else {
-      successfulLog.foreach(log.debug(_))
+      successfulLog.foreach{log.debug}
       Future(response)
     }
   }
 
   def retrieveApps(): Future[String] = {
-    val appsList = s"v2/apps?id=sparta/$marathonInstanceName/workflows&embed=apps.tasks"
+    retrieveIPandPorts
+    val appsList = s"v2/apps?id=sparta/$spartaTenant/workflows&embed=apps.tasks"
     val appsInDcosResponse = for {
       responseMarathon <- doRequest(marathonApiUri.get,
         appsList,
@@ -199,7 +200,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
-    val groupsPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
+    val groupsPath = s"v2/groups/sparta/$spartaTenant/workflows"
     for {
       groups <- doRequest(marathonApiUri.get,
         groupsPath,
@@ -227,7 +228,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
-    val groupPath = s"v2/groups/sparta/$marathonInstanceName/workflows"
+    val groupPath = s"v2/groups/sparta/$spartaTenant/workflows"
 
     import oauthUtils._
 

@@ -200,11 +200,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     val newCpus = submitExecution.sparkConfigurations.get("spark.driver.cores").map(_.toDouble).getOrElse(app.cpus)
     val newMem = submitExecution.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt).getOrElse(app.mem) + getSOMemory
     val marathonAppHeapSize = Try(getSOMemory / 2).getOrElse(512)
-    val envFromSubmit = submitExecution.sparkConfigurations.flatMap { case (key, value) =>
-      if (key.startsWith("spark.mesos.driverEnv.")) {
-        Option((key.split("spark.mesos.driverEnv.").tail.head, value))
-      } else None
-    }
     val (dynamicAuthEnv, newSecrets) = {
       val appRoleName = Properties.envOrNone(AppRoleNameEnv)
       if (useDynamicAuthentication && appRoleName.isDefined) {
@@ -217,7 +212,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       Map(SpartaMarathonTotalTimeBeforeKill -> calculateMaxTimeout(newHealthChecks).toString)
 
     val newEnv = Option(
-      envProperties(workflowModel, execution, marathonAppHeapSize) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
+      envProperties(workflowModel, execution, marathonAppHeapSize) ++ envVariablesFromSubmit(submitExecution) ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
         calicoProperties ++ extraProperties ++ spartaExtraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
         intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties ++ mesosRoleFromSubmit(submitExecution) ++ getUserDefinedEnvVariables(workflowModel) ++ healthCheckEnvVariables

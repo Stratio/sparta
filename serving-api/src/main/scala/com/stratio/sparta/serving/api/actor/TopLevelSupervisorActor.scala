@@ -9,10 +9,11 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{Actor, AllForOneStrategy, Props, SupervisorStrategy}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.dg.agent.lineage.LineageServiceActor
 import com.stratio.sparta.serving.core.actor.{ExecutionStatusChangeListenerActor, ExecutionStatusChangePublisherActor, SchedulerMonitorActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.MarathonConstant.NginxMarathonLBHostEnv
+import com.stratio.sparta.serving.core.constants.MarathonConstant
 
 import scala.util.{Properties, Try}
 
@@ -24,7 +25,7 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
     case _ => log.debug("Unsupported message received in TopLevelSupervisorActor")
   }
 
-  override def supervisorStrategy: SupervisorStrategy = AllForOneStrategy(){
+  override def supervisorStrategy: SupervisorStrategy = AllForOneStrategy() {
     case _ => Restart
   }
 
@@ -39,7 +40,10 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
     context.actorOf(Props[SchedulerMonitorActor])
 
     //Initialize Nginx actor
-    if (Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true }) {
+    if (
+      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
+        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
+    ) {
       log.info("Initializing Nginx service")
       Option(context.actorOf(Props(new NginxActor())))
     }

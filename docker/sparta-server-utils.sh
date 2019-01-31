@@ -25,11 +25,11 @@ function initLocalSparkIp() {
 }
 
 function initSparkUICrossdata() {
-    if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] ; then
+    if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v MARATHON_APP_LABEL_HAPROXY_1_PATH ] ; then
         echo "" >> ${VARIABLES}
-        echo "export APPLICATION_WEB_PROXY_BASE=/workflows-${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}/crossdata-sparkUI" >> ${VARIABLES}
+        echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI" >> ${VARIABLES}
         echo "" >> ${SYSTEM_VARIABLES}
-        echo "export APPLICATION_WEB_PROXY_BASE=/workflows-${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}/crossdata-sparkUI" >> ${SYSTEM_VARIABLES}
+        echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI" >> ${SYSTEM_VARIABLES}
         echo "" >> ${VARIABLES}
     fi
 }

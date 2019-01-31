@@ -42,9 +42,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   override val profile = PostgresProfile
   override val db = JdbcSlickConnection.getDatabase
 
-  import profile.api._
-
   import com.stratio.sparta.serving.core.dao.CustomColumnTypes._
+  import profile.api._
 
   override def initializeData(): Unit = {
     initialCacheLoad()
@@ -102,7 +101,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       .dinamicFilter(statusFilter)(status => t => t.resumedStatus.inSet(status))
       .dinamicFilter(execEngineFilter)(engine => t => t.executionEngine === engine)
       .dinamicFilter(workflowExecutionQuery.searchText)(search => t => t.searchText like s"%$search%")
-      .dinamicFilter(dateFilter)(date => t  => t.resumedDate >= date._1 && t.resumedDate <= date._2)
+      .dinamicFilter(dateFilter)(date => t => t.resumedDate >= date._1 && t.resumedDate <= date._2)
       .query.sortBy(_.resumedDate.desc)
 
     for {
@@ -175,9 +174,9 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     Await.result(
       db.run(
         table.filter(_.id === execution.getExecutionId)
-        .map(oldExecution => oldExecution.marathonExecution)
-        .update(execution.marathonExecution)
-        .transactionally),
+          .map(oldExecution => oldExecution.marathonExecution)
+          .update(execution.marathonExecution)
+          .transactionally),
       AppConstant.DefaultApiTimeout seconds
     )
     Future(execution).cached()
@@ -506,8 +505,10 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
                                             workflowExecution: WorkflowExecution,
                                             sparkConfs: Map[String, String]
                                           ): Map[String, String] = {
-    if (Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
-      Properties.envOrNone(MarathonConstant.DcosServiceName).notBlank.isDefined) {
+    if (
+      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
+        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
+    ) {
       val proxyLocation = WorkflowHelper.getProxyLocation(WorkflowHelper.getExecutionDeploymentId(workflowExecution))
       sparkConfs + (SubmitUiProxyPrefix -> proxyLocation)
     } else sparkConfs

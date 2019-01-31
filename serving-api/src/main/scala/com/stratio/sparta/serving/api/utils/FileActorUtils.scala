@@ -13,6 +13,7 @@ import java.util.function.Predicate
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import spray.http.BodyPart
 
@@ -96,16 +97,10 @@ trait FileActorUtils extends SLF4JLogging {
     }
 
   def url: String = {
-    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST", "")
-    val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "")
-
-    if (marathonLB_host.nonEmpty && marathonLB_path.nonEmpty)
-      s"https://$marathonLB_host$marathonLB_path/$apiPath"
+    if (AppConstant.virtualHost.isDefined && AppConstant.virtualPath.isDefined)
+      s"https://${AppConstant.virtualHost.get}${AppConstant.virtualPath.get}/$apiPath"
     else {
-      val protocol = {
-        if(Try(Properties.envOrElse("SECURITY_TLS_ENABLE", "false").toBoolean).getOrElse(false)) "https://"
-        else "http://"
-      }
+      val protocol = if(AppConstant.securityTLSEnable) "https://" else "http://"
       val host = Try(InetAddress.getLocalHost.getHostName).getOrElse(SpartaConfig.getApiConfig().get.getString("host"))
       val port = SpartaConfig.getApiConfig().get.getInt("port")
 

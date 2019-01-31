@@ -3,6 +3,7 @@
 ## 2.6.0 (upcoming)
 
 * [SPARTA-2683] Support authentication via headers
+* [SPARTA-2686] Support virtual host and virtual path for Nginx redirections
 
 ## 2.5.0-062b5c9 (Built: January 24, 2019 | Released: January 25, 2019)
 

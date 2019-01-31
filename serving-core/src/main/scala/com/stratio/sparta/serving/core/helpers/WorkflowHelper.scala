@@ -9,7 +9,7 @@ import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.utils.ClasspathUtils
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
@@ -79,7 +79,20 @@ object WorkflowHelper extends SLF4JLogging {
     s"sparta/$inputServiceName/workflows/${getExecutionDeploymentId(workflowExecution)}"
   }
 
-  def getProxyLocation(workflowLocation: String): String = {
-    s"/workflows-${AppConstant.marathonInstanceName}/$workflowLocation/"
+  def getProxyLocation(workflowLocation: String): String = s"$getVirtualPath/$workflowLocation/"
+
+  def getVirtualPath: String = {
+    Properties.envOrElse(
+      MarathonConstant.NginxMarathonLBUserPathEnv,
+      Properties.envOrElse(MarathonConstant.NginxMarathonLBPathEnv, s"/workflows-${AppConstant.spartaTenant}")
+    )
   }
+
+  def getVirtualHost: String = {
+    Properties.envOrElse(
+      MarathonConstant.NginxMarathonLBUserHostEnv,
+      Properties.envOrElse(MarathonConstant.NginxMarathonLBHostEnv, "sparta.stratio.com")
+    )
+  }
+
 }

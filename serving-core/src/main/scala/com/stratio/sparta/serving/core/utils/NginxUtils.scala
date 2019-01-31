@@ -11,7 +11,7 @@ import java.nio.file.{Files, StandardCopyOption}
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.stream.ActorMaterializer
-import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant, SparkConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.utils.MarathonAPIUtils._
 import com.stratio.sparta.serving.core.utils.NginxUtils._
@@ -20,28 +20,27 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.sys.process._
 import scala.util.{Properties, Try}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 object NginxUtils {
 
   def buildSparkUI(id: String): Option[String] = {
-    val url = for {
-      monitorVhost <- Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv)
-      serviceName <- Properties.envOrNone(MarathonConstant.DcosServiceName)
-    } yield {
-      val useSsl = Properties.envOrNone("SECURITY_TLS_ENABLE") flatMap { strVal =>
-        Try(strVal.toBoolean).toOption
+    if (
+      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
+        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
+    ) {
+      val useSsl = Properties.envOrNone(MarathonConstant.SpartaTLSEnableEnv) flatMap { strVal =>
+          Try(strVal.toBoolean).toOption
       } getOrElse false
-      monitorUrl(monitorVhost, serviceName, id, useSsl)
-    }
-    url.orElse(None)
+      Option(monitorUrl(WorkflowHelper.getVirtualHost, WorkflowHelper.getVirtualPath, id, useSsl))
+    } else None
   }
 
-  private def monitorUrl(vhost: String, spartaInstance: String, workflowId: String, ssl: Boolean = true): String = {
+  private def monitorUrl(vhost: String, vpath: String, workflowId: String, ssl: Boolean = true): String = {
     val nameWithoutRoot =
       if (workflowId.startsWith("/")) workflowId.substring(1) else workflowId
-    s"http${if (ssl) "s" else ""}://$vhost/workflows-$spartaInstance/$nameWithoutRoot/"
+    s"http${if (ssl) "s" else ""}://$vhost$vpath/$nameWithoutRoot/"
   }
-
 
   case class NginxMetaConfig(
                               configFile: File,
@@ -49,6 +48,7 @@ object NginxUtils {
                               instanceName: String,
                               securityFolder: String,
                               workflowsUiVhost: String,
+                              workflowsUiVpath: String,
                               workflowsUiPort: Int,
                               useSsl: Boolean
                             )
@@ -56,15 +56,12 @@ object NginxUtils {
   object NginxMetaConfig {
     def apply(configPath: String = "/etc/nginx/nginx.conf",
               pidFilePath: String = "/run/nginx.pid",
-              instanceName: String = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
-                Properties.envOrElse("TENANT_NAME", "sparta")),
-              securityFolder: String = Properties.envOrElse("SPARTA_SECRET_FOLDER", "/etc/sds/sparta/security"),
-              workflowsUiVhost: String = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_1_VHOST",
-                "sparta.stratio.com"),
-              workflowsUiPort: Int = Properties.envOrElse("PORT_SPARKAPI", "4040").toInt,
-              useSsl: Boolean = Properties.envOrNone("SECURITY_TLS_ENABLE") flatMap { strVal =>
-                Try(strVal.toBoolean).toOption
-              } getOrElse false
+              instanceName: String = AppConstant.spartaTenant,
+              securityFolder: String = Properties.envOrElse(MarathonConstant.SpartaSecretFolderEnv, "/etc/sds/sparta/security"),
+              workflowsUiVhost: String = WorkflowHelper.getVirtualHost,
+              workflowsUiVpath: String = WorkflowHelper.getVirtualPath,
+              workflowsUiPort: Int = Properties.envOrElse(SparkConstant.SparkUiPortEnv, SparkConstant.DefaultUIPort.toString).toInt,
+              useSsl: Boolean = AppConstant.securityTLSEnable
              ): NginxMetaConfig = {
       implicit def path2file(path: String): File = new File(path)
 
@@ -74,6 +71,7 @@ object NginxUtils {
         instanceName,
         securityFolder,
         workflowsUiVhost,
+        workflowsUiVpath,
         workflowsUiPort,
         useSsl
       )
@@ -125,13 +123,14 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
   import NginxError._
   import nginxMetaConfig._
 
-
   val crossdataLocalDeploymentWithUI =
-    Try(Properties.envOrNone("CROSSDATA_SERVER_SPARK_UI_ENABLED").get.toBoolean).getOrElse(true)
-
-  val crossdataItem: AppParameters = AppParameters("crossdata-sparkUI",
-    "127.0.0.1",
-    Try(Properties.envOrNone("CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT").get.toInt).getOrElse(4041))
+    Try(Properties.envOrNone(SparkConstant.CrossdataSparkUiEnabled).get.toBoolean).getOrElse(true)
+  val crossdataItem = AppParameters(
+    appId = "crossdata-sparkUI",
+    addressIP = "127.0.0.1",
+    port = Try(Properties.envOrNone(SparkConstant.CrossdataSparkUiPort).get.toInt)
+      .getOrElse(SparkConstant.DefaultUIPort)
+  )
 
   def startNginx(): Future[Unit] = Future {
     val maybeProblem =
@@ -185,7 +184,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
   def updateNginx(): Future[Boolean] = {
     for {
       calicoAddresses <- retrieveIPandPorts
-      res <- modifyConf(calicoAddresses, workflowsUiVhost)
+      res <- modifyConf(calicoAddresses, workflowsUiVhost, workflowsUiVpath)
     } yield {
       log.debug(s"Nginx configuration correctly updated")
       res
@@ -215,14 +214,18 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
     * @param uiVirtualHost
     * @return `true` iff the update brings changes to the config file
     */
-  private[utils] def modifyConf(listWorkflows: Seq[AppParameters], uiVirtualHost: String): Future[Boolean] =
+  private[utils] def modifyConf(
+                                 listWorkflows: Seq[AppParameters],
+                                 uiVirtualHost: String,
+                                 uiVirtualPath: String
+                               ): Future[Boolean] =
     for {
       tempFile <- Future(File.createTempFile(configFile.getName, null))
       res <- Future {
         val fullListOfWorkflows = if (crossdataLocalDeploymentWithUI)
           listWorkflows.+:(crossdataItem)
         else listWorkflows
-        val config = updatedNginxConf(fullListOfWorkflows, uiVirtualHost)
+        val config = updatedNginxConf(fullListOfWorkflows, uiVirtualHost, uiVirtualPath)
 
         // Detect config changes
         val diff = !configFile.exists || using(scala.io.Source.fromFile(configFile)) { source =>
@@ -262,7 +265,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
 
   //scalastyle:on
 
-  private[utils] def updatedNginxConf(implicit listWorkflows: Seq[AppParameters], uiVirtualHost: String): String =
+  private[utils] def updatedNginxConf(listWorkflows: Seq[AppParameters], uiVirtualHost: String, uiVirtualPath: String): String =
     s"""
        |events {
        |  worker_connections 4096;
@@ -279,18 +282,18 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
        |    access_log /dev/stdout combined;
        |    error_log stderr info;
        |
-       |    $workflowNginxLocations
+       |    ${workflowNginxLocations(listWorkflows, uiVirtualHost, uiVirtualPath)}
        |
        |  }
        |
        |}
      """.stripMargin
 
-  private[utils] def workflowNginxLocations(implicit listWorkflows: Seq[AppParameters], uiVirtualHost: String): String =
+  private[utils] def workflowNginxLocations(listWorkflows: Seq[AppParameters], uiVirtualHost: String, uiVirtualPath: String): String =
     listWorkflows map { case AppParameters(id, ip, port) =>
 
       val workflowName = Try(id.substring(id.indexOf("home"))).getOrElse(id.split('/').last)
-      val monitorEndUrl = monitorUrl(uiVirtualHost, instanceName, workflowName, useSsl)
+      val monitorEndUrl = monitorUrl(uiVirtualHost, uiVirtualPath, workflowName, useSsl)
       val nginxLocation = WorkflowHelper.getProxyLocation(workflowName)
 
       s"""
