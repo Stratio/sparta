@@ -33,6 +33,7 @@ class DebugLauncherActor() extends Actor with SLF4JLogging {
     case _ => log.info("Unrecognized message in Debug Launcher Actor")
   }
 
+  //scalastyle:off
   private def doDebugWorkflow(execution: WorkflowExecution): Unit = {
     try {
       val workflow = execution.getWorkflowToExecute
@@ -49,6 +50,14 @@ class DebugLauncherActor() extends Actor with SLF4JLogging {
       } match {
         case Success(_) =>
           log.info("Workflow debug executed successfully")
+          for {
+            _ <- debugWorkflowPgService.setSuccessful(workflow.id.get, state = true)
+            _ <- debugWorkflowPgService.setEndDate(workflow.id.get)
+          } yield {
+            log.info("Workflow debug results updated successfully")
+          }
+        case Failure(_: org.I0Itec.zkclient.exception.ZkInterruptedException) =>
+          log.info("Workflow debug executed successfully with Gosec-Zookeeper exception")
           for {
             _ <- debugWorkflowPgService.setSuccessful(workflow.id.get, state = true)
             _ <- debugWorkflowPgService.setEndDate(workflow.id.get)
