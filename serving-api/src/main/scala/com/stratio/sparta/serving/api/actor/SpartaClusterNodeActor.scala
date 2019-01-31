@@ -19,8 +19,11 @@ import org.apache.curator.framework.recipes.leader.LeaderLatch
 import org.apache.zookeeper.CreateMode
 import org.json4s.jackson.Serialization._
 
+import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.utils.{SeedNodeAddress, SpartaClusterUtils}
 
 //scalastyle:off
@@ -35,6 +38,10 @@ class SpartaClusterNodeActor extends Actor with SpartaClusterUtils with SLF4JLog
 
   override def preStart(): Unit = {
     Try {
+      if (CuratorFactoryHolder.existsPath(AppConstant.ClusterSeedNodesZkPath) && curatorFramework.getChildren.forPath(AppConstant.ClusterSeedNodesZkPath).size() > 0) {
+        log.debug("Validate inconsistent seed ephemeral nodes...")
+        Thread.sleep(SpartaConfig.getZookeeperConfig().get.getInt(SdkConstants.ZKSessionTimeout))
+      }
       log.debug(s"Executing Zookeeper Latch in the sparta cluster initialization")
       val latch = new LeaderLatch(curatorFramework, SeedPath)
       latch.start()
@@ -93,7 +100,6 @@ class SpartaClusterNodeActor extends Actor with SpartaClusterUtils with SLF4JLog
     cluster.leave(cluster.selfAddress)
     forceRemoveZkNode(cluster.selfAddress)
   }
-
 
   /** PRIVATE METHODS */
 
