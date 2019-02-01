@@ -8,22 +8,21 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.ParameterListActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.constants.HttpConstant._
-import com.stratio.sparta.serving.api.actor.ParameterListActor._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterListAndContexts, ParameterListFromWorkflow}
-import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.StatusCodes
 import spray.routing.Route
 
 @Api(value = HttpConstant.ParameterListPath, description = "Operations over parameters lists")
-trait ParameterListHttpService extends BaseHttpService with OauthClient {
+trait ParameterListHttpService extends BaseHttpService {
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,

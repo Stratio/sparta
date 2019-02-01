@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel.{WorkflowExecutionQuery, _}
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 
 @Api(value = HttpConstant.ExecutionsPath, description = "Operations over workflow executions", position = 0)

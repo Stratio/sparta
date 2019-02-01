@@ -7,18 +7,16 @@
 package com.stratio.sparta.serving.api.service.http
 
 import scala.util.{Failure, Success, Try}
-
 import akka.actor.ActorRef
 import akka.testkit.TestActor
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
-
 import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.serving.api.actor.ExecutionActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.GosecUser
 import com.stratio.sparta.serving.core.models.workflow.{DtoModelImplicits, WorkflowExecution, WorkflowExecutionDto}
 
 @RunWith(classOf[JUnitRunner])
@@ -26,7 +24,7 @@ class ExecutionHttpServiceTest extends WordSpec
   with ExecutionHttpService
   with HttpServiceBaseTest {
 
-  val rootUser = Option(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val rootUser = Option(GosecUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
 
   override implicit val actors: Map[String, ActorRef] = Map()
 

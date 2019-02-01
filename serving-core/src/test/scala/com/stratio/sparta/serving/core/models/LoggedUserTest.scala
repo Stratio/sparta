@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, GosecUserConstants}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -18,8 +18,8 @@ class LoggedUserTest extends WordSpec with Matchers {
   "An input String" when {
     "containing a well-formed JSON" should {
       "be correctly transformed into a LoggedUser" in {
-        val objectUser = LoggedUser("1234-qwerty", "user1",
-          LoggedUserConstant.dummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+        val objectUser = GosecUser("1234-qwerty", "user1",
+          GosecUserConstants.DummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
         val stringJson =
           """
         {"id":"1234-qwerty",
@@ -31,7 +31,7 @@ class LoggedUserTest extends WordSpec with Matchers {
           {"roles":["admin"]}
         ]}"""
 
-        val parsedUser = LoggedUser.jsonToDto(stringJson)
+        val parsedUser = GosecUser.jsonToDto(stringJson)
         parsedUser shouldBe defined
         parsedUser.get should equal(objectUser)
       }
@@ -48,8 +48,8 @@ class LoggedUserTest extends WordSpec with Matchers {
           |{"mail":"sparta@demo.stratio.com"},
           |{"groups":["Developers"]},
           |{"roles":[]}]}""".stripMargin
-        val parsedUser = LoggedUser.jsonToDto(stringSparta)
-        val objectUser = LoggedUser("sparta", "sparta",
+        val parsedUser = GosecUser.jsonToDto(stringSparta)
+        val objectUser = GosecUser("sparta", "sparta",
           "sparta@demo.stratio.com", "", Seq("Developers"), Seq.empty[String])
         parsedUser shouldBe defined
         parsedUser.get should equal (objectUser)
@@ -62,7 +62,7 @@ class LoggedUserTest extends WordSpec with Matchers {
     "is empty" should {
       "be transformed into None" in {
         val stringJson = ""
-        val parsedUser = LoggedUser.jsonToDto(stringJson)
+        val parsedUser = GosecUser.jsonToDto(stringJson)
         parsedUser shouldBe None
       }
     }
@@ -71,8 +71,8 @@ class LoggedUserTest extends WordSpec with Matchers {
   "A user" when {
     "Oauth2 security is enabled" should {
       "be authorized only if one of its roles is contained inside allowedRoles" in {
-        val objectUser = LoggedUser("1234-qwerty", "user1",
-          LoggedUserConstant.dummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+        val objectUser = GosecUser("1234-qwerty", "user1",
+          GosecUserConstants.DummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
         objectUser.isAuthorized(securityEnabled = true, allowedRoles = Seq("admin")) === true &&
           objectUser.isAuthorized(securityEnabled = true,
             allowedRoles = Seq("OtherAdministratorRole", "dummyUser")) === false
@@ -83,9 +83,9 @@ class LoggedUserTest extends WordSpec with Matchers {
   "A user" when {
     "Oauth2 security is disabled" should {
       "always be authorized" in {
-        val objectUser = LoggedUser("1234-qwerty", "user1",
-          LoggedUserConstant.dummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
-        objectUser.isAuthorized(securityEnabled = false, allowedRoles = LoggedUserConstant.allowedRoles) === true
+        val objectUser = GosecUser("1234-qwerty", "user1",
+          GosecUserConstants.DummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+        objectUser.isAuthorized(securityEnabled = false, allowedRoles = GosecUserConstants.AllowedRoles) === true
       }
     }
   }

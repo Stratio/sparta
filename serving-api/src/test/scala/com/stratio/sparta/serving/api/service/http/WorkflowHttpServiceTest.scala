@@ -11,7 +11,7 @@ import akka.actor.ActorRef
 import com.stratio.sparta.core.exception.MockException
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, GosecUserConstants, LoggedUser}
 import com.stratio.sparta.serving.core.models.workflow._
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -31,8 +31,8 @@ class WorkflowHttpServiceTest extends WordSpec
   override val supervisor: ActorRef = testProbe.ref
   val id = UUID.randomUUID.toString
   val group = "default"
-  val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
-  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val dummyUser = Some(GosecUserConstants.AnonymousUser)
 
   override implicit val actors: Map[String, ActorRef] = Map()
 

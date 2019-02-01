@@ -14,7 +14,7 @@ import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.Unauthorize
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfoRequest, TablesRequest}
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.wordnik.swagger.annotations._
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import spray.http.StatusCodes

@@ -7,9 +7,10 @@
 package com.stratio.sparta.serving.core.config
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.typesafe.config.{Config, ConfigFactory}
 
-import com.stratio.sparta.serving.core.constants.AppConstant._
+import scala.util.Try
 
 /**
   * Helper with common operations used to create a Sparta context used to run the application.
@@ -22,6 +23,7 @@ object SpartaConfig extends SLF4JLogging {
   private var crossdataConfig: Option[Config] = None
   private var apiConfig: Option[Config] = None
   private var oauth2Config: Option[Config] = None
+  private var headersAuthConfig: Option[Config] = None
   private[core] var postgresConfig: Option[Config] = None
   private var zookeeperConfig: Option[Config] = None
   private var hdfsConfig: Option[Config] = None
@@ -52,6 +54,20 @@ object SpartaConfig extends SLF4JLogging {
   def getOauth2Config(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initOauth2Config(fromConfig)
     else oauth2Config.orElse(initOauth2Config(fromConfig))
+
+  def getAuthViaHeadersConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[AuthViaHeadersConfig] = {
+    val optConfig =
+      if(force) initAuthViaHeadersConfig(fromConfig)
+      else headersAuthConfig.orElse(initAuthViaHeadersConfig(fromConfig))
+
+    optConfig.map{ config =>
+      AuthViaHeadersConfig(
+        Try(config.getString("enabled").toBoolean).getOrElse(false),
+        Try(config.getString("user")).getOrElse("USER_HEADER"),
+        Try(config.getString("group")).getOrElse("GROUP_HEADER")
+      )
+    }
+  }
 
   def getPostgresConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initPostgresConfig(fromConfig)
@@ -139,6 +155,12 @@ object SpartaConfig extends SLF4JLogging {
     val configFactory = SpartaConfigFactory(fromConfig)
     oauth2Config = initConfig(ConfigOauth2, configFactory)
     oauth2Config
+  }
+
+  private[config] def initAuthViaHeadersConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    headersAuthConfig = initConfig(ConfigAuthViaHeaders, configFactory)
+    headersAuthConfig
   }
 
   private[config] def initPostgresConfig(fromConfig: Option[Config] = None): Option[Config] = {

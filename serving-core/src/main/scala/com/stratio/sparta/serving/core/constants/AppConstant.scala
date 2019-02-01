@@ -22,6 +22,7 @@ object AppConstant extends ZookeeperUtils {
 
   val ConfigAppName = "sparta"
   val ConfigOauth2 = "oauth2"
+  val ConfigAuthViaHeaders = "sparta.authWithHeaders"
   val ConfigSpray = "spray.can.server"
   val ConfigSpark = "spark"
   val ConfigCrossdata = "crossdata"

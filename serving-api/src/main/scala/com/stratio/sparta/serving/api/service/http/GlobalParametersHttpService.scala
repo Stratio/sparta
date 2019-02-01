@@ -14,7 +14,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
 import com.wordnik.swagger.annotations._
 import spray.http.StatusCodes

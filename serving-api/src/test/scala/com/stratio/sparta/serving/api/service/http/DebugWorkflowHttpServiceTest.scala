@@ -13,7 +13,7 @@ import com.stratio.sparta.core.models.{DebugResults, ResultStep}
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
+import com.stratio.sparta.serving.core.models.authorization.GosecUserConstants
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow.DebugWorkflow
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
@@ -33,7 +33,7 @@ class DebugWorkflowHttpServiceTest extends WordSpec
 
   override val supervisor: ActorRef = testProbe.ref
   override implicit val actors: Map[String, ActorRef] = Map.empty[String, ActorRef]
-  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+  val dummyUser = Some(GosecUserConstants.AnonymousUser)
 
 
   "DebugWorkflowHttpService.findById" should {

@@ -12,7 +12,7 @@ import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, GosecUserConstants, LoggedUser}
 import com.stratio.sparta.serving.core.models.workflow.Group
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -28,8 +28,8 @@ class GroupHttpServiceTest extends WordSpec
 
   val workflowTestProbe = TestProbe()
   val groupTestProbe = TestProbe()
-  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
-  val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val dummyUser = Some(GosecUserConstants.AnonymousUser)
+  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
 
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.WorkflowActorName -> workflowTestProbe.ref,

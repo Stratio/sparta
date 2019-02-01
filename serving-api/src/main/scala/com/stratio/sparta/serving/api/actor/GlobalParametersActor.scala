@@ -11,7 +11,7 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.GlobalParametersActor._
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 

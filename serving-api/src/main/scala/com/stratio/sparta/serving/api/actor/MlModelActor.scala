@@ -12,7 +12,7 @@ import com.stratio.sparta.serving.api.actor.MlModelActor.FindAllModels
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.services.MlModelService
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.intelligence.IntelligenceModel
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.httpx.Json4sJacksonSupport

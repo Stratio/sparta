@@ -16,7 +16,7 @@ import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
@@ -57,8 +57,8 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
   implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
-  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
-  val limitedUser = Some(LoggedUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val rootUser = Some(GosecUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val limitedUser = Some(GosecUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
 
   override def beforeEach(): Unit = {
     SpartaConfig.getApiConfig(Option(localConfig))

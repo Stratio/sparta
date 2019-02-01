@@ -8,23 +8,21 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.TemplateActor._
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.constants.HttpConstant._
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
+import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
+import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.wordnik.swagger.annotations._
 import spray.http.StatusCodes
 import spray.routing.Route
 
-import com.stratio.sparta.serving.api.constants.HttpConstant._
-import com.stratio.sparta.serving.api.actor.TemplateActor._
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
-import com.stratio.sparta.serving.core.models.ErrorModel
-import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.TemplateElement
-import com.stratio.spray.oauth2.client.OauthClient
-
 
 @Api(value = HttpConstant.TemplatePath, description = "Operations over templates (inputs, outputs and transformations)")
-trait TemplateHttpService extends BaseHttpService with OauthClient {
+trait TemplateHttpService extends BaseHttpService {
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
@@ -34,7 +32,7 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
 
   override def routes(user: Option[LoggedUser] = None): Route =
     findAll(user) ~ findByTypeAndId(user) ~ findByTypeAndName(user) ~ //findById(user) ~
-  findAllByType(user) ~ create(user) ~ update(user) ~ deleteByTypeAndId(user) ~
+      findAllByType(user) ~ create(user) ~ update(user) ~ deleteByTypeAndId(user) ~
       deleteByType(user) ~ deleteByTypeAndName(user) ~ deleteAll(user) ~ migrate(user)
 
   @Path("/id/{id}")

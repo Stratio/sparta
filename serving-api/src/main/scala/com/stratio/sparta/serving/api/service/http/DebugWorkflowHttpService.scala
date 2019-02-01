@@ -5,31 +5,30 @@
  */
 package com.stratio.sparta.serving.api.service.http
 
+import javax.ws.rs.Path
+
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.constants.HttpConstant._
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{DebugWorkflow, WorkflowIdExecutionContext}
-import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
-import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
-import javax.ws.rs.Path
-
-import com.stratio.spray.oauth2.client.OauthClient
+import com.stratio.sparta.serving.core.models.workflow.{DebugWorkflow, WorkflowIdExecutionContext}
 import com.wordnik.swagger.annotations._
 import spray.http.HttpHeaders.{`Content-Disposition`, `Content-Type`}
 import spray.http.{StatusCodes, _}
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
-import HttpConstant._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.DebugWorkflowsPath, description = "Workflow debug utility")
-trait DebugWorkflowHttpService extends BaseHttpService with OauthClient {
+trait DebugWorkflowHttpService extends BaseHttpService {
 
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
     FormDataUnmarshallers.MultipartFormDataUnmarshaller

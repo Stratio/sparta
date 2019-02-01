@@ -13,7 +13,7 @@ import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
+import com.stratio.sparta.serving.core.models.authorization.GosecUserConstants
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -29,7 +29,7 @@ class ConfigHttpServiceTest extends WordSpec
 
   val configActorTestProbe = TestProbe()
 
-  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+  val dummyUser = Some(GosecUserConstants.AnonymousUser)
 
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.ConfigActorName -> configActorTestProbe.ref

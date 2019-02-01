@@ -6,12 +6,10 @@
 package com.stratio.sparta.serving.api.actor
 
 import scala.util.Try
-
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 import spray.httpx.Json4sJacksonSupport
-
 import com.stratio.sparta.security.{SpartaSecurityManager, _}
 import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
@@ -19,7 +17,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.LinkHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 

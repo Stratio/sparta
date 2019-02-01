@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.helpers.InfoHelper
-import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
+import com.stratio.sparta.serving.core.models.authorization.GosecUserConstants
 import com.stratio.sparta.serving.core.models.info.AppInfo
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -19,7 +19,7 @@ class AppInfoHttpServiceTest extends WordSpec
   with AppInfoHttpService
   with HttpServiceBaseTest {
 
-  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+  val dummyUser = Some(GosecUserConstants.AnonymousUser)
 
   override def cleanUp(): Unit = { system.terminate() }
 

@@ -5,8 +5,8 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{ExecutionContext, Workflow, WorkflowExecution, WorkflowIdExecutionContext}
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowExecution, WorkflowIdExecutionContext}
 
 object LauncherActor {
 

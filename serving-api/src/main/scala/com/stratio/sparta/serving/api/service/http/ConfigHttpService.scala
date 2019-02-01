@@ -12,7 +12,7 @@ import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.wordnik.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiResponses}

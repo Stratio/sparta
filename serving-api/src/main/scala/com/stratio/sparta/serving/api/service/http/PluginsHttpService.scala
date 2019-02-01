@@ -15,9 +15,8 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
-import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{StatusCodes, _}
@@ -28,7 +27,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PluginsPath, description = "Upload or download jars plugins")
-trait PluginsHttpService extends BaseHttpService with OauthClient {
+trait PluginsHttpService extends BaseHttpService {
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,

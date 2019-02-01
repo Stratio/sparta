@@ -3,19 +3,11 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.models.dto
 
-object LoggedUserConstant {
-  val infoNameTag = "cn"
-  val infoIdTag = "id"
-  val infoMailTag = "mail"
-  val infoRolesTag = "roles"
-  val infoGroupIDTag= "gidNumber"
-  val infoGroupsTag= "groups"
+package com.stratio.sparta.serving.core.models.authorization
 
-  val dummyMail = "email@email.com"
 
-  val AnonymousUser = LoggedUser("*", "Anonymous", dummyMail,"0",Seq.empty[String],Seq.empty[String])
-
-  val allowedRoles = Seq("FullAdministrator","management_admin","sparta","sparta_zk")
-}
+case class HeaderAuthUser(
+                           override val id: String,
+                           override val gid: String
+                         ) extends LoggedUser

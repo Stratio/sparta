@@ -13,14 +13,15 @@ import akka.util.Timeout
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
+import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, HeadersAuthSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
+import com.stratio.sparta.serving.core.models.authorization.GosecUser._
 import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import spray.http.StatusCodes._
@@ -31,7 +32,7 @@ import scala.concurrent.duration._
 import scala.util.{Properties, Try}
 
 class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
-  extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
+  extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient with HeadersAuthSupport{
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -92,10 +93,15 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     MlModelsActorName -> mlModelActor
   )
 
-  val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
-  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config()
-  val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
-  val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
+  private val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
+  private val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config()
+  private val oauthEnabled: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
+  private val headersAuthEnabled: Boolean = headersAuthConfig.exists(_.enabled)
+
+  require(
+    !oauthEnabled || !headersAuthEnabled,
+    "Authentication cannot be enabled to multiple options: oauth and headers"
+  )
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
@@ -116,21 +122,27 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     }
 
   lazy val staticRoutes: Route = {
-    if (enabledSecurity) {
-      secured { userAuth =>
-        val user: Option[LoggedUser] = userAuth
-        webRoutes
-      }
-    } else webRoutes
+    if (oauthEnabled) {
+      secured (_ => webRoutes)
+    } else if (headersAuthEnabled) {
+      authorizeHeaders(_ => webRoutes)
+    } else {
+      webRoutes
+    }
   }
 
   lazy val dynamicRoutes: Route = {
-    if (enabledSecurity) {
-      authorized { userAuth =>
-        val user: Option[LoggedUser] = userAuth
-        allServiceRoutes(user)
-      }
-    } else allServiceRoutes(None)
+    val authRoutes: Option[LoggedUser] => Route =
+      userAuth => allServiceRoutes(userAuth)
+
+
+    if (oauthEnabled) {
+      authorized(user => authRoutes(GosecUser.jsonToDto(user)))
+    } else if (headersAuthEnabled) {
+      authorizeHeaders(user => authRoutes(Some(user)))
+    } else {
+      allServiceRoutes(None)
+    }
   }
 
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {

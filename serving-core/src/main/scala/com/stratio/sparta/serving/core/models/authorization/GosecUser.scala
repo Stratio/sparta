@@ -3,27 +3,26 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.serving.core.models.dto
+package com.stratio.sparta.serving.core.models.authorization
 
 import akka.event.slf4j.SLF4JLogging
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 
-object LoggedUser extends SLF4JLogging{
+object GosecUser extends SLF4JLogging{
 
   implicit def jsonToDto(stringJson: String): Option[LoggedUser] = {
     if (stringJson.trim.isEmpty) None
     else {
       implicit val json = new ObjectMapper().readTree(stringJson)
-      Some(LoggedUser(getValue(LoggedUserConstant.infoIdTag), getValue(LoggedUserConstant.infoNameTag),
-        getValue(LoggedUserConstant.infoMailTag, Some(LoggedUserConstant.dummyMail)),
-        getValue(LoggedUserConstant.infoGroupIDTag), getArrayValues(LoggedUserConstant.infoGroupsTag),
-        getArrayValues(LoggedUserConstant.infoRolesTag)))
+      Some(GosecUser(getValue(GosecUserConstants.InfoIdTag), getValue(GosecUserConstants.InfoNameTag),
+        getValue(GosecUserConstants.InfoMailTag, Some(GosecUserConstants.DummyMail)),
+        getValue(GosecUserConstants.InfoGroupIDTag), getArrayValues(GosecUserConstants.InfoGroupsTag),
+        getArrayValues(GosecUserConstants.InfoRolesTag)))
     }
   }
 
@@ -51,10 +50,10 @@ object LoggedUser extends SLF4JLogging{
   }
 }
 
-case class LoggedUser(id: String, name: String, email: String, gid: String,
-                      groups:Seq[String], roles: Seq[String]){
+case class GosecUser(override val id: String, override val name: String, email: String, override val gid: String,
+                        groups:Seq[String], roles: Seq[String]) extends LoggedUser {
 
-  def isAuthorized(securityEnabled: Boolean, allowedRoles: Seq[String] = LoggedUserConstant.allowedRoles): Boolean = {
+  def isAuthorized(securityEnabled: Boolean, allowedRoles: Seq[String] = GosecUserConstants.AllowedRoles): Boolean = {
 
     def rolesWithSpartaPrefix : Boolean = roles.exists(roleName => roleName.startsWith("sparta"))
     def intersectionRoles: Boolean = roles.intersect(allowedRoles).nonEmpty
