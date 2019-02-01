@@ -1,7 +1,7 @@
 {
-  "id": "71dc4598-c66c-4384-aeec-471cc0b29b65",
-  "name": "kafka-postgres",
-  "description": "Automatic Workflow kafka-postgres",
+  "id": "81f000a5-f000-44a2-a317-a79b2c361f9e",
+  "name": "test-uniqueconstraint",
+  "description": "test-uniqueconstraint",
   "settings": {
     "global": {
       "executionMode": "marathon",
@@ -14,7 +14,12 @@
       "parametersLists": [
         "Environment"
       ],
-      "parametersUsed": [],
+      "parametersUsed": [
+        "Global.DEFAULT_OUTPUT_FIELD",
+        "Global.SPARK_DRIVER_JAVA_OPTIONS",
+        "Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS",
+        "Global.SPARK_STREAMING_CHECKPOINT_PATH"
+      ],
       "udfsToRegister": [],
       "udafsToRegister": []
     },
@@ -54,11 +59,13 @@
           "sparkMemoryFraction": "0.6",
           "sparkParallelism": ""
         },
+        "sparkHistoryServerConf": {
+          "enableHistoryServerMonitoring": false
+        },
         "userSparkConf": [],
         "coarse": true,
-        "sparkUser": "",
+        "sparkUser": "root",
         "sparkLocalDir": "/opt/spark/dist",
-        "executorDockerImage": "{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}",
         "sparkKryoSerialization": false,
         "sparkSqlCaseSensitive": false,
         "logStagesProgress": false,
@@ -86,60 +93,7 @@
   "pipelineGraph": {
     "nodes": [
       {
-        "name": "Kafka",
-        "stepType": "Input",
-        "className": "KafkaInputStep",
-        "classPrettyName": "Kafka",
-        "arity": [
-          "NullaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 289,
-            "y": 172
-          }
-        },
-        "configuration": {
-          "spark.streaming.kafka.consumer.poll.ms": "10000",
-          "locationStrategy": "preferconsistent",
-          "inputOptions": "[]",
-          "topics": [
-            {
-              "topic": "idtopic"
-            }
-          ],
-          "auto.offset.reset": "latest",
-          "partition.assignment.strategy": "range",
-          "value.deserializer.inputFormat": "JSON",
-          "spark.streaming.kafka.maxRatePerPartition": "",
-          "tlsEnabled": true,
-          "spark.streaming.kafka.consumer.cache.enabled": false,
-          "group.id": "sparta_2",
-          "bootstrap.servers": [
-            {
-              "port": "9093",
-              "host": "kafka-0-broker.eos-kafka-framework.mesos"
-            }
-          ],
-          "enable.auto.commit": false,
-          "value.deserializer.json.schema.fromRow": true,
-          "storeOffsetInKafka": true
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "tabletest",
+        "name": "tabletest2",
         "stepType": "Transformation",
         "className": "TriggerTransformStepStreaming",
         "classPrettyName": "Trigger",
@@ -148,18 +102,27 @@
           "UnaryToNary"
         ],
         "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": ""
+          "saveMode": "Upsert",
+          "tableName": "public.tablaconstrain",
+          "partitionBy": "",
+          "constraintType": "uniqueConstraint",
+          "uniqueConstraintName": "constrainfix1",
+          "uniqueConstraintFields": "id,datetime,detail",
+          "updateFields": "",
+          "errorTableName": "",
+          "discardTableName": ""
         },
         "uiConfiguration": {
           "position": {
-            "x": 729,
+            "x": 730.0864868164062,
             "y": 322
           }
         },
         "configuration": {
-          "sql": "select id from Kafka"
+          "sql": "select * from Datetime1",
+          "discardConditions": "[]",
+          "inputSchemas": "[]",
+          "executeSqlWhenEmpty": false
         },
         "supportedEngines": [],
         "executionEngine": "Streaming",
@@ -193,6 +156,7 @@
           "postgresSaveMode": "STATEMENT",
           "batchsize": "1000",
           "isolationLevel": "READ_UNCOMMITTED",
+          "failFast": false,
           "tlsEnabled": true,
           "driver": "",
           "schemaFromDatabase": false,
@@ -236,75 +200,168 @@
         "lineageProperties": []
       },
       {
-        "name": "Cube",
+        "name": "Test",
+        "stepType": "Input",
+        "className": "TestInputStep",
+        "classPrettyName": "Test",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": "",
+          "discardTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 111.69190979003906,
+            "y": 167.7082977294922
+          }
+        },
+        "configuration": {
+          "maxNumbEvents": "",
+          "eventType": "STRING",
+          "outputField": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
+          "event": "{\"id\":\"222\",\"detail\":\"2222\"}",
+          "debugOptions": "{\"userProvidedExample\":\"{\\\"id\\\":\\\"222\\\",\\\"detail\\\":\\\"2222\\\"}\"}",
+          "numEvents": "100"
+        },
+        "supportedEngines": [
+          "Streaming"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "JsonPath",
         "stepType": "Transformation",
-        "className": "CubeTransformStep",
-        "classPrettyName": "Cube",
+        "className": "JsonPathTransformStep",
+        "classPrettyName": "JsonPath",
         "arity": [
           "UnaryToNary"
         ],
         "writer": {
           "saveMode": "Append",
           "tableName": "",
-          "partitionBy": ""
+          "partitionBy": "",
+          "errorTableName": ""
         },
         "uiConfiguration": {
           "position": {
-            "x": 723,
-            "y": 20
+            "x": 393.57318115234375,
+            "y": 198.41094970703125
           }
         },
         "configuration": {
-          "waterMark": "",
-          "whenError": "Error",
-          "availability": "1m",
-          "dimensions": [
+          "queries": [
             {
-              "name": "id"
+              "field": "id",
+              "query": "$.id",
+              "type": "string"
+            },
+            {
+              "field": "detail",
+              "query": "$.detail",
+              "type": "string"
             }
           ],
-          "partitions": "",
-          "timeoutKey": "",
-          "operators": [
-            {
-              "inputField": "id",
-              "name": "idcube",
-              "classType": "Count"
-            }
-          ]
+          "inputSchemas": "[]",
+          "supportNullValues": true,
+          "whenFieldError": "",
+          "whenRowError": "",
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
         },
-        "supportedEngines": [],
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
         "executionEngine": "Streaming",
         "supportedDataRelations": [
-          "ValidData"
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Datetime1",
+        "stepType": "Transformation",
+        "className": "DateTimeTransformStep",
+        "classPrettyName": "Datetime",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 614.6538540320606,
+            "y": 171.13855536133866
+          }
+        },
+        "configuration": {
+          "fieldsDatetime": [
+            {
+              "formatFrom": "AUTOGENERATED",
+              "localeTime": "ENGLISH",
+              "granularityNumber": "",
+              "granularityTime": "millisecond",
+              "fieldsPreservationPolicy": "APPEND",
+              "outputFieldName": "datetime",
+              "outputFieldType": "string",
+              "nullable": true,
+              "outputFormatFrom": "DEFAULT"
+            }
+          ],
+          "inputSchemas": "[]",
+          "whenRowError": "",
+          "whenFieldError": ""
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
         ],
         "lineageProperties": []
       }
     ],
     "edges": [
       {
-        "origin": "tabletest",
+        "origin": "tabletest2",
         "destination": "Postgres",
         "dataType": "ValidData"
       },
       {
-        "origin": "Kafka",
+        "origin": "Test",
+        "destination": "JsonPath",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "JsonPath",
         "destination": "Print",
         "dataType": "ValidData"
       },
       {
-        "origin": "Kafka",
-        "destination": "tabletest",
+        "origin": "JsonPath",
+        "destination": "Datetime1",
         "dataType": "ValidData"
       },
       {
-        "origin": "Kafka",
-        "destination": "Cube",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Cube",
-        "destination": "Postgres",
+        "origin": "Datetime1",
+        "destination": "tabletest2",
         "dataType": "ValidData"
       }
     ]
@@ -312,17 +369,17 @@
   "executionEngine": "Streaming",
   "uiSettings": {
     "position": {
-      "x": 0,
-      "y": 0,
-      "k": 1
+      "x": 95.27526703466992,
+      "y": 85.48481563724636,
+      "k": 0.9203956052243742
     }
   },
-  "lastUpdateDate": "2018-07-31T12:40:35Z",
-  "version": 0,
+  "lastUpdateDate": "2019-01-24T20:19:02Z",
+  "version": 3,
   "group": {
     "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
     "name": "/home"
   },
-  "versionSparta": "2.4.0-959940f",
+  "debugMode": false,
   "groupId": "940800b2-6d81-44a8-84d9-26913a2faea4"
 }

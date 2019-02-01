@@ -5,6 +5,7 @@ Feature: [SPARTA-1278] Add Initial Configuration for Sparta
     Given I open a ssh connection to '<AGENT_IP>' with user 'root' and password 'stratio'
     When I run 'echo $(useradd ${DCOS_SERVICE_NAME})' in the ssh connection
 
+  @skipOnEnv(INSTALLATIONWIHTCCT=TRUE)
   Scenario: [SPARTA-1278][02] Take Marathon-lb IP
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Then I run 'dcos task ${MARATHON_LB_TASK:-marathon-lb} | awk '{print $2}'| tail -n 1' in the ssh connection and save the value in environment variable 'marathonIP'
@@ -12,6 +13,7 @@ Feature: [SPARTA-1278] Add Initial Configuration for Sparta
     And I open a ssh connection to '!{marathonIP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
 
+  @skipOnEnv(INSTALLATIONWIHTCCT=TRUE)
   @loop(MASTERS_LIST,MASTER_IP)
   @runOnEnv(REGISTERSERVICEOLD=true)
   @runOnEnv(AUTH_ENABLED=true)
@@ -23,6 +25,7 @@ Feature: [SPARTA-1278] Add Initial Configuration for Sparta
     And I wait '15' seconds
     Then in less than '180' seconds, checking each '15' seconds, the command output 'consul watch -type=checks -http-addr=<MASTER_IP>\:8500 | jq  '.[] | .Name + " " + .Status'' contains 'Service 'gosec-sso' check passing'
 
+  @skipOnEnv(INSTALLATIONWIHTCCT=TRUE)
   @skipOnEnv(REGISTERSERVICEOLD=true)
   @runOnEnv(AUTH_ENABLED=true)
   Scenario:[SPARTA-1278][02] Register sparta tenant in cas

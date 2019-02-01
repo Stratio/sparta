@@ -686,7 +686,7 @@
           "schemaFromDatabase": false,
           "newLineSubstitution": " ",
           "saveOptions": "[]",
-          "delimiter": "{{CSV_DELIMITER}}"
+          "delimiter": ";"
         },
         "supportedEngines": [
           "Streaming",

@@ -185,7 +185,7 @@
           "security.protocol": "PLAINTEXT",
           "bootstrap.servers": [
             {
-              "port": "9092",
+              "port": "9093",
               "host": "kafka-0-broker.eos-kafka-framework.mesos"
             }
           ],

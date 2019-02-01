@@ -129,11 +129,9 @@ hose {
                            'healthcheck': 5000]]
     ]
     INSTALLPARAMETERS = """
-            | -DSTRATIO_SPARTA_VERSION=2.4.0
-            | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
-            | -DZK_URL=zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181
+            | -DZOOKEEPER_NAME=zkuserland
             | -DMARATHON_SSO_CLIENT_ID=adminrouter_paas-master-1.node.paas.labs.stratio.com
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
@@ -142,15 +140,8 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache-2.4.json
-            | -DWORKFLOW=testinput-to-print
-            | -DAUTH_ENABLED=true
-            | -DCALICOENABLED=true
-            | -DCLIENTSECRET=cr7gDH6hX2-C3SBZYWj8F
-            | -DIDNODE=564        
             | -DSELENIUM_GRID=selenium391.cd:4444
             | -DFORCE_BROWSER=chrome_64%%JUID
-            | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
             | -Dquietasdefault=false
             | -DNGINX_ACTIVE=true
             | -DPOSTGRES_NODE=pg-0001
@@ -158,6 +149,7 @@ hose {
             | -DURL_GOSEC=/opt/stratio/gosec-sso/conf
             | -DPOSTGRES_INSTANCE=pg-0001.postgrestls.mesos:5432/postgres
             | -DPURGE_DATA=true
+            | -DSKIP_USERS=true
             """
             
     INSTALL = { config ->
@@ -165,7 +157,7 @@ hose {
             config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
           doAT(conf: config)
         } else {
-            doAT(conf: config, groups: ['Installation_Executions_FullSecurity'])
+            doAT(conf: config, groups: ['Installation_CC'])
         }
      }
 }

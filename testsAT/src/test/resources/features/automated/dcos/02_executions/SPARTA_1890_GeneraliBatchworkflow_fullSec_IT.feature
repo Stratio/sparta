@@ -8,19 +8,6 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     And I open a ssh connection to '!{marathonIP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
 
-  @skipOnEnv(POSTGRES_OLD_VERSION=TRUE||SKIP_POLICY=true||STRATIO_RELEASE=ORION)
-  Scenario: [SPARTA-1162][02]Add postgres policy to write in postgres
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
-    And I wait '3' seconds
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
-      |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
-      |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}      | n/a |
-    Then the service response status must be '201'
-    #Wait for refresh Postgres Privilegies
-    And I wait '60' seconds
-
   Scenario:[SPARTA-1279][09] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
@@ -84,6 +71,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     And the service response status must be '200'
+    And I save element '$' in environment variable 'previousWorkflowID'
 
   #********************************
   # VERIFY batch-generali-workflow*
@@ -93,7 +81,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w batch-generali-workflow' contains 'batch-generali-workflow-v1'
     #Get ip in marathon
-    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/batch-generali-workflow/batch-generali-workflow-v1  | awk '{print $5}' | grep batch-generali-workflow ' in the ssh connection and save the value in environment variable 'workflowTaskId'
+    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/batch-generali-workflow/batch-generali-workflow-v1/!{previousWorkflowID}  | awk '{print $5}' | grep batch-generali-workflow ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     And I wait '2' seconds
     #Check workflow is runing in DCOS
     When  I run 'echo !{workflowTaskId}' in the ssh connection
@@ -122,7 +110,7 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     When I securely browse to '/workflows-${DCOS_SERVICE_NAME}/home/batch-generali-workflow/batch-generali-workflow-v1/executors/'
     And I wait '05' seconds
     Then I take a snapshot
-    When I securely browse to '/${DCOS_SERVICE_NAME}/#/wizard/edit/!{previousWorkflowID}'
+    When I securely browse to '/#/executions/!{previousWorkflowID}'
     And I wait '02' seconds
     Then I take a snapshot
 
@@ -136,20 +124,20 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
   #**************************
   Scenario:[SPARTA-1890][08] Generali batch Result in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster1"' contains '${CLUSTER1_NUMBER:-8824}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster2"' contains '${CLUSTER2_NUMBER:-15888}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from cluster3"' contains '${CLUSTER3_NUMBER:-17661}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from variables_calc"' contains '${VARIABLES_CAL:-43351}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".cluster1"' contains '${CLUSTER1_NUMBER:-8824}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".cluster2"' contains '${CLUSTER2_NUMBER:-15888}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".cluster3"' contains '${CLUSTER3_NUMBER:-17661}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".variables_calc"' contains '${VARIABLES_CAL:-43351}'
 
 
   @runOnEnv(PURGE_DATA=true)
   Scenario:[SPARTA-1279][09] delete user and table in postgres
     #Delete postgres table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table cluster1"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table cluster2"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table cluster3"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table variables_calc"' in the ssh connection
+    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".cluster1"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".cluster2"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".cluster3"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".variables_calc"' in the ssh connection
 
   @runOnEnv(PURGE_DATA=true)
   @web
@@ -169,16 +157,6 @@ Feature: [SPARTA-1890] E2E Execution of Generali Workflow -Batch mode
     Given I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     When I send a 'DELETE' request to '/${DCOS_SERVICE_NAME}/workflows/!{previousWorkflowID}'
     Then the service response status must be '200'
-
-  @runOnEnv(PURGE_DATA=true)
-  Scenario: [SPARTA-1279][14]Delete Postgres Policy
-    #Get cookie from app
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
-    When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_SPARTA_POSTGRES:-sparta-pg}'
-    Then the service response status must be '200'
-    And I wait '5' seconds
-
 
 
 

@@ -3,8 +3,8 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
 
   Background: Setup token to gosec
     #Generate token to conect to gosec
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
+    Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
+    And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
   @runOnEnv(ID_POLICY_ZK)
   Scenario: [SPARTA-1162][01]Add zookeper-sparta policy to write in zookeper
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
@@ -22,7 +22,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
     Then the service response status must be '201'
   @runOnEnv(ID_SPARTA_POLICY)
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_orion.json' as 'json' with:
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sparta_policy.json' as 'json' with:
       |   $.id                       |  UPDATE    | ${ID_POLICY_SP:-spartaserver}   | n/a |
       |   $.name                     |  UPDATE    | ${ID_POLICY_SP:-spartaserver}    | n/a |
       |   $.users[0]                 |  UPDATE    | ${DCOS_SERVICE_NAME}            | n/a |
@@ -39,7 +39,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
     Then the service response status must be '201'
   @runOnEnv(ID_KAFKA_FR_POLICY)
   Scenario: [SPARTA-1162][04]Add sparta policy to write in kafka
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy_fr.json' as 'json' with:
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_KAFKA_FR_POLICY}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}         | n/a |
@@ -69,6 +69,14 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES}     | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
       |   $.services[0].version   |  UPDATE    | ${POSTGRES-GOSEC-VERSION:-1.0.3}      | n/a |
+    Then the service response status must be '201'
+
+  @runOnEnv(ID_SPARTA_POLICY_CCT)
+  Scenario: [SPARTA-1162][08]Add postgres policy for authorization in sparta
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/spartapolicy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_SPARTA_POLICY_CCT}     | n/a |
+      |   $.name                  |  UPDATE    | ${ID_SPARTA_POLICY_CCT}     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
 
   @runOnEnv(RESTART_SPARTA)

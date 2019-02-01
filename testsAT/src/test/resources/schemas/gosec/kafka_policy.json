@@ -1,18 +1,18 @@
 {
-  "id": "sparta-k",
-  "name": "sparta-k",
+  "id": "kafka-sparta",
+  "name": "kafka-sparta",
   "users": [
     "user"
   ],
   "groups": [],
   "services": [
     {
-      "type": "kafka",
+      "type": "eos-kafka-framework",
       "instancesAcl": [
         {
           "instances": [
             {
-              "name": "*"
+              "name": "eos-kafka-framework"
             }
           ],
           "acls": [
@@ -21,9 +21,11 @@
               "name": "*",
               "recursive": true,
               "actions": [
+                "Alter",
+                "Delete",
+                "Describe",
                 "Read",
-                "Write",
-                "Describe"
+                "Write"
               ],
               "allActions": []
             },
@@ -33,15 +35,23 @@
               "recursive": true,
               "actions": [
                 "Read",
-                "Describe",
-                "Write"
+                "Describe"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Cluster",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Create",
+                "Describe"
               ],
               "allActions": []
             }
           ]
         }
-      ],
-      "version":"1.0"
+      ]
     }
   ]
 }

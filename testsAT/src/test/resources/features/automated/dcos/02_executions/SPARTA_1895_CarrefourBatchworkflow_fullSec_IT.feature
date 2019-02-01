@@ -8,20 +8,6 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
     And I open a ssh connection to '!{marathonIP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
 
-  @skipOnEnv(POSTGRES_OLD_VERSION=TRUE)
-  @skipOnEnv(SKIP_POLICY=true)
-  Scenario: [SPARTA-1895][01]Add postgres policy to write in postgres
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
-    And I wait '3' seconds
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
-      |   $.name                  |  UPDATE    | ${ID_SPARTA_POSTGRES:-sparta-pg}     | n/a |
-      |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}      | n/a |
-    Then the service response status must be '201'
-     #Wait for refresh Postgres Privilegies
-    And I wait '30' seconds
-
   Scenario:[SPARTA-1279][09] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
@@ -84,6 +70,7 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     And the service response status must be '200'
+    And I save element '$' in environment variable 'previousWorkflowID'
 
   #*********************************
   # VERIFY batch-carrefour-workflow*
@@ -93,7 +80,7 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w batch-carrefour-workflow' contains 'batch-carrefour-workflow'
     #Get ip in marathon
-    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/batch-carrefour-workflow/batch-carrefour-workflow-v0  | awk '{print $5}' | grep batch-carrefour-workflow ' in the ssh connection and save the value in environment variable 'workflowTaskId'
+    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/batch-carrefour-workflow/batch-carrefour-workflow-v0/!{previousWorkflowID}  | awk '{print $5}' | grep batch-carrefour-workflow ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     And I wait '2' seconds
     #Check workflow is runing in DCOS
     When  I run 'echo !{workflowTaskId}' in the ssh connection
@@ -103,7 +90,7 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
     And I wait '2' seconds
 
   @web
-  Scenario:[SPARTA-1279][10] Streaming evidences Generali Batch
+  Scenario:[SPARTA-1279][10] Spark evidences Generali Batch
     #Login into the platform
     Given My app is running in '!{MarathonLbDns}.labs.stratio.com:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -123,7 +110,7 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
     When I securely browse to '/workflows-${DCOS_SERVICE_NAME}/home/batch-carrefour-workflow/batch-carrefour-workflow-v0/executors/'
     And I wait '02' seconds
     Then I take a snapshot
-    When I securely browse to '/${DCOS_SERVICE_NAME}/#/wizard/edit/!{previousWorkflowID}'
+    When I securely browse to '/#/executions/edit/!{previousWorkflowID}'
     And I wait '02' seconds
     Then I take a snapshot
 
@@ -138,30 +125,30 @@ Feature: [SPARTA-1895] E2E Execution of Carrefour Workflow -Batch mode
 
   Scenario:[SPARTA-1895][07] Test Postgres results of Carrefour Batch - Number of Elements per table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tablavolcado"' contains '${TABLAVOLCADO:-7}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from fallo_refdate"' contains '${FALLO_REFDATE:-0}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from fallo_rango"' contains '${FALLO_RANGO:-0}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from fallo_id_emprs"' contains '${FALLO_ID_EMPRS:-0}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from fallo_duplicados"' contains '${FALLO_DUPLICADOS:-0}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from fallo_dt_trusted"' contains '${FALLO_DT_TRUSTED:-0}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from fallo_casting"' contains '${FALLO_CASTING:-0}'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from error_tm_trusted"' contains '${ERROR_TM_TRUSTED:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tablavolcado"' contains '${TABLAVOLCADO:-7}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".fallo_refdate"' contains '${FALLO_REFDATE:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".fallo_rango"' contains '${FALLO_RANGO:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".fallo_id_emprs"' contains '${FALLO_ID_EMPRS:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".fallo_duplicados"' contains '${FALLO_DUPLICADOS:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".fallo_dt_trusted"' contains '${FALLO_DT_TRUSTED:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".fallo_casting"' contains '${FALLO_CASTING:-0}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".error_tm_trusted"' contains '${ERROR_TM_TRUSTED:-0}'
 
   Scenario:[SPARTA-1895][08] Test Postgres results of Carrefour Batch - Number of Columns per table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) from information_schema.columns where table_name = 'tablavolcado'"' contains '${numcolum:-246}'
+    When in less than '100' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) from information_schema.columns where table_name = '\"${DCOS_SERVICE_NAME}\".tablavolcado'"' contains '${numcolum:-246}'
 
   @runOnEnv(PURGE_DATA=TRUE)
   Scenario:[SPARTA-1279][09] delete user and table in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table tablavolcado"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table fallo_refdate"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table fallo_rango"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table fallo_id_emprs"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table fallo_duplicados"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table fallo_dt_trusted"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table fallo_casting"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table error_tm_trusted"' in the ssh connection
+    When I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".tablavolcado"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".fallo_refdate"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".fallo_rango"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".fallo_id_emprs"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".fallo_duplicados"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".fallo_dt_trusted"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".fallo_casting"' in the ssh connection
+    And I run 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".error_tm_trusted"' in the ssh connection
 
   @runOnEnv(PURGE_DATA=true)
   @web

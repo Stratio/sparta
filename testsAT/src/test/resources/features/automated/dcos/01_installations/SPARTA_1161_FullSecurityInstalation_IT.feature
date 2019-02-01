@@ -3,8 +3,8 @@ Feature: [SPARTA-1161] Installation sparta with mustache
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
+    Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
+    And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
 
   Scenario: [SPARTA-1161][01]Add zookeper-sparta policy to write in zookeper
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
@@ -58,14 +58,6 @@ Feature: [SPARTA-1161] Installation sparta with mustache
     Then in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
     And in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep healthCheckResults' contains 'healthCheckResults'
     And in less than '1200' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep  '"alive": true'' contains '"alive": true'
-
-  #Add Sparta Policy
-  Scenario: [SPARTA-1161][04] Add sparta policy for authorization in sparta with full security
-    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy_2.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
-      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
-    Then the service response status must be '201'
 
   #Remove Policy
   Scenario: [SPARTA-1161][05]Delete zk-sparta Policy
