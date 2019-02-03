@@ -62,12 +62,16 @@ Feature: [Installation Sparta Command Center] Sparta installation testing with C
     And I wait '10' seconds
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
+  @skipOnEnv(SKIP_CREATE_USER)
+  Scenario:[QATM-1863] Add Sparta Role and Database
+    Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
+    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "create user \"${DCOS_SERVICE_NAME}\" with password ''"' in the ssh connection
+
   # Add Sparta dependencies in Postgres
   @skipOnEnv(SKIP_ADDROLE)
   Scenario:[QATM-1863] Add Sparta Role and Database
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "CREATE SCHEMA IF NOT EXISTS \"${DCOS_SERVICE_NAME}\";"' in the ssh connection
-    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "create user \"${DCOS_SERVICE_NAME}\" with password ''"' in the ssh connection
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "CREATE DATABASE ${POSTGRES_DATABASE:-sparta};"' in the ssh connection with exit status '0'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "grant all privileges on database ${POSTGRES_DATABASE:-sparta} to \"${DCOS_SERVICE_NAME}\""' in the ssh connection
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "ALTER USER \"${DCOS_SERVICE_NAME}\" WITH SUPERUSER;"' in the ssh connection
@@ -147,7 +151,6 @@ Feature: [Installation Sparta Command Center] Sparta installation testing with C
     Then the service response status must be '202'
     And I run 'rm -f target/test-classes/schemas/sparta-advanced.json' locally
 
-  @runOnEnv(ADDUSER_PRIVATE_NODES)
   @loop(PRIVATE_AGENTS_LIST,AGENT_IP)
   Scenario:[QATM-1863] Create sparta user in all private agents
     Given I open a ssh connection to '<AGENT_IP>' with user 'root' and password 'stratio'

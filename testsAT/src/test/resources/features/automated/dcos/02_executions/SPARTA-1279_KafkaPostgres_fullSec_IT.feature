@@ -193,11 +193,6 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     And I wait '02' seconds
     When I securely browse to '/workflows-${DCOS_SERVICE_NAME}/home/kafka-postgres/kafka-postgres-v0/!{previousWorkflow_execution_ID1}/executors/'
     And I wait '03' seconds
-    Then I take a snapshot
-    When I securely browse to '/${DCOS_SERVICE_NAME}/#/executions/!{previousWorkflow_execution_ID1}'
-    And I wait '02' seconds
-    When I securely browse to '/${DCOS_SERVICE_NAME}/#/executions/!{previousWorkflow_execution_ID2}'
-    Then I take a snapshot
 
   @web
   Scenario: [SPARTA-1279][11] Stop workflows

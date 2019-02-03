@@ -25,7 +25,6 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     Then the service response status must be '200'
     And I wait '10' seconds
 
-
   @RunOnEnv(DROP_ROLE)
   Scenario:[QATM-1863] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
@@ -57,7 +56,6 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     #wait for drop user from Postgres
     Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP ROLE \"${DCOS_SERVICE_NAME}\""' contains 'role "${DCOS_SERVICE_NAME}" does not exist'
 
-
   @RunOnEnv(POLICY_POSTGRES_AGENT)
   Scenario: [QATM-1863] Delete Postgres Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
@@ -66,13 +64,12 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     Then the service response status must be '200'
 
   # Add Sparta dependencies in Postgres
-
-#  @skipOnEnv(SKIP_POLICY)
-#  Scenario: [QATM-1863] Delete Sparta Policy
-#    Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
-#    And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
-#    When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
-#    Then the service response status must be '200'
+  @skipOnEnv(SKIP_POLICY)
+  Scenario: [QATM-1863] Delete Sparta Policy
+    Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
+    And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
+    Then the service response status must be '200'
 
   @skipOnEnv(SKIP_POLICY)
   Scenario: [QATM-1863] Delete Zookeeper Policy
@@ -82,6 +79,7 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     Then the service response status must be '200'
 
   @skipOnEnv(SKIP_GENERATE_DESCRIPTOR)
+  Scenario: [QATM-1863] Delete Command Center Descriptor
    # Delete Descriptor
     When I send a 'DELETE' request to '/service/deploy-api/universe/sparta/${FLAVOUR}-auto/descriptor'
     Then the service response status must be '200'

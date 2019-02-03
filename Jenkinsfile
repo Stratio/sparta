@@ -157,7 +157,7 @@ hose {
             config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
           doAT(conf: config)
         } else {
-            doAT(conf: config, groups: ['Installation_CC'])
+            doAT(conf: config, groups: ['nightly'])
         }
      }
 }
