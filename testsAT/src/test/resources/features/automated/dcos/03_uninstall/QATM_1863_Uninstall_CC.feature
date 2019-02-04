@@ -11,8 +11,7 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     # Check Uninstall in CCT-API
     And in less than '200' seconds, checking each '20' seconds, I send a 'GET' request to '/service/deploy-api/deploy/status/all' so that the response does not contains '${DCOS_SERVICE_NAME:-sparta-server}'
 
-
-  @RunOnEnv(POLICY_POSTGRES_AGENT)
+  @runOnEnv(POLICY_POSTGRES_AGENT)
   Scenario: [QATM-1863] Delete user of Postgres Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${DCOS_USER:-admin}' and password '${DCOS_PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
@@ -25,7 +24,6 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     Then the service response status must be '200'
     And I wait '10' seconds
 
-  @RunOnEnv(DROP_ROLE)
   Scenario:[QATM-1863] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
@@ -47,21 +45,25 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
     And I wait '10' seconds
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
-  @RunOnEnv(DROP_ROLE)
-  Scenario:[QATM-1863] Drop Sparta Role and Database
+  @skipOnEnv(SKIP_DROP_DATABASE)
+  Scenario:[QATM-1863] Drop Database
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP SCHEMA \"${DCOS_SERVICE_NAME}\" CASCADE"' in the ssh connection with exit status '0'
     And I wait '1' seconds
     Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP DATABASE  ${POSTGRES_DATABASE:-sparta}"' contains 'DROP DATABASE'
-    #wait for drop user from Postgres
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP ROLE \"${DCOS_SERVICE_NAME}\""' contains 'role "${DCOS_SERVICE_NAME}" does not exist'
 
-  @RunOnEnv(POLICY_POSTGRES_AGENT)
+  @runOnEnv(POLICY_POSTGRES_AGENT)
   Scenario: [QATM-1863] Delete Postgres Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_SPARTA_POSTGRES:-sparta-pg}'
     Then the service response status must be '200'
+
+  @runOnEnv(DROP_ROLE)
+  Scenario:[QATM-1863] Drop Role
+    Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
+    #wait for drop user from Postgres
+    Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP ROLE \"${DCOS_SERVICE_NAME}\""' contains 'role "${DCOS_SERVICE_NAME}" does not exist'
 
   # Add Sparta dependencies in Postgres
   @skipOnEnv(SKIP_POLICY)
@@ -80,7 +82,9 @@ Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command
 
   @skipOnEnv(SKIP_GENERATE_DESCRIPTOR)
   Scenario: [QATM-1863] Delete Command Center Descriptor
-   # Delete Descriptor
+    Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
+    And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    # Delete Descriptor
     When I send a 'DELETE' request to '/service/deploy-api/universe/sparta/${FLAVOUR}-auto/descriptor'
     Then the service response status must be '200'
 

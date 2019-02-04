@@ -22,6 +22,14 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
       |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}  | n/a |
     Then the service response status must be '201'
 
+
+  Scenario: [SPARTA-1279][02] - Create topic for sparta in kafka
+    Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
+    And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I send a 'PUT' request to '/service/${KAFKA_NAME:-eos-kafka-framework}/v1/topics/${TOPIC:-idtopic}?partitions=${KAFKA_PARTITION:-1}&replication=${KAFKA_REPLICATION:-1}'
+    Then the service response status must be '200'
+
+
   #************************************************
   # INSTALL AND EXECUTE kafka to postgres WORKFLOW*
   #************************************************
@@ -89,7 +97,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   # INSTALLL AND EXECUTE testInput to kafka WORKFLOW*
   #**************************************************
   @web
-  Scenario:[SPARTA-1279][07] Install testInput-Kafka workflow
+  Scenario:[SPARTA-1279][06] Install testInput-Kafka workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -112,7 +120,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     And I wait '10' seconds
 
   @web
-  Scenario:[SPARTA-1279][08] Execute testInput-Kafka workflow
+  Scenario:[SPARTA-1279][07] Execute testInput-Kafka workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -133,7 +141,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   #*********************************
   # VERIFY testInput-Kafka WORKFLOW*
   #*********************************
-  Scenario:[SPARTA-1279][09] Test kafka-postgres workflow in Dcos
+  Scenario:[SPARTA-1279][08] Test kafka-postgres workflow in Dcos
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w testinput-kafka' contains 'testinput-kafka-v0'
     #Get ip in marathon
@@ -247,7 +255,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/kafka_${DCOS_SERVICE_NAME}'
     Then the service response status must be '200'
 
-  Scenario:[SPARTA-1279][16] delete user and table in postgres
+  Scenario:[SPARTA-1279][15] delete user and table in postgres
     #Delete postgres table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection

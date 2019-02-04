@@ -1,5 +1,5 @@
 @rest
-Feature: [Installation Sparta Command Center] Sparta installation testing with Command Center
+Feature: [QATM_1863] Sparta installation with Command Center
 
   Scenario: [QATM-1863] Take Marathon-lb IP
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
@@ -40,7 +40,6 @@ Feature: [Installation Sparta Command Center] Sparta installation testing with C
     Then the service response status must be '201'
     And the service response must contain the text '"id":"${DCOS_SERVICE_NAME:-sparta-server}"'
 
-  @skipOnEnv(SKIP_ADDROLE)
   Scenario:[QATM-1863] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
@@ -62,14 +61,14 @@ Feature: [Installation Sparta Command Center] Sparta installation testing with C
     And I wait '10' seconds
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
-  @skipOnEnv(SKIP_CREATE_USER)
-  Scenario:[QATM-1863] Add Sparta Role and Database
+  @skipOnEnv(SKIP_ADDROLE)
+  Scenario:[QATM-1863] Add Sparta User in Postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "create user \"${DCOS_SERVICE_NAME}\" with password ''"' in the ssh connection
 
   # Add Sparta dependencies in Postgres
-  @skipOnEnv(SKIP_ADDROLE)
-  Scenario:[QATM-1863] Add Sparta Role and Database
+  @skipOnEnv(SKIP_ADD_DATABASE)
+  Scenario:[QATM-1863] Add Database and Privileges in Postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "CREATE SCHEMA IF NOT EXISTS \"${DCOS_SERVICE_NAME}\";"' in the ssh connection
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "CREATE DATABASE ${POSTGRES_DATABASE:-sparta};"' in the ssh connection with exit status '0'
@@ -87,7 +86,7 @@ Feature: [Installation Sparta Command Center] Sparta installation testing with C
       | $.users[0] | UPDATE | ${DCOS_SERVICE_NAME:-sparta-server} | n/a |
     Then the service response status must be '201'
 
-  @RunOnEnv(POLICY_POSTGRES_AGENT)
+  @runOnEnv(POLICY_POSTGRES_AGENT)
   Scenario: [QATM-1863] Add postgres policy for authorization in sparta
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'

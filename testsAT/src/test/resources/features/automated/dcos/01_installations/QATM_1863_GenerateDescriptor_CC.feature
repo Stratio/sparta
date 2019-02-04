@@ -1,5 +1,5 @@
 @rest
-Feature: [Installation Sparta Command Center] Generate New CommandCenter Descriptor with Special Configuration
+Feature: [QATM_1863] Generate New CommandCenter Descriptor with Special Configuration
 
   Scenario: [QATM-1863] Generate New Descriptor for CommandCenter
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'

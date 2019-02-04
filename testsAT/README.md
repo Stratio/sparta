@@ -19,15 +19,15 @@ Examples:
  `mvn verify -Dgroups=Installation_CC -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-aceptacion -DCONF_HDFS_URI=http://10.200.0.74:8085/ -DFLAVOUR=orion -DPOSTGRES_HOST=pg-0001.postgrestls.mesos -DID_POLICY_ZK=zk1test -DSKIP_USERS=TRUE -DCLUSTER_ID=bootstrap -DCLUSTER_DOMAIN=labs.stratio.com -DMARATHON_LB_TASK=marathonlb -DPOSTGRES_NAME=postgrestls -DADDUSER_PRIVATE_NODES=true -DPRIVATE_AGENTS_LIST=10.200.0.161,10.200.0.162,10.200.0.181,10.200.0.182,10.200.0.183,10.200.0.184,10.200.0.185,10.200.0.194 -DDCOS_SERVICE_NAME=sparta-server`
  
 - Sparta Uninstall with Command Center:
-
  `mvn verify -Dgroups=uninstall_CC -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nightly -DFLAVOUR=hydra -DPOSTGRES_HOST=pg-0001.postgrestls.mesos -DSKIP_USERS=TRUE -DCLUSTER_ID=nightly -DCLUSTER_DOMAIN=labs.stratio.com -DMARATHON_LB_TASK=marathon-lb-sec -DPOSTGRES_NAME=postgrestls -DDCOS_SERVICE_NAME=sparta-server`
+
+- Nighly execution:
+ `mvn verify -Dgroups=nightly -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nightly -DCONF_HDFS_URI=http://10.200.0.74:8085/ -DFLAVOUR=hydra -DPOSTGRES_HOST=pg-0001.postgrestls.mesos -DSKIP_USERS=TRUE -DCLUSTER_ID=nightly -DCLUSTER_DOMAIN=labs.stratio.com -DMARATHON_LB_TASK=marathon-lb-sec -DPOSTGRES_NAME=postgrestls -DADDUSER_PRIVATE_NODES=true -DPRIVATE_AGENTS_LIST=10.200.0.161,10.200.0.162,10.200.0.181,10.200.0.182,10.200.0.183,10.200.0.184,10.200.0.185,10.200.0.194 -DDCOS_SERVICE_NAME=sparta-server -DBOOTSTRAP_IP=10.200.0.155 -DDCOS_IP=10.200.0.156 -DSELENIUM_GRID=sl.demo.stratio.com:4444 -DFORCE_BROWSER=chrome_64sparta -DSKIP_ADDROLE=true`
 
 - Generate new CommandCenter Descriptor:
  `mvn verify -Dgroups=GenerateDescriptor_CC -DlogLevel=DEBUGDDCOS_CLI_HOST=dcos-nightly -DCONF_HDFS_URI=http://10.200.0.74:8085/ -DFLAVOUR=hydra -DPOSTGRES_HOST=pg-0001.postgrestls.mesos -DCLUSTER_ID=nightly -DCLUSTER_DOMAIN=labs.stratio.com -DDCOS_SERVICE_NAME=sparta-server -DDOCKER_URL=qa.stratio.com/stratio/sparta -DSTRATIO_SPARTA_VERSION=2.6.0-SNAPSHOT -DBOOTSTRAP_IP=10.200.0.155 -DDCOS_IP=10.200.0.156`
 
-
 - Execute Workflow E2E -Kafka Postgres
-
  `mvn verify -Dgroups=postgres_kafka_fullsec -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nightly -DFLAVOUR=orion -DPOSTGRES_HOST=pg-0001.postgrestls.mesos -DSKIP_USERS=TRUE -DCLUSTER_ID=nightly -DCLUSTER_DOMAIN=labs.stratio.com -DMARATHON_LB_TASK=marathon-lb-sec -DPOSTGRES_NAME=postgrestls -DADDUSER_PRIVATE_NODES=true -DDCOS_SERVICE_NAME=sparta-server -DSELENIUM_GRID=sl.demo.stratio.com:4444 -DFORCE_BROWSER=chrome_64sparta`
 
 - Sparta Instalations with Mustache:
