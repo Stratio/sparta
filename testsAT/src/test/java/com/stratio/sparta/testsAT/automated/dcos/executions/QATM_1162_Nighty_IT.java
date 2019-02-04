@@ -14,7 +14,8 @@ import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
         "src/test/resources/features/automated/dcos/01_installations/QATM_1863_Installation_CC.feature",
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_fullSec_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_fullSec_IT.feature",
+        "src/test/resources/features/automated/dcos/03_uninstall/QATM_1863_Uninstall_CC.feature"
 },format = "json:target/cucumber.json")
 public class QATM_1162_Nighty_IT extends BaseTest {
 

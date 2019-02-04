@@ -1,5 +1,5 @@
 @rest
-Feature: [Uninstall Sparta Command Center] Sparta uninstall testing with command center
+Feature: [QATM-1863] Sparta uninstall testing with command center
 
   Scenario: [QATM-1863] Uninstall Sparta
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
