@@ -1,7 +1,7 @@
 @rest
 Feature: [QATM_1863] Sparta installation with Command Center
 
-  Scenario: [QATM-1863] Take Marathon-lb IP
+  Scenario: [QATM-1863][1] Take Marathon-lb IP
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Then I run 'dcos task ${MARATHON_LB_TASK:-marathon-lb} | awk '{print $2}'| tail -n 1' in the ssh connection and save the value in environment variable 'marathonIP'
     Then I wait '1' seconds
@@ -9,7 +9,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
     And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
 
   @skipOnEnv(SKIP_GENERATE_DESCRIPTOR)
-  Scenario: [QATM-1863] Generate New Descriptor for CommandCenter
+  Scenario: [QATM-1863][2] Generate New Descriptor for CommandCenter
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     # Obtain Descriptor
@@ -28,7 +28,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
 
   # Add Sparta user in Gosec
   @skipOnEnv(SKIP_USERS)
-  Scenario: [QATM-1863] Generate Sparta user
+  Scenario: [QATM-1863][3] Generate Sparta user
     # Generate token to connect to gosec
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
@@ -40,7 +40,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
     Then the service response status must be '201'
     And the service response must contain the text '"id":"${DCOS_SERVICE_NAME:-sparta-server}"'
 
-  Scenario:[QATM-1863] Obtain postgres docker
+  Scenario:[QATM-1863][4] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME}%2Fplan-v2-json&_=' so that the response contains 'str'
@@ -62,13 +62,13 @@ Feature: [QATM_1863] Sparta installation with Command Center
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
   @skipOnEnv(SKIP_ADDROLE)
-  Scenario:[QATM-1863] Add Sparta User in Postgres
+  Scenario:[QATM-1863][5] Add Sparta User in Postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "create user \"${DCOS_SERVICE_NAME}\" with password ''"' in the ssh connection
 
   # Add Sparta dependencies in Postgres
   @skipOnEnv(SKIP_ADD_DATABASE)
-  Scenario:[QATM-1863] Add Database and Privileges in Postgres
+  Scenario:[QATM-1863][6] Add Database and Privileges in Postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "CREATE SCHEMA IF NOT EXISTS \"${DCOS_SERVICE_NAME}\";"' in the ssh connection
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "CREATE DATABASE ${POSTGRES_DATABASE:-sparta};"' in the ssh connection with exit status '0'
@@ -77,7 +77,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
 
   # Add Zookeeper Policy
   @skipOnEnv(SKIP_POLICY)
-  Scenario: [QATM-1863] Add zookeper-sparta policy to write in zookeper
+  Scenario: [QATM-1863][7] Add zookeper-sparta policy to write in zookeper
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
@@ -87,7 +87,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
     Then the service response status must be '201'
 
   @runOnEnv(POLICY_POSTGRES_AGENT)
-  Scenario: [QATM-1863] Add postgres policy for authorization in sparta
+  Scenario: [QATM-1863][8] Add postgres policy for authorization in sparta
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/postgres_policy.json' as 'json' with:
@@ -97,7 +97,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
     Then the service response status must be '201'
 
   @skipOnEnv(ADVANCED_INSTALL)
-  Scenario: [QATM-1863] Basic installation
+  Scenario: [QATM-1863][9] Basic installation
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     # Obtain schema
@@ -121,7 +121,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
     And I run 'rm -f target/test-classes/schemas/sparta-basic.json' locally
 
   @runOnEnv(ADVANCED_INSTALL)
-  Scenario: [QATM-1863] Advanced installation
+  Scenario: [QATM-1863][9] Advanced installation
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     # Obtain schema
@@ -151,11 +151,11 @@ Feature: [QATM_1863] Sparta installation with Command Center
     And I run 'rm -f target/test-classes/schemas/sparta-advanced.json' locally
 
   @loop(PRIVATE_AGENTS_LIST,AGENT_IP)
-  Scenario:[QATM-1863] Create sparta user in all private agents
+  Scenario:[QATM-1863][10] Create sparta user in all private agents
     Given I open a ssh connection to '<AGENT_IP>' with user 'root' and password 'stratio'
     When I run 'echo $(useradd ${DCOS_SERVICE_NAME})' in the ssh connection
 
-  Scenario: [QATM-1863] Check status
+  Scenario: [QATM-1863][11] Check Sparta status
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     # Check Application in API
@@ -172,7 +172,7 @@ Feature: [QATM_1863] Sparta installation with Command Center
 
   #Add Sparta Policy
   @skipOnEnv(SKIP_POLICY_SPARTA)
-  Scenario: [SPARTA-1161][04] Add sparta policy for authorization in sparta with full security
+  Scenario: [SPARTA-1161][12] Add sparta policy for authorization in sparta with full security
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sparta_policy.json' as 'json' with:

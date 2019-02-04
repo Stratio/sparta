@@ -1,5 +1,5 @@
 @rest
-Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with all security enabled
+Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with all security enabled
   Background: Connect to Dcos-cli
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Then I run 'dcos task ${MARATHON_LB_TASK:-marathon-lb-sec} | awk '{print $2}'| tail -n 1' in the ssh connection and save the value in environment variable 'marathonIP'
@@ -12,7 +12,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   # ADD KAFKA POLICY  *
   #********************
   @skipOnEnv(SKIP_KAFKA_POLICY)
-  Scenario:[SPARTA-1279][01] Add kafka policy to write in kafka
+  Scenario:[QATM-1863][13] Add kafka policy to write in kafka
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     And I wait '3' seconds
@@ -23,7 +23,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     Then the service response status must be '201'
 
 
-  Scenario: [SPARTA-1279][02] - Create topic for sparta in kafka
+  Scenario: [QATM-1863][14] - Create topic for sparta in kafka
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'PUT' request to '/service/${KAFKA_NAME:-eos-kafka-framework}/v1/topics/${TOPIC:-idtopic}?partitions=${KAFKA_PARTITION:-1}&replication=${KAFKA_REPLICATION:-1}'
@@ -34,7 +34,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   # INSTALL AND EXECUTE kafka to postgres WORKFLOW*
   #************************************************
   @web
-  Scenario:[SPARTA-1279][03] Install kafka-postgres workflow
+  Scenario:[QATM-1863][15] Install kafka-postgres workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.labs.stratio.com:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -58,7 +58,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     And I wait '10' seconds
 
   @web
-  Scenario:[SPARTA-1279][04] Execute kafka-postgres workflow
+  Scenario:[QATM-1863][16] Execute kafka-postgres workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -81,7 +81,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   #*********************************
   # VERIFY Kafka-Postgres WORKFLOW*
   #*********************************
-  Scenario:[SPARTA-1279][05] Test kafka-postgres workflow in Dcos
+  Scenario:[QATM-1863][17] Test kafka-postgres workflow in Dcos
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-postgres' contains 'kafka-postgres-v0'
     #Get ip in marathon
@@ -97,7 +97,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   # INSTALLL AND EXECUTE testInput to kafka WORKFLOW*
   #**************************************************
   @web
-  Scenario:[SPARTA-1279][06] Install testInput-Kafka workflow
+  Scenario:[QATM-1863][18] Install testInput-Kafka workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -120,7 +120,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     And I wait '10' seconds
 
   @web
-  Scenario:[SPARTA-1279][07] Execute testInput-Kafka workflow
+  Scenario:[QATM-1863][19] Execute testInput-Kafka workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -141,7 +141,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   #*********************************
   # VERIFY testInput-Kafka WORKFLOW*
   #*********************************
-  Scenario:[SPARTA-1279][08] Test kafka-postgres workflow in Dcos
+  Scenario:[QATM-1863][20] Test kafka-postgres workflow in Dcos
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w testinput-kafka' contains 'testinput-kafka-v0'
     #Get ip in marathon
@@ -158,7 +158,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
   #****************************
   #   TEST RESULT IN POSTGRES *
   #****************************
-  Scenario:[SPARTA-1279][09] Obtain postgres docker
+  Scenario:[QATM-1863][21] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
@@ -176,13 +176,13 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     And I wait '10' seconds
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
-  Scenario:[SPARTA-1279][10] TestResult in postgres
+  Scenario:[QATM-1863][22] TestResult in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     Then in less than '600' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tabletest"' contains '${TABLETEST_NUMBER:-400}'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection and save the value in environment variable 'postgresresult'
 
   @web
-  Scenario:[SPARTA-1279][10] Streaming evidences kafka-postgres
+  Scenario:[QATM-1863][23] Streaming evidences kafka-postgres
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -203,7 +203,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     And I wait '03' seconds
 
   @web
-  Scenario: [SPARTA-1279][11] Stop workflows
+  Scenario: [QATM-1863][24] Stop Streaming workflows
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -222,14 +222,14 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     Given I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflowExecutions/stop/!{previousWorkflow_execution_ID2}'
     Then the service response status must be '200'
 
-  Scenario:[SPARTA-1279][12] Test stop streaming workflows
+  Scenario:[QATM-1863][25] Test stop streaming workflows
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     # Wait for stop Batch mode process when finish task
     Given in less than '800' seconds, checking each '10' seconds, the command output 'dcos task | grep !{workflowTaskId1} | wc -l' contains '0'
     Given in less than '800' seconds, checking each '10' seconds, the command output 'dcos task | grep !{workflowTaskId2} | wc -l' contains '0'
 
   @web
-  Scenario: [SPARTA-1279][13] Remove workflows
+  Scenario: [QATM-1863][26] Remove Streaming workflows
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
@@ -249,13 +249,13 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements with 
     Then the service response status must be '200'
 
   @skipOnEnv(SKIP_POLICY=true)
-  Scenario: [SPARTA-1279][14]Delete Kafka Policy
+  Scenario: [QATM-1863][27] Delete Kafka Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/kafka_${DCOS_SERVICE_NAME}'
     Then the service response status must be '200'
 
-  Scenario:[SPARTA-1279][15] delete user and table in postgres
+  Scenario:[QATM-1863][28] Delete tables in postgres
     #Delete postgres table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection

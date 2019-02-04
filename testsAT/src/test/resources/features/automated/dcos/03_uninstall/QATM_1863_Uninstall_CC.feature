@@ -1,7 +1,7 @@
 @rest
 Feature: [QATM-1863] Sparta uninstall testing with command center
 
-  Scenario: [QATM-1863] Uninstall Sparta
+  Scenario: [QATM-1863][9000] Uninstall Sparta
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     And I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
@@ -12,7 +12,7 @@ Feature: [QATM-1863] Sparta uninstall testing with command center
     And in less than '200' seconds, checking each '20' seconds, I send a 'GET' request to '/service/deploy-api/deploy/status/all' so that the response does not contains '${DCOS_SERVICE_NAME:-sparta-server}'
 
   @runOnEnv(POLICY_POSTGRES_AGENT)
-  Scenario: [QATM-1863] Delete user of Postgres Policy
+  Scenario: [QATM-1863][9001] Delete user of Postgres Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${DCOS_USER:-admin}' and password '${DCOS_PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'PUT' request to '/service/gosecmanagement/api/policy/${ID_SPARTA_POSTGRES:-sparta-pg}' based on 'schemas/gosec/sparta_policy.json' as 'json' with:
@@ -24,7 +24,7 @@ Feature: [QATM-1863] Sparta uninstall testing with command center
     Then the service response status must be '200'
     And I wait '10' seconds
 
-  Scenario:[QATM-1863] Obtain postgres docker
+  Scenario:[QATM-1863][9002] Obtain postgres docker
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
@@ -46,42 +46,42 @@ Feature: [QATM-1863] Sparta uninstall testing with command center
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
   @skipOnEnv(SKIP_DROP_DATABASE)
-  Scenario:[QATM-1863] Drop Database
+  Scenario:[QATM-1863][9003] Drop Database
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP SCHEMA \"${DCOS_SERVICE_NAME}\" CASCADE"' in the ssh connection with exit status '0'
     And I wait '1' seconds
     Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP DATABASE  ${POSTGRES_DATABASE:-sparta}"' contains 'DROP DATABASE'
 
   @runOnEnv(POLICY_POSTGRES_AGENT)
-  Scenario: [QATM-1863] Delete Postgres Policy
+  Scenario: [QATM-1863][9004] Delete Postgres Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_SPARTA_POSTGRES:-sparta-pg}'
     Then the service response status must be '200'
 
   @runOnEnv(DROP_ROLE)
-  Scenario:[QATM-1863] Drop Role
+  Scenario:[QATM-1863][9005] Drop Role
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     #wait for drop user from Postgres
     Then in less than '300' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "DROP ROLE \"${DCOS_SERVICE_NAME}\""' contains 'role "${DCOS_SERVICE_NAME}" does not exist'
 
   # Add Sparta dependencies in Postgres
   @skipOnEnv(SKIP_POLICY)
-  Scenario: [QATM-1863] Delete Sparta Policy
+  Scenario: [QATM-1863][9006] Delete Sparta Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
     Then the service response status must be '200'
 
   @skipOnEnv(SKIP_POLICY)
-  Scenario: [QATM-1863] Delete Zookeeper Policy
+  Scenario: [QATM-1863][9007] Delete Zookeeper Policy
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_POLICY_ZK:-spartazk}'
     Then the service response status must be '200'
 
   @skipOnEnv(SKIP_GENERATE_DESCRIPTOR)
-  Scenario: [QATM-1863] Delete Command Center Descriptor
+  Scenario: [QATM-1863][9008] Delete Command Center Descriptor
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     # Delete Descriptor
