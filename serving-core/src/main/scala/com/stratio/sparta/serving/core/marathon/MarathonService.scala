@@ -84,12 +84,12 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
 
   def kill(containerId: String): Unit = {
 
-    val killRequest = marathonUpAndDownComponent.downApplication(containerId, Try(getToken).toOption)
+    val killRequest = marathonUpAndDownComponent.killDeploymentsAndDownApplication(containerId, Try(getToken).toOption)
 
     Await.result(killRequest, DefaultMaxTimeOutInMarathonRequests seconds) match {
-      case response: (String, String) =>
+      case response: Seq[(String, String)] =>
         cleanerActor ! TriggerCleaning
-        log.info(s"Workflow App $containerId correctly killed with status code ${response._1} and response ${response._2}")
+        log.info(s"Workflow App $containerId correctly killed with responses: ${response.mkString(",")}")
       case _ =>
         cleanerActor ! TriggerCleaning
         log.info(s"Workflow App $containerId killed but the response is not serializable")

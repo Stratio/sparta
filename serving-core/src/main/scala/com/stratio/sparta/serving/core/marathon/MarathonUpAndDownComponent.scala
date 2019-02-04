@@ -47,8 +47,9 @@ trait MarathonUpAndDownComponent extends HttpRequestUtils with SpartaSerializer 
 
   def downPath(appId: String): String = s"$apiVersion/apps/$appId"
 
-  def downApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[(String, String)] = {
+  def deploymentPath(deploymentId: String): String = s"$apiVersion/deployments/$deploymentId?force=true"
 
+  def downApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[(String, String)] = {
     log.info(s"Killing Marathon application: $applicationId")
 
     for {
@@ -59,6 +60,33 @@ trait MarathonUpAndDownComponent extends HttpRequestUtils with SpartaSerializer 
       )
     } yield (resultHTTP._1, responseAuth)
   }
+
+  def killDeployment(deploymentId: String, ssoToken: Option[HttpCookie]): Future[(String, String)] = {
+    log.info(s"Killing Marathon deployment: $deploymentId")
+
+    for {
+      resultHTTP <- doRequest(uri, deploymentPath(deploymentId), DELETE, None, ssoToken.map(List(_)).getOrElse(Seq.empty))
+      responseAuth <- marathonAPIUtils.responseCheckedAuthorization(
+        resultHTTP._2,
+        Option(s"Correctly deleted marathon deployment with id $deploymentId")
+      )
+    } yield (resultHTTP._1, responseAuth)
+  }
+
+  def killDeploymentsAndDownApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[Seq[(String, String)]] = {
+    log.info(s"Kill and down Marathon application: $applicationId")
+
+    for {
+      deploymentsToKill <- marathonAPIUtils.getApplicationDeployments(applicationId)
+      deploymentKillResult <- Future.sequence(
+        deploymentsToKill.map { case (_, deploymentId) => killDeployment(deploymentId, ssoToken) }
+      )
+      downApplicationResult <- downApplication(applicationId, ssoToken)
+    } yield {
+      deploymentKillResult.toSeq :+ downApplicationResult
+    }
+  }
+
 }
 
 object MarathonUpAndDownComponent {

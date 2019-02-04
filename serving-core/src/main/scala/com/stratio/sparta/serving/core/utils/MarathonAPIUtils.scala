@@ -14,9 +14,12 @@ import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.marathon.Deployment
 import com.stratio.sparta.serving.core.utils.MarathonApiError._
 import com.stratio.sparta.serving.core.utils.MarathonOauthTokenUtils.{expireToken, getToken}
 import net.minidev.json.JSONArray
+import org.json4s.jackson.Serialization._
 import org.slf4j.Logger
 
 import scala.collection.JavaConverters._
@@ -25,7 +28,8 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Properties, Success, Try}
 
-class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) extends SLF4JLogging {
+class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
+  extends SLF4JLogging with SpartaSerializer {
   outer =>
 
   private[core] lazy val oauthUtils = new HttpRequestUtils {
@@ -46,6 +50,34 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   private[core] val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
 
   private[core] val DefaultTimeoutInMarathonRequests = 3000
+
+  def getApplicationDeployments(applicationId: String): Future[Map[String, String]] = {
+    Try {
+      val deployments = for {
+        deploymentsInDcos <- retrieveDeployments()
+      } yield {
+        extractWorkflowDeploymentsFromMarathonResponse(deploymentsInDcos).filter { case (appId, _) =>
+          appId == applicationId
+        }
+      }
+
+      deployments.recoverWith {
+        case _: UnExpectedError =>
+          Future.successful(Map.empty[String, String])
+        case exception: Exception =>
+          responseUnExpectedErrorWithResponse(exception, Map.empty[String, String])
+        case _ =>
+          Future.successful(Map.empty[String, String])
+      }
+    } match {
+      case Success(result) =>
+        result
+      case Failure(exception: Exception) =>
+        responseUnExpectedErrorWithResponse(exception, Map.empty[String, String])
+      case _ =>
+        Future.successful(Map.empty[String, String])
+    }
+  }
 
   def removeEmptyFoldersFromDCOS(): Unit = {
     outer.log.debug("Retrieving groups from MarathonAPI to purge the empty ones")
@@ -71,7 +103,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
       } yield extractDiscrepancyFromDatabaseAndDcos(startedExecutionsInDatabase, runningExecutionsInDcos)
 
       discrepancyResponse.recoverWith {
-        case _ : UnExpectedError =>
+        case _: UnExpectedError =>
           Future.successful(Map.empty[String, String], Seq.empty[String])
         case exception: Exception =>
           responseUnExpectedErrorWithResponse(exception, (Map.empty[String, String], Seq.empty[String]))
@@ -91,7 +123,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
   def extractDiscrepancyFromDatabaseAndDcos(
                                              startedExecutionsInDatabase: Map[String, String], //[(MarathonID, ExecutionID)]
                                              runningInDcos: Option[Seq[String]]
-                                     ): (Map[String, String], Seq[String]) = {
+                                           ): (Map[String, String], Seq[String]) = {
     runningInDcos match {
       case Some(executionsRunningInDcos) =>
         (
@@ -140,6 +172,23 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
         HttpMethods.GET,
         cookies = Seq(getToken))
       responseAuth <- responseCheckedAuthorization(responseMarathon._2, Option(s"Correctly retrieved all apps inside $appsList"))
+    } yield responseAuth
+
+    appsInDcosResponse.recoverWith {
+      case exception: Exception =>
+        responseUnExpectedError(exception)
+    }
+
+  }
+
+  private[core] def retrieveDeployments(): Future[String] = {
+    val deploymentsPath = s"v2/deployments"
+    val appsInDcosResponse = for {
+      responseMarathon <- doRequest(marathonApiUri.get,
+        deploymentsPath,
+        HttpMethods.GET,
+        cookies = Seq(getToken))
+      responseAuth <- responseCheckedAuthorization(responseMarathon._2, Option(s"Correctly retrieved all deployments inside $deploymentsPath"))
     } yield responseAuth
 
     appsInDcosResponse.recoverWith {
@@ -291,6 +340,22 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer) ext
       }
     }
     else None
+  }
+
+  private[core] def extractWorkflowDeploymentsFromMarathonResponse(json: String): Map[String, String] = {
+    Try {
+      val deployments = read[Seq[Deployment]](json)
+
+      deployments.flatMap { deployment =>
+        deployment.affectedApps.map(app => app -> deployment.id)
+      }.toMap
+    } match {
+      case Success(workflowDeployments) =>
+        workflowDeployments
+      case Failure(e) =>
+        log.debug(s"Invalid Deployments extraction, the Marathon API responses: $json . Error: ${e.getLocalizedMessage}")
+        Map.empty
+    }
   }
 }
 
