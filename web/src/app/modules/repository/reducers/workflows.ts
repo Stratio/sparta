@@ -387,27 +387,29 @@ export function reducer(state: State = initialState, action: any): State {
          };
       }
       case workflowActions.GENERATE_NEW_VERSION_COMPLETE: {
-         const newWorkflow = {
-            ...action.payload,
-            group: action.payload.group,
-            nodes: action.payload.pipelineGraph.nodes
-         };
-         const workflowWithVersions = state.workflowsVersionsList.find(workflow => workflow.name === newWorkflow.name);
-         const workflow = {
-            ...workflowWithVersions,
-            versions: [...workflowWithVersions.versions, newWorkflow]
-         };
-         return {
-            ...state,
-            workflowList: [...state.workflowList, newWorkflow],
-            workflowsVersionsList: [workflow],
-            notification: {
-               text: 'GENERATE_NEW_VERSION',
-               status: 'neutral',
-               autoCloseTime: 5000,
-               visible: true
-            }
-         };
+        const lastUpdate = action.payload.lastUpdateDate ? action.payload.lastUpdateDate : action.payload.creationDate;
+        const newWorkflow = {
+          ...action.payload,
+          group: action.payload.group,
+          nodes: action.payload.pipelineGraph.nodes,
+          lastUpdate: formatDate(lastUpdate)
+        };
+        const workflowWithVersions = state.workflowsVersionsList.find(workflow => workflow.name === newWorkflow.name);
+        const workflow = {
+          ...workflowWithVersions,
+          versions: [...workflowWithVersions.versions, newWorkflow]
+        };
+        return {
+          ...state,
+          workflowList: [...state.workflowList, newWorkflow],
+          workflowsVersionsList: [workflow],
+          notification: {
+              text: 'GENERATE_NEW_VERSION',
+              status: 'neutral',
+              autoCloseTime: 5000,
+              visible: true
+          }
+        };
 
       }
       case workflowActions.MOVE_WORKFLOW_GROUP: {
@@ -427,26 +429,29 @@ export function reducer(state: State = initialState, action: any): State {
       }
 
       case workflowActions.SAVE_WORKFLOW_GROUP: {
-         const newWorkflow = {
-            ...action.payload,
-            group: action.payload.group.name,
-            nodes: action.payload.pipelineGraph.nodes,
-            type: action.payload.executionEngine,
-         };
-         newWorkflow.versions = [{
-            ...action.payload,
-            group: action.payload.group.name,
-            nodes: action.payload.pipelineGraph.nodes,
-            type: action.payload.executionEngine,
-         }];
-         const workflowList = [...state.workflowList, newWorkflow];
-         const workflowsVersionsList = [...state.workflowsVersionsList, newWorkflow];
+        const lastUpdate = action.payload.lastUpdateDate ? action.payload.lastUpdateDate : action.payload.creationDate;
+        const newWorkflow = {
+          ...action.payload,
+          group: action.payload.group.name,
+          nodes: action.payload.pipelineGraph.nodes,
+          type: action.payload.executionEngine,
+          lastUpdate: formatDate(lastUpdate)
+        };
+        newWorkflow.versions = [{
+          ...action.payload,
+          group: action.payload.group.name,
+          nodes: action.payload.pipelineGraph.nodes,
+          type: action.payload.executionEngine,
+          lastUpdate: formatDate(lastUpdate)
+        }];
+        const workflowList = [...state.workflowList, newWorkflow];
+        const workflowsVersionsList = [...state.workflowsVersionsList, newWorkflow];
 
-         return {
-            ...state,
-            workflowList,
-            workflowsVersionsList
-         };
+        return {
+          ...state,
+          workflowList,
+          workflowsVersionsList
+        };
       }
       case workflowActions.DELETE_WORKFLOW_GROUP: {
          const workflowList = state.workflowList.filter(workflow => action.payload.indexOf(workflow.name) === -1);
