@@ -22,8 +22,6 @@ object MarathonOauthTokenUtils extends SLF4JLogging {
   lazy private val ssoUriField = "sso.uri"
   lazy private val usernameField = "sso.username"
   lazy private val passwordField = "sso.password"
-  lazy private val clientIdField = "sso.clientId"
-  lazy private val redirectUriField = "sso.redirectUri"
   lazy private val retriesField = "sso.retries"
   lazy private val defaultRetries = 10
 
@@ -99,63 +97,79 @@ object MarathonOauthTokenUtils extends SLF4JLogging {
   private def retrieveTokenFromSSO: Try[Seq[HttpCookie]] =
     Try {
       //Configuration properties
-      val ssoUri = Try(marathonConfig.getString(ssoUriField))
-        .getOrElse(throw new Exception("SSO Uri not defined"))
-      val clientId = Try(marathonConfig.getString(clientIdField))
-        .getOrElse(throw new Exception("clientId not defined"))
-      val redirectUri = Try(marathonConfig.getString(redirectUriField))
-        .getOrElse(throw new Exception("redirectUri not defined"))
+      val ssoUri = {
+        val ssoUriProperty = Try(marathonConfig.getString(ssoUriField))
+          .getOrElse(throw new Exception("SSO Uri not defined"))
+        val charCount = ssoUriProperty.count(char => char == ':')
+        if(charCount == 2)
+          ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf(":"))
+        else ssoUriProperty
+      }
+      val ssoLogin = {
+        val loginPath = "/login"
+        if(ssoUri.endsWith(loginPath)) ssoUri
+        else ssoUri + loginPath
+      }
 
-      // First request (AUTHORIZE)
-      val authRequest = s"$ssoUri/oauth2.0/authorize?redirect_uri=$redirectUri&client_id=$clientId"
-      log.debug(s"1. Request authorize to : $authRequest")
+      // First request (LOGIN)
+      log.debug(s"1. Request login to : $ssoLogin")
+      val initLoginResponse = Http(ssoLogin)
+        .option(HttpOptions.followRedirects(false))
+        .asString
+      val loginCookies = getCookies(initLoginResponse)
+
+      // second request (AUTHORIZE)
+      val authRequest = extractRedirectUriFromLocationHeader(initLoginResponse)
+      log.debug(s"2. Request authorize to : $authRequest")
       val authResponse = Http(authRequest)
+        .cookies(loginCookies.values.toSeq)
         .option(HttpOptions.followRedirects(false))
         .asString
       val jSessionIdAndSSOIdCookies = getCookies(authResponse)
-      log.debug(s"1. Response: $authResponse")
+      log.debug(s"2. Response: $authResponse")
 
-      // Second request (Redirect to LOGIN)
+      // Third request (Redirect to LOGIN)
       val redirectToLogin = extractRedirectUriFromLocationHeader(authResponse)
-      log.debug(s"2. Request login redirect to : $redirectToLogin with cookies ${jSessionIdAndSSOIdCookies.keys.mkString(",")}")
+      log.debug(s"3. Request login redirect to : $redirectToLogin with cookies ${jSessionIdAndSSOIdCookies.keys.mkString(",")}")
       val postFormUri = Http(redirectToLogin)
         .cookies(jSessionIdAndSSOIdCookies.values.toSeq)
+        .option(HttpOptions.followRedirects(false))
         .asString
       val (lt, execution) = extractLTAndExecution(postFormUri.body)
-      log.debug(s"2. Response: $postFormUri")
+      //val postFormUriCookies = getCookies(postFormUri)
+      log.debug(s"3. Response: $postFormUri")
 
-      // Third request (login POST)
-      val loginPostUri = s"$ssoUri/login?service=$ssoUri/oauth2.0/callbackAuthorize"
-      val ssoRedirectionCookie = Map("sso_redirection" -> new HttpCookie("sso_redirection", s"${ssoUri.substring(0, ssoUri.lastIndexOf(":"))}/"))
-      val loginPostCookies = jSessionIdAndSSOIdCookies ++ ssoRedirectionCookie
+      // Fourth request (login POST)
+      val ssoRedirectionCookie = Map("sso_redirection" -> new HttpCookie("sso_redirection", s"$ssoUri/"))
+      val loginPostCookies = jSessionIdAndSSOIdCookies ++ ssoRedirectionCookie //++ postFormUriCookies
       val loginForm = createLoginForm(lt, execution)
-      log.debug(s"3. Request post login to $loginPostUri with cookies ${loginPostCookies.keys.mkString(",")}")
-      val loginRequest = Http(loginPostUri)
+      log.debug(s"4. Request post login to $redirectToLogin with cookies ${loginPostCookies.keys.mkString(",")}")
+      val loginRequest = Http(redirectToLogin)
         .cookies(loginPostCookies.values.toSeq)
         .option(HttpOptions.followRedirects(false))
         .postForm(loginForm)
         .asString
       val casPrivacyAndTgcCookies = getCookies(loginRequest)
-      log.debug(s"3. Response: $loginRequest")
+      log.debug(s"5. Response: $loginRequest")
 
-      // Fourth request (Redirect from POST)
+      // Fifth request (Redirect from POST)
       val callbackUri = extractRedirectUriFromLocationHeader(loginRequest)
       val redirectPostCookies = casPrivacyAndTgcCookies ++ loginPostCookies
-      log.debug(s"4. Request redirect post to : $callbackUri with cookies ${redirectPostCookies.keys.mkString(",")}")
+      log.debug(s"5. Request redirect post to : $callbackUri with cookies ${redirectPostCookies.keys.mkString(",")}")
       val ticketResponse = Http(callbackUri)
         .cookies(redirectPostCookies.values.toSeq)
         .option(HttpOptions.followRedirects(false))
         .asString
-      log.debug(s"4. Response: $ticketResponse")
+      log.debug(s"5. Response: $ticketResponse")
 
-      // Fifth request (Redirect with Ticket)
+      // Sixth request (Redirect with Ticket)
       val clientRedirectUri = extractRedirectUriFromLocationHeader(ticketResponse)
       val clientRedirectCookies = loginPostCookies
-      log.debug(s"5. Request redirect with ticket to : $clientRedirectUri with cookies ${clientRedirectCookies.keys.mkString(",")}")
+      log.debug(s"6. Request redirect with ticket to : $clientRedirectUri with cookies ${clientRedirectCookies.keys.mkString(",")}")
       val tokenResponse = Http(clientRedirectUri)
         .cookies(clientRedirectCookies.values.toSeq)
         .asString
-      log.debug(s"5. Response: $tokenResponse")
+      log.debug(s"6. Response: $tokenResponse")
 
       val cookiesToReturn = getCookies(tokenResponse).values.toSeq
       log.debug(s"Cookies to return ${cookiesToReturn.map(_.getName).mkString(",")}")
