@@ -152,13 +152,19 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     executionService.updateCacheExecutionStatus(execution)
   }
 
+  val awaitWorkflowStatusTime: WorkflowExecution => Int = (workflowExecution: WorkflowExecution) => {
+    import MarathonService._
+    calculateMaxTimeout(getHealthChecks(workflowExecution.getWorkflowToExecute))
+  }
+
   val manageStartupStateAction: WorkflowExecution => Unit = (workflowExecution: WorkflowExecution) => {
     if (workflowExecution.lastStatus.state == Uploaded ||
       workflowExecution.lastStatus.state == Launched ||
       workflowExecution.lastStatus.state == NotStarted ||
       workflowExecution.lastStatus.state == Starting &&
         !scheduledActions.exists(task => task._1 == workflowExecution.getExecutionId)) {
-      val task = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
+
+      val task = scheduleOneTask(AwaitWorkflowChangeStatus, awaitWorkflowStatusTime(workflowExecution))(
         checkStatus(workflowExecution.getExecutionId))
       scheduledActions += (workflowExecution.getExecutionId -> task)
     }

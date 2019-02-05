@@ -81,32 +81,17 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
         log.info("Workflow App environment started")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
-        Thread.sleep(secondsToWaitBeforeError)
+        Thread.sleep(millisecondsToWaitBeforeError)
         throw driverException
       case Failure(exception) =>
         log.error(s"An error was encountered while starting the Workflow App environment", exception)
-        Thread.sleep(secondsToWaitBeforeError)
+        Thread.sleep(millisecondsToWaitBeforeError)
         throw exception
     }
   }
 
-  def secondsToWaitBeforeError: Int = {
-    val graceSeconds = Try(Properties.envOrNone(SpartaMarathonGracePeriodsSecondsEnv).get.toInt).toOption
-      .getOrElse(DefaultGracePeriodSeconds)
-    val intervalSeconds = Try(Properties.envOrNone(SpartaMarathonIntervalSecondsEnv).get.toInt).toOption
-      .getOrElse(DefaultIntervalSeconds)
-    val failures = Try(Properties.envOrNone(SpartaMarathonMaxFailuresEnv).get.toInt).toOption
-      .getOrElse(DefaultMaxConsecutiveFailures)
-    val maxAwaitSeconds = Try {
-      (AggregationTimeHelper.parseValueToMilliSeconds(
-        Try(Properties.envOrNone(SpartaAwaitChangeStatusEnv).get)
-          .getOrElse(AppConstant.DefaultAwaitWorkflowChangeStatus)
-      ) / 1000).toInt
-    }.toOption.getOrElse(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds)
-    val totalTimeBeforeMarathonKill = graceSeconds + (intervalSeconds * failures)
+  def millisecondsToWaitBeforeError: Int =
+   Try(Properties.envOrNone(SpartaMarathonTotalTimeBeforeKill).get.toInt).toOption
+      .getOrElse(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds) * 1000 // s -> ms
 
-    if (totalTimeBeforeMarathonKill > maxAwaitSeconds)
-      maxAwaitSeconds
-    else totalTimeBeforeMarathonKill
-  }
 }

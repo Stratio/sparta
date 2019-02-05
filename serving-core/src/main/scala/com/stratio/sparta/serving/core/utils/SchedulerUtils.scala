@@ -25,6 +25,13 @@ trait SchedulerUtils extends SLF4JLogging {
     SchedulerSystem.scheduler.scheduleOnce(AggregationTimeHelper.parseValueToMilliSeconds(delay) milli)(f)
   }
 
+  def scheduleOneTask(timeProperty: String, timeInSeconds: Int)(f: ⇒ Unit): Cancellable = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val stringTimeInSeconds= s"${timeInSeconds}s"
+    log.info(s"Starting scheduler task in $timeProperty with time: $stringTimeInSeconds")
+    SchedulerSystem.scheduler.scheduleOnce(AggregationTimeHelper.parseValueToMilliSeconds(stringTimeInSeconds) milli)(f)
+  }
+
   def scheduleTask(initTimeProperty: String,
                    defaultInitTime: String,
                    intervalTimeProperty: String,

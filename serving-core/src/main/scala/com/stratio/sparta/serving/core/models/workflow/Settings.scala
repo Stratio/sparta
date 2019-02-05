@@ -31,7 +31,8 @@ case class GlobalSettings(
                            parametersUsed: Seq[String] = Seq.empty[String],
                            udfsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
                            udafsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
-                           mesosRole: Option[JsoneyString] = None
+                           mesosRole: Option[JsoneyString] = None,
+                           marathonDeploymentSettings: Option[MarathonDeploymentSettings] = None
                          )
 
 case class GlobalSettingsDto(
@@ -46,6 +47,18 @@ case class CheckpointSettings(
                                autoDeleteCheckpoint: Boolean = true,
                                addTimeToCheckpointPath: Boolean = false
                              )
+
+case class MarathonDeploymentSettings(
+                             gracePeriodSeconds: Option[JsoneyString] = None,
+                             intervalSeconds: Option[JsoneyString] = None,
+                             timeoutSeconds: Option[JsoneyString] = None,
+                             maxConsecutiveFailures: Option[JsoneyString] = None,
+                             forcePullImage: Option[Boolean] = Option(false),
+                             privileged: Option[Boolean] = Option(false),
+                             userEnvVariables: Seq[KeyValuePair] = Seq.empty[KeyValuePair],
+                             userLabels: Seq[KeyValuePair] = Seq.empty[KeyValuePair],
+                             logLevel: Option[JsoneyString] = None
+                           )
 
 case class StreamingSettings(
                               window: JsoneyString = JsoneyString("2s"),
@@ -121,3 +134,5 @@ case class UserUDF(name: String)
 case class SqlSentence(sentence: JsoneyString)
 
 case class SparkProperty(sparkConfKey: JsoneyString, sparkConfValue: JsoneyString)
+
+case class KeyValuePair(key: JsoneyString, value: JsoneyString)

@@ -22,7 +22,7 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
 import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.{SparkSubmitExecution, Workflow, WorkflowExecution}
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService
 import com.stratio.sparta.serving.core.utils.MarathonOauthTokenUtils._
 import com.typesafe.config.Config
@@ -65,6 +65,8 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
 
 
   /* PUBLIC METHODS */
+
+  import MarathonService._
 
   def launch(execution: WorkflowExecution): Unit = {
 
@@ -119,23 +121,23 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   private def spartaDockerImage: String =
     Try(marathonConfig.getString("docker.image")).toOption.getOrElse(DefaultSpartaDockerImage)
 
-  private def gracePeriodSeconds: Int =
-    Try(marathonConfig.getInt("gracePeriodSeconds")).toOption.getOrElse(DefaultGracePeriodSeconds)
+  private def getUserDefinedLabels(workflow: Workflow): Map[String, String] = workflow.settings.global.
+    marathonDeploymentSettings.fold(Map.empty[String, String]) { marathonSettings =>
+    marathonSettings.userLabels.flatMap { kvPair => Option(kvPair.key.toString -> kvPair.value.toString) }.toMap
+  }
 
-  private def intervalSeconds: Int =
-    Try(marathonConfig.getInt("intervalSeconds")).toOption.getOrElse(DefaultIntervalSeconds)
+  private def getUserDefinedEnvVariables(workflow: Workflow): Map[String, String] = {
+    workflow.settings.global.
+      marathonDeploymentSettings.fold(Map.empty[String, String]) { marathonSettings =>
+      marathonSettings.logLevel.notBlank.fold(Map.empty[String, String]) {
+        logLevel =>
+          val level = logLevel.toString.toUpperCase
+          Seq(sparkLogLevel -> level, spartaLogLevel -> level, spartaRedirectorLogLevel -> level).toMap
+      } ++
+        marathonSettings.userEnvVariables.flatMap { kvPair => Option(kvPair.key.toString -> kvPair.value.toString) }.toMap
+    }
+  }
 
-  private def timeoutSeconds: Int =
-    Try(marathonConfig.getInt("timeoutSeconds")).toOption.getOrElse(DefaultTimeoutSeconds)
-
-  private def maxConsecutiveFailures: Int =
-    Try(marathonConfig.getInt("maxConsecutiveFailures")).toOption.getOrElse(DefaultMaxConsecutiveFailures)
-
-  private def forcePullImageConf: Boolean =
-    Try(marathonConfig.getString("docker.forcePullImage").toBoolean).getOrElse(DefaultForcePullImage)
-
-  private def privileged: Boolean =
-    Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
   private def transformMemoryToInt(memory: String): Int = Try(memory match {
     case mem if mem.contains("G") => mem.replace("G", "").toInt * 1024
@@ -209,11 +211,16 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
         (Map(AppRoleEnv -> write(Map("secret" -> "role"))), Map("role" -> Map("source" -> appRoleName.get)))
       } else (Map.empty[String, String], Map.empty[String, Map[String, String]])
     }
+
+    val newHealthChecks: Option[Seq[MarathonHealthCheck]] = getHealthChecks(workflowModel)
+    val healthCheckEnvVariables: Map[String, String] =
+      Map(SpartaMarathonTotalTimeBeforeKill -> calculateMaxTimeout(newHealthChecks).toString)
+
     val newEnv = Option(
       envProperties(workflowModel, execution, marathonAppHeapSize) ++ envFromSubmit ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
         calicoProperties ++ extraProperties ++ spartaExtraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
-        intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties ++ mesosRoleFromSubmit(submitExecution)
+        intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties ++ mesosRoleFromSubmit(submitExecution) ++ getUserDefinedEnvVariables(workflowModel) ++ healthCheckEnvVariables
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -244,10 +251,14 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     val networkType = if (calicoEnabled) "USER" else app.container.docker.network
     val newDocker = app.container.docker.copy(
       image = spartaDockerImage,
-      forcePullImage = Option(forcePullImageConf),
+      forcePullImage = Option(workflowModel.settings.global.marathonDeploymentSettings.fold(DefaultForcePullImage) {
+        marathonSettings => marathonSettings.forcePullImage.getOrElse(DefaultForcePullImage)
+      }),
       network = networkType,
       portMappings = newPortMappings,
-      privileged = Option(privileged)
+      privileged = Option(workflowModel.settings.global.marathonDeploymentSettings.fold(DefaultPrivileged) {
+        marathonSettings => marathonSettings.privileged.getOrElse(DefaultPrivileged)
+      })
     )
     val newContainerVolumes = Properties.envOrNone(MesosNativeJavaLibraryEnv) match {
       case Some(_) =>
@@ -263,16 +274,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
 
     }
     val newDockerContainerInfo = MarathonContainer(docker = newDocker, volumes = newContainerVolumes)
-    val newHealthChecks = Option(Seq(MarathonHealthCheck(
-      protocol = "HTTP",
-      path = Option("/environment"),
-      portIndex = Option(0),
-      gracePeriodSeconds = gracePeriodSeconds,
-      intervalSeconds = intervalSeconds,
-      timeoutSeconds = timeoutSeconds,
-      maxConsecutiveFailures = maxConsecutiveFailures,
-      ignoreHttp1xx = Option(false)
-    )))
     val inputConstraints = getConstraint(workflowModel)
     val newConstraint = if (inputConstraints.isEmpty) None else Option(Seq(inputConstraints))
     val newIpAddress = {
@@ -293,6 +294,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       secrets = newSecrets,
       portDefinitions = newPortDefinitions,
       ipAddress = newIpAddress,
+      labels = app.labels ++ getUserDefinedLabels(workflowModel),
       constraints = newConstraint
     )
   }
@@ -420,5 +422,56 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       SpartaZookeeperPathEnv -> Option(BaseZkPath)
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap
   }
+}
 
+object MarathonService{
+
+  protected[core] def getHealthChecks(workflowModel: Workflow): Option[Seq[MarathonHealthCheck]] = {
+    val workflowHealthcheckSettings =
+      HealthChecks.fromObject(workflowModel.settings.global.marathonDeploymentSettings)
+
+    Option(Seq(MarathonHealthCheck(
+      protocol = "HTTP",
+      path = Option("/environment"),
+      portIndex = Option(0),
+      gracePeriodSeconds = workflowHealthcheckSettings.gracePeriodSeconds,
+      intervalSeconds = workflowHealthcheckSettings.intervalSeconds,
+      timeoutSeconds = workflowHealthcheckSettings.timeoutSeconds,
+      maxConsecutiveFailures = workflowHealthcheckSettings.maxConsecutiveFailures,
+      ignoreHttp1xx = Option(false)
+    )))
+  }
+
+
+  protected[core] def calculateMaxTimeout(healthChecks: Option[Seq[MarathonHealthCheck]]) : Int  =
+    healthChecks.fold(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds){
+      healthCk => {
+        val applicationHck = healthCk.head
+        import applicationHck._
+        gracePeriodSeconds + (intervalSeconds + timeoutSeconds) * maxConsecutiveFailures
+      }
+    }
+
+  case class HealthChecks(gracePeriodSeconds: Int = DefaultGracePeriodSeconds,
+                          intervalSeconds: Int = DefaultIntervalSeconds,
+                          timeoutSeconds: Int = DefaultTimeoutSeconds,
+                          maxConsecutiveFailures: Int = DefaultMaxConsecutiveFailures)
+
+  object HealthChecks{
+
+    private def toIntOrElse(integerString: Option[JsoneyString], defaultValue : Int): Int =
+      Try(integerString.map(_.toString.toInt).get).toOption.getOrElse(defaultValue)
+
+    protected[core] def fromObject(settings : Option[MarathonDeploymentSettings]) : HealthChecks =
+      settings match {
+        case None => HealthChecks()
+        case Some(marathonSettings) =>
+          HealthChecks(
+            gracePeriodSeconds = toIntOrElse(marathonSettings.gracePeriodSeconds, DefaultGracePeriodSeconds),
+            intervalSeconds = toIntOrElse(marathonSettings.intervalSeconds, DefaultIntervalSeconds),
+            timeoutSeconds = toIntOrElse(marathonSettings.timeoutSeconds, DefaultTimeoutSeconds),
+            maxConsecutiveFailures = toIntOrElse(marathonSettings.maxConsecutiveFailures, DefaultMaxConsecutiveFailures)
+          )
+      }
+  }
 }

@@ -26,7 +26,7 @@ object MarathonConstant {
   val DefaultGracePeriodSeconds = 240
   val DefaultIntervalSeconds = 20
   val DefaultTimeoutSeconds = 20
-  val DefaultMaxConsecutiveFailures = 2
+  val DefaultMaxConsecutiveFailures = 3
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
   val DefaultIncludeCommonVolumes = true
@@ -56,7 +56,7 @@ object MarathonConstant {
   val SpartaMarathonGracePeriodsSecondsEnv = "SPARTA_MARATHON_GRACEPERIODS_SECONDS"
   val SpartaMarathonIntervalSecondsEnv = "SPARTA_MARATHON_INTERVAL_SECONDS"
   val SpartaMarathonMaxFailuresEnv = "SPARTA_MARATHON_MAX_FAILURES"
-  val SpartaAwaitChangeStatusEnv = "SPARTA_AWAIT_POLICY_CHANGE_STATUS"
+  val SpartaMarathonTotalTimeBeforeKill = "SPARTA_MARATHON_TOTAL_TIME_BEFORE_KILL"
   val SparkHomeEnv = "SPARK_HOME"
   val DcosServiceName = "MARATHON_APP_LABEL_DCOS_SERVICE_NAME"
   val HostnameConstraint = "MESOS_HOSTNAME_CONSTRAINT"
@@ -76,5 +76,7 @@ object MarathonConstant {
   val GosecAuthEnableEnv = "ENABLE_GOSEC_AUTH"
   val UserNameEnv = "USER_NAME"
   val DatastoreCaNameEnv = "DATASTORE_TRUSTSTORE_CA_NAME"
-
+  val sparkLogLevel = "SPARK_LOG_LEVEL"
+  val spartaRedirectorLogLevel = "SPARTA_REDIRECTOR_LOG_LEVEL"
+  val spartaLogLevel = "SPARTA_LOG_LEVEL"
 }
