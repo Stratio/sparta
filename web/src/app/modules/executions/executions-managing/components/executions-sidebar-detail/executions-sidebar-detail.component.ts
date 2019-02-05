@@ -53,7 +53,14 @@ export class ExecutionsSidebarDetailComponent implements OnInit, OnChanges {
       this.parametersList2 = {};
 
       Object.keys(parametersList).forEach(key => {
-        this.parametersList2[key.split('.')[0]] = [...this.parametersList2[key.split('.')[0]] || [], { name: key.split('.')[1], value: parametersList[key] }];
+        const hasType = key.includes('.');
+        const parameterKey = hasType ? key.split('.')[0] : 'User defined parameter';
+        const parameterName = hasType ? key.split('.')[1] : key;
+
+        this.parametersList2[parameterKey] = [
+          ...this.parametersList2[parameterKey] || [],
+          { name: parameterName, value: parametersList[key] }
+        ];
       });
       this._cd.detectChanges();
     }
