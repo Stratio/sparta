@@ -11,6 +11,7 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.DebugWorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.constants.HttpConstant._
+import com.stratio.sparta.serving.api.oauth.OauthClient
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel

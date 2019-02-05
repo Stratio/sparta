@@ -126,6 +126,11 @@ This software – including all its source code – contains proprietary informa
             <artifactId>reflections</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.oltu.oauth2</groupId>
+            <artifactId>org.apache.oltu.oauth2.client</artifactId>
+            <version>${olthu.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.gettyimages</groupId>
             <artifactId>spray-swagger_${scala.binary.version}</artifactId>
             <version>0.5.1</version>
@@ -181,11 +186,6 @@ This software – including all its source code – contains proprietary informa
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-json_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.spray.auth</groupId>
-            <artifactId>spray-oauth2-client_${scala.binary.version}</artifactId>
-            <version>0.3.2</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>

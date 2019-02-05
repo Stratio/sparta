@@ -14,6 +14,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, HeadersAuthSupport}
+import com.stratio.sparta.serving.api.oauth.OauthClient
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor
@@ -21,8 +22,6 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
-import com.stratio.sparta.serving.core.models.authorization.GosecUser._
-import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import spray.http.StatusCodes._
 import spray.httpx.encoding.Gzip
@@ -108,8 +107,8 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
   lazy val getRoutes: Route = cors {
     redirectToRoot ~
       pathPrefix(HttpConstant.SpartaRootPath) {
-        secRoute ~ staticRoutes ~ dynamicRoutes
-      } ~ secRoute ~ staticRoutes ~ dynamicRoutes
+        logRoute ~ staticRoutes ~ dynamicRoutes
+      } ~ logRoute ~ staticRoutes ~ dynamicRoutes
   }
 
   lazy val redirectToRoot: Route =

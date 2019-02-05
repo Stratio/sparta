@@ -127,6 +127,7 @@ This software – including all its source code – contains proprietary informa
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
         <mlmodelrep.version>1.3.0-938e36a</mlmodelrep.version>
+        <olthu.version>1.0.1</olthu.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
