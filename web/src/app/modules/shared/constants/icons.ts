@@ -53,6 +53,7 @@ export const icons: any = {
     Xml: '\ue969',
     Rest: '\ue650',
     SFTP: '\uE97E',
+    Pivot: '\uE104',
 
     Binarizer: '\ue941',
     BucketedRandomProjectionLSH: '\ue941',

@@ -244,7 +244,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         },
           c.get(propertyValue) match {
             case Some(value) => value.toString
-            case None => throw new IllegalStateException(s"The field $propertyValue is mandatory")
+            case None => ""
           })).toMap
 
   def hasKey(key: K): Boolean = m.get(key).isDefined

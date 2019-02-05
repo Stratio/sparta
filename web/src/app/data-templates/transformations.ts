@@ -34,6 +34,7 @@ import jsonTemplate from './transformations/json.json';
 import mlModelTemplate from './transformations/mlModel.json';
 import orderByTemplate from './transformations/orderBy.json';
 import persistTemplate from './transformations/persist.json';
+import pivotTemplate from './transformations/pivot.json';
 import queryBuilderTemplate from './transformations/queryBuilder.json';
 import renameColumnTemplate from './transformations/renamecolumn.json';
 import repartitionTemplate from './transformations/repartition.json';
@@ -74,6 +75,7 @@ export const transformations: any = [
     mlModelTemplate,
     orderByTemplate,
     persistTemplate,
+    pivotTemplate,
     queryBuilderTemplate,
     renameColumnTemplate,
     repartitionTemplate,

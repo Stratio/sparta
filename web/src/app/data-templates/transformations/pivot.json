@@ -1,0 +1,290 @@
+{
+  "name": "Pivot",
+  "icon": "Pivot",
+  "category": "SQL",
+  "className": "PivotTransformStep",
+  "classPrettyName": "Pivot",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData",
+    "DiscardedData"
+  ],
+  "description": "Pivot the events in the input string.",
+  "properties": [
+    {
+      "propertyId": "pivotColumn",
+      "propertyName": "_COLUMN_PIVOT_",
+      "propertyType": "text",
+      "showSchemaFields": true,
+      "required": true,
+      "width": 4,
+      "tooltip": "Column name for pivot.",
+      "qa": "fragment-details-pivot-columns"
+    },
+    {
+      "propertyId": "selectType",
+      "propertyName": "_SELECT_TYPE_",
+      "required": true,
+      "propertyType": "select",
+      "default": "COLUMNS",
+      "values": [
+        {
+          "label": "By columns",
+          "value": "COLUMNS"
+        },
+        {
+          "label": "By SQL expression",
+          "value": "EXPRESSION"
+        }
+      ],
+      "tooltip": "User can decide to use provided column names from the dataset or writing expressions manually.",
+      "qa": "workflow-transformation-select-type"
+    },
+    {
+      "propertyId": "selectAll",
+      "propertyName": "_SELECT_ALL_",
+      "propertyType": "boolean",
+      "tooltip": "Select all columns",
+      "default": false,
+      "qa": "fragment-details-select-all",
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "COLUMNS"
+          }
+        ]
+      ]
+    },
+    {
+      "propertyId": "columns",
+      "propertyName": "_COLUMNS_SELECT_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of selected columns to be returned.",
+      "qa": "fragment-details-select-columns",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_JOIN_RETURN_COLUMN_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 4,
+          "tooltip": "Column name on input table",
+          "qa": "fragment-details-select-return-column"
+        }
+      ],
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "COLUMNS"
+          },
+          {
+            "propertyId": "selectAll",
+            "value": false
+          }
+        ]
+      ]
+    },
+    {
+      "propertyId": "groupByColumns",
+      "propertyName": "_COLUMNS_GROUPBY_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of selected columns for groupby.",
+      "qa": "fragment-details-groupby-columns",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_JOIN_RETURN_COLUMN_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 4,
+          "tooltip": "Column name on input table",
+          "qa": "fragment-details-groupby-column"
+        }
+      ],
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "COLUMNS"
+          }
+        ]
+      ]
+    },
+    {
+      "propertyId": "aggOperations",
+      "propertyName": "_AGG_OPERATIONS_",
+      "propertyType": "list",
+      "tooltip": "List of selected operations for aggregations. Possible operations are Sum, Avg, Min, Max, Count.",
+      "qa": "fragment-details-groupby-columns",
+      "fields": [
+        {
+          "propertyId": "operationType",
+          "propertyName": "_OPERATION_TYPE_",
+          "propertyType": "select",
+          "required": true,
+          "values": [
+            {
+              "label": "Average",
+              "value": "avg"
+            },
+            {
+              "label": "Count",
+              "value": "count"
+            },
+            {
+              "label": "Max",
+              "value": "max"
+            },
+            {
+              "label": "Min",
+              "value": "min"
+            },
+            {
+              "label": "Sum",
+              "value": "sum"
+            }
+          ],
+          "width": 4,
+          "tooltip": "Column name on input table",
+          "qa": "fragment-details-groupby-column"
+        },
+        {
+          "propertyId": "name",
+          "propertyName": "_JOIN_RETURN_COLUMN_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": false,
+          "width": 4,
+          "tooltip": "Column name on input table",
+          "qa": "fragment-details-groupby-column",
+          "visibleOR": [
+            [
+              {
+                "propertyId": "operationType",
+                "value": "avg"
+              },
+              {
+                "propertyId": "operationType",
+                "value": "sum"
+              },
+              {
+                "propertyId": "operationType",
+                "value": "min"
+              },
+              {
+                "propertyId": "operationType",
+                "value": "max"
+              }
+            ]
+          ]
+        }
+      ],
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "COLUMNS"
+          }
+        ]
+      ]
+    },
+    {
+      "propertyId": "selectExp",
+      "propertyName": "_SELECT_EXPRESSION_",
+      "propertyType": "textarea",
+      "contentType": "SQL",
+      "width": 12,
+      "required": true,
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "EXPRESSION"
+          }
+        ]
+      ],
+      "tooltip": "Select the fields based in a expression. UDFs, fixed fields and aliases are supported.",
+      "qa": "fragment-details-select-expression"
+    },
+    {
+      "propertyId": "groupByExp",
+      "propertyName": "_GROUPBY_EXPRESSION_",
+      "propertyType": "textarea",
+      "contentType": "SQL",
+      "width": 12,
+      "required": true,
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "EXPRESSION"
+          }
+        ]
+      ],
+      "tooltip": "Expression to select the columns to group by. Multiple selections must be divided by commas. e.g: A, B, C",
+      "qa": "fragment-details-groupby-expression"
+    },
+    {
+      "propertyId": "aggregateExp",
+      "propertyName": "_AGG_EXPRESSION_",
+      "propertyType": "textarea",
+      "contentType": "SQL",
+      "width": 12,
+      "required": true,
+      "visible": [
+        [
+          {
+            "propertyId": "selectType",
+            "value": "EXPRESSION"
+          }
+        ]
+      ],
+      "tooltip": "Expression for aggregation operations. Possible operations are Sum, Avg, Min, Max, Count. E.g: sum(columnName), avg(columnName)",
+      "qa": "fragment-details-aggregate-expression"
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}
