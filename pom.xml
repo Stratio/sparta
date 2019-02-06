@@ -111,7 +111,7 @@ This software – including all its source code – contains proprietary informa
         <dg.commons.version>0.8.0-9bf0b64</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.15.0-24f463e</crossdata.version>
+        <crossdata.version>2.15.1-8d96ee8</crossdata.version>
         <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
@@ -126,7 +126,7 @@ This software – including all its source code – contains proprietary informa
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
-        <mlmodelrep.version>1.3.0-938e36a</mlmodelrep.version>
+        <mlmodelrep.version>1.3.2-ad18aeb</mlmodelrep.version>
         <olthu.version>1.0.1</olthu.version>
         <sonar.exclusions>
             **/*.js,

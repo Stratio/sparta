@@ -41,6 +41,7 @@ export const icons: any = {
     Custom: '\ue60a',
     ElasticSearch: '\ue624',
     MlPipeline: '\ue993',
+    MlModel: '\ue993',
     DropColumns: '\ue123',
     DropDuplicates: '\ue908',
     AddColumns: '\ue104',
@@ -54,7 +55,7 @@ export const icons: any = {
     Rest: '\ue650',
     SFTP: '\uE97E',
     Pivot: '\uE104',
-
+    RenameColumns: '\ue923',
     Binarizer: '\ue941',
     BucketedRandomProjectionLSH: '\ue941',
     Bucketizer: '\ue941',

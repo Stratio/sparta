@@ -26,10 +26,10 @@ import scalax.collection.edge.LDiEdge
 //scalastyle:off
 object LineageUtils extends ContextBuilderImplicits{
 
-  val StartKey = "StartedAt"
-  val FinishedKey = "FinishedAt"
-  val ErrorKey = "Error"
-  val UrlKey = "Link"
+  val StartKey = "startedAt"
+  val FinishedKey = "finishedAt"
+  val ErrorKey = "error"
+  val UrlKey = "link"
 
   lazy val spartaVHost = Properties.envOrNone("HAPROXY_HOST").getOrElse("sparta")
   lazy val spartaInstanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
@@ -107,6 +107,13 @@ object LineageUtils extends ContextBuilderImplicits{
     )
   }
 
+  def extraPathFromFilesystemOutput(stepType: String, stepClass: String, path: Option[String],
+                                    resource: Option[String]): String =
+    if(stepType.equals(OutputStep.StepType) && isFileSystemStepType(stepClass) && resource.nonEmpty) {
+      "/" + resource.getOrElse("")
+    }
+    else ""
+
   def mapSparta2GovernanceJobType(executionEngine: ExecutionEngine): String =
     executionEngine match {
       case Streaming => "STREAM"
@@ -126,9 +133,15 @@ object LineageUtils extends ContextBuilderImplicits{
       case Failed => "ERROR"
     }
 
+  def isFileSystemStepType(dataStoreType: String): Boolean =
+    dataStoreType match {
+      case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => true
+      case _ => false
+    }
+
   def mapSparta2GovernanceDataStoreType(dataStoreType: String): String =
     dataStoreType match {
-      case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" => "HDFS"
+      case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => "HDFS"
       case "Jdbc" | "Postgres" => "SQL"
     }
 }

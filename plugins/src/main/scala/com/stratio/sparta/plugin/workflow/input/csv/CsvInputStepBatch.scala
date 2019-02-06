@@ -80,7 +80,7 @@ class CsvInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
-  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(path.nonEmpty, "The input path cannot be empty")

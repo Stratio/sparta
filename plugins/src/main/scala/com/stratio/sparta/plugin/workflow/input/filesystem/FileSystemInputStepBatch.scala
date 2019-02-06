@@ -39,7 +39,7 @@ class FileSystemInputStepBatch(
   override lazy val lineagePath: String = path.getOrElse("")
 
   override lazy val lineageResourceSuffix: Option[String] = {
-    val regex = ".*\\.(csv|avro|json|xml|txt)$"
+    val regex = ".*\\.(csv|avro|json|xml|txt|parquet)$"
 
     if (lineagePath.matches(regex))
       lineagePath.split("/").lastOption
@@ -75,7 +75,7 @@ class FileSystemInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
-  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(path.nonEmpty, "Input path cannot be empty")

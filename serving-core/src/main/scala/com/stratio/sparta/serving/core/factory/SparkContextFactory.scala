@@ -275,6 +275,15 @@ object SparkContextFactory extends SLF4JLogging {
     }
   }
 
+  /** securityVariables executes ConfigSecurity.prepareEnvironment that uses the instance Vault Token
+    * to retrieve all the necessary certificates from Vault. If the call to prepareEnvironment has not been
+    * triggered while the Vault Token is still valid, we will get a "Cannot retrieve CAs from Vault" exception.
+    * Refers to []
+    * */
+  protected[sparta] def triggerRenovationVaultToken(): Unit = {
+    Properties.envOrNone("SPARK_SECURITY_DATASTORE_ENABLE").
+      filter(_.equalsIgnoreCase("true")).foreach(_ => securityVariables)
+  }
 
   /* PRIVATE METHODS */
 

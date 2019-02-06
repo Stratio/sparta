@@ -50,7 +50,7 @@ class ParquetOutputStep(
     validation
   }
 
-  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(OutputStep.StepType)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String,String]): Unit = {
     require(path.nonEmpty, "Input path cannot be empty")

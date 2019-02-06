@@ -6,6 +6,7 @@
 package com.stratio.sparta.core.workflow.lineage
 
 import com.stratio.sparta.core.constants.SdkConstants.{PathKey, ResourceKey, ServiceKey}
+import com.stratio.sparta.core.workflow.step.OutputStep
 
 import scala.util.Properties
 import scala.xml.XML
@@ -17,31 +18,52 @@ trait HdfsLineage {
 
   lazy val DomainSuffix = "." + Properties.envOrElse("EOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
 
-  def getHdfsLineageProperties : Map[String, String] = {
+  def getHdfsLineageProperties(stepType: String) : Map[String, String] = {
     val newPath = stripPrefixAndFormatPath(lineagePath)
-    val resource = lineageResourceSuffix.fold("") {suffix => getFileSystemResource(newPath, suffix) }
+    val resource = if(stepType.equals(OutputStep.StepType))
+      lineageResourceSuffix.fold(""){ suffix => getFileSystemResource(newPath, suffix) }
+      else
+        getFileSystemResourceFromPathOrFile(newPath)
+    val finalPath = if(lineageResourceSuffix.isDefined)
+      newPath.replace(resource,"").stripSuffix("/")
+      else
+        newPath.stripSuffix("/")
 
     Map(
       ServiceKey -> getHDFSServiceName.getOrElse(""),
-      PathKey -> lineagePath.replace(resource,"").stripSuffix("/"),
+      PathKey -> finalPath,
       ResourceKey -> resource)
   }
 
   private def getFileSystemResource(path: String, suffix: String): String =
-    if (path.toLowerCase.endsWith(suffix.toLowerCase))
+      if (path.toLowerCase.endsWith(suffix.toLowerCase))
+        path.split("/").lastOption.getOrElse("")
+      else ""
+
+  private def getFileSystemResourceFromPathOrFile(path: String): String = {
+    if (path.contains("="))
+      path.split("=").headOption.flatMap(_.split("/").dropRight(1).lastOption).getOrElse("")
+    else
       path.split("/").lastOption.getOrElse("")
-    else ""
+  }
 
   private def stripPrefixAndFormatPath(path: String): String = {
     val userName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
       Properties.envOrElse("TENANT_NAME", "sparta"))
 
-    if (path.toLowerCase.startsWith("hdfs://"))
-      "/" + path.toLowerCase.stripPrefix("hdfs://").split("/",2).last
+    val stripPrefixPath = if (path.toLowerCase.startsWith("hdfs://"))
+      "/" + path.toLowerCase.stripPrefix("hdfs://").split("/",2).lastOption.getOrElse("")
     else if (!path.startsWith("/"))
       "/user/" + userName + "/" + path
     else
       path
+
+    if (stripPrefixPath.contains("=")) {
+      val pathLastLevel = "/" + stripPrefixPath.split("=").headOption.flatMap(_.split("/").lastOption).getOrElse("")
+      stripPrefixPath.split("=").headOption.map(_.stripSuffix(pathLastLevel)).getOrElse("")
+    }
+    else
+      stripPrefixPath
   }
 
   private def getHDFSServiceName: Option[String] = {

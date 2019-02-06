@@ -84,7 +84,7 @@ class AvroInputStepBatch(
     (df.rdd, Option(df.schema))
   }
 
-  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
 }
 

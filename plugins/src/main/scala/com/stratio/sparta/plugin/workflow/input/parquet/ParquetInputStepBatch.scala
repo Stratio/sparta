@@ -34,7 +34,10 @@ class ParquetInputStepBatch(
 
   override lazy val lineagePath: String = path.getOrElse("")
 
-  override lazy val lineageResourceSuffix: Option[String] = None
+  override lazy val lineageResourceSuffix: Option[String] =
+    if (path.get.endsWith(".parquet"))
+      Option("\\.parquet")
+    else None
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -65,7 +68,7 @@ class ParquetInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
-  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties
+  override def lineageProperties(): Map[String, String] = getHdfsLineageProperties(InputStep.StepType)
 
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {

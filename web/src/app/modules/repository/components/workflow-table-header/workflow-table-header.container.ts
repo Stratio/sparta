@@ -36,6 +36,7 @@ import { WorkflowBreadcrumbItem } from './workflow-breadcrumb/workflow-breadcrum
             (onSearch)="onSearch($event)"
             (onDeleteWorkflows)="deleteWorkflows()"
             (downloadWorkflows)="downloadWorkflows()"
+            (showExecutionConfig)="showExecutionConfig($event)"
             (onEditVersion)="editVersion($event)"
             (changeFolder)="changeFolder($event)"
             (onSimpleRun)="simpleRun($event)"

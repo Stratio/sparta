@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.factory.PostgresFactory
+import com.stratio.sparta.serving.core.factory.{PostgresFactory, SparkContextFactory}
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.migration.hydra.HydraMigrationService
 import com.stratio.sparta.serving.core.services.migration.orion.OrionMigrationService
@@ -50,6 +50,10 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         log.info("Initializing Sparta cache instance ...")
         SpartaIgnite.getAndOrCreateInstance()
       }
+
+      //This strange call solves the bug described in [SPARTA-2648]
+      log.debug("Triggering the renovation of the current vault token")
+      SparkContextFactory.triggerRenovationVaultToken()
 
       log.info("Initializing Sparta Postgres schemas ...")
       PostgresFactory.invokeInitializationMethods()
