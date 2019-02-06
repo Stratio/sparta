@@ -121,7 +121,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       //If is a new table, writer primaryKey is used for pk index creation, with a random name to avoid failures when upsert will we executed
       if (isNewTable) {
         val constraintFields = searchFields.map(field => dialect.quoteIdentifier(field)).mkString(",")
-        SpartaJdbcUtils.createConstraint(properties, outputName, s"pk_${properties.table}_${uniqueConstraintName}_${System.currentTimeMillis()}", constraintFields, ConstraintType.PrimaryKey)
+        SpartaJdbcUtils.createConstraint(properties, outputName, s"pk_${properties.table.replace('.','_')}_${uniqueConstraintName}_${System.currentTimeMillis()}", constraintFields, ConstraintType.PrimaryKey)
       }
       s"INSERT INTO ${properties.table}($columns) $placeHolders ON CONFLICT (${searchFields.map(field => dialect.quoteIdentifier(field)).mkString(",")}) " +
         s"DO UPDATE SET $valuesPlaceholders"

@@ -95,4 +95,11 @@ object SparkConstant {
   val SparkMesosMaster = "mesos://leader.mesos:5050"
   val SparkLocalMaster = "local[2]"
 
+  val SparkUiPortEnv = "PORT_SPARKAPI"
+  val DefaultUIPort = 4041
+
+  val CrossdataSparkUiEnabled = "CROSSDATA_SERVER_SPARK_UI_ENABLED"
+  val CrossdataSparkUiPort = "CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT"
+
+
 }

@@ -7,25 +7,24 @@ package com.stratio.sparta.serving.core.helpers
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.constants.{MarathonConstant, SparkConstant}
 import com.stratio.sparta.serving.core.utils.NginxUtils
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 import scala.util._
 
 object LinkHelper extends SLF4JLogging {
 
-  private val defaultPort = 4041
-
   def getClusterLocalLink: Option[String] =
     SpartaConfig.getSparkConfig().flatMap { sparkConfig =>
       val sparkMaster = Try(sparkConfig.getString("master")).getOrElse("local[*]")
       val sparkUiEnabled = Try(sparkConfig.getString("spark.ui.enabled").toBoolean).getOrElse(true)
-      val sparkUiPort = Try(sparkConfig.getInt("spark.ui.port")).getOrElse(defaultPort)
+      val sparkUiPort = Try(sparkConfig.getInt("spark.ui.port")).getOrElse(SparkConstant.DefaultUIPort)
 
       if (sparkUiEnabled) {
         if (
-          Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).isDefined &&
-          Properties.envOrNone(MarathonConstant.DcosServiceName).isDefined
+          Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
+            Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
         ) NginxUtils.buildSparkUI("crossdata-sparkUI")
         else if(sparkMaster.contains("local")) Option(s"http://localhost:$sparkUiPort") else None
       } else None

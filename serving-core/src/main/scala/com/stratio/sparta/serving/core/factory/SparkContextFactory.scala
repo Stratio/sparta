@@ -16,9 +16,8 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.sdk.lite.common.{SpartaUDAF, SpartaUDF}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.MarathonConstant
-import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.services.SparkSubmitService.spartaTenant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
 import org.apache.spark.scheduler.KerberosUser
 import org.apache.spark.security.ConfigSecurity
@@ -66,8 +65,11 @@ object SparkContextFactory extends SLF4JLogging {
     } else Seq.empty[(String, String)]
   }
   private lazy val proxyVariables: Seq[(String, String)] = {
-    if (Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).isDefined) {
-      val proxyPath = s"/workflows-$spartaTenant/crossdata-sparkUI"
+    if (
+      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
+        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
+    ) {
+      val proxyPath = s"${WorkflowHelper.getVirtualPath}/crossdata-sparkUI"
       log.debug(s"XDSession with proxy base: $proxyPath")
       Seq(("spark.ui.proxyBase", proxyPath))
     } else Seq.empty[(String, String)]
@@ -276,7 +278,8 @@ object SparkContextFactory extends SLF4JLogging {
 
   /* PRIVATE METHODS */
 
-  private[core] def getSessionIdFromUserId(userId: Option[String] = None): String = userId.getOrElse(spartaTenant)
+  private[core] def getSessionIdFromUserId(userId: Option[String] = None): String =
+    userId.getOrElse(AppConstant.spartaTenant)
 
   private[core] def getOrCreateSparkContext(extraConfiguration: Map[String, String]): SparkContext =
     synchronized {

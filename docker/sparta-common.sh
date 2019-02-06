@@ -105,8 +105,6 @@ function initHdfs() {
   if [ $HADOOP_CONF_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
-      SPARK_SECURITY_HDFS_ENABLE="true"
-      SPARK_SECURITY_HDFS_CONF_URI=$HADOOP_CONF_URI
     fi
     source hdfs_utils.sh
     generate_hdfs-conf-from-uri

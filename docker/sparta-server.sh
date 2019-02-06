@@ -47,7 +47,7 @@
  apiOptions
  INFO "[SPARTA-SERVER] Loaded Sparta API options"
 
- if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] ; then
+ if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v MARATHON_APP_LABEL_HAPROXY_1_PATH ]; then
    INFO "[SPARTA-SERVER] Configuring Nginx environment..."
    prepareNginx
    INFO "[SPARTA-SERVER] Nginx environment configured"

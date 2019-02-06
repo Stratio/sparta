@@ -48,6 +48,8 @@ class VarianceOperator(
         variance(values.map(value => CastingHelper.castingToSchemaType(DoubleType, value.toString.toLong.toDouble).asInstanceOf[Double]))
       case _: Float =>
         variance(values.map(CastingHelper.castingToSchemaType(FloatType, _).asInstanceOf[Float]))
+      case _: String =>
+        variance(values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]))
       case _ =>
         throw new Exception(s"Unsupported type in VarianceOperator $name")
     }

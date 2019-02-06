@@ -55,6 +55,8 @@ class SumOperator(
         values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).sum
       case _: java.sql.Timestamp =>
         values.map(CastingHelper.castingToSchemaType(LongType, _).asInstanceOf[Long]).sum
+      case _: String =>
+        values.map(CastingHelper.castingToSchemaType(DoubleType, _).asInstanceOf[Double]).sum
       case _ =>
         throw new Exception(s"Unsupported type in SumOperator $name")
     }

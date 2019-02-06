@@ -61,7 +61,7 @@ import {cloneDeep as _cloneDeep} from 'lodash';
     if (this.parentNode.schemas) {
       const mlPipelineNodeData = _cloneDeep(this.parentNode.editionType.data);
       const mlPipelineNodeInputs = _cloneDeep(this.parentNode.schemas.inputs);
-      if (mlPipelineNodeInputs && Array.isArray(mlPipelineNodeInputs) && mlPipelineNodeInputs.length) {
+      if (mlPipelineNodeInputs && Array.isArray(mlPipelineNodeInputs) && mlPipelineNodeInputs.length && !mlPipelineNodeInputs[0].error) {
         if (mlPipelineNodeInputs.length === 1) {
           const inputFields = mlPipelineNodeInputs.pop().result.schema.fields;
           _output = inputFields.map(field => {
@@ -71,10 +71,10 @@ import {cloneDeep as _cloneDeep} from 'lodash';
             };
           });
         } else {
-          console.error(new Error('Found more than 1 input from step ' + mlPipelineNodeData.name));
+          console.error('Found more than 1 input from step ' + mlPipelineNodeData.name);
         }
       } else {
-        console.error(new Error('No inputs found in step ' + mlPipelineNodeData.name));
+        console.error('No inputs found in step ' + mlPipelineNodeData.name);
       }
     }
 

@@ -47,6 +47,13 @@ export class ExecutionsEffect {
       if (isEqual(executions, this._lastExecutionsValue)) {
         return new executionsActions.ListExecutionsEmptyAction();
       }
+
+      if (!executions.length && filter.pagination.currentPage > 1) {
+        return new executionsActions.ChangePaginationAction({
+          currentPage: 1,
+          perPage: filter.pagination.perPage
+        });
+      }
       this._lastExecutionsValue = executions;
       return new executionsActions.ListExecutionsCompleteAction(
         executions.map(execution => this._executionHelperService.normalizeExecution(execution)));

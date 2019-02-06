@@ -33,7 +33,7 @@ class NginxUtilsTest extends BaseUtilsTest {
           AppParameters("/sparta-server/sparta-api", "123.123.123.1", 9090),
           AppParameters("/sparta-server/postgres", "123.123.123.1", 4040)
         )
-        val result = testNginx.updatedNginxConf(listWorkflowsFake, "sparta-server")
+        val result = testNginx.updatedNginxConf(listWorkflowsFake, "sparta-server", "sparta-server")
 
         result should not be empty
       }
