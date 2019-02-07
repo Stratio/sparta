@@ -2,8 +2,21 @@
 
 ## 2.6.0 (upcoming)
 
-* [SPARTA-2683] Support authentication via headers
-* [SPARTA-2686] Support virtual host and virtual path for Nginx redirections
+* Improvements and new features:
+    - [SPARTA-2686] Support virtual host and virtual path for Nginx redirections 
+    - [SPARTA-2683] Support authentication via headers
+    - [SPARTA-2479][SPARTA-2684] Health checks, env and labels as properties for marathon deployment
+    - [SPARTA-2555] Added kill deployments to marathon kill action
+    - [SPARTA-2714] Improved sparta login: no need for environment variables MARATHON_SSO_CLIENT_ID and MARATHON_SSO_REDIRECT_URI
+    - [SPARTA-2687] Avoid expiration of a user cookie who is using the editor
+    - [SPARTA-2674] Support string values in cube operators
+
+* Bug fixing
+    - [SPARTA-2680] [SPARTA-2681] Better handling of Gosec Zookeeper exception
+    - [SPARTA-2661] Solve inconsistent seed ephemeral nodes during deployment
+    - Fix bugs related to the Postgres save mode "Copy-in" 
+    - Fix the format of user-defined parameters shown in Execution Info 
+    - Fix Last update date in creation of a new workflow or a new version 
 
 ## 2.5.0-062b5c9 (Built: January 24, 2019 | Released: January 25, 2019)
 

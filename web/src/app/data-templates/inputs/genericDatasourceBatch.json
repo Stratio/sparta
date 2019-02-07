@@ -2,6 +2,7 @@
    "name": "Datasource",
    "className": "GenericDatasourceInputStepBatch",
    "classPrettyName": "Datasource",
+   "icon": "Datasource",
    "arity": ["NullaryToNary"],
    "supportedEngines": ["Batch"],
    "supportedDataRelations": ["ValidData"],

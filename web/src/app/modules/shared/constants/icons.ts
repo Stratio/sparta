@@ -39,6 +39,8 @@ export const icons: any = {
     Checkpoint: '\ue61b',
     Datetime: '\ue64d',
     Custom: '\ue60a',
+    CustomLite: '\ue60a',
+    CustomLiteXD: '\ue60a',
     ElasticSearch: '\ue624',
     MlPipeline: '\ue993',
     MlModel: '\ue993',
@@ -56,6 +58,9 @@ export const icons: any = {
     SFTP: '\uE97E',
     Pivot: '\uE104',
     RenameColumns: '\ue923',
+    Datasource: '\ue031',
+    Coalesce: '\ue98b',
+
     Binarizer: '\ue941',
     BucketedRandomProjectionLSH: '\ue941',
     Bucketizer: '\ue941',

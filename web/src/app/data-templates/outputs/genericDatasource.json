@@ -2,6 +2,7 @@
     "name": "Datasource",
     "className": "GenericDatasourceOutputStep",
     "classPrettyName": "Datasource",
+    "icon": "Datasource",
     "arity": ["NullaryToNullary", "NaryToNullary"],
     "supportedEngines": ["Streaming", "Batch"],
     "description": "Allows you to write to any SparkSQL datasource",
