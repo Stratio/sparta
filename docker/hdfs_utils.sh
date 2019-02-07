@@ -9,28 +9,6 @@ function make_directory() {
 	|| ERROR "[$module] Something was wrong creating $dir directory or already exists"
 }
 
-function generate_core-site-from-uri() {
-  make_directory $HADOOP_CONF_DIR "HADOOP-CONF"
-  CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
-  CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
-  wget "${HADOOP_CONF_URI}/conf"
-  cp conf "${CORE_SITE}"
-  cp conf "${CORE_SITE_CLASSPATH}"
-  rm -f conf
-  sed -i "s|0.0.0.0|${HADOOP_FS_DEFAULT_NAME}|" ${CORE_SITE}
-
-  if [[ $? == 0 ]]; then
-    INFO "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml configured succesfully"
-  else
-    ERROR "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml was NOT configured"
-    exit 1
-  fi
-  echo "" >> ${VARIABLES}
-  echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
-  echo "" >> ${SYSTEM_VARIABLES}
-  echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
-}
-
 function generate_hdfs-conf-from-uri() {
   make_directory $HADOOP_CONF_DIR "HADOOP-CONF"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
@@ -92,11 +70,11 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
             <value>__<HADOOP_RPC_PROTECTION>__</value>
           </property>
           <property>
-            <name>dfs.encrypt.data.transfer</name>
-            <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__</value>
+            <name>hadoop.security.token.service.use_ip</name>
+            <value>__<HADOOP_SECURITY_TOKEN_USE_IP>__</value>
           </property>
+          __HADOOP_CORE_SITE_EXTRA_PROPERTIES__
         </configuration>
-        __HADOOP_CORE_SITE_EXTRA_PROPERTIES__
 EOF
 
  if [[ -v HADOOP_CORE_SITE_EXTRA_PROPERTIES ]]; then
@@ -115,9 +93,9 @@ sed -i "s#__<HADOOP_RPC_PROTECTION>__#$HADOOP_RPC_PROTECTION#" "${HADOOP_CONF_DI
 && INFO "[HADOOP-CONF] hadoop.rpc.protection in core-site.xml" \
 || ERROR "[HADOOP-CONF] Something went wrong when HADOOP_RPC_PROTECTION was configured in core-site.xml"
 
-sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer in core-site.xml" \
-|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in core-site.xml"
+sed -i "s#__<HADOOP_SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& INFO "[HADOOP-CONF] hadoop.security.token.service.use_ip configured in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_SECURITY_TOKEN_USE_IP was configured in core-site.xml"
 
 cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -140,15 +118,19 @@ cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
                <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__</value>
           </property>
           <property>
-               <name>hadoop.security.token.service.use_ip</name>
-               <value>__<HADOOP_SECURITY_TOKEN_USE_IP>__</value>
+               <name>dfs.encrypt.data.transfer.cipher.suites</name>
+               <value>__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__</value>
+          </property>
+          <property>
+               <name>dfs.encrypt.data.transfer.cipher.key.bitlength</name>
+               <value>__<HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH>__</value>
           </property>
           <property>
                <name>map.reduce.framework.name</name>
                <value>__<HADOOP_MAP_REDUCE_FRAMEWORK_NAME>__</value>
           </property>
+          __HADOOP_HDFS_SITE_EXTRA_PROPERTIES__
         </configuration>
-        __HADOOP_HDFS_SITE_EXTRA_PROPERTIES__
 EOF
 
  if [[ -v HADOOP_HDFS_SITE_EXTRA_PROPERTIES ]]; then
@@ -171,14 +153,17 @@ sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSF
 && INFO "[HADOOP-CONF] dfs.encrypt.data.transfer in hdfs-site.xml" \
 || ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in hdfs-site.xml"
 
+sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer.cipher.suites in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES was configured in hdfs-site.xml"
+
+sed -i "s#__<HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer.cipher.key.bitlength in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH was configured in hdfs-site.xml"
+
 sed -i "s#__<HADOOP_MAP_REDUCE_FRAMEWORK_NAME>__#$HADOOP_MAP_REDUCE_FRAMEWORK_NAME#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && INFO "[HADOOP-CONF] map.reduce.framework.name in hdfs-site.xml" \
 || ERROR "[HADOOP-CONF] Something went wrong when HADOOP_MAP_REDUCE_FRAMEWORK_NAME was configured in hdfs-site.xml"
-
-sed -i "s#__<HADOOP_SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& INFO "[HADOOP-CONF] hadoop.security.token.service.use_ip configured in hdfs-site.xml" \
-|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_SECURITY_TOKEN_USE_IP was configured in hdfs-site.xml"
-
 
   if [[ $? == 0 ]]; then
     INFO "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
@@ -192,71 +177,6 @@ sed -i "s#__<HADOOP_SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${
     cp "${HDFS_SITE}" "${HDFS_SITE_CLASSPATH}"
   else
     ERROR "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
-    exit 1
-  fi
-}
-
-function generate_hdfs-conf-from-fs-not-secured() {
-  make_directory $HADOOP_CONF_DIR "HADOOP"
-
-cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-        <configuration>
-           <property>
-             <name>fs.default.name</name>
-             <value>__<FS_DEFAULT_NAME>__</value>
-           </property>
-           <property>
-             <name>hadoop.security.authentication</name>
-             <value>simple</value>
-           </property>
-           <property>
-             <name>hadoop.http.authentication.type</name>
-             <value>simple</value>
-           </property>
-           <property>
-             <name>hadoop.security.authorization</name>
-             <value>false</value>
-           </property>
-           <property>
-             <name>hbase.security.authentication</name>
-             <value>Simple</value>
-           </property>
-           <property>
-             <name>hbase.security.authorization</name>
-             <value>false</value>
-           </property>
-           <property>
-             <name>ipc.client.fallback-to-simple-auth-allowed</name>
-             <value>true</value>
-           </property>
-           <property>
-             <name>dfs.replication</name>
-              <value>1</value>
-           </property>
-        </configuration>
-EOF
-
-sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& INFO "[HADOOP-CONF] fs.default.name in core-site.xml" \
-|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
-
-
-  if [[ $? == 0 ]]; then
-    INFO "[HADOOP-CONF] HADOOP $CORE_SITE not secured configured succesfully"
-    echo "" >> ${VARIABLES}
-    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
-    echo "" >> ${SYSTEM_VARIABLES}
-    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
-    CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
-    CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
-    HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
-    HDFS_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/hdfs-site.xml"
-    cp "${CORE_SITE}" "${CORE_SITE_CLASSPATH}"
-    cp "${HDFS_SITE}" "${HDFS_SITE_CLASSPATH}"
-  else
-    ERROR "[HADOOP-CONF] HADOOP $CORE_SITE not secured was NOT configured"
     exit 1
   fi
 }

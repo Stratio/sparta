@@ -9,10 +9,10 @@ package com.stratio.sparta.serving.core.services
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
-import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.SparkSubmitService._
@@ -287,7 +287,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def addExecutorHdfsSecurityConfs(sparkConfs: Map[String, String]): Map[String, String] = {
     val enableExecutorHdfsSecurity =  Try{
-      Properties.envOrElse("HADOOP_CONF_FROM_URI", "false").toBoolean
+      Properties.envOrElse("SPARK_EXECUTOR_SECURITY_HDFS_ENABLE", "false").toBoolean
     }.getOrElse(false)
     val executorHdfsUri = Properties.envOrNone("HADOOP_CONF_URI").notBlank
 
@@ -481,4 +481,3 @@ object SparkSubmitService {
   }
 
 }
-

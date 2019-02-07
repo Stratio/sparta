@@ -102,28 +102,20 @@ function initHdfs() {
   if [[ ! -v HADOOP_CONF_FROM_URI ]]; then
    HADOOP_CONF_FROM_URI="false"
   fi
+
   if [ $HADOOP_CONF_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
+
     source hdfs_utils.sh
     generate_hdfs-conf-from-uri
-  fi
-
-  if [[ ! -v CORE_SITE_FROM_URI ]]; then
-   CORE_SITE_FROM_URI="false"
-  fi
-  if [ $CORE_SITE_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
-    if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
-      HADOOP_CONF_DIR=/opt/sds/hadoop/conf
-    fi
-    source hdfs_utils.sh
-    generate_core-site-from-uri
   fi
 
   if [[ ! -v HADOOP_CONF_FROM_DFS ]]; then
    HADOOP_CONF_FROM_DFS="false"
   fi
+
   if [ $HADOOP_CONF_FROM_DFS == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
@@ -143,21 +135,17 @@ function initHdfs() {
     if [[ ! -v HADOOP_RPC_PROTECTION ]]; then
        HADOOP_RPC_PROTECTION="authentication"
     fi
+    if [[ ! -v HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES ]]; then
+       HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES="AES/CTR/NoPadding"
+    fi
+    if [[ ! -v HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH ]]; then
+       HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH="128"
+    fi
+
     source hdfs_utils.sh
     generate_hdfs-conf-from-fs
-  fi
 
-  if [[ ! -v HADOOP_CONF_FROM_DFS_NOT_SECURED ]]; then
-   HADOOP_CONF_FROM_DFS_NOT_SECURED="false"
   fi
-  if [ $HADOOP_CONF_FROM_DFS_NOT_SECURED == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
-    if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
-      HADOOP_CONF_DIR=/opt/sds/hadoop/conf
-    fi
-    source hdfs_utils.sh
-    generate_hdfs-conf-from-fs-not-secured
-  fi
-
 }
 
 function logLevelOptions() {
