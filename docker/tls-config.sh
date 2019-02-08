@@ -34,7 +34,7 @@ fold -w65 ${SPARTA_SECRET_FOLDER}/cert.crt > ${SPARTA_SECRET_FOLDER}/nginx_cert.
 
 mkdir /usr/local/share/ca-certificates/sparta &&\
 cp ${SPARTA_SECRET_FOLDER}/cert.crt /usr/local/share/ca-certificates/sparta/sparta_cert.crt &&\
-update-ca-certificate:wqas
+update-ca-certificates
 res=$?
 if [[ $res == 0 ]]; then
 INFO "[TLS-CONFIG] Successfully updated OS certificates"
