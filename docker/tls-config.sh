@@ -30,3 +30,14 @@ export SPARTA_TLS_KEY_PKCS8="${SPARTA_SECRET_FOLDER}/key.pkcs8"
 export SPARTA_TLS_ROOTCERT="${SPARTA_SECRET_FOLDER}/ca.crt"
 export SPARTA_TLS_CERT="$SPARTA_SECRET_FOLDER/cert.crt"
 fold -w65 ${SPARTA_SECRET_FOLDER}/cert.crt > ${SPARTA_SECRET_FOLDER}/nginx_cert.crt
+
+
+mkdir /usr/local/share/ca-certificates/sparta &&\
+cp ${SPARTA_SECRET_FOLDER}/cert.crt /usr/local/share/ca-certificates/sparta/sparta_cert.crt &&\
+update-ca-certificate:wqas
+res=$?
+if [[ $res == 0 ]]; then
+INFO "[TLS-CONFIG] Successfully updated OS certificates"
+else
+INFO "[TLS-CONFIG] The OS certificates were not updated"
+fi

@@ -15,8 +15,16 @@ function generate_hdfs-conf-from-uri() {
   CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
   HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
   HDFS_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/hdfs-site.xml"
-  wget "${HADOOP_CONF_URI}/core-site.xml"
-  wget "${HADOOP_CONF_URI}/hdfs-site.xml"
+
+  if [[ -v SECURITY_TLS_ENABLE ]] && [[ ${#SECURITY_TLS_ENABLE} != 0 ]] && [[ $SECURITY_TLS_ENABLE == "true" ]]; then
+    wget --certificate=$SPARTA_SECRET_FOLDER/${TENANT_NAME}.pem "${HADOOP_CONF_URI}/core-site.xml" &&\
+    wget --certificate=$SPARTA_SECRET_FOLDER/${TENANT_NAME}.pem "${HADOOP_CONF_URI}/hdfs-site.xml"
+    export RESULT_WGET=$?
+  elif [[ ! -v SECURITY_TLS_ENABLE ]]  ||  [[ -v RESULT_WGET ]] && [[ $RESULT_WGET != 0 ]]; then
+    wget "${HADOOP_CONF_URI}/core-site.xml"
+    wget "${HADOOP_CONF_URI}/hdfs-site.xml"
+  fi
+
 
   if [[ -v SPARTA_PRINCIPAL_NAME ]] ; then
     # Check if the property has already been defined count=1 or not count=0
