@@ -24,6 +24,7 @@ import distinctTemplate from './transformations/distinct.json';
 import dropColumnsTemplate from './transformations/dropColumns.json';
 import dropDuplicatesTemplate from './transformations/dropDuplicates.json';
 import dropNullsTemplate from './transformations/dropNulls.json';
+import duplicateColumnsTemplate from './transformations/duplicateColumns.json';
 import explodeTemplate from './transformations/explode.json';
 import filterTemplate from './transformations/filter.json';
 import initNullsTemplate from './transformations/initNulls.json';
@@ -65,6 +66,7 @@ export const transformations: any = [
     dropColumnsTemplate,
     dropDuplicatesTemplate,
     dropNullsTemplate,
+    duplicateColumnsTemplate,
     explodeTemplate,
     filterTemplate,
     initNullsTemplate,

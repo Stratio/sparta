@@ -64,6 +64,7 @@ export const icons: any = {
     Datasource: '\ue031',
     Coalesce: '\ue98b',
     RunWorkflow: '\ue052',
+    DuplicateColumns: '\uE61c',
     Binarizer: '\ue941',
     BucketedRandomProjectionLSH: '\ue941',
     Bucketizer: '\ue941',
