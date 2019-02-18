@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.6.0 (February 08, 2019)
+## 2.6.0 (February 18, 2019)
 
 * Improvements and new features:
     - [SPARTA-2686] Support virtual host and virtual path for Nginx redirections 
