@@ -138,6 +138,23 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     }
   }
 
+  private def getWorkflowInheritedVariables: Map[String, String] = {
+    val prefix = Properties.envOrElse(workflowLabelsPrefix, "INHERITED_TO_WORKFLOW")
+    val labelFromPrefix = sys.env.filterKeys { key =>
+      key.startsWith(prefix)
+    }
+    val fixedLabels = Properties.envOrNone(fixedWorkflowLabels).notBlank match {
+      case Some(labels) =>
+        labels.split(",").flatMap { label =>
+          val splittedLabel = label.split("=")
+
+          splittedLabel.headOption.map(key => key -> splittedLabel.lastOption.getOrElse(""))
+        }.toMap
+      case None => Map.empty[String, String]
+    }
+
+    fixedLabels ++ labelFromPrefix
+  }
 
   private def transformMemoryToInt(memory: String): Int = Try(memory match {
     case mem if mem.contains("G") => mem.replace("G", "").toInt * 1024
@@ -289,7 +306,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       secrets = newSecrets,
       portDefinitions = newPortDefinitions,
       ipAddress = newIpAddress,
-      labels = app.labels ++ getUserDefinedLabels(workflowModel),
+      labels = app.labels ++ getWorkflowInheritedVariables ++ getUserDefinedLabels(workflowModel),
       constraints = newConstraint
     )
   }

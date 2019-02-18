@@ -85,4 +85,6 @@ object MarathonConstant {
   val sparkLogLevel = "SPARK_LOG_LEVEL"
   val spartaRedirectorLogLevel = "SPARTA_REDIRECTOR_LOG_LEVEL"
   val spartaLogLevel = "SPARTA_LOG_LEVEL"
+  val workflowLabelsPrefix = "WORKFLOW_LABELS_PREFIX"
+  val fixedWorkflowLabels = "FIXED_WORKFLOW_LABELS"
 }
