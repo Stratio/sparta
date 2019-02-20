@@ -25,10 +25,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 object NginxUtils {
 
   def buildSparkUI(id: String): Option[String] = {
-    if (
-      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
-        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
-    ) {
+    if (WorkflowHelper.isMarathonLBConfigured) {
       val useSsl = Properties.envOrNone(MarathonConstant.SpartaTLSEnableEnv) flatMap { strVal =>
           Try(strVal.toBoolean).toOption
       } getOrElse false

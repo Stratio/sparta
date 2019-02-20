@@ -11,7 +11,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant.TemplateTableName
 import com.stratio.sparta.serving.core.factory.{CuratorFactoryHolder, PostgresDaoFactory}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.services.dao.BasicPostgresService
+import com.stratio.sparta.serving.core.services.dao.{BasicPostgresService, WorkflowPostgresDao}
 import com.stratio.sparta.serving.core.services.migration.orion.OrionMigrationService
 import com.stratio.sparta.serving.core.services.migration.zookeeper.{ZkTemplateService, ZkWorkflowService}
 
@@ -49,11 +49,16 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
 
   private def hydraWorkflowsMigration(): Unit = {
 
+    import WorkflowPostgresDao._
+
     val (hydraWorkflows, orionWorkflows, andromedaWorkflows, cassiopeaWorkflows) = orionMigrationService.orionWorkflowsMigrated()
       .getOrElse((Seq.empty, Seq.empty, Seq.empty, Seq.empty))
+    val newHydraWorkflows = hydraWorkflows.map(workflow =>
+      addUpdateDate(addSpartaVersion(workflow.copy(groupId = workflow.groupId.orElse(workflow.group.id))))
+    )
 
     Try {
-      Await.result(workflowPostgresService.upsertList(hydraWorkflows), 20 seconds)
+      Await.result(workflowPostgresService.upsertList(newHydraWorkflows), 20 seconds)
     } match {
       case Success(_) =>
         log.info("Workflows migrated to Hydra")

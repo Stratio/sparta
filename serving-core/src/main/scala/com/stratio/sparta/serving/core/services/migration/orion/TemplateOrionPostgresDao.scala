@@ -20,6 +20,6 @@ class TemplateOrionPostgresDao extends TemplateOrionDao {
   import profile.api._
 
   def findAllTemplates(): Future[Seq[TemplateElementOrion]] =
-    db.run(table.filter(t => t.versionSparta like s"%2.4%").result)
+    db.run(table.filter(t => (t.versionSparta like s"%2.4%") || t.versionSparta.isEmpty).result)
 
 }

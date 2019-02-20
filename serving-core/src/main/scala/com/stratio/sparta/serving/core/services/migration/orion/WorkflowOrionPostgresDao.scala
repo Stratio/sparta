@@ -21,7 +21,7 @@ class WorkflowOrionPostgresDao extends WorkflowOrionDao {
   import profile.api._
 
   def findAllWorkflows(): Future[Seq[WorkflowOrion]] =
-    db.run(table.filter(t => t.versionSparta like s"%2.4%").result)
+    db.run(table.filter(t => (t.versionSparta like s"%2.4%") || t.versionSparta.isEmpty).result)
 }
 
 

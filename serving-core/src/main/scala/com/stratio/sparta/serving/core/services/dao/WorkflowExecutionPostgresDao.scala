@@ -505,10 +505,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
                                             workflowExecution: WorkflowExecution,
                                             sparkConfs: Map[String, String]
                                           ): Map[String, String] = {
-    if (
-      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
-        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
-    ) {
+    if (WorkflowHelper.isMarathonLBConfigured) {
       val proxyLocation = WorkflowHelper.getProxyLocation(WorkflowHelper.getExecutionDeploymentId(workflowExecution))
       sparkConfs + (SubmitUiProxyPrefix -> proxyLocation)
     } else sparkConfs

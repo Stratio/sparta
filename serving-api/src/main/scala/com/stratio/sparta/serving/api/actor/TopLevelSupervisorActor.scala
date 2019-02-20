@@ -14,6 +14,7 @@ import com.stratio.sparta.dg.agent.lineage.LineageServiceActor
 import com.stratio.sparta.serving.core.actor.{ExecutionStatusChangeListenerActor, ExecutionStatusChangePublisherActor, SchedulerMonitorActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 
 import scala.util.{Properties, Try}
 
@@ -40,10 +41,7 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
     context.actorOf(Props[SchedulerMonitorActor])
 
     //Initialize Nginx actor
-    if (
-      Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
-        Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
-    ) {
+    if (WorkflowHelper.isMarathonLBConfigured) {
       log.info("Initializing Nginx service")
       Option(context.actorOf(Props(new NginxActor())))
     }

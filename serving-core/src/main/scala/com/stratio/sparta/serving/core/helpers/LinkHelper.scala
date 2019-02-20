@@ -22,10 +22,7 @@ object LinkHelper extends SLF4JLogging {
       val sparkUiPort = Try(sparkConfig.getInt("spark.ui.port")).getOrElse(SparkConstant.DefaultUIPort)
 
       if (sparkUiEnabled) {
-        if (
-          Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
-            Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined
-        ) NginxUtils.buildSparkUI("crossdata-sparkUI")
+        if (WorkflowHelper.isMarathonLBConfigured) NginxUtils.buildSparkUI("crossdata-sparkUI")
         else if(sparkMaster.contains("local")) Option(s"http://localhost:$sparkUiPort") else None
       } else None
     }

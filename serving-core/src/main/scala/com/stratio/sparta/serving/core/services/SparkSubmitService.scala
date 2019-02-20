@@ -9,7 +9,7 @@ package com.stratio.sparta.serving.core.services
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
@@ -168,10 +168,15 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.get)
     } else sparkConfs
 
-  private[core] def addExecutorLogConf(sparkConfs: Map[String, String]): Map[String, String] =
-    if (!sparkConfs.contains(SubmitExecutorLogLevelConf) && sys.env.get("SPARK_LOG_LEVEL").notBlank.isDefined) {
-      sparkConfs ++ Map(SubmitExecutorLogLevelConf -> sys.env.get("SPARK_LOG_LEVEL").notBlank.get)
-    } else sparkConfs
+  private[core] def addExecutorLogConf(sparkConfs: Map[String, String]): Map[String, String] ={
+    val sparkExecutorLogLevel = sparkConfs.get(SubmitExecutorLogLevelConf)
+      .orElse(workflow.settings.global.marathonDeploymentSettings.flatMap(settings => settings.logLevel.map(_.toString)))
+      .orElse(sys.env.get(MarathonConstant.sparkLogLevel).notBlank)
+
+    sparkExecutorLogLevel.foldLeft(sparkConfs) { case (configurations, logLevel) =>
+      configurations ++ Map(SubmitExecutorLogLevelConf -> logLevel)
+    }
+  }
 
   private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] = {
     val calicoNetworkFromEnv = for {

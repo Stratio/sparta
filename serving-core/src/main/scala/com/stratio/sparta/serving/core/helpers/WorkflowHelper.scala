@@ -13,6 +13,7 @@ import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -94,5 +95,11 @@ object WorkflowHelper extends SLF4JLogging {
       Properties.envOrElse(MarathonConstant.NginxMarathonLBHostEnv, "sparta.stratio.com")
     )
   }
+
+  def isMarathonLBConfigured: Boolean =
+    (Properties.envOrNone(MarathonConstant.NginxMarathonLBHostEnv).notBlank.isDefined &&
+      Properties.envOrNone(MarathonConstant.NginxMarathonLBPathEnv).notBlank.isDefined) ||
+      (Properties.envOrNone(MarathonConstant.NginxMarathonLBUserHostEnv).notBlank.isDefined &&
+        Properties.envOrNone(MarathonConstant.NginxMarathonLBUserPathEnv).notBlank.isDefined)
 
 }
