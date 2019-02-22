@@ -10,6 +10,8 @@
     - [SPARTA-2714] Improved sparta login: no need for environment variables MARATHON_SSO_CLIENT_ID and MARATHON_SSO_REDIRECT_URI
     - [SPARTA-2687] Avoid expiration of a user cookie who is using the editor
     - [SPARTA-2674] Support string values in cube operators
+    - Upgrade Stratio Spark to 2.3.0 version
+    - Upgrade Stratio Crossdata to 2.15.3-da9bb1c
 
 * Bug fixing
     - [SPARTA-2680] [SPARTA-2681] Better handling of Gosec Zookeeper exception
