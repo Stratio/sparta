@@ -74,6 +74,9 @@ object SparkConstant {
   val SubmitUiProxyPrefix = "spark.ui.proxyBase"
   val SubmitHistoryEventLogEnabled = "spark.eventLog.enabled"
   val SubmitHistoryEventLogDir = "spark.eventLog.dir"
+  val SubmitHistoryEventLogRotate = "spark.eventLog.rotate"
+  val SubmitHistoryEventLogRotateSize = "spark.eventLog.rotate.size"
+  val SubmitHistoryEventLogRotateNum = "spark.eventLog.rotate.num"
   val SubmitExecutorSecurityHdfsEnable = "spark.executorEnv.SPARK_SECURITY_HDFS_ENABLE"
   val SubmitExecutorSecurityHdfsUri = "spark.executorEnv.SPARK_SECURITY_HDFS_CONF_URI"
 

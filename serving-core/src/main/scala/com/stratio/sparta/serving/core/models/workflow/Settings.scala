@@ -36,10 +36,10 @@ case class GlobalSettings(
                          )
 
 case class GlobalSettingsDto(
-                           executionMode: WorkflowExecutionMode = WorkflowExecutionMode.marathon,
-                           parametersLists: Seq[String] = Seq.empty[String],
-                           parametersUsed: Seq[String] = Seq.empty[String]
-                         ) extends Dto
+                              executionMode: WorkflowExecutionMode = WorkflowExecutionMode.marathon,
+                              parametersLists: Seq[String] = Seq.empty[String],
+                              parametersUsed: Seq[String] = Seq.empty[String]
+                            ) extends Dto
 
 case class CheckpointSettings(
                                checkpointPath: JsoneyString = JsoneyString("sparta/checkpoint"),
@@ -49,16 +49,16 @@ case class CheckpointSettings(
                              )
 
 case class MarathonDeploymentSettings(
-                             gracePeriodSeconds: Option[JsoneyString] = None,
-                             intervalSeconds: Option[JsoneyString] = None,
-                             timeoutSeconds: Option[JsoneyString] = None,
-                             maxConsecutiveFailures: Option[JsoneyString] = None,
-                             forcePullImage: Option[Boolean] = Option(false),
-                             privileged: Option[Boolean] = Option(false),
-                             userEnvVariables: Seq[KeyValuePair] = Seq.empty[KeyValuePair],
-                             userLabels: Seq[KeyValuePair] = Seq.empty[KeyValuePair],
-                             logLevel: Option[JsoneyString] = None
-                           )
+                                       gracePeriodSeconds: Option[JsoneyString] = None,
+                                       intervalSeconds: Option[JsoneyString] = None,
+                                       timeoutSeconds: Option[JsoneyString] = None,
+                                       maxConsecutiveFailures: Option[JsoneyString] = None,
+                                       forcePullImage: Option[Boolean] = Option(false),
+                                       privileged: Option[Boolean] = Option(false),
+                                       userEnvVariables: Seq[KeyValuePair] = Seq.empty[KeyValuePair],
+                                       userLabels: Seq[KeyValuePair] = Seq.empty[KeyValuePair],
+                                       logLevel: Option[JsoneyString] = None
+                                     )
 
 case class StreamingSettings(
                               window: JsoneyString = JsoneyString("2s"),
@@ -119,7 +119,10 @@ case class SparkResourcesConf(
 case class SparkHistoryServerConf(
                                    enableHistoryServerMonitoring: Boolean = false,
                                    sparkHistoryServerLogDir: Option[JsoneyString] = None,
-                                   sparkHistoryServerMonitoringURL: Option[JsoneyString] = None
+                                   sparkHistoryServerMonitoringURL: Option[JsoneyString] = None,
+                                   sparkHistoryServerEventLogRotateEnable: Option[Boolean] = Option(false),
+                                   sparkHistoryServerEventLogRotateNum: Option[JsoneyString] = Option(JsoneyString("9")),
+                                   sparkHistoryServerEventLogRotateSize: Option[JsoneyString] = Option(JsoneyString("512"))
                                  )
 
 case class UserSubmitArgument(

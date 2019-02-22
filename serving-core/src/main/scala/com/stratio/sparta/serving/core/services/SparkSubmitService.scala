@@ -9,10 +9,10 @@ package com.stratio.sparta.serving.core.services
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.SparkSubmitService._
@@ -89,10 +89,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
               addPluginsConfs(
                 addSparkUserConf(
                   addCalicoNetworkConf(
-                    addPluginsFilesToConf(
-                      addMesosConf(sparkConfs ++ sparkConfFromSubmitArgs),
-                      pluginsFiles
-                    ))))))))
+                    addHistoryServerConf(
+                      addPluginsFilesToConf(
+                        addMesosConf(sparkConfs ++ sparkConfFromSubmitArgs),
+                        pluginsFiles
+                      )))))))))
     )
   }
 
@@ -139,9 +140,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         sparkParallelism.notBlank,
       SubmitBlockIntervalConf -> workflow.settings.streamingSettings.blockInterval.notBlank,
       SubmitKryoSerializationConf -> workflow.settings.sparkSettings.sparkConf.sparkKryoSerialization
-        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
-      SubmitHistoryEventLogEnabled -> Option(workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf.enableHistoryServerMonitoring.toString),
-      SubmitHistoryEventLogDir -> workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf.sparkHistoryServerLogDir.map(_.toString).notBlank
+        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None)
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
 
@@ -168,7 +167,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.get)
     } else sparkConfs
 
-  private[core] def addExecutorLogConf(sparkConfs: Map[String, String]): Map[String, String] ={
+  private[core] def addExecutorLogConf(sparkConfs: Map[String, String]): Map[String, String] = {
     val sparkExecutorLogLevel = sparkConfs.get(SubmitExecutorLogLevelConf)
       .orElse(workflow.settings.global.marathonDeploymentSettings.flatMap(settings => settings.logLevel.map(_.toString)))
       .orElse(sys.env.get(MarathonConstant.sparkLogLevel).notBlank)
@@ -192,6 +191,19 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       )
       case _ => sparkConfs
     }
+  }
+
+  private[core] def addHistoryServerConf(sparkConfs: Map[String, String]): Map[String, String] = {
+    import workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf._
+    if (enableHistoryServerMonitoring) {
+      sparkConfs ++ Map(
+        SubmitHistoryEventLogEnabled -> Option("true"),
+        SubmitHistoryEventLogDir -> sparkHistoryServerLogDir.map(_.toString).notBlank,
+        SubmitHistoryEventLogRotate -> sparkHistoryServerEventLogRotateEnable.map(_.toString).notBlank,
+        SubmitHistoryEventLogRotateNum -> sparkHistoryServerEventLogRotateNum.map(_.toString).notBlank,
+        SubmitHistoryEventLogRotateSize -> sparkHistoryServerEventLogRotateSize.map(_.toString).notBlank
+      ).flatMap { case (key, opValue) => opValue.map(value => key -> value) }
+    } else sparkConfs
   }
 
   private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
@@ -291,7 +303,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   }
 
   private[core] def addExecutorHdfsSecurityConfs(sparkConfs: Map[String, String]): Map[String, String] = {
-    val enableExecutorHdfsSecurity =  Try{
+    val enableExecutorHdfsSecurity = Try {
       Properties.envOrElse("SPARK_EXECUTOR_SECURITY_HDFS_ENABLE", "false").toBoolean
     }.getOrElse(false)
     val executorHdfsUri = Properties.envOrNone("HADOOP_CONF_URI").notBlank
@@ -302,7 +314,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
           SubmitExecutorSecurityHdfsEnable -> "true",
           SubmitExecutorSecurityHdfsUri -> execHdfsUri
         ) ++ sparkConfs
-      case (_,_) =>
+      case (_, _) =>
         sparkConfs
     }
   }

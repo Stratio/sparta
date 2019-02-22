@@ -729,6 +729,60 @@
                     ]
                   ],
                   "qa": "workflow-spark-history-server-monitoring-url"
+                },
+                {
+                  "propertyId": "sparkHistoryServerEventLogRotateEnable",
+                  "propertyName": "SETTINGS._SPARK_ENABLE_HISTORY_SERVER_LOG_ROTATE_",
+                  "propertyType": "boolean",
+                  "newRow": true,
+                  "required": false,
+                  "width": "auto",
+                  "default": false,
+                  "qa": "workflow-spark-enable-history-server-log-rotate"
+                },
+                {
+                  "propertyId": "sparkHistoryServerEventLogRotateNum",
+                  "propertyName": "SETTINGS._SPARK_HISTORY_SERVER_LOG_ROTATE_NUM_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "required": false,
+                  "default": "9",
+                  "tooltip": "Number of files if rotate is activate",
+                  "visible": [
+                    [
+                      {
+                        "propertyId": "enableHistoryServerMonitoring",
+                        "value": true
+                      },
+                      {
+                        "propertyId": "sparkHistoryServerEventLogRotateEnable",
+                        "value": true
+                      }
+                    ]
+                  ],
+                  "qa": "workflow-spark-history-server-monitoring-log-rotate-num"
+                },
+                {
+                  "propertyId": "sparkHistoryServerEventLogRotateSize",
+                  "propertyName": "SETTINGS._SPARK_HISTORY_SERVER_LOG_ROTATE_SIZE_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "required": false,
+                  "default": "512",
+                  "tooltip": "Max size in megabytes of the Event Log if rotate is activate",
+                  "visible": [
+                    [
+                      {
+                        "propertyId": "enableHistoryServerMonitoring",
+                        "value": true
+                      },
+                      {
+                        "propertyId": "sparkHistoryServerEventLogRotateEnable",
+                        "value": true
+                      }
+                    ]
+                  ],
+                  "qa": "workflow-spark-history-server-monitoring-log-rotate-size"
                 }
               ]
             },
