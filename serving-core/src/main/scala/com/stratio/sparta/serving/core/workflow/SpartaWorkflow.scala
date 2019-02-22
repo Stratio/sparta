@@ -402,6 +402,15 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         }
       }
     }
+
+    inputs.foreach{ case (_, input) =>
+      input.step match {
+        case inputStep : OneTransactionOffsetManager =>
+          if(inputStep.executeOffsetCommit)
+            inputStep.commitOffsets()
+        case _ =>
+      }
+    }
   }
 
   /**

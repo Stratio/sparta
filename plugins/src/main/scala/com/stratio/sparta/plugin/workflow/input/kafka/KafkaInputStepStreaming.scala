@@ -6,6 +6,7 @@
 package com.stratio.sparta.plugin.workflow.input.kafka
 
 import java.io.{Serializable => JSerializable}
+import java.util
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
@@ -14,11 +15,13 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.core.workflow.step.{InputStep, OneTransactionOffsetManager}
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
-import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
-import com.stratio.sparta.plugin.models.TopicModel
+import com.stratio.sparta.plugin.enumerations.ConsumerStrategyEnum
+import com.stratio.sparta.plugin.enumerations.ConsumerStrategyEnum.ConsumerStrategyEnum
+import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper, SparkStepHelper}
+import com.stratio.sparta.plugin.models.{TopicModel, TopicPartitionModel}
 import org.apache.kafka.clients.consumer.ConsumerConfig._
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
@@ -26,13 +29,14 @@ import org.apache.kafka.common.serialization._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.kafka010._
+import org.apache.spark.streaming.dstream.{DStream, InputDStream}
+import org.apache.spark.streaming.kafka010.{HasOffsetRanges, _}
 import org.json4s.jackson.Serialization._
 import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 
+//scalastyle:off
 class KafkaInputStepStreaming(
                                name: String,
                                outputOptions: OutputOptions,
@@ -40,13 +44,19 @@ class KafkaInputStepStreaming(
                                xDSession: XDSession,
                                properties: Map[String, JSerializable]
                              )
-  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
+  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging with OneTransactionOffsetManager {
+
+  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+
+  lazy val consumerPollMsKey = "spark.streaming.kafka.consumer.poll.ms"
+  lazy val maxRatePerPartitionKey = "spark.streaming.kafka.maxRatePerPartition"
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
   lazy val serializers = getSerializers
   lazy val topics = extractTopics
+  lazy val topicPartitions = extractTopicsPartitions
   lazy val autoCommit = getAutoCommit
   lazy val autoOffset = getAutoOffset
   lazy val rowSerializerProps = getRowSerializerProperties
@@ -54,10 +64,20 @@ class KafkaInputStepStreaming(
   lazy val partitionStrategy = getPartitionStrategy
   lazy val offsets = getOffsets
   lazy val locationStrategy = getLocationStrategy
-  lazy val requestTimeoutMs = Try(propertiesWithCustom.getInt(REQUEST_TIMEOUT_MS_CONFIG)).getOrElse(40 * 1000)
-  lazy val heartbeatIntervalMs = Try(propertiesWithCustom.getInt(HEARTBEAT_INTERVAL_MS_CONFIG)).getOrElse(3000)
+  lazy val consumerStrategy = getConsumerStrategy
+  lazy val requestTimeoutMs = Try(propertiesWithCustom.getInt(REQUEST_TIMEOUT_MS_CONFIG)).getOrElse(40000)
+  lazy val heartbeatIntervalMs = Try(propertiesWithCustom.getInt(HEARTBEAT_INTERVAL_MS_CONFIG)).getOrElse(10000)
   lazy val sessionTimeOutMs = Try(propertiesWithCustom.getInt(SESSION_TIMEOUT_MS_CONFIG)).getOrElse(30000)
   lazy val fetchMaxWaitMs = Try(propertiesWithCustom.getInt(FETCH_MAX_WAIT_MS_CONFIG)).getOrElse(500)
+  lazy val consumerPollMs = Try(propertiesWithCustom.getInt(consumerPollMsKey)).getOrElse(1000)
+  lazy val maxRatePerPartition = Try(propertiesWithCustom.getInt(maxRatePerPartitionKey)).getOrElse(0)
+  lazy val autoCommitInterval = Try(propertiesWithCustom.getInt(AUTO_COMMIT_INTERVAL_MS_CONFIG)).getOrElse(5000)
+  lazy val maxPartitionFetchBytes = Try(propertiesWithCustom.getInt(MAX_PARTITION_FETCH_BYTES_CONFIG)).getOrElse(10485760)
+  lazy val retryBackoff = Try(propertiesWithCustom.getInt(RETRY_BACKOFF_MS_CONFIG)).getOrElse(1000)
+  lazy val commitOffsetRetries = Try(properties.getInt("commitOffsetsNumRetries", 3)).getOrElse(3)
+  lazy val commitOffsetWait = Try(properties.getInt("commitOffsetsWait", 1000)).getOrElse(1000)
+
+  override val executeOffsetCommit: Boolean = !getAutoCommit.head._2 && getAutoCommitInKafka
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
@@ -73,10 +93,16 @@ class KafkaInputStepStreaming(
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"the bootstrap server definition is wrong", name)
       )
-    if (topics.isEmpty)
+    if (consumerStrategy == ConsumerStrategyEnum.SUBSCRIBE && topics.isEmpty)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(s"the topic cannot be empty", name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"the topics list cannot be empty", name)
+      )
+
+    if (consumerStrategy == ConsumerStrategyEnum.ASSIGN && topicPartitions.isEmpty)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"the topic partitions list cannot be empty", name)
       )
 
     if (heartbeatIntervalMs >= sessionTimeOutMs)
@@ -100,6 +126,13 @@ class KafkaInputStepStreaming(
           WorkflowValidationMessage(s"the $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG", name)
       )
 
+    if (consumerPollMs <= fetchMaxWaitMs)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+
+          WorkflowValidationMessage(s"the $consumerPollMsKey should be greater than $FETCH_MAX_WAIT_MS_CONFIG", name)
+      )
+
     if (debugOptions.isDefined && !validDebuggingOptions)
       validation = ErrorValidations(
         valid = false,
@@ -110,14 +143,9 @@ class KafkaInputStepStreaming(
   }
 
   def init(): DistributedMonad[DStream] = {
-    require(topics.nonEmpty, s"The topics can not be empty")
-    require(brokerList.nonEmpty, s"The bootstrap server definition is wrong")
-    require(requestTimeoutMs >= sessionTimeOutMs,
-      s"The $REQUEST_TIMEOUT_MS_CONFIG should be greater than $SESSION_TIMEOUT_MS_CONFIG")
-    require(requestTimeoutMs >= fetchMaxWaitMs,
-      s"The $REQUEST_TIMEOUT_MS_CONFIG should be greater than $FETCH_MAX_WAIT_MS_CONFIG")
-    require(heartbeatIntervalMs <= sessionTimeOutMs,
-      s"The $HEARTBEAT_INTERVAL_MS_CONFIG should be lower than $SESSION_TIMEOUT_MS_CONFIG")
+    val validateResult = validate()
+
+    require(validateResult.valid, validateResult.messages.mkString(","))
 
     val kafkaSecurityOptions = if (tlsEnabled) {
       val securityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
@@ -125,12 +153,16 @@ class KafkaInputStepStreaming(
         "The property TLS is enabled and the sparkConf does not contain security properties")
       securityOptions
     } else Map.empty
-    val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](
-      topics, autoCommit ++ autoOffset ++ serializers ++
-        rowSerializerProps ++ brokerList ++ groupId ++ partitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties,
-      offsets
-    )
-    val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc.get, locationStrategy, consumerStrategy)
+    val kafkaConsumerParams = autoCommit ++ autoOffset ++ serializers ++ rowSerializerProps ++ brokerList ++ groupId ++
+      partitionStrategy ++ kafkaSecurityOptions ++ consumerProperties
+    val strategy = consumerStrategy match {
+      case ConsumerStrategyEnum.ASSIGN =>
+        ConsumerStrategies.Assign[String, Row](topicPartitions, kafkaConsumerParams, offsets)
+      case _ =>
+        ConsumerStrategies.Subscribe[String, Row](topics, kafkaConsumerParams, offsets)
+    }
+    val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc.get, locationStrategy, strategy)
+    inputData = Option(inputDStream)
     val outputDStream = inputDStream.transform { rdd =>
       val newRdd = rdd.map(data => data.value())
       val schema = SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, newRdd)
@@ -139,20 +171,47 @@ class KafkaInputStepStreaming(
       newRdd
     }
 
-    if (!getAutoCommit.head._2 && getAutoCommitInKafka) {
+    outputDStream.asInstanceOf[DStream[Row]]
+  }
+
+  override def commitOffsets(): Unit = {
+    if (
+      executeOffsetCommit &&
+        inputData.isDefined &&
+        inputData.get.isInstanceOf[InputDStream[ConsumerRecord[String, Row]]] &&
+        inputData.get.isInstanceOf[CanCommitOffsets]
+    ) {
+      val inputDStream = inputData.get.asInstanceOf[InputDStream[ConsumerRecord[String, Row]]]
       inputDStream.foreachRDD { rdd =>
-        val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-        inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
-        log.debug(s"Committed Kafka offsets --> ${
-          offsetRanges.map(offset =>
-            s"\tTopic: ${offset.topic}, Partition: ${offset.partition}, From: ${offset.fromOffset}, until: " +
-              s"${offset.untilOffset}"
-          ).mkString("\n")
-        }")
+        rdd match {
+          case offsets: HasOffsetRanges =>
+            val offsetRanges = offsets.offsetRanges
+            SparkStepHelper.retry(commitOffsetRetries, commitOffsetWait){
+              inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges, new DisplayOffsetCommits)
+            }
+          case _ =>
+            log.warn("The input DStream don't have offset ranges")
+        }
       }
     }
+  }
 
-    outputDStream.asInstanceOf[DStream[Row]]
+  /** PERFORMANCE SETTINGS **/
+
+  private[kafka] def consumerProperties: Map[String, String] = {
+    val performanceProperties = Map(
+      consumerPollMsKey -> consumerPollMs.toString,
+      maxRatePerPartitionKey -> maxRatePerPartition.toString,
+      AUTO_COMMIT_INTERVAL_MS_CONFIG -> autoCommitInterval.toString,
+      MAX_PARTITION_FETCH_BYTES_CONFIG -> maxPartitionFetchBytes.toString,
+      SESSION_TIMEOUT_MS_CONFIG -> sessionTimeOutMs.toString,
+      REQUEST_TIMEOUT_MS_CONFIG -> requestTimeoutMs.toString,
+      HEARTBEAT_INTERVAL_MS_CONFIG -> heartbeatIntervalMs.toString,
+      FETCH_MAX_WAIT_MS_CONFIG -> fetchMaxWaitMs.toString,
+      RETRY_BACKOFF_MS_CONFIG -> retryBackoff.toString
+    )
+
+    getCustomProperties ++ performanceProperties
   }
 
   /** GROUP ID extractions **/
@@ -163,16 +222,28 @@ class KafkaInputStepStreaming(
   /** TOPICS extractions **/
 
   private[kafka] def extractTopics: Set[String] = {
-    val topicsModel = getTopicsPartitions
+    val topicsModel = getTopicsFromProperties
 
     if (topicsModel.forall(topicModel => topicModel.topic.nonEmpty))
       topicsModel.map(topicPartitionModel => topicPartitionModel.topic).toSet
     else Set.empty[String]
   }
 
-  private[kafka] def getTopicsPartitions: Seq[TopicModel] = {
-    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
-    val topicsKey = s"${properties.getString("topics", None).notBlank.fold("[]") { values => values.toString }}"
+  private[kafka] def extractTopicsPartitions: Seq[TopicPartition] = {
+    val topicsKey = properties.getString("topicPartitions", None).notBlank.fold("[]") { values => values.toString }
+    val topicPartitionsModel = read[Seq[TopicPartitionModel]](topicsKey)
+
+    topicPartitionsModel.map(topicPartition => new TopicPartition(topicPartition.topic, topicPartition.partition.toInt))
+  }
+
+  private[kafka] def getTopicPartitionsFromProperties: Seq[TopicModel] = {
+    val topicsKey = properties.getString("topics", None).notBlank.fold("[]") { values => values.toString }
+
+    read[Seq[TopicModel]](topicsKey)
+  }
+
+  private[kafka] def getTopicsFromProperties: Seq[TopicModel] = {
+    val topicsKey = properties.getString("topics", None).notBlank.fold("[]") { values => values.toString }
 
     read[Seq[TopicModel]](topicsKey)
   }
@@ -251,6 +322,10 @@ class KafkaInputStepStreaming(
 
     Map(PARTITION_ASSIGNMENT_STRATEGY_CONFIG -> strategy)
   }
+
+  private[kafka] def getConsumerStrategy: ConsumerStrategyEnum =
+    Try(ConsumerStrategyEnum.withName(properties.getString("consumerStrategy")))
+      .getOrElse(ConsumerStrategyEnum.SUBSCRIBE)
 }
 
 object KafkaInputStepStreaming {
@@ -271,4 +346,21 @@ object KafkaInputStepStreaming {
     )
   }
 
+}
+
+class DisplayOffsetCommits extends OffsetCommitCallback with Serializable with SLF4JLogging {
+  override def onComplete(offsets: util.Map[TopicPartition, OffsetAndMetadata], exception: Exception): Unit = {
+    Option(exception) match {
+      case Some(ex) =>
+        log.warn(s"Error committing offsets in Kafka with exception: ${ex.getLocalizedMessage}")
+        throw ex
+      case None =>
+        import scala.collection.JavaConversions._
+
+        val offsetsMessage = offsets.map { case (topicPartition, offsetAndMetadata) =>
+          s"{TopicPartition{${topicPartition.toString}}, ${offsetAndMetadata.toString}}"
+        }.mkString(",")
+        log.info(s"Committed Kafka offsets and partitions --> [$offsetsMessage]")
+    }
+  }
 }

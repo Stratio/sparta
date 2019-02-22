@@ -16,6 +16,7 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 
+import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
 object SparkStepHelper {
@@ -61,5 +62,16 @@ object SparkStepHelper {
 
   def failRDDWithException(rdd: RDD[Row], exception: Throwable): RDD[Row] =
     rdd.map(_ => Row.fromSeq(throw exception))
+
+  @annotation.tailrec
+  def retry[T](attempts: Int, wait: Int)(fn: => T): T = {
+    Try { fn } match {
+      case Success(result) => result
+      case Failure(e) if attempts > 1 && NonFatal(e) =>
+        Thread.sleep(wait)
+        retry(attempts - 1, wait)(fn)
+      case Failure(e) => throw e
+    }
+  }
 
 }

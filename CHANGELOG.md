@@ -19,7 +19,9 @@
     - Fix bugs related to the Postgres save mode "Copy-in" 
     - Fix the format of user-defined parameters shown in Execution Info 
     - Fix Last update date in creation of a new workflow or a new version 
-
+    - [SPARTA-2700] [SPARTA-2701] Added assign consumer strategy and more configuration properties in kafka input
+    - Added Kafka offsets commit after all outputs writes correctly (one transaction)
+    
 ## 2.5.0-062b5c9 (Built: January 24, 2019 | Released: January 25, 2019)
 
 * New steps:

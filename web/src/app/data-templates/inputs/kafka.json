@@ -41,11 +41,38 @@
           }
         ]
       },
+       {
+          "propertyId": "consumerStrategy",
+          "propertyName": "_KAFKA_CONSUMER_STRATEGY_",
+          "propertyType": "select",
+          "values": [
+             {
+                "label": "Subscribe",
+                "value": "SUBSCRIBE"
+             },
+             {
+                "label": "Assign",
+                "value": "ASSIGN"
+             }
+          ],
+          "default": "SUBSCRIBE",
+          "required": true,
+          "tooltip": "Consumer strategy.",
+          "qa": "fragment-details-kafka-consumer-strategy"
+       },
       {
         "propertyId": "topics",
         "propertyName": "_TOPICS_",
         "propertyType": "list",
-        "required": true,
+        "required": false,
+         "visible": [
+            [
+               {
+                  "propertyId": "consumerStrategy",
+                  "value": "SUBSCRIBE"
+               }
+            ]
+         ],
         "tooltip": "List of Kafka topic names. Where messages will be published. At least one is required.",
         "qa": "fragment-details-stratio-kafkadirect-topics",
         "fields": [
@@ -54,7 +81,7 @@
             "propertyName": "_TOPIC_",
             "propertyType": "text",
              "width": 8,
-            "required": true,
+            "required": false,
             "tooltip": "Topic to connect.",
             "placeholder": "topicName",
             "hidden": false,
@@ -62,6 +89,46 @@
           }
         ]
       },
+       {
+          "propertyId": "topicPartitions",
+          "propertyName": "_TOPIC_PARTITIONS_",
+          "propertyType": "list",
+          "required": false,
+          "visible": [
+             [
+                {
+                   "propertyId": "consumerStrategy",
+                   "value": "ASSIGN"
+                }
+             ]
+          ],
+          "tooltip": "List of Kafka topic and partitions. Where messages will be published. At least one is required.",
+          "qa": "fragment-details-stratio-kafkadirect-topic-partitions",
+          "fields": [
+             {
+                "propertyId": "topic",
+                "propertyName": "_TOPIC_",
+                "propertyType": "text",
+                "width": 4,
+                "required": false,
+                "tooltip": "Topic to connect.",
+                "placeholder": "topicName",
+                "hidden": false,
+                "qa": "fragment-details-stratio-kafkadirect-topic"
+             },
+             {
+                "propertyId": "partition",
+                "propertyName": "_KAFKA_PARTITION_",
+                "propertyType": "text",
+                "width": 4,
+                "required": false,
+                "tooltip": "Partition to connect.",
+                "placeholder": "partition",
+                "hidden": false,
+                "qa": "fragment-details-stratio-kafkadirect-partition"
+             }
+          ]
+       },
       {
           "propertyId": "group.id",
           "propertyName": "_GROUP_ID_",
@@ -270,11 +337,65 @@
           "qa": "fragment-details-kafka-maxPollTimeout"
        },
        {
+          "propertyId": "max.partition.fetch.bytes",
+          "propertyName": "_KAFKA_MAX_PARTITION_FETCH_BYTES_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "The maximum amount of data per-partition the server will return.",
+          "default": "{{{KAFKA_MAX_PARTITION_FETCH_BYTES}}}",
+          "qa": "fragment-details-kafka-max-partition-fetch-bytes"
+       },
+       {
+          "propertyId": "session.timeout.ms",
+          "propertyName": "_KAFKA_SESSION_TIMEOUT_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "The timeout used to detect failures when using Kafka's group management facilities. When a consumer's heartbeat is not received within the session timeout, the broker will mark the consumer as failed and rebalance the group.",
+          "default": "{{{KAFKA_SESSION_TIMEOUT}}}",
+          "qa": "fragment-details-kafka-session-timeout"
+       },
+       {
+          "propertyId": "request.timeout.ms",
+          "propertyName": "_KAFKA_REQUEST_TIMEOUT_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "The configuration controls the maximum amount of time the client will wait for the response of a request. If the response is not received before the timeout elapses the client will resend the request if necessary or fail the request if retries are exhausted.",
+          "default": "{{{KAFKA_REQUEST_TIMEOUT}}}",
+          "qa": "fragment-details-kafka-request-timeout"
+       },
+       {
+          "propertyId": "heartbeat.interval.ms",
+          "propertyName": "_KAFKA_HEARTBEAT_INTERVAL_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "The expected time between heartbeats to the consumer coordinator when using Kafka's group management facilities. Heartbeats are used to ensure that the consumer's session stays active and to facilitate rebalancing when new consumers join or leave the group. The value must be set lower than <code>session.timeout.ms</code>, but typically should be set no higher than 1/3 of that value. It can be adjusted even lower to control the expected time for normal rebalances.",
+          "default": "{{{KAFKA_HEARTBEAT_INTERVAL}}}",
+          "qa": "fragment-details-kafka-heartbeat-interval"
+       },
+       {
+          "propertyId": "fetch.max.wait.ms",
+          "propertyName": "_KAFKA_FETCH_MAX_WAIT_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "The maximum amount of time the server will block before answering the fetch request if there isn't sufficient data to immediately satisfy the requirement given by fetch.min.bytes.",
+          "default": "{{{KAFKA_FETCH_MAX_WAIT}}}",
+          "qa": "fragment-details-kafka-fetch-max-wait"
+       },
+       {
           "propertyId": "spark.streaming.kafka.maxRatePerPartition",
           "propertyName": "_MAX_RATE_PER_PARTITION_",
           "propertyType": "text",
           "required": false,
           "tooltip": "Limit the rate per partition when backpressure is enabled.",
+          "qa": "fragment-details-kafka-maxRatePerPartition"
+       },
+       {
+          "propertyId": "retry.backoff.ms",
+          "propertyName": "_KAFKA_RETRY_BACKOFF_",
+          "propertyType": "text",
+          "default": "{{{KAFKA_RETRY_BACKOFF}}}",
+          "required": false,
+          "tooltip": "The amount of time to wait before attempting to retry a failed request to a given topic partition. This avoids repeatedly sending requests in a tight loop under some failure scenarios.",
           "qa": "fragment-details-kafka-maxRatePerPartition"
        },
        {
@@ -295,21 +416,69 @@
         "qa": "fragment-details-kafka-enable-autocommit"
       },
       {
-        "propertyId": "storeOffsetInKafka",
-        "propertyName": "_KAFKA_STORE_OFFSET_ITSELF_",
-        "propertyType": "boolean",
-        "tooltip": "It's mandatory to disable the auto commit when checked.",
-        "default": true,
+        "propertyId": "auto.commit.interval.ms",
+        "propertyName": "_KAFKA_AUTO_COMMIT_INTERVAL_",
+        "propertyType": "text",
+        "tooltip": "The frequency in milliseconds that the consumer offsets are auto-committed to Kafka.",
+        "default": "{{{KAFKA_AUTO_COMMIT_INTERVAL}}}",
         "visible": [
           [
             {
               "propertyId": "enable.auto.commit",
-              "value": false
+              "value": true
             }
           ]
         ],
-        "qa": "fragment-details-kafka-offset-in-kafka"
+        "qa": "fragment-details-kafka-commit-interval"
       },
+       {
+          "propertyId": "storeOffsetInKafka",
+          "propertyName": "_KAFKA_STORE_OFFSET_ITSELF_",
+          "propertyType": "boolean",
+          "tooltip": "Store offsets in Kafka after all workflow outputs writes correctly. Is possible to simulates ONE TRANSACTION policy. It's mandatory to disable the auto commit when checked.",
+          "default": true,
+          "visible": [
+             [
+                {
+                   "propertyId": "enable.auto.commit",
+                   "value": false
+                }
+             ]
+          ],
+          "qa": "fragment-details-kafka-offset-in-kafka"
+       },
+       {
+          "propertyId": "commitOffsetsNumRetries",
+          "propertyName": "_KAFKA_COMMIT_OFFSET_NUM_RETRIES_",
+          "propertyType": "text",
+          "tooltip": "Number of attempts to commit offsets.",
+          "default": "3",
+          "visible": [
+             [
+                {
+                   "propertyId": "storeOffsetInKafka",
+                   "value": true
+                }
+             ]
+          ],
+          "qa": "fragment-details-kafka-commit-offsets-retries"
+       },
+       {
+          "propertyId": "commitOffsetsWait",
+          "propertyName": "_KAFKA_COMMIT_OFFSET_WAIT_",
+          "propertyType": "text",
+          "tooltip": "Time in milliseconds to wait after each commit offset attempt.",
+          "default": "1000",
+          "visible": [
+             [
+                {
+                   "propertyId": "storeOffsetInKafka",
+                   "value": true
+                }
+             ]
+          ],
+          "qa": "fragment-details-kafka-commit-offsets-retries"
+       },
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
