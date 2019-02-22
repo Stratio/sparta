@@ -299,6 +299,10 @@ This software – including all its source code – contains proprietary informa
                                     <to>/opt/sds/sparta/bin</to>
                                 </copyDirectory>
                                 <copyDirectory>
+                                    <from>src/main/unix/files_and_dirs/jmx-prometheus</from>
+                                    <to>/opt/sds/sparta/jmx-prometheus</to>
+                                </copyDirectory>
+                                <copyDirectory>
                                     <from>target/appassembler/crossdata</from>
                                     <to>/opt/sds/sparta/crossdata</to>
                                 </copyDirectory>

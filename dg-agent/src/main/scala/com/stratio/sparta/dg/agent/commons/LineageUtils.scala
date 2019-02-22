@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Properties
+import scala.util.{Properties, Try}
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
 
@@ -28,6 +28,7 @@ object LineageUtils extends ContextBuilderImplicits{
 
   val StartKey = "startedAt"
   val FinishedKey = "finishedAt"
+  val TypeFinishedKey = "detailedStatus"
   val ErrorKey = "error"
   val UrlKey = "link"
 
@@ -38,8 +39,9 @@ object LineageUtils extends ContextBuilderImplicits{
     val eventStatus = executionStatusChange.newExecution.lastStatus.state
     val exEngine = executionStatusChange.newExecution.executionEngine.get
 
-    (exEngine == Batch && eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed) ||
-      (exEngine == Streaming && eventStatus == WorkflowStatusEnum.Started
+    (exEngine == Batch && eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed
+      || eventStatus == WorkflowStatusEnum.StoppedByUser) ||
+      (exEngine == Streaming && eventStatus == WorkflowStatusEnum.Started || eventStatus == WorkflowStatusEnum.StoppedByUser
         || eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed)
   }
 
@@ -87,6 +89,7 @@ object LineageUtils extends ContextBuilderImplicits{
     Map(
       StartKey -> newExecution.genericDataExecution.startDate.getOrElse(None).toString,
       FinishedKey -> newExecution.resumedDate.getOrElse(None).toString,
+      TypeFinishedKey -> Try(newExecution.statuses.head.state.toString).getOrElse("Finished"),
       ErrorKey -> newExecution.genericDataExecution.lastError.toString,
       UrlKey -> setExecutionUrl(newExecution.getExecutionId))
   }
@@ -131,6 +134,7 @@ object LineageUtils extends ContextBuilderImplicits{
       case Started => "RUNNING"
       case Finished => "FINISHED"
       case Failed => "ERROR"
+      case StoppedByUser => "FINISHED"
     }
 
   def isFileSystemStepType(dataStoreType: String): Boolean =

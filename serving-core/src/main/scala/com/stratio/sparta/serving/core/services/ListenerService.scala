@@ -30,7 +30,7 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
 
       val state = executionStatusChange.newExecution.lastStatus.state
 
-      if (state == Stopping || state == Failed) {
+      if (state == Stopping ||state == StoppingByUser || state == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
           Try {
@@ -43,7 +43,7 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
               executionService.updateStatus(ExecutionStatusUpdate(
                 executionId,
                 ExecutionStatus(
-                  state = if (state == Stopping) Stopped else Failed,
+                  state = if (state == StoppingByUser) StoppedByUser else Failed,
                   statusInfo = Option(information)
                 )))
             case Failure(e) =>
@@ -56,7 +56,7 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
                   executionService.updateStatus(ExecutionStatusUpdate(
                     executionId,
                     ExecutionStatus(
-                      state = if (state == Stopping) Stopped else Failed,
+                      state = if (state == StoppingByUser) StoppedByUser else Failed,
                       statusInfo = Option(information)
                     )))
                 case Failure(exception) =>

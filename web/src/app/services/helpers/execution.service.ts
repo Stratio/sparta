@@ -68,7 +68,7 @@ export class ExecutionHelperService {
 
    private _getFilterStatus(status: string) {
       switch (status) {
-         case 'Stopping': case 'Stopped': case 'Finished': case 'NotDefined': case 'Created': case 'NotStarted': case 'Killed':
+         case 'Stopping': case 'StoppingByUser': case 'StoppedByUser': case 'Stopped': case 'Finished': case 'NotDefined': case 'Created': case 'NotStarted': case 'Killed':
             return 'Stopped';
          case 'Running': case 'Launched': case 'Starting': case 'Started': case 'Uploaded':
             return 'Running';

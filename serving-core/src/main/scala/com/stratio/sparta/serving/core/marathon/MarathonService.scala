@@ -254,7 +254,8 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       if (calicoEnabled)
         Option(
           Seq(
-            DockerPortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = "tcp")
+            DockerPortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = "tcp"),
+            DockerPortMapping(DefaultMetricsMarathonDriverPort, DefaultMetricsMarathonDriverPort, Option(0), protocol = "tcp", name = Option("metrics"))
           ) ++
             app.container.docker.portMappings.getOrElse(Seq.empty)
         )
@@ -294,7 +295,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       else None
     }
     val newPortDefinitions = if (calicoEnabled) None else app.portDefinitions
-
 
     app.copy(
       id = execution.marathonExecution.get.marathonId,

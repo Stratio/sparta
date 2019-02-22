@@ -6,13 +6,17 @@
 
 package com.stratio.sparta.dg.agent.commons
 
+import com.github.nscala_time.time.Imports.DateTimeFormat
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
+import com.stratio.sparta.dg.agent.commons.LineageUtils._
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowExecutionEngine}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode._
 import com.stratio.sparta.serving.core.models.workflow._
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
@@ -76,8 +80,19 @@ class LineageUtilsTest extends WordSpec with Matchers {
 
   "checkIfProcessableWorkflow" should {
     "return true" in {
-
       LineageUtils.checkIfProcessableWorkflow(statusEvent) should be(true)
+      val newStatusStoppedByUser = statusEvent.copy(newExecution = statusEvent.newExecution.copy(
+        statuses = Seq(ExecutionStatus(
+          state = WorkflowStatusEnum.StoppedByUser, lastUpdateDate = Some(new DateTime(timestampEpochTest))
+      ))))
+      LineageUtils.checkIfProcessableWorkflow(newStatusStoppedByUser) should be(true)
+    }
+    "return false" in {
+      val newStatusStoppingByUser = statusEvent.copy(newExecution = statusEvent.newExecution.copy(
+        statuses = Seq(ExecutionStatus(
+          state = WorkflowStatusEnum.StoppingByUser, lastUpdateDate = Some(new DateTime(timestampEpochTest))
+        ))))
+      LineageUtils.checkIfProcessableWorkflow(newStatusStoppingByUser) should be(false)
     }
   }
 
@@ -97,6 +112,46 @@ class LineageUtilsTest extends WordSpec with Matchers {
     }
   }
 
+  "setExecutionProperties" should {
+    "return the expected map of property" in {
+      val format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+
+      val expectedID = "test010101010"
+      val epochString = "1970-01-01 00:00:00"
+      val expectedEpoch = format.parseDateTime(epochString)
+
+      val workflow = Workflow(
+        id = Option(expectedID),
+        settings = settingsModel,
+        name = "testworkflow",
+        description = "whatever",
+        pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
+      )
+
+      val actualExecution = WorkflowExecution(
+        id = Option(expectedID),
+        statuses = Seq(ExecutionStatus(
+          state = WorkflowStatusEnum.StoppedByUser, lastUpdateDate = Some(new DateTime(timestampEpochTest))
+        )),
+        genericDataExecution = GenericDataExecution(
+          workflow = workflow,
+          executionMode = marathon,
+          executionContext = ExecutionContext(),
+          startDate = Option(expectedEpoch)
+        )
+      )
+
+      val expectedMap =  Map(
+        StartKey -> s"$expectedEpoch",
+        FinishedKey -> "None",
+        TypeFinishedKey -> "StoppedByUser",
+        ErrorKey -> "None",
+        UrlKey -> s"https://sparta/sparta/#/executions/$expectedID")
+
+      LineageUtils.setExecutionProperties(actualExecution) should equal(expectedMap)
+    }
+  }
+
   "mapSparta2GovernanceStepType" should {
     "return a valid string" in {
       val stepType = statusEvent.newExecution.getWorkflowToExecute.pipelineGraph.nodes.head.stepType
@@ -107,9 +162,12 @@ class LineageUtilsTest extends WordSpec with Matchers {
 
   "mapSparta2GovernanceStatuses" should {
     "return a valid string" in {
-      val status = statusEvent.newExecution.lastStatus.state
+      val status: WorkflowStatusEnum.Value = statusEvent.newExecution.lastStatus.state
 
       LineageUtils.mapSparta2GovernanceStatuses(status) should be("FINISHED")
+      LineageUtils.mapSparta2GovernanceStatuses(StoppedByUser) should be("FINISHED")
+      LineageUtils.mapSparta2GovernanceStatuses(Started) should be("RUNNING")
+      LineageUtils.mapSparta2GovernanceStatuses(Failed) should be("ERROR")
     }
   }
 
@@ -118,6 +176,9 @@ class LineageUtilsTest extends WordSpec with Matchers {
       val dsType = statusEvent.newExecution.getWorkflowToExecute.pipelineGraph.nodes.head.classPrettyName
 
       LineageUtils.mapSparta2GovernanceDataStoreType(dsType) should be("HDFS")
+      LineageUtils.mapSparta2GovernanceDataStoreType("Parquet") should be("HDFS")
+      LineageUtils.mapSparta2GovernanceDataStoreType("Jdbc") should be("SQL")
+      LineageUtils.mapSparta2GovernanceDataStoreType("Postgres") should be("SQL")
     }
   }
 }

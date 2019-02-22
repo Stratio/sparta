@@ -32,6 +32,7 @@ object MarathonConstant {
   val DefaultIncludeCommonVolumes = true
   val DefaultIncludeCertVolumes = true
   val DefaultSparkUIPort = 4040
+  val DefaultMetricsMarathonDriverPort = 6080
   val DefaultSOMemSize = 1024
   val MinSOMemSize = 512
   val DefaultFileEncodingSystemProperty = "-Dfile.encoding=UTF-8"
@@ -87,4 +88,6 @@ object MarathonConstant {
   val spartaLogLevel = "SPARTA_LOG_LEVEL"
   val workflowLabelsPrefix = "WORKFLOW_LABELS_PREFIX"
   val fixedWorkflowLabels = "FIXED_WORKFLOW_LABELS"
+  val PrometheusEnvironmentPortCalico = "PORT_6080"
+  val PrometheusEnvironmentPortHost = "PORT_METRICS"
 }

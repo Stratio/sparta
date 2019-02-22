@@ -56,6 +56,11 @@ object MarathonApplication {
         name = Option("sparkui"),
         port = 0,
         labels = None
+      ),
+      MarathonPortDefinition(
+        name = Option("metrics"),
+        port = 0,
+        labels = None
       )
     )),
     requirePorts = None,
@@ -102,7 +107,8 @@ case class DockerPortMapping(
                               containerPort: Int,
                               servicePort: Option[Int] = None,
                               protocol: String = MarathonApplication.TcpValue,
-                              labels: Option[Map[String, String]] = None
+                              labels: Option[Map[String, String]] = None,
+                              name: Option[String] = None
                             )
 
 case class MarathonPortDefinition(

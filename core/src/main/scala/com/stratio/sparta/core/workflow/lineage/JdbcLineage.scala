@@ -28,7 +28,7 @@ trait JdbcLineage {
       Map(
         ServiceKey -> getJdbcServiceName(lineageUri).getOrElse(""),
         PathKey -> s"/${getJdbcDatabase(lineageUri).getOrElse("")}",
-        ResourceKey -> lineageResource)
+        ResourceKey -> (if(lineageResource.contains(".")) lineageResource else s"public.$lineageResource"))
     } else Map.empty[String, String]
   }
 

@@ -41,7 +41,13 @@ abstract class SelectTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  lazy val selectExpression: Option[String] = properties.getString("selectExp", None).notBlank
+  lazy val selectExpression: Option[String] = properties.getString("selectExp", None).notBlank.map { expression =>
+    val containsSelect = expression.toUpperCase().split(" ").headOption.contains("SELECT")
+    if (containsSelect)
+      expression.substring("SELECT".length).trim()
+    else expression.trim()
+  }
+
   lazy val columns: Seq[String] = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
     val cols = s"${properties.getString("columns", None).notBlank.fold("[]") { values => values.toString }}"
@@ -69,6 +75,10 @@ abstract class SelectTransformStep[Underlying[Row]](
         log.warn(s"$name invalid sql. ${e.getLocalizedMessage}")
         false
     }
+
+  def containsWord(statement: String): Boolean = {
+    selectExpression.exists(query => query.split(" ").exists(_.equalsIgnoreCase(statement)))
+  }
 
   //scalastyle:off
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
@@ -107,13 +117,35 @@ abstract class SelectTransformStep[Underlying[Row]](
         messages = validation.messages :+ WorkflowValidationMessage(s"It's mandatory to specify a select expression, such as colA, abs(colC).", name)
       )
 
-    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && (selectExpression.get.endsWith(",") || !validateSql)) {
-      val errorMessage = if (selectExpression.get.endsWith(","))
-        "The select expression is invalid because it has a trailing comma ','."
-      else "The select expression is invalid."
+
+    val containsFrom: Boolean = containsWord("from")
+
+    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && containsFrom)
       validation = ErrorValidations(
         valid = false,
-        messages = validation.messages :+ WorkflowValidationMessage(errorMessage, name)
+        messages = validation.messages :+ WorkflowValidationMessage(s"The expression cannot contain 'from' statement.", name)
+      )
+
+
+    val containsWhere: Boolean = containsWord("where")
+
+    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && containsWhere)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"The expression cannot contain 'where' statement.", name)
+      )
+
+    if (selectType == SelectType.EXPRESSION && selectExpression.nonEmpty && selectExpression.get.endsWith(",")) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage("The select expression is invalid because it has a trailing comma ','.", name)
+      )
+    }
+
+    if (!validateSql) {
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage("The select expression is invalid.", name)
       )
     }
 
@@ -122,6 +154,7 @@ abstract class SelectTransformStep[Underlying[Row]](
         valid = false,
         messages = validation.messages :+ WorkflowValidationMessage(s"The select columns are invalid.", name)
       )
+
 
     validation
   }
@@ -138,7 +171,7 @@ abstract class SelectTransformStep[Underlying[Row]](
             case SelectType.EXPRESSION => selectExpression.getOrElse("*")
           }
 
-          val newDataFrame = xDSession.sql(s"select ${sqlCommentsRegex.replaceAllIn(expression,"")} from $inputStep")
+          val newDataFrame = xDSession.sql(s"select ${sqlCommentsRegex.replaceAllIn(expression, "")} from $inputStep")
           (newDataFrame.rdd, Option(newDataFrame.schema), inputSchema)
         case None =>
           (rdd.filter(_ => false), None, inputSchema)

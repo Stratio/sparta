@@ -162,4 +162,132 @@ class SelectTransformStepStreamingIT extends TemporalSparkContext with Matchers 
 
     assert(totalEvents.value === 3)
   }
+
+  "A SelectTransformStepStream" should "select columns even if select statement appears on sql sentence" in {
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
+
+    val selectedData = Seq(
+      new GenericRowWithSchema(Array("blue"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult)
+    )
+
+    dataQueue1 += sc.parallelize(data1)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val inputData = Map("step1" -> stream1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val result = new SelectTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "selectExp" -> "select color",
+        "selectType" -> "EXPRESSION"
+      )
+    ).transformWithDiscards(inputData)._1
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach(row => assert(selectedData.contains(row)))
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(timeoutStreaming)
+    ssc.stop()
+
+    assert(totalEvents.value === 3)
+  }
+
+  "A SelectTransformStepStream" should "Check if an sql expression is correct" in {
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
+    val selectedData = Seq(
+      new GenericRowWithSchema(Array("blue"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult)
+    )
+
+    dataQueue1 += sc.parallelize(data1)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val inputData = Map("step1" -> stream1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val selectTransform = new SelectTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "selectExp" -> "color",
+        "selectType" -> "EXPRESSION"
+      )
+    )
+    val result = selectTransform.transformWithDiscards(inputData)._1
+
+    val resultSql = selectTransform.validateSql
+    val expected = true
+    expected shouldEqual resultSql
+
+  }
+
+
+  "A SelectTransformStepStream" should "Check if an sql expression is well parsed" in {
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
+    val selectedData = Seq(
+      new GenericRowWithSchema(Array("blue"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult)
+    )
+
+    dataQueue1 += sc.parallelize(data1)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val inputData = Map("step1" -> stream1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val selectTransform = new SelectTransformStepStreaming(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "selectExp" -> "selection",
+        "selectType" -> "EXPRESSION"
+      )
+    )
+    val result = selectTransform.transformWithDiscards(inputData)._1
+
+    val resultSql = selectTransform.validateSql
+    val expected = true
+    expected shouldEqual resultSql
+
+  }
+
+
 }

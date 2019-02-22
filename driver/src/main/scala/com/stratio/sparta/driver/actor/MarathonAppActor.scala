@@ -49,6 +49,7 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
       closeChecker(execution.getExecutionId)
 
       if (execution.lastStatus.state != Stopped && execution.lastStatus.state != Stopping &&
+        execution.lastStatus.state != StoppedByUser && execution.lastStatus.state != StoppingByUser &&
         execution.lastStatus.state != Failed && execution.lastStatus.state != Finished) {
         log.info(s"Starting execution with id: ${execution.getExecutionId}")
         log.debug(s"Execution in string: ${execution.toString}")

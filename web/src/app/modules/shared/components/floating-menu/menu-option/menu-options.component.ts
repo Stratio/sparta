@@ -67,7 +67,6 @@ export class MenuOptionsComponent implements OnInit, AfterViewInit {
    }
 
    onScroll(event: any) {
-     console.log(event)
       this.scrollTopEnabled = event.target.scrollTop > 0;
       this.scrollBottomEnabled = (this.scrollList.offsetHeight + event.target.scrollTop) + 1 < event.target.scrollHeight;
    }

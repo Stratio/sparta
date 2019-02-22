@@ -86,6 +86,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   public isParameterValue = false;
   public paramType = '';
   public paramValue = '';
+  public parameterValue = '';
 
   private sub: Subscription;
   private _value: any;
@@ -153,7 +154,6 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     this.pristine = false;
     this.onChange(this.isParameterValue ? `{{{${this.paramValue}}}}` : this.internalControl.value);
   }
-
 
   // When value is received from outside
   writeValue(value: any): void {
@@ -249,6 +249,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   }
 
   getParamLabel(value) {
+    this.getParamValue(value);
     if (value.indexOf('Global.') === 0) {
       this.paramType = 'Global';
       return value.replace('Global.', '');
@@ -261,6 +262,24 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     } else {
       this.paramType = 'Custom';
       return value;
+    }
+  }
+
+  getParamValue(value) {
+    if (this.parameters) {
+      this.parameterValue = '';
+      const params = value.split('.');
+      if (params[0] === 'Global') {
+        const param = this.parameters['globalVariables'].find(p => p.name === params[1]);
+        if (param) {
+          this.parameterValue = param.value;
+        }
+      } else if (params[0] === 'Environment') {
+        const param = this.parameters['environmentVariables'].find(p => p.name === params[1]);
+        if (param) {
+          this.parameterValue = param.value;
+        }
+      }
     }
   }
 

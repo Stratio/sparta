@@ -20,7 +20,7 @@ import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.spark.launcher.SpartaLauncher
 import org.joda.time.DateTime
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None) extends Actor with SchedulerUtils {
 
@@ -42,15 +42,24 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
 
   //scalastyle:off
   def doRun(workflowExecution: WorkflowExecution): Unit = {
+    import com.stratio.sparta.serving.core.constants._
     Try {
       val workflow = workflowExecution.getWorkflowToExecute
       val submitExecution = workflowExecution.sparkSubmitExecution.get
+      val sparkSubmitWithMetrics = submitExecution.submitArguments
+        .mkString(",")
+        .replaceAll(
+          SparkDriverMetricsReplaceRegex,
+          Properties.envOrNone(MarathonConstant.PrometheusEnvironmentPortHost)
+            .orElse(Properties.envOrNone(MarathonConstant.PrometheusEnvironmentPortCalico))
+            .getOrElse(MarathonConstant.PrometheusEnvironmentPortCalico)
+        )
       log.info(s"Launching Sparta workflow with options ... \n\t" +
         s"Workflow name: ${workflow.name}\n\t" +
         s"Main Class: $SpartaDriverClass\n\t" +
         s"Driver file: ${submitExecution.driverFile}\n\t" +
         s"Master: ${submitExecution.master}\n\t" +
-        s"Spark submit arguments: ${submitExecution.submitArguments.mkString(",")}\n\t" +
+        s"Spark submit arguments: $sparkSubmitWithMetrics\n\t" +
         s"Spark configurations: ${submitExecution.sparkConfigurations.mkString(",")}\n\t" +
         s"Driver arguments: ${submitExecution.driverArguments}")
 

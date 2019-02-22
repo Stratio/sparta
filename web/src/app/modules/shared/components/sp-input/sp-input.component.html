@@ -36,7 +36,7 @@
     <span class="icon icon-json"></span>
   </div>
 </div>
-<div class="param-type" *ngIf="isParameterValue">{{paramType}} Parameter</div>
+<div class="param-type" *ngIf="isParameterValue">{{paramType}} Parameter<span *ngIf="parameterValue.length">: {{parameterValue}}</span></div>
 <div class="st-input-error-layout" *ngIf="showError()">
   <span class="st-input-error-message">{{errorMessage}}</span>
 </div>

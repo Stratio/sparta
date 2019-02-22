@@ -104,5 +104,7 @@ object SparkConstant {
   val CrossdataSparkUiEnabled = "CROSSDATA_SERVER_SPARK_UI_ENABLED"
   val CrossdataSparkUiPort = "CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT"
 
+  val SparkDriverMetricsReplaceRegex = "_PORT_METRICS_"
+
 
 }

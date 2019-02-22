@@ -177,7 +177,7 @@ export class WizardEffect {
           edges
         }, null, 2);
         sessionStorage.setItem('sp-copy-clipboard', value);
-        copyIntoClipboard(value);
+        // copyIntoClipboard(value);
         return new wizardActions.ShowNotificationAction({
           type: 'default',
           templateType: 'copySelection'

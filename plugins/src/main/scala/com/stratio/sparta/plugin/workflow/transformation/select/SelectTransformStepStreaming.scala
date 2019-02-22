@@ -17,13 +17,13 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 class SelectTransformStepStreaming(
-                                 name: String,
-                                 outputOptions: OutputOptions,
-                                 transformationStepsManagement: TransformationStepManagement,
-                                 ssc: Option[StreamingContext],
-                                 xDSession: XDSession,
-                                 properties: Map[String, JSerializable]
-                               ) extends SelectTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
+                                    name: String,
+                                    outputOptions: OutputOptions,
+                                    transformationStepsManagement: TransformationStepManagement,
+                                    ssc: Option[StreamingContext],
+                                    xDSession: XDSession,
+                                    properties: Map[String, JSerializable]
+                                  ) extends SelectTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (stepName, inputDistributedMonad) =>

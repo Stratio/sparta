@@ -18,6 +18,8 @@ object WorkflowStatusEnum extends Enumeration {
   val Failed = Value("Failed")
   val Stopping = Value("Stopping")
   val Stopped = Value("Stopped")
+  val StoppingByUser = Value("StoppingByUser")
+  val StoppedByUser = Value("StoppedByUser")
   val Finished = Value("Finished")
   val Killed = Value("Killed")
   val NotStarted = Value("NotStarted")

@@ -151,12 +151,30 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       else Option((sparkProperty.sparkConfKey.toString, sparkProperty.sparkConfValue.toString))
     }.toMap
 
-  private[core] def getSparkSubmitArgs: Map[String, String] = {
+  private[core] def getSparkSubmitArgs: Map[String, String] =
     Map(
       SubmitDeployMode -> workflow.settings.sparkSettings.submitArguments.deployMode.map(_.toString),
-      SubmitDriverJavaOptions -> workflow.settings.sparkSettings.submitArguments.driverJavaOptions.notBlank
-    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ userSubmitArgsFromWorkflow
-  }
+      SubmitDriverJavaOptions -> {
+        workflow.settings.sparkSettings.submitArguments.driverJavaOptions.notBlank.map { options =>
+          val calicoEnableEnv = Try(Properties.envOrNone(CalicoEnableEnv).notBlank.exists(_.toBoolean)).getOrElse(false)
+          val prometheusPort = if(calicoEnableEnv) {
+            Properties.envOrNone(PrometheusEnvironmentPortCalico)
+              .orElse(Properties.envOrNone(PrometheusEnvironmentPortHost))
+          } else {
+            Properties.envOrNone(PrometheusEnvironmentPortHost)
+              .orElse(Properties.envOrNone(PrometheusEnvironmentPortCalico))
+              .map( _ => SparkDriverMetricsReplaceRegex)
+          }
+          val prometheusJavaOption = prometheusPort.map(prometheusPort =>
+            s" -javaagent:/opt/sds/sparta/jmx-prometheus/jmx_prometheus_javaagent-0.11.0.jar=" +
+              s"$prometheusPort:/opt/sds/sparta/jmx-prometheus/config.yaml"
+          )
+          options + prometheusJavaOption.getOrElse("")
+        }
+      }
+    ).flatMap {
+      case (k, v) => v.notBlank.map(value => Option(k -> value))
+    }.flatten.toMap ++ userSubmitArgsFromWorkflow
 
   private[core] def extractSparkHome: Option[String] =
     Properties.envOrNone("SPARK_HOME").notBlank.orElse(Option("/opt/spark/dist"))

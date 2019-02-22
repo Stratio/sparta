@@ -107,8 +107,12 @@ export function getFilterStatus(status: string) {
       return status;
     case 'Stopping':
       return 'Stopped';
+    case 'StoppingByUser':
+      return 'Stopped';
     case 'Stopped':
       return status;
+    case 'StoppedByUser':
+      return 'Stopped';
     case 'Finished':
       return 'Stopped';
     case 'Killed':

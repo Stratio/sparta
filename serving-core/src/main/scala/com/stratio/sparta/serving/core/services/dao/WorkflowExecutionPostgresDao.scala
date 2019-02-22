@@ -75,7 +75,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
     val statusFilter = workflowExecutionQuery.status.map(_.toLowerCase) match {
       case Some("running") => Some(Set(WorkflowStatusEnum.Launched, WorkflowStatusEnum.Starting, WorkflowStatusEnum.Started, WorkflowStatusEnum.Uploaded))
-      case Some("stopped") => Some(Set(WorkflowStatusEnum.Stopped, WorkflowStatusEnum.Stopping, WorkflowStatusEnum.Finished, WorkflowStatusEnum.NotDefined,
+      case Some("stopped") => Some(Set(WorkflowStatusEnum.Stopped, WorkflowStatusEnum.StoppedByUser, WorkflowStatusEnum.Stopping, WorkflowStatusEnum.StoppingByUser, WorkflowStatusEnum.Finished, WorkflowStatusEnum.NotDefined,
         WorkflowStatusEnum.Created, WorkflowStatusEnum.NotStarted, WorkflowStatusEnum.Killed))
       case Some("failed") => Some(Set(WorkflowStatusEnum.Failed))
       case None => None
@@ -258,7 +258,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
 
   def stopExecution(id: String): WorkflowExecution = {
     log.debug(s"Stopping workflow execution with id $id")
-    updateStatus(ExecutionStatusUpdate(id, ExecutionStatus(WorkflowStatusEnum.Stopping)))
+    updateStatus(ExecutionStatusUpdate(id, ExecutionStatus(WorkflowStatusEnum.StoppingByUser)))
   }
 
   def setArchived(executions: Seq[WorkflowExecution], archived: Boolean): Future[Seq[WorkflowExecution]] = {
@@ -294,7 +294,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       executions <- findExecutionsByIds(ids)
       canDelete = {
         val statuses = executions.flatMap(_.statuses.map(_.state))
-        statuses.contains(Failed) || statuses.contains(Stopped)
+        statuses.contains(Failed) || statuses.contains(Stopped) || statuses.contains(StoppedByUser)
       }
       result <- if (canDelete) {
         deleteYield(executions)
@@ -574,7 +574,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
         (summary, aggStatus: (Option[WorkflowStatusEnum], Int)) =>
           aggStatus._1 match {
             case Some(status) if Seq(Launched, Starting, Started, Uploaded).contains(status) => summary.copy(running = summary.running + aggStatus._2)
-            case Some(status) if Seq(Stopping, Stopped, Finished, NotDefined, Created, NotStarted, Killed).contains(status) => summary.copy(stopped = summary.stopped + aggStatus._2)
+            case Some(status) if Seq(Stopping, StoppingByUser, Stopped, StoppedByUser, Finished, NotDefined, Created, NotStarted, Killed).contains(status) => summary.copy(stopped = summary.stopped + aggStatus._2)
             case Some(status) if Seq(Failed).contains(status) => summary.copy(failed = summary.failed + aggStatus._2)
             case None => summary
           }

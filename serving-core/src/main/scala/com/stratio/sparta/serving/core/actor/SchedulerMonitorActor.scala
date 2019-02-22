@@ -172,7 +172,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
 
   //scalastyle:off
   def localStop(workflowExecution: WorkflowExecution): Unit = {
-    val updatedExecution = if (workflowExecution.lastStatus.state == Stopping || workflowExecution.lastStatus.state == Failed) {
+    val updatedExecution = if (workflowExecution.lastStatus.state == Stopping || workflowExecution.lastStatus.state == StoppedByUser || workflowExecution.lastStatus.state == StoppingByUser ||  workflowExecution.lastStatus.state == Failed) {
       log.info("Stop message received")
       scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
@@ -186,7 +186,10 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
           val newInformation = Option(information)
           log.info(information)
           if (workflowExecution.lastStatus.state != Failed) {
-            val newStatus = Stopped
+            val newStatus = workflowExecution.lastStatus.state match {
+              case StoppingByUser => StoppedByUser
+              case Stopping => Stopped
+            }
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,
               ExecutionStatus(
@@ -212,13 +215,17 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       }
     } else workflowExecution
 
-    val finishedExecution = if (updatedExecution.lastStatus.state == Stopped || updatedExecution.lastStatus.state == Failed) {
+    val finishedExecution = if (updatedExecution.lastStatus.state == Stopped || updatedExecution.lastStatus.state == StoppedByUser || updatedExecution.lastStatus.state == Failed) {
       scheduledActions.filter(_._1 == updatedExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
         scheduledActions -= task
       }
-      val newStatus = if (updatedExecution.lastStatus.state == Failed) NotDefined else Finished
-      val newStatusInfo = if (newStatus == Finished)
+      val newStatus = updatedExecution.lastStatus.state match {
+        case Failed => Failed
+        case StoppedByUser => StoppedByUser
+        case _ => Finished
+      }
+      val newStatusInfo = if (newStatus == Finished || newStatus == StoppedByUser)
         Option("The workflow was successfully finished with local scheduler")
       else None
       executionService.updateStatus(ExecutionStatusUpdate(
@@ -234,7 +241,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
   }
 
   def marathonStop(workflowExecution: WorkflowExecution, force: Boolean = false): Unit = {
-    if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == Failed || force) {
+    if (workflowExecution.lastStatus.state == Stopped || workflowExecution.lastStatus.state == StoppedByUser || workflowExecution.lastStatus.state == Failed || force) {
       log.info("Stop message received")
       scheduledActions.filter(_._1 == workflowExecution.getExecutionId).foreach { task =>
         if (!task._2.isCancelled) task._2.cancel()
@@ -246,8 +253,8 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
       } match {
         case Success(_) =>
           val information = s"Workflow correctly finished in Marathon API"
-          val newStatus = if (workflowExecution.lastStatus.state == Failed) NotDefined else Finished
-          val newInformation = if (newStatus == Finished) Option(information)
+          val newStatus = if (workflowExecution.lastStatus.state == Failed || workflowExecution.lastStatus.state == StoppedByUser) NotDefined else Finished
+          val newInformation = if (newStatus == Finished || newStatus == StoppedByUser) Option(information)
           else None
           log.info(information)
           executionService.updateStatus(ExecutionStatusUpdate(
@@ -341,8 +348,8 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     } yield {
       val wrongStartStates = Seq(Launched, Starting, Uploaded, NotStarted, Created)
       val validStartStates = Seq(Started)
-      val wrongStopStates = Seq(Stopping)
-      val validStopStates = Seq(Stopped, Failed, Killed, Finished)
+      val wrongStopStates = Seq(Stopping, StoppingByUser)
+      val validStopStates = Seq(Stopped, Failed, Killed, Finished, StoppedByUser)
 
       workflowExecution.lastStatus.state match {
         case status if wrongStartStates.contains(status) =>
@@ -502,7 +509,7 @@ object SchedulerMonitorActor {
                                    stoppedInDatabaseRunningInDcos: Seq[String]
                                  ) extends Notification
 
-  val stopStates = Seq(Stopped, Failed, Stopping)
+  val stopStates = Seq(Stopped, Failed, Stopping, StoppingByUser, StoppedByUser)
   val finishedStates = Seq(Created, Finished, Failed)
   val notRunningStates: Seq[WorkflowStatusEnum.Value] = stopStates ++ finishedStates
   val runningStates: Seq[WorkflowStatusEnum.Value] = Seq(Launched, Starting, Started, Uploaded, NotStarted)

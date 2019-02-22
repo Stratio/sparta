@@ -49,7 +49,7 @@
                }
             ]
          ],
-         "tooltip": "Select the fields based in a expression. UDFs, fixed fields and aliases are supported.",
+         "tooltip": "Select the fields based in a expression. UDFs, fixed fields and aliases are supported. Examples: 'column1, column2' | 'select column1, column2'",
          "qa": "fragment-details-select-expression"
       },
       {

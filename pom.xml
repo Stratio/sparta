@@ -1300,6 +1300,7 @@ This software – including all its source code – contains proprietary informa
                         <exclude>**/*.conf</exclude>
                         <exclude>**/*.txt</exclude>
                         <exclude>**/*.properties</exclude>
+                        <exclude>**/*.yaml</exclude>
                         <exclude>**/jetty*</exclude>
                         <exclude>**/node*/**</exclude>
                         <exclude>**/.tmp/**</exclude>

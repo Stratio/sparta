@@ -14,7 +14,7 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
-import org.scalatest.Matchers
+import org.scalatest.{Matchers, WordSpecLike}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
@@ -126,5 +126,82 @@ class SelectTransformStepBatchIT extends TemporalSparkContext with Matchers with
       batchRegisters.foreach(row => assert(dataDistinct.contains(row)))
 
     assert(batchEvents === 3)
+  }
+
+
+  "A SelectTransformStepBatch" should "check if sql expression is correct" in {
+    val schema = StructType(Seq(StructField("selectionColor", StringType), StructField("price", DoubleType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
+    val dataDistinct = Seq(
+      new GenericRowWithSchema(Array("blue"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult)
+    )
+
+    val inputRdd1 = sc.parallelize(data1)
+    val inputData = Map("step1" -> inputRdd1)
+
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val selectTransform = new SelectTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "selectExp" -> "selectionColor",
+        "selectType" -> "EXPRESSION"
+      )
+    )
+
+    val result = selectTransform.transformWithDiscards(inputData)._1
+    val resultValidateSql = selectTransform.validateSql
+
+    val expected = true
+
+    expected shouldEqual resultValidateSql
+  }
+
+  "A SelectTransformStepBatch" should "check if sql expression is well parsed" in {
+    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("red", 12.2), schema).asInstanceOf[Row]
+    )
+    val dataDistinct = Seq(
+      new GenericRowWithSchema(Array("blue"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult)
+    )
+
+    val inputRdd1 = sc.parallelize(data1)
+    val inputData = Map("step1" -> inputRdd1)
+
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+    val selectTransform = new SelectTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "selectExp" -> "select color",
+        "selectType" -> "EXPRESSION"
+      )
+    )
+
+    val result = selectTransform.transformWithDiscards(inputData)._1
+    val resultValidateSql = selectTransform.validateSql
+
+    val expected = true
+
+    expected shouldEqual resultValidateSql
   }
 }

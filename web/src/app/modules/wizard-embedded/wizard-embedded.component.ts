@@ -246,7 +246,7 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       edges
     });
     sessionStorage.setItem('sp-copy-clipboard', value);
-    copyIntoClipboard(value);
+    // copyIntoClipboard(value);
   }
 
   private _pasteFromClipboard() {
