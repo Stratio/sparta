@@ -7,7 +7,7 @@
 import { createSelector } from 'reselect';
 import { createFeatureSelector } from '@ngrx/store';
 import * as workflowDetailActions from '../actions/workflow-detail';
-import * as fromRoot from "reducers";
+import * as fromRoot from 'reducers';
 
 export interface State extends fromRoot.State{
   workflowDetail: WorkflowDetail;
@@ -27,9 +27,7 @@ const initialState: WorkflowDetail = {
   loading: false
 };
 
-export const getWorkflowState = createFeatureSelector<WorkflowState>('workflowDetail');
-
-export default function reducer(state: WorkflowDetail = initialState, action: any): WorkflowDetail {
+export function workflowDetailReducer(state: WorkflowDetail = initialState, action: any): WorkflowDetail {
   switch (action.type) {
 
     case workflowDetailActions.GET_WORKFLOW_DETAIL: {
@@ -53,13 +51,11 @@ export default function reducer(state: WorkflowDetail = initialState, action: an
   }
 }
 
-export const workflowDetailReducers = {
-  workflowDetail: reducer
-}
+export const getWorkflowState = createFeatureSelector<WorkflowState>('workflowDetail');
 
-export const getWorkflowDetail = createSelector(getWorkflowState, state =>  {
-  return state.workflowDetail
-});
-export const getWorkflowDetailIsLoading = createSelector(getWorkflowState, state => {
-  return state.workflowDetail
-});
+export const workflowDetailReducers = {
+  workflowDetail: workflowDetailReducer
+};
+
+export const getWorkflowDetail = createSelector(getWorkflowState, state => state.workflowDetail);
+export const getWorkflowDetailIsLoading = createSelector(getWorkflowState, state => state.workflowDetail);

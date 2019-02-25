@@ -19,11 +19,11 @@ export class WorkflowDetailEffect {
     .pipe(ofType(workflowDetailActions.GET_WORKFLOW_DETAIL))
     .pipe(map((action: any) => action.executionId))
     .pipe(switchMap((executionId: string) => this._executionService.getExecutionById(executionId)
-      .pipe(map((execution: any) => new workflowDetailActions.GetWorkflowDetailCompleteAction(execution)
+    .pipe(map((execution: any) => new workflowDetailActions.GetWorkflowDetailCompleteAction(execution)
 
-      ))
-      // .pipe(catchError(error => of(new workflowDetailActions.GetExecutionErrorAction())))
-      )
+    ))
+    // .pipe(catchError(error => of(new workflowDetailActions.GetExecutionErrorAction())))
+    )
   );
 
   constructor(

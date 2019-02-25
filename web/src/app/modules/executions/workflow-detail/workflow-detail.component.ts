@@ -7,7 +7,7 @@ import { Component, OnInit, ChangeDetectorRef, OnDestroy, ChangeDetectionStrateg
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
-import * as reducer from './reducers';
+import * as workflowDetailReducer from './reducers';
 
 import * as workflowDetailActions from './actions/workflow-detail';
 import { Subject } from 'rxjs';
@@ -31,15 +31,16 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
    private _componentDestroyed = new Subject();
 
-   constructor(private _route: ActivatedRoute, private _store: Store<reducer.State>, private _cd: ChangeDetectorRef) { }
+   constructor(private _route: ActivatedRoute, private _store: Store<workflowDetailReducer.State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit() {
       const id = this._route.snapshot.params.id;
       this._store.dispatch(new workflowDetailActions.GetWorkflowDetailAction(id));
-      this._store.pipe(select(reducer.getWorkflowDetail))
+      this._store.pipe(select(workflowDetailReducer.getWorkflowDetail))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((workflow: any) => {
          const execution = workflow.execution;
+
          if (execution) {
             this.execution = execution.execution;
             const { pipelineGraph } =  execution.execution.genericDataExecution.workflow;
@@ -49,7 +50,7 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
          this._cd.markForCheck();
       });
 
-      this._store.pipe(select(reducer.getWorkflowDetailIsLoading))
+      this._store.pipe(select(workflowDetailReducer.getWorkflowDetailIsLoading))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((isLoading: any) => {
          this.isLoading = isLoading.loading;
