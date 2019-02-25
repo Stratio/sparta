@@ -4,23 +4,23 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { StTableModule, StSpinnerModule } from '@stratio/egeo';
+import { RouterModule, Routes } from '@angular/router';
+import { ExecutionDetailComponent } from './execution-detail.component';
 
-import { ExecutionsTableComponent } from './executions-table.component';
-import { SpTitleModule } from '@app/shared';
-import {RouterModule} from "@angular/router";
-
+const executionRoutes: Routes = [
+   {
+      path: '',
+      component: ExecutionDetailComponent
+   }
+];
 
 @NgModule({
-   imports: [
-     CommonModule,
-     SpTitleModule,
-     StTableModule,
-     StSpinnerModule,
-     RouterModule
+   exports: [
+      RouterModule
    ],
-   declarations: [ExecutionsTableComponent],
-   exports: [ExecutionsTableComponent]
+   imports: [
+      RouterModule.forChild(executionRoutes)
+   ]
 })
-export class ExecutionsMonitoringTableModule { }
+
+export class ExecutionDetailRouterModule { }

@@ -1,0 +1,28 @@
+@import '~@stratio/egeo/theme/constants.scss';
+
+.execution-detail-drop-down-title {
+
+  margin: 22px 0 0;
+
+  .execution-detail-drop-down-title__header {
+    cursor: pointer;
+  }
+
+  h2 {
+    display: inline-block;
+    font-size: $egeo-font-size-xlarge;
+    font-family: $egeo-nunito-sans-bold;
+    margin-bottom: 20px;
+    margin-left: 19px;
+  }
+
+  .execution-detail-drop-down-title__separator {
+    width: 100%;
+    border-bottom: $neutral-04 solid 1px;
+  }
+
+  table tr td {
+    border-bottom: 2px solid #f1f1f1;
+  }
+
+}

@@ -1,0 +1,113 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+<section class="detail-info">
+
+    <div class="row">
+
+      <div class="col-sm-8">
+        <div>
+          <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="executionDetailInfo.executionEngine"
+               *ngIf="executionDetailInfo.executionEngine === 'Streaming'" />
+          <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="executionDetailInfo.executionEngine"
+               *ngIf="executionDetailInfo.executionEngine === 'Batch'" />
+          <span class="detail-info__title">{{executionDetailInfo.name}}</span>
+          <button class="button button-secondary-line small" (click)="goToWorkflow($event, executionDetailInfo.marathonId)">View details</button>
+        </div>
+        <span class="detail-info__marathonid">{{executionDetailInfo.marathonId}}</span>
+      </div>
+
+      <div class="col-sm-4">
+        <div class="detail-info__buttons">
+          <button
+            *ngIf="showedActions.showedReRun"
+            spTitle="Play selected executions"
+            class="button button-toolbar"
+            id="run-button"
+            (click)="reRunWorkflow()">
+            <i class="icon-refresh-ccw"></i>
+          </button>
+          <button
+            *ngIf="showedActions.showedStop"
+            class="button button-toolbar"
+            (click)="onStopExecution.emit(executionDetailInfo.marathonId)">
+            <i class="icon-stop"></i>
+          </button>
+          <menu-options-list
+            *ngIf="showedActions.showedContextMenu"
+            [options]="showedActions.menuOptions"
+            (selectedOption)="selectGroupAction($event)">
+            <button class="button button-toolbar">
+              <i class="icon-ellipsis"></i>
+            </button>
+          </menu-options-list>
+        </div>
+      </div>
+
+    </div>
+
+    <span class="detail-info__description">{{executionDetailInfo.description}}</span>
+
+    <div class="detail-info__state">
+      <div class="detail-info__state__column detail-info__state__column--left">
+        <div class="detail-info__state__column__big">
+          <span class="oval {{executionDetailInfo.status}}"></span>
+          <span>{{executionDetailInfo.status}}</span>
+        </div>
+        <div class="detail-info__state__column__content">
+          <a (click)="showSparkUI(executionDetailInfo.sparkURI)" *ngIf="executionDetailInfo.sparkURI">View on Spark UI</a>
+          <a (click)="showSparkUI(executionDetailInfo.historyServerURI)" *ngIf="executionDetailInfo.historyServerURI">Open on History Server</a>
+        </div>
+      </div>
+      <div class="detail-info__state__column">
+        <div class="detail-info__state__column__title">
+          <span>End Date</span>
+        </div>
+        <div class="detail-info__state__column__content">
+          <span class="detail-info__state__column__time">{{executionDetailInfo.endHour}}</span>
+          <span class="detail-info__state__column__date">{{executionDetailInfo.endDate}}</span>
+        </div>
+      </div>
+      <div class="detail-info__state__column">
+        <div class="detail-info__state__column__title">
+          <span>Execution time</span>
+        </div>
+        <div class="detail-info__state__column__content">
+          <span class="detail-info__state__column__time">{{executionDetailInfo.duration}}</span><!--<span>min</span>-->
+        </div>
+      </div>
+      <div class="detail-info__state__column">
+        <div class="detail-info__state__column__title">
+          <span>Launch Date</span>
+        </div>
+        <div class="detail-info__state__column__content">
+          <span class="detail-info__state__column__time">{{executionDetailInfo.launchHour}}</span>
+          <span class="detail-info__state__column__date">{{executionDetailInfo.launchDate}}</span>
+        </div>
+      </div>
+      <div class="detail-info__state__column">
+        <div class="detail-info__state__column__title">
+          <span>Start Date</span>
+        </div>
+        <div class="detail-info__state__column__content">
+          <span class="detail-info__state__column__time">{{executionDetailInfo.startHour}}</span>
+          <span class="detail-info__state__column__date">{{executionDetailInfo.startDate}}</span>
+        </div>
+      </div>
+      <div class="detail-info__state__column detail-info__state__column--small">
+        <div class="detail-info__state__column__title">
+          <span>Context</span>
+        </div>
+        <div class="detail-info__state__column__content">
+          <span *ngFor="let tag of executionDetailInfo.context">{{tag}}</span>
+        </div>
+      </div>
+    </div>
+
+</section>

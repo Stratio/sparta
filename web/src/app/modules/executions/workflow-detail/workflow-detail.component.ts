@@ -7,19 +7,20 @@ import { Component, OnInit, ChangeDetectorRef, OnDestroy, ChangeDetectionStrateg
 import { ActivatedRoute } from '@angular/router';
 import { Store, select } from '@ngrx/store';
 
+import * as reducer from './reducers';
 
-import * as fromExecution from '../../reducers';
-import * as executionActions from '../../actions/executions';
+import * as workflowDetailActions from './actions/workflow-detail';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
+
 @Component({
-   selector: 'executions-detail',
-   templateUrl: './executions-detail.template.html',
-   styleUrls: ['./executions-detail.styles.scss'],
+   selector: 'workflow-detail',
+   templateUrl: './workflow-detail.template.html',
+   styleUrls: ['./workflow-detail.styles.scss'],
    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExecutionsDetailComponent implements OnInit, OnDestroy {
+export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
    public isLoading: boolean;
    public execution: any;
@@ -30,27 +31,28 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
 
    private _componentDestroyed = new Subject();
 
-   constructor(private _route: ActivatedRoute, private _store: Store<fromExecution.State>, private _cd: ChangeDetectorRef) { }
+   constructor(private _route: ActivatedRoute, private _store: Store<reducer.State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit() {
       const id = this._route.snapshot.params.id;
-      this._store.dispatch(new executionActions.GetExecutionAction(id));
-      this._store.pipe(select(fromExecution.getExecutionDetailInfo))
+      this._store.dispatch(new workflowDetailActions.GetWorkflowDetailAction(id));
+      this._store.pipe(select(reducer.getWorkflowDetail))
       .pipe(takeUntil(this._componentDestroyed))
-      .subscribe((execution: any) => {
-         this.execution = execution;
+      .subscribe((workflow: any) => {
+         const execution = workflow.execution;
          if (execution) {
-            const { pipelineGraph } =  execution.genericDataExecution.workflow;
+            this.execution = execution.execution;
+            const { pipelineGraph } =  execution.execution.genericDataExecution.workflow;
             this.nodes = pipelineGraph.nodes;
             this.edges = this.getEdgesMap(pipelineGraph.nodes, pipelineGraph.edges);
          }
          this._cd.markForCheck();
       });
 
-      this._store.pipe(select(fromExecution.getExecutionDetailIsLoading))
+      this._store.pipe(select(reducer.getWorkflowDetailIsLoading))
       .pipe(takeUntil(this._componentDestroyed))
-      .subscribe((isLoading: boolean) => {
-         this.isLoading = isLoading;
+      .subscribe((isLoading: any) => {
+         this.isLoading = isLoading.loading;
          this._cd.markForCheck();
       });
    }
@@ -79,4 +81,5 @@ export class ExecutionsDetailComponent implements OnInit, OnDestroy {
     this._componentDestroyed.next();
     this._componentDestroyed.unsubscribe();
  }
+
 }

@@ -11,6 +11,7 @@ import { StCheckboxModule, StPaginationModule, StTableModule, StSpinnerModule } 
 import { ExecutionTableComponent } from './executions-table.component';
 import { ExecutionsTableContainer } from './executions-table.container';
 import { SpTitleModule } from '@app/shared';
+import { RouterModule } from "@angular/router";
 
 
 @NgModule({
@@ -20,7 +21,9 @@ import { SpTitleModule } from '@app/shared';
      StPaginationModule,
      StTableModule,
      StSpinnerModule,
-     SpTitleModule
+     SpTitleModule,
+     StTableModule,
+     RouterModule
    ],
    declarations: [ExecutionsTableContainer, ExecutionTableComponent],
    exports: [ExecutionsTableContainer]

@@ -12,6 +12,7 @@
     - [SPARTA-2674] Support string values in cube operators
     - Upgrade Stratio Spark to 2.3.0 version
     - Upgrade Stratio Crossdata to 2.15.3-da9bb1c
+    - [SPARTA-1358] Execution Detail View
 
 * Bug fixing
     - [SPARTA-2680] [SPARTA-2681] Better handling of Gosec Zookeeper exception

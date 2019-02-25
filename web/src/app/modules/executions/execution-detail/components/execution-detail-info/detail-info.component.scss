@@ -1,0 +1,119 @@
+@import '~@stratio/egeo/theme/constants';
+
+.detail-info{
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block;
+  &__buttons{
+    float: right;
+    .button{
+      margin-left: 10px;
+    }
+  }
+  .icon-row {
+    width: 25px;
+    height: 25px;
+  }
+  &__title{
+    margin-left: 10px;
+    margin-right: 10px;
+    font-family: $egeo-nunito-sans-bold;
+    vertical-align: top;
+    font-size: $egeo-font-size-xxlarge;
+    line-height: 25px;
+    color: $neutral-13;
+  }
+  &__marathonid{
+    margin-left: 35px;
+    color: $action-secondary-06;
+    font-size: $egeo-font-size-small;
+    line-height: 17px;
+  }
+  &__description{
+    margin-top: 20px;
+    font-size: $egeo-font-size-small;
+    line-height: 21px;
+    color: $neutral-11;
+    display: block;
+  }
+  &__state{
+    margin-top: 24px;
+    border: solid $neutral-04;
+    border-width: 1px 0px 1px 0px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    display: flex;
+    &__column {
+      flex: 3;
+      height: 200px;
+      padding-left: 20px;
+      padding-right: 20px;
+      &--left {
+        padding-left: 0px;
+        flex: 4;
+      }
+      &__big{
+        margin-top: 5px;
+        margin-left: 18px;
+        span{
+          color: $neutral-13;
+          font-family: $egeo-nunito-sans-bold;
+          font-size: $egeo-font-size-xxxlarge;
+        }
+      }
+      &__title {
+        margin-top: 16px;
+        vertical-align: center;
+        span{
+          font-size: $egeo-font-size-large;
+          font-family: $egeo-nunito-sans;
+          color: $neutral-07;
+        }
+      }
+      &__content {
+        margin-top: 20px;
+        span {
+          display: block;
+        }
+        a {
+          margin-left: 20px;
+          color: #128bdd;
+          display: block;
+          cursor: pointer;
+          &:hover{
+            text-decoration: underline;
+          }
+        }
+      }
+      &__time{
+        font-family: $egeo-nunito-sans;
+        font-size: $egeo-font-size-xxlarge;
+        color: $neutral-13;
+      }
+      &__date{
+        font-family: $egeo-nunito-sans;
+        font-size: $egeo-font-size-small;
+        color: #616161;
+      }
+    }
+    &__column:not(:last-child){
+      border: solid $neutral-05;
+      border-width: 0 1px 0 0;
+    }
+  }
+  .oval {
+    width: 15px;
+    height: 15px;
+    margin-right: 8px;
+    margin-bottom: 3px;
+    background-color: $status-success-default;
+    border-radius: 50%;
+    display: inline-block;
+    &.Stopped {
+      background-color: $neutral-06;
+    }
+    &.Failed {
+      background-color: $status-critical-default;
+    }
+  }
+}

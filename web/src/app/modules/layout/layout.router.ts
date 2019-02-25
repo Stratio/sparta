@@ -17,6 +17,14 @@ const layoutRoutes: Routes = [
             loadChildren: '@app/executions/executions-monitoring/executions.monitoring.module#ExecutionsMonitoringModule'
          },
          {
+            path: 'executions/:id',
+            loadChildren: '@app/executions/execution-detail/execution-detail.module#ExecutionDetailModule'
+         },
+         {
+          path: 'workflow/:id',
+          loadChildren: '@app/executions/workflow-detail/workflow-detail.module#WorkflowDetailModule'
+         },
+         {
             path: 'executions',
             loadChildren: '@app/executions/executions-managing/executions.managing.module#ExecutionsManagingModule'
          },

@@ -1,0 +1,36 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+<div class="execution-detail-table" >
+    <div *ngIf="isSearchable" class="execution-detail-table__header">
+      <div class="execution-detail-table__search">
+        <st-search
+          [placeholder]="'Search...'"
+          qaTag="search-execution-detail"
+          [debounce]="200"
+          (search)="filterData($event.text)"
+          [value]="searchQuery"></st-search>
+          <st-dropdown-menu
+            [items]="filterValues"
+            [selectedItem]="selectedFilter"
+            [active]="showedFilter"
+            (change)="onChangeTypeFilter($event)">
+              <span (click)="selectFilter($event)">{{selectedFilter.label}}<i class="icon icon-arrow2_down"></i></span>
+          </st-dropdown-menu>
+      </div>
+    </div>
+    <st-table class="execution-detail-table__table"  [fields]="fields" [sortable]="true">
+      <tr class="execution-detail-table__row" st-table-row *ngFor="let parameterData of filteredParameters">
+          <td st-table-cell st-table-row-content *ngFor="let field of fields">
+              <label>{{parameterData[field.id]}}</label>
+          </td>
+      </tr>
+    </st-table>
+</div>
+

@@ -50,10 +50,4 @@ export class ExecutionsTableComponent {
     window.open(url, '_blank');
   }
 
-  goToWorkflow(ev, id) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    this.route.navigate(['executions', id]);
-  }
-
 }

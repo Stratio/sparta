@@ -6,45 +6,34 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ExecutionsDetailComponent } from './executions-detail.component';
 import { GraphEditorModule, SpartaSidebarModule } from '@app/shared';
 import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node.module';
 import { EdgeOptionsModule } from '@app/wizard/components/edge-options/edge-options.module';
 import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge.module';
-import { Routes, RouterModule } from '@angular/router';
-
-const executionDetailRoutes: Routes = [
-  {
-    path: '',
-    component: ExecutionsDetailComponent
-  }
-];
-
-@NgModule({
-  exports: [
-    RouterModule
-  ],
-  imports: [
-    RouterModule.forChild(executionDetailRoutes)
-  ]
-})
-
-export class ExecutionDetailsRouterModule { }
-
+import { RouterModule } from '@angular/router';
+import { WorkflowDetailRouterModule } from "@app/executions/workflow-detail/workflow-detail.router";
+import { WorkflowDetailComponent } from "@app/executions/workflow-detail/workflow-detail.component";
+import {StoreModule} from "@ngrx/store";
+import {EffectsModule} from "@ngrx/effects";
+import {WorkflowDetailEffect} from "@app/executions/workflow-detail/effects/workflow-detail";
+import {workflowDetailReducers} from "@app/executions/workflow-detail/reducers";
 
 @NgModule({
   imports: [
     CommonModule,
-    ExecutionDetailsRouterModule,
+    WorkflowDetailRouterModule,
     GraphEditorModule,
     WizardNodeModule,
     EdgeOptionsModule,
     WizardEdgeModule,
     RouterModule,
     SpartaSidebarModule,
-    TranslateModule
+    TranslateModule,
+    StoreModule.forFeature('workflowDetail', workflowDetailReducers),
+    EffectsModule.forFeature([WorkflowDetailEffect]),
   ],
-  declarations: [ExecutionsDetailComponent],
-  exports: [ExecutionsDetailComponent]
+  declarations: [WorkflowDetailComponent],
+  exports: [WorkflowDetailComponent]
 })
-export class ExecutionsDetailModule { }
+
+export class WorkflowDetailModule { }

@@ -5,22 +5,13 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StTableModule, StSpinnerModule } from '@stratio/egeo';
-
-import { ExecutionsTableComponent } from './executions-table.component';
-import { SpTitleModule } from '@app/shared';
-import {RouterModule} from "@angular/router";
-
+import { ExecutionDetailDropDownTitleComponent } from './execution-detail-drop-down-title.component';
+import { StTableModule, StCheckboxModule, StSearchModule } from '@stratio/egeo';
 
 @NgModule({
-   imports: [
-     CommonModule,
-     SpTitleModule,
-     StTableModule,
-     StSpinnerModule,
-     RouterModule
-   ],
-   declarations: [ExecutionsTableComponent],
-   exports: [ExecutionsTableComponent]
+  imports: [ CommonModule, StTableModule, StCheckboxModule, StSearchModule ],
+  declarations: [ ExecutionDetailDropDownTitleComponent ],
+  exports: [ ExecutionDetailDropDownTitleComponent ],
+  providers: [],
 })
-export class ExecutionsMonitoringTableModule { }
+export class ExecutionDetailDropDownTitleModule {}

@@ -13,7 +13,6 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { StTableHeader, Order } from '@stratio/egeo';
-import { Router } from '@angular/router';
 
 @Component({
    selector: 'executions-managing-table',
@@ -73,7 +72,7 @@ export class ExecutionTableComponent {
     return item.id;
   }
 
-  constructor(private route: Router, private _cd: ChangeDetectorRef) {
+  constructor(private _cd: ChangeDetectorRef) {
     this.generatedId = 'paginator-' + Math.floor((Math.random() * 1000) + 1);
     this.fields = [
       { id: 'name', label: 'Name' },
@@ -85,9 +84,4 @@ export class ExecutionTableComponent {
     ];
   }
 
-  goToWorkflow(ev, id) {
-    ev.preventDefault();
-    ev.stopPropagation();
-    this.route.navigate(['executions', id]);
-  }
 }
