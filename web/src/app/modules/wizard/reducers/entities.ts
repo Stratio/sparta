@@ -9,11 +9,10 @@ import { cloneDeep as _cloneDeep } from 'lodash';
 import * as wizardActions from './../actions/wizard';
 
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.model';
-import { streamingInputsNames, batchInputsNames } from 'data-templates/inputs';
-import { streamingTransformationsNames, batchTransformationsNames } from 'data-templates/transformations';
-import { streamingOutputsNames, batchOutputsNames } from 'data-templates/outputs';
+
 import { Engine, StepType } from '@models/enums';
 import {WizardService} from '@app/wizard/services/wizard.service';
+import { StepMenuService } from '../services/step-menu.service';
 
 export interface State {
   templates: any;
@@ -64,24 +63,6 @@ const initialState: State = {
 };
 
 export function reducer(state: State = initialState, action: any): State {
-  if (action.payload === Engine.Batch || action.payload === Engine.Streaming) {
-    const existPipelineOption = state.menuOptions.find(e => e.value.name === 'MlPipeline');
-    if (existPipelineOption) {
-      state.menuOptions.splice(state.menuOptions.indexOf(existPipelineOption));
-    }
-    const pipelinesMenuOptions = {
-      name: 'AI Pipelines',
-      stepType: 'Output',
-      value: batchOutputsNames.find(element => element.name === 'MlPipeline').value,
-      icon: 'icon-atom'
-    };
-    if (pipelinesMenuOptions.value.supportedEngines.includes(Engine.Batch) && (action.payload === Engine.Batch)) {
-      state.menuOptions.push(pipelinesMenuOptions);
-    } else if (pipelinesMenuOptions.value.supportedEngines.includes(Engine.Streaming) && (action.payload === Engine.Streaming)) {
-      state.menuOptions.push(pipelinesMenuOptions);
-    }
-  }
-
   switch (action.type) {
     case wizardActions.RESET_WIZARD: {
       return initialState;
@@ -110,62 +91,17 @@ export function reducer(state: State = initialState, action: any): State {
       return {
         ...state,
         workflowType: action.payload,
-        menuOptions: _cloneDeep(initialState.menuOptions).map((option: any) => {
-          switch (option.name) {
-            case StepType.Input:
-              option.subMenus = option.subMenus.concat(action.payload === Engine.Streaming ?
-                streamingInputsNames : batchInputsNames);
-              return option;
-            case StepType.Output:
-              option.subMenus = option.subMenus.concat(action.payload === Engine.Streaming ?
-                streamingOutputsNames : batchOutputsNames);
-              return option;
-            case StepType.Transformation:
-              const transformations: any[] = action.payload === Engine.Streaming ?
-                streamingTransformationsNames : batchTransformationsNames;
-              const categories = {};
-              const nocategory = [];
-              transformations.forEach(transformation => {
-                if (transformation.value.category && transformation.value.category.length) {
-                  if (categories[transformation.value.category]) {
-                    categories[transformation.value.category].subMenus.push(transformation);
-                  } else {
-                    categories[transformation.value.category] = {
-                      name: transformation.value.category,
-                      value: '',
-                      subMenus: [
-                        transformation
-                      ]
-                    };
-                  }
-                } else {
-                  nocategory.push(transformation);
-                }
-              });
-              option.subMenus = option.subMenus.concat(
-                (Object.keys(categories).map(key => categories[key]) as Array<any>).sort((a, b) => {
-                  if (a.level < b.level) {
-                    return -1;
-                  }
-                  if (a.level > b.level) {
-                    return 1;
-                  }
-                  return 0;
-                }))
-                .concat(nocategory);
-              return option;
-            default:
-              return option;
-          }
-        })
+        menuOptions: StepMenuService.getStepMenu(state.menuOptions, action.payload)
       };
     }
     case wizardActions.GET_MENU_TEMPLATES_COMPLETE: {
       const menuOptions: any = _cloneDeep(state.menuOptions);
-      const types = [StepType.Input, StepType.Transformation, StepType.Output, StepType.Output];
+      const types = [StepType.Input, StepType.Transformation, StepType.Output];
       menuOptions.forEach((option, index) => {
+        if (!types[index]) {
+          return;
+        }
         const templateGroup = action.payload[types[index].toLowerCase()];
-
         const templates = templateGroup.filter((template: any) =>
           template.executionEngine === state.workflowType)
           .map((template: any) => ({

@@ -9,4 +9,5 @@ export interface FloatingMenuModel {
    value: any;
    icon?: string;
    subMenus?: Array<FloatingMenuModel>;
+   stepType?: string;
 }
