@@ -94,7 +94,7 @@ export class ExecutionDetailHelperService {
       return {
         name: status.state,
         statusInfo: status.statusInfo,
-        startTime: moment(status.lastUpdateDate).format('DD/MM/YYYY hh:mm:ss.SSS')
+        startTime: moment(status.lastUpdateDate).format('DD/MM/YYYY hh:mm:ss')
       };
     });
   }

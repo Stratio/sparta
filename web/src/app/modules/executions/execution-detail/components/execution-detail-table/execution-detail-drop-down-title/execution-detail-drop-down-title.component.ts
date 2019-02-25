@@ -13,7 +13,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class ExecutionDetailDropDownTitleComponent implements OnInit {
 
   @Input() title: String = '';
-  public tableIsVisible = false;
+  @Input() IsVisibleContent = false;
 
   constructor() {}
 
@@ -22,7 +22,7 @@ export class ExecutionDetailDropDownTitleComponent implements OnInit {
   showTable(ev) {
     const element = ev.currentTarget.querySelector('#icon');
 
-    this.tableIsVisible = !this.tableIsVisible;
+    this.IsVisibleContent = !this.IsVisibleContent;
     element.classList.toggle('icon-arrow2_down');
     element.classList.toggle('icon-arrow2_up');
   }

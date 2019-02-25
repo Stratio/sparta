@@ -15,8 +15,10 @@
     height: 25px;
   }
   &__title{
+    display: inline-block;
+    margin-bottom: 7px;
     margin-left: 10px;
-    margin-right: 10px;
+    margin-right: 15px;
     font-family: $egeo-nunito-sans-bold;
     vertical-align: top;
     font-size: $egeo-font-size-xxlarge;
@@ -49,20 +51,21 @@
       padding-left: 20px;
       padding-right: 20px;
       &--left {
+        padding-top: 20px;
         padding-left: 0px;
         flex: 4;
       }
       &__big{
-        margin-top: 5px;
-        margin-left: 18px;
         span{
           color: $neutral-13;
           font-family: $egeo-nunito-sans-bold;
           font-size: $egeo-font-size-xxxlarge;
+          margin-left: 15px;
         }
       }
       &__title {
         margin-top: 16px;
+        margin-left: 15px;
         vertical-align: center;
         span{
           font-size: $egeo-font-size-large;
@@ -72,11 +75,15 @@
       }
       &__content {
         margin-top: 20px;
+        margin-left: 15px;
         span {
           display: block;
         }
+      }
+      &__link {
+        margin-top: 20px;
+        margin-left: 54px;
         a {
-          margin-left: 20px;
           color: #128bdd;
           display: block;
           cursor: pointer;

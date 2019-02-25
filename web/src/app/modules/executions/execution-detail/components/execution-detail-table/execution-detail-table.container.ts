@@ -21,7 +21,7 @@ import * as executionDetailActions from '../../actions/execution-detail';
         [values]="executionDetailStatusesState$ | async">
       </sparta-execution-detail-table>
     </sparta-execution-detail-drop-down-title>
-    <sparta-execution-detail-drop-down-title [title]="parametersTitle">
+    <sparta-execution-detail-drop-down-title [title]="parametersTitle" [IsVisibleContent]="true">
       <sparta-execution-detail-table
         [fields]="parametersFields"
         [values]="executionDetailParametersState$ | async">
