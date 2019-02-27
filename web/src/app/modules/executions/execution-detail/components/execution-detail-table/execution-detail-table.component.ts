@@ -4,7 +4,7 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { StTableHeader, StDropDownMenuItem } from '@stratio/egeo';
+import { StTableHeader, StDropDownMenuItem, Order, ORDER_TYPE } from '@stratio/egeo';
 
 @Component({
   selector: 'sparta-execution-detail-table',
@@ -69,6 +69,13 @@ export class ExecutionDetailTableComponent implements OnInit {
 
   onClick() {
     this.showedFilter = false;
+  }
+
+  onSortTable(order: Order) {
+    const reverseConst: number = order.type === ORDER_TYPE.ASC ? 1 : -1;
+    this.filteredParameters = [...this.filteredParameters].sort((a, b) => {
+      return a[order.orderBy].toString().localeCompare(b[order.orderBy].toString()) * reverseConst;
+    });
   }
 
 }

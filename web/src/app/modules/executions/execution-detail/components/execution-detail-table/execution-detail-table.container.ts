@@ -35,14 +35,14 @@ export class ExecutionDetailTableContainer implements OnInit {
   public executionDetailParametersState$: Observable<Array<Parameter>>;
   public executionDetailStatusesState$: Observable<Array<Status>>;
   public parametersFields = [
-    { id: 'name', label: 'Name' },
-    { id: 'type', label: 'Type' },
-    { id: 'lastModified', label: 'Last modified' }
+    { id: 'name', label: 'Name', sortable: true },
+    { id: 'type', label: 'Type', sortable: false },
+    { id: 'lastModified', label: 'Value', sortable: false }
   ];
   public runtimeFields = [
-    { id: 'name', label: 'Status' },
-    { id: 'statusInfo', label: 'Info' },
-    { id: 'startTime', label: 'Start time' }
+    { id: 'name', label: 'Status', sortable: true },
+    { id: 'statusInfo', label: 'Info', sortable: false },
+    { id: 'startTime', label: 'Start time', sortable: false }
   ];
   public parametersTitle: String = 'Parameters';
   public statusesTitle: String = 'States';
@@ -50,7 +50,6 @@ export class ExecutionDetailTableContainer implements OnInit {
   constructor(private _store: Store<State>) {}
 
   ngOnInit(): void {
-
     this.executionDetailParametersState$ = this._store.pipe(select(executionDetailParametersState));
     this.executionDetailStatusesState$ = this._store.pipe(select(executionDetailStatusesState));
   }
