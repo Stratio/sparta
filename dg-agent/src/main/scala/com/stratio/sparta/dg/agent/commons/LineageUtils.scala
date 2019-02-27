@@ -18,6 +18,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
+import com.stratio.sparta.core.constants.SdkConstants._
 
 import scala.util.{Properties, Try}
 import scalax.collection._
@@ -31,6 +32,7 @@ object LineageUtils extends ContextBuilderImplicits{
   val TypeFinishedKey = "detailedStatus"
   val ErrorKey = "error"
   val UrlKey = "link"
+  val defaultSchema = "public."
 
   lazy val spartaVHost = Properties.envOrNone("HAPROXY_HOST").getOrElse("sparta")
   lazy val spartaInstanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
@@ -108,6 +110,18 @@ object LineageUtils extends ContextBuilderImplicits{
       version = responseWorkflow.version,
       listActorMetaData = responseWorkflow.listActorMetaData
     )
+  }
+
+
+  def addTableNameFromWriterToOutput(nodesOutGraph: Seq[(String, String)],
+                                     lineageProperties: Map[String, Map[String, String]]): Seq[(String, Map[String, String])] ={
+    nodesOutGraph.map { case (outputName, nodeTableName) =>
+      outputName -> lineageProperties.getOrElse(outputName, Map.empty).map { case property@(key, value) =>
+        if (key.equals(ResourceKey) && value.isEmpty || value.startsWith(defaultSchema)) {
+          (ResourceKey, value ++ nodeTableName)
+        } else property
+      }
+    }
   }
 
   def extraPathFromFilesystemOutput(stepType: String, stepClass: String, path: Option[String],
