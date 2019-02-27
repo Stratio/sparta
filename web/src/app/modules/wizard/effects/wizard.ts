@@ -176,7 +176,7 @@ export class WizardEffect {
           nodes,
           edges
         }, null, 2);
-        sessionStorage.setItem('sp-copy-clipboard', value);
+        localStorage.setItem('sp-copy-clipboard', value);
         // copyIntoClipboard(value);
         return new wizardActions.ShowNotificationAction({
           type: 'default',
@@ -195,7 +195,7 @@ export class WizardEffect {
     .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.wizard))))
     .pipe(withLatestFrom(this._store.pipe(select((state: any) => state.wizard.entities))))
     .pipe(map(([[action, wizardState], entities]) => {
-      const clipboardContent = sessionStorage.getItem('sp-copy-clipboard');
+      const clipboardContent = localStorage.getItem('sp-copy-clipboard');
       if (clipboardContent && clipboardContent.length) {
         try {
           const model = JSON.parse(clipboardContent);
