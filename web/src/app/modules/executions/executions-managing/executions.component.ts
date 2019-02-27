@@ -67,6 +67,8 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this._modalService.container = this.target;
+
     this._activatedRoute.pathFromRoot[
       this._activatedRoute.pathFromRoot.length - 1
     ].data

@@ -84,14 +84,14 @@ export class DetailInfoComponent implements OnInit {
 
   reRunWorkflow() {
 
-    this._confirmStopExecution(this.runExecutionModalOkButton, () => {
+    this._confirmRunExecution(this.runExecutionModalOkButton, () => {
       this.onRerunExecution.emit(this.executionDetailInfo.marathonId.toString());
       this.route.navigate(['executions']);
     });
 
   }
 
-  private _confirmStopExecution(textOkButton, callback) {
+  private _confirmRunExecution(textOkButton, callback) {
     const buttons: StModalButton[] = [
       { label: 'Cancel', classes: 'button-secondary-gray', responseValue: StModalResponse.NO },
       { label: textOkButton, classes: 'button-primary', responseValue: StModalResponse.YES, closeOnClick: true }
