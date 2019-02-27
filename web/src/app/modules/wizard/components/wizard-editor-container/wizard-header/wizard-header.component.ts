@@ -149,7 +149,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
       if (event === 'simple') {
          this.debugWorkflow();
       } else {
-         this._store.dispatch(new debugActions.ShowDebugConfigAction());
+         this._store.dispatch(new debugActions.ConfigAdvancedExecutionAction());
       }
    }
 
