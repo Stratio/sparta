@@ -245,12 +245,13 @@ export class WizardEmbeddedComponent implements OnInit, OnDestroy {
       nodes,
       edges
     });
-    sessionStorage.setItem('sp-copy-clipboard', value);
+
+    localStorage.setItem('sp-copy-clipboard', value);
     // copyIntoClipboard(value);
   }
 
   private _pasteFromClipboard() {
-    const clipboardContent = sessionStorage.getItem('sp-copy-clipboard');
+    const clipboardContent = localStorage.getItem('sp-copy-clipboard');
     if (clipboardContent.length) {
       try {
         const model = JSON.parse(clipboardContent);
