@@ -4,13 +4,16 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
-import {Parameter} from "@app/executions/execution-detail/types/execution-parameters";
-import {ExecutionDetailInfo} from "@app/executions/execution-detail/models/execution-detail-info";
-import {Info, ShowedActions} from "@app/executions/execution-detail/types/execution-detail";
+import { TranslateService } from '@ngx-translate/core';
 import {Router} from "@angular/router";
 import {Store} from "@ngrx/store";
+import { StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
+import { Subscription } from 'rxjs';
+
+import {Info, ShowedActions} from "@app/executions/execution-detail/types/execution-detail";
 import {State} from "@app/executions/executions-managing/reducers";
 import * as executionDetailActions from '../../actions/execution-detail';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'workflow-execution-detail-info',
@@ -25,7 +28,39 @@ export class DetailInfoComponent implements OnInit {
   @Output() onStopExecution = new EventEmitter<string>();
   @Output() onRerunExecution = new EventEmitter<string>();
 
-  constructor(private route: Router, private _store: Store<State>) { }
+  private _modalSubscription: Subscription;
+  private runExecutionModalHeader: string;
+  private runExecutionModalOkButton: string;
+  private runExecutionModalTitle: string;
+  private runExecutionModalMessage: string;
+
+  constructor(
+    private route: Router,
+    private _store: Store<State>,
+    private _translate: TranslateService,
+    private _modalService: StModalService
+  ) {
+
+    const runExecutionModalHeader = 'EXECUTIONS.RUN_EXECUTION_MODAL_HEADER';
+    const runExecutionModalOkButton = 'EXECUTIONS.RUN_EXECUTION_MODAL_OK';
+    const runExecutionModalTitle = 'EXECUTIONS.RUN_EXECUTION_MODAL_TITLE';
+    const runExecutionModalMessage = 'EXECUTIONS.RUN_EXECUTION_MODAL_MESSAGE';
+
+
+    this._translate.get([
+      runExecutionModalHeader,
+      runExecutionModalOkButton,
+      runExecutionModalTitle,
+      runExecutionModalMessage
+    ]).subscribe(
+      (value: { [key: string]: string }) => {
+        this.runExecutionModalHeader = value[runExecutionModalHeader];
+        this.runExecutionModalOkButton = value[runExecutionModalOkButton];
+        this.runExecutionModalTitle = value[runExecutionModalTitle];
+        this.runExecutionModalMessage = value[runExecutionModalMessage];
+      });
+
+  }
 
   ngOnInit(): void {}
 
@@ -47,9 +82,36 @@ export class DetailInfoComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  reRunWorkflow(){
-    this.onRerunExecution.emit(this.executionDetailInfo.marathonId.toString());
-    this.route.navigate(['executions']);
+  reRunWorkflow() {
+
+    this._confirmStopExecution(this.runExecutionModalOkButton, () => {
+      this.onRerunExecution.emit(this.executionDetailInfo.marathonId.toString());
+      this.route.navigate(['executions']);
+    });
+
+  }
+
+  private _confirmStopExecution(textOkButton, callback) {
+    const buttons: StModalButton[] = [
+      { label: 'Cancel', classes: 'button-secondary-gray', responseValue: StModalResponse.NO },
+      { label: textOkButton, classes: 'button-primary', responseValue: StModalResponse.YES, closeOnClick: true }
+    ];
+    this._modalSubscription = this._modalService.show({
+      messageTitle: this.runExecutionModalTitle,
+      modalTitle: this.runExecutionModalHeader,
+      buttons: buttons,
+      maxWidth: 500,
+      message: this.runExecutionModalMessage,
+    }).pipe(take(1)).subscribe((response: any) => {
+      if (response === 1) {
+        this._modalService.close();
+        this._modalSubscription.unsubscribe();
+      } else if (response === 0) {
+        this._modalSubscription.unsubscribe();
+        callback.call(this);
+      }
+    });
+
   }
 
   goToWorkflow(ev, id) {

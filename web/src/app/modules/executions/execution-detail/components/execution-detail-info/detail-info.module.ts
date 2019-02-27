@@ -5,6 +5,7 @@
  */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import {DetailInfoComponent} from "@app/executions/execution-detail/components/execution-detail-info/detail-info.component";
 import {DetailInfoContainer} from "@app/executions/execution-detail/components/execution-detail-info/detail-info.container";
 import { MenuOptionsListModule } from '@app/shared/components/menu-options-list/menu-options-list.module';

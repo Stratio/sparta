@@ -13,6 +13,7 @@ import {
 
 import * as executionDetailActions from './actions/execution-detail';
 import {BreadcrumbMenuService} from "services";
+import { StModalService } from '@stratio/egeo';
 
 @Component({
    selector: 'sparta-execution-detail',
@@ -22,14 +23,19 @@ import {BreadcrumbMenuService} from "services";
 })
 
 export class ExecutionDetailComponent implements OnInit, OnDestroy {
+  @ViewChild('executionDetailModal', { read: ViewContainerRef }) target: any;
 
   public breadcrumbOptions: string[] = [];
 
-  constructor(private _route: ActivatedRoute, private _store: Store<State>, public breadcrumbMenuService: BreadcrumbMenuService) {
+  constructor(private _route: ActivatedRoute,
+    private _store: Store<State>,
+    public breadcrumbMenuService: BreadcrumbMenuService,
+    private _stModalService: StModalService) {
     this.breadcrumbOptions = breadcrumbMenuService.getOptions();
   }
 
   ngOnInit() {
+    this._stModalService.container = this.target;
     const executionId = this._route.snapshot.params.id;
     this._store.dispatch(new executionDetailActions.GetExecutionDetailAction(executionId));
   }

@@ -102,7 +102,7 @@ export class ExecutionDetailHelperService {
   public getShowedActions(execution): ShowedActions {
     let filteredStatus = utils.getFilterStatus(execution.resumedStatus);
     return {
-      showedReRun: !execution.archived,
+      showedReRun: !execution.archived && ['Stopped', 'Failed'].includes(filteredStatus),
       showedStop: ['Running', 'Starting'].includes(filteredStatus),
       showedContextMenu: ['Stopped', 'Failed'].includes(filteredStatus),
       menuOptions: this._getContextMenu(execution)

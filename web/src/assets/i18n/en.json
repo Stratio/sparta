@@ -848,6 +848,10 @@
         "WEEK": "7 Days",
         "MONTH": "30 Days"
       },
-      "CHART_TITLE": "Number of total executions in last {{periodTitle}}"
+      "CHART_TITLE": "Number of total executions in last {{periodTitle}}",
+      "RUN_EXECUTION_MODAL_OK": "Ok, run now",
+      "RUN_EXECUTION_MODAL_HEADER": "Run execution",
+      "RUN_EXECUTION_MODAL_TITLE": "Are you sure?",
+      "RUN_EXECUTION_MODAL_MESSAGE": "This action cannot be reverted."
    }
 }

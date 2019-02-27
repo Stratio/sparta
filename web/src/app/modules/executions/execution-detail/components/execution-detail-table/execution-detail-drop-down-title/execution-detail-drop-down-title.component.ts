@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, ViewContainerRef } from '@angular/core';
 
 @Component({
   selector: 'sparta-execution-detail-drop-down-title',
@@ -14,17 +14,23 @@ export class ExecutionDetailDropDownTitleComponent implements OnInit {
 
   @Input() title: String = '';
   @Input() IsVisibleContent = false;
+  @ViewChild('icon') iconElement: ElementRef;
 
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.IsVisibleContent) {
+      this.iconElement.nativeElement.classList.add('icon-arrow2_up');
+    } else {
+      this.iconElement.nativeElement.classList.add('icon-arrow2_down');
+    }
 
-  showTable(ev) {
-    const element = ev.currentTarget.querySelector('#icon');
+  }
 
+  showTable() {
     this.IsVisibleContent = !this.IsVisibleContent;
-    element.classList.toggle('icon-arrow2_down');
-    element.classList.toggle('icon-arrow2_up');
+    this.iconElement.nativeElement.classList.toggle('icon-arrow2_down');
+    this.iconElement.nativeElement.classList.toggle('icon-arrow2_up');
   }
 
 }

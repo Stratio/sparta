@@ -12,7 +12,7 @@
     <img src="assets/images/iconStreaming.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Streaming'" />
     <img src="assets/images/iconBatch.svg" class="workflow-type" *ngIf="execution.executionEngine === 'Batch'" />
     <span class="title egeo-title-extra-large">{{execution.genericDataExecution.workflow.name}}</span>
-    <a [routerLink]="['/executions']" class="link">Return to executions list</a>
+    <a [routerLink]="['/executions/' + this.id]" class="link">Return to execution detail</a>
   </div>
   <graph-editor class="execution-details__editor"
   [editorPosition]="execution.genericDataExecution.workflow.uiSettings.position"

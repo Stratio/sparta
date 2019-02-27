@@ -109,9 +109,9 @@ export class ExecutionDetailEffect {
       .pipe(map(status => new executionDetailActions.GetExecutionDetailAction(executionId)))
       .pipe(map(() => {return {type: 'NO_ACTION'}}))
       .pipe(catchError(error => {
-        let message = {
-          title: "Error",
-          description: "Workflow couldnt be stopped"
+        const message = {
+          title: 'Error',
+          description: 'Workflow couldnt be stopped'
         };
         return of(new errorActions.ServerErrorCompleteAction(message));
       }))
@@ -121,20 +121,17 @@ export class ExecutionDetailEffect {
   rerunExecution$: Observable<Action> = this.actions$
     .pipe(ofType(executionDetailActions.RERUN_EXECUTION))
     .pipe(map((action: any) => action.executionId))
-    .pipe(switchMap((executionId: any) =>
-        this._executionService.stopExecutionsById(executionId)
-        .pipe(switchMap(() => this._executionService.reRunExecution(executionId)))
-        .pipe(map(() => {
-          this.route.navigate(['executions']);
-          return {type: 'NO_ACTION'};
-        })).pipe(catchError(error => {
-          let message = {
-            title: "Error",
-            description: "Workflow couldnt be relaunched"
-          };
-          return of(new errorActions.ServerErrorCompleteAction(message));
-        }))
-    ));
+    .pipe(switchMap((executionId) => this._executionService.reRunExecution(executionId)))
+    .pipe(map(() => {
+      this.route.navigate(['executions']);
+      return {type: 'NO_ACTION'};
+    })).pipe(catchError(error => {
+      const message = {
+        title: 'Error',
+        description: 'Workflow couldnt be relaunched'
+      };
+      return of(new errorActions.ServerErrorCompleteAction(message));
+    }));
 
   constructor(
     private actions$: Actions,

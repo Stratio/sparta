@@ -28,14 +28,15 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
    public nodes: any = [];
    public selectedStep: any;
    public keys = Object.keys;
+   public id: string;
 
    private _componentDestroyed = new Subject();
 
    constructor(private _route: ActivatedRoute, private _store: Store<workflowDetailReducer.State>, private _cd: ChangeDetectorRef) { }
 
    ngOnInit() {
-      const id = this._route.snapshot.params.id;
-      this._store.dispatch(new workflowDetailActions.GetWorkflowDetailAction(id));
+      this.id = this._route.snapshot.params.id;
+      this._store.dispatch(new workflowDetailActions.GetWorkflowDetailAction(this.id));
       this._store.pipe(select(workflowDetailReducer.getWorkflowDetail))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((workflow: any) => {

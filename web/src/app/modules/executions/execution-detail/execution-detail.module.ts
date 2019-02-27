@@ -16,7 +16,7 @@ import { ExecutionDetailComponent } from './execution-detail.component';
 import { ExecutionDetailRouterModule } from './execution-detail.router';
 import { ExecutionDetailTableModule } from './components/execution-detail-table/execution-detail-table.module';
 import { DetailInfoModule } from '@app/executions/execution-detail/components/execution-detail-info/detail-info.module';
-import { StBreadcrumbsModule } from '@stratio/egeo';
+import { StBreadcrumbsModule, StModalService, StModalModule } from '@stratio/egeo';
 import { ToolBarModule } from '@app/shared';
 import { WorkflowDetailModule } from "@app/executions/workflow-detail/workflow-detail.module";
 import { ExecutionDetailHelperService } from "@app/executions/execution-detail/services/execution-detail.service";
@@ -36,9 +36,10 @@ import { ExecutionDetailHelperService } from "@app/executions/execution-detail/s
         ExecutionDetailTableModule,
         WorkflowDetailModule,
         DetailInfoModule,
-        ToolBarModule
+        ToolBarModule,
+        StModalModule
     ],
-    providers: [ExecutionDetailHelperService]
+    providers: [ExecutionDetailHelperService, StModalService]
 })
 
 export class ExecutionDetailModule {
