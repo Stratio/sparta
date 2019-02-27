@@ -24,7 +24,7 @@
            / {{executionData.status}}</span>
          </span>
          <h3 class="egeo-title-medium">{{executionData.name}} - v{{executionData.version}}</h3>
-         <span class="execution-group">{{executionData.group.name}}</span>
+         <span class="execution-group">{{executionData.group}}</span>
          <span *ngIf="executionData.lastUpdate && executionData.lastUpdate.length" class="date">Last status update: {{executionData.lastUpdate}}</span>
          <span class="description">{{executionData.description}}</span>
         <div>
