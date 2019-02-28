@@ -152,13 +152,8 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
       val nodesOutGraph = LineageUtils.getOutputNodesWithWriter(workflow)
       val inputNodes = workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType).map(_.name).toSet
       val inputNodesProperties = lineageProperties.filterKeys(inputNodes).toSeq
-      val parsedLineageProperties = nodesOutGraph.map { case (outputName, nodeTableName) =>
-        outputName -> lineageProperties.getOrElse(outputName, Map.empty).map { case property@(key, value) =>
-          if (key.equals(ResourceKey) && value.isEmpty) {
-            (ResourceKey, nodeTableName)
-          } else property
-        }
-      } ++ inputNodesProperties
+      val parsedLineageProperties =
+        LineageUtils.addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
 
       val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
         props.get(ServiceKey).map { serviceName =>
