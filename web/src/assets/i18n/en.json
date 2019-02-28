@@ -253,6 +253,7 @@
       "_ENABLE_CHECKPOINT_": "Enable",
       "_AUTO_DELETE_CHECKPOINT_": "Auto-delete checkpoint",
       "_ADD_TIME_TO_CHECKPOINT_": "Add time to checkpoint path",
+      "_AUTO_KEEP_SAME_CHECKPOINT_": "Keep same checkpoint between different executions",
       "_CHECKPOINT_PATH_": "Checkpoint path",
       "_SPARK_STREAMING_WINDOW_": "Window",
       "_ADD_ALL_UPLOADED_PLUGINS_": "Add uploaded plugins",

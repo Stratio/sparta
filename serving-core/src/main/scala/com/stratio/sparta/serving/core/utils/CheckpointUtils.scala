@@ -64,12 +64,13 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def checkpointPathFromWorkflow(workflow: Workflow, checkTime: Boolean = true): String = {
     val path = cleanCheckpointPath(workflow.settings.streamingSettings.checkpointSettings.checkpointPath.toString)
-    val executionExtension = if(workflow.executionId.isDefined) s"/${workflow.executionId.get}" else ""
-    val extension = s"${workflow.group.name}/${workflow.name}$executionExtension"
+    val keepSamePath= workflow.settings.streamingSettings.checkpointSettings.keepSameCheckpoint.getOrElse(false)
+    val executionExtension = if(workflow.executionId.isDefined && !keepSamePath) s"/${workflow.executionId.get}" else ""
+    val extension = s"${workflow.group.name}/${workflow.name}/${workflow.id.getOrElse("")}$executionExtension"
 
     if (checkTime && workflow.settings.streamingSettings.checkpointSettings.addTimeToCheckpointPath)
-      s"$path/$extension/${Calendar.getInstance().getTime.getTime}"
-    else s"$path/$extension"
+      s"$path$extension/${Calendar.getInstance().getTime.getTime}"
+    else s"$path$extension"
   }
 
   /* PRIVATE METHODS */
@@ -81,7 +82,8 @@ trait CheckpointUtils extends SLF4JLogging {
 
     if (path.startsWith(hdfsPrefix))
       log.warn(s"The path starts with $hdfsPrefix and is not valid, it was replaced with an empty value")
-    path.replace(hdfsPrefix, "")
+    val noHDFS= path.replace(hdfsPrefix, "")
+    if(noHDFS.endsWith("/")) noHDFS.dropRight(1) else noHDFS
   }
 
   private def createFromLocal(workflow: Workflow): Unit = {

@@ -120,12 +120,20 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
   def validateCheckpointCubes(implicit workflow: Workflow): WorkflowValidation =
     workflow.pipelineGraph.nodes.find(node => node.className == "CubeTransformStep") match {
-      case Some(_) => if (!workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
-        copy(
-          valid = false,
-          messages = messages :+ WorkflowValidationMessage(s"The workflow contains Cubes and the checkpoint is not enabled")
-        )
-      else this
+      case Some(_) =>
+        if (!workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
+          copy(
+            valid = false,
+            messages = messages :+ WorkflowValidationMessage(s"The workflow contains Cubes and the checkpoint is not enabled")
+          )
+        else if (workflow.settings.streamingSettings.checkpointSettings.keepSameCheckpoint.isEmpty ||
+          workflow.settings.streamingSettings.checkpointSettings.keepSameCheckpoint.isDefined &&
+            !workflow.settings.streamingSettings.checkpointSettings.keepSameCheckpoint.get)
+          copy(
+            valid = false,
+            messages = messages :+ WorkflowValidationMessage(s"The workflow contains Cubes but Keep same checkpoint is disabled. No data will be retrieved from the checkpoint")
+          )
+        else this
       case None => this
     }
 

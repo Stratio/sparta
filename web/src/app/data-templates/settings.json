@@ -468,7 +468,6 @@
               ],
               "qa": "workflow-checkpoint-path"
             },
-
             {
               "propertyId": "autoDeleteCheckpoint",
               "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
@@ -485,6 +484,23 @@
                 }]
               ],
               "qa": "workflow-delete-checkpoint"
+            },
+            {
+              "propertyId": "keepSameCheckpoint",
+              "propertyName": "SETTINGS._AUTO_KEEP_SAME_CHECKPOINT_",
+              "propertyType": "boolean",
+              "width": "auto",
+              "required": false,
+              "default": false,
+              "float": true,
+              "tooltip": "Only used when the checkpointing feature is enabled. Keep the same checkpoint between different executions of the workflow. If selected, deselect the auto-delete checkpoint flag",
+              "visible": [
+                [{
+                  "propertyId": "enableCheckpointing",
+                  "value": true
+                }]
+              ],
+              "qa": "workflow-keepSameCheckpoint-checkpoint"
             },
             {
               "propertyId": "addTimeToCheckpointPath",

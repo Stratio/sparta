@@ -45,7 +45,8 @@ case class CheckpointSettings(
                                checkpointPath: JsoneyString = JsoneyString("sparta/checkpoint"),
                                enableCheckpointing: Boolean = true,
                                autoDeleteCheckpoint: Boolean = true,
-                               addTimeToCheckpointPath: Boolean = false
+                               addTimeToCheckpointPath: Boolean = false,
+                               keepSameCheckpoint: Option[Boolean] = None
                              )
 
 case class MarathonDeploymentSettings(

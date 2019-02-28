@@ -103,7 +103,7 @@ case class ContextsService()
             }
           }
           StreamingContext.getOrCreate(checkpointPathFromWorkflow(workflow), () => {
-            log.info(s"Creating streaming context from empty checkpoint: ${checkpointPathFromWorkflow(workflow)}")
+            log.info(s"Creating streaming context from checkpoint: ${checkpointPathFromWorkflow(workflow)}")
             spartaWorkflow.stages()
             getStreamingContext
           })
