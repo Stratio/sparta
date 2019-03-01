@@ -340,12 +340,23 @@ class WorkflowPostgresDao extends WorkflowDao {
   }
 
   private[sparta] def incVersion(workflows: Seq[Workflow], workflow: Workflow, userVersion: Option[Long] = None): Workflow =
-    userVersion match {
-      case None =>
-        workflow.copy(version = Try(workflows.map(_.version).max + 1).getOrElse(0L))
-      case Some(usrVersion) =>
-        workflow.copy(version = usrVersion)
-    }
+    if(workflows.nonEmpty) {
+      val newVersion = {
+        val workflowVersions = workflows.map(_.version)
+        userVersion match {
+          case Some(userNewVersion) =>
+            if (workflowVersions.contains(userNewVersion))
+              workflowVersions.max + 1
+            else userNewVersion
+          case None =>
+            if (workflowVersions.nonEmpty)
+              workflowVersions.max + 1
+            else 0L
+        }
+      }
+
+      workflow.copy(version = newVersion)
+    } else workflow.copy(version = userVersion.getOrElse(0L))
 
   private[sparta] def deleteYield(workflowLists: Seq[Workflow]): Future[Boolean] = {
     val ids = workflowLists.flatMap(_.id.toList)

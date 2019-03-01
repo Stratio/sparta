@@ -189,6 +189,7 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
             val newStatus = workflowExecution.lastStatus.state match {
               case StoppingByUser => StoppedByUser
               case Stopping => Stopped
+              case _ => workflowExecution.lastStatus.state
             }
             executionService.updateStatus(ExecutionStatusUpdate(
               workflowExecution.getExecutionId,

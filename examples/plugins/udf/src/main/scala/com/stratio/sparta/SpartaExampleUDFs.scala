@@ -14,12 +14,24 @@ import scala.util.Try
 
 case class ToUpperCaseUDF() extends SpartaUDF {
 
-  val name = "upperCase"
+  val name = "uppercaseSparta"
 
   val upper: String => String = _.toUpperCase
 
   val userDefinedFunction: UserDefinedFunction =
     UserDefinedFunction(upper , StringType, Option(Seq(StringType)))
+}
+
+case class ConcatUDF() extends SpartaUDF {
+
+  val name = "concatSparta"
+
+  val upper: (String, String) => String =  { case (str1, str2) =>
+    s"$str1/$str2"
+  }
+
+  val userDefinedFunction: UserDefinedFunction =
+    UserDefinedFunction(upper , StringType, Option(Seq(StringType, StringType)))
 }
 
 case class ToUpperCaseWithReflectionUDF() extends SpartaUDF {

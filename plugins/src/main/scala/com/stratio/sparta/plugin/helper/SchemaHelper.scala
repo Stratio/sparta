@@ -287,12 +287,8 @@ object SchemaHelper extends SLF4JLogging {
     */
   def validateSchemas(step: String, inputsModel: PropertySchemasInput, inputSteps: Seq[String]): Unit = {
     if (inputsModel.inputSchemas.nonEmpty) {
-      //If any of them fails
       require(!inputsModel.inputSchemas.exists(input => parserInputSchema(input.schema).isFailure),
         s"$step input schemas contains errors")
-      require(inputSteps.forall { stepName =>
-        inputsModel.inputSchemas.map(_.stepName).contains(stepName)
-      }, s"$step input schemas are not the same as the input step names")
     }
   }
 }

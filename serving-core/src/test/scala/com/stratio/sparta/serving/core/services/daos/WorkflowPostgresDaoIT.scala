@@ -56,7 +56,9 @@ class WorkflowPostgresDaoIT extends DAOConfiguration
     Await.result(db1.run(actions), queryTimeout millis)
 
     PostgresFactory.invokeInitializationMethods()
+    Thread.sleep(3000)
     PostgresFactory.invokeInitializationDataMethods()
+    Thread.sleep(1000)
   }
 
   "A workflow " must {

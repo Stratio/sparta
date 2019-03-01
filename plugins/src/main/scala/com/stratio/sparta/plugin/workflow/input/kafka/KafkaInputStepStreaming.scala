@@ -46,7 +46,7 @@ class KafkaInputStepStreaming(
                              )
   extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging with OneTransactionOffsetManager {
 
-  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+  import com.stratio.sparta.plugin.models.SerializationImplicits._
 
   lazy val consumerPollMsKey = "spark.streaming.kafka.consumer.poll.ms"
   lazy val maxRatePerPartitionKey = "spark.streaming.kafka.maxRatePerPartition"

@@ -332,6 +332,7 @@
           "propertyId": "spark.streaming.kafka.consumer.poll.ms",
           "propertyName": "_MAX_POLL_TIMEOUT_",
           "propertyType": "text",
+          "default": "{{{Environment.KAFKA_MAX_POLL_TIMEOUT}}}",
           "required": false,
           "tooltip": "If the timeout is too low and the Kafka brokers need more time to answer there the user will encounter many “TASK FAILED”s messages, which causes a delay in the preparation of the assigned tasks into the executors. However, if this timeout is too high the Spark executor wastes a lot of time doing nothing and produces large delays (pollTimeout + task scheduling in the new executor).",
           "qa": "fragment-details-kafka-maxPollTimeout"
@@ -342,7 +343,7 @@
           "propertyType": "text",
           "required": false,
           "tooltip": "The maximum amount of data per-partition the server will return.",
-          "default": "{{{KAFKA_MAX_PARTITION_FETCH_BYTES}}}",
+          "default": "{{{Environment.KAFKA_MAX_PARTITION_FETCH_BYTES}}}",
           "qa": "fragment-details-kafka-max-partition-fetch-bytes"
        },
        {
@@ -351,7 +352,7 @@
           "propertyType": "text",
           "required": false,
           "tooltip": "The timeout used to detect failures when using Kafka's group management facilities. When a consumer's heartbeat is not received within the session timeout, the broker will mark the consumer as failed and rebalance the group.",
-          "default": "{{{KAFKA_SESSION_TIMEOUT}}}",
+          "default": "{{{Environment.KAFKA_SESSION_TIMEOUT}}}",
           "qa": "fragment-details-kafka-session-timeout"
        },
        {
@@ -360,7 +361,7 @@
           "propertyType": "text",
           "required": false,
           "tooltip": "The configuration controls the maximum amount of time the client will wait for the response of a request. If the response is not received before the timeout elapses the client will resend the request if necessary or fail the request if retries are exhausted.",
-          "default": "{{{KAFKA_REQUEST_TIMEOUT}}}",
+          "default": "{{{Environment.KAFKA_REQUEST_TIMEOUT}}}",
           "qa": "fragment-details-kafka-request-timeout"
        },
        {
@@ -369,7 +370,7 @@
           "propertyType": "text",
           "required": false,
           "tooltip": "The expected time between heartbeats to the consumer coordinator when using Kafka's group management facilities. Heartbeats are used to ensure that the consumer's session stays active and to facilitate rebalancing when new consumers join or leave the group. The value must be set lower than <code>session.timeout.ms</code>, but typically should be set no higher than 1/3 of that value. It can be adjusted even lower to control the expected time for normal rebalances.",
-          "default": "{{{KAFKA_HEARTBEAT_INTERVAL}}}",
+          "default": "{{{Environment.KAFKA_HEARTBEAT_INTERVAL}}}",
           "qa": "fragment-details-kafka-heartbeat-interval"
        },
        {
@@ -378,13 +379,14 @@
           "propertyType": "text",
           "required": false,
           "tooltip": "The maximum amount of time the server will block before answering the fetch request if there isn't sufficient data to immediately satisfy the requirement given by fetch.min.bytes.",
-          "default": "{{{KAFKA_FETCH_MAX_WAIT}}}",
+          "default": "{{{Environment.KAFKA_FETCH_MAX_WAIT}}}",
           "qa": "fragment-details-kafka-fetch-max-wait"
        },
        {
           "propertyId": "spark.streaming.kafka.maxRatePerPartition",
           "propertyName": "_MAX_RATE_PER_PARTITION_",
           "propertyType": "text",
+          "default": "{{{Environment.KAFKA_MAX_RATE_PER_PARTITION}}}",
           "required": false,
           "tooltip": "Limit the rate per partition when backpressure is enabled.",
           "qa": "fragment-details-kafka-maxRatePerPartition"
@@ -393,7 +395,7 @@
           "propertyId": "retry.backoff.ms",
           "propertyName": "_KAFKA_RETRY_BACKOFF_",
           "propertyType": "text",
-          "default": "{{{KAFKA_RETRY_BACKOFF}}}",
+          "default": "{{{Environment.KAFKA_RETRY_BACKOFF}}}",
           "required": false,
           "tooltip": "The amount of time to wait before attempting to retry a failed request to a given topic partition. This avoids repeatedly sending requests in a tight loop under some failure scenarios.",
           "qa": "fragment-details-kafka-maxRatePerPartition"
@@ -420,7 +422,7 @@
         "propertyName": "_KAFKA_AUTO_COMMIT_INTERVAL_",
         "propertyType": "text",
         "tooltip": "The frequency in milliseconds that the consumer offsets are auto-committed to Kafka.",
-        "default": "{{{KAFKA_AUTO_COMMIT_INTERVAL}}}",
+        "default": "{{{Environment.KAFKA_AUTO_COMMIT_INTERVAL}}}",
         "visible": [
           [
             {
