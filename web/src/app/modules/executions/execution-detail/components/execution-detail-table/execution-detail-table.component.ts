@@ -18,13 +18,21 @@ export class ExecutionDetailTableComponent implements OnInit {
 
   @Input() set values (values: Array<any>)  {
     this._values = [...values];
-    this.filteredParameters = [...values];
-    const filterLabels = Array.from(new Set(values.map(status => status.type))).map(status => {
+
+    this.filteredParameters = this.filteredParameters
+      && this.filteredParameters.length
+      && this.filteredParameters[0].name ?
+      this.filteredParameters :
+      [...values];
+    const filterLabels = Array.from(new Set(values.map(status => status.type || 'User')))
+    .filter(status => status)
+    .map(status => {
       return {
         label: status,
         value: status
       };
     });
+
     this.filterValues = [
       {
         label: 'All parameters',
@@ -32,7 +40,7 @@ export class ExecutionDetailTableComponent implements OnInit {
       },
       ...filterLabels
     ];
-    this.selectedFilter = this.filterValues[0];
+    this.selectedFilter = this.selectedFilter || this.filterValues[0];
   }
   @Input() filterQuery: string;
   @Input() isSearchable: Boolean = true;
@@ -43,7 +51,7 @@ export class ExecutionDetailTableComponent implements OnInit {
   public isAllSelected: Boolean = false;
   public searchQuery: String = '';
   private _values = [];
-  public filteredParameters = [];
+  public filteredParameters;
   public keys = Object.keys;
   public filterValues: StDropDownMenuItem[] = [];
   public selectedFilter: any;
@@ -63,7 +71,12 @@ export class ExecutionDetailTableComponent implements OnInit {
   }
 
   onChangeTypeFilter(selectedItem: StDropDownMenuItem) {
-    this.filteredParameters = this._values.filter(textToFilter => textToFilter.type.toLowerCase().includes(selectedItem.value.toLowerCase()));
+    this.filteredParameters = this._values
+      .filter(
+        textToFilter => textToFilter.type ?
+        textToFilter.type.toLowerCase().includes(selectedItem.value.toLowerCase()) :
+        false
+      );
     this.selectedFilter = selectedItem;
   }
 

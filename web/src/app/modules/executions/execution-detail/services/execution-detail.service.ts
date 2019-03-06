@@ -51,11 +51,12 @@ export class ExecutionDetailHelperService {
   public getExecutionDetail(execution): Info {
     let filteredStatus = utils.getFilterStatus(execution.resumedStatus);
     let execNorm = this._executionHelperService.normalizeExecution(execution);
+
     return {
       name: execNorm.name,
       marathonId: execNorm.id,
       description: execNorm.genericDataExecution.workflow.description,
-      context: execNorm.genericDataExecution.workflow.settings.global.parametersLists,
+      context: execNorm.context,
       status: filteredStatus,
       executionEngine: execNorm.executionEngine,
       sparkURI: execNorm.sparkURI,
@@ -76,8 +77,9 @@ export class ExecutionDetailHelperService {
       response.genericDataExecution.workflow.parametersUsedInExecution ||
       undefined;
     return Object.keys(parametersOrigin).map(parameterKey => {
-      const [parameterType, parameterName] = parameterKey.split('.');
+      const [parameterName, parameterType = 'User defined'] = parameterKey.split('.').reverse();
       const parameterValue = parametersOrigin[parameterKey];
+
       return {
         name: parameterName,
         lastModified: parameterValue,
