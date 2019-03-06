@@ -493,7 +493,7 @@
               "required": false,
               "default": false,
               "float": true,
-              "tooltip": "Only used when the checkpointing feature is enabled. Keep the same checkpoint between different executions of the workflow. If selected, deselect the auto-delete checkpoint flag",
+              "tooltip": "Keep the same checkpoint between different executions of this workflow. If selected, it is recommended not to have multiple simultaneous executions of the same workflow.",
               "visible": [
                 [{
                   "propertyId": "enableCheckpointing",
