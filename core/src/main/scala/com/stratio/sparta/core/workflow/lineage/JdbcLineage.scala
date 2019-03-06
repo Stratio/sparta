@@ -5,14 +5,16 @@
  */
 package com.stratio.sparta.core.workflow.lineage
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants.{PathKey, ResourceKey, ServiceKey}
-import scala.util.Properties
+
+import scala.util.{Failure, Properties, Success, Try}
 
 
-trait JdbcLineage {
+trait JdbcLineage extends SLF4JLogging {
 
   val lineageResource: String
-  val lineageUri : String
+  val lineageUri: String
 
   lazy val PostgresPrefix = "jdbc:postgresql://"
   lazy val SqlServerPrefix = "jdbc:sqlserver://"
@@ -23,57 +25,84 @@ trait JdbcLineage {
   lazy val OracleName = "oracle"
   lazy val SqlServerName = "sqlserver"
 
-  def getJdbcLineageProperties : Map[String, String] = {
-    if(lineageUri.contains("postgres")) {
-      Map(
-        ServiceKey -> getJdbcServiceName(lineageUri).getOrElse(""),
-        PathKey -> s"/${getJdbcDatabase(lineageUri).getOrElse("")}",
-        ResourceKey -> (if(lineageResource.contains(".")) lineageResource else s"public.$lineageResource"))
+  def getJdbcLineageProperties: Map[String, String] = {
+    if (
+      lineageUri.toLowerCase.contains("postgres") ||
+        lineageUri.toLowerCase.contains("oracle") ||
+        lineageUri.toLowerCase.contains("sqlserver")
+    ) {
+      (getJdbcServiceName(lineageUri), getJdbcDatabase(lineageUri)) match {
+        case (Some(serviceName), Some(path)) =>
+          Map(
+            ServiceKey -> serviceName,
+            PathKey -> s"/$path",
+            ResourceKey -> (if (lineageResource.contains(".")) lineageResource else s"public.$lineageResource")
+          )
+        case _ =>
+          Map.empty[String, String]
+      }
     } else Map.empty[String, String]
   }
 
+  //scalastyle:off
   private def getJdbcServiceName(url: String): Option[String] = {
-    if (url.contains(PostgresPrefix)) {
-      val stripUrl = url.toLowerCase.stripPrefix(PostgresPrefix).split("/").headOption.flatMap(_.split(":")
-        .headOption).getOrElse("")
+    Try {
+      if (url.contains(PostgresPrefix)) {
+        val stripUrl = url.toLowerCase.stripPrefix(PostgresPrefix).split("/").headOption.flatMap(_.split(":")
+          .headOption).getOrElse("")
 
-      if (stripUrl.endsWith(VipSuffix)) {
-        val parsedVip = stripUrl.stripSuffix(VipSuffix)
-        if (parsedVip.split("\\.").length > 1)
-          parsedVip.split("\\.", 2).lastOption
+        if (stripUrl.endsWith(VipSuffix)) {
+          val parsedVip = stripUrl.stripSuffix(VipSuffix)
+          if (parsedVip.split("\\.").length > 1)
+            parsedVip.split("\\.", 2).lastOption
+          else
+            Option(parsedVip)
+        }
+        else if (stripUrl.endsWith(DomainSuffix)) {
+          val parsedVip = stripUrl.stripSuffix(DomainSuffix)
+          if (parsedVip.split("\\.").length > 1)
+            parsedVip.split("\\.", 2).lastOption
+          else
+            Option(parsedVip)
+        }
+        else if (stripUrl.endsWith(PoolMesosDNSSuffix))
+          Option(stripUrl.stripSuffix(PoolMesosDNSSuffix))
+        else if (stripUrl.endsWith(MesosDNSSuffix))
+          stripUrl.stripSuffix(MesosDNSSuffix).split("\\.", 2).lastOption
         else
-          Option(parsedVip)
+          None
       }
-      else if (stripUrl.endsWith(DomainSuffix)) {
-        val parsedVip = stripUrl.stripSuffix(DomainSuffix)
-        if (parsedVip.split("\\.").length > 1)
-          parsedVip.split("\\.", 2).lastOption
+      else {
+        if (url.toLowerCase.contains(OracleName))
+          url.toLowerCase.split("@").lastOption.flatMap(_.stripPrefix("//").split(":", 2).headOption)
+        else if (url.toLowerCase.contains(SqlServerName))
+          url.toLowerCase.stripPrefix(SqlServerPrefix).split(";", 2).headOption.flatMap(_.split(":").headOption)
         else
-          Option(parsedVip)
+          url.toLowerCase.split("//").lastOption.flatMap(_.split("/").headOption.flatMap(_.split(":").headOption))
       }
-      else if (stripUrl.endsWith(PoolMesosDNSSuffix))
-        Option(stripUrl.stripSuffix(PoolMesosDNSSuffix))
-      else if (stripUrl.endsWith(MesosDNSSuffix))
-        stripUrl.stripSuffix(MesosDNSSuffix).split("\\.", 2).lastOption
-      else
+    } match {
+      case Success(serviceName) =>
+        serviceName
+      case Failure(e) =>
+        log.warn(s"Error extracting lineage jdbc service name from uri $url with message ${e.getLocalizedMessage}")
         None
-    }
-    else {
-      if(url.toLowerCase.contains(OracleName))
-        url.toLowerCase.split("@").lastOption.flatMap(_.stripPrefix("//").split(":",2).headOption)
-      else if (url.toLowerCase.contains(SqlServerName))
-        url.toLowerCase.stripPrefix(SqlServerPrefix).split(";",2).headOption.flatMap(_.split(":").headOption)
-        else
-        url.toLowerCase.split("//").lastOption.flatMap(_.split("/").headOption.flatMap(_.split(":").headOption))
     }
   }
 
   private def getJdbcDatabase(url: String): Option[String] = {
-    if(url.toLowerCase.contains(SqlServerName))
-      url.toLowerCase.split(";",2).lastOption.flatMap(_.split("=",2).lastOption.flatMap(_.split(";").headOption))
-    else if (url.toLowerCase.contains(OracleName))
-      url.split("//").lastOption.flatMap(_.split("/").lastOption)
-    else
-      url.toLowerCase.stripPrefix(PostgresPrefix).split("/",2).lastOption.flatMap(_.split("\\?").headOption)
+    Try {
+      if (url.toLowerCase.contains(SqlServerName))
+        url.toLowerCase.split(";", 2).lastOption.flatMap(_.split("=", 2).lastOption.flatMap(_.split(";").headOption))
+      else if (url.toLowerCase.contains(OracleName))
+        url.split("//").lastOption.flatMap(_.split("/").lastOption)
+      else
+        url.toLowerCase.stripPrefix(PostgresPrefix).split("/", 2).lastOption.flatMap(_.split("\\?").headOption)
+    } match {
+      case Success(database) =>
+        database
+      case Failure(e) =>
+        log.warn(s"Error extracting lineage jdbc database name from uri $url with message ${e.getLocalizedMessage}")
+        None
+    }
   }
 }
