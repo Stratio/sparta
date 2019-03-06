@@ -86,7 +86,7 @@ class JdbcInputStepBatch(
     throw new Exception("Not used on inputs that generates DataSets with schema")
   }
 
-  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties
+  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties(InputStep.StepType)
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
     require(urlWithSSL.nonEmpty, "JDBC url must be provided")

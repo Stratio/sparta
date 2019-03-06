@@ -54,7 +54,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
     validation
   }
 
-  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties
+  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties(OutputStep.StepType)
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite,

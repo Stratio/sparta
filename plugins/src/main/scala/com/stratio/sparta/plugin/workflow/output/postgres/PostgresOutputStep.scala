@@ -98,7 +98,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     }
   }
 
-  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties
+  override def lineageProperties(): Map[String, String] = getJdbcLineageProperties(OutputStep.StepType)
 
   //scalastyle:off
   private[postgres] def constraintSql(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: String, outputName: String,

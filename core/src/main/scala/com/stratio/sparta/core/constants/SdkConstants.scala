@@ -27,4 +27,5 @@ object SdkConstants {
   private[sparta] lazy val PathKey = "path"
   private[sparta] lazy val ResourceKey = "resource"
   private[sparta] lazy val ServiceKey = "service"
+  private[sparta] lazy val SourceKey = "source"
 }

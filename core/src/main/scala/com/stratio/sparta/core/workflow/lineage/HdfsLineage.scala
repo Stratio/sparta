@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.core.workflow.lineage
 
-import com.stratio.sparta.core.constants.SdkConstants.{PathKey, ResourceKey, ServiceKey}
+import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.OutputStep
 
 import scala.util.Properties
@@ -32,7 +32,9 @@ trait HdfsLineage {
     Map(
       ServiceKey -> getHDFSServiceName.getOrElse(""),
       PathKey -> finalPath,
-      ResourceKey -> resource)
+      ResourceKey -> resource,
+      SourceKey -> lineagePath
+    )
   }
 
   private def getFileSystemResource(path: String, suffix: String): String =

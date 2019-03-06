@@ -7,32 +7,37 @@
 package com.stratio.sparta.dg.agent.commons
 
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
+import com.stratio.sparta.core.constants.SdkConstants._
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.dg.agent.models.LineageWorkflow
+import com.stratio.sparta.serving.core.constants.AppConstant.defaultWorkflowRelationSettings
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.enumerators.{DataType, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.core.constants.SdkConstants._
 
 import scala.util.{Properties, Try}
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
 
 //scalastyle:off
-object LineageUtils extends ContextBuilderImplicits{
+object LineageUtils extends ContextBuilderImplicits {
+
+  case class OutputNodeLineageRelation(outputName: String, nodeTableName: String, outputClassPrettyName: String, outputStepType: String)
 
   val StartKey = "startedAt"
   val FinishedKey = "finishedAt"
   val TypeFinishedKey = "detailedStatus"
   val ErrorKey = "error"
   val UrlKey = "link"
-  val defaultSchema = "public."
+  val DefaultSchema = "public."
 
   lazy val spartaVHost = Properties.envOrNone("HAPROXY_HOST").getOrElse("sparta")
   lazy val spartaInstanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
@@ -47,7 +52,7 @@ object LineageUtils extends ContextBuilderImplicits{
         || eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed)
   }
 
-  def getOutputNodesWithWriter(workflow: Workflow): Seq[(String, String)] = {
+  def getOutputNodesWithWriter(workflow: Workflow): Seq[OutputNodeLineageRelation] = {
     import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
 
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
@@ -58,15 +63,24 @@ object LineageUtils extends ContextBuilderImplicits{
         val outNodeGraph = graph.get(outputNode)
         val predecessors = outNodeGraph.diPredecessors.toList
         predecessors.map { node =>
-          val writerName = node.writer.tableName.map(_.toString).getOrElse("")
-          val tableName = if (writerName.nonEmpty) writerName else node.name
+          val tableName = {
+            val relationSettings = Try {
+              node.findOutgoingTo(outNodeGraph).get.value.edge.label.asInstanceOf[WorkflowRelationSettings]
+            }.getOrElse(defaultWorkflowRelationSettings)
 
-          outNodeGraph.name -> tableName
+            if (relationSettings.dataType == DataType.ValidData)
+              node.writer.tableName.notBlank.getOrElse(node.name)
+            else if (relationSettings.dataType == DataType.DiscardedData)
+              node.writer.discardTableName.notBlank.getOrElse(SdkSchemaHelper.discardTableName(node.name))
+            else node.name
+          }
+
+          OutputNodeLineageRelation(outNodeGraph.name, tableName, node.classPrettyName, outputNode.stepType)
         }
-      }.sorted
+      }
   }
 
-  def getAllStepsProperties(workflow: Workflow) : Map[String, Map[String, String]] = {
+  def getAllStepsProperties(workflow: Workflow): Map[String, Map[String, String]] = {
 
     val errorManager = PostgresNotificationManagerImpl(workflow)
     val inOutNodes = workflow.pipelineGraph.nodes.filter(node =>
@@ -84,10 +98,10 @@ object LineageUtils extends ContextBuilderImplicits{
   }
 
   def setExecutionUrl(executionId: String): String = {
-    "https://" + spartaVHost  + "/" + spartaInstanceName + "/#/executions/" + executionId
+    "https://" + spartaVHost + "/" + spartaInstanceName + "/#/executions/" + executionId
   }
 
-  def setExecutionProperties(newExecution: WorkflowExecution): Map[String,String] = {
+  def setExecutionProperties(newExecution: WorkflowExecution): Map[String, String] = {
     Map(
       StartKey -> newExecution.genericDataExecution.startDate.getOrElse(None).toString,
       FinishedKey -> newExecution.resumedDate.getOrElse(None).toString,
@@ -96,8 +110,8 @@ object LineageUtils extends ContextBuilderImplicits{
       UrlKey -> setExecutionUrl(newExecution.getExecutionId))
   }
 
-  def updateLineageWorkflow(responseWorkflow: LineageWorkflow, newWorkflow: LineageWorkflow) : LineageWorkflow = {
-    LineageWorkflow (
+  def updateLineageWorkflow(responseWorkflow: LineageWorkflow, newWorkflow: LineageWorkflow): LineageWorkflow = {
+    LineageWorkflow(
       id = responseWorkflow.id,
       name = responseWorkflow.name,
       description = responseWorkflow.description,
@@ -113,20 +127,32 @@ object LineageUtils extends ContextBuilderImplicits{
   }
 
 
-  def addTableNameFromWriterToOutput(nodesOutGraph: Seq[(String, String)],
-                                     lineageProperties: Map[String, Map[String, String]]): Seq[(String, Map[String, String])] ={
-    nodesOutGraph.map { case (outputName, nodeTableName) =>
-      outputName -> lineageProperties.getOrElse(outputName, Map.empty).map { case property@(key, value) =>
-        if (key.equals(ResourceKey) && value.isEmpty || value.startsWith(defaultSchema)) {
-          (ResourceKey, value ++ nodeTableName)
-        } else property
-      }
+  def addTableNameFromWriterToOutput(nodesOutGraph: Seq[OutputNodeLineageRelation],
+                                     lineageProperties: Map[String, Map[String, String]]): Seq[(String, Map[String, String])] = {
+    nodesOutGraph.map { outputNodeLineageRelation =>
+      import outputNodeLineageRelation._
+       val newProperties = {
+         val outputProperties = lineageProperties.getOrElse(outputName, Map.empty)
+         val sourceProperty = outputProperties.get(SourceKey)
+
+         outputProperties.map { case property@(key, value) =>
+           if (key.equals(ResourceKey) && isFileSystemStepType(outputClassPrettyName))
+             (ResourceKey, nodeTableName)
+           else if (key.equals(ResourceKey) && isJdbcStepType(outputClassPrettyName))
+             if(!nodeTableName.contains(".") && sourceProperty.isDefined && sourceProperty.get.toLowerCase.contains("postgres"))
+               (ResourceKey, DefaultSchema + nodeTableName)
+             else (ResourceKey, nodeTableName)
+           else property
+         }
+       }
+
+      outputName -> newProperties
     }
   }
 
   def extraPathFromFilesystemOutput(stepType: String, stepClass: String, path: Option[String],
                                     resource: Option[String]): String =
-    if(stepType.equals(OutputStep.StepType) && isFileSystemStepType(stepClass) && resource.nonEmpty) {
+    if (stepType.equals(OutputStep.StepType) && isFileSystemStepType(stepClass) && resource.nonEmpty) {
       "/" + resource.getOrElse("")
     }
     else ""
@@ -154,6 +180,12 @@ object LineageUtils extends ContextBuilderImplicits{
   def isFileSystemStepType(dataStoreType: String): Boolean =
     dataStoreType match {
       case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => true
+      case _ => false
+    }
+
+  def isJdbcStepType(dataStoreType: String): Boolean =
+    dataStoreType match {
+      case "Jdbc" | "Postgres" => true
       case _ => false
     }
 

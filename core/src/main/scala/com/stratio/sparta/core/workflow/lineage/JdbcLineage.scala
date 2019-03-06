@@ -6,7 +6,8 @@
 package com.stratio.sparta.core.workflow.lineage
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.core.constants.SdkConstants.{PathKey, ResourceKey, ServiceKey}
+import com.stratio.sparta.core.constants.SdkConstants._
+import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -25,7 +26,7 @@ trait JdbcLineage extends SLF4JLogging {
   lazy val OracleName = "oracle"
   lazy val SqlServerName = "sqlserver"
 
-  def getJdbcLineageProperties: Map[String, String] = {
+  def getJdbcLineageProperties(stepType: String): Map[String, String] = {
     if (
       lineageUri.toLowerCase.contains("postgres") ||
         lineageUri.toLowerCase.contains("oracle") ||
@@ -36,12 +37,19 @@ trait JdbcLineage extends SLF4JLogging {
           Map(
             ServiceKey -> serviceName,
             PathKey -> s"/$path",
-            ResourceKey -> (if (lineageResource.contains(".")) lineageResource else s"public.$lineageResource")
+            ResourceKey -> getLineageResource(stepType),
+            SourceKey -> lineageUri
           )
         case _ =>
           Map.empty[String, String]
       }
     } else Map.empty[String, String]
+  }
+
+  private def getLineageResource(stepType: String): String = {
+    if(stepType.equals(InputStep.StepType) && !lineageResource.contains("."))
+      s"public.$lineageResource"
+    else lineageResource
   }
 
   //scalastyle:off
