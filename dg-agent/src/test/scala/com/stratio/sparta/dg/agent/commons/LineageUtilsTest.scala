@@ -100,7 +100,7 @@ class LineageUtilsTest extends WordSpec with Matchers {
     "return a list of output nodes and its writers" in {
       val workflow = statusEvent.newExecution.getWorkflowToExecute
 
-      LineageUtils.getOutputNodesWithWriter(workflow).head should be(("b", "tableName"))
+      LineageUtils.getOutputNodesWithWriter(workflow).head should be(OutputNodeLineageRelation("b", "tableName", "Parquet", "output"))
     }
   }
 
