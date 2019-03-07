@@ -256,7 +256,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                     if(!empty) {
                       val conn = getConnection(connectionProperties, name)
                       val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-                      val copySentence = s"""COPY $tableName (${schema.fields.map(_.name.toLowerCase).mkString(",")}) FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')"""
+                      val copySentence = s"""COPY $tableName (${schema.fields.map(field => dialect.quoteIdentifier(field.name)).mkString(",")}) FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')"""
 
                       cm.copyIn(copySentence, rowsStream)
                     }

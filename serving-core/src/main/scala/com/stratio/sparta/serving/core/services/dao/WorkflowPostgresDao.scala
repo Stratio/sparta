@@ -100,11 +100,11 @@ class WorkflowPostgresDao extends WorkflowDao {
     log.debug(s"Creating workflow with name ${workflow.name}, version ${workflow.version} " +
       s"and group ${workflow.group.name}")
     mandatoryValidationsWorkflow(workflow)
-    val workflowWithFields = addParametersUsed(addCreationDate(addId(addSpartaVersion(workflow.copy(groupId = workflow.groupId.orElse(workflow.group.id))))))
+    val workflowWithFields = addParametersUsed(addCreationDate(addId(addSpartaVersion(workflow.copy(groupId = workflow.group.id.orElse(workflow.groupId))))))
     (for {
-      _ <- workflowGroupById(workflow.group.id.get) //validate if group Exists
+      _ <- workflowGroupById(workflowWithFields.groupId.get) //validate if group Exists
       exists <- db.run(table.filter(w => w.id =!= workflowWithFields.id.get && w.name === workflowWithFields.name
-        && w.version === workflowWithFields.version && w.groupId === workflow.group.id.get
+        && w.version === workflowWithFields.version && w.groupId === workflowWithFields.groupId.get
       ).result)
     } yield {
       if (exists.nonEmpty)
@@ -126,7 +126,7 @@ class WorkflowPostgresDao extends WorkflowDao {
           s"Workflow with name ${workflow.name}," +
             s" version ${workflow.version} and group ${workflow.group.name} exists." +
             s" The created workflow has id ${workflow.id.get}")
-      val workflowWithFields = addSpartaVersion(addParametersUsed(addUpdateDate(workflow.copy(groupId = workflow.groupId.orElse(workflow.group.id)))))
+      val workflowWithFields = addSpartaVersion(addParametersUsed(addUpdateDate(workflow.copy(groupId = workflow.group.id.orElse(workflow.groupId)))))
       upsert(workflowWithFields)
       workflowWithFields
     }).cached()
