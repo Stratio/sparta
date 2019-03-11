@@ -12,7 +12,17 @@
   width: 100%;
   height: 100%;
   background-color: white;
-  @include createFlexBox(column, normal, flex-start, nowrap);
+
+  .we-embedded-editor{
+    width: 100%;
+    height: 100%;
+  }
+
+  .we-container {
+    @include createFlexBox(column, normal, flex-start, nowrap);
+    width: 100%;
+    height: 100%;
+  }
 
   .we__editor {
     width: 100%;

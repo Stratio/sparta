@@ -31,7 +31,6 @@ import { WizardToolsService } from '@app/wizard/services/wizard-tools.service';
 import { filter as _filter, cloneDeep as _cloneDeep } from 'lodash';
 import { NodeHelpersService } from '@app/wizard-embedded/_services/node-helpers.service';
 import { InitializeStepService } from '@app/wizard/services/initialize-step.service';
-import { copyIntoClipboard } from '@utils';
 
 import { GraphEditorComponent } from '@app/shared/components/graph-editor/graph-editor.component';
 
