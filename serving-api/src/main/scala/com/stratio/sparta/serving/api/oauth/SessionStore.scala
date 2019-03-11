@@ -7,42 +7,52 @@ package com.stratio.sparta.serving.api.oauth
 
 import java.util.UUID
 
-import scala.Predef._
+import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, RemoveSession}
 
 object SessionStore {
 
   var sessionStore: Map[String, (String, Long)] = Map.empty[String, (String, Long)]
 
-  def addSession(sessionId: String, identity: String, expires: Long): Unit = {
+  def addSession(newSession: NewSession): Unit = {
     synchronized {
+      import newSession._
       sessionStore += sessionId -> (identity, now + expires)
     }
   }
 
-  private def validateSession(identity: String, expires: Long, sessionId: String) = {
-    if (expires < now) {
-      removeSession(sessionId)
-      None
-    } else Option(identity)
+  def validateSession(sessionId: String): Boolean = {
+    sessionStore.get(sessionId) match {
+      case Some((_, expires)) =>
+        expires >= now
+      case _ => false
+    }
   }
 
   def getSession(sessionId: String): Option[String] = {
     synchronized {
       sessionStore.get(sessionId) match {
-        case Some((identity, expires)) => validateSession(identity, expires, sessionId)
+        case Some((identity, _)) =>
+          if (validateSession(sessionId))
+            Option(identity)
+          else None
         case _ => None
       }
     }
   }
 
-  def removeSession(sessionId: String): Unit = {
+  def removeSession(removeSession: RemoveSession): Unit = {
     synchronized {
-      sessionStore -= sessionId
+      sessionStore -= removeSession.sessionId
     }
   }
 
   def clean: Iterable[Option[String]] = {
-    sessionStore.map{case (id,(identity, expires)) => validateSession(identity,expires,id)}
+    sessionStore.map { case (id, (identity, _)) =>
+      if (!validateSession(id)) {
+        removeSession(RemoveSession(id))
+        None
+      } else Option(identity)
+    }
   }
 
   def now: Long = System.currentTimeMillis

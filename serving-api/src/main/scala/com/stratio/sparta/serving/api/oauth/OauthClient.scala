@@ -5,24 +5,28 @@
  */
 package com.stratio.sparta.serving.api.oauth
 
+import akka.actor.ActorRef
+import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, PublishRemoveSessionInCluster, PublishSessionInCluster, RemoveSession}
+import com.stratio.sparta.serving.api.oauth.SessionStore._
 import spray.client.pipelining._
-import spray.http.{DateTime, HttpCookie, HttpRequest, HttpResponse}
 import spray.http.StatusCodes._
+import spray.http.{DateTime, HttpCookie, HttpRequest, HttpResponse}
 import spray.routing._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
-import SessionStore._
 
-trait OauthClient extends HttpService{
+trait OauthClient extends HttpService {
 
   implicit val ec: ExecutionContext = ExecutionContext.global
 
   import OauthClientHelper._
 
+  val clusterSessionActor: ActorRef
+
   val configure = new Config
 
-  private val cookieDuration: Long = sys.env.getOrElse("COOKIE_EXPIRATION_HOURS","8").toLong * 3600000L
+  private val cookieDuration: Long = sys.env.getOrElse("COOKIE_EXPIRATION_HOURS", "8").toLong * 3600000L
 
   private def authCookieWithExpiration(sessionId: String, expirationDelta: Long = cookieDuration) = HttpCookie(
     configure.CookieName,
@@ -44,15 +48,22 @@ trait OauthClient extends HttpService{
       optionalCookie(configure.CookieName) flatMap {
         case Some(x) => {
           getSession(x.content) match {
-            case Some(cont: String) => setCookie(authCookieWithExpiration(x.content)) & provide(cont)
-            case None => complete(Unauthorized,"")
+            case Some(cont: String) =>
+              setCookie(authCookieWithExpiration(x.content)) & provide(cont)
+            case None =>
+              val sessionToRemove = RemoveSession(x.content)
+              removeSession(sessionToRemove)
+              clusterSessionActor ! PublishRemoveSessionInCluster(sessionToRemove)
+              complete(Unauthorized, "")
           }
         }
-        case None =>  complete(Unauthorized,"")
+        case None => complete(Unauthorized, "")
       }
     } else {
       val sessionId = getRandomSessionId
-      addSession(sessionId, "*", Long.MaxValue)
+      val newSession = NewSession(sessionId, "*", Long.MaxValue)
+      addSession(newSession)
+      clusterSessionActor ! PublishSessionInCluster(newSession)
       setCookie(HttpCookie(
         configure.CookieName,
         sessionId,
@@ -70,13 +81,19 @@ trait OauthClient extends HttpService{
         case Some(x) =>
           getSession(x.content) match {
             case Some(cont: String) => setCookie(authCookieWithExpiration(x.content)) & provide(cont)
-            case None => authorizeRedirect
-        }
+            case None =>
+              val sessionToRemove = RemoveSession(x.content)
+              removeSession(sessionToRemove)
+              clusterSessionActor ! PublishRemoveSessionInCluster(sessionToRemove)
+              authorizeRedirect
+          }
         case None => authorizeRedirect
       }
     } else {
       val sessionId = getRandomSessionId
-      addSession(sessionId, "*", Long.MaxValue )
+      val newSession = NewSession(sessionId, "*", Long.MaxValue)
+      addSession(newSession)
+      clusterSessionActor ! PublishSessionInCluster(newSession)
       setCookie(HttpCookie(
         configure.CookieName,
         sessionId,
@@ -93,8 +110,10 @@ trait OauthClient extends HttpService{
     parameter("code") { code: String =>
       val (token, expires) = getToken(code)
       val sessionId = getRandomSessionId
-      addSession(sessionId, getUserProfile(token),expires*1000)
-      setCookie(authCookieWithExpiration(sessionId, cookieDuration)){
+      val newSession = NewSession(sessionId, getUserProfile(token), expires * 1000)
+      addSession(newSession)
+      clusterSessionActor ! PublishSessionInCluster(newSession)
+      setCookie(authCookieWithExpiration(sessionId, cookieDuration)) {
         indexRedirect
       }
     }
@@ -104,8 +123,10 @@ trait OauthClient extends HttpService{
     get {
       optionalCookie(configure.CookieName) {
         case Some(x) => {
-          removeSession(x.content)
-          deleteCookie(configure.CookieName, path = "/"){
+          val sessionToRemove = RemoveSession(x.content)
+          removeSession(sessionToRemove)
+          clusterSessionActor ! PublishRemoveSessionInCluster(RemoveSession(x.content))
+          deleteCookie(configure.CookieName, path = "/") {
             logoutRedirect
           }
         }
