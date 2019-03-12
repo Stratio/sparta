@@ -7,99 +7,199 @@
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
 import { ExecutionService } from 'app/services/api/execution.service';
-import { take, map, filter, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Engine } from '@models/enums';
 import { Observable } from 'rxjs';
-import { AnyFn } from '@ngrx/store/src/selector';
+
+export interface MomentPeriod {
+  substractPeriod: string;
+  requestPeriod: string;
+  daysLeft: Number;
+}
+
+export interface MomentPeriods {
+  DAY: MomentPeriod;
+  WEEK: MomentPeriod;
+  MONTH: MomentPeriod;
+}
+
+export interface Granularity {
+  singular: string;
+  plural: string;
+  length: Number;
+  getMethod: string;
+}
+
+export interface Granularities {
+  DAY: Granularity;
+  WEEK: Granularity;
+  MONTH: Granularity;
+}
+
+export interface TotalExecutions {
+  data: Array<number>;
+  label: String;
+}
+
+export interface ExecutionChartData {
+  period: string;
+  times: Array<string>;
+  batchTotal: TotalExecutions;
+  streamingTotal: TotalExecutions;
+}
+
+export interface LabelChartInfo {
+  label: string;
+  data: number;
+  moment: moment.Moment;
+}
+
+export interface ExecutionData {
+  date: string;
+  executionEngine: string;
+  period: string;
+  time: moment.Moment;
+  total: number;
+}
+
+export interface ExecutionsData {
+  batchData: Array<ExecutionData>;
+  streamingData: Array<ExecutionData>;
+}
 
 @Injectable()
 export class ExecutionPeriodsService {
 
-  constructor(
-    private _executionService: ExecutionService
-  ) { }
+  private _momentPeriods: MomentPeriods = Object.freeze({
+    DAY: {
+      substractPeriod: 'days',
+      requestPeriod: 'HOUR',
+      daysLeft: 1
+    },
+    WEEK: {
+      substractPeriod: 'days',
+      requestPeriod: 'DAY',
+      daysLeft: 7
+    },
+    MONTH: {
+      substractPeriod: 'days',
+      requestPeriod: 'DAY',
+      daysLeft: 30
+    }
+  });
 
-  getExecutionPeriodData(period: string): Observable<any> {
+  private _granularitys: Granularities = Object.freeze({
+    DAY: {
+      singular: 'hour',
+      plural: 'hours',
+      length: 23,
+      getMethod: 'hour'
+    },
+    WEEK: {
+      singular: 'day',
+      plural: 'days',
+      length: 6,
+      getMethod: 'isoWeekday'
+    },
+    MONTH: {
+      singular: 'day',
+      plural: 'days',
+      length: 30,
+      getMethod: 'date'
+    }
+  });
 
+  constructor(private _executionService: ExecutionService) {}
+
+  /**
+   * Main method returns the data with the number of the executions for the chart
+   * @param period - type of period.
+   */
+  getExecutionPeriodData(period: string): Observable<ExecutionChartData> {
     return this._getPeriod(period)
-    .pipe(map((res: any) => res.executionsSummaryByDate))
-    .pipe(map((executions: any) => this._disjoinEjecutions(executions, period)))
-    .pipe(map((data: any) => {
-      const periodArray: Array<any> = this._getPeriodArray(period);
-      const batchTotal = this._getEjecutionsData(periodArray.map(periodsItem => periodsItem.data), data.batchData);
-      const streamingTotal = this._getEjecutionsData(periodArray.map(periodsItem => periodsItem.data), data.streamingData);
+      .pipe(
+        map((res: any) => res.executionsSummaryByDate),
+        map((executions: any) => this._disjoinEjecutions(executions, period)),
+        map((data: any) => {
+          const periodArray: Array<any> = this._getPeriodArray(period);
+          const batchTotal = this._getEjecutionsData(
+            periodArray.map(periodsItem => periodsItem.moment),
+            data.batchData
+          );
+          const streamingTotal = this._getEjecutionsData(
+            periodArray.map(periodsItem => periodsItem.moment),
+            data.streamingData
+          );
 
-      const times = periodArray.map(time => time.label);
-      return {
-        period,
-        times: period === 'DAY' ? times.map(val => val % 2 ? '' : `${val.padStart(2, '0')}:00`) : times,
-        batchTotal: {
-          data: batchTotal,
-          label: 'Batch'
-        },
-        streamingTotal: {
-          data: streamingTotal,
-          label: 'Streaming'
-        }
-      };
-    }));
+          const times = periodArray.map(time => time.label);
+          return {
+            period,
+            times:
+              period === 'DAY'
+                ? times.map(val =>
+                    val % 2 ? '' : `${val.padStart(2, '0')}:00`
+                  )
+                : times,
+            batchTotal: {
+              data: batchTotal,
+              label: 'Batch'
+            },
+            streamingTotal: {
+              data: streamingTotal,
+              label: 'Streaming'
+            }
+          };
+        })
+      );
   }
 
-  private _getPeriodArray(period: string): Array<Object> {
-    const times: Array<Object> = [];
+  /**
+   * Get an Array with information each moment in the chart.
+   * @param period
+   */
+  private _getPeriodArray(period: string): Array<LabelChartInfo> {
+    const times: Array<any> = [];
     const now: moment.Moment = moment();
-    const granularitys: Object = Object.freeze({
-      'DAY': {
-        singular: 'hour',
-        plural: 'hours',
-        length: 23,
-        getMethod: 'hour'
-      },
-      'WEEK': {
-        singular: 'day',
-        plural: 'days',
-        length: 6,
-        getMethod: 'isoWeekday'
-      },
-      'MONTH': {
-        singular: 'day',
-        plural: 'days',
-        length: 30,
-        getMethod: 'date'
-      }
-    });
-    const granularity = granularitys[period];
-    const past: moment.Moment = now.clone().subtract(granularity.length, granularity.plural);
+    const granularity = this._granularitys[period];
+    const past: moment.Moment = now
+      .clone()
+      .subtract(granularity.length, granularity.plural);
 
     while (now.diff(past, granularity.plural) > 0) {
       times.push({
-        label: period === 'WEEK' ? past.format('dddd') : past[granularity.getMethod]().toString(),
-        data: past[granularity.getMethod]()
+        label:
+          period === 'WEEK'
+            ? past.format('dddd')
+            : past[granularity.getMethod]().toString(),
+        data: past[granularity.getMethod](),
+        moment: moment(past)
       });
       past.add(1, granularity.singular);
     }
-    times.push({
-      label: period === 'WEEK' ? past.format('dddd') : past[granularity.getMethod]().toString(),
-      data: past[granularity.getMethod]()
-    });
 
+    times.push({
+      label:
+        period === 'WEEK'
+          ? past.format('dddd')
+          : past[granularity.getMethod]().toString(),
+      data: past[granularity.getMethod](),
+      moment: past
+    });
     return times;
   }
 
-  private _disjoinEjecutions(executions: Array<any>, period: string): Object {
+  private _disjoinEjecutions(executions: Array<ExecutionData>, period: string): ExecutionsData {
     const engines = [Engine.Batch, Engine.Streaming];
-    const [batchData, streamingData] = engines.map(
-      engine => executions
+    const [batchData, streamingData] = engines.map(engine =>
+      executions
         .filter(data => data.executionEngine === engine)
         .map(data => {
-          data.period = period === 'DAY'
-            ? moment(data.date).hour()
-            : period === 'WEEK'
-              ? moment(data.date).day()
-              : moment(data.date).date();
+          data.period = period;
+          data.time = moment(data.date, 'YYYY-MM-DDTHH:mm:ss');
           return data;
         })
     );
+
     return {
       batchData,
       streamingData
@@ -107,47 +207,42 @@ export class ExecutionPeriodsService {
   }
 
   private _getPeriod(period): Observable<Object> {
-    const momentPeriods: Object = {
-      'DAY': {
-        substractPeriod: 'days',
-        requestPeriod: 'HOUR',
-        daysLeft: 1
-      },
-      'WEEK': {
-        substractPeriod: 'days',
-        requestPeriod: 'DAY',
-        daysLeft: 7
-      },
-      'MONTH': {
-        substractPeriod: 'days',
-        requestPeriod: 'DAY',
-        daysLeft: 30
-      }
-    };
-    const periodData = momentPeriods[period];
+    const periodData = this._momentPeriods[period];
 
     return this._executionService.getExecutionsByDate(
       periodData.requestPeriod,
-      moment().subtract(periodData.daysLeft, periodData.substractPeriod).minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z',
-      moment().minutes(0).seconds(0).format('YYYY-MM-DDTHH:mm:ss') + 'Z'
+      moment()
+        .subtract(periodData.daysLeft, periodData.substractPeriod)
+        .minutes(0)
+        .seconds(0)
+        .format('YYYY-MM-DDTHH:mm:ss') + 'Z',
+      moment()
+        .minutes(0)
+        .seconds(0)
+        .format('YYYY-MM-DDTHH:mm:ss') + 'Z'
     );
   }
 
   private _getEjecutionsData(times, executionsData): Array<number> {
-    const initialEjecutions = Array.from(times, time => Object({
-      executions: 0,
-      period: time
-    }));
+    const initialEjecutions = Array.from(times, time =>
+      Object({
+        executions: 0,
+        period: time
+      })
+    );
 
     executionsData.forEach(execution => {
-      const initialExecutionsFiltered: Array<Object> = initialEjecutions.filter(batchValue => batchValue.period === execution.period);
-      const initialExecution: any = initialExecutionsFiltered && initialExecutionsFiltered.length
-        ? initialExecutionsFiltered[0]
-        : { executions: 0 };
-        initialExecution.executions = execution.total;
+      const initialExecutionsFiltered: Array<Object> = initialEjecutions.filter(
+        batchValue => batchValue.period.isSame(execution.time, this._granularitys[execution.period].singular)
+      );
+
+      const initialExecution: any =
+        initialExecutionsFiltered && initialExecutionsFiltered.length
+          ? initialExecutionsFiltered[0]
+          : { executions: 0 };
+      initialExecution.executions = execution.total;
     });
 
     return initialEjecutions.map(data => data.executions);
   }
-
 }
