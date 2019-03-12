@@ -9,6 +9,7 @@ import { StepType, Engine } from '@models/enums';
 import addColumnTemplate from './transformations/addColumns.json';
 import avroTemplate from './transformations/avro.json';
 import basicDataQualityTemplate from './transformations/basicDataQuality.json';
+import caseTemplate from './transformations/case.json';
 import castingTemplate from './transformations/casting.json';
 import checkpointTemplate from './transformations/checkpoint.json';
 import coalesceTemplate from './transformations/coalesce.json';
@@ -51,6 +52,7 @@ export const transformations: any = [
     addColumnTemplate,
     avroTemplate,
     basicDataQualityTemplate,
+    caseTemplate,
     castingTemplate,
     checkpointTemplate,
     coalesceTemplate,

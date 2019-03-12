@@ -63,6 +63,7 @@ export const icons: any = {
     RenameColumns: '\ue923',
     Datasource: '\ue031',
     Coalesce: '\ue98b',
+    Case: '\ue031',
     RunWorkflow: '\ue052',
     DuplicateColumns: '\uE61c',
     Binarizer: '\ue941',
