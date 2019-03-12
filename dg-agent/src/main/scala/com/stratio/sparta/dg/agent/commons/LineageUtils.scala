@@ -75,7 +75,7 @@ object LineageUtils extends ContextBuilderImplicits {
             else node.name
           }
 
-          OutputNodeLineageRelation(outNodeGraph.name, tableName, node.classPrettyName, outputNode.stepType)
+          OutputNodeLineageRelation(outNodeGraph.name, tableName, outNodeGraph.classPrettyName, outputNode.stepType)
         }
       }
   }
