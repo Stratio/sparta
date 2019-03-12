@@ -69,7 +69,8 @@
             [perPageOptions]="perPageOptions"
             [currentPage]="currentPage"
             [id]="'execution-pagination'"
-            (change)="onChangePage.emit($event)">
+            (change)="changePage($event)"
+            (changePerPage)="changePerPage($event)">
         </st-pagination>
     </div>
   </div>

@@ -15,11 +15,11 @@ import {
 import { StTableHeader, Order } from '@stratio/egeo';
 
 @Component({
-   selector: 'executions-managing-table',
-   styleUrls: ['executions-table.component.scss'],
-   templateUrl: 'executions-table.component.html',
-   changeDetection: ChangeDetectionStrategy.OnPush,
-   encapsulation: ViewEncapsulation.None
+  selector: 'executions-managing-table',
+  styleUrls: ['executions-table.component.scss'],
+  templateUrl: 'executions-table.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  encapsulation: ViewEncapsulation.None
 })
 
 export class ExecutionTableComponent {
@@ -53,9 +53,9 @@ export class ExecutionTableComponent {
 
   checkRow(isChecked: boolean, value: any) {
     if (isChecked) {
-       this.selectExecution.emit(value);
+      this.selectExecution.emit(value);
     } else {
-       this.deselectExecution.emit(value);
+      this.deselectExecution.emit(value);
     }
   }
 
@@ -70,6 +70,20 @@ export class ExecutionTableComponent {
 
   trackByFn(index, item) {
     return item.id;
+  }
+
+  changePerPage(event) {
+    this.onChangePage.emit({
+      currentPage: event.currentPage,
+      perPage: event
+    });
+  }
+
+  changePage(event) {
+    this.onChangePage.emit({
+      currentPage: event.currentPage,
+      perPage: this.perPage
+    });
   }
 
   constructor(private _cd: ChangeDetectorRef) {
