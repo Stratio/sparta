@@ -454,7 +454,7 @@
           "propertyName": "_KAFKA_COMMIT_OFFSET_NUM_RETRIES_",
           "propertyType": "text",
           "tooltip": "Number of attempts to commit offsets.",
-          "default": "3",
+          "default": "50",
           "visible": [
              [
                 {
@@ -470,7 +470,7 @@
           "propertyName": "_KAFKA_COMMIT_OFFSET_WAIT_",
           "propertyType": "text",
           "tooltip": "Time in milliseconds to wait after each commit offset attempt.",
-          "default": "1000",
+          "default": "100",
           "visible": [
              [
                 {

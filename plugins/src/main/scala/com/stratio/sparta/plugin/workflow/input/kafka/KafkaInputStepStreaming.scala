@@ -74,8 +74,8 @@ class KafkaInputStepStreaming(
   lazy val autoCommitInterval = Try(propertiesWithCustom.getInt(AUTO_COMMIT_INTERVAL_MS_CONFIG)).getOrElse(5000)
   lazy val maxPartitionFetchBytes = Try(propertiesWithCustom.getInt(MAX_PARTITION_FETCH_BYTES_CONFIG)).getOrElse(10485760)
   lazy val retryBackoff = Try(propertiesWithCustom.getInt(RETRY_BACKOFF_MS_CONFIG)).getOrElse(1000)
-  lazy val commitOffsetRetries = Try(properties.getInt("commitOffsetsNumRetries", 3)).getOrElse(3)
-  lazy val commitOffsetWait = Try(properties.getInt("commitOffsetsWait", 1000)).getOrElse(1000)
+  lazy val commitOffsetRetries = Try(properties.getInt("commitOffsetsNumRetries", 50)).getOrElse(50)
+  lazy val commitOffsetWait = Try(properties.getInt("commitOffsetsWait", 100)).getOrElse(100)
 
   override val executeOffsetCommit: Boolean = !getAutoCommit.head._2 && getAutoCommitInKafka
 
