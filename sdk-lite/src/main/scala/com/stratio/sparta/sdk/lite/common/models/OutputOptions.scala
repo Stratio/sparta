@@ -22,3 +22,22 @@ case class OutputOptions(
                           partitionBy: Seq[String],
                           customProperties: Map[String, String]
                         )
+
+//must be synchronized with com.stratio.sparta.core.workflow.step.OutputStep
+object OutputOptions {
+
+  private[sdk] val PrimaryKey = "primaryKey"
+  private[sdk] val TableNameKey = "tableName"
+  private[sdk] val PartitionByKey = "partitionBy"
+  private[sdk] val UniqueConstraintName = "uniqueConstraintName"
+  private[sdk] val UniqueConstraintFields = "uniqueConstraintFields"
+  private[sdk] val UpdateFields = "updateFields"
+
+  def toMap: OutputOptions => Map[String, String] = outputOpts => {
+    outputOpts.tableName.map(tName => Map(TableNameKey -> tName)).getOrElse(Map.empty) ++
+      outputOpts.customProperties ++
+      outputOpts.primaryKey.map(pKey => Map(PrimaryKey -> pKey)).getOrElse(Map.empty) ++
+      outputOpts.partitionBy.headOption.map(_ => Map(PartitionByKey -> outputOpts.partitionBy.mkString(","))).getOrElse(Map.empty)
+  }
+
+}

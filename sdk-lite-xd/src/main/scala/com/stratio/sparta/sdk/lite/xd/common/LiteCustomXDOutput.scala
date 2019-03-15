@@ -24,6 +24,6 @@ abstract class LiteCustomXDOutput(
   def save(data: DataFrame, saveMode: String, saveOptions: Map[String, String]): Unit
 
   def save(dataFrame: DataFrame, outputOptions: OutputOptions): Unit =
-    save(dataFrame, outputOptions.saveMode.toString, properties ++ outputOptions.customProperties)
+    save(dataFrame, outputOptions.saveMode.toString, properties ++ OutputOptions.toMap(outputOptions))
 
 }

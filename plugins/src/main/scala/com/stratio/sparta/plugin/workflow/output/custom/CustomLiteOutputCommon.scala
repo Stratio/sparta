@@ -20,10 +20,14 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
+object CustomLiteOutputCommon{
+  val CustomLiteClassTypeProp = "customLiteClassType"
+}
+
 class CustomLiteOutputCommon[T <: SDKCustomOutput](name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
-  lazy val customClassType: Option[String] = properties.getString("customLiteClassType", None)
+  lazy val customClassType: Option[String] = properties.getString(CustomLiteOutputCommon.CustomLiteClassTypeProp, None)
 
   lazy val spark2spartaSaveMode: Map[SaveModeEnum.Value, SaveMode] = Map(
     SaveModeEnum.Append -> Append,
