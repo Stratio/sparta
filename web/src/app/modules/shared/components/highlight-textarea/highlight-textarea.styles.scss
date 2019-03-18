@@ -10,6 +10,10 @@
     width: 100%;
   }
 
+  .CodeMirror-scroll {
+    padding: 10px 12px 10px 15px;
+  }
+
   .CodeMirror-lines {
     font-size: 13px;
   }
@@ -32,31 +36,59 @@
     display: block;
     color: #ec445c;
     margin-top: -18px;
-}
-
-  .textarea-scroll {
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    border: 1px solid #b5b5b5;
-    border-radius: 4px;
-    margin-bottom: 20px;
   }
 
+  .textarea {
+    &__scroll {
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: 1px solid #b5b5b5;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    &__container {
+      padding-bottom: 2px;
+    }
+
+    &__handle {
+      background: #f7f7f7;
+      height: 20px;
+      user-select: none;
+      cursor: row-resize;
+      border-top: 1px solid #ddd;
+        
+    &:before {
+      content: '\2261'; /* https://en.wikipedia.org/wiki/Triple_bar */
+      color: #999;
+      position: absolute;
+      left: 50%;
+    }
+    
+    &:hover {
+      background: #f0f0f0;
+    }
+    
+    &:hover:before {
+      color: #000;
+    }
+  }
+}
+
   .error {
-    .textarea-scroll {
+    .textarea__scroll {
         border-color: #ec445c!important;
     }
   }
 
   .active {
-    .textarea-scroll {
+    .textarea__scroll {
         border-color: $input-field-onfocus;
     }
   }
 
   .disabled {
-    .textarea-scroll {
+    .textarea__scroll {
         border-color: #cbcbcb;
         background-color: #fafafa;
         color: #999;
@@ -68,9 +100,6 @@
     background: white;
   }
 
-  .textarea-container {
-    padding-bottom: 2px;
-  }
 
 
   /* Codemirror overrides */
@@ -86,7 +115,6 @@
       box-sizing: border-box;
       height: inherit;
       cursor: text;
-      padding: 10px 12px 10px 15px;
   }
 
   .CodeMirror-placeholder {
@@ -109,10 +137,6 @@
       .CodeMirror-placeholder {
         display: none;
       }
-  }
-
-  .workflow-json-content .CodeMirror-scroll {
-      min-height: 240px!important;
   }
 
   .disabled {

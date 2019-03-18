@@ -16,7 +16,8 @@ import {
   Renderer,
   ViewChild,
   ViewChildren,
-  ViewEncapsulation
+  ViewEncapsulation,
+  NgZone
 } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -98,7 +99,19 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   private pristine = true;
   private valueChangeSub: Subscription;
 
-  constructor(private _cd: ChangeDetectorRef, private elementRef: ElementRef, private renderer: Renderer) { }
+  private MIN_HEIGHT = 115;
+  private currentHeight = this.MIN_HEIGHT;
+
+  private _handleElement: any;
+
+  constructor(
+    private _cd: ChangeDetectorRef, 
+    private _elementRef: ElementRef,
+    private _ngZone: NgZone,
+    private renderer: Renderer) {
+      this._onDrag = this._onDrag.bind(this);
+      this._onRelease = this._onRelease.bind(this);
+  }
 
   onChange = (_: any) => { };
   onTouched = () => { };
@@ -164,10 +177,13 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this._cd.markForCheck();
     });
 
-    this.renderer.setElementStyle(this.elementRef.nativeElement.querySelector('.CodeMirror-scroll'), 'min-height', 22 * this.rows + 'px');
+    //this.renderer.setElementStyle(this._elementRef.nativeElement.querySelector('.CodeMirror-scroll'), 'min-height', 22 * this.rows + 'px');
+    this.instance.setSize(null, Math.max(this.MIN_HEIGHT, (22 * this.rows)) + 'px');
+
   }
 
   ngAfterViewInit(): void {
+    this._handleElement = this._elementRef.nativeElement.querySelector('.textarea__handle');
     if (this.isFocused) {
       this.focus = true;
       this.vc.first.nativeElement.focus();
@@ -176,6 +192,12 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     this.instance.setValue(this.internalControl.value ? this.internalControl.value : '');
     this._cd.markForCheck();
 
+    this._ngZone.runOutsideAngular(() => {
+      this._handleElement.addEventListener('mousedown', (e) => {    
+        document.body.addEventListener('mousemove', this._onDrag);
+        window.addEventListener('mouseup', this._onRelease);
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -249,15 +271,25 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     if (!errors) {
       return undefined;
     }
-
     if (!this.errors) {
       return '';
     }
-
     if (errors.hasOwnProperty('required')) {
       return this.errors.required || this.errors.generic || '';
     }
     return '';
+  }
+
+
+  private _onDrag(e) {
+    console.log(e)
+    this.instance.setSize(null, Math.max(this.MIN_HEIGHT, (this.currentHeight + e.movementY)) + "px");
+    this.currentHeight = Math.max(this.MIN_HEIGHT, (this.currentHeight + e.movementY));
+  }
+  
+  private _onRelease(e) {
+    document.body.removeEventListener('mousemove', this._onDrag);
+    window.removeEventListener('mouseup', this._onRelease);
   }
 
 }

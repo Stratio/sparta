@@ -6,15 +6,16 @@
 import { Injectable, Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-   name: 'keyobject'
+  name: 'keyobject'
 })
 @Injectable()
 export class Keyobject implements PipeTransform {
 
-transform(value: any, args: string[]): any {
+  transform(value: any, args: string[]): any {
     const keys = [];
     for (const key in value) {
-        keys.push({key: key, value: value[key]});
+      keys.push({ key: key, value: value[key] });
     }
     return keys;
-}}
+  }
+}
