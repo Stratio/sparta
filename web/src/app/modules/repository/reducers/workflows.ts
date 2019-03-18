@@ -427,26 +427,32 @@ export function reducer(state: State = initialState, action: any): State {
             }
          };
       }
-
       case workflowActions.SAVE_WORKFLOW_GROUP: {
         const lastUpdate = action.payload.lastUpdateDate ? action.payload.lastUpdateDate : action.payload.creationDate;
-        const newWorkflow = {
+        let workflowList = state.workflowList;
+        let workflowsVersionsList = state.workflowsVersionsList;
+        const workflowFinded = state.workflowsVersionsList.find((wf) => action.payload.name === wf.name);
+        const newVersion = {
           ...action.payload,
           group: action.payload.group.name,
           nodes: action.payload.pipelineGraph.nodes,
           type: action.payload.executionEngine,
           lastUpdate: formatDate(lastUpdate)
         };
-        newWorkflow.versions = [{
-          ...action.payload,
-          group: action.payload.group.name,
-          nodes: action.payload.pipelineGraph.nodes,
-          type: action.payload.executionEngine,
-          lastUpdate: formatDate(lastUpdate)
-        }];
-        const workflowList = [...state.workflowList, newWorkflow];
-        const workflowsVersionsList = [...state.workflowsVersionsList, newWorkflow];
-
+        if(!workflowFinded){
+          const newWorkflow = {
+            ...action.payload,
+            group: action.payload.group.name,
+            nodes: action.payload.pipelineGraph.nodes,
+            type: action.payload.executionEngine,
+            lastUpdate: formatDate(lastUpdate)
+          };
+          workflowList = [...state.workflowList, newWorkflow];
+          newWorkflow.versions = [newVersion];
+          workflowsVersionsList = [...state.workflowsVersionsList, newWorkflow];
+        }else{
+          workflowFinded.versions.push(newVersion);
+        }
         return {
           ...state,
           workflowList,
