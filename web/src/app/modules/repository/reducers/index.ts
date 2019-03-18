@@ -99,8 +99,17 @@ export const getGroupsOrderedList = createSelector(
     getSearchQuery,
     (groups, order, searchQuery) => {
         searchQuery = searchQuery.toLowerCase();
-        return orderBy([...(searchQuery.length ?
-            groups.filter(group => group.name.toLowerCase().indexOf(searchQuery) > -1) : groups)], order.orderBy, order.type ? true : false)
+
+        return orderBy([
+          ...(
+              searchQuery.length ?
+              groups.filter(group => group.name.toLowerCase().indexOf(searchQuery) > -1) :
+              groups
+            )
+          ],
+          order.orderBy,
+          order.type ? true : false
+        );
     });
 
 export const getVersionsOrderedList = createSelector(
@@ -109,8 +118,17 @@ export const getVersionsOrderedList = createSelector(
     getSearchQuery,
     (versions, order, searchQuery) => {
         searchQuery = searchQuery.toLowerCase();
-        return orderBy([...(searchQuery.length ?
-            versions.filter(version => ('v' + version.version).indexOf(searchQuery) > -1) : versions)], order.orderBy, order.type ? true : false)
+
+        return orderBy([
+          ...(
+              searchQuery.length ?
+              versions.filter(version => ('v' + version.version).indexOf(searchQuery) > -1) :
+              versions
+            )
+          ],
+          order.orderBy,
+          order.type ? true : false
+        );
     });
 
 export const getWorkflowStatuses: any = createSelector(getWorkflowsEntityState, (state) => state.workflowsStatus);

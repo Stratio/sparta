@@ -32,11 +32,11 @@ export function generateJsonFile(name: string, content: any) {
 export function orderBy(array: Array<any>, orderProperty: string, order: boolean): Array<any> {
   const orderAux = order ? 1 : -1;
   array.sort((a: any, b: any) => {
-    let avalue = getOrderPropertyValue(a, orderProperty);
-    let bvalue = getOrderPropertyValue(b, orderProperty);
+    let avalue = getOrderPropertyValue(a, orderProperty) || '';
+    let bvalue = getOrderPropertyValue(b, orderProperty) || '';
 
-    avalue = avalue ? avalue.toString().toUpperCase() : '';
-    bvalue = bvalue ? bvalue.toString().toUpperCase() : '';
+    avalue = avalue && typeof avalue === 'string' ? avalue.toString().toUpperCase() : avalue;
+    bvalue = bvalue && typeof bvalue === 'string'  ? bvalue.toString().toUpperCase() : bvalue;
 
     if (avalue < bvalue) {
       return -(orderAux);
