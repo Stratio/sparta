@@ -99,12 +99,14 @@ export class DraggableElementDirective implements AfterContentInit, OnInit, OnDe
   }
   /** lifecycle methods */
 
-  private _onDrag() {
+  private _onDrag(e) {
     const event = d3Event;
-    this._draggableGroup.forEach(ref => {
-      ref._dragmove(event);
-    });
-    if (!this._draggableGroup.get(this)) {
+    event.sourceEvent.preventDefault();
+    if (this.selected) {
+      this._draggableGroup.forEach(ref => {
+        ref._dragmove(event);
+      });
+     } else {
       this._dragmove(event);
     }
   }

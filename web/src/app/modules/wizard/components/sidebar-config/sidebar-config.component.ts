@@ -25,6 +25,7 @@ import { StHorizontalTab } from '@stratio/egeo';
 
 export class SidebarConfigComponent implements OnInit,  OnChanges {
   @Input() isVisible = true;
+  @Input() top: number;
   @Input() nodeData: any;
   @Input() showCrossdataCatalog: boolean;
 

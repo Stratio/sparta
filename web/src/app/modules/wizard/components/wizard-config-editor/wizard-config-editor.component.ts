@@ -383,6 +383,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
       return input.result.schema.fields.map(field => ({
         name: field.name,
         value: field.name,
+        inputName: input.result.step,
         valueType: 'field'
       }));
     } else {

@@ -282,7 +282,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
 
   private _onDrag(e) {
-    console.log(e)
     this.instance.setSize(null, Math.max(this.MIN_HEIGHT, (this.currentHeight + e.movementY)) + "px");
     this.currentHeight = Math.max(this.MIN_HEIGHT, (this.currentHeight + e.movementY));
   }

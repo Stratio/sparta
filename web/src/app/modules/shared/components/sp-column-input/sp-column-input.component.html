@@ -18,7 +18,7 @@
          <li *ngFor="let variable of filteredVariableList; let i = index;" (mousedown)="selectVar($event, variable)" [ngClass]="{hover: i === selectedIndex}" >
             <div class="var-mode__list-label">{{variable.valueType}}</div>
             <span class="var-mode__list-key">{{variable.name}}</span>
-            <span class="var-mode__list-value">{{variable.value}}</span>
+            <span class="var-mode__list-value">{{variable.inputName ? variable.inputName : variable.value}}</span>
          </li>
       </ul>
       <div *ngIf="!defaultList" class="var-mode__list height-size" >
@@ -27,7 +27,7 @@
                <li *ngFor="let variable of type.list; let i = index;" (mousedown)="selectVar($event, variable)" [ngClass]="{hover: i === selectedIndex}" >
                   <div class="var-mode__list-label">{{variable.valueType}}</div>
                   <span class="var-mode__list-key">{{variable.name}}</span>
-                  <span class="var-mode__list-value">{{variable.value}}</span>
+                  <span class="var-mode__list-value">{{variable.inputName ? variable.inputName : variable.value}}</span>
                </li>
             </ng-container>
          </ul>

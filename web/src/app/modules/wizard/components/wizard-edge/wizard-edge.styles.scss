@@ -1,7 +1,11 @@
 @import '~@stratio/egeo/theme/constants';
 
-body.dragging .sparta-edge-container {
+body.dragging {
   pointer-events: none;
+}
+
+body.dragging g[draggable-element] {
+   pointer-events: all;
 }
 
 .sparta-edge-container {

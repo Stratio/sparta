@@ -2,6 +2,11 @@
 
 :host {
    display: block;
+   pointer-events: none;
+   position: fixed;
+   top: 70px;
+   bottom: 0;
+   right: 0;
 }
 
 .sidebar-container {
@@ -60,4 +65,8 @@
 
 .sidebar-content {
   height: calc(100% - 24px);
+}
+
+.sidebar-content, .sidebar-header {
+  pointer-events: all;
 }

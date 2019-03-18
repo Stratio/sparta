@@ -1,6 +1,7 @@
   <sparta-sidebar
     showScrollBar="true"
     class="catalog"
+    [style.top.px]="top ? top : null"
     [isVisible]="isVisible"
     (onCloseSidebar)="toggleSidebar.emit()">
     <st-horizontal-tabs
