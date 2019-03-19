@@ -43,7 +43,9 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
               executionService.updateStatus(ExecutionStatusUpdate(
                 executionId,
                 ExecutionStatus(
-                  state = if (state == StoppingByUser) StoppedByUser else Failed,
+                  state = if (state == StoppingByUser) StoppedByUser
+                  else if (state == Stopping) Stopped
+                  else Failed,
                   statusInfo = Option(information)
                 )))
             case Failure(e) =>
@@ -56,7 +58,9 @@ class ListenerService(executionStatusListenerActor: ActorRef) extends SpartaSeri
                   executionService.updateStatus(ExecutionStatusUpdate(
                     executionId,
                     ExecutionStatus(
-                      state = if (state == StoppingByUser) StoppedByUser else Failed,
+                      state = if (state == StoppingByUser) StoppedByUser
+                      else if (state == Stopping) Stopped
+                      else Failed,
                       statusInfo = Option(information)
                     )))
                 case Failure(exception) =>
