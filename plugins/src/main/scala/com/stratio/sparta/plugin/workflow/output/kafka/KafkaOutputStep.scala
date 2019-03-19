@@ -41,8 +41,8 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
       Map(
         KEY_SERIALIZER_CLASS_CONFIG -> classOf[StringSerializer].getName,
         VALUE_SERIALIZER_CLASS_CONFIG -> classOf[RowSerializer].getName,
-        ACKS_CONFIG -> properties.getString(ACKS_CONFIG, "0"),
-        BATCH_SIZE_CONFIG -> properties.getString(BATCH_SIZE_CONFIG, "200")
+        ACKS_CONFIG -> properties.getString(ACKS_CONFIG, "1"),
+        BATCH_SIZE_CONFIG -> properties.getString(BATCH_SIZE_CONFIG, "16384")
       )
   }
 

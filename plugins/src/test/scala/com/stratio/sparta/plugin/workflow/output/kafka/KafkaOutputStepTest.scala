@@ -60,8 +60,8 @@ class KafkaOutputStepTest extends TemporalSparkContext with Matchers {
     options.size shouldBe 4
     options("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options("value.serializer") shouldBe "com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer"
-    options("acks") shouldBe "0"
-    options("batch.size") shouldBe "200"
+    options("acks") shouldBe "1"
+    options("batch.size") shouldBe "16384"
   }
 
   "extractOptions" should "create a correct properties file" in {

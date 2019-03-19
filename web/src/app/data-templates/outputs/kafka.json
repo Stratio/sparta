@@ -67,7 +67,7 @@
         "propertyId": "value.serializer.row.delimiter",
         "propertyName": "_KAFKA_ROW_SEPARATOR_",
         "propertyType": "text",
-        "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
+        "default": "{{{Global.DEFAULT_DELIMITER}}}",
         "required": false,
          "visible": [
             [
@@ -156,7 +156,7 @@
           "propertyId": "keySeparator",
           "propertyName": "_KEY_SEPARATOR_",
           "propertyType": "text",
-          "default": ",",
+          "default": "{{{Global.DEFAULT_DELIMITER}}}",
           "required": false,
           "tooltip": "Specifies the separator when a key or keys are used as partitioning values.",
           "qa": "fragment-details-kafka-keySeparator"
@@ -165,19 +165,28 @@
         "propertyId": "acks",
         "propertyName": "_ACKS_",
         "propertyType": "text",
-        "default": "0",
+        "default": "1",
         "required": false,
-        "tooltip": "Specifies how many acknowledgment signals the producer will expect from the broker.",
+        "tooltip": "The number of acknowledgments the producer requires the leader to have received before considering a request complete. Allowed values [all, -1, 0, 1].",
         "qa": "fragment-details-kafka-request-required-acks"
       },
       {
         "propertyId": "batch.size",
         "propertyName": "_BATCH_NUM_MESSAGES_",
         "propertyType": "text",
-        "default": "200",
+        "default": "16384",
         "required": false,
-        "tooltip": "Number of messages to send in one batch.",
-        "qa": "fragment-details-kafka-batch-num-messages"
+        "tooltip": "The producer will attempt to batch records together into fewer requests whenever multiple records are being sent to the same partition.  This configuration controls the default batch size in bytes.",
+        "qa": "fragment-details-kafka-batch-num-messages-size"
+      },
+      {
+        "propertyId": "buffer.memory",
+        "propertyName": "_BUFFER_MEMORY_",
+        "propertyType": "text",
+        "default": "33554432",
+        "required": false,
+        "tooltip": "The total bytes of memory the producer can use to buffer records waiting to be sent to the server. If records are sent faster than they can be delivered to the server the producer will block for max.block.ms after which it will throw an exception.",
+        "qa": "fragment-details-kafka-buffer-memory"
       },
       {
         "propertyId": "security.protocol",
