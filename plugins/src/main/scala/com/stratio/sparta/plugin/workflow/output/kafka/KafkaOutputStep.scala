@@ -10,21 +10,24 @@ import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.workflow.step.OutputStep
-import com.stratio.sparta.core.workflow.step.OutputStep._
 import org.apache.kafka.clients.producer.ProducerConfig._
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.kafka010.KafkaWriteTask
+import org.apache.spark.util.{SparkUtils, Utils}
 
-import scala.util.Try
+import scala.util.control.NonFatal
+import scala.util.{Failure, Try}
 
 class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) with KafkaBase {
@@ -70,19 +73,17 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     val partitionKey = options.get(PartitionByKey).notBlank
 
     dataFrame.rdd.foreachPartition { rows =>
+
       val producer = KafkaOutput.getProducer(
         producerConnectionKey,
         properties,
         securityOpts,
         mandatoryOptions ++ getCustomProperties
       )
-      rows.foreach { row =>
-        val recordToSend = partitionKey.map(_ => extractKeyValues(row, partitionKey))
-          .map(new ProducerRecord[String, Row](tableName, _, row))
-          .getOrElse(new ProducerRecord[String, Row](tableName, row))
 
-        producer.send(recordToSend)
-      }
+      val writeTask = new KafkaWriteTask(producer, tableName, partitionKey, keySeparator)
+      SparkUtils.tryWithSafeFinally(block = writeTask.execute(rows))(finallyBlock = writeTask.close())
+
     }
   }
 
@@ -91,11 +92,7 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
     KafkaOutput.closeProducers()
   }
 
-  private[kafka] def extractKeyValues(row: Row, partitionKey: Option[String]): String = {
-    partitionKey.get.split(",").flatMap { key =>
-      Try(row.get(row.fieldIndex(key)).toString).toOption
-    }.mkString(keySeparator)
-  }
+
 }
 
 object KafkaOutput extends SLF4JLogging {
