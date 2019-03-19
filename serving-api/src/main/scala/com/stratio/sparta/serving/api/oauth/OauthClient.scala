@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.api.oauth
 import akka.actor.ActorRef
 import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, PublishRemoveSessionInCluster, PublishSessionInCluster, RemoveSession}
 import com.stratio.sparta.serving.api.oauth.SessionStore._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http.{DateTime, HttpCookie, HttpRequest, HttpResponse}
@@ -28,13 +29,13 @@ trait OauthClient extends HttpService {
 
   private val cookieDuration: Long = sys.env.getOrElse("COOKIE_EXPIRATION_HOURS", "8").toLong * 3600000L
 
+  private val instancePath: Option[String] = AppConstant.virtualPath
+
   private def authCookieWithExpiration(sessionId: String, expirationDelta: Long = cookieDuration) = HttpCookie(
     configure.CookieName,
     sessionId,
     Option(DateTime(System.currentTimeMillis) + expirationDelta),
-    None,
-    None,
-    Option("/")
+    path = instancePath
   )
 
   def authorizeRedirect: StandardRoute = redirect(authorizeRq, Found)
@@ -67,10 +68,7 @@ trait OauthClient extends HttpService {
       setCookie(HttpCookie(
         configure.CookieName,
         sessionId,
-        None,
-        None,
-        None,
-        Option("/")))
+        path = instancePath))
       provide("*")
     }
   }
@@ -97,10 +95,7 @@ trait OauthClient extends HttpService {
       setCookie(HttpCookie(
         configure.CookieName,
         sessionId,
-        None,
-        None,
-        None,
-        Option("/")))
+        path = instancePath))
       provide("*")
     }
   }
