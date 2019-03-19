@@ -16,11 +16,11 @@ import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant.EnvironmentCleanerActorName
-import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
-import com.stratio.sparta.serving.core.helpers.InfoHelper
+import com.stratio.sparta.serving.core.constants.{AppConstant, SparkConstant}
+import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.SparkSubmitService
@@ -51,11 +51,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   val DefaultMaxTimeOutInMarathonRequests = 5000
 
   /* Lazy variables */
-  lazy val calicoEnabled: Boolean = {
-    val calicoEnabled = Properties.envOrNone(CalicoEnableEnv)
-    val calicoNetwork = Properties.envOrNone(CalicoNetworkEnv).notBlank
-    if (calicoEnabled.isDefined && calicoEnabled.get.equals("true") && calicoNetwork.isDefined) true else false
-  }
   lazy val useDynamicAuthentication = Try(scala.util.Properties.envOrElse(DynamicAuthEnv, "false").toBoolean)
     .getOrElse(false)
   lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
@@ -251,7 +246,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     }
 
     val newPortMappings = {
-      if (calicoEnabled)
+      if (WorkflowHelper.isCalicoEnabled)
         Option(
           Seq(
             DockerPortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = "tcp"),
@@ -261,7 +256,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
         )
       else app.container.docker.portMappings
     }
-    val networkType = if (calicoEnabled) "USER" else app.container.docker.network
+    val networkType = if (WorkflowHelper.isCalicoEnabled) "USER" else app.container.docker.network
     val newDocker = app.container.docker.copy(
       image = spartaDockerImage,
       forcePullImage = Option(workflowModel.settings.global.marathonDeploymentSettings.fold(DefaultForcePullImage) {
@@ -290,11 +285,11 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     val inputConstraints = getConstraint(workflowModel)
     val newConstraint = if (inputConstraints.isEmpty) None else Option(Seq(inputConstraints))
     val newIpAddress = {
-      if (calicoEnabled)
+      if (WorkflowHelper.isCalicoEnabled)
         Option(IpAddress(networkName = Properties.envOrNone(CalicoNetworkEnv)))
       else None
     }
-    val newPortDefinitions = if (calicoEnabled) None else app.portDefinitions
+    val newPortDefinitions = if (WorkflowHelper.isCalicoEnabled) None else app.portDefinitions
 
     app.copy(
       id = execution.marathonExecution.get.marathonId,
@@ -436,7 +431,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   }
 }
 
-object MarathonService{
+object MarathonService {
 
   protected[core] def getHealthChecks(workflowModel: Workflow): Option[Seq[MarathonHealthCheck]] = {
     val workflowHealthcheckSettings =
@@ -455,8 +450,8 @@ object MarathonService{
   }
 
 
-  protected[core] def calculateMaxTimeout(healthChecks: Option[Seq[MarathonHealthCheck]]) : Int  =
-    healthChecks.fold(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds){
+  protected[core] def calculateMaxTimeout(healthChecks: Option[Seq[MarathonHealthCheck]]): Int =
+    healthChecks.fold(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds) {
       healthCk => {
         val applicationHck = healthCk.head
         import applicationHck._
@@ -469,12 +464,12 @@ object MarathonService{
                           timeoutSeconds: Int = DefaultTimeoutSeconds,
                           maxConsecutiveFailures: Int = DefaultMaxConsecutiveFailures)
 
-  object HealthChecks{
+  object HealthChecks {
 
-    private def toIntOrElse(integerString: Option[JsoneyString], defaultValue : Int): Int =
+    private def toIntOrElse(integerString: Option[JsoneyString], defaultValue: Int): Int =
       Try(integerString.map(_.toString.toInt).get).toOption.getOrElse(defaultValue)
 
-    protected[core] def fromObject(settings : Option[MarathonDeploymentSettings]) : HealthChecks =
+    protected[core] def fromObject(settings: Option[MarathonDeploymentSettings]): HealthChecks =
       settings match {
         case None => HealthChecks()
         case Some(marathonSettings) =>
@@ -486,4 +481,5 @@ object MarathonService{
           )
       }
   }
+
 }

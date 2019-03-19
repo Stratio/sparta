@@ -10,7 +10,7 @@ import java.io.Serializable
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
-import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
+import com.stratio.sparta.serving.core.constants.MarathonConstant.{CalicoEnableEnv, CalicoNetworkEnv, DcosServiceName}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -102,4 +102,9 @@ object WorkflowHelper extends SLF4JLogging {
       (Properties.envOrNone(MarathonConstant.NginxMarathonLBUserHostEnv).notBlank.isDefined &&
         Properties.envOrNone(MarathonConstant.NginxMarathonLBUserPathEnv).notBlank.isDefined)
 
+  def isCalicoEnabled: Boolean = {
+    val calicoEnabled = Properties.envOrNone(CalicoEnableEnv)
+    val calicoNetwork = Properties.envOrNone(CalicoNetworkEnv).notBlank
+    if (calicoEnabled.isDefined && calicoEnabled.get.equals("true") && calicoNetwork.isDefined) true else false
+  }
 }
