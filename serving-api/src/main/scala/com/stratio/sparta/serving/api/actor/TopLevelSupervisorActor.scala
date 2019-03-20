@@ -40,6 +40,8 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
 
     context.actorOf(Props[SchedulerMonitorActor])
 
+    context.actorOf(Props[JmxMetricsActor])
+
     //Initialize Nginx actor
     if (WorkflowHelper.isMarathonLBConfigured) {
       log.info("Initializing Nginx service")

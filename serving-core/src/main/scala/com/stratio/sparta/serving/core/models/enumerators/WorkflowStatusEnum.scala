@@ -6,26 +6,25 @@
 package com.stratio.sparta.serving.core.models.enumerators
 
 
+//scalastyle:off
 object WorkflowStatusEnum extends Enumeration {
 
   type status = Value
 
   type WorkflowStatusEnum = Value
 
-  val Launched = Value("Launched")
-  val Starting = Value("Starting")
-  val Started = Value("Started")
-  val Failed = Value("Failed")
-  val Stopping = Value("Stopping")
-  val Stopped = Value("Stopped")
-  val StoppingByUser = Value("StoppingByUser")
-  val StoppedByUser = Value("StoppedByUser")
-  val Finished = Value("Finished")
-  val Killed = Value("Killed")
-  val NotStarted = Value("NotStarted")
-  val Uploaded = Value("Uploaded")
-  val NotDefined = Value("NotDefined")
-  val Created = Value("Created")
-
-
+  val Started        = Value(1, "Started")
+  val Stopped        = Value(2, "Stopped")
+  val StoppedByUser  = Value(3, "StoppedByUser")
+  val Finished       = Value(4, "Finished")
+  val NotDefined     = Value(5, "NotDefined")
+  val NotStarted     = Value(6, "NotStarted")
+  val Created        = Value(7, "Created")
+  val Launched       = Value(8, "Launched")
+  val Uploaded       = Value(9, "Uploaded")
+  val Starting       = Value(10, "Starting")
+  val StoppingByUser = Value(11, "StoppingByUser")
+  val Stopping       = Value(12, "Stopping")
+  val Killed         = Value(13, "Killed")
+  val Failed         = Value(14, "Failed")
 }
