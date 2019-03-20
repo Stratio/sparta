@@ -18,16 +18,14 @@ import com.stratio.sparta.core.workflow.step.OutputStep._
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowSerializer
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig._
-import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.kafka010.KafkaWriteTask
-import org.apache.spark.util.{SparkUtils, Utils}
+import org.apache.spark.util.SparkUtils
 
-import scala.util.control.NonFatal
-import scala.util.{Failure, Try}
+import scala.util.Try
 
 class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) with KafkaBase {

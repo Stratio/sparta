@@ -11,8 +11,8 @@ import com.databricks.spark.avro._
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.workflow.lineage.HdfsLineage
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 

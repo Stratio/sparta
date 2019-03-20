@@ -14,11 +14,11 @@ import com.stratio.sparta.core.enumerators.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.enumerators.ConstraintType
-import com.stratio.sparta.core.workflow.lineage.JdbcLineage
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
+import com.stratio.sparta.serving.core.workflow.lineage.JdbcLineage
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession

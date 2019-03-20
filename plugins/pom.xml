@@ -127,9 +127,9 @@ This software – including all its source code – contains proprietary informa
             <version>2.4</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql-kafka-0-10_${scala.binary.version}</artifactId>
-            <version>${apache.spark.version}</version>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-sql-kafka-0-10-${apache.spark.version}_${scala.binary.version}</artifactId>
+            <version>${stratio.spark.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>

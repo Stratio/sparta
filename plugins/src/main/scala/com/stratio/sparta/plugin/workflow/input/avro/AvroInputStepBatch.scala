@@ -14,9 +14,9 @@ import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.lineage.HdfsLineage
 import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.plugin.helper.SchemaHelper
+import com.stratio.sparta.serving.core.workflow.lineage.HdfsLineage
 import org.apache.avro.Schema
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
