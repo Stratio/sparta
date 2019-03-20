@@ -80,8 +80,9 @@ trait DaoUtils extends JdbcSlickUtils with SLF4JLogging with SpartaSerializer {
         if (exists)
           log.info(s"Table $name already exists: skipping creation")
         else doCreateTable(name)
-      case Failure(_) =>
-        doCreateTable(name)
+      case Failure(ex) =>
+        log.error(ex.getLocalizedMessage, ex)
+        throw ex
     }
   }
 
