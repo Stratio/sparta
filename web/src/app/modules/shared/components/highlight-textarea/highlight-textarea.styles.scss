@@ -53,16 +53,20 @@
 
     &__handle {
       background: #f7f7f7;
-      height: 20px;
+      height: 12px;
       user-select: none;
       cursor: row-resize;
       border-top: 1px solid #ddd;
+      overflow: hidden;
+      position: relative;
+      font-size: 14px;
         
     &:before {
       content: '\2261'; /* https://en.wikipedia.org/wiki/Triple_bar */
       color: #999;
       position: absolute;
       left: 50%;
+      line-height: 12px;
     }
     
     &:hover {

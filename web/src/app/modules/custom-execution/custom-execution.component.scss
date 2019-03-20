@@ -41,7 +41,7 @@ st-input, sp-select {
     width: calc(100% + 10px);
     overflow-x: hidden;
     padding-right: 20px;
-    max-height: calc(100% - 120px);
+    max-height: 100%;
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     word-break: break-all;
     white-space: normal;

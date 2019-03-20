@@ -11,16 +11,16 @@
 <st-fullscreen-layout class="layout" [title]="'WIZARD.SETTINGS' | translate" [ngClass]="{'active': fadeActive}">>
   <div class="st-fullscreen-layout-buttons">
     <div class="return-link">
-      <button class="button button-toolbar help-button" [ngClass]="{'selected-button' : isShowedHelp}" (click)="isShowedHelp = !isShowedHelp">
+      <button id="settings-help" class="button button-toolbar help-button" [ngClass]="{'selected-button' : isShowedHelp}" (click)="isShowedHelp = !isShowedHelp">
             <i class="icon-help2"></i>
          </button>
       <button class="button button-secondary-line cancel-button" (click)="cancelEdition()" id="cancel-settings-edition">
             <span>{{'WIZARD.CANCEL' | translate}}</span>
          </button>
-      <button class="button button-primary" (click)="saveForm()" id="save-settings-button">
-            <span>Accept</span>
-         </button>
-      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" [xPos]="-346" [yPos]="10" [helpOptions]="helpOptions"></sp-help>
+    <button class="button button-primary" (click)="saveForm()" id="save-settings-button">
+          <span>Accept</span>
+        </button>
+      <sp-help *ngIf="isShowedHelp" (onCloseHelpMenu)="closeHelp()" reference="settings-help" [helpOptions]="helpOptions"></sp-help>
     </div>
   </div>
   <div class="st-fullscreen-layout-content">

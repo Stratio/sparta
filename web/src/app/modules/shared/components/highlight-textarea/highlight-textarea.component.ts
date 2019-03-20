@@ -178,7 +178,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     });
 
     //this.renderer.setElementStyle(this._elementRef.nativeElement.querySelector('.CodeMirror-scroll'), 'min-height', 22 * this.rows + 'px');
-    this.instance.setSize(null, Math.max(this.MIN_HEIGHT, (22 * this.rows)) + 'px');
+    this.instance.setSize(null, this.MIN_HEIGHT);
 
   }
 
