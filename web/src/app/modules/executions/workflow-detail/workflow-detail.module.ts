@@ -11,12 +11,14 @@ import { WizardNodeModule } from '@app/wizard/components/wizard-node/wizard-node
 import { EdgeOptionsModule } from '@app/wizard/components/edge-options/edge-options.module';
 import { WizardEdgeModule } from '@app/wizard/components/wizard-edge/wizard-edge.module';
 import { RouterModule } from '@angular/router';
-import { WorkflowDetailRouterModule } from "@app/executions/workflow-detail/workflow-detail.router";
-import { WorkflowDetailComponent } from "@app/executions/workflow-detail/workflow-detail.component";
-import {StoreModule} from "@ngrx/store";
-import {EffectsModule} from "@ngrx/effects";
-import {WorkflowDetailEffect} from "@app/executions/workflow-detail/effects/workflow-detail";
-import {workflowDetailReducers} from "@app/executions/workflow-detail/reducers";
+import { WorkflowDetailRouterModule } from '@app/executions/workflow-detail/workflow-detail.router';
+import { WorkflowDetailComponent } from '@app/executions/workflow-detail/workflow-detail.component';
+import {StoreModule} from '@ngrx/store';
+import {EffectsModule} from '@ngrx/effects';
+import {WorkflowDetailEffect} from '@app/executions/workflow-detail/effects/workflow-detail';
+import {workflowDetailReducers} from '@app/executions/workflow-detail/reducers';
+import { SchemaDataModule } from '@app/shared/components/schema-data/schema-data.module';
+import { StHorizontalTabsModule } from '@stratio/egeo';
 
 @NgModule({
   imports: [
@@ -28,6 +30,8 @@ import {workflowDetailReducers} from "@app/executions/workflow-detail/reducers";
     WizardEdgeModule,
     RouterModule,
     SpartaSidebarModule,
+    StHorizontalTabsModule,
+    SchemaDataModule,
     TranslateModule,
     StoreModule.forFeature('workflowDetail', workflowDetailReducers),
     EffectsModule.forFeature([WorkflowDetailEffect]),

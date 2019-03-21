@@ -12,54 +12,68 @@ import * as workflowDetailReducer from './reducers';
 import * as workflowDetailActions from './actions/workflow-detail';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { writerTemplate } from 'data-templates/index';
+import { StHorizontalTab } from '@stratio/egeo';
 
+import { batchInputsObject, streamingInputsObject } from 'data-templates/inputs';
+import { batchOutputsObject, streamingOutputsObject } from 'data-templates/outputs';
+import { batchTransformationsObject, streamingTransformationsObject } from 'data-templates/transformations';
+import { Engine } from '@models/enums';
 
 @Component({
-   selector: 'workflow-detail',
-   templateUrl: './workflow-detail.template.html',
-   styleUrls: ['./workflow-detail.styles.scss'],
-   changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'workflow-detail',
+  templateUrl: './workflow-detail.template.html',
+  styleUrls: ['./workflow-detail.styles.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowDetailComponent implements OnInit, OnDestroy {
 
-   public isLoading: boolean;
-   public execution: any;
-   public edges: any = [];
-   public nodes: any = [];
-   public selectedStep: any;
-   public keys = Object.keys;
-   public id: string;
+  public isLoading: boolean;
+  public execution: any;
+  public edges: any = [];
+  public nodes: any = [];
+  public selectedStep: any;
+  public keys = Object.keys;
+  public id: string;
 
-   private _componentDestroyed = new Subject();
+  public writerTemplate = writerTemplate;
+  public currentStepTemplate: any;
 
-   constructor(private _route: ActivatedRoute, private _store: Store<workflowDetailReducer.State>, private _cd: ChangeDetectorRef) { }
+  public tabOptions: StHorizontalTab[] = [
+    { id: 'global', text: 'Global' },
+    { id: 'writer', text: 'Writer' }
+  ];
+  public tabSelectedOption: StHorizontalTab = this.tabOptions[0];
+  private _componentDestroyed = new Subject();
 
-   ngOnInit() {
-      this.id = this._route.snapshot.params.id;
-      this._store.dispatch(new workflowDetailActions.GetWorkflowDetailAction(this.id));
-      this._store.pipe(select(workflowDetailReducer.getWorkflowDetail))
+  constructor(private _route: ActivatedRoute, private _store: Store<workflowDetailReducer.State>, private _cd: ChangeDetectorRef) { }
+
+  ngOnInit() {
+    this.id = this._route.snapshot.params.id;
+    this._store.dispatch(new workflowDetailActions.GetWorkflowDetailAction(this.id));
+    this._store.pipe(select(workflowDetailReducer.getWorkflowDetail))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((workflow: any) => {
-         const execution = workflow.execution;
+        const execution = workflow.execution;
 
-         if (execution) {
-            this.execution = execution.execution;
-            const { pipelineGraph } =  execution.execution.genericDataExecution.workflow;
-            this.nodes = pipelineGraph.nodes;
-            this.edges = this.getEdgesMap(pipelineGraph.nodes, pipelineGraph.edges);
-         }
-         this._cd.markForCheck();
+        if (execution) {
+          this.execution = execution.execution;
+          const { pipelineGraph } = execution.execution.genericDataExecution.workflow;
+          this.nodes = pipelineGraph.nodes;
+          this.edges = this.getEdgesMap(pipelineGraph.nodes, pipelineGraph.edges);
+        }
+        this._cd.markForCheck();
       });
 
-      this._store.pipe(select(workflowDetailReducer.getWorkflowDetailIsLoading))
+    this._store.pipe(select(workflowDetailReducer.getWorkflowDetailIsLoading))
       .pipe(takeUntil(this._componentDestroyed))
       .subscribe((isLoading: any) => {
-         this.isLoading = isLoading.loading;
-         this._cd.markForCheck();
+        this.isLoading = isLoading.loading;
+        this._cd.markForCheck();
       });
-   }
+  }
 
-   getEdgesMap(nodes: Array<any>, edges: Array<any>) {
+  getEdgesMap(nodes: Array<any>, edges: Array<any>) {
     const nodesMap = nodes.reduce(function (map, obj) {
       map[obj.name] = obj;
       return map;
@@ -71,17 +85,48 @@ export class WorkflowDetailComponent implements OnInit, OnDestroy {
     }));
   }
 
-  selectStep(stepName: string) {
-    this.selectedStep = stepName;
+  selectStep(step: any) {
+    this.selectedStep = step;
+    this.tabSelectedOption = this.tabOptions[0];
+
+    if(step.executionEngine === Engine.Batch) {
+      switch(step.stepType) {
+        case 'Input':
+          this.currentStepTemplate = batchInputsObject[step.classPrettyName];
+          break;
+        case 'Output':
+          this.currentStepTemplate = batchOutputsObject[step.classPrettyName];
+          break;
+        case 'Transformation':
+          this.currentStepTemplate = batchTransformationsObject[step.classPrettyName];
+          break;
+      }
+    } else {
+      switch(step.stepType) {
+        case 'Input':
+          this.currentStepTemplate = streamingInputsObject[step.classPrettyName];
+          break;
+        case 'Output':
+          this.currentStepTemplate = streamingOutputsObject[step.classPrettyName];
+          break;
+        case 'Transformation':
+          this.currentStepTemplate = streamingTransformationsObject[step.classPrettyName];
+          break;
+      }
+    }
   }
 
   getTypeof(property: any) {
     return typeof property;
   }
 
+  changedOption(option: StHorizontalTab) {
+    this.tabSelectedOption = option;
+  }
+
   ngOnDestroy(): void {
     this._componentDestroyed.next();
     this._componentDestroyed.unsubscribe();
- }
+  }
 
 }

@@ -1,0 +1,21 @@
+@import '~@stratio/egeo/theme/constants';
+
+.property {
+  margin-top: 8px;
+  &__name {
+    font-family: $egeo-nunito-sans-semiBold;
+  }
+
+  &__list-value {
+    padding-left: 12px;
+    font-size: 15px;
+  }
+
+  &__list-element {
+    padding: 7px 0;
+  }
+
+  &__value {
+    word-break: break-all;
+  }
+}

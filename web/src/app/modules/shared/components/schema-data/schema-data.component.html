@@ -1,0 +1,31 @@
+<div class="schema__step-data" *ngIf="schema && data">
+  <div *ngFor="let property of schema">
+    <div *ngIf="data[property.propertyId]; let value;">
+      <div class="property" *ngIf="property.propertyType !== 'list'">
+        <div class="property__name">
+          {{property.propertyName | translate}}
+        </div>
+        <div class="property__value">
+          {{getValue(value)}}
+        </div>
+      </div>
+      <div class="property" *ngIf="property.propertyType === 'list' && value.length">
+        <div class="property__name">
+          {{property.propertyName | translate}}
+        </div>
+        <div class="property__list-value">
+          <div *ngFor="let listValue of stringToArray(value)" class="property__list-element">
+            <div *ngFor="let listProperty of property.fields;">
+              <div class="property__name">
+                {{listProperty.propertyName | translate}}
+              </div>
+              <div class="property__value">
+                {{getValue(listValue[listProperty.propertyId])}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -48,7 +48,7 @@
     </svg:defs>
     </svg:g>
   </graph-editor>
-  <sparta-sidebar [isVisible]="true" [darkBorder]="true" [showCloseButton]="false">
+  <sparta-sidebar [isVisible]="true" [darkBorder]="true" showScrollBar="true" [showCloseButton]="false">
     <div class="not-selected" *ngIf="!selectedStep">
       <img src="assets/images/planet.svg" class="step-detail-image" />
       <div class="step-info">Select a step to view its details</div>
@@ -57,10 +57,19 @@
       <div class="egeo-title-medium">{{selectedStep.name}}</div>
       <div>{{selectedStep.stepType}} - {{selectedStep.classPrettyName}}</div>
       <div class="configuration">
-        <div class="property" *ngFor="let prop of keys(selectedStep.configuration)">
-          <div class="label">{{prop}}</div>
-          <div class="value">{{getTypeof(selectedStep.configuration[prop]) === 'object' ? (selectedStep.configuration[prop] | json) : selectedStep.configuration[prop]}}</div>
-        </div>
+          <st-horizontal-tabs class="sidebar-tabs" 
+            *ngIf="selectedStep.stepType !== 'Output'"
+            [options]="tabOptions" 
+            [activeOption]="tabSelectedOption"
+            (changedOption)="changedOption($event)"
+            qaTag="workflow-details-tabs"></st-horizontal-tabs>
+        <schema-data *ngIf="tabSelectedOption.id === 'writer'" 
+          [schema]="writerTemplate" 
+          [data]="selectedStep.writer"></schema-data>
+        <schema-data *ngIf="tabSelectedOption.id === 'global'" 
+          [schema]="currentStepTemplate.properties" 
+          [data]="selectedStep.configuration">
+        </schema-data>
       </div>
     </div>
   </sparta-sidebar>

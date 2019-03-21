@@ -50,9 +50,9 @@ module.exports = function (config) {
       autoWatch: true,
       browsers: ['PhantomJS'],
       singleRun: false,
-      captureTimeout: 210000,
+      captureTimeout: 10000,
       browserDisconnectTolerance: 3, 
-      browserDisconnectTimeout : 210000,
-      browserNoActivityTimeout : 210000
+      browserDisconnectTimeout : 10000,
+      browserNoActivityTimeout : 10000
    })
 }
