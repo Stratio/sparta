@@ -20,12 +20,13 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
 import javax.management.ObjectName
+
 import org.joda.time.DateTime
 
 import scala.beans.BeanProperty
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 /**
  * JmxMetricActor retrieves states of executions and exposes them though Jmx.
@@ -42,12 +43,11 @@ class JmxMetricsActor extends Actor
 
   val jmxMetricsTick = context.system.scheduler.schedule(0 seconds, 1 second, self, JmxMetricsTick)
 
-  val mBeanServer = ManagementFactory.getPlatformMBeanServer()
+  val mBeanServer = ManagementFactory.getPlatformMBeanServer
 
   // Due to they are jmx beans we need to use mutable collections :(
   val jmxMetricMap = scala.collection.mutable.Map.empty[String, JmxMetric]
   val groupedJmxMetricMap = scala.collection.mutable.Map.empty[String, JmxMetric]
-
 
   override def preStart(): Unit = mediator ! Subscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
 
@@ -76,7 +76,12 @@ class JmxMetricsActor extends Actor
       } else {
         val newMetric = new JmxMetric(executionStatusChange.executionChange.newExecution.resumedStatus.get.id)
         val id = executionStatusChange.executionChange.newExecution.id.getOrElse("-1")
-        mBeanServer.registerMBean(newMetric, ObjectName.getInstance(s"com.stratio.executions:type=WorkflowExecution,key=${id}"))
+
+
+        registerMetricBean(
+          newMetric,
+          ObjectName.getInstance(s"com.stratio.executions:type=WorkflowExecution,key=${id}")
+        )
         jmxMetricMap.put(id, newMetric)
       }
 
@@ -87,11 +92,13 @@ class JmxMetricsActor extends Actor
         val groupName = executionStatusChange.executionChange.newExecution.getWorkflowToExecute.group.name
         val version = executionStatusChange.executionChange.newExecution.getWorkflowToExecute.version
         val name = executionStatusChange.executionChange.newExecution.getWorkflowToExecute.name
-        mBeanServer.registerMBean(newMetric,
-          ObjectName.getInstance(s"com.stratio.executions:type=WorkflowGroupedExecution,key=${groupName}/${name}_v${version}"))
+
+        registerMetricBean(
+          newMetric,
+          ObjectName.getInstance(s"com.stratio.executions:type=WorkflowGroupedExecution,key=$groupName/${name}_v$version")
+        )
         groupedJmxMetricMap.put(name, newMetric)
       }
-
     case JmxMetricsTick =>
       if(!isThisNodeClusterLeader(cluster)) context.become(receive)
   }
@@ -116,7 +123,7 @@ class JmxMetricsActor extends Actor
       // Step 1) It creates a map of WorkflowGroupName/WorkflowName_WorkflowVersion as key, as its Workflow status as value.
       // Later it groups by key an takes the first element (the freshest execution that it needs for creating a metric.
       val firstWorkflowStatusesGrouped:Map[String, WorkflowStatus] = workflowStatuses
-        .map { case(workflowStatus) => (s"${workflowStatus.groupName}/${workflowStatus.name}_v${workflowStatus.version}") -> workflowStatus }
+        .map { case(workflowStatus) => s"${workflowStatus.groupName}/${workflowStatus.name}_v${workflowStatus.version}" -> workflowStatus }
         .groupBy { case(key, _) => key }
         .flatMap { case(_, workflowStatus) =>
           workflowStatus.sortBy { case(_, workflowStatus) => workflowStatus.date.getMillis }
@@ -125,11 +132,15 @@ class JmxMetricsActor extends Actor
         }
 
       // Step 2) Now, and thanks to the result obtained in the previous step, it is going to register these metrics.
-      firstWorkflowStatusesGrouped.foreach{ case(key, workflowStatus) => {
+      firstWorkflowStatusesGrouped.foreach{ case(key, workflowStatus) =>
         val newMetric = new JmxMetric(workflowStatus.workflowStatusEnum.id)
-        mBeanServer.registerMBean(newMetric, ObjectName.getInstance(s"com.stratio.executions:type=WorkflowGroupedExecution,key=${key}"))
+
+        registerMetricBean(
+          newMetric,
+          ObjectName.getInstance(s"com.stratio.executions:type=WorkflowGroupedExecution,key=$key")
+        )
         groupedJmxMetricMap.put(workflowStatus.name, newMetric)
-      }}
+      }
     }
 
 
@@ -137,6 +148,11 @@ class JmxMetricsActor extends Actor
     mediator ! Unsubscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
     jmxMetricsTick.cancel()
     super.postStop()
+  }
+
+  def registerMetricBean(metric: JmxMetric, objectName: ObjectName): Unit = {
+    if(!mBeanServer.isRegistered(objectName))
+      mBeanServer.registerMBean(metric, objectName)
   }
 }
 

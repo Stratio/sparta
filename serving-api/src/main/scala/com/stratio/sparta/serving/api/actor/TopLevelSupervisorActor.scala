@@ -40,7 +40,10 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
 
     context.actorOf(Props[SchedulerMonitorActor])
 
-    context.actorOf(Props[JmxMetricsActor])
+    if (Try(SpartaConfig.getDetailConfig().get.getBoolean("user.metrics.enable")).getOrElse(false)) {
+      log.info("Initializing JMX user metrics")
+      context.actorOf(Props[JmxMetricsActor])
+    }
 
     //Initialize Nginx actor
     if (WorkflowHelper.isMarathonLBConfigured) {
