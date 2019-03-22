@@ -60,7 +60,7 @@
         "coarse": true,
         "sparkUser": "",
         "sparkLocalDir": "/opt/spark/dist",
-        "executorDockerImage": "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.4.0-70f0925",
+        "executorDockerImage": "qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.4.0",
         "sparkKryoSerialization": false,
         "sparkSqlCaseSensitive": false,
         "logStagesProgress": false,
