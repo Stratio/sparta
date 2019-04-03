@@ -106,6 +106,7 @@ object AppConstant extends ZookeeperUtils {
     case _ => DefaultZKPath
   }
   lazy val ExecutionsStatusChangesZkPath = s"$BaseZkPath/executionStatusChanges"
+  lazy val RunWorkflowZkPath = s"$BaseZkPath/runWorkflow"
   lazy val IgniteDiscoveryZkPath = s"$BaseZkPath/$retrieveIgnitePathFromEnv"
 
   //Migration

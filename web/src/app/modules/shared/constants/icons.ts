@@ -60,7 +60,7 @@ export const icons: any = {
     RenameColumns: '\ue923',
     Datasource: '\ue031',
     Coalesce: '\ue98b',
-
+    RunWorkflow: '\ue052',
     Binarizer: '\ue941',
     BucketedRandomProjectionLSH: '\ue941',
     Bucketizer: '\ue941',

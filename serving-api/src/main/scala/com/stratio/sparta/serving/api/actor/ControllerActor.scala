@@ -17,7 +17,7 @@ import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, Header
 import com.stratio.sparta.serving.api.oauth.OauthClient
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.actor.ParametersListenerActor
+import com.stratio.sparta.serving.core.actor.{ParametersListenerActor, RunWorkflowListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -78,6 +78,12 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     .props(Props(new DebugWorkflowActor(launcherActor))), DebugWorkflowActorName)
   val mlModelActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new MlModelActor())), MlModelsActorName)
+  val scheduledWorkflowTaskActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new ScheduledWorkflowTaskActor())), ScheduledWorkflowTaskActorName)
+
+  context.actorOf(Props(new ScheduledWorkflowTaskExecutorActor(launcherActor)), ScheduledWorkflowTaskExecutorActorName)
+
+  context.actorOf(Props(new RunWorkflowListenerActor(launcherActor)), RunWorkflowListenerActorName)
 
   val actorsMap = Map(
     TemplateActorName -> templateActor,
@@ -91,7 +97,8 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     GroupActorName -> groupActor,
     DebugWorkflowActorName -> debugActor,
     ParameterListActorName -> parameterListActor,
-    MlModelsActorName -> mlModelActor
+    MlModelsActorName -> mlModelActor,
+    ScheduledWorkflowTaskActorName -> scheduledWorkflowTaskActor
   )
 
   private val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context)
@@ -155,7 +162,7 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
         serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
         serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
         serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
-        serviceRoutes.mlModelsRoutes(user)
+        serviceRoutes.mlModelsRoutes(user) ~ serviceRoutes.scheduledWorkflowTasksRoutes(user)
     }
   }
 
@@ -206,6 +213,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   def debugRoutes(user: Option[LoggedUser]): Route = debugService.routes(user)
 
   def mlModelsRoutes(user: Option[LoggedUser]): Route = mlModelsService.routes(user)
+
+  def scheduledWorkflowTasksRoutes(user: Option[LoggedUser]): Route = scheduledWorkflowTasksService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -284,6 +293,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   private val mlModelsService = new MlModelsHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.MlModelsActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val scheduledWorkflowTasksService = new ScheduledWorkflowTaskHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.ScheduledWorkflowTaskActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

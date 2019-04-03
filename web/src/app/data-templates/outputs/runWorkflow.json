@@ -1,0 +1,101 @@
+{
+  "name": "RunWorkflow",
+  "icon": "RunWorkflow",
+  "className": "RunWorkflowOutputStep",
+  "classPrettyName": "RunWorkflow",
+  "arity": [
+    "NullaryToNullary",
+    "NaryToNullary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "description": "Enables you to run other workflows when this workflow ends or when the input data was processed",
+  "properties": [
+    {
+      "propertyId": "runWorkflowWhen",
+      "propertyName": "_RUN_WORKFLOW_WHEN_",
+      "propertyType": "select",
+      "width": 4,
+      "qa": "fragment-details-runWorklflow-when",
+      "values": [
+        {
+          "label": "Receive data",
+          "value": "RECEIVE_DATA"
+        },
+        {
+          "label": "After workflow ends",
+          "value": "AFTER_WORKFLOW_ENDS"
+        }
+      ],
+      "default": "RECEIVE_DATA",
+      "tooltip": "Run one workflow specifying explicitly the workflow id when the current workflow ends or do a bulk run with all the workflow ids received.",
+      "required": true
+    },
+    {
+      "propertyId": "workflowId",
+      "propertyName": "_WORKFLOW_ID_",
+      "propertyType": "text",
+      "width": 8,
+      "required": false,
+      "tooltip": "It is possible to specify the workflow id explicitly or use the fields substitution pattern. The substitution pattern cold be ${field}.",
+      "qa": "fragment-details-workflow-id"
+    },
+    {
+      "propertyId": "contexts",
+      "propertyName": "_CONTEXTS_",
+      "propertyType": "list",
+      "required": false,
+      "fields": [
+        {
+          "propertyId": "contextName",
+          "propertyName": "_CONTEXT_NAME_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "tooltip": "Context name used in the execution.",
+          "qa": "fragment-details-context"
+        }
+      ],
+      "tooltip": "Run workflow with the specified contexts",
+      "qa": "workflow-output-contexts"
+    },
+    {
+      "propertyId": "variables",
+      "propertyName": "_VARIABLES_",
+      "propertyType": "list",
+      "required": false,
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "tooltip": "Parameter name used in execution",
+          "qa": "fragment-details-name"
+        },
+        {
+          "propertyId": "value",
+          "propertyName": "_VALUE_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "tooltip": "Parameter value used in execution",
+          "qa": "fragment-details-value"
+        }
+      ],
+      "tooltip": "Run workflow with the specified parameter variables",
+      "qa": "workflow-output-variables"
+    },
+    {
+      "propertyId": "errorSink",
+      "propertyName": "_ERROR_SINK_",
+      "propertyType": "boolean",
+      "tooltip": "This output can be used for sending errors in the errors management settings.",
+      "default": false,
+      "qa": "fragment-details-errorSink"
+    }
+  ]
+}

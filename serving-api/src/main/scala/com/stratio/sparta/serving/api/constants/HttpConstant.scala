@@ -21,6 +21,7 @@ object HttpConstant {
   final val WorkflowStatusesPath = "workflowStatuses"
   final val ExecutionsPath = "workflowExecutions"
   final val GroupsPath = "groups"
+  final val ScheduledWorkflowTasksPath = "scheduledWorkflowTasks"
   final val GlobalParametersPath = "globalParameters"
   final val SwaggerPath = "swagger"
   final val ConfigPath = "config"

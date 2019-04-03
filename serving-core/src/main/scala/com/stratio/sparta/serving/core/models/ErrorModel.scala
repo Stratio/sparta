@@ -208,6 +208,17 @@ object ErrorModel extends SpartaSerializer {
   val ParameterListServiceFindGroupAndContexts = "989"
   val ParameterListServiceDeleteById = "990"
 
+  /* scheduled Workflow Task Service 1050 - 1070 */
+  val ScheduledWorkflowTaskServiceUnexpected = "1050"
+  val ScheduledWorkflowTaskServiceFindByActive = "1051"
+  val ScheduledWorkflowTaskServiceFindAll = "1052"
+  val ScheduledWorkflowTaskServiceFindById = "1053"
+  val ScheduledWorkflowTaskServiceCreate = "1054"
+  val ScheduledWorkflowTaskServiceUpdate = "1055"
+  val ScheduledWorkflowTaskServiceDeleteAll = "1056"
+  val ScheduledWorkflowTaskServiceDeleteById = "1057"
+  val ScheduledWorkflowTaskServiceFindByActiveAndState = "1058"
+
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
     UnknownErrorCode -> UnknownError,
@@ -350,7 +361,16 @@ object ErrorModel extends SpartaSerializer {
     ParameterListServiceFindEnvironmentAndContexts -> "Error finding environment and their contexts",
     ParameterListServiceFindGroupAndContexts -> "Error finding group and their contexts",
     ParameterListServiceDeleteById -> "Error deleting parameter list by id",
-    MlModelsServiceFindAll -> "Error finding all machine learning models"
+    MlModelsServiceFindAll -> "Error finding all machine learning models",
+    ScheduledWorkflowTaskServiceUnexpected -> "Unexpected behaviour in scheduled workflow task service",
+    ScheduledWorkflowTaskServiceFindById -> "Error finding scheduled workflow task by ID",
+    ScheduledWorkflowTaskServiceFindByActive -> "Error finding scheduled workflow tasks by active",
+    ScheduledWorkflowTaskServiceFindByActiveAndState -> "Error finding scheduled workflow tasks by active and state",
+    ScheduledWorkflowTaskServiceFindAll -> "Error obtaining all scheduled workflow tasks",
+    ScheduledWorkflowTaskServiceCreate -> "Error creating scheduled workflow task",
+    ScheduledWorkflowTaskServiceUpdate -> "Error updating scheduled workflow task",
+    ScheduledWorkflowTaskServiceDeleteAll -> "Error deleting all scheduled workflow task",
+    ScheduledWorkflowTaskServiceDeleteById -> "Error deleting scheduled workflow task by ID"
 
   )
 

@@ -1,0 +1,29 @@
+{
+  "name": "Binary",
+  "classPrettyName": "Binary",
+  "className": "BinaryInputStep",
+  "icon": "Binary",
+  "arity": ["NullaryToNary"],
+  "supportedEngines": ["Batch"],
+  "supportedDataRelations": ["ValidData"],
+  "description": "Input used to read binary files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
+  "properties": [
+    {
+      "propertyId": "path",
+      "propertyName": "_PATH_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "Path to a file located in a compatible filesystem (HDFS, S3, Azure, etc). If the file is located in the HDFS used in the tenant configuration one can specify the path omitting the connection details.",
+      "qa": "fragment-details-filesystem-path"
+    },
+    {
+      "propertyId": "outputField",
+      "propertyName": "_OUTPUT_FIELD_",
+      "propertyType": "text",
+      "default": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
+      "required": true,
+      "tooltip": "Name assigned to the output field generated",
+      "qa": "fragment-details-websocket-outputField"
+    }
+  ]
+}

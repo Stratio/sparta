@@ -16,4 +16,5 @@ object DatabaseTableConstant {
   val ParameterListTableName ="parameter_list"
   val TemplateTableName = "template"
   val WorkflowExecutionTableName =  "workflow_execution"
+  val ScheduledWorkflowTaskTableName = "scheduled_workflow_task"
 }
