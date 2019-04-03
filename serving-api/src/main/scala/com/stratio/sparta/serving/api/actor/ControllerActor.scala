@@ -17,7 +17,7 @@ import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, Header
 import com.stratio.sparta.serving.api.oauth.OauthClient
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.actor.ParametersListenerActor
+import com.stratio.sparta.serving.core.actor.{ParametersListenerActor, RunWorkflowListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -83,6 +83,7 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
 
   context.actorOf(Props(new ScheduledWorkflowTaskExecutorActor(launcherActor)), ScheduledWorkflowTaskExecutorActorName)
 
+  context.actorOf(Props(new RunWorkflowListenerActor(launcherActor)), RunWorkflowListenerActorName)
 
   val actorsMap = Map(
     TemplateActorName -> templateActor,

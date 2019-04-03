@@ -26,6 +26,7 @@ import postgresTemplate from './outputs/postgres.json';
 import printTemplate from './outputs/print.json';
 import redisTemplate from './outputs/redis.json';
 import restTemplate from './outputs/rest.json';
+import runWorkflowTemplate from './outputs/runWorkflow.json';
 import sftpTemplate from './outputs/sftp.json';
 import textTemplate from './outputs/text.json';
 import xmlTemplate from './outputs/xml.json';
@@ -51,6 +52,7 @@ export const outputs = [
     printTemplate,
     redisTemplate,
     restTemplate,
+    runWorkflowTemplate,
     sftpTemplate,
     textTemplate,
     xmlTemplate

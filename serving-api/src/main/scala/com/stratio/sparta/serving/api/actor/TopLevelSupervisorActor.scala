@@ -11,7 +11,7 @@ import akka.actor.{Actor, AllForOneStrategy, Props, SupervisorStrategy}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.dg.agent.lineage.LineageServiceActor
-import com.stratio.sparta.serving.core.actor.{ExecutionStatusChangeListenerActor, ExecutionStatusChangePublisherActor, SchedulerMonitorActor}
+import com.stratio.sparta.serving.core.actor.{ExecutionStatusChangeListenerActor, ExecutionStatusChangePublisherActor, RunWorkflowPublisherActor, SchedulerMonitorActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
@@ -37,6 +37,8 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
   override def preStart(): Unit = {
 
     context.actorOf(Props(new ExecutionStatusChangePublisherActor()))
+
+    context.actorOf(Props(new RunWorkflowPublisherActor()))
 
     context.actorOf(Props[SchedulerMonitorActor])
 

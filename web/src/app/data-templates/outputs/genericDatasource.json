@@ -35,6 +35,14 @@
          "qa": "fragment-details-datasource-tablepattern"
       },
       {
+        "propertyId": "errorSink",
+        "propertyName": "_ERROR_SINK_",
+        "propertyType": "boolean",
+        "tooltip": "This output can be used for sending errors in the errors management settings.",
+        "default": false,
+        "qa": "fragment-details-errorSink"
+      },
+      {
         "propertyId": "saveOptions",
         "propertyName": "_DATASOURCE_SAVE_PROPERTIES_",
         "propertyType": "list",
