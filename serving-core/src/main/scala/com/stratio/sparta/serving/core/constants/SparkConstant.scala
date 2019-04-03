@@ -62,6 +62,7 @@ object SparkConstant {
   val SubmitExecutorDockerVolumeConf = "spark.mesos.executor.docker.volumes"
   val SubmitExecutorDockerForcePullConf = "spark.mesos.executor.docker.forcePullImage"
   val SubmitExecutorDockerImageConf = "spark.mesos.executor.docker.image"
+  val SubmitDriverFailoverTimeoutConf = "spark.mesos.driver.failoverTimeout"
   val SubmitMesosNativeLibConf = "spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY"
   val SubmitKryoSerializationConf = "spark.serializer"
   val SubmitExecutorHomeConf = "spark.mesos.executor.home"

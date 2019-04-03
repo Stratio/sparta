@@ -135,6 +135,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         "/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +
         "/etc/resolv.conf:/etc/resolv.conf:ro"),
       SubmitMesosNativeLibConf -> Option("/opt/mesosphere/lib/libmesos.so"),
+      SubmitDriverFailoverTimeoutConf -> Option("120"),
       SubmitExecutorHomeConf -> Option("/opt/spark/dist"),
       SubmitDefaultParalelismConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkParallelism.notBlank,
