@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.7.0 (upcoming)
+
 ## 2.6.0 (March 21, 2019)
 
 * Improvements and new features:
