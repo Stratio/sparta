@@ -38,10 +38,11 @@ export class ExecutionDetailComponent implements OnInit, OnDestroy {
     this._stModalService.container = this.target;
     const executionId = this._route.snapshot.params.id;
     this._store.dispatch(new executionDetailActions.GetExecutionDetailAction(executionId));
+    this._store.dispatch(new executionDetailActions.ResetExecutionDetail());
   }
 
   ngOnDestroy(): void {
-
+    this._store.dispatch(new executionDetailActions.CancelPollingAction());
   }
 
 }

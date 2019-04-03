@@ -20,3 +20,10 @@ export const PipelineType = {
     Preprocessing: 'Preprocessing',
     Algorithm: 'Algorithm'
 };
+
+export const DateFormats = {
+  executionTimeStampMoment: 'YYYY-MM-DDTHH:mm:ssZ',
+  executionTimeStampFormat: 'DD/MM/YYYY HH:mm:ss',
+  executionDateFormat: 'DD/MM/YYYY',
+  executionHourFormat: 'HH:mm:ss'
+};

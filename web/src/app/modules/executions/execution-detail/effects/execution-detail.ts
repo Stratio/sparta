@@ -41,7 +41,7 @@ export class ExecutionDetailEffect {
         const actions: Array<Action> = [];
         const reducerAction = new executionDetailActions.CreateExecutionDetailAction(executionDetail);
         actions.push(reducerAction);
-        if (executionDetail.info.status === 'Stopped' || executionDetail.info.status === 'Failed') {
+        if (executionDetail.info.status === 'Failed') {
           const cancelAction = new executionDetailActions.CancelPollingAction();
           actions.push(cancelAction);
         }

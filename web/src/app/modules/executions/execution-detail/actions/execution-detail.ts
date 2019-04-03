@@ -17,6 +17,7 @@ export const UNARCHIVE_EXECUTION = '[Execution detail] Unarchive a execution';
 
 export const DELETE_EXECUTION = '[Execution detail] Delete a execution';
 export const CANCEL_POLLING = '[Execution detail] Cancel Polling';
+export const RESET_EXECUTION_DETAIL = '[Execution detail] Reset execution detail';
 
 
 export class CreateExecutionDetailAction implements Action {
@@ -62,6 +63,10 @@ export class CancelPollingAction implements Action {
   readonly type = CANCEL_POLLING;
 }
 
+export class ResetExecutionDetail implements Action {
+  readonly type = RESET_EXECUTION_DETAIL;
+}
+
 export type Actions =
   CreateExecutionDetailAction |
   GetExecutionDetailAction |
@@ -70,4 +75,5 @@ export type Actions =
   ArchiveExecutionAction |
   UnArchiveExecutionAction |
   DeleteExecutionAction |
-  CancelPollingAction;
+  CancelPollingAction |
+  ResetExecutionDetail;

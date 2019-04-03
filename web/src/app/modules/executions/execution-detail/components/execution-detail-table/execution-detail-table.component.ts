@@ -21,6 +21,7 @@ export class ExecutionDetailTableComponent implements OnInit {
 
     this.filteredParameters = this.filteredParameters
       && this.filteredParameters.length
+      && this.filteredParameters.length === values.length
       && this.filteredParameters[0].name ?
       this.filteredParameters :
       [...values];

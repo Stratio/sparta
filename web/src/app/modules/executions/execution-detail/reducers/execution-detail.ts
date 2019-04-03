@@ -54,6 +54,11 @@ export function reducer(state: executionParametersTypes.ExecutionDetail = initia
         ...action.payload
       };
 
+    case executionDetailActions.RESET_EXECUTION_DETAIL:
+      return {
+        ...initialState
+      };
+
     default:
       return state;
   }

@@ -40,9 +40,9 @@ export class ExecutionDetailTableContainer implements OnInit {
     { id: 'lastModified', label: 'Value', sortable: false }
   ];
   public runtimeFields = [
-    { id: 'name', label: 'Status', sortable: true },
+    { id: 'name', label: 'Status', sortable: false },
     { id: 'statusInfo', label: 'Info', sortable: false },
-    { id: 'startTime', label: 'Start time', sortable: false }
+    { id: 'startTime', label: 'Start time', sortable: true }
   ];
   public parametersTitle: String = 'Parameters';
   public statusesTitle: String = 'States';

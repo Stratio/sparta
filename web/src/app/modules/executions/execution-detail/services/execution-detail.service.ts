@@ -9,6 +9,7 @@ import {Injectable} from "@angular/core";
 import {Info, Parameter, ShowedActions, Status} from "@app/executions/execution-detail/types/execution-detail";
 import * as utils from "@utils";
 import {ExecutionHelperService} from "../../../../services/helpers/execution.service";
+import { DateFormats } from '../../../../models/enums.ts';
 
 @Injectable()
 export class ExecutionDetailHelperService {
@@ -61,13 +62,13 @@ export class ExecutionDetailHelperService {
       executionEngine: execNorm.executionEngine,
       sparkURI: execNorm.sparkURI,
       historyServerURI: execNorm.historyServerURI,
-      launchHour: execNorm.launchDate ? moment(new Date(execNorm.launchDate)).format('HH:mm:ss') : "Not launched",
-      launchDate: execNorm.launchDate ? moment(new Date(execNorm.launchDate)).format('DD/MM/YYYY') : "",
-      startHour: execNorm.startDate ? moment(new Date(execNorm.startDate)).format('HH:mm:ss') : "Not started",
-      startDate: execNorm.startDate ? moment(new Date(execNorm.startDate)).format('DD/MM/YYYY') : "",
+      launchHour: execNorm.launchDate ? moment(execNorm.launchDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionHourFormat) : "Not launched",
+      launchDate: execNorm.launchDate ? moment(execNorm.launchDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionDateFormat) : "",
+      startHour: execNorm.startDate ? moment(execNorm.startDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionHourFormat) : "Not started",
+      startDate: execNorm.startDate ? moment(execNorm.startDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionDateFormat) : "",
       duration: (execNorm.startDate && execNorm.endDate) ? this._getDuration(execNorm.startDateMillis, execNorm.endDateMillis) : "Not finished",
-      endHour: execNorm.endDate ? moment(new Date(execNorm.endDate)).format('HH:mm:ss') : "Not finished",
-      endDate: execNorm.endDate ? moment(new Date(execNorm.endDate)).format('DD/MM/YYYY') : "",
+      endHour: execNorm.endDate ? moment(execNorm.endDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionHourFormat) : "Not finished",
+      endDate: execNorm.endDate ? moment(execNorm.endDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionDateFormat) : "",
     };
   }
 
@@ -93,10 +94,11 @@ export class ExecutionDetailHelperService {
   public getExecutionStatuses(response): Array<Status> {
     let statuses = response.statuses || undefined;
     return statuses.map(status => {
+
       return {
         name: status.state,
         statusInfo: status.statusInfo,
-        startTime: moment(status.lastUpdateDate).format('DD/MM/YYYY hh:mm:ss')
+        startTime: moment(status.lastUpdateDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionTimeStampFormat)
       };
     });
   }
