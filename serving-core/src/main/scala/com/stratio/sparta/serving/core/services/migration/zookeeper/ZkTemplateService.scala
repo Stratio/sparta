@@ -50,7 +50,7 @@ class ZkTemplateService(val curatorFramework: CuratorFramework) extends SLF4JLog
   }
 
   def create(template: TemplateElementOrion, pathPrefix: String): Unit = {
-    val templateLocation = s"${templateOldPathType(template.templateType, pathPrefix)}/${template.id.get}"
+    val templateLocation = s"${templateOldPathType(pathPrefix, template.templateType)}/${template.id.get}"
     if (CuratorFactoryHolder.existsPath(templateLocation))
       curatorFramework.setData().forPath(templateLocation, write(template).getBytes())
     else curatorFramework.create().creatingParentsIfNeeded().forPath(templateLocation, write(template).getBytes())

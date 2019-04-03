@@ -49,13 +49,15 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
       None
   }
 
+  val defaultAwaitForMigration : Duration = 20 seconds
+
   private var templatesPgOrion = Seq.empty[TemplateElementOrion]
   private var workflowsPgOrion = Seq.empty[WorkflowOrion]
 
   def loadOrionPgData(): Unit = {
     templatesPgOrion = templateOrionPostgresService.map { service =>
       Try {
-        Await.result(service.findAllTemplates(), 20 seconds)
+        Await.result(service.findAllTemplates(), defaultAwaitForMigration)
       } match {
         case Success(templates) =>
           log.info(s"Templates in orion: ${templates.map(_.name).mkString(",")}")
@@ -68,7 +70,7 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
 
     workflowsPgOrion = workflowOrionPostgresService.map { service =>
       Try {
-        Await.result(service.findAllWorkflows(), 20 seconds)
+        Await.result(service.findAllWorkflows(), defaultAwaitForMigration)
       } match {
         case Success(workflows) =>
           log.info(s"Workflows in Orion: ${workflows.map(_.name).mkString(",")}")
@@ -119,7 +121,7 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
     val andromedaGroups = andromedaMigrationService.andromedaGroupsMigrated().getOrElse(Seq.empty)
 
     Try {
-      Await.result(groupPostgresService.upsertList(andromedaGroups), 20 seconds)
+      Await.result(groupPostgresService.upsertList(andromedaGroups), defaultAwaitForMigration)
     } match {
       case Success(_) =>
         log.info("Groups migrated to Orion")
@@ -141,9 +143,9 @@ class OrionMigrationService() extends SLF4JLogging with SpartaSerializer {
     andromedaMigrationService.andromedaEnvironmentMigrated().map { result =>
       result.foreach { case (globalParameters, environmentList, defaultList, environmentAndromeda) =>
         Try {
-          Await.result(globalParameterPostgresService.updateGlobalParameters(globalParameters), 20 seconds)
-          Await.result(paramListPostgresService.update(environmentList), 20 seconds)
-          Await.result(paramListPostgresService.update(defaultList), 20 seconds)
+          Await.result(globalParameterPostgresService.updateGlobalParameters(globalParameters), defaultAwaitForMigration)
+          Await.result(paramListPostgresService.upsert(environmentList), defaultAwaitForMigration)
+          Await.result(paramListPostgresService.update(defaultList), defaultAwaitForMigration)
         } match {
           case Success(_) =>
             Try {

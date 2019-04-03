@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.services.dao.{BasicPostgresService, WorkflowPostgresDao}
 import com.stratio.sparta.serving.core.services.migration.orion.OrionMigrationService
 import com.stratio.sparta.serving.core.services.migration.zookeeper.{ZkTemplateService, ZkWorkflowService}
+import org.joda.time.DateTime
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -27,6 +28,10 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
   private lazy val workflowPostgresService = PostgresDaoFactory.workflowPgService
   private lazy val templatePostgresService = PostgresDaoFactory.templatePgService
   private lazy val basicPostgresService = new BasicPostgresService()
+
+  val defaultAwaitForMigration : Duration = 20 seconds
+
+  val epochString: String = "01-01-1970"
 
   def executeMigration(): Unit = {
     hydraTemplatesMigration()
@@ -53,12 +58,12 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
 
     val (hydraWorkflows, orionWorkflows, andromedaWorkflows, cassiopeaWorkflows) = orionMigrationService.orionWorkflowsMigrated()
       .getOrElse((Seq.empty, Seq.empty, Seq.empty, Seq.empty))
-    val newHydraWorkflows = hydraWorkflows.map(workflow =>
+    val newHydraWorkflows= hydraWorkflows.map(workflow =>
       addUpdateDate(addSpartaVersion(workflow.copy(groupId = workflow.groupId.orElse(workflow.group.id))))
-    )
+    ).groupBy(workflow => (workflow.name, workflow.groupId, workflow.version)).map{case (key, seq) => ( key, seq.sortBy(_.lastUpdateDate.getOrElse(DateTime.parse(epochString)))(Ordering.by(_.getMillis)).head)}.values.toSeq
 
     Try {
-      Await.result(workflowPostgresService.upsertList(newHydraWorkflows), 20 seconds)
+      Await.result(workflowPostgresService.upsertList(newHydraWorkflows), defaultAwaitForMigration * 2)
     } match {
       case Success(_) =>
         log.info("Workflows migrated to Hydra")
@@ -84,7 +89,7 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
       .getOrElse((Seq.empty, Seq.empty, Seq.empty, Seq.empty))
 
     Try {
-      Await.result(templatePostgresService.upsertList(hydraTemplates), 20 seconds)
+      Await.result(templatePostgresService.upsertList(hydraTemplates), defaultAwaitForMigration)
     } match {
       case Success(_) =>
         log.info("Templates migrated to Hydra")
