@@ -104,8 +104,8 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
     }
 
     "create a simple ORDER BY condition no matter the operators" in {
-      val actualConditionsComplexString = conditions.extractOrderSentence("select * from tableA")
-      val actualConditionsSimpleString = complexConditions.extractOrderSentence("select * from tableA")
+      val actualConditionsComplexString = conditions.extractOrderSentence()
+      val actualConditionsSimpleString = complexConditions.extractOrderSentence()
       val expectedConditionsString = " ORDER BY id DESC ,storeID DESC ,cashierID DESC"
 
       assert(Seq(actualConditionsComplexString, actualConditionsSimpleString)
@@ -126,7 +126,7 @@ class CrossdataInputStepStreamingTest extends WordSpec with Matchers with Mockit
       assert((actualConditionsComplexString === expectedConditionsString)
         (after being whiteSpaceNormalised))
 
-      val actualOrderComplexString = conditions.extractOrderSentence("select * from tableA")
+      val actualOrderComplexString = conditions.extractOrderSentence()
       val expectedOrderComplexString = ""
 
       actualOrderComplexString should be (expectedOrderComplexString)

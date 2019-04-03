@@ -10,7 +10,7 @@ import java.io.{Serializable => JSerializable}
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
-import com.stratio.sparta.plugin.models.OffsetFieldItem
+import com.stratio.sparta.plugin.models.{OffsetFieldItem, SqlModel}
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
@@ -33,6 +33,7 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Failure, Properties, Success, Try}
 
+//scalastyle:off
 class CrossdataInputStepStreaming(
                                    name: String,
                                    outputOptions: OutputOptions,
@@ -60,6 +61,13 @@ class CrossdataInputStepStreaming(
       log.error(message)
       throw new RuntimeException(message)
     }
+  }
+  lazy val continuousSentences = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    val sentences =
+      s"""${properties.getString("continuousSentences", None).notBlank.fold("[]") { values => values.toString }}""".stripMargin
+
+    read[Seq[SqlModel]](sentences)
   }
   lazy val offsetItems = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -92,6 +100,18 @@ class CrossdataInputStepStreaming(
         messages = validation.messages :+ WorkflowValidationMessage(s"the input sql query is invalid", name)
       )
 
+    if (initialSentence.nonEmpty && !validateInputSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"the initial sql query is invalid", name)
+      )
+
+    if (continuousSentences.nonEmpty && !validateContinuousSql)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"the continuous sql queries are invalid", name)
+      )
+
     if (offsetItems.nonEmpty && offsetItems.exists(offsetField => offsetField.name.isEmpty))
       validation = ErrorValidations(
         valid = false,
@@ -110,15 +130,19 @@ class CrossdataInputStepStreaming(
   def init(): DistributedMonad[DStream] = {
     require(query.nonEmpty, "The input query cannot be empty")
     require(validateSql, "The input query is invalid")
+    require(initialSentence.nonEmpty || validateInputSql, "The initial sql is invalid")
+    require(continuousSentences.nonEmpty || validateContinuousSql, "The continuous sql is invalid")
     require(offsetItems.isEmpty || offsetItems.forall(offsetField => offsetField.name.nonEmpty),
       "There are offset items with an incorrect definition")
 
     val inputSentences = InputSentences(
-      query,
-      OffsetConditions(
+      query = query,
+      offsetConditions = OffsetConditions(
         offsetItems,
-        limitRecords),
-      initialSentence.fold(Seq.empty[String]) { sentence => Seq(sentence) }
+        limitRecords
+      ),
+      initialStatements = initialSentence.fold(Seq.empty[String]) { sentence => Seq(sentence) },
+      continuousStatements = continuousSentences.map(sentence => sentence.query)
     )
     val datasourceProperties = {
       getCustomProperties ++
@@ -170,6 +194,28 @@ class CrossdataInputStepStreaming(
         log.error(s"$name invalid sql", e)
         false
     }
+
+  def validateContinuousSql: Boolean =
+    Try(continuousSentences.foreach(sql => xDSession.sessionState.sqlParser.parsePlan(sql.query))) match {
+      case Success(_) =>
+        true
+      case Failure(e) =>
+        log.error(s"$name invalid continuous sql", e)
+        false
+    }
+
+  def validateInputSql: Boolean = initialSentence match {
+    case Some(sql) =>
+      Try(xDSession.sessionState.sqlParser.parsePlan(sql)) match {
+        case Success(_) =>
+          true
+        case Failure(e) =>
+          log.error(s"$name invalid sql", e)
+          false
+      }
+    case None =>
+      true
+  }
 
 }
 
