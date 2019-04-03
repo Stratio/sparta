@@ -37,6 +37,8 @@ object AkkaConstant {
   val EnvironmentCleanerActorName= "EnvironmentCleanerActor"
   val InconsistentStatusCheckerActorName = "InconsistentStatusCheckerActor"
   val ParameterListActorName = "ParameterListActorName"
+  val ScheduledWorkflowTaskActorName = "ScheduledWorkflowTaskActorName"
+  val ScheduledWorkflowTaskExecutorActorName = "ScheduledWorkflowTaskExecutorActorName"
 
   lazy val DefaultInstances = Try(SpartaConfig.getDetailConfig().get.getInt("actors.instances"))
     .getOrElse(Runtime.getRuntime.availableProcessors())

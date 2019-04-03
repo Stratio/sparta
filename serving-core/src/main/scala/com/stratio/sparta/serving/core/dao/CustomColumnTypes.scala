@@ -14,7 +14,11 @@ import com.stratio.sparta.serving.core.models.workflow._
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 import com.stratio.sparta.core.models.DebugResults
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.migration.SettingsOrion
 
@@ -154,4 +158,28 @@ object CustomColumnTypes extends SpartaSerializer {
     objToDeSerialize => Try(read[Option[DebugResults]](objToDeSerialize)).getOrElse(None)
   )
 
+  implicit val scheduledTaskTypeType = MappedColumnType.base[ScheduledTaskType, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[ScheduledTaskType](objToDeSerialize)
+  )
+
+  implicit val scheduledActionTypeType = MappedColumnType.base[ScheduledActionType, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[ScheduledActionType](objToDeSerialize)
+  )
+
+  implicit val scheduledTaskStateType = MappedColumnType.base[ScheduledTaskState, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[ScheduledTaskState](objToDeSerialize)
+  )
+
+  implicit val executionContextType = MappedColumnType.base[ExecutionContext, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[ExecutionContext](objToDeSerialize)
+  )
+
+  implicit val loggedUserType = MappedColumnType.base[LoggedUser, String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[LoggedUser](objToDeSerialize)
+  )
 }

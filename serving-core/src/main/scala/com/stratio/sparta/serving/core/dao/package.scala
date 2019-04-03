@@ -17,8 +17,13 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
+import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
 import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
 //scalastyle:off
 package object daoTables {
@@ -347,6 +352,39 @@ package object daoTables {
     def workflowExecutionArchivedStatusIndex = index(s"idx_${tableName}_archived_status", (archived, resumedStatus))
 
     def workflowExecutionQueryIndex = index(s"idx_${tableName}_query", (archived, resumedDate, resumedStatus, executionEngine, searchText))
+
+  }
+
+  class ScheduledWorkflowTaskTable(tag: Tag) extends Table[ScheduledWorkflowTask](tag, dbSchemaName, ScheduledWorkflowTaskTableName) {
+
+    import CustomColumnTypes._
+
+    def id = column[String]("id")
+
+    def taskType = column[ScheduledTaskType]("task_type")
+
+    def actionType = column[ScheduledActionType]("action_type")
+
+    def entityId = column[String]("entity_id")
+
+    def executionContext = column[Option[ExecutionContext]]("execution_context")
+
+    def active = column[Boolean]("active")
+
+    def state = column[ScheduledTaskState]("state")
+
+    def duration = column[Option[String]]("duration")
+
+    def initDate = column[Option[Long]]("init_date")
+
+    def loggedUser = column[Option[LoggedUser]]("logged_user")
+
+    def * = (id, taskType, actionType, entityId, executionContext, active, state, duration, initDate, loggedUser) <>
+      ((ScheduledWorkflowTask.apply _).tupled, ScheduledWorkflowTask.unapply _)
+
+    def pk = primaryKey(s"pk_$tableName", id)
+
+    def scheduledWorkflowTaskActiveIndex = index(s"idx_${tableName}_active_finished", (active, state))
 
   }
 

@@ -11,6 +11,8 @@ import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.serving.core.models.enumerators._
 import org.json4s.ext.{DateTimeSerializer, EnumNameSerializer}
 import org.json4s.{DefaultFormats, Formats}
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
 
 /**
   * Extends this interface if you need serialize / unserialize Sparta's enums in any class / object.
@@ -31,6 +33,9 @@ trait SpartaSerializer {
       new EnumNameSerializer(WhenFieldError) +
       new EnumNameSerializer(WorkflowExecutionEngine) +
       new EnumNameSerializer(WorkflowExecutionMode) +
+      new EnumNameSerializer(ScheduledTaskState) +
+      new EnumNameSerializer(ScheduledTaskType) +
+      new EnumNameSerializer(ScheduledActionType) +
       new EnumNameSerializer(DataType) +
       new EnumNameSerializer(DateGranularity) +
       new EnumNameSerializer(PhaseEnum)
