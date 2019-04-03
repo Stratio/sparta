@@ -628,6 +628,8 @@
    "_PRINT_SCHEMA_": "Print Schema",
    "_PRINT_META_DATA_": "Print metadata",
    "_PRINT_DATA_": "Print data",
+   "_CONTINUOUS_SENTENCES_": "Fixed queries",
+   "_SQL_QUERY_": "Query",
    "_SSL_TRUSTSTORE_LOCATION_": "SSL Truststore Location",
    "_SSL_TRUSTSTORE_PASSWORD_": "SSL Truststore Password",
    "_SSL_KEYSTORE_LOCATION_": "SSL KeyStore Location",

@@ -375,11 +375,11 @@ package object daoTables {
 
     def duration = column[Option[String]]("duration")
 
-    def initDate = column[Option[Long]]("init_date")
+    def initDate = column[Long]("init_date")
 
     def loggedUser = column[Option[LoggedUser]]("logged_user")
 
-    def * = (id, taskType, actionType, entityId, executionContext, active, state, duration, initDate, loggedUser) <>
+    def * = (id, taskType, actionType, entityId, executionContext, active, state, initDate, duration, loggedUser) <>
       ((ScheduledWorkflowTask.apply _).tupled, ScheduledWorkflowTask.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)

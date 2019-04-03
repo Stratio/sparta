@@ -6,6 +6,9 @@
 package org.apache.spark.streaming.datasource.models
 
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import org.apache.spark.sql.Column
+import org.apache.spark.streaming.datasource.models.OffsetOperator.OrderRelation
+import org.apache.spark.sql.functions._
 
 import scala.annotation.tailrec
 
@@ -42,7 +45,7 @@ case class OffsetConditions(fromOffset: Seq[OffsetField],
           case condition :: Nil =>
             buildingString + s" ${condition.name} ${OffsetOperator.toProgressOperator(condition.operator).toString}" +
               s"${valueToSqlSentence(condition.value.get)} "
-          case condition :: tail => {
+          case condition :: tail =>
             val stringCurrent =
               " ( " + tail.map(currentCondition =>
                 s" ${currentCondition.name} = " +
@@ -50,7 +53,6 @@ case class OffsetConditions(fromOffset: Seq[OffsetField],
                 s" AND ${condition.name} ${OffsetOperator.toProgressOperator(condition.operator).toString}" +
                 s"${valueToSqlSentence(condition.value.get)} ) " + " OR "
             createDisjointCondition(tail, buildingString + stringCurrent)
-          }
         }
 
       createDisjointCondition(reversedConditions, "")
@@ -58,11 +60,23 @@ case class OffsetConditions(fromOffset: Seq[OffsetField],
     else ""
   }
 
-  def extractOrderSentence(sqlQuery: String, inverse: Boolean = true): String = {
+  def extractOrderSentence(inverse: Boolean = true): String = {
     val stringsOrdering: String = fromOffset.map(condition => s"${condition.name} ${
       if (inverse) OffsetOperator.toInverseOrderOperator(condition.operator).toString
       else OffsetOperator.toOrderOperator(condition.operator)} ").mkString(",")
     Option(stringsOrdering).notBlank.fold(""){ordering => s" ORDER BY $ordering"}
+  }
+
+  def extractOrderColumns(inverse: Boolean = true): Seq[Column] = {
+    fromOffset.map{condition =>
+      {
+        if (inverse) OffsetOperator.toInverseOrderOperator(condition.operator)
+        else OffsetOperator.toOrderOperator(condition.operator)
+      } match {
+        case OrderOperator.ASC => asc(condition.name)
+        case OrderOperator.DESC => desc(condition.name)
+      }
+    }
   }
 
   def valueToSqlSentence(value: Any): String =

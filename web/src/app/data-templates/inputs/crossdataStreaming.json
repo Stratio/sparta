@@ -21,6 +21,27 @@
         "qa": "fragment-details-crossdata-query"
       },
       {
+        "propertyId": "continuousSentences",
+        "propertyName": "_CONTINUOUS_SENTENCES_",
+        "propertyType": "list",
+        "required": false,
+        "complexForm": true,
+        "tooltip": "SQL sentences executed on each window. Useful to refresh input tables.",
+        "qa": "fragment-details-continuousSentences",
+        "fields": [
+          {
+            "propertyId": "query",
+            "propertyName": "_SQL_QUERY_",
+            "propertyType": "textarea",
+            "required": false,
+            "contentType": "SQL",
+            "width": 12,
+            "tooltip": "SQL query to execute.",
+            "qa": "fragment-details-crossdata-continuousSentences-query"
+          }
+        ]
+      },
+      {
         "propertyId": "storageLevel",
         "propertyName": "_STORAGELEVEL_",
         "propertyType": "select",

@@ -7,12 +7,11 @@ package org.apache.spark.streaming.datasource.receiver
 
 import org.apache.spark.partial.{BoundedDouble, CountEvaluator, PartialResult}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.parser.{AbstractSqlParser, AstBuilder, ParserInterface}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import org.apache.commons.lang.StringUtils
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.apache.spark.streaming.datasource.models.{InputSentences, OffsetConditions, OffsetField, OffsetOperator}
+import org.apache.spark.streaming.datasource.models.{InputSentences, OffsetField, OffsetOperator}
 import org.apache.spark.{Partition, TaskContext}
+
+import scala.util.Try
 
 private[datasource]
 class DatasourceRDD(
@@ -23,66 +22,84 @@ class DatasourceRDD(
 
   private var totalCalculated: Option[Long] = None
 
-  private val LimitedTableName = "limitedTable"
-  private val complexQuery = checkIfComplexQuery(inputSentences.query)
-  lazy private val initialWhereCondition = if (complexQuery) None
-  else retrieveWhereCondition(inputSentences.query)
+  lazy private val complexQuery: Boolean = checkIfComplexQuery(inputSentences.query)
+  lazy private val initialWhereCondition: Option[String] = {
+    if (complexQuery)
+      None
+    else
+      retrieveWhereCondition(inputSentences.query)
+  }
 
-  val dataFrame: DataFrame =
+  //Execute continuous queries
+  inputSentences.continuousStatements.foreach { statement =>
+    sparkSession.sql(statement)
+  }
+
+  lazy val dataFrame: DataFrame =
     inputSentences.offsetConditions.fold(sparkSession.sql(inputSentences.query)) { offset =>
-      val parsedQuery = parseInitialQuery(complexQuery,inputSentences.query)
-      if (parsedQuery.equals(TempInitQuery)) initializeTempTable
+      val parsedQuery = parseInitialQuery(complexQuery, inputSentences.query)
+
+      if (parsedQuery.equals(TempInitQuery))
+        initializeTempTable()
+
       val conditionsSentence = offset.extractConditionSentence(initialWhereCondition)
-      val orderSentence = offset.extractOrderSentence(parsedQuery, inverse = offset.limitRecords.isEmpty)
+      val orderSentence = offset.extractOrderSentence(offset.limitRecords.isEmpty)
       val limitSentence = inputSentences.extractLimitSentence
-      if(possibleConflictsWRTColumns(initialWhereCondition, offset))
+
+      if (possibleConflictsWRTColumns(initialWhereCondition, offset))
         log.warn("One or more columns specified as Offset appear in the user-provided WHERE condition")
+
       sparkSession.sql(parsedQuery + conditionsSentence + orderSentence + limitSentence)
     }
 
-  private def initializeTempTable =
+  private def initializeTempTable(): Unit =
     sparkSession.sql(inputSentences.query).createOrReplaceTempView(InitTableName)
-
 
   def progressInputSentences: InputSentences = {
     if (!dataFrame.rdd.isEmpty()) {
       inputSentences.offsetConditions.fold(inputSentences) { offset =>
-        val offsetValues = if (offset.limitRecords.isEmpty){
-          val firstRecord = dataFrame.rdd.first()
-            offset.fromOffset.map( currentField =>
-              (currentField.name,firstRecord.get(dataFrame.schema.fieldIndex(currentField.name)))
-            ).toMap
-           }
-        else {
-          dataFrame.createOrReplaceTempView(LimitedTableName)
-          val limitedQuery = s"select * from $LimitedTableName " +
-            offset.extractOrderSentence(inputSentences.query, true) +
-            " limit 1"
-          val currentRecord = sparkSession.sql(limitedQuery).rdd.first()
-            offset.fromOffset.map( currentField =>
-              (currentField.name,currentRecord.get(dataFrame.schema.fieldIndex(currentField.name)))).toMap
+        val offsetValues: Map[String, Option[Any]] = {
+          val firstRecord = if (offset.limitRecords.isEmpty) {
+            dataFrame.first()
+          } else {
+            dataFrame
+              .orderBy(offset.extractOrderColumns(): _*)
+              .limit(1)
+              .first()
+          }
+
+          offset.fromOffset.map{ currentField =>
+            val currentValue = Try{
+              Option(firstRecord.get(dataFrame.schema.fieldIndex(currentField.name)))
+            }.getOrElse(currentField.value)
+
+            currentField.name -> currentValue
+          }.toMap
         }
 
         val updatedConditions =
-          offset.fromOffset.map(
-            currentField =>
-              OffsetField(currentField.name,
-                if(offset.fromOffset.size == 1)
+          offset.fromOffset.map(currentField =>
+            OffsetField(
+              name = currentField.name,
+              operator = {
+                if (offset.fromOffset.lengthCompare(1) == 0)
                   OffsetOperator.toProgressOperator(currentField.operator)
                 else
-                  OffsetOperator.toMultiProgressOperator(currentField.operator),
-                offsetValues(currentField.name)
-          ))
+                  OffsetOperator.toMultiProgressOperator(currentField.operator)
+              },
+              value = offsetValues(currentField.name)
+            ))
 
-        inputSentences.copy(offsetConditions =
-          Option(offset.copy(fromOffset = updatedConditions)))
+        inputSentences.copy(
+          offsetConditions = Option(offset.copy(fromOffset = updatedConditions))
+        )
       }
     } else inputSentences
   }
 
   /**
-   * Return the number of elements in the RDD. Optimized when is called the second place
-   */
+    * Return the number of elements in the RDD. Optimized when is called the second place
+    */
   override def count(): Long = {
     totalCalculated.getOrElse {
       totalCalculated = Option(dataFrame.count())
@@ -91,11 +108,12 @@ class DatasourceRDD(
   }
 
   /**
-   * Return the number of elements in the RDD approximately. Optimized when count are called before
-   */
+    * Return the number of elements in the RDD approximately. Optimized when count are called before
+    */
   override def countApprox(
                             timeout: Long,
-                            confidence: Double = 0.95): PartialResult[BoundedDouble] = {
+                            confidence: Double = 0.95
+                          ): PartialResult[BoundedDouble] = {
     if (totalCalculated.isDefined) {
       val c = count()
       new PartialResult(new BoundedDouble(c, 1.0, c, c), true)
@@ -116,8 +134,8 @@ class DatasourceRDD(
   }
 
   /**
-   * Return if the RDD is empty. Optimized when count are called before
-   */
+    * Return if the RDD is empty. Optimized when count are called before
+    */
   override def isEmpty(): Boolean = {
     totalCalculated.fold {
       withScope {
@@ -126,10 +144,12 @@ class DatasourceRDD(
     } { total => total == 0L }
   }
 
-  override def getPartitions: Array[Partition] = dataFrame.rdd.partitions
+  override def getPartitions: Array[Partition] =
+    dataFrame.rdd.partitions
 
   override def compute(thePart: Partition, context: TaskContext): Iterator[Row] =
     dataFrame.rdd.compute(thePart, context)
 
-  override def getPreferredLocations(thePart: Partition): Seq[String] = dataFrame.rdd.preferredLocations(thePart)
+  override def getPreferredLocations(thePart: Partition): Seq[String] =
+    dataFrame.rdd.preferredLocations(thePart)
 }

@@ -78,14 +78,12 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       } else cancelAndClearAllActions()
     case RunWorkflowAction(actionId, taskType, workflowIdExecutionContext, userId) =>
       if (isThisNodeClusterLeader(cluster)) {
-        if (taskType == ScheduledTaskType.ONE_TIME)
-          scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
+        scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
         launcherActor ! Launch(workflowIdExecutionContext, userId)
       } else cancelAndClearAllActions()
     case StopExecutionAction(actionId, taskType, executionId) =>
       if (isThisNodeClusterLeader(cluster)) {
-        if (taskType == ScheduledTaskType.ONE_TIME)
-          scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
+        scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
         executionPgService.stopExecution(executionId)
       } else cancelAndClearAllActions()
   }
@@ -120,20 +118,25 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
 
   def executeTask(scheduledWorkflowTask: ScheduledWorkflowTask): Option[String] = {
     val period = Try(AggregationTimeHelper.parseValueToMilliSeconds(scheduledWorkflowTask.duration.get)).toOption
-    val time = Try(scheduledWorkflowTask.initDate.get - System.currentTimeMillis()).toOption
+    val delay = {
+      val initTime = scheduledWorkflowTask.initDate - System.currentTimeMillis()
+      if(initTime < 0)
+        0
+      else initTime
+    }
 
     scheduledWorkflowTask.taskType match {
-      case PERIODICAL | UNIQUE_PERIODICAL if period.isDefined =>
-        executePeriodicalAction(scheduledWorkflowTask, period.get)
-      case ONE_TIME if time.isDefined & time.get >= 0 =>
-        executeOneTimeAction(scheduledWorkflowTask, time.get)
+      case PERIODICAL | UNIQUE_PERIODICAL if period.isDefined && delay >= 0 && period.get >= 0 =>
+        executePeriodicalAction(scheduledWorkflowTask, delay, period.get)
+      case ONE_TIME if delay >= 0 =>
+        executeOneTimeAction(scheduledWorkflowTask, delay)
       case _ =>
         log.warn(s"Impossible to execute scheduled workflow action, check input options: $scheduledWorkflowTask")
         None
     }
   }
 
-  def executePeriodicalAction(scheduledWorkflowTask: ScheduledWorkflowTask, period: Long): Option[String] = {
+  def executePeriodicalAction(scheduledWorkflowTask: ScheduledWorkflowTask, delay: Long, period: Long): Option[String] = {
     scheduledWorkflowTask.actionType match {
       case RUN if scheduledWorkflowTask.executionContext.isDefined =>
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
@@ -141,15 +144,13 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
           executionContext = scheduledWorkflowTask.executionContext.get
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
-        val cancellableTask = context.system.scheduler.schedule(period millis, period millis, self, action)
+        val cancellableTask = context.system.scheduler.schedule(delay millis, period millis, self, action)
         scheduledActions += (scheduledWorkflowTask.id -> WorkflowAction(scheduledWorkflowTask, cancellableTask))
-        scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(scheduledWorkflowTask.id, ScheduledTaskState.EXECUTED)
         Option(scheduledWorkflowTask.id)
       case STOP =>
         val action = StopExecutionAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, scheduledWorkflowTask.id)
-        val cancellableTask = context.system.scheduler.schedule(period millis, period millis, self, action)
+        val cancellableTask = context.system.scheduler.schedule(delay millis, period millis, self, action)
         scheduledActions += (scheduledWorkflowTask.id -> WorkflowAction(scheduledWorkflowTask, cancellableTask))
-        scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(scheduledWorkflowTask.id, ScheduledTaskState.EXECUTED)
         Option(scheduledWorkflowTask.id)
       case _ =>
         log.warn(s"Impossible to execute periodical workflow action, check input options: $scheduledWorkflowTask")

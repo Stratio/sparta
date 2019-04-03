@@ -8,12 +8,14 @@ package org.apache.spark.streaming.datasource.models
 case class InputSentences(
                            query: String,
                            offsetConditions: Option[OffsetConditions],
-                           initialStatements: Seq[String]
+                           initialStatements: Seq[String],
+                           continuousStatements: Seq[String]
                          ) {
 
   override def toString: String =
     s"[Query: $query" +
       s"\nOffsetConditions: $offsetConditions" +
+      s"\nContinuousStatements: ${continuousStatements.mkString(" , ")}" +
       s"\nInitialStatements: ${initialStatements.mkString(" , ")}]"
 
   def extractLimitSentence: String =
@@ -31,13 +33,16 @@ object InputSentences {
    * @param offsetConditions  Conditions object with offset field and results limit
    * @param initialStatements Initial query statements to execute with the SqlContext. Useful when the user need to
    *                          create temporal tables related to one table in the dataSource
+   * @param continuousStatements Continuous query statements to execute with the SqlContext on each window. Useful when
+   *                          the user needs to refresh one or various tables related to a certain dataSource.
    * @return The inputSentence object with all options
    */
   def apply(
              query: String,
              offsetConditions: OffsetConditions,
-             initialStatements: Seq[String]
-           ): InputSentences = new InputSentences(query, Option(offsetConditions), initialStatements)
+             initialStatements: Seq[String],
+             continuousStatements: Seq[String]
+           ): InputSentences = new InputSentences(query, Option(offsetConditions), initialStatements, continuousStatements)
 
   /**
    * Constructor for create input objects with the query conditions for monitoring tables from dataSources
@@ -49,7 +54,7 @@ object InputSentences {
   def apply(
              query: String,
              offsetConditions: OffsetConditions
-           ): InputSentences = new InputSentences(query, Option(offsetConditions), Seq.empty[String])
+           ): InputSentences = new InputSentences(query, Option(offsetConditions), Seq.empty[String], Seq.empty[String])
 
   /**
    * Constructor for create input objects with the query conditions for monitoring tables from dataSources
@@ -62,7 +67,7 @@ object InputSentences {
   def apply(
              query: String,
              initialStatements: Seq[String]
-           ): InputSentences = new InputSentences(query, None, initialStatements)
+           ): InputSentences = new InputSentences(query, None, initialStatements, Seq.empty[String])
 
   /**
    * Constructor for create input objects with the query conditions for monitoring tables from dataSources
@@ -72,5 +77,5 @@ object InputSentences {
    */
   def apply(
              query: String
-           ): InputSentences = new InputSentences(query, None, Seq.empty[String])
+           ): InputSentences = new InputSentences(query, None, Seq.empty[String], Seq.empty[String])
 }

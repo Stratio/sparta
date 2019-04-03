@@ -20,8 +20,8 @@ case class ScheduledWorkflowTask(
                                   executionContext: Option[ExecutionContext],
                                   active: Boolean,
                                   state: ScheduledTaskState,
+                                  initDate: Long,
                                   duration: Option[String],
-                                  initDate: Option[Long],
                                   loggedUser: Option[LoggedUser]
                                 )
 
@@ -31,6 +31,6 @@ case class ScheduledWorkflowTaskInsert(
                                         entityId: String,
                                         executionContext: Option[ExecutionContext],
                                         active: Boolean,
-                                        duration: Option[String],
-                                        initDate: Option[Long]
+                                        initDate: Long,
+                                        duration: Option[String]
                                       )
