@@ -14,7 +14,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
-import com.stratio.sparta.serving.core.models.orchestrator.{ScheduledWorkflowTask, ScheduledWorkflowTaskInsert}
+import com.stratio.sparta.serving.core.models.orchestrator._
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 import scala.util.Try
@@ -30,6 +30,7 @@ class ScheduledWorkflowTaskActor()(implicit val secManagerOpt: Option[SpartaSecu
     case CreateScheduledWorkflowTask(request, user) => createScheduledWorkflowTask(request, user)
     case UpdateScheduledWorkflowTask(request, user) => updateScheduledWorkflowTask(request, user)
     case FindAllScheduledWorkflowTasks(user) => findAllScheduledWorkflowTasks(user)
+    case FindAllScheduledWorkflowTasksDto(user) => findAllScheduledWorkflowTasksDto(user)
     case FindScheduledWorkflowTaskByID(id, user) => findScheduledWorkflowTaskByID(id, user)
     case FindScheduledWorkflowTaskByActive(active, user) => findScheduledWorkflowTaskByActive(active, user)
     case FindScheduledWorkflowTaskByActiveAndState(active, state, user) => findScheduledWorkflowTaskByActiveAndState(active, state, user)
@@ -71,6 +72,11 @@ class ScheduledWorkflowTaskActor()(implicit val secManagerOpt: Option[SpartaSecu
       scheduledWorkflowTaskPgService.findAllScheduledTasks()
     }
 
+  def findAllScheduledWorkflowTasksDto(user: Option[LoggedUser]): Unit =
+    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> View)) {
+      scheduledWorkflowTaskPgService.findAllScheduledTasksDto()
+    }
+
   def deleteAllScheduledWorkflowTasks(user: Option[LoggedUser]): Unit = {
     authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> Delete)) {
       scheduledWorkflowTaskPgService.deleteAllWorkflowTasks()
@@ -96,6 +102,8 @@ object ScheduledWorkflowTaskActor {
 
   case class FindAllScheduledWorkflowTasks(user: Option[LoggedUser])
 
+  case class FindAllScheduledWorkflowTasksDto(user: Option[LoggedUser])
+
   case class FindScheduledWorkflowTaskByID(id: String, user: Option[LoggedUser])
 
   case class FindScheduledWorkflowTaskByActive(active: Boolean, user: Option[LoggedUser])
@@ -105,6 +113,8 @@ object ScheduledWorkflowTaskActor {
   type ResponseScheduledWorkflowTask = Try[ScheduledWorkflowTask]
 
   type ResponseScheduledWorkflowTasks = Try[Seq[ScheduledWorkflowTask]]
+
+  type ResponseScheduledWorkflowTasksDto = Try[Seq[ScheduledWorkflowTaskDto]]
 
 }
 

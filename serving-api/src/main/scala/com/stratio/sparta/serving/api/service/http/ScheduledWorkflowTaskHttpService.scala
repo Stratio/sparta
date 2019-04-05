@@ -13,7 +13,7 @@ import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.Unauthorize
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
-import com.stratio.sparta.serving.core.models.orchestrator.{ScheduledWorkflowTask, ScheduledWorkflowTaskInsert}
+import com.stratio.sparta.serving.core.models.orchestrator._
 import com.wordnik.swagger.annotations._
 import javax.ws.rs.Path
 import spray.http.StatusCodes
@@ -30,7 +30,7 @@ trait ScheduledWorkflowTaskHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route =
     create(user) ~ update(user) ~
-      findAll(user) ~ findByID(user) ~ findByActive(user) ~ findByActiveAndState(user) ~
+      findAll(user) ~ findAllDto(user) ~ findByID(user) ~ findByActive(user) ~ findByActiveAndState(user) ~
       deleteAll(user) ~ deleteById(user)
 
   @ApiOperation(value = "Finds all scheduled workflow tasks",
@@ -47,6 +47,26 @@ trait ScheduledWorkflowTaskHttpService extends BaseHttpService {
           for {
             response <- (supervisor ? FindAllScheduledWorkflowTasks(user))
               .mapTo[Either[ResponseScheduledWorkflowTasks, UnauthorizedResponse]]
+          } yield getResponse(context, ScheduledWorkflowTaskServiceFindAll, response, genericError)
+      }
+    }
+  }
+
+  @Path("/findAllDto")
+  @ApiOperation(value = "Finds all scheduled workflow tasks dto",
+    notes = "Returns an scheduled workflow tasks dto list",
+    httpMethod = "GET",
+    response = classOf[ScheduledWorkflowTaskDto])
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)))
+  def findAllDto(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.ScheduledWorkflowTasksPath / "findAllDto") {
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindAllScheduledWorkflowTasksDto(user))
+              .mapTo[Either[ResponseScheduledWorkflowTasksDto, UnauthorizedResponse]]
           } yield getResponse(context, ScheduledWorkflowTaskServiceFindAll, response, genericError)
       }
     }

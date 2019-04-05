@@ -388,6 +388,8 @@ package object daoTables {
 
     def scheduledWorkflowTaskActiveIndex = index(s"idx_${tableName}_active_finished", (active, state))
 
+    def fk = foreignKey(s"fk_${tableName}_workflow", entityId, TableQuery[WorkflowTable])(_.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
+
   }
 
 }

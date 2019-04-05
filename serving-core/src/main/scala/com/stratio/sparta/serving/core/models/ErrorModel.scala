@@ -219,6 +219,7 @@ object ErrorModel extends SpartaSerializer {
   val ScheduledWorkflowTaskServiceDeleteAll = "1056"
   val ScheduledWorkflowTaskServiceDeleteById = "1057"
   val ScheduledWorkflowTaskServiceFindByActiveAndState = "1058"
+  val ScheduledWorkflowTaskServiceFindAllDto = "1059"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -368,6 +369,7 @@ object ErrorModel extends SpartaSerializer {
     ScheduledWorkflowTaskServiceFindByActive -> "Error finding scheduled workflow tasks by active",
     ScheduledWorkflowTaskServiceFindByActiveAndState -> "Error finding scheduled workflow tasks by active and state",
     ScheduledWorkflowTaskServiceFindAll -> "Error obtaining all scheduled workflow tasks",
+    ScheduledWorkflowTaskServiceFindAllDto -> "Error obtaining all scheduled workflow tasks dto",
     ScheduledWorkflowTaskServiceCreate -> "Error creating scheduled workflow task",
     ScheduledWorkflowTaskServiceUpdate -> "Error updating scheduled workflow task",
     ScheduledWorkflowTaskServiceDeleteAll -> "Error deleting all scheduled workflow task",

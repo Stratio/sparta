@@ -13,7 +13,7 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
-import com.stratio.sparta.serving.core.models.orchestrator.{ScheduledWorkflowTask, ScheduledWorkflowTaskInsert}
+import com.stratio.sparta.serving.core.models.orchestrator._
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 import slick.jdbc.PostgresProfile
 
@@ -29,6 +29,9 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
 
   def findAllScheduledTasks(): Future[List[ScheduledWorkflowTask]] =
     findAll()
+
+  def findAllScheduledTasksDto(): Future[List[ScheduledWorkflowTaskDto]] =
+    db.run(tableScheduledWorkflowTaskDto.sortBy(_.initDate.desc).result).map(_.toList)
 
   def filterScheduledWorkflowTaskByActive(active: Boolean): Future[Seq[ScheduledWorkflowTask]] =
     filterByActive(active)

@@ -10,7 +10,9 @@ import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
-import com.stratio.sparta.serving.core.models.workflow.ExecutionContext
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
+import com.stratio.sparta.serving.core.models.workflow.{ExecutionContext, Group}
+import slick.lifted.Rep
 
 case class ScheduledWorkflowTask(
                                   id: String,
@@ -24,6 +26,41 @@ case class ScheduledWorkflowTask(
                                   duration: Option[String],
                                   loggedUser: Option[LoggedUser]
                                 )
+
+case class ScheduledWorkflowTaskDtoLifted(
+                                           id: Rep[String],
+                                           taskType: Rep[ScheduledTaskType],
+                                           actionType: Rep[ScheduledActionType],
+                                           entityId: Rep[String],
+                                           entityName: Rep[String],
+                                           entityVersion: Rep[Long],
+                                           executionEngine: Rep[ExecutionEngine],
+                                           group: Rep[Group],
+                                           executionContext: Rep[Option[ExecutionContext]],
+                                           active: Rep[Boolean],
+                                           state: Rep[ScheduledTaskState],
+                                           initDate: Rep[Long],
+                                           duration: Rep[Option[String]],
+                                           loggedUser: Rep[Option[LoggedUser]]
+                                         )
+
+case class ScheduledWorkflowTaskDto(
+                                     id: String,
+                                     taskType: ScheduledTaskType,
+                                     actionType: ScheduledActionType,
+                                     entityId: String,
+                                     entityName: String,
+                                     entityVersion: Long,
+                                     executionEngine: ExecutionEngine,
+                                     group: Group,
+                                     executionContext: Option[ExecutionContext],
+                                     active: Boolean,
+                                     state: ScheduledTaskState,
+                                     initDate: Long,
+                                     duration: Option[String],
+                                     loggedUser: Option[LoggedUser]
+                                   )
+
 
 case class ScheduledWorkflowTaskInsert(
                                         taskType: ScheduledTaskType,

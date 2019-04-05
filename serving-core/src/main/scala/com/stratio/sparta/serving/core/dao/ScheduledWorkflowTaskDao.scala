@@ -7,7 +7,7 @@
 package com.stratio.sparta.serving.core.dao
 
 import com.stratio.sparta.serving.core.daoTables._
-import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
+import com.stratio.sparta.serving.core.models.orchestrator.{ScheduledWorkflowTask, ScheduledWorkflowTaskDto, ScheduledWorkflowTaskDtoLifted}
 import org.apache.ignite.IgniteCache
 import slick.ast.BaseTypedType
 
@@ -17,13 +17,44 @@ trait ScheduledWorkflowTaskDao extends DaoUtils {
   import profile.api._
   import CustomColumnTypes._
 
+  implicit object WorkflowTaskDtoShape extends CaseClassShape(ScheduledWorkflowTaskDtoLifted.tupled, ScheduledWorkflowTaskDto.tupled)
+
   type SpartaEntity = ScheduledWorkflowTask
   type SpartaTable = ScheduledWorkflowTaskTable
   type Id = String
 
   lazy val table = TableQuery[ScheduledWorkflowTaskTable]
 
+  private lazy val workflowTable = TableQuery[WorkflowTable]
+
   override val initializationOrder = 4
+
+  private lazy val scheduledWorkflowTaskDtoJoin =
+    for {
+      (workflow, tasks) <- workflowTable join table on { case (workflow, tasks) =>
+        workflow.id === tasks.entityId
+      }
+    } yield (workflow, tasks)
+
+  lazy val tableScheduledWorkflowTaskDto: Query[ScheduledWorkflowTaskDtoLifted, ScheduledWorkflowTaskDto, Seq] =
+    scheduledWorkflowTaskDtoJoin.map { case (workflow, tasks) =>
+      ScheduledWorkflowTaskDtoLifted(
+        id = tasks.id,
+        taskType = tasks.taskType,
+        actionType = tasks.actionType,
+        entityId = tasks.entityId,
+        entityName = workflow.name,
+        entityVersion = workflow.version,
+        executionEngine = workflow.executionEngine,
+        group = workflow.group,
+        executionContext = tasks.executionContext,
+        active = tasks.active,
+        state = tasks.state,
+        initDate = tasks.initDate,
+        duration = tasks.duration,
+        loggedUser = tasks.loggedUser
+      )
+    }
 
   def $id(table: ScheduledWorkflowTaskTable): Rep[Id] = table.id
 
