@@ -9,13 +9,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Subscription, iif } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { WorkflowGroupModalComponent } from './components/workflow-group-modal/workflow-group-modal.component';
 import { WorkflowJsonModalComponent } from './components/workflow-json-modal/workflow-json-modal.component';
 import * as fromRoot from 'reducers';
 import * as workflowActions from './actions/workflow-list';
-import { WorkflowScheduleModalComponent } from "./components/workflow-schedule-modal/workflow-schedule-modal.component";
+import { WorkflowSchedulerComponent } from '@app/shared/components/workflow-scheduler/workflow-scheduler.component';
 
 @Injectable()
 export class WorkflowsManagingService {
@@ -72,7 +72,7 @@ export class WorkflowsManagingService {
           this._modalService.close()
         }
       },
-    }, WorkflowScheduleModalComponent);
+    }, WorkflowSchedulerComponent);
   }
 
   constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,

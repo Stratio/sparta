@@ -14,7 +14,7 @@ import {
   HostListener
 } from '@angular/core';
 import { StTableHeader, Order, StDropDownMenuItem } from '@stratio/egeo';
-import { workflowTypesFilterOptions, timeIntervalsFilterOptions } from './models/schedules-filters';
+import { workflowTypesFilterOptions, timeIntervalsFilterOptions, activeFilterOptions } from './models/schedules-filters';
 import { ScheduledExecution } from './models/scheduled-executions';
 import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
 
@@ -29,19 +29,18 @@ import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/me
 export class ScheduledComponent {
 
   @Input() typeFilter: StDropDownMenuItem;
-  @Input() timeIntervalFilter: StDropDownMenuItem;
+  @Input() activeFilter: StDropDownMenuItem;
   @Input() searchQuery: string;
-  @Input() areAllSelected: boolean;
-  @Input() currentOrder: any;
+  @Input() currentOrder: Order;
   @Input() scheduledExecutions: Array<ScheduledExecution>;
   @Input() selectedExecutions: Array<string>;
   @Input() isEmptyScheduledExecutions: boolean;
 
   @Output() onChangeTypeFilter = new EventEmitter<any>();
-  @Output() onChangeTimeIntervalFilter = new EventEmitter<number>();
+  @Output() onChangeActiveFilter = new EventEmitter<number>();
   @Output() onSearch = new EventEmitter<any>();
   @Output() selectExecution = new EventEmitter<string>();
-  @Output() allExecutionsToggled = new EventEmitter<boolean>();
+  @Output() allExecutionsToggled = new EventEmitter<Array<string>>();
   @Output() onChangeOrder = new EventEmitter<Order>();
   @Output() stopExecution = new EventEmitter<ScheduledExecution>();
   @Output() startExecution = new EventEmitter<ScheduledExecution>();
@@ -51,7 +50,7 @@ export class ScheduledComponent {
   public showedFilter = '';
 
   public workflowTypes: StDropDownMenuItem[] = workflowTypesFilterOptions;
-  public timeIntervals: StDropDownMenuItem[] = timeIntervalsFilterOptions;
+  public activeOptions: StDropDownMenuItem[] = activeFilterOptions;
 
   public executionOptions: MenuOptionListGroup[] = [
     {
@@ -105,8 +104,11 @@ export class ScheduledComponent {
   }
 
   toggleAllExecutions(isChecked: boolean) {
-    this.allExecutionsToggled.emit(isChecked);
-    this.areAllSelected = isChecked;
+    if(isChecked) {
+      this.allExecutionsToggled.emit(this.scheduledExecutions.map(execution => execution.id));
+    } else {
+      this.allExecutionsToggled.emit([]);
+    }
   }
 
   selectedExecutionAction(event, execution: ScheduledExecution) {
@@ -123,7 +125,11 @@ export class ScheduledComponent {
     }
   }
 
-
+  deleteMultiple() {
+    this.selectedExecutions.forEach(executionId => {
+      this.deleteExecution.emit(executionId);
+    });
+  }
 
   @HostListener('document:click', ['$event'])
   onClick() {

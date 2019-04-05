@@ -12,12 +12,12 @@ import { NgbCalendar, NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap'
 import { ErrorMessagesService } from 'app/services';
 
 @Component({
-  selector: 'workflow-schedule-modal',
-  templateUrl: './workflow-schedule-modal.component.html',
-  styleUrls: ['./workflow-schedule-modal.component.scss'],
+  selector: 'workflow-scheduler',
+  templateUrl: './workflow-scheduler.component.html',
+  styleUrls: ['./workflow-scheduler.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowScheduleModalComponent implements OnInit, OnDestroy {
+export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
 
   @Input() scheduledFormControl: FormControl;
   @Input() entityId: string;
@@ -25,8 +25,6 @@ export class WorkflowScheduleModalComponent implements OnInit, OnDestroy {
 
   public groupForm: FormGroup;
   public startDate: { year: number; month: number; day?: number; };
-  public minDate: NgbDateStruct;
-
 
   public forceValidations = false;
   public date: NgbDateStruct;
@@ -80,17 +78,16 @@ export class WorkflowScheduleModalComponent implements OnInit, OnDestroy {
     public errorsService: ErrorMessagesService,
     private _cd: ChangeDetectorRef,
     private _fb: FormBuilder, private calendar: NgbCalendar) {
-//("0" + this.getDate()).slice(-2)
     const date = new Date();
-    this.startTimeFormControl = new FormControl((date.getHours() + ':' + date.getMinutes()));
-    this.minDate = {
+    this.startTimeFormControl = new FormControl((date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2)));
+    const currentDate: NgbDateStruct = {
       year: date.getFullYear(),
       month: date.getMonth() + 1,
       day: date.getDay()
     };
-    this.dateFormControl = new FormControl(this.minDate);
+    this.dateFormControl = new FormControl(currentDate);
 
-    this.startDate = this.minDate;
+    this.startDate = currentDate;
   }
 
   createSchedule() {

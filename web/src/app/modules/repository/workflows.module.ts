@@ -29,8 +29,8 @@ import { WorkflowGroupModalModule } from './components/workflow-group-modal/work
 import { WorkflowGroupModalComponent } from './components/workflow-group-modal/workflow-group-modal.component';
 import { WorkflowJsonModalComponent } from './components/workflow-json-modal/workflow-json-modal.component';
 import { WorkflowJsonModalModule } from './components/workflow-json-modal/workflow-json-modal.module';
-import { WorkflowScheduleModalModule } from "@app/repository/components/workflow-schedule-modal/workflow-schedule-modal.module";
-import {WorkflowScheduleModalComponent} from "@app/repository/components/workflow-schedule-modal/workflow-schedule-modal.component";
+import { WorkflowSchedulerComponent } from '@app/shared/components/workflow-scheduler/workflow-scheduler.component';
+import { WorkflowSchedulerModule } from '@app/shared/components/workflow-scheduler/workflow-scheduler-modal.module';
 
 @NgModule({
     declarations: [
@@ -43,14 +43,14 @@ import {WorkflowScheduleModalComponent} from "@app/repository/components/workflo
         CustomExecutionModule,
         SpartaSidebarModule,
         StProgressBarModule,
-        StModalModule.withComponents([WorkflowGroupModalComponent, WorkflowJsonModalComponent, WorkflowScheduleModalComponent]),
+        StModalModule.withComponents([WorkflowGroupModalComponent, WorkflowJsonModalComponent, WorkflowSchedulerComponent]),
         WorkflowManagingRouterModule,
         RepositoryDetailModule,
         RepositoryHeaderModule,
         RepositoryTableHeaderModule,
         RepositoryTableModule,
         WorkflowGroupModalModule,
-        WorkflowScheduleModalModule,
+        WorkflowSchedulerModule,
         WorkflowJsonModalModule,
     ],
     providers: [

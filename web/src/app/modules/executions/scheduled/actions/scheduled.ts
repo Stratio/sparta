@@ -28,7 +28,8 @@ export enum ScheduledActions {
   STOP_SCHEDULED_EXECUTION_COMPLETE = '[Executions-scheduled] Stop scheduled execution complete',
   STOP_SCHEDULED_EXECUTION_FAILED = '[Executions-scheduled] Stop scheduled execution failed',
 
-  REMOVE_SELECTION = '[Executions-scheduled] Remove selection'
+  REMOVE_SELECTION = '[Executions-scheduled] Remove selection',
+  TOGGLE_ALL_EXECUTIONS = '[Executions-scheduled] Toggle All executions'
 
 }
 
@@ -100,6 +101,10 @@ export class RemoveSelection implements Action {
   readonly type = ScheduledActions.REMOVE_SELECTION;
 }
 
+export class ToggleAllExecutions implements Action {
+  readonly type = ScheduledActions.TOGGLE_ALL_EXECUTIONS;
+  constructor(public executionsIds: Array<string>) { }
+}
 
 export type ScheduledUnionActions = ListScheduledExecutionsAction
   | ListScheduledExecutionsCompleteAction
@@ -115,4 +120,5 @@ export type ScheduledUnionActions = ListScheduledExecutionsAction
   | StopScheduledExecution
   | StopScheduledExecutionComplete
   | StopScheduledExecutionFailed
-  | RemoveSelection;
+  | RemoveSelection
+  | ToggleAllExecutions;

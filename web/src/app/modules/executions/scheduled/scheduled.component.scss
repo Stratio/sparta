@@ -54,10 +54,21 @@
     }
   }
 
+  
+  &__table {
+    td {
+      cursor: pointer;
+      padding: 16px 20px;
+    }
+  }
   .show-options {
     padding: 6px 5px;
     color: transparent;
     font-size: 22px;
+  }
+
+  &__buttons{ 
+    float: right;
   }
 }
 
@@ -76,5 +87,20 @@
   padding: 10px;
   font-size: 15px;
   color: #555555;
+}
+
+.icon-row {
+  margin-right: 8px;
+  margin-top: 1px;
+  width: 20px;
+  float: left;
+}
+
+.execution-group {
+  color: $action-secondary-05;
+  font-size: 14px;
+  line-height: 7px;
+  margin-top: 5px;
+  padding-left: 28px;
 }
 

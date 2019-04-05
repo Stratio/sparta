@@ -9,7 +9,7 @@
     <div class="content">
       <st-horizontal-tabs (changedOption)="changedOption($event)" *ngIf="showSheduler" class="tab-options" [options]="tabOptions"></st-horizontal-tabs>
       <div [hidden]="currentTab.id !== 'schedule'">
-        <workflow-schedule-modal *ngIf="showSheduler" [scheduledFormControl]="scheduledFormControl"></workflow-schedule-modal>
+        <workflow-scheduler *ngIf="showSheduler" [scheduledFormControl]="scheduledFormControl"></workflow-scheduler>
       </div>
       <div [hidden]="currentTab.id === 'schedule'">
        <p class="info-text" *ngIf="environmentContext || customGroups.length">{{'DASHBOARD.CONTEXT_CONFIG' | translate}}</p>

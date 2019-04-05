@@ -62,6 +62,7 @@
   &.form-category {
     border-bottom: 1px solid $neutral-05;
     width: 100%;
+    min-height: 40px;
     position: relative;
 
     &>.form-category__title {

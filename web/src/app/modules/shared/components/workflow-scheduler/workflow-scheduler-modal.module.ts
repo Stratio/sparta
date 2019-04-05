@@ -10,8 +10,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SpInputModule, SpSelectModule } from '@app/shared';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
-import {WorkflowScheduleModalComponent} from "@app/repository/components/workflow-schedule-modal/workflow-schedule-modal.component";
 import { StCheckboxModule } from '@stratio/egeo';
+import { WorkflowSchedulerComponent } from './workflow-scheduler.component';
 
 @NgModule({
    imports: [
@@ -22,7 +22,7 @@ import { StCheckboxModule } from '@stratio/egeo';
      SpSelectModule,
      NgbDatepickerModule
    ],
-   declarations: [WorkflowScheduleModalComponent],
-   exports: [WorkflowScheduleModalComponent]
+   declarations: [WorkflowSchedulerComponent],
+   exports: [WorkflowSchedulerComponent]
 })
-export class WorkflowScheduleModalModule { }
+export class WorkflowSchedulerModule { }

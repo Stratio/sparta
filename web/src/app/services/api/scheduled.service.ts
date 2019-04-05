@@ -28,7 +28,7 @@ export class ScheduledService extends ApiService {
 
   getScheduledWorkflowTasks() {
     const options: any = {};
-    return this.request('scheduledWorkflowTasks', 'get', options);
+    return this.request('scheduledWorkflowTasks/findAllDto', 'get', options);
   }
 
   deleteScheduledExecution(executionId: string) {

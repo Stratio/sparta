@@ -7,19 +7,25 @@
 import * as scheduledFilterActions from '../actions/scheduled-filters';
 
 import { Order, StDropDownMenuItem } from '@stratio/egeo';
-import { workflowTypesFilterOptions, timeIntervalsFilterOptions } from '../models/schedules-filters';
-import { ScheduledFiltersActions } from '../actions/scheduled-filters';
+import { workflowTypesFilterOptions, timeIntervalsFilterOptions, activeFilterOptions } from '../models/schedules-filters';
 
 export interface State {
   workflowTypesFilterValue: StDropDownMenuItem;
   timeIntervalsFilterValue: StDropDownMenuItem;
+  activeFilterValue: StDropDownMenuItem;
   searchQuery: string;
+  order: Order;
 }
 
 const initialState: State = {
   workflowTypesFilterValue: workflowTypesFilterOptions[0],
   timeIntervalsFilterValue: timeIntervalsFilterOptions[0],
-  searchQuery: ''
+  activeFilterValue: activeFilterOptions[0],
+  searchQuery: '',
+  order: {
+    orderBy: 'initDateMillis',
+    type: 1
+  }
 };
 
 export function reducer(state: State = initialState, action: scheduledFilterActions.ScheduledFiltersUnionActions): State {
@@ -28,12 +34,24 @@ export function reducer(state: State = initialState, action: scheduledFilterActi
       return {
         ...state,
         searchQuery: action.searchQuery
-      }
+      };
     }
     case scheduledFilterActions.ScheduledFiltersActions.CHANGE_TYPE_FILTER: {
       return {
         ...state,
         workflowTypesFilterValue: action.value
+      };
+    }
+    case scheduledFilterActions.ScheduledFiltersActions.CHANGE_ACTIVE_FILTER: {
+      return {
+        ...state,
+        activeFilterValue: action.value
+      };
+    }
+    case scheduledFilterActions.ScheduledFiltersActions.CHANGE_ORDER: {
+      return {
+         ...state,
+         order: action.order
       };
     }
     default:

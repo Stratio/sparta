@@ -13,7 +13,7 @@
       <div class="scheduler__start-date">
         <div class="custom-datepicker st-form-field">
           <input class="st-input form-control" placeholder="yyyy-mm-dd" name="dp" ngbDatepicker
-            [dayTemplate]="customDay" [required]="true" [formControl]="dateFormControl" [startDate]="startDate" [minDate]="minDate" [markDisabled]="isDisabled"
+            [dayTemplate]="customDay" [required]="true" [formControl]="dateFormControl" [startDate]="startDate" [markDisabled]="isDisabled"
             #d="ngbDatepicker">
           <label>Date</label>
           <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"></button>

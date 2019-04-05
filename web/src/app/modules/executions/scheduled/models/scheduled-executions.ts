@@ -13,5 +13,9 @@ export interface ScheduledExecution {
     durationMillis: number;
     active: boolean;
     executed: boolean;
+    executionEngine: string;
     data: any;
+    version: string;
+    groupId: string;
+    groupName: string;
 }

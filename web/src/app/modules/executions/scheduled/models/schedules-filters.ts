@@ -21,6 +21,21 @@ export const workflowTypesFilterOptions: StDropDownMenuItem[] = [
   }
 ];
 
+export const activeFilterOptions: StDropDownMenuItem[] = [
+  {
+    label: 'All',
+    value: ''
+  },
+  {
+    label: 'Active',
+    value: 'active'
+  },
+  {
+    label: 'Inactive',
+    value: 'inactive'
+  }
+];
+
 export const timeIntervalsFilterOptions: StDropDownMenuItem[] = [
   {
     label: 'Launch date',

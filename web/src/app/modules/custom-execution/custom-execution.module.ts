@@ -15,7 +15,7 @@ import { CustomExecutionContainer } from './custom-execution.container';
 import { CustomExecutionComponent } from './custom-execution.component';
 
 import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
-import { WorkflowScheduleModalModule } from '@app/repository/components/workflow-schedule-modal/workflow-schedule-modal.module';
+import { WorkflowSchedulerModule } from '@app/shared/components/workflow-scheduler/workflow-scheduler-modal.module';
 
 @NgModule({
    exports: [
@@ -27,7 +27,7 @@ import { WorkflowScheduleModalModule } from '@app/repository/components/workflow
    ],
    imports: [
       CommonModule,
-      WorkflowScheduleModalModule,
+      WorkflowSchedulerModule,
       FormsModule,
       ReactiveFormsModule,
       StSearchModule,

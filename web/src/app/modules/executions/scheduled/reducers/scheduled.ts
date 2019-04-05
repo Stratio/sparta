@@ -46,6 +46,12 @@ export function reducer(state: State = initialState, action: scheduledActions.Sc
         selectedExecutions: []
       };
     }
+    case scheduledActions.ScheduledActions.TOGGLE_ALL_EXECUTIONS: {
+      return {
+        ...state,
+        selectedExecutions: action.executionsIds
+      }
+    }
     default:
       return state;
   }

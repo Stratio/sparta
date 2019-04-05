@@ -28,13 +28,17 @@ import { formatDate } from '@utils';
          } catch (error) { }
         return {
             id: execution.id,
-            name: 'temp-name',
+            name: execution.entityName,
             initDateLocalized,
             initDateMillis,
             duration,
+            executionEngine: execution.executionEngine,
             durationMillis,
             active: execution.active,
             executed: execution.state !== 'NOT_EXECUTED',
+            groupName: execution.group.name,
+            groupId: execution.group.id,
+            version: execution.entityVersion,
             data: execution
         }
     }

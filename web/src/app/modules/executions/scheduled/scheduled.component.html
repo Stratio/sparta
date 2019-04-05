@@ -11,19 +11,19 @@
   <div class="executions__bar">
     <h2 class="egeo-title-large title">Executions</h2>
     <div class="executions__filters">
-      <!--<span class="item">
+      <span class="item">
         <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'type'" [selectedItem]="typeFilter"
           (change)="onChangeTypeFilter.emit($event)">
           <span (click)="selectFilter($event, 'type')">{{typeFilter.label}}<i class="icon icon-arrow2_down"></i></span>
         </st-dropdown-menu>
-      </span>-->
-      <!--<span class="item">
-        <st-dropdown-menu [items]="timeIntervals" [active]="showedFilter === 'time'"
-          [selectedItem]="timeIntervalFilter" (change)="onChangeTimeIntervalFilter.emit($event.value)">
-          <span (click)="selectFilter($event, 'time')">{{timeIntervalFilter.label}}<i
+      </span>
+      <span class="item">
+        <st-dropdown-menu [items]="activeOptions" [active]="showedFilter === 'active'"
+          [selectedItem]="activeFilter" (change)="onChangeActiveFilter.emit($event)">
+          <span (click)="selectFilter($event, 'active')">{{activeFilter.label}}<i
               class="icon icon-arrow2_down"></i></span>
         </st-dropdown-menu>
-      </span>-->
+      </span>
     </div>
   </div>
   <div class="dynamic-subheader">
@@ -34,14 +34,21 @@
             <st-search class="executions__search-input" [placeholder]="'Search...'" qaTag="search-execution" [debounce]="200"
               (search)="onSearch.emit($event.text)" [value]="searchQuery"></st-search>
           </div>
+          <div class="scheduled__buttons">
+            <button *ngIf="selectedExecutions.length" spTitle="Delete scheduled execution" class="button button-toolbar" id="delete-scheduled-button"
+              (click)="deleteMultiple()">
+              <i class="icon-trash"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
   <st-table [fields]="fields" [sortable]="true" [currentOrder]="currentOrder" [selectableAll]="true"
     [ngClass]="{'active-selection' : selectedExecutions.length}"
-    [selectedAll]="areAllSelected" qaTag="scheduled-table" class="scheduled__table checkbox-table"
-    (changeOrder)="onChangeOrder.emit($event)" (selectAll)="toggleAllExecutions($event)">
+    [selectedAll]="scheduledExecutions.length === selectedExecutions.length" qaTag="scheduled-table" class="scheduled__table checkbox-table"
+    (changeOrder)="onChangeOrder.emit($event)" 
+    (selectAll)="toggleAllExecutions(scheduledExecutions.length !== selectedExecutions.length)">
     <tr st-table-row *ngFor="let execution of scheduledExecutions;"
     [selected]="selectedExecutions.indexOf(execution.id) > -1"
      (click)="selectExecution.emit(execution.id)">
@@ -49,7 +56,16 @@
         <st-checkbox [checked]="selectedExecutions.indexOf(execution.id) > -1" [value]="execution"></st-checkbox>
       </td>
       <td st-table-cell st-table-row-content>
-        {{execution.id}}
+          <label [attr.id]="execution.id + '-link'">
+              <div>
+                <img src="assets/images/iconStreamingExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionEngine === 'Streaming'"/>
+                <img src="assets/images/iconBatchExecution.svg" class="icon-row" [attr.title]="execution.executionEngine" *ngIf="execution.executionEngine === 'Batch'"/>
+                {{execution.name}} - v{{execution.version}}
+              </div>
+              <div class="execution-group">
+                  {{execution.groupName}}
+              </div>
+          </label>
       </td>
       <td st-table-cell st-table-row-content>
         {{execution.initDateLocalized}}

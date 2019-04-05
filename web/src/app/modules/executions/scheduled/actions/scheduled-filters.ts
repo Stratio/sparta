@@ -5,11 +5,14 @@
  */
 
 import { Action } from '@ngrx/store';
-import { Order } from '@stratio/egeo';
+import { Order, StDropDownMenuItem } from '@stratio/egeo';
 
 export enum ScheduledFiltersActions {
   SEARCH_SCHEDULED_EXECUTIONS = '[Executions-scheduled-filters] Search scheduled executions',
-  CHANGE_TYPE_FILTER = '[Executions-scheduled-filters] Change type filter'
+  CHANGE_TYPE_FILTER = '[Executions-scheduled-filters] Change type filter',
+  CHANGE_ACTIVE_FILTER = '[Executions-scheduled-filters] Change active filter',
+  CHANGE_ORDER = '[Executions-scheduled-filters] Change order'
+
 }
 
 export class SearchScheduledExecutions implements Action {
@@ -19,9 +22,20 @@ export class SearchScheduledExecutions implements Action {
 
 export class ChangeTypeFilter implements Action {
   readonly type = ScheduledFiltersActions.CHANGE_TYPE_FILTER;
-  constructor(public value: any) { }
+  constructor(public value: StDropDownMenuItem) { }
 }
 
+export class ChangeActiveFilter implements Action {
+  readonly type = ScheduledFiltersActions.CHANGE_ACTIVE_FILTER;
+  constructor(public value: StDropDownMenuItem) { }
+}
 
-export type ScheduledFiltersUnionActions = SearchScheduledExecutions |
-ChangeTypeFilter;
+export class ChangeScheduledOrder implements Action {
+  readonly type = ScheduledFiltersActions.CHANGE_ORDER;
+  constructor(public order: Order) {}
+}
+
+export type ScheduledFiltersUnionActions = SearchScheduledExecutions 
+  | ChangeTypeFilter
+  | ChangeActiveFilter
+  | ChangeScheduledOrder;
