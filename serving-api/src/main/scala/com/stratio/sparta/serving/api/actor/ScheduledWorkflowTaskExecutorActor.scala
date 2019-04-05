@@ -119,10 +119,17 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
   def executeTask(scheduledWorkflowTask: ScheduledWorkflowTask): Option[String] = {
     val period = Try(AggregationTimeHelper.parseValueToMilliSeconds(scheduledWorkflowTask.duration.get)).toOption
     val delay = {
-      val initTime = scheduledWorkflowTask.initDate - System.currentTimeMillis()
-      if(initTime < 0)
-        0
-      else initTime
+      val instantDate = System.currentTimeMillis()
+      val initTime = scheduledWorkflowTask.initDate - instantDate
+
+      scheduledWorkflowTask.taskType match {
+        case PERIODICAL | UNIQUE_PERIODICAL if initTime < 0 && period.isDefined =>
+          scheduledWorkflowTask.initDate + (period.get * math.ceil(initTime.toDouble / period.get.toDouble).toInt) - instantDate
+        case _ if initTime < 0 =>
+          0
+        case _ =>
+          initTime
+      }
     }
 
     scheduledWorkflowTask.taskType match {
@@ -138,10 +145,10 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
 
   def executePeriodicalAction(scheduledWorkflowTask: ScheduledWorkflowTask, delay: Long, period: Long): Option[String] = {
     scheduledWorkflowTask.actionType match {
-      case RUN if scheduledWorkflowTask.executionContext.isDefined =>
+      case RUN =>
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
           workflowId = scheduledWorkflowTask.entityId,
-          executionContext = scheduledWorkflowTask.executionContext.get,
+          executionContext = scheduledWorkflowTask.executionContext.getOrElse(com.stratio.sparta.serving.core.models.workflow.ExecutionContext()),
           executionSettings = Option(RunExecutionSettings(executedFromScheduler = true))
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
@@ -161,10 +168,10 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
 
   def executeOneTimeAction(scheduledWorkflowTask: ScheduledWorkflowTask, delay: Long): Option[String] = {
     scheduledWorkflowTask.actionType match {
-      case RUN if scheduledWorkflowTask.executionContext.isDefined =>
+      case RUN =>
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
           workflowId = scheduledWorkflowTask.entityId,
-          executionContext = scheduledWorkflowTask.executionContext.get,
+          executionContext = scheduledWorkflowTask.executionContext.getOrElse(com.stratio.sparta.serving.core.models.workflow.ExecutionContext()),
           executionSettings = Option(RunExecutionSettings(executedFromScheduler = true))
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
