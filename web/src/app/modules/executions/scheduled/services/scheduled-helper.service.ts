@@ -34,7 +34,8 @@ import { formatDate } from '@utils';
             duration,
             durationMillis,
             active: execution.active,
-            executed: execution.state !== 'NOT_EXECUTED'
+            executed: execution.state !== 'NOT_EXECUTED',
+            data: execution
         }
     }
 

@@ -8,8 +8,20 @@ import { Action } from '@ngrx/store';
 import { Order } from '@stratio/egeo';
 
 export enum ScheduledFiltersActions {
+  SEARCH_SCHEDULED_EXECUTIONS = '[Executions-scheduled-filters] Search scheduled executions',
+  CHANGE_TYPE_FILTER = '[Executions-scheduled-filters] Change type filter'
+}
 
+export class SearchScheduledExecutions implements Action {
+  readonly type = ScheduledFiltersActions.SEARCH_SCHEDULED_EXECUTIONS;
+  constructor(public searchQuery: string) { }
+}
+
+export class ChangeTypeFilter implements Action {
+  readonly type = ScheduledFiltersActions.CHANGE_TYPE_FILTER;
+  constructor(public value: any) { }
 }
 
 
-export type ScheduledFiltersUnionActions = '';
+export type ScheduledFiltersUnionActions = SearchScheduledExecutions |
+ChangeTypeFilter;

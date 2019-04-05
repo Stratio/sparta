@@ -1,61 +1,106 @@
+@import '~@stratio/egeo/theme/constants';
+
 :host {
-   width: 100%;
+  width: 100%;
 }
 
 .form-generator {
-   width: 100%;
-   display: flex;
-   flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .newRow {
-   flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .form {
-   display: block;
-   width: 100%;
+  display: block;
+  width: 100%;
 }
 
 .form-list-row {
-   width: 100%;
+  width: 100%;
 }
 
+
 .form-container {
-   width: 100%;
-   display: flex;
-   flex-wrap: wrap;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .col-xs-auto {
-   margin-right: 30px;
-   box-sizing: border-box;
-   flex: 0 0 auto;
-   padding-right: .9375rem;
-   padding-left: .9375rem;
+  margin-right: 30px;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  padding-right: .9375rem;
+  padding-left: .9375rem;
 }
 
 .list-field {
-   width: 100%;
+  width: 100%;
 }
 
 .prop-container {
-   width: 100%;
-   display: flex;
+  width: 100%;
+  display: flex;
 }
 
-.subform-title-0 {
-    margin-top: 26px;
-    margin-bottom: 2px;
-    font-size: 18px;
+.title {
+  color: $neutral-13;
+  font-size: 15px;
+  font-family: $egeo-nunito-sans-bold;
+  width: 100%;
 }
 
-.subform-title-1{
-    margin-top:20px;
-    font-size: 16px;
+.form-category{
+  margin: 20px 0;
 }
 
-.subform-title-2{
-    margin-top:20px;
-    font-size: 18px;
+.first-level {
+  &.form-category {
+    border-bottom: 1px solid $neutral-05;
+    width: 100%;
+    position: relative;
+
+    &>.form-category__title {
+      width: 100%;
+      padding-bottom: 14px;
+      font-size: 17px;
+      cursor: pointer;
+
+      &:after {
+        content: '\E63F';
+        font-family: ico_stratio;
+        font-size: 1rem;
+        right: 0;
+        position: absolute;
+      }
+    }
+
+    &>.form-category__value {
+      display: flex;
+      padding-bottom: 20px;
+    }
+
+    &--collapsed {
+      &>.form-category__title:after {
+        content: '\E605';
+      }
+
+      &>.form-category__value {
+        display: none;
+      }
+    }
+  }
+}
+
+
+.subform-title-1 {
+  font-size: 16px;
+}
+
+.subform-title-2 {
+  font-size: 18px;
 }

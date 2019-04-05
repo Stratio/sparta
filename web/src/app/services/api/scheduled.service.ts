@@ -10,6 +10,7 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from 'reducers';
 import { ApiService } from './api.service';
+import { ScheduledExecution } from '@app/executions/scheduled/models/scheduled-executions';
 
 @Injectable()
 export class ScheduledService extends ApiService {
@@ -28,5 +29,17 @@ export class ScheduledService extends ApiService {
   getScheduledWorkflowTasks() {
     const options: any = {};
     return this.request('scheduledWorkflowTasks', 'get', options);
+  }
+
+  deleteScheduledExecution(executionId: string) {
+    const options: any = {};
+    return this.request('scheduledWorkflowTasks/deleteById/' + executionId, 'delete', options)
+  }
+
+  updateScheduledExecution(execution: any) {
+    const options: any = {
+      body: execution
+    };
+    return this.request('scheduledWorkflowTasks', 'put', options)
   }
 }

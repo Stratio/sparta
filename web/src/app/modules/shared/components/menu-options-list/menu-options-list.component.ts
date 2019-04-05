@@ -12,8 +12,14 @@ import {
   EventEmitter,
   Input,
   Output,
-  HostListener
+  HostListener,
+  OnInit,
+  OnDestroy
 } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+
+
+const hideOptionsListSubject = new Subject();
 
 @Component({
   selector: 'menu-options-list',
@@ -21,7 +27,7 @@ import {
   styleUrls: ['./menu-options-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MenuOptionsListComponent {
+export class MenuOptionsListComponent implements OnInit, OnDestroy {
 
   @Input() options: MenuOptionListGroup[] = [];
   @Input() topPosition: number;
@@ -34,11 +40,27 @@ export class MenuOptionsListComponent {
   public selectedGroup = 0;
   public selectedGroupItem = 0;
   public activeKeys = false;
+  private _hideSubscription: Subscription;
 
   constructor(private _eref: ElementRef, private _cd: ChangeDetectorRef) { }
 
+  ngOnInit(): void {
+    this._hideSubscription = hideOptionsListSubject.subscribe(() => {
+      this.showMenu = false;
+      this._cd.markForCheck();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this._hideSubscription.unsubscribe();
+  }
+
+
   activateMenu(event) {
-    this.showMenu = !this.showMenu;
+    event.stopPropagation();
+    const open = !this.showMenu;
+    hideOptionsListSubject.next();
+    this.showMenu = open;
     this._resetKeyPosition();
   }
 
@@ -68,7 +90,10 @@ export class MenuOptionsListComponent {
     }
   }
 
-  selectOption(option: MenuOption) {
+  selectOption(event: any, option: MenuOption) {
+    if(event) {
+      event.stopPropagation();
+    }
     this.selectedOption.emit(option.id);
     this.showMenu = false;
     this._resetKeyPosition();
@@ -76,7 +101,7 @@ export class MenuOptionsListComponent {
 
   onEnterDown() {
     if (this.activeKeys) {
-      this.selectOption(this.options[this.selectedGroup].options[this.selectedGroupItem]);
+      this.selectOption(null, this.options[this.selectedGroup].options[this.selectedGroupItem]);
     }
   }
 

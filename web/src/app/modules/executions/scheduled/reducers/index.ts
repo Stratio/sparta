@@ -17,6 +17,7 @@ import * as fromScheduled from './scheduled';
 import * as fromScheduledFilters from './scheduled-filters';
 
 import * as fromExecution from './execution';
+import { ScheduledExecution } from '../models/scheduled-executions';
 
 export interface ScheduledState {
   scheduled: fromScheduled.State;
@@ -50,3 +51,14 @@ export const getSchedulesTimeIntervalFilterValue = createSelector(getSchedulesFi
 
 export const getScheduledExecutions = createSelector(getScheduledState, state => state.scheduledExecutionsList);
 export const getSelectedExecutions = createSelector(getScheduledState, state => state.selectedExecutions);
+export const isEmptyScheduledExecutions = createSelector(getScheduledExecutions, executions => !(!!executions.length));
+export const getSearchQuery =  createSelector(getSchedulesFiltersState, state => state.searchQuery);
+
+export const getScheduledSearchedExecutions = createSelector(
+  getScheduledExecutions, 
+  getSearchQuery,
+  (executions: ScheduledExecution[], searchQuery: string) => searchQuery.length ? 
+    executions.filter(execution => {
+      const searchQueryLowercase = searchQuery.toLowerCase();
+      return execution.name.toLowerCase().includes(searchQueryLowercase) || execution.id.includes(searchQueryLowercase);
+    }): executions);

@@ -1,44 +1,46 @@
 <div class="row">
-   <form [formGroup]="stFormGroup" class="form-generator">
-      <ng-container *ngFor="let prop of formDataValues; let i = index;">
-         <div *ngIf="prop.field.properties" class="form-container">
-            <div class="col-sm-12">
-               <h2 [ngClass]="'subform-title-' + subFormNumber">{{('WIZARD.' + (prop.field.name | uppercase)) | translate}}</h2>
+      <form [formGroup]="stFormGroup" class="form-generator">
+         <ng-container *ngFor="let prop of formDataValues; let i = index;">
+           <div class="col-sm-12">
+            <div *ngIf="prop.field.properties" class="form-category" [ngClass]="{'first-level' : subFormNumber === 0, 'form-category--collapsed' : categories.indexOf(i) < 0}">
+               <h2 (click)="toggleCategory(i)"
+               [ngClass]="'title form-category__title subform-title-' + subFormNumber">{{('WIZARD.' + ((prop.field.name | uppercase) || prop.field.propertyName)) | translate}}</h2>
+               <form-generator
+                 class="form-category__value"
+                 [valueDictionary]="valueDictionary"
+                 [subFormNumber]="subFormNumber + 1"
+                 [showVars]="showVars"
+                 [variableList]="variableList"
+                 [formControl]="prop.formControl"
+                 [forceValidations]="submitted"
+                 [formData]="prop.field.properties"></form-generator>
+               </div>
             </div>
-            <form-generator [valueDictionary]="valueDictionary"
-                  [subFormNumber]="subFormNumber+1"
-                  [showVars]="showVars"
-                  [variableList]="variableList"
-                  [formControl]="prop.formControl"
-                  class="col-sm-12"
-                  [forceValidations]="submitted"
-                  [formData]="prop.field.properties"></form-generator>
-         </div>
-         <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="prop.field.classed">
-            <form-field [disabledForm]="disabledForm"
-                  [valueDictionary]="valueDictionary"
-                  [field]="prop.field"
-                  [showVars]="showVars"
-                  [variableList]="variableList"
-                  [field]="prop.field"
-                  [formControl]="prop.formControl"
-                  [stFormGroup]="stFormGroup"
-                  [customValidator]="customValidators[prop.field.propertyId]"
-                  [forceValidations]="forceValidations"></form-field>
-         </div>
-         <div *ngIf="!prop.field.properties && prop.field.propertyType === 'list'" class="prop-container">
-            <form-field [disabledForm]="disabledForm"
-                  [valueDictionary]="valueDictionary"
-                  [showVars]="showVars"
-                  [variableList]="variableList"
-                  [valueDictionary]="valueDictionary"
-                  [field]="prop.field"
-                  [forceValidations]="forceValidations"
-                  [formControl]="prop.formControl"
-                  [stFormGroup]="stFormGroup"
-                  class="list-field"></form-field>
-         </div>
-         <div class="col-sm-12" *ngIf="!prop.field.float"></div>
-      </ng-container>
-   </form>
-</div>
+            <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="prop.field.classed">
+               <form-field [disabledForm]="disabledForm"
+                 [valueDictionary]="valueDictionary"
+                 [field]="prop.field"
+                 [showVars]="showVars"
+                 [variableList]="variableList"
+                 [field]="prop.field"
+                 [formControl]="prop.formControl"
+                 [stFormGroup]="stFormGroup"
+                 [customValidator]="customValidators[prop.field.propertyId]"
+                 [forceValidations]="forceValidations"></form-field>
+            </div>
+            <div *ngIf="!prop.field.properties && prop.field.propertyType === 'list'" class="prop-container">
+               <form-field [disabledForm]="disabledForm"
+                 [valueDictionary]="valueDictionary"
+                 [showVars]="showVars"
+                 [variableList]="variableList"
+                 [valueDictionary]="valueDictionary"
+                 [field]="prop.field"
+                 [forceValidations]="forceValidations"
+                 [formControl]="prop.formControl"
+                 [stFormGroup]="stFormGroup"
+                 class="list-field"></form-field>
+            </div>
+            <div class="col-sm-12" *ngIf="!prop.field.float"></div>
+         </ng-container>
+      </form>
+   </div>

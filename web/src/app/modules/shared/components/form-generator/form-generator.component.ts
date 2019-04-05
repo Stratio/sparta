@@ -24,7 +24,7 @@ import { Subscription } from 'rxjs';
       multi: true
     }]
 })
-export class FormGeneratorComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy, OnChanges {
+export class FormGeneratorComponent implements Validator, ControlValueAccessor, OnDestroy, OnChanges {
 
   @Input() formData: any; // data template
   @Input() stFormGroup: FormGroup;
@@ -43,32 +43,20 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
   public formDataAux: any;
   public stFormGroupSubcription: Subscription;
   public formDataValues: any = [];
+  public categories = [];
 
-  ngOnInit(): void { }
 
   writeValue(value: any): void {
     if (value) {
-      this.stFormGroup.patchValue(value);
+      let val;
+       try {
+          val = typeof value === 'string' ? JSON.parse(value) : value;
+        } catch(error) {
+          val = value;
+        }
+      this.stFormGroup.patchValue(val);
     } else {
       this.stModel = {};
-    }
-  }
-
-  ngOnChanges(change: any): void {
-    if (change.formData) {
-      // remove all controls before repaint form
-      this.stFormGroup.controls = {};    // reset controls
-      this.formDataValues = [];
-      const properties = change.formData.currentValue;
-      for (const prop of properties) {
-        prop.classed = this.getClass(prop.width);
-        const formControl = new FormControl();
-        this.stFormGroup.addControl(prop.propertyId ? prop.propertyId : prop.name, formControl);
-        this.formDataValues.push({
-          formControl: formControl,
-          field: prop
-        });
-      }
     }
   }
 
@@ -86,13 +74,27 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     };
   }
 
-  getClass(width: string): string {
-    return width ? 'col-xs-' + width : 'col-xs-8';
-  }
-
   constructor(private _cd: ChangeDetectorRef) {
     if (!this.stFormGroup) {
       this.stFormGroup = new FormGroup({});
+    }
+  }
+
+  ngOnChanges(change: any): void {
+    if (change.formData) {
+      // remove all controls before repaint form
+      this.stFormGroup.controls = {};    // reset controls
+      this.formDataValues = [];
+      const properties = change.formData.currentValue;
+      for (const prop of properties) {
+        prop.classed = this._getClass(prop.width);
+        const formControl = new FormControl();
+        this.stFormGroup.addControl(prop.propertyId, formControl);
+        this.formDataValues.push({
+          formControl: formControl,
+          field: prop
+        });
+      }
     }
   }
 
@@ -109,5 +111,16 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
       this.stFormGroup.enable();
     }
   }
-}
 
+  toggleCategory(i: number) {
+    if (this.categories.indexOf(i) > -1) {
+      this.categories = this.categories.filter(cat => cat !== i);
+    } else {
+      this.categories = [...this.categories, i];
+    }
+  }
+
+  private _getClass(width: string): string {
+    return width ? 'col-xs-' + width : 'col-xs-8';
+  }
+}

@@ -172,6 +172,9 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
 
   changedOption(event: StHorizontalTab) {
     this.selectedTab = event;
+    if(event.id === 'scheduled') {
+      this._store.dispatch(new executionsActions.ChangeExecutionsDeselectAllExecutions());
+    }
   }
 
   goToRepository() {

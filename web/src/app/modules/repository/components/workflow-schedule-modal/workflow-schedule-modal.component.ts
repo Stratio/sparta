@@ -34,9 +34,8 @@ export class WorkflowScheduleModalComponent implements OnInit, OnDestroy {
   private openModal$: Subscription;
   public isDisabled = (date: NgbDate, current: { month: number }) => date.month !== current.month;
   public isWeekend = (date: NgbDate) => this.calendar.getWeekday(date) >= 6;
-
-  public dateFormControl = new FormControl();
-  public startTimeFormControl = new FormControl('00:00');
+  public dateFormControl;
+  public startTimeFormControl: FormControl;
   public activeFormControl = new FormControl(false);
 
   public repeatFormControl = new FormControl(false);
@@ -81,14 +80,16 @@ export class WorkflowScheduleModalComponent implements OnInit, OnDestroy {
     public errorsService: ErrorMessagesService,
     private _cd: ChangeDetectorRef,
     private _fb: FormBuilder, private calendar: NgbCalendar) {
-
+//("0" + this.getDate()).slice(-2)
     const date = new Date();
-
+    this.startTimeFormControl = new FormControl((date.getHours() + ':' + date.getMinutes()));
     this.minDate = {
       year: date.getFullYear(),
       month: date.getMonth() + 1,
       day: date.getDay()
     };
+    this.dateFormControl = new FormControl(this.minDate);
+
     this.startDate = this.minDate;
   }
 

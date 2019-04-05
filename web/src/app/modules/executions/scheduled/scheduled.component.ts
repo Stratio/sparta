@@ -16,6 +16,7 @@ import {
 import { StTableHeader, Order, StDropDownMenuItem } from '@stratio/egeo';
 import { workflowTypesFilterOptions, timeIntervalsFilterOptions } from './models/schedules-filters';
 import { ScheduledExecution } from './models/scheduled-executions';
+import { MenuOptionListGroup } from '@app/shared/components/menu-options-list/menu-options-list.component';
 
 @Component({
   selector: 'scheduled-list',
@@ -34,6 +35,7 @@ export class ScheduledComponent {
   @Input() currentOrder: any;
   @Input() scheduledExecutions: Array<ScheduledExecution>;
   @Input() selectedExecutions: Array<string>;
+  @Input() isEmptyScheduledExecutions: boolean;
 
   @Output() onChangeTypeFilter = new EventEmitter<any>();
   @Output() onChangeTimeIntervalFilter = new EventEmitter<number>();
@@ -41,12 +43,50 @@ export class ScheduledComponent {
   @Output() selectExecution = new EventEmitter<string>();
   @Output() allExecutionsToggled = new EventEmitter<boolean>();
   @Output() onChangeOrder = new EventEmitter<Order>();
+  @Output() stopExecution = new EventEmitter<ScheduledExecution>();
+  @Output() startExecution = new EventEmitter<ScheduledExecution>();
+  @Output() deleteExecution = new EventEmitter<string>();
 
   public fields: StTableHeader[];
   public showedFilter = '';
 
   public workflowTypes: StDropDownMenuItem[] = workflowTypesFilterOptions;
   public timeIntervals: StDropDownMenuItem[] = timeIntervalsFilterOptions;
+
+  public executionOptions: MenuOptionListGroup[] = [
+    {
+      options: [
+        {
+          icon: 'icon-trash',
+          label: 'Delete',
+          id: 'scheduled-delete',
+          color: 'critical'
+        }
+      ]
+    }
+  ];
+  public activeExecutionOptions = [{
+    options: [
+      {
+        icon: 'icon-stop',
+        label: 'Stop',
+        id: 'scheduled-stop'
+      }
+    ]
+  },
+  ...this.executionOptions
+  ]
+  public inactiveExecutionOptions = [{
+    options: [
+      {
+        icon: 'icon-play',
+        label: 'Play',
+        id: 'scheduled-start'
+      }
+    ]
+  },
+  ...this.executionOptions
+  ]
 
   constructor(private _cd: ChangeDetectorRef) {
     this.fields = [
@@ -68,6 +108,22 @@ export class ScheduledComponent {
     this.allExecutionsToggled.emit(isChecked);
     this.areAllSelected = isChecked;
   }
+
+  selectedExecutionAction(event, execution: ScheduledExecution) {
+    switch(event) {
+      case 'scheduled-stop':
+        this.stopExecution.emit(execution);
+        break;
+      case 'scheduled-start':
+        this.startExecution.emit(execution);
+        break;
+      case 'scheduled-delete':
+        this.deleteExecution.emit(execution.id);
+        break;
+    }
+  }
+
+
 
   @HostListener('document:click', ['$event'])
   onClick() {

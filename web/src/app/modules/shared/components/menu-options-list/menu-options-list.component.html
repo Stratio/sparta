@@ -14,7 +14,13 @@
         [style.marginRight.px]="rightPosition"
         [ngClass]="{'right-position': position === 'right'}">
       <div class="group" *ngFor="let group of options; let i = index;">
-        <div [ngClass]="{'selected': activeKeys && i === selectedGroup && j === selectedGroupItem}" (mouseenter)="enter(i,j)" (mouseleave)="leave()" [attr.id]="option.id + '-option'" class="group-option" (click)="selectOption(option)" *ngFor="let option of group.options; let j = index;" [ngClass]="option.color === 'critical' ? 'critical-color' : ''">
+        <div [ngClass]="{'selected': activeKeys && i === selectedGroup && j === selectedGroupItem}" 
+          (mouseenter)="enter(i,j)" 
+          (mouseleave)="leave()" 
+          [attr.id]="option.id + '-option'" 
+          class="group-option" (click)="selectOption($event, option)" 
+          *ngFor="let option of group.options; let j = index;" 
+          [ngClass]="option.color === 'critical' ? 'critical-color' : ''">
           <span [className]="'icon ' + option.icon" *ngIf="option.icon"></span>
           <span class="option-name">{{option.label}}</span>
         </div>

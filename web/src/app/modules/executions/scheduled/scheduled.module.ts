@@ -8,7 +8,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StCheckboxModule, StPaginationModule, StTableModule, StSpinnerModule, StDropdownMenuModule, StSearchModule } from '@stratio/egeo';
 
-import { SpTitleModule } from '@app/shared';
+import { SpTitleModule, MenuOptionsListModule } from '@app/shared';
 import { RouterModule } from "@angular/router";;
 import { ScheduledContainer } from './scheduled.container';
 import { ScheduledComponent } from './scheduled.component';
@@ -22,6 +22,7 @@ import { SchedulerHelperService } from './services/scheduled-helper.service';
 @NgModule({
    imports: [
      CommonModule,
+     MenuOptionsListModule,
      StDropdownMenuModule,
      StCheckboxModule,
      StPaginationModule,

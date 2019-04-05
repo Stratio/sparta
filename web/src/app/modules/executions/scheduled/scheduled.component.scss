@@ -53,6 +53,12 @@
       background-color: $status-success-default;
     }
   }
+
+  .show-options {
+    padding: 6px 5px;
+    color: transparent;
+    font-size: 22px;
+  }
 }
 
 .title {
@@ -63,4 +69,12 @@
  display: inline-block;
 }
 
+
+.empty-table {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  font-size: 15px;
+  color: #555555;
+}
 

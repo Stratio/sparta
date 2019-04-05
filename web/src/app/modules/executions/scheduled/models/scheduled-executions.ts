@@ -13,4 +13,5 @@ export interface ScheduledExecution {
     durationMillis: number;
     active: boolean;
     executed: boolean;
+    data: any;
 }

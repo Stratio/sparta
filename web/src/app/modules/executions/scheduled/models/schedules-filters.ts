@@ -12,11 +12,11 @@ export const workflowTypesFilterOptions: StDropDownMenuItem[] = [
     value: ''
   },
   {
-    label: 'streaming',
+    label: 'Streaming',
     value: 'Streaming'
   },
   {
-    label: 'batch',
+    label: 'Batch',
     value: 'Batch'
   }
 ];

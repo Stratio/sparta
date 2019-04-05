@@ -23,7 +23,7 @@ export class ScheduledEffect {
     private _lastSqueduledExecutionsValue: any;
     @Effect()
     getScheduledExecutionsList$: Observable<any> = this.actions$
-      .pipe(ofType(scheduledActions.ScheduledActions.LIST_SCHEDULED_EXECUTIONS))
+      .pipe(ofType(scheduledActions.ScheduledActions.LIST_SCHEDULED_EXECUTIONS || scheduledActions.ScheduledActions.DELETE_SCHEDULED_EXECUTION))
       .pipe(switchMap(() => timer(0, 5000)
       .pipe(takeUntil(this.actions$.pipe(ofType(scheduledActions.ScheduledActions.CANCEL_LIST_SCHEDULED_EXECUTIONS))))
       .pipe(withLatestFrom(this.store.pipe(select((state: any) => state.executions.executions))))
@@ -38,7 +38,44 @@ export class ScheduledEffect {
       }))
       .pipe(catchError(err => of(new scheduledActions.ListScheduledExecutionsFailedAction())))));
 
+      @Effect()
+      deleteExecution: Observable<any> = this.actions$
+        .pipe(ofType(scheduledActions.ScheduledActions.DELETE_SCHEDULED_EXECUTION))
+        .pipe(switchMap((action: any) => {
+          return this._scheduledService.deleteScheduledExecution(action.executionId)
+          .pipe(map((() => new scheduledActions.DeleteScheduledExecutionComplete())))
+          .pipe(catchError((error) => of(new scheduledActions.DeleteScheduledExecutionFailed(error))));
+        }
+        ));
 
+
+      
+        @Effect()
+        stopScheduledExecution: Observable<any> = this.actions$
+          .pipe(ofType(scheduledActions.ScheduledActions.STOP_SCHEDULED_EXECUTION))
+          .pipe(switchMap((action: any) => {
+            return this._scheduledService.updateScheduledExecution({
+              ...action.execution.data,
+              active: false
+            })
+            .pipe(map((() => new scheduledActions.StopScheduledExecutionComplete())))
+            .pipe(catchError((error) => of(new scheduledActions.StartScheduledExecutionFailed(error))));
+          }
+        ));
+
+
+        @Effect()
+        startScheduledExecution: Observable<any> = this.actions$
+          .pipe(ofType(scheduledActions.ScheduledActions.START_SCHEDULED_EXECUTION))
+          .pipe(switchMap((action: any) => {
+            return this._scheduledService.updateScheduledExecution({
+              ...action.execution.data,
+              active: true
+            })
+            .pipe(map((() => new scheduledActions.StartScheduledExecutionComplete())))
+            .pipe(catchError((error) => of(new scheduledActions.StartScheduledExecutionFailed(error))));
+          }
+        ));
   constructor(
     private actions$: Actions,
     private _scheduledHelperService: SchedulerHelperService,

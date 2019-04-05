@@ -34,6 +34,18 @@ export function reducer(state: State = initialState, action: scheduledActions.Sc
           state.selectedExecutions.filter(execution => execution !== action.executionId) : [...state.selectedExecutions, action.executionId]
       }
     }
+    case scheduledActions.ScheduledActions.DELETE_SCHEDULED_EXECUTION_COMPLETE: {
+      return {
+        ...state,
+        selectedExecutions: []
+      };
+    }
+    case scheduledActions.ScheduledActions.REMOVE_SELECTION: {
+      return {
+        ...state,
+        selectedExecutions: []
+      };
+    }
     default:
       return state;
   }
