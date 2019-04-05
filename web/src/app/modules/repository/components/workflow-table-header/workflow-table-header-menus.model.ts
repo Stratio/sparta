@@ -10,11 +10,23 @@ export const RUN_OPTIONS: MenuOptionListGroup[] = [{
   options: [
     {
       label: 'Run',
-      id: 'simple'
+      id: 'run-simple',
+      icon: 'icon-play'
     },
     {
       label: 'Run with parameters',
-      id: 'advanced'
+      id: 'run-advanced',
+      icon: 'icon-play'
+    },
+    {
+      label: 'Schedule',
+      id: 'schedule-simple',
+      icon: 'icon-alarm'
+    },
+    {
+      label: 'Schedule with parameters',
+      id: 'schedule-advanced',
+      icon: 'icon-alarm'
     }
   ]
 }];

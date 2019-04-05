@@ -18,8 +18,11 @@ import {
    template: `
     <custom-execution [workflowName]="workflowName"
       [executionContexts]="executionContexts"
+      [showSheduler]="showSheduler"
+      [workflowId]="workflowId"
       [blockRunButton]="blockRunButton"
       (executeWorkflow)="executeWorkflow.emit($event)"
+      (scheduleWorkflow)="scheduleWorkflow.emit($event)"
       (closeCustomExecution)="closeCustomExecution.emit()"></custom-execution>
   `,
    changeDetection: ChangeDetectionStrategy.OnPush
@@ -27,10 +30,14 @@ import {
 
 export class CustomExecutionContainer implements OnInit {
    @Input() executionContexts: any;
+   @Input() showSheduler: boolean;
    @Input() workflowName: string;
+   @Input() workflowId: string;
    @Input() blockRunButton: boolean;
    @Output() closeCustomExecution = new EventEmitter();
    @Output() executeWorkflow = new EventEmitter<any>();
+   @Output() scheduleWorkflow = new EventEmitter<any>();
+
    ngOnInit(): void {
 
    }

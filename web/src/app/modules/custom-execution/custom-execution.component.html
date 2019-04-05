@@ -1,50 +1,55 @@
 <st-fullscreen-layout [title]="'Custom Run'">
   <div class="st-fullscreen-layout-buttons">
     <button class="button button-secondary-line cancel-button" (click)="closeCustomExecution.emit()">{{'DASHBOARD.CANCEL' | translate}}</button>
-    <button class="button button-primary" [attr.disabled]="blockRunButton || executionForm.invalid ? '' : null" 
+    <button class="button button-primary" [attr.disabled]="blockRunButton || executionForm.invalid || (showSheduler && !scheduledFormControl.value) ? '' : null" 
       id="run-button" 
       (click)="execute()">{{'DASHBOARD.RUN_NOW_BUTTON' | translate}}</button>
   </div>
   <div class="st-fullscreen-layout-content">
     <div class="content">
-      <p class="info-text" *ngIf="environmentContext || customGroups.length">{{'DASHBOARD.CONTEXT_CONFIG' | translate}}</p>
-      <form #executionForm="ngForm">
-        <div class="form-container st-form-field">
-          <sp-select class="st-form-field" 
-            [forceValidations]="forceValidations" 
-            [(ngModel)]="form.environment" 
-            name="environment"
-            (change)="changeContext($event, 'Environment')"
-            *ngIf="environmentContext"
-            placeholder="Select a context"
-            [options]="environmentContext"
-            [label]="'DASHBOARD.ENVIRONMENT_CONTEXT' | translate"></sp-select>
-
-          <div *ngFor="let group of customGroups; let i = index;">
+      <st-horizontal-tabs (changedOption)="changedOption($event)" *ngIf="showSheduler" class="tab-options" [options]="tabOptions"></st-horizontal-tabs>
+      <div [hidden]="currentTab.id !== 'schedule'">
+        <workflow-schedule-modal *ngIf="showSheduler" [scheduledFormControl]="scheduledFormControl"></workflow-schedule-modal>
+      </div>
+      <div [hidden]="currentTab.id === 'schedule'">
+       <p class="info-text" *ngIf="environmentContext || customGroups.length">{{'DASHBOARD.CONTEXT_CONFIG' | translate}}</p>
+        <form #executionForm="ngForm">
+          <div class="form-container st-form-field">
             <sp-select class="st-form-field" 
               [forceValidations]="forceValidations" 
-              (change)="changeContext($event, group.name)"
-              [(ngModel)]="form.customGroups[group.name]"
-              name="customGroups"
+              [(ngModel)]="form.environment" 
+              name="environment"
+              (change)="changeContext($event, 'Environment')"
+              *ngIf="environmentContext"
               placeholder="Select a context"
-              [label]="group.name + ' context'"
-              [options]="group.context"></sp-select>
+              [options]="environmentContext"
+              [label]="'DASHBOARD.ENVIRONMENT_CONTEXT' | translate"></sp-select>
+
+            <div *ngFor="let group of customGroups; let i = index;">
+              <sp-select class="st-form-field" 
+                [forceValidations]="forceValidations" 
+                (change)="changeContext($event, group.name)"
+                [(ngModel)]="form.customGroups[group.name]"
+                name="customGroups"
+                placeholder="Select a context"
+                [label]="group.name + ' context'"
+                [options]="group.context"></sp-select>
+            </div>
+            <div *ngIf="executionContexts && executionContexts.extraParams && executionContexts.extraParams.length">
+            <p class="info-text">{{'DASHBOARD.NO_DEFINITION_PARAMS' | translate}}</p>
+            <st-input class="st-form-field extra-param"
+              [forceValidations]="forceValidations"
+              [required]="true"
+              placeholder="Type the value here"
+              *ngFor="let param of executionContexts.extraParams"
+              name="{{param}}"
+              [(ngModel)]="form.extraParams[param]"
+              [label]="param + ' value'"></st-input>
+            </div>
           </div>
-          <div *ngIf="executionContexts && executionContexts.extraParams && executionContexts.extraParams.length">
-          <p class="info-text">{{'DASHBOARD.NO_DEFINITION_PARAMS' | translate}}</p>
-          <st-input class="st-form-field extra-param"
-            [forceValidations]="forceValidations"
-            [required]="true"
-            placeholder="Type the value here"
-            *ngFor="let param of executionContexts.extraParams"
-            name="{{param}}"
-            [(ngModel)]="form.extraParams[param]"
-            [label]="param + ' value'"></st-input>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
       <sparta-sidebar *ngIf="sidebarPosition"
-        [style.right.px]="sidebarPosition"
         class="sidebar egeo-title-medium"
         [isVisible]="true"
         [showCloseButton]="false"

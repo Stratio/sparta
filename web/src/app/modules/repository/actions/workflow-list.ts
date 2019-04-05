@@ -49,6 +49,10 @@ export const CONFIG_ADVANCED_EXECUTION_COMPLETE = '[Workflow-Managing] Config ad
 export const CONFIG_ADVANCED_EXECUTION_ERROR = '[Workflow-Managing] Config advanced execution error';
 export const CANCEL_ADVANCED_EXECUTION = '[Workflow-Managing] Cancel advanced execution';
 
+export const CREATE_SCHEDULED_EXECUTION = '[Workflow-Managing] Create scheduled execution';
+export const CREATE_SCHEDULED_EXECUTION_COMPLETE = '[Workflow-Managing] Create scheduled execution complete';
+export const CREATE_SCHEDULED_EXECUTION_ERROR = '[Workflow-Managing] Create scheduled execution error';
+
 export const RUN_ADVANCED_WORKFLOW = '[Workflow-Managing] Run advanced workflow';
 export const RUN_ADVANCED_WORKFLOW_COMPLETE = '[Workflow-Managing] Run advanced workflow complete';
 export const RUN_ADVANCED_WORKFLOW_ERROR = '[Workflow-Managing] Run advanced workflow error';
@@ -482,7 +486,7 @@ export class HideNotificationAction implements Action {
 
 export class ConfigAdvancedExecutionAction implements Action {
   readonly type = CONFIG_ADVANCED_EXECUTION;
-  constructor(public workflowId: string) { }
+  constructor(public payload: {workflowId: string, schedule?: boolean}) { }
 }
 
 export class ConfigAdvancedExecutionCompleteAction implements Action {
@@ -496,6 +500,20 @@ export class ConfigAdvancedExecutionErrorAction implements Action {
 
 export class CancelAdvancedExecutionAction implements Action {
   readonly type = CANCEL_ADVANCED_EXECUTION;
+}
+
+export class CreateScheduledExecution implements Action {
+  readonly type = CREATE_SCHEDULED_EXECUTION;
+  constructor(public config: any) { }
+}
+
+export class CreateScheduledExecutionComplete implements Action {
+  readonly type = CREATE_SCHEDULED_EXECUTION_COMPLETE;
+}
+
+export class CreateScheduledExecutionError implements Action {
+  readonly type = CREATE_SCHEDULED_EXECUTION_ERROR;
+  constructor(public error: any) { }
 }
 
 export class SearchCurrentFolderAction implements Action {
@@ -513,6 +531,9 @@ export type Actions =
   ConfigAdvancedExecutionAction |
   ConfigAdvancedExecutionCompleteAction |
   ConfigAdvancedExecutionErrorAction |
+  CreateScheduledExecution |
+  CreateScheduledExecutionComplete |
+  CreateScheduledExecutionError |
   ChangeGroupLevelAction |
   ChangeGroupLevelCompleteAction |
   InitCreateGroupAction |

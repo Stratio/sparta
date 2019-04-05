@@ -1,0 +1,12 @@
+<tool-bar class="tool-bar" [hideOnScroll]="true">
+  <div breadcrumb>
+    <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)"
+      qaTag="executions-breadcrumb"></st-breadcrumbs>
+  </div>
+  <div general-tools>
+    <button spTitle="Sidebar info" class="button button-toolbar" id="info-button" (click)="showExecutionInfo.emit()"
+      [ngClass]="{'selected-button': showDetails}">
+      <i class="icon-info1"></i>
+    </button>
+  </div>
+</tool-bar>

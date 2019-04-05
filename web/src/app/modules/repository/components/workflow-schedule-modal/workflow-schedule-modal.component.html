@@ -1,0 +1,80 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+<div class="scheduler">
+  <form [formGroup]="groupForm" novalidate autocomplete="off">
+    <div class="row">
+      <div class="scheduler__start-date">
+        <div class="custom-datepicker st-form-field">
+          <input class="st-input form-control" placeholder="yyyy-mm-dd" name="dp" ngbDatepicker
+            [dayTemplate]="customDay" [required]="true" [formControl]="dateFormControl" [startDate]="startDate" [minDate]="minDate" [markDisabled]="isDisabled"
+            #d="ngbDatepicker">
+          <label>Date</label>
+          <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"></button>
+        </div>
+      </div>
+      <div class="scheduler__start-time">
+        <sp-input label="Start time" 
+          [required]="true" 
+          [formControl]="startTimeFormControl"
+          [forceValidations]="forceValidations"
+          class="scheduler__timepicker st-form-field" 
+          fieldType="time"></sp-input>
+      </div>
+    </div>
+    <div class="row scheduler__running-repeat">
+      <div class="col-sm-12">
+        <st-checkbox [formControl]="activeFormControl">Active</st-checkbox>
+      </div>
+    </div>
+    <div class="row scheduler__repeat">
+      <div class="col-sm-12">
+        <st-checkbox [formControl]="repeatFormControl">Repeat</st-checkbox>
+      </div>
+    </div>
+    <div *ngIf="repeatFormGroup" [formGroup]="repeatFormGroup">
+      <div class="row scheduler__running-repeat">
+        <div class="col-sm-12">
+          <st-checkbox formControlName="unique">Don't execute if other execution is still running</st-checkbox>
+        </div>
+      </div>
+      <sp-input class="scheduler__time-value st-form-field" 
+        fieldType="number" 
+        min="0" 
+        step="1"
+        pattern="^[0-9]*$"
+        onkeypress="return !(event.charCode == 46)"
+        [forceValidations]="forceValidations"
+        [required]="true" 
+        formControlName="value" 
+        label="Repeat every"></sp-input>
+      <sp-select class="scheduler__time-unit st-form-field" 
+        [required]="true" 
+        formControlName="unit" 
+        [forceValidations]="forceValidations"
+        label="&nbsp;"
+        placeholder="Select unit"
+        [options]="intervalOptions"></sp-select>
+    </div>
+ 
+  </form>
+
+  <ng-template #customDay let-date let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled"
+    let-focused="focused">
+    <span class="custom-day" [class.weekend]="isWeekend(date)" [class.focused]="focused" [class.bg-primary]="selected"
+      [class.hidden]="date.month !== currentMonth" [class.text-muted]="disabled">
+      {{ date.day }}
+    </span>
+  </ng-template>
+
+  <div class="footer" *ngIf="!scheduledFormControl">
+    <button class="button button-primary save-button" [disabled]="groupForm.invalid" (click)="createSchedule()">Save</button>
+    <button class="button button-secondary-gray cancel-button" (click)="onCloseScheduleModal.emit()">Cancel</button>
+  </div>
+</div>

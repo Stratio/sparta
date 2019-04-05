@@ -80,7 +80,18 @@ export const versionOptions: MenuOptionListGroup[] = [
             icon: 'icon-play',
             label: 'Run with parameters',
             id: 'version-run-params-workflow'
-         }]
+         },
+        {
+          icon: 'icon-alarm',
+          label: 'Schedule',
+          id: 'version-schedule-workflow'
+        },
+        {
+          icon: 'icon-alarm',
+          label: 'Schedule with parameters',
+          id: 'version-schedule-params-workflow'
+        }
+      ]
    }, {
       options: [
          {

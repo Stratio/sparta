@@ -43,7 +43,10 @@
 </div>
 <custom-execution-container (executeWorkflow)="executeWorkflow($event)"
     (closeCustomExecution)="closeCustomExecution()"
-    [executionContexts]="executionContexts$ | async"
+    (scheduleWorkflow)="scheduleWorkflow($event)"
+    [executionContexts]="executionContexts.data"
+    [showSheduler]="executionContexts.schedule"
+    [workflowId]="executionContexts.workflowId"
     [blockRunButton]="blockRunButton$ | async"
     [workflowName]="selectedVersion && selectedVersion.data ? selectedVersion.data.name : ''"
     *ngIf="showExecutionConfig$ | async"></custom-execution-container>

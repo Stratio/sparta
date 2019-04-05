@@ -126,8 +126,8 @@ export class WorkflowTableHeaderContainer implements OnInit, OnDestroy {
     this._store.dispatch(new workflowActions.RunWorkflowAction(event));
   }
 
-  showExecutionConfig(id: string) {
-    this._store.dispatch(new workflowActions.ConfigAdvancedExecutionAction(id));
+  showExecutionConfig({id, schedule}: any) {
+    this._store.dispatch(new workflowActions.ConfigAdvancedExecutionAction({workflowId:id, schedule}));
   }
 
   ngOnDestroy() {

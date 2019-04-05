@@ -15,7 +15,7 @@ export * from './api/resources.service';
 export * from './api/crossdata.service';
 export * from './api/parameters.service';
 export * from './api/execution.service';
-
+export * from './api/scheduled.service';
 
 export * from './breadcrumb-menu.service';
 export * from './error-messages.service';

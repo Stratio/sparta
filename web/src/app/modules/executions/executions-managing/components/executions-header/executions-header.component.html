@@ -8,46 +8,31 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 <div id="executions-managing-header-element">
-  <tool-bar class="tool-bar" [hideOnScroll]="true">
-    <div breadcrumb>
-      <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="executions-breadcrumb"></st-breadcrumbs>
-    </div>
-    <div general-tools>
-      <button spTitle="Sidebar info" class="button button-toolbar" id="info-button" (click)="showExecutionInfo.emit()"
-        [ngClass]="{'selected-button': showDetails}">
-        <i class="icon-info1"></i>
-      </button>
-    </div>
-  </tool-bar>
   <div *ngIf="!emptyTable">
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="executions-bar">
-          <h2 class="egeo-title-large title">Executions</h2>
-          <div class="executions-filters">
-            <span class="item">
-              <st-dropdown-menu [items]="statuses" [active]="showedFilter === 'status'" [selectedItem]="statusFilterItem"
-                (change)="onChangeStatusFilter.emit($event.value)">
-                <span (click)="selectFilter($event, 'status')">{{statusFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
-              </st-dropdown-menu>
-            </span>
-            <span class="item">
-              <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'type'" [selectedItem]="typeFilterItem"
-                (change)="onChangeTypeFilter.emit($event.value)">
-                <span (click)="selectFilter($event, 'type')">{{typeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
-              </st-dropdown-menu>
-            </span>
-            <span class="item">
-              <st-dropdown-menu *ngIf="!isArchivedPage" [items]="timeIntervals" [active]="showedFilter === 'time'"
-                [selectedItem]="timeIntervalFilterItem" (change)="onChangeTimeIntervalFilter.emit($event.value)">
-                <span (click)="selectFilter($event, 'time')">{{timeIntervalFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
-              </st-dropdown-menu>
-            </span>
-          </div>
-        </div>
-      </div>
+    <div class="executions-bar">
+      <h2 class="egeo-title-large title">Executions</h2>
+      <div class="executions-filters">
+        <span class="item">
+          <st-dropdown-menu [items]="statuses" [active]="showedFilter === 'status'" [selectedItem]="statusFilterItem"
+            (change)="onChangeStatusFilter.emit($event.value)">
+            <span (click)="selectFilter($event, 'status')">{{statusFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+          </st-dropdown-menu>
+        </span>
+        <span class="item">
+          <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'type'" [selectedItem]="typeFilterItem"
+            (change)="onChangeTypeFilter.emit($event.value)">
+            <span (click)="selectFilter($event, 'type')">{{typeFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+          </st-dropdown-menu>
+        </span>
+        <span class="item">
+          <st-dropdown-menu *ngIf="!isArchivedPage" [items]="timeIntervals" [active]="showedFilter === 'time'"
+            [selectedItem]="timeIntervalFilterItem" (change)="onChangeTimeIntervalFilter.emit($event.value)">
+            <span (click)="selectFilter($event, 'time')">{{timeIntervalFilterItem.label}}<i class="icon icon-arrow2_down"></i></span>
+          </st-dropdown-menu>
+        </span>
     </div>
-    <div class="dynamic-subheader" [ngClass]="{'fixed': fixSubHeaders}">
+  </div>
+    <div class="dynamic-subheader">
       <div class="dynamic-container">
         <div class="row executions-tools">
           <div class="col-sm-12">

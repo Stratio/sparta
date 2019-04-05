@@ -15,6 +15,10 @@
     "target": "http://localhost:9090",
     "secure": "debug"
   },
+  "/scheduledWorkflowTasks/*": {
+    "target": "http://localhost:9090",
+    "secure": "debug"
+  },
   "/template/*": {
     "target": "http://localhost:9090",
     "secure": "debug"

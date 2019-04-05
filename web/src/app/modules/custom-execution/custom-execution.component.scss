@@ -2,7 +2,7 @@
 
 .content {
   position: relative;
-  width: 100%;
+  width: calc(100vw - 415px - (100vw - 100%) / 2);
 }
 
 .info-text{
@@ -17,11 +17,16 @@ st-input, sp-select {
 }
 
 .sidebar {
-    display: block;
-    top: 72px;
-    position: fixed;
-    right: 0;
-    bottom: 0;
+  display: block;
+  top: 71px;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+}
+
+.tab-options {
+  display: block;
+  padding-bottom: 20px;
 }
 
 .extra-param{

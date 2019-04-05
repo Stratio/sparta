@@ -9,7 +9,8 @@ import {
   EventEmitter,
   Input,
   Output,
-  OnInit
+  OnInit,
+  HostListener
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { StModalService, StDropDownMenuItem, StModalButton, StModalResponse } from '@stratio/egeo';
@@ -23,10 +24,7 @@ import { Subscription } from 'rxjs';
   selector: 'executions-managing-header',
   styleUrls: ['executions-header.component.scss'],
   templateUrl: 'executions-header.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '(document:click)': 'onClick($event)'
-  }
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class ExecutionsHeaderComponent implements OnInit {
@@ -89,7 +87,7 @@ export class ExecutionsHeaderComponent implements OnInit {
   public showedFilter = '';
   public statuses: StDropDownMenuItem[] = [
     {
-      label: 'all status',
+      label: 'All status',
       value: ''
     },
     {
@@ -107,7 +105,7 @@ export class ExecutionsHeaderComponent implements OnInit {
   ];
   public workflowTypes: StDropDownMenuItem[] = [
     {
-      label: 'all types',
+      label: 'All types',
       value: ''
     },
     {
@@ -121,7 +119,7 @@ export class ExecutionsHeaderComponent implements OnInit {
   ];
   public timeIntervals: StDropDownMenuItem[] = [
     {
-      label: 'launch date',
+      label: 'Launch date',
       value: 0
     },
     {
@@ -199,6 +197,7 @@ export class ExecutionsHeaderComponent implements OnInit {
     return list.find(item => item.value === value);
   }
 
+  @HostListener('document:click', ['$event'])
   onClick() {
     this.showedFilter = '';
   }
@@ -229,7 +228,5 @@ export class ExecutionsHeaderComponent implements OnInit {
         callback.call(this);
       }
     });
-
   }
-
 }

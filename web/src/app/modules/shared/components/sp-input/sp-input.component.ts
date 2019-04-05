@@ -52,6 +52,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   @Input() maxLength: number;
   @Input() min: number;
   @Input() max: number;
+  @Input() step: number;
   @Input() isFocused = false;
   @Input() readonly = false;
   @Input() parameters: any;

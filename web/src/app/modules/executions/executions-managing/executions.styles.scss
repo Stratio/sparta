@@ -1,26 +1,37 @@
 @import '~@stratio/egeo/theme/constants';
 
-.executions-container {
-  margin-top: 90px;
+.executions {
+   &__tabs {
+      display: block;
+      width: 100%;
+   }
+   &__container {
+      margin-top: 90px;
+      max-width: 100%;
+    }
+
+    &__content {
+      background: white;
+      padding: 5px 25px;
+    }
+
+    &__data {
+       max-width: 100%;
+       width: 100%;
+       transition: max-width 0.3s;
+       &.compressed {
+         max-width: calc(100vw - 415px - (100vw - 100%) / 2);
+       }
+    }
+
 }
 
-.execution-detail-container {
-   min-height: 100%;
-}
 
 .container {
    margin-top: 10px;
 }
 
-.content {
-  background: white;
-  padding: 5px 25px;
-  max-width: 100%;
-  transition: max-width 0.3s;
-  &.compressed {
-    max-width: calc(100vw - 415px - (100vw - 100%) / 2);
-  }
-}
+
 
 .group {
     display: inline-block;

@@ -14,7 +14,7 @@ import { withLatestFrom, switchMap, map, mergeMap, catchError } from 'rxjs/opera
 import * as workflowActions from './../actions/workflow-list';
 import * as errorActions from 'actions/errors';
 import * as fromRoot from './../reducers';
-import { WorkflowService } from 'services/workflow.service';
+import { WorkflowService, ScheduledService } from 'services/workflow.service';
 import { generateJsonFile } from '@utils';
 import { FOLDER_SEPARATOR } from './../workflow.constants';
 import { Group, GroupWorkflow } from '../models/workflows';
@@ -296,10 +296,21 @@ export class WorkflowEffect {
   @Effect()
   getExecutionContexts$: Observable<Action> = this.actions$
     .pipe(ofType<workflowActions.RenameGroupAction>(workflowActions.CONFIG_ADVANCED_EXECUTION))
-    .pipe(map((action: any) => action.workflowId))
-    .pipe(switchMap((id: string) => this.workflowService.getRunParameters(id)
-      .pipe(map(response => new workflowActions.ConfigAdvancedExecutionCompleteAction(response)))
+    .pipe(switchMap((action: any) => this.workflowService.getRunParameters(action.payload.workflowId)
+      .pipe(map(data => new workflowActions.ConfigAdvancedExecutionCompleteAction({
+        data,
+        schedule: action.payload.schedule,
+        workflowId: action.payload.workflowId
+      })))
       .pipe(catchError(error => of(new workflowActions.ConfigAdvancedExecutionErrorAction())))));
+
+
+  @Effect()
+  createScheduledExecution$: Observable<Action> = this.actions$
+    .pipe(ofType<workflowActions.RenameGroupAction>(workflowActions.CREATE_SCHEDULED_EXECUTION))
+    .pipe(switchMap((action: any) => this.scheduledService.createSheduledExecution(action.config)
+      .pipe(map(data => new workflowActions.CreateScheduledExecutionComplete()))
+      .pipe(catchError(error => of(new workflowActions.CreateScheduledExecutionError(error))))));
 
   @Effect()
   moveWorkflow$: Observable<Action> = this.actions$
@@ -322,6 +333,7 @@ export class WorkflowEffect {
     private actions$: Actions,
     private store: Store<fromRoot.State>,
     private workflowService: WorkflowService,
+    private scheduledService: ScheduledService,
     private router: Router
   ) { }
 }

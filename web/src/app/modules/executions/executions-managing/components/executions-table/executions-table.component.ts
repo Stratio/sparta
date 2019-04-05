@@ -89,7 +89,7 @@ export class ExecutionTableComponent {
   constructor(private _cd: ChangeDetectorRef) {
     this.generatedId = 'paginator-' + Math.floor((Math.random() * 1000) + 1);
     this.fields = [
-      { id: 'name', label: 'Name' },
+      { id: 'name', label: 'Workflow' },
       { id: 'context', label: 'Context' },
       { id: 'launchDateMillis', label: 'Launch Date' },
       { id: 'endDateMillis', label: 'End Date' },

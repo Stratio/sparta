@@ -1,0 +1,56 @@
+:host {
+    display: block;
+    width: 100%;
+    max-width: 550px;
+}
+
+.footer {
+    margin-top:20px;
+}
+
+.save-button {
+    float:right;
+}
+
+.cancel-button{
+    float:right;
+    margin-right: 10px;
+}
+
+.scheduler {
+
+    &__start-date {
+        width: 274px;
+        padding: 0 20px;
+        padding-left: 15px;
+    }
+
+    &__start-time {
+        width: 110px;
+    }
+    &__timepicker {
+        display: block;
+    }
+
+    &__repeat {
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+
+    &__time-unit {
+        display: inline-block;
+        width: 182px;
+        vertical-align: bottom;
+    }
+
+    &__time-value {
+        display: inline-block;
+        width: 182px;
+        margin-right: 10px;
+    }
+
+    &__running-repeat {
+        margin-top: 20px;
+        margin-bottom: 15px;
+    }
+}

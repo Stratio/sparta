@@ -19,7 +19,11 @@
 .st-input {
    width: 100%;
    padding-bottom: 6px;
-   padding-right: 45px;
+   padding-right: 15px;
+
+   &[type="time"] {
+     padding-right: 0;
+   }
 
    &.catalog {
      border-radius: 4px 4px 0px 0px;

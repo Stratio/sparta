@@ -6,8 +6,8 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { StSearchModule, StFullscreenLayoutModule, StInputModule } from '@stratio/egeo';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { StSearchModule, StFullscreenLayoutModule, StInputModule, StHorizontalTabsModule } from '@stratio/egeo';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { SpSelectModule } from '../shared/components/sp-select/sp-select.module';
@@ -15,6 +15,7 @@ import { CustomExecutionContainer } from './custom-execution.container';
 import { CustomExecutionComponent } from './custom-execution.component';
 
 import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/sparta-sidebar.module';
+import { WorkflowScheduleModalModule } from '@app/repository/components/workflow-schedule-modal/workflow-schedule-modal.module';
 
 @NgModule({
    exports: [
@@ -26,12 +27,15 @@ import { SpartaSidebarModule } from '@app/shared/components/sparta-sidebar/spart
    ],
    imports: [
       CommonModule,
+      WorkflowScheduleModalModule,
       FormsModule,
+      ReactiveFormsModule,
       StSearchModule,
       StInputModule,
       StFullscreenLayoutModule,
       SpSelectModule,
       SpartaSidebarModule,
+      StHorizontalTabsModule,
       TranslateModule
    ]
 })

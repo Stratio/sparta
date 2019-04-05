@@ -16,7 +16,7 @@ import { Store, select } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { take, takeUntil } from 'rxjs/operators';
-import { StModalService } from '@stratio/egeo';
+import { StModalService, StHorizontalTab } from '@stratio/egeo';
 
 import { State } from './reducers';
 import * as executionsActions from './actions/executions';
@@ -47,6 +47,17 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
   public isEmptyList: boolean;
   public isEmptyFilter: boolean;
   public fixSubHeaders = false;
+  public executionsTabs: StHorizontalTab[] = [
+    {
+      id: 'executions',
+      text: 'Executions'
+    },
+    {
+      id: 'scheduled',
+      text: 'Scheduled'
+    }
+  ];
+  public selectedTab = this.executionsTabs[0];
 
   public sidebarPosition = 0;
   public hiddenToolBar = false;
@@ -157,6 +168,10 @@ export class ExecutionsManagingComponent implements OnInit, OnDestroy {
     this._store.dispatch(
       new executionsActions.CloseWorkflowExecutionInfoAction()
     );
+  }
+
+  changedOption(event: StHorizontalTab) {
+    this.selectedTab = event;
   }
 
   goToRepository() {

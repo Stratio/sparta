@@ -55,7 +55,7 @@ export class RepositoryDetailComponent implements OnInit, OnChanges {
         this.execution = workflowData && workflowData.execution ? workflowData.execution : null;
         this.lastError = this.execution && this.execution.genericDataExecution ?
             this.workflowData.execution.genericDataExecution.lastError : null;
-        if (this.data) {
+        if (this.data && this.data.data && this.data.data.nodes) {
             this.data.data.nodes.forEach((node: any) => {
                 if (node.stepType.indexOf('Input') > -1) {
                     inputs.push(node.name);

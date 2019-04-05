@@ -15,177 +15,177 @@ import { ApiService } from './api.service';
 @Injectable()
 export class WorkflowService extends ApiService {
 
-    constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
-        super(_http, _store);
-    }
+  constructor(private _http: HttpClient, _store: Store<fromRoot.State>) {
+    super(_http, _store);
+  }
 
-    getWorkflowList(): Observable<any> {
+  getWorkflowList(): Observable<any> {
 
-        const options: any = {};
-        return this.request('workflows', 'get', options);
-    }
+    const options: any = {};
+    return this.request('workflows', 'get', options);
+  }
 
-    getWorkflowsByGroup(groupId: string): Observable<any> {
-        const options: any = {};
-        return this.request('workflows/findAllByGroupDto/' + groupId, 'get', options);
-    }
+  getWorkflowsByGroup(groupId: string): Observable<any> {
+    const options: any = {};
+    return this.request('workflows/findAllByGroupDto/' + groupId, 'get', options);
+  }
 
-    getGroups(): Observable<any> {
-        const options: any = {};
-        return this.request('groups', 'get', options);
-    }
+  getGroups(): Observable<any> {
+    const options: any = {};
+    return this.request('groups', 'get', options);
+  }
 
-    createGroup(name: string): Observable<any> {
-        const options: any = {
-            body: {
-                name: name
-            }
-        };
-        return this.request('groups', 'post', options);
-    }
+  createGroup(name: string): Observable<any> {
+    const options: any = {
+      body: {
+        name: name
+      }
+    };
+    return this.request('groups', 'post', options);
+  }
 
-    deleteGroupByName(name: string): Observable<any> {
-        const options: any = {
-        };
-        return this.request('groups/deleteByName/' + name, 'delete', options);
-    }
+  deleteGroupByName(name: string): Observable<any> {
+    const options: any = {
+    };
+    return this.request('groups/deleteByName/' + name, 'delete', options);
+  }
 
-    deleteGroupById(groupId: string): Observable<any> {
-        const options: any = {
-        };
-        return this.request('groups/deleteById/' + groupId, 'delete', options);
-    }
+  deleteGroupById(groupId: string): Observable<any> {
+    const options: any = {
+    };
+    return this.request('groups/deleteById/' + groupId, 'delete', options);
+  }
 
-    updateGroup(group: any): Observable<any> {
-        const options: any = {
-            body: group
-        };
-        return this.request('groups', 'put', options);
-    }
+  updateGroup(group: any): Observable<any> {
+    const options: any = {
+      body: group
+    };
+    return this.request('groups', 'put', options);
+  }
 
-    getWorkFlowContextList(): Observable<any> {
+  getWorkFlowContextList(): Observable<any> {
 
-        const options: any = {};
-        return this.request('workflowStatuses', 'get', options);
-    }
+    const options: any = {};
+    return this.request('workflowStatuses', 'get', options);
+  }
 
-    findAllMonitoring(): Observable<any> {
-        const options: any = {};
-        return this.request('workflows/findAllMonitoring', 'get', options);
-    }
+  findAllMonitoring(): Observable<any> {
+    const options: any = {};
+    return this.request('workflows/findAllMonitoring', 'get', options);
+  }
 
-    getWorkflowById(id: string): Observable<any> {
-        const options: any = {};
-        return this.request('workflows/findById/' + id, 'get', options);
-    }
+  getWorkflowById(id: string): Observable<any> {
+    const options: any = {};
+    return this.request('workflows/findById/' + id, 'get', options);
+  }
 
-    saveWorkflow(json: any): Observable<any> {
+  saveWorkflow(json: any): Observable<any> {
 
-        const options: any = {
-            body: json
-        };
-        return this.request('workflows', 'post', options);
-    }
+    const options: any = {
+      body: json
+    };
+    return this.request('workflows', 'post', options);
+  }
 
-    updateWorkflow(json: any): Observable<any> {
+  updateWorkflow(json: any): Observable<any> {
 
-        const options: any = {
-            body: json
-        };
-        return this.request('workflows', 'put', options);
-    }
+    const options: any = {
+      body: json
+    };
+    return this.request('workflows', 'put', options);
+  }
 
-    downloadWorkflow(id: string): Observable<any> {
+  downloadWorkflow(id: string): Observable<any> {
 
-        const options: any = {};
-        return this.request('workflows/download/' + id, 'get', options);
-    }
+    const options: any = {};
+    return this.request('workflows/download/' + id, 'get', options);
+  }
 
-    validateWithExecutionContext(data: any): Observable<any> {
-        const options: any = {
-            body: data
-        };
-        return this.request('workflows/validateWithExecutionContext' , 'post', options);
-    }
+  validateWithExecutionContext(data: any): Observable<any> {
+    const options: any = {
+      body: data
+    };
+    return this.request('workflows/validateWithExecutionContext', 'post', options);
+  }
 
-    runWorkflow(id: string): Observable<any> {
+  runWorkflow(id: string): Observable<any> {
 
-        const options: any = {};
-        return this.request('workflows/run/' + id, 'post', options);
-    }
-
-
-    runWorkflowWithParams(data: any): Observable<any> {
-
-        const options: any = {
-            body: data
-        };
-        return this.request('workflows/runWithExecutionContext' , 'post', options);
-    }
-
-    stopWorkflow(status: any): Observable<any> {
-
-        const options: any = {
-            body: status
-        };
-        return this.request('workflowStatuses', 'put', options);
-    }
+    const options: any = {};
+    return this.request('workflows/run/' + id, 'post', options);
+  }
 
 
-    deleteWorkflow(id: string): Observable<any> {
-        const options: any = {};
-        return this.request('workflows/' + id, 'delete', options);
-    }
+  runWorkflowWithParams(data: any): Observable<any> {
 
-    deleteWorkflowList(ids: Array<string>) {
-        const options: any = {
-            body: ids
-        };
-        return this.request('workflows/list', 'delete', options);
-    }
+    const options: any = {
+      body: data
+    };
+    return this.request('workflows/runWithExecutionContext', 'post', options);
+  }
 
-    getWorkflowExecutionInfo(id: string) {
-        const options: any = {};
-        return this.request('workflowExecutions/' + id, 'get', options);
-    }
+  stopWorkflow(status: any): Observable<any> {
 
-    validateWorkflow(workflow: any) {
-        const options: any = {
-            body: workflow
-        };
-        return this.request('workflows/validate', 'post', options);
-    }
+    const options: any = {
+      body: status
+    };
+    return this.request('workflowStatuses', 'put', options);
+  }
 
-    renameWorkflow(query: any) {
-        const options: any = {
-            body: query
-        };
-        return this.request('workflows/rename', 'put', options);
-    }
 
-    moveWorkflow(query: any) {
-        const options: any = {
-            body: query
-        };
-        return this.request('workflows/move', 'put', options);
-    }
+  deleteWorkflow(id: string): Observable<any> {
+    const options: any = {};
+    return this.request('workflows/' + id, 'delete', options);
+  }
 
-    generateVersion(workflow: any) {
-        const options: any = {
-            body: workflow
-        };
-        return this.request('workflows/version', 'post', options);
-    }
+  deleteWorkflowList(ids: Array<string>) {
+    const options: any = {
+      body: ids
+    };
+    return this.request('workflows/list', 'delete', options);
+  }
 
-    getRunParameters(workflowId: string) {
-        const options: any = {};
-        return this.request('workflows/runWithParametersViewById/' + workflowId, 'post', options);
-    }
+  getWorkflowExecutionInfo(id: string) {
+    const options: any = {};
+    return this.request('workflowExecutions/' + id, 'get', options);
+  }
 
-    getRunParametersFromWorkflow(workflow: any) {
-        const options: any = {
-            body: workflow
-        };
-        return this.request('workflows/runWithParametersView', 'post', options);
-    }
+  validateWorkflow(workflow: any) {
+    const options: any = {
+      body: workflow
+    };
+    return this.request('workflows/validate', 'post', options);
+  }
+
+  renameWorkflow(query: any) {
+    const options: any = {
+      body: query
+    };
+    return this.request('workflows/rename', 'put', options);
+  }
+
+  moveWorkflow(query: any) {
+    const options: any = {
+      body: query
+    };
+    return this.request('workflows/move', 'put', options);
+  }
+
+  generateVersion(workflow: any) {
+    const options: any = {
+      body: workflow
+    };
+    return this.request('workflows/version', 'post', options);
+  }
+
+  getRunParameters(workflowId: string) {
+    const options: any = {};
+    return this.request('workflows/runWithParametersViewById/' + workflowId, 'post', options);
+  }
+
+  getRunParametersFromWorkflow(workflow: any) {
+    const options: any = {
+      body: workflow
+    };
+    return this.request('workflows/runWithParametersView', 'post', options);
+  }
 }

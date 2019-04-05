@@ -26,6 +26,9 @@ import { ExecutionsManagingComponent } from './executions.component';
 
 
 import { ExecutionsRouterModule } from './executions.router';
+import { StHorizontalTabsModule } from '@stratio/egeo';
+import { ExecutionsToolbarModule } from './components/executions-toolbar/executions-toolbar.module';
+import { ScheduledModule } from '../scheduled/scheduled.module';
 
 
 @NgModule({
@@ -36,6 +39,7 @@ import { ExecutionsRouterModule } from './executions.router';
       CommonModule,
       EmptyTableBoxModule,
       SpartaSidebarModule,
+      ExecutionsToolbarModule,
       ExecutionsConsoleModule,
       ExecutionsSidebarDetailModule,
       ExecutionInfoModule,
@@ -43,7 +47,9 @@ import { ExecutionsRouterModule } from './executions.router';
       ExecutionsHeaderModule,
       StoreModule.forFeature('executions', reducerToken),
       EffectsModule.forFeature([ExecutionsEffect]),
+      ScheduledModule,
       ExecutionsRouterModule,
+      StHorizontalTabsModule,
       TranslateModule
    ],
    providers: [reducerProvider, ExecutionHelperService]

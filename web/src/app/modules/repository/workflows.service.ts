@@ -9,12 +9,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { Subscription, iif } from 'rxjs';
 
 import { WorkflowGroupModalComponent } from './components/workflow-group-modal/workflow-group-modal.component';
 import { WorkflowJsonModalComponent } from './components/workflow-json-modal/workflow-json-modal.component';
 import * as fromRoot from 'reducers';
 import * as workflowActions from './actions/workflow-list';
+import { WorkflowScheduleModalComponent } from "./components/workflow-schedule-modal/workflow-schedule-modal.component";
 
 @Injectable()
 export class WorkflowsManagingService {
@@ -22,6 +23,7 @@ export class WorkflowsManagingService {
   public workflowModalTitle: string;
   public workflowModalCt: string;
   public workflowJsonModalTitle: string;
+  public workflowScheduleModalTitle: string;
 
   public modalSubscription: Subscription;
   public createGroupModalTitle: string;
@@ -57,19 +59,40 @@ export class WorkflowsManagingService {
     }, WorkflowGroupModalComponent);
   }
 
+  public createSchedule(versionId: string): void {
+    this._modalService.show({
+      modalTitle: this.workflowScheduleModalTitle,
+      maxWidth: 500,
+      outputs: {
+        onCloseScheduleModal: (data) => {
+          if(data) {
+            data.entityId = versionId;
+            this.store.dispatch(new workflowActions.CreateScheduledExecution(data));
+          } 
+          this._modalService.close()
+        }
+      },
+    }, WorkflowScheduleModalComponent);
+  }
+
   constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
     private route: Router, private currentActivatedRoute: ActivatedRoute) {
     const workflowModalCt = 'DASHBOARD.NEW_WORKFLOW';
     const createGroupModalTitle = 'DASHBOARD.CREATE_GROUP_TITLE';
     const workflowModalTitle = 'DASHBOARD.CHOOSE_METHOD';
     const workflowJsonModalTitle = 'DASHBOARD.JSON_TITLE';
+    const workflowScheduleModalTitle = 'DASHBOARD.CREATE_SCHEDULE_TITLE';
 
-    this.translate.get([workflowModalCt, workflowModalTitle, workflowJsonModalTitle, createGroupModalTitle]).subscribe(
+    const titles = [workflowModalCt, workflowModalTitle, workflowJsonModalTitle,
+      createGroupModalTitle, workflowScheduleModalTitle];
+
+    this.translate.get(titles).subscribe(
       (value: { [key: string]: string }) => {
         this.workflowModalCt = value[workflowModalCt].toUpperCase();
         this.workflowModalTitle = value[workflowModalTitle];
         this.workflowJsonModalTitle = value[workflowJsonModalTitle];
         this.createGroupModalTitle = value[createGroupModalTitle];
+        this.workflowScheduleModalTitle = value[workflowScheduleModalTitle];
       });
   }
 }

@@ -25,6 +25,7 @@ import { WorkflowRenameModalComponent } from './../workflow-rename-modal/workflo
 import { MoveGroupModalComponent } from './../move-group-modal/move-group.component';
 
 import { groupOptions, workflowOptions, versionOptions } from './repository-table.models';
+import { WorkflowsManagingService } from '@app/repository/workflows.service';
 
 @Component({
   selector: 'repository-table',
@@ -56,8 +57,9 @@ export class RepositoryTableComponent {
   @Output() onDeleteFolder = new EventEmitter<string>();
 
   @Output() generateVersion = new EventEmitter<string>();
+  @Output() createSchedule = new EventEmitter<string>();
 
-  @Output() showExecutionConfig = new EventEmitter<string>();
+  @Output() showExecutionConfig = new EventEmitter<any>();
   @Output() onSimpleRun = new EventEmitter<any>();
 
   @Output() duplicateWorkflow = new EventEmitter<any>();
@@ -164,7 +166,13 @@ export class RepositoryTableComponent {
         this.simpleRun(version);
         break;
       case 'version-run-params-workflow':
-        this.showExecutionParams(version);
+        this.showExecutionParams(version, false);
+        break;
+      case 'version-schedule-workflow':
+        this._workflowsService.createSchedule(version.id);
+        break;
+      case 'version-schedule-params-workflow':
+        this.showExecutionParams(version, true);
         break;
       case 'version-new-version':
         this.generateVersion.emit(version.id);
@@ -178,8 +186,11 @@ export class RepositoryTableComponent {
     }
   }
 
-  private showExecutionParams(version) {
-    this.showExecutionConfig.emit(version);
+  private showExecutionParams(version, schedule) {
+    this.showExecutionConfig.emit({
+      id: version.id,
+      schedule
+    });
   }
 
   private simpleRun(version) {
@@ -253,6 +264,7 @@ export class RepositoryTableComponent {
   constructor(private route: Router,
     private _cd: ChangeDetectorRef,
     private _translate: TranslateService,
+    private _workflowsService: WorkflowsManagingService,
     private _modalService: StModalService) {
     this.fields = [
       { id: '', label: '', sortable: false },

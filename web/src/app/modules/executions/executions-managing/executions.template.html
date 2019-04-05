@@ -8,23 +8,27 @@
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
 <div #newExecutionsModalMonitoring qaTag="executions-modal"></div>
-<div class="executions-container" [ngClass]="{'toolbar-showed' : hiddenToolBar}" *ngIf="!(showInitialMode | async)">
+<div class="executions__container" [ngClass]="{'toolbar-showed' : hiddenToolBar}" *ngIf="!(showInitialMode | async)">
+  <executions-managing-toolbar [showDetails]="showDetails" (showExecutionInfo)="onShowExecutionInfo()"></executions-managing-toolbar>
   <div class="container" [hidden]="executionInfo">
-    <div class="row">
-      <div class="col-sm-12">
-        <div class="content" [ngClass]="{'compressed' : showDetails}">
-          <executions-managing-header-container
-            [isArchivedPage]="isArchivedPage"
-            [fixSubHeaders]="fixSubHeaders"
-            [showDetails]="showDetails"
-            [selectedExecutions]="selectedExecutionsIds"
-            (showExecutionInfo)="onShowExecutionInfo()"></executions-managing-header-container>
-          <div class="table-container">
-            <div class="executions-list">
-              <executions-managing-table-container [executionList]="executionsList$ | async" [selectedExecutionsIds]="selectedExecutionsIds"></executions-managing-table-container>
-            </div>
+    <div class="executions__data" [ngClass]="{'compressed' : showDetails}">
+      <st-horizontal-tabs class="executions__tabs" 
+        [options]="executionsTabs" 
+        [activeOption]="selectedTab"
+        (changedOption)="changedOption($event)"></st-horizontal-tabs>
+      <div class="executions__content" *ngIf="selectedTab.id === 'executions'">
+        <executions-managing-header-container
+          [isArchivedPage]="isArchivedPage"
+          [fixSubHeaders]="fixSubHeaders"
+          [selectedExecutions]="selectedExecutionsIds"></executions-managing-header-container>
+        <div class="table-container">
+          <div class="executions-list">
+            <executions-managing-table-container [executionList]="executionsList$ | async" [selectedExecutionsIds]="selectedExecutionsIds"></executions-managing-table-container>
           </div>
         </div>
+      </div>
+      <div class="executions__content" *ngIf="selectedTab.id === 'scheduled'">
+        <scheduled-container></scheduled-container>
       </div>
     </div>
   </div>

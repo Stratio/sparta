@@ -10,7 +10,6 @@ import {
   OnDestroy,
   OnInit,
   ChangeDetectorRef,
-  AfterViewInit,
   ElementRef
 } from '@angular/core';
 import { Store, select } from '@ngrx/store';
@@ -59,12 +58,12 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
   public workflowVersions$: Observable<Array<GroupWorkflow>>;
   public isLoading$: Observable<boolean>;
   public showExecutionConfig$: Observable<any>;
-  public executionContexts$: Observable<any>;
   public blockRunButton$: Observable<boolean>;
 
   public selectedWorkflowsIds: string[] = [];
   public breadcrumbOptions: string[] = [];
   public menuOptions: any = [];
+  public executionContexts: any;
 
   public groupList: Array<any>;
   public selectedVersion: DataDetails;
@@ -78,7 +77,6 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
   private _workflowList$: Subscription;
   private _selectedVersion: Subscription;
 
-  private _nodeContainer;
   private _lastPosition = 0;
 
   private timer: any;
@@ -101,7 +99,12 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     this.showExecutionConfig$ = this._store.pipe(
       select(getShowExecutionConfig)
     );
-    this.executionContexts$ = this._store.pipe(select(getExecutionContexts));
+    this._store.pipe(select(getExecutionContexts))
+    .pipe(distinctUntilChanged())
+    .subscribe((executionContexts: any) => {
+      this.executionContexts = executionContexts;
+      this._cd.markForCheck();
+    });
     this._workflowList$ = this._store
       .pipe(select(getWorkflowsOrderedList))
       .pipe(distinctUntilChanged())
@@ -161,8 +164,15 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
   showExecutionConfiguration(data) {
     this.selectedVersion = { type: 'version', data };
     this._store.dispatch(
-      new workflowActions.ConfigAdvancedExecutionAction(data.id)
+      new workflowActions.ConfigAdvancedExecutionAction({
+        workflowId: data.id,
+        schedule: data.schedule
+      })
     );
+  }
+
+  scheduleWorkflow(event) {
+    this._store.dispatch(new workflowActions.CreateScheduledExecution(event));
   }
 
   private _onScroll(event) {

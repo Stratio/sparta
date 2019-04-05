@@ -268,6 +268,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     this._store.dispatch(new debugActions.InitDebugWorkflowAction(event));
   }
 
+
   private _showCardsModal() {
     this._stModalService.container = this.target;
     this._stModalService.show({
