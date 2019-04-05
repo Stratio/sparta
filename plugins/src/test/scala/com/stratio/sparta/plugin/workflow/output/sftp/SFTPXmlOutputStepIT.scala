@@ -49,7 +49,6 @@ class SFTPXmlOutputStepIT extends TemporalSparkContext with ShouldMatchers with 
       "port" -> sftpPort.toString,
       "sftpServerUsername" -> "foo",
       "password" -> "pass",
-      "fileName" -> "sftp_xml_test",
       "tlsEnable" -> "false",
       "saveOptions" ->
         """[
@@ -84,7 +83,7 @@ class SFTPXmlOutputStepIT extends TemporalSparkContext with ShouldMatchers with 
 
 
   it should "save a dataframe" in new WithEventData {
-    xmlOutput.save(data, SaveModeEnum.Append, Map.empty[String, String])
+    xmlOutput.save(data, SaveModeEnum.Append, Map("tableName" -> "sftp_xml_test"))
 
     val tempPath = Files.createTempDirectory("sftp_xml_test")
 

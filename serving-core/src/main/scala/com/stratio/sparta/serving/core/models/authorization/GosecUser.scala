@@ -65,3 +65,5 @@ case class GosecUser(override val id: String, override val name: String, email: 
     }
   }
 }
+
+case class SimpleUser(override val id: String, override val name: String, override val gid: String) extends LoggedUser

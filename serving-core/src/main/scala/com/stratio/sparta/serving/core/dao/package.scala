@@ -330,7 +330,7 @@ package object daoTables {
 
     def localExecution = column[Option[LocalExecution]]("local_execution")
 
-    def archived = column[Option[Boolean]]("archived")
+    def archived = column[Option[Boolean]]("archived", O.Default(Option(false)))
 
     def resumedDate = column[Option[DateTime]]("resumed_date")
 
@@ -340,7 +340,9 @@ package object daoTables {
 
     def searchText = column[Option[String]]("search_text")
 
-    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText) <>
+    def executedFromScheduler = column[Option[Boolean]]("executed_from_scheduler", O.Default(Option(false)))
+
+    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, executedFromScheduler) <>
       ((WorkflowExecution.apply _).tupled, WorkflowExecution.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
@@ -369,7 +371,7 @@ package object daoTables {
 
     def executionContext = column[Option[ExecutionContext]]("execution_context")
 
-    def active = column[Boolean]("active")
+    def active = column[Boolean]("active", O.Default(true))
 
     def state = column[ScheduledTaskState]("state")
 

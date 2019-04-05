@@ -17,6 +17,14 @@
       "qa": "fragment-details-filesystem-path"
     },
     {
+      "propertyId": "parallelism",
+      "propertyName": "_PARALLELISM_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Sets the parallelism value used by HDFS to process the file.",
+      "qa": "fragment-details-filesystem-path"
+    },
+    {
       "propertyId": "outputField",
       "propertyName": "_OUTPUT_FIELD_",
       "propertyType": "text",

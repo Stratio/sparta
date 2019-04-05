@@ -21,6 +21,8 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.apache.spark.streaming.StreamingContext
 
+import scala.util.Try
+
 class BinaryInputStepBatch(
                           name: String,
                           outputOptions: OutputOptions,
@@ -35,7 +37,7 @@ class BinaryInputStepBatch(
   lazy val ParallelismKey = "parallelism"
 
   lazy val path = properties.getString(PathKey, None)
-  lazy val parallelism = properties.getInt(ParallelismKey,1)
+  lazy val parallelism = Try(properties.getInt(ParallelismKey,1)).getOrElse(1)
 
   override def validate(options: Map[String,String] = Map.empty[String,String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

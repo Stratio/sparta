@@ -48,7 +48,6 @@ class SFTPParquetOutputStepIT extends TemporalSparkContext with ShouldMatchers w
       "port" -> sftpPort.toString,
       "sftpServerUsername" -> "foo",
       "password" -> "pass",
-      "fileName" -> "sftp_parquet_test",
       "tlsEnable" -> "false"
     )
 
@@ -73,7 +72,7 @@ class SFTPParquetOutputStepIT extends TemporalSparkContext with ShouldMatchers w
   }
 
   "ParquetOutputStepIT" should "save a dataFrame" in new WithEventData {
-    parquetOutput.save(data, SaveModeEnum.Append, Map.empty[String, String])
+    parquetOutput.save(data, SaveModeEnum.Append, Map("tableName" -> "sftp_parquet_test"))
 
     val tempPath = Files.createTempDirectory("sftp_parquet_test")
 

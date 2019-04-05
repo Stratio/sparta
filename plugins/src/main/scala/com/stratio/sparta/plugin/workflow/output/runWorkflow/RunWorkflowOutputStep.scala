@@ -16,27 +16,29 @@ import com.stratio.sparta.plugin.enumerations.RunWorkflowWhen
 import com.stratio.sparta.plugin.models.{RunWithContext, RunWithVariable, RunWorkflowAction}
 import com.stratio.sparta.plugin.workflow.output.runWorkflow.RunWorkflowOutputStep._
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
-import com.stratio.sparta.serving.core.models.workflow.{ExecutionContext, WorkflowIdExecutionContext}
+import com.stratio.sparta.serving.core.models.workflow.{ExecutionContext, RunExecutionSettings, WorkflowIdExecutionContext}
 import org.apache.spark.sql._
 import org.apache.spark.sql.crossdata.XDSession
 import org.json4s.jackson.Serialization.{read, write}
 import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.matching.Regex
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
-
-  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
 
   val runWorkflowWhen: RunWorkflowWhen.Value = Try {
     RunWorkflowWhen.withName(properties.getString("runWorkflowWhen", "RECEIVE_DATA").toUpperCase)
   }.getOrElse(RunWorkflowWhen.RECEIVE_DATA)
 
   lazy val runWorkflowProperty: Option[RunWorkflowAction] = Try {
+
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+
     val workflowId = properties.getString("workflowId")
     val contextsInput = s"${properties.getString("contexts", None).notBlank.fold("[]") { values => values.toString }}"
     val contexts = read[Seq[RunWithContext]](contextsInput)
@@ -83,6 +85,9 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
 
   private def runWorkflow(runWorkflowProperty: RunWorkflowAction): Unit = {
     Try {
+
+      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+
       val workflowIdExecutionContext = runWorkflowToWorkflowIdExecutionContext(runWorkflowProperty)
       if (CuratorFactoryHolder.existsPath(RunWorkflowZkPath))
         CuratorFactoryHolder.getInstance().setData()
@@ -109,7 +114,9 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
       executionContext = ExecutionContext(
         extraParams = runWorkflowProperty.variables.map(variable => ParameterVariable(variable.name, Option(variable.value))),
         paramsLists = runWorkflowProperty.contexts.map(_.contextName)
-      )
+      ),
+      executionSettings = Option(RunExecutionSettings(
+        userId = Properties.envOrNone(MarathonConstant.UserNameEnv).orElse(Option(xDSession.user))))
     )
   }
 

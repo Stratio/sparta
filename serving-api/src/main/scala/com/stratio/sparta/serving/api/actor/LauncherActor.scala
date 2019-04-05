@@ -86,6 +86,7 @@ class LauncherActor(
               execution.genericDataExecution.executionContext
             ),
             Option(RunExecutionSettings(
+              execution.executedFromScheduler.getOrElse(false),
               execution.genericDataExecution.name,
               execution.genericDataExecution.description
             )),
@@ -324,7 +325,8 @@ class LauncherActor(
         name = runExecutionSettings.flatMap(_.name),
         description = runExecutionSettings.flatMap(_.description)
       ),
-      localExecution = Option(LocalExecution(sparkURI = sparkUri))
+      localExecution = Option(LocalExecution(sparkURI = sparkUri)),
+      executedFromScheduler = runExecutionSettings.map(_.executedFromScheduler)
     )
 
     executionService.createExecution(newExecution)
@@ -372,7 +374,8 @@ class LauncherActor(
         userId = user.map(_.id),
         name = runExecutionSettings.flatMap(_.name),
         description = runExecutionSettings.flatMap(_.description)
-      )
+      ),
+      executedFromScheduler = runExecutionSettings.map(_.executedFromScheduler)
     )
 
     executionService.createExecution(newExecution)

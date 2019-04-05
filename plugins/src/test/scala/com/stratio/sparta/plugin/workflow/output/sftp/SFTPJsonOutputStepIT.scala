@@ -47,7 +47,6 @@ class SFTPJsonOutputStepIT extends TemporalSparkContext with ShouldMatchers with
       "port" -> sftpPort.toString,
       "sftpServerUsername" -> "foo",
       "password" -> "pass",
-      "fileName" -> "sftp_json_test",
       "tlsEnable" -> "false"
     )
     val fields = StructType(
@@ -64,7 +63,7 @@ class SFTPJsonOutputStepIT extends TemporalSparkContext with ShouldMatchers with
   }
 
   "Given a DataFrame, a directory" should "be created with the data inside in JSON format" in new CommonValues {
-    jsonStep.save(inputDataFrame, SaveModeEnum.Append, Map.empty[String, String])
+    jsonStep.save(inputDataFrame, SaveModeEnum.Append, Map("tableName" -> "sftp_json_test"))
 
     val tempPath = Files.createTempDirectory("sftp_json_test")
 

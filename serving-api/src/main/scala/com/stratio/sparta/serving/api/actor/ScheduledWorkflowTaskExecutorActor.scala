@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.enumerators.{ScheduledTaskState, ScheduledTaskType}
 import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
-import com.stratio.sparta.serving.core.models.workflow.WorkflowIdExecutionContext
+import com.stratio.sparta.serving.core.models.workflow.{RunExecutionSettings, WorkflowIdExecutionContext}
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
 
 import scala.concurrent.duration._
@@ -141,7 +141,8 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       case RUN if scheduledWorkflowTask.executionContext.isDefined =>
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
           workflowId = scheduledWorkflowTask.entityId,
-          executionContext = scheduledWorkflowTask.executionContext.get
+          executionContext = scheduledWorkflowTask.executionContext.get,
+          executionSettings = Option(RunExecutionSettings(executedFromScheduler = true))
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
         val cancellableTask = context.system.scheduler.schedule(delay millis, period millis, self, action)
@@ -163,7 +164,8 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       case RUN if scheduledWorkflowTask.executionContext.isDefined =>
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
           workflowId = scheduledWorkflowTask.entityId,
-          executionContext = scheduledWorkflowTask.executionContext.get
+          executionContext = scheduledWorkflowTask.executionContext.get,
+          executionSettings = Option(RunExecutionSettings(executedFromScheduler = true))
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
         val cancellableTask = context.system.scheduler.scheduleOnce(delay millis, self, action)

@@ -14,6 +14,7 @@ import customTemplate from './outputs/custom.json';
 import customLiteTemplate from './outputs/customLite.json';
 import customLiteXdTemplate from './outputs/customLiteXd.json';
 import elasticSearchTemplate from './outputs/elastic-search.json';
+import fileutilsTemplate from './outputs/fileutils.json';
 import genericDatasourceTemplate from './outputs/genericDatasource.json';
 import httpTemplate from './outputs/http.json';
 import jdbcTemplate from './outputs/jdbc.json';
@@ -31,6 +32,7 @@ import sftpTemplate from './outputs/sftp.json';
 import textTemplate from './outputs/text.json';
 import xmlTemplate from './outputs/xml.json';
 
+
 export const outputs = [
     avroTemplate,
     cassandraTemplate,
@@ -40,6 +42,7 @@ export const outputs = [
     customLiteTemplate,
     customLiteXdTemplate,
     elasticSearchTemplate,
+    fileutilsTemplate,
     genericDatasourceTemplate,
     httpTemplate,
     jdbcTemplate,

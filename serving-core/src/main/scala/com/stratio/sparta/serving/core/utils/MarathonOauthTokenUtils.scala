@@ -100,10 +100,15 @@ object MarathonOauthTokenUtils extends SLF4JLogging {
       val ssoUri = {
         val ssoUriProperty = Try(marathonConfig.getString(ssoUriField))
           .getOrElse(throw new Exception("SSO Uri not defined"))
-        val charCount = ssoUriProperty.count(char => char == ':')
-        if(charCount == 2)
+        val colonCount = ssoUriProperty.count(char => char == ':')
+        val slashCount = ssoUriProperty.count(char => char == '/')
+
+        if(colonCount == 2)
           ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf(":"))
-        else ssoUriProperty
+        else if (slashCount == 3)
+          ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf("/"))
+        else
+          ssoUriProperty
       }
       val ssoLogin = {
         val loginPath = "/login"

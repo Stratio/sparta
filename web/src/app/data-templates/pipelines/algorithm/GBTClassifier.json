@@ -50,7 +50,7 @@
     "default" : "",
     "propertyType" : "text"
   }, {
-    "propertyId" : "CacheNodeIds",
+    "propertyId" : "cacheNodeIds",
     "propertyName" : "Cache node IDs",
     "required" : true,
     "tooltip" : "If false, the algorithm will pass trees to executors to match instances with nodes. If true, the algorithm will cache node IDs for each instance. Caching can speed up training of deeper trees.",

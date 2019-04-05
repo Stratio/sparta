@@ -51,7 +51,6 @@ class SFTPAvroOutputStepIT extends TemporalSparkContext with ShouldMatchers with
       "port" -> sftpPort.toString,
       "sftpServerUsername" -> "foo",
       "password" -> "pass",
-      "fileName" -> "sftp_avro_test",
       "tlsEnable" -> "false"
     )
 
@@ -75,7 +74,7 @@ class SFTPAvroOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   it should "save a dataframe " in new WithEventData {
 
-    avroOutput.save(data, SaveModeEnum.Append, Map.empty[String, String])
+    avroOutput.save(data, SaveModeEnum.Append, Map("tableName" -> "sftp_avro_test"))
 
     val tempPath = Files.createTempDirectory("sftp_avro_test")
 

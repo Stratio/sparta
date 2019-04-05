@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core.services.migration.hydra
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.constants.DatabaseTableConstant.TemplateTableName
+import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
 import com.stratio.sparta.serving.core.factory.{CuratorFactoryHolder, PostgresDaoFactory}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.services.dao.{BasicPostgresService, WorkflowPostgresDao}
@@ -44,6 +44,9 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
         val schemaName = basicPostgresService.profile.quoteIdentifier(schema)
         val templatesSql = s"ALTER TABLE IF EXISTS $schemaName.$TemplateTableName ADD COLUMN IF NOT EXISTS supported_data_relations character varying;"
         basicPostgresService.executeSql(templatesSql)
+        val createFromSchedulerInExecutionSql =
+          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_scheduler boolean DEFAULT false;"
+        basicPostgresService.executeSql(createFromSchedulerInExecutionSql)
       }
     } match {
       case Success(_) =>

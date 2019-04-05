@@ -58,6 +58,7 @@ object DtoModelImplicits {
           execution.resumedStatus,
           execution.executionEngine,
           execution.searchText,
+          execution.executedFromScheduler,
           totalCount
         )
     }

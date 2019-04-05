@@ -49,7 +49,6 @@ class SFTPCsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with 
       "port" -> sftpPort.toString,
       "sftpServerUsername" -> "foo",
       "password" -> "pass",
-      "fileName" -> "sftp_csv_test",
       "tlsEnable" -> "false",
       "saveOptions" ->
         """[
@@ -83,7 +82,7 @@ class SFTPCsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with 
   }
 
   it should "save a dataframe " in new WithEventData {
-    sftpCsvOutput.save(data, SaveModeEnum.Append, Map.empty[String, String])
+    sftpCsvOutput.save(data, SaveModeEnum.Append, Map("tableName" -> "sftp_csv_test"))
 
     val tempPath = Files.createTempDirectory("sftp_csv_test")
 

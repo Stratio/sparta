@@ -27,6 +27,26 @@ export CONFIG_FILE=$SERVER_PROPERTIES/reference.conf
 # Work directory
 export WORK_DIR=/tmp/$NAME
 
+HOST_IN_USE=$HOST
+if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
+   DOCKER_HOST="hostname -f"
+   if [[ "$(hostname -f)" =~ \. ]]; then
+      DOCKER_HOST="$(hostname -f)"
+   else
+      DOCKER_HOST="$(hostname -i)"
+   fi
+  HOST_IN_USE=$DOCKER_HOST
+fi
+
+# JMX metrics
+SPARTA_JMX_METRICS_PORT=5080
+if [ -v PORT_5080 ] && [ ${#PORT_5080} != 0 ]; then
+  SPARTA_JMX_METRICS_PORT=$PORT_5080
+fi
+if [ -v PORT_JMX_METRICS ] && [ ${#PORT_JMX_METRICS} != 0 ]; then
+  SPARTA_JMX_METRICS_PORT=$PORT_JMX_METRICS
+fi
+
 # Heap Size
 export SPARTA_HEAP_SIZE=-Xmx2048m
 export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
@@ -35,16 +55,17 @@ export SPARTA_JVM_UNLOCK_EXPERIMENTAL_OPTIONS="-XX:+UnlockExperimentalVMOptions"
 export SPARTA_JVM_USE_CGROUP_MEMORY_LIMIT="-XX:+UseCGroupMemoryLimitForHeap"
 export SPARTA_JVM_GARBAGE_COLLECTOR="-XX:+UseConcMarkSweepGC"
 export SPARTA_JVM_DISABLE_MEMORY_MAPPING="-Dsun.zip.disableMemoryMapping=true"
+export SPARTA_JVM_JMX="-Djava.rmi.server.hostname=$HOST_IN_USE -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$SPARTA_JMX_METRICS_PORT -Dcom.sun.management.jmxremote.rmi.port=5080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
 # Prometheus metrics
 SPARTA_METRICS_PORT=6080
-
 if [ -v PORT_6080 ] && [ ${#PORT_6080} != 0 ]; then
   SPARTA_METRICS_PORT=$PORT_6080
 fi
 if [ -v PORT_METRICS ] && [ ${#PORT_METRICS} != 0 ]; then
   SPARTA_METRICS_PORT=$PORT_METRICS
 fi
+
 
 export SPARTA_PROMETHEUS_JAVA_AGENT="-javaagent:$JMX_PROMETHEUS_PATH/jmx_prometheus_javaagent-0.11.0.jar=$SPARTA_METRICS_PORT:$JMX_PROMETHEUS_PATH/config.yaml"
 
@@ -55,6 +76,10 @@ export DAEMON_OPTS="-Dconfig.file=$CONFIG_FILE -Djava.util.logging.config.file=f
 
 if [ -v SPARTA_CONFIG_JAAS_FILE ] && [ ${#SPARTA_CONFIG_JAAS_FILE} != 0 ]; then
     export SPARTA_OPTS="$SPARTA_OPTS $SPARTA_CONFIG_JAAS_FILE"
+fi
+
+if [ -v JMX_METRICS_ENABLE ] && [ $JMX_METRICS_ENABLE == "true" ]; then
+    export SPARTA_OPTS="$SPARTA_OPTS $SPARTA_JVM_JMX"
 fi
 
 export SPARTA_FILE_ENCODING=${SPARTA_FILE_ENCODING:--Dfile.encoding=UTF-8}
@@ -78,3 +103,4 @@ if [ -d $LOCKDIR/subsys ]; then # It's most likely a CentOS
 fi
 LOCKFILE=$LOCKDIR/$NAME
 DAEMON=$SPARTA_HOME/bin/sparta.sh
+

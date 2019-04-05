@@ -46,7 +46,6 @@ class SFTPTxtOutputStepIT extends TemporalSparkContext with ShouldMatchers with 
       "port" -> sftpPort.toString,
       "sftpServerUsername" -> "foo",
       "password" -> "pass",
-      "fileName" -> "sftp_txt_test",
       "tlsEnable" -> "false",
       "saveOptions" ->
         """[
@@ -76,7 +75,7 @@ class SFTPTxtOutputStepIT extends TemporalSparkContext with ShouldMatchers with 
   }
 
   "Given a DataFrame, a directory" should "be created with the data written inside" in new WithEventData {
-    sftpTxtOutput.save(data, SaveModeEnum.Append, Map.empty[String, String])
+    sftpTxtOutput.save(data, SaveModeEnum.Append, Map("tableName" -> "sftp_txt_test"))
 
     val tempPath = Files.createTempDirectory("sftp_txt_test")
 

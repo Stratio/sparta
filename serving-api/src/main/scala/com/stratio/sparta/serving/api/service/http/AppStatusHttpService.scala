@@ -5,7 +5,6 @@
  */
 package com.stratio.sparta.serving.api.service.http
 
-import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
@@ -17,7 +16,7 @@ import com.wordnik.swagger.annotations._
 import spray.http.StatusCodes
 import spray.routing._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Api(value = HttpConstant.AppStatus, description = "Sparta service status")
 trait AppStatusHttpService extends BaseHttpService {
@@ -36,26 +35,23 @@ trait AppStatusHttpService extends BaseHttpService {
     path(HttpConstant.AppStatus) {
       get {
         complete {
-          if (!CuratorFactoryHolder.getInstance().getZookeeperClient.getZooKeeper.getState.isConnected)
-            throw new ServerException(ErrorModel.toString(ErrorModel(
-              StatusCodes.InternalServerError.intValue,
-              AppStatusZk,
-              ErrorCodesMessages.getOrElse(AppStatusZk, UnknownError)
-            )))
-          else {
-            val database = JdbcSlickConnection.getDatabase
-            Try(database.createSession.conn) match {
-              case Success(con) =>
-                con.close
-                StatusCodes.OK
-              case Failure(e) =>
-                throw new ServerException(ErrorModel.toString(ErrorModel(
-                  StatusCodes.InternalServerError.intValue,
-                  AppStatusPostgres,
-                  ErrorCodesMessages.getOrElse(AppStatusPostgres, UnknownError),
-                  Option(ExceptionHelper.toPrintableException(e))
-                )))
-            }
+          val maybeZKError = if(CuratorFactoryHolder.getInstance().getZookeeperClient.getZooKeeper.getState.isConnected) {
+            None
+          } else {
+            Option(ErrorModel(StatusCodes.InternalServerError.intValue, AppStatusZk, ErrorCodesMessages.getOrElse(AppStatusZk, UnknownError)))
+          }
+
+          val maybePostgresError = Try(JdbcSlickConnection.getDatabase.createSession.conn).failed.map { _ =>
+            ErrorModel(StatusCodes.InternalServerError.intValue, AppStatusPostgres, ErrorCodesMessages.getOrElse(AppStatusPostgres, UnknownError))
+          }.toOption
+
+          val maybeErrors = maybeZKError ++ maybePostgresError
+
+          if(maybeErrors.isEmpty) {
+            StatusCodes.OK
+          } else {
+            import org.json4s.native.Serialization._
+            throw new ServerException(write(maybeErrors))
           }
         }
       }

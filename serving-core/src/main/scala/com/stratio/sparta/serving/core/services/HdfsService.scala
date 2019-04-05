@@ -121,6 +121,43 @@ case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation])
     }
   }
 
+  def writeBinary(inputData: Array[Byte], destPath: String, overwrite: Boolean = false, failOnException: Boolean = true): Int = {
+    val emptySize = 0
+
+    val out = ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
+          override def run(): FSDataOutputStream = {
+            log.debug(s"Creating Hdfs file with security whose destination path is: $destPath")
+            dfs.create(new Path(s"$destPath"), overwrite)
+          }
+        })
+      case None =>
+        log.debug(s"Creating Hdfs file without security whose destination path is: $destPath")
+        dfs.create(new Path(s"$destPath"), overwrite)
+    }
+
+    val in = new ByteArrayInputStream(inputData)
+
+    try {
+      IOUtils.copy(in, out)
+    }
+    catch {
+      case e: Exception =>
+        if (failOnException) throw e
+        else {
+          log.error(s"Cannot write to file $destPath . Error: ${e.getLocalizedMessage}")
+          emptySize
+        }
+    }
+    finally {
+      IOUtils.closeQuietly(out)
+      IOUtils.closeQuietly(in)
+    }
+  }
+
+
+
   def runReloaderKeyTab(): Unit = {
     val reloadKeyTab = Try(hdfsConfig.get.getBoolean(ReloadKeyTab)).getOrElse(DefaultReloadKeyTab)
 
