@@ -82,13 +82,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     * Execute the cleanUp function associated to all the steps. Previously is mandatory execute the stages
     * function because the steps variable is mutable and is initialized to empty value.
     */
-  def cleanUp(): Unit = {
+  def cleanUp(options: Map[String, String]): Unit = {
     val phaseEnum = PhaseEnum.Cleanup
     val errorMessage = s"An error was encountered while executing the cleanup steps."
     val okMessage = s"Cleanup steps executed successfully"
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
-      steps.foreach(step => step.cleanUp())
+      steps.foreach(step => step.cleanUp(options))
     }
   }
 

@@ -70,4 +70,5 @@ trait GraphStep extends CustomProperties {
 object GraphStep {
   val SparkSubmitConfMethod = "getSparkSubmitConfiguration"
   val SparkConfMethod = "getSparkConfiguration"
+  val FailedKey = "Failed"
 }

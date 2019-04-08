@@ -10,6 +10,7 @@ import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig.getCrossdataConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
@@ -27,7 +28,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Success, Try}
+import com.stratio.sparta.core.workflow.step.GraphStep
 
 
 case class ContextsService()
@@ -53,16 +55,19 @@ case class ContextsService()
 
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, files, execution.genericDataExecution.userId)
 
-    try {
+    Try {
       spartaWorkflow.stages()
       val ssc = getStreamingContext
       spartaWorkflow.setup()
       ssc.start()
       notifyWorkflowExecutionStarted(execution)
       ssc.awaitTermination()
-    }
-    finally {
-      spartaWorkflow.cleanUp()
+    } match {
+      case Success(_) =>
+        finishLocalStreamingContext(spartaWorkflow, Map.empty)
+      case Failure(e) =>
+        finishLocalStreamingContext(spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        throw e
     }
   }
 
@@ -71,13 +76,17 @@ case class ContextsService()
     val errorManager = getErrorManager(workflow)
     val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager, files, execution.genericDataExecution.userId)
 
-    try {
+    Try {
       spartaWorkflow.setup()
       notifyWorkflowExecutionStarted(execution)
       spartaWorkflow.stages()
       spartaWorkflow.postExecutionStep()
-    } finally {
-      spartaWorkflow.cleanUp()
+    } match {
+      case Success(_) =>
+        finishLocalBatchContext(spartaWorkflow, Map.empty)
+      case Failure(e) =>
+        finishLocalBatchContext(spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        throw e
     }
   }
 
@@ -92,7 +101,8 @@ case class ContextsService()
 
     val errorManager = getErrorManager(workflow)
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
-    try {
+
+    Try {
       val ssc = {
         import workflow.settings.streamingSettings.checkpointSettings._
 
@@ -119,11 +129,12 @@ case class ContextsService()
       notifyWorkflowExecutionStarted(execution)
       getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
       ssc.awaitTermination()
-    } finally {
-      log.debug("Executing cleanUp in workflow steps ...")
-      spartaWorkflow.cleanUp()
-      log.debug("CleanUp in workflow steps executed")
-      stopContexts()
+    } match {
+      case Success(_) =>
+        finishClusterStreamingContext(spartaWorkflow, Map.empty)
+      case Failure(e) =>
+        finishClusterStreamingContext(spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        throw e
     }
   }
 
@@ -137,18 +148,19 @@ case class ContextsService()
 
     val spartaWorkflow = SpartaWorkflow[RDD](workflow, getErrorManager(workflow))
 
-    try {
+    Try {
       spartaWorkflow.setup()
       notifyWorkflowExecutionStarted(execution)
       spartaWorkflow.stages()
       getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
       getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
       spartaWorkflow.postExecutionStep()
-    } finally {
-      log.debug("Executing cleanUp in workflow steps ...")
-      spartaWorkflow.cleanUp()
-      log.debug("CleanUp in workflow steps executed")
-      stopContexts()
+    } match {
+      case Success(_) =>
+        finishClusterBatchContext(spartaWorkflow, Map.empty)
+      case Failure(e) =>
+        finishClusterBatchContext(spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        throw e
     }
   }
 
@@ -209,5 +221,39 @@ case class ContextsService()
           statusInfo = Some(startedInfo)
         )))
     }
+  }
+
+  private[driver] def finishClusterBatchContext(
+                                                 spartaWorkflow: SpartaWorkflow[RDD],
+                                                 cleanUpProperties: Map[String, String]
+                                               ): Unit = {
+    finishLocalBatchContext(spartaWorkflow, cleanUpProperties)
+    stopContexts()
+  }
+
+  private[driver] def finishLocalBatchContext(
+                                               spartaWorkflow: SpartaWorkflow[RDD],
+                                               cleanUpProperties: Map[String, String]
+                                             ): Unit = {
+    log.debug("Executing cleanUp in workflow steps ...")
+    spartaWorkflow.cleanUp(cleanUpProperties)
+    log.debug("CleanUp in workflow steps executed")
+  }
+
+  private[driver] def finishClusterStreamingContext(
+                                                     spartaWorkflow: SpartaWorkflow[DStream],
+                                                     cleanUpProperties: Map[String, String]
+                                                   ): Unit = {
+    finishLocalStreamingContext(spartaWorkflow, cleanUpProperties)
+    stopContexts()
+  }
+
+  private[driver] def finishLocalStreamingContext(
+                                                   spartaWorkflow: SpartaWorkflow[DStream],
+                                                   cleanUpProperties: Map[String, String]
+                                                 ): Unit = {
+    log.debug("Executing cleanUp in workflow steps ...")
+    spartaWorkflow.cleanUp(cleanUpProperties)
+    log.debug("CleanUp in workflow steps executed")
   }
 }

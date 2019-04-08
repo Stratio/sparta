@@ -11,7 +11,7 @@ import java.net.URI
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.core.workflow.step.{GraphStep, OutputStep}
 import com.stratio.sparta.plugin.enumerations.FilesystemActionType.FilesystemActionType
 import com.stratio.sparta.plugin.enumerations.FilesystemErrorPolicyType.FilesystemErrorPolicyType
 import com.stratio.sparta.plugin.enumerations.{FilesystemActionType, FilesystemErrorPolicyType}
@@ -27,7 +27,7 @@ import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.{Failure, Success, Try}
 
-class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[String, JSerializable])
+class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
   import FileUtilsOutputStep._
@@ -89,7 +89,9 @@ class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[S
               else
                 inputBinary.inputBinaryDestinationPath.get,
               overwrite = true,
-              failOnException = inputBinary.errorPolicy.fold(true){ _.equalsIgnoreCase("ERROR")}
+              failOnException = inputBinary.errorPolicy.fold(true) {
+                _.equalsIgnoreCase("ERROR")
+              }
             )
           }
       }
@@ -99,7 +101,7 @@ class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[S
   def checkDataframeActionAndExecute(f: Function1[Array[Row], Unit])
                                     (implicit inputDataFrame: InputFromDataframe,
                                      dataFrame: Array[Row],
-                                     schema: StructType) = {
+                                     schema: StructType): Unit = {
 
     import inputDataFrame._
     if (inputDataframeField.notBlank.isDefined && inputDataframeDestination.notBlank.isDefined) {
@@ -112,7 +114,7 @@ class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[S
   def checkBinaryAndExecute(f: Function1[Array[Row], Unit])
                            (implicit inputBinary: InputBinary,
                             dataFrame: Array[Row],
-                            schema: StructType) = {
+                            schema: StructType): Unit = {
 
     import inputBinary._
     if (inputBinaryField.notBlank.isDefined && (inputBinaryDestinationPath.notBlank.isDefined || inputBinaryDestinationField.isDefined)) {
@@ -126,21 +128,21 @@ class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[S
   }
 
   override def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {
-    fileActionsOnComplete.foreach {
-      fileAction =>
+    if (!options.contains(GraphStep.FailedKey))
+      fileActionsOnComplete.foreach { fileAction =>
         filesystemAction(fileAction.fileOrigin, fileAction.fileDestination,
           getAction(fileAction.fileAction),
           fileAction.addTimestampToFilename,
           getErrorPolicy(fileAction.errorPolicy)
         )
-    }
+      }
   }
 
-  protected def getAction(action: String) : FilesystemActionType.FilesystemActionType = Try {
+  protected def getAction(action: String): FilesystemActionType.FilesystemActionType = Try {
     FilesystemActionType.withName(action.toUpperCase())
   }.getOrElse(FilesystemActionType.COPY)
 
-  protected def getErrorPolicy(errorPolicy: String) : FilesystemErrorPolicyType.FilesystemErrorPolicyType = Try {
+  protected def getErrorPolicy(errorPolicy: String): FilesystemErrorPolicyType.FilesystemErrorPolicyType = Try {
     FilesystemErrorPolicyType.withName(errorPolicy.toUpperCase())
   }.getOrElse(FilesystemErrorPolicyType.ERROR)
 
@@ -149,7 +151,7 @@ class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[S
                                  fileDestination: String,
                                  actionType: FilesystemActionType,
                                  addTimestampToFilename: Boolean = false,
-                                 errorPolicy: FilesystemErrorPolicyType ) : Unit =
+                                 errorPolicy: FilesystemErrorPolicyType): Unit =
     Try {
       val extensionFileOutput = FilenameUtils.getExtension(fileDestination)
       val finalFileDestination = if (addTimestampToFilename && !new File(fileOrigin).isDirectory)
@@ -168,9 +170,9 @@ class FileUtilsOutputStep (name: String, xDSession: XDSession, properties: Map[S
             new Path(finalFileDestination),
             false,
             true,
-            filesystemConfiguration )
+            filesystemConfiguration)
         case FilesystemActionType.MOVE =>
-         FileUtil.copy(
+          FileUtil.copy(
             originFS,
             new Path(fileOrigin),
             destinationFS,
@@ -208,8 +210,9 @@ object FileUtilsOutputStep {
 
   case class InputFromDataframe(inputDataframeField: Option[String],
                                 inputDataframeDestination: Option[String],
-                                inputDataframeAction:  Option[String],
+                                inputDataframeAction: Option[String],
                                 addTimestampToFilenameFromDataframe: Boolean,
                                 errorPolicy: Option[String]
                                )
+
 }

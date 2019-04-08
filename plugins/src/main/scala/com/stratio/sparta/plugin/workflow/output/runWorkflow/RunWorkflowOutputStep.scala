@@ -11,7 +11,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.core.workflow.step.{GraphStep, OutputStep}
 import com.stratio.sparta.plugin.enumerations.RunWorkflowWhen
 import com.stratio.sparta.plugin.models.{RunWithContext, RunWithVariable, RunWorkflowAction}
 import com.stratio.sparta.plugin.workflow.output.runWorkflow.RunWorkflowOutputStep._
@@ -78,7 +78,7 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
   }
 
   override def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {
-    if (runWorkflowWhen == RunWorkflowWhen.AFTER_WORKFLOW_ENDS) {
+    if (runWorkflowWhen == RunWorkflowWhen.AFTER_WORKFLOW_ENDS && !options.contains(GraphStep.FailedKey)) {
       runWorkflowProperty.foreach(runWorkflow)
     }
   }
