@@ -51,7 +51,7 @@ persistence
 #  ^\.pc/
 
 #SHITTY output not in target directory
-/dependency-reduced-pom.xml
+**/dependency-reduced-pom.xml
 examples/scripts/temp.json
 
 # Sparta specifics

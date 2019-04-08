@@ -90,4 +90,5 @@ object MarathonConstant {
   val fixedWorkflowLabels = "FIXED_WORKFLOW_LABELS"
   val PrometheusEnvironmentPortCalico = "PORT_6080"
   val PrometheusEnvironmentPortHost = "PORT_METRICS"
+  val MesosTaskId = "MESOS_TASK_ID"
 }

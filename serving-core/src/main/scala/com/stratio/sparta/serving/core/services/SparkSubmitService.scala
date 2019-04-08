@@ -23,6 +23,7 @@ import org.apache.spark.security.VaultHelper._
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Properties, Success, Try}
 
+//scalastyle:off
 class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   lazy val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig()
@@ -82,7 +83,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       addSupervisedArgument(
         addKerberosArguments(
           submitArgsFiltered(submitArgs))),
-      addExecutorLogConf(
+      getS3Config ++
+        addExecutorLogConf(
         addKerberosConfs(
           addExecutorHdfsSecurityConfs(
             addTlsConfs(
@@ -97,10 +99,13 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     )
   }
 
-  def getSparkLocalWorkflowConfig: Map[String, String] = Map(
-    SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
-    SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString)
-  ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
+  def getSparkLocalWorkflowConfig: Map[String, String] =
+    Map(
+      SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
+      SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString)
+    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value))}.flatten.toMap ++
+      getUserSparkConfig
+
 
   /** Private Methods **/
 
@@ -224,6 +229,13 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       ).flatMap { case (key, opValue) => opValue.map(value => key -> value) }
     } else sparkConfs
   }
+
+  private[core] def getS3Config(): Map[String, String] =
+    SpartaConfig.getS3Config().map{ s3Config =>
+      s3Config.entrySet().iterator().toSeq.map { values =>
+        s"$ConfigS3.${values.getKey}" -> values.getValue.render().replace("\"", "")
+      }.filter{ case (k, v) => v.trim.nonEmpty}.toMap
+    }.getOrElse(Map.empty)
 
   private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
     getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs

@@ -6,24 +6,20 @@
 package com.stratio.sparta.serving.core.factory
 
 import java.io.File
-import java.nio.file.{Files, Paths}
-import javax.xml.bind.DatatypeConverter
 
-import org.apache.spark.sql.functions.udf
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.sdk.lite.common.{SpartaUDAF, SpartaUDF}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
 import org.apache.spark.scheduler.KerberosUser
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.streaming.{Duration, StreamingContext, StreamingContextState}
+import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.util.{Failure, Properties, Success, Try}
