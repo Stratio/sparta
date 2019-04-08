@@ -109,9 +109,15 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
             case UNIQUE_PERIODICAL =>
               if (!workflowIdsRunning.contains(activeTask.entityId))
                 executeTask(activeTask)
-              else None
+              else {
+                log.debug(s"There are other instance running with the same id ${activeTask.entityId}")
+                None
+              }
           }
-        } else None
+        } else {
+          log.debug(s"There are other scheduled action with the same id ${activeTask.id}")
+          None
+        }
       }
     }
   }

@@ -35,6 +35,10 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
     RunWorkflowWhen.withName(properties.getString("runWorkflowWhen", "RECEIVE_DATA").toUpperCase)
   }.getOrElse(RunWorkflowWhen.RECEIVE_DATA)
 
+  val uniqueInstance: Boolean = Try{
+    properties.getString("uniqueInstance", "false").toBoolean
+  }.getOrElse(false)
+
   lazy val runWorkflowProperty: Option[RunWorkflowAction] = Try {
 
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -48,7 +52,8 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
     RunWorkflowAction(
       workflowId = workflowId,
       contexts = contexts,
-      variables = variables
+      variables = variables,
+      uniqueInstance = uniqueInstance
     )
   }.toOption
 
@@ -116,7 +121,9 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
         paramsLists = runWorkflowProperty.contexts.map(_.contextName)
       ),
       executionSettings = Option(RunExecutionSettings(
-        userId = Properties.envOrNone(MarathonConstant.UserNameEnv).orElse(Option(xDSession.user))))
+        userId = Properties.envOrNone(MarathonConstant.UserNameEnv).orElse(Option(xDSession.user)),
+        uniqueInstance = Option(runWorkflowProperty.uniqueInstance)
+      ))
     )
   }
 

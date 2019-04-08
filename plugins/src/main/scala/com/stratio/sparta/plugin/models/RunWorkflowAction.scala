@@ -5,7 +5,12 @@
  */
 package com.stratio.sparta.plugin.models
 
-case class RunWorkflowAction(workflowId: String, contexts: Seq[RunWithContext], variables: Seq[RunWithVariable])
+case class RunWorkflowAction(
+                              workflowId: String,
+                              contexts: Seq[RunWithContext],
+                              variables: Seq[RunWithVariable],
+                              uniqueInstance: Boolean
+                            )
 
 case class RunWithContext(contextName: String)
 

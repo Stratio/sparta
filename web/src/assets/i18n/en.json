@@ -604,6 +604,7 @@
    "_JOIN_RETURN_ALIAS_": "Alias",
    "_RUN_WORKFLOW_WHEN_": "Run workflow when",
    "_WORKFLOW_ID_": "Workflow id",
+   "_UNIQUE_WORKFLOW_RUN_INSTANCE_": "Unique instance",
    "_CONTEXTS_": "Contexts",
    "_CONTEXT_NAME_": "Context name",
    "_VARIABLES_": "Variables",

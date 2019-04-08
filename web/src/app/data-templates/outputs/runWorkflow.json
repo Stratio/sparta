@@ -90,6 +90,14 @@
       "qa": "workflow-output-variables"
     },
     {
+      "propertyId": "uniqueInstance",
+      "propertyName": "_UNIQUE_WORKFLOW_RUN_INSTANCE_",
+      "propertyType": "boolean",
+      "tooltip": "Run workflow if there is no other instance running with the same variables and contexts.",
+      "default": false,
+      "qa": "fragment-details-uniqueInstance"
+    },
+    {
       "propertyId": "errorSink",
       "propertyName": "_ERROR_SINK_",
       "propertyType": "boolean",

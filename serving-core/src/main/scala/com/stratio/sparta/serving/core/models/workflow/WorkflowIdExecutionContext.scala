@@ -16,5 +16,6 @@ case class RunExecutionSettings(
                                  executedFromScheduler: Boolean = false,
                                  name: Option[String] = None,
                                  description: Option[String] = None,
-                                 userId: Option[String] = None
+                                 userId: Option[String] = None,
+                                 uniqueInstance: Option[Boolean] = None
                                )
