@@ -23,7 +23,7 @@ class ScheduledWorkflowTaskActor()(implicit val secManagerOpt: Option[SpartaSecu
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
   private val scheduledWorkflowTaskPgService = PostgresDaoFactory.scheduledWorkflowTaskPgService
-  private val ResourceScheduledWorkflowTaskType = "Assets"
+  private val Resource = "Workflows"
 
   //scalastyle:off
   def receiveApiActions(action: Any): Any = action match {
@@ -40,22 +40,22 @@ class ScheduledWorkflowTaskActor()(implicit val secManagerOpt: Option[SpartaSecu
   }
 
   def createScheduledWorkflowTask(request: ScheduledWorkflowTaskInsert, user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> Create)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.createScheduledWorkflowTask(request, user)
     }
 
   def updateScheduledWorkflowTask(request: ScheduledWorkflowTask, user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> Edit)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.updateScheduledWorkflowTask(request)
     }
 
   def findScheduledWorkflowTaskByActive(active: Boolean, user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> View)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.filterScheduledWorkflowTaskByActive(active)
     }
 
   def findScheduledWorkflowTaskByActiveAndState(active: Boolean, state: String, user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> View)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.filterScheduledWorkflowTaskByActiveAndState(
         active,
         ScheduledTaskState.withName(state.toUpperCase)
@@ -63,28 +63,28 @@ class ScheduledWorkflowTaskActor()(implicit val secManagerOpt: Option[SpartaSecu
     }
 
   def findScheduledWorkflowTaskByID(id: String, user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> View)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.findScheduledWorkflowTaskById(id)
     }
 
   def findAllScheduledWorkflowTasks(user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> View)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.findAllScheduledTasks()
     }
 
   def findAllScheduledWorkflowTasksDto(user: Option[LoggedUser]): Unit =
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> View)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.findAllScheduledTasksDto()
     }
 
   def deleteAllScheduledWorkflowTasks(user: Option[LoggedUser]): Unit = {
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> Delete)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.deleteAllWorkflowTasks()
     }
   }
 
   def deleteScheduledWorkflowTaskByID(id: String, user: Option[LoggedUser]): Unit = {
-    authorizeActions(user, Map(ResourceScheduledWorkflowTaskType -> Delete)) {
+    authorizeActions(user, Map(Resource -> Status)) {
       scheduledWorkflowTaskPgService.deleteById(id)
     }
   }

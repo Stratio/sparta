@@ -123,8 +123,8 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       val initTime = scheduledWorkflowTask.initDate - instantDate
 
       scheduledWorkflowTask.taskType match {
-        case PERIODICAL | UNIQUE_PERIODICAL if initTime < 0 && period.isDefined =>
-          scheduledWorkflowTask.initDate + (period.get * math.ceil(initTime.toDouble / period.get.toDouble).toInt) - instantDate
+        case PERIODICAL | UNIQUE_PERIODICAL if initTime < 0 && period.isDefined && period.get != 0 =>
+          scheduledWorkflowTask.initDate + (period.get * math.ceil(math.abs(initTime.toDouble) / period.get.toDouble).toInt) - instantDate
         case _ if initTime < 0 =>
           0
         case _ =>
