@@ -19,7 +19,6 @@ import { formatDate } from '@utils';
         if(execution.duration) {
             duration = execution.duration;
             // const splitDuration = execution.duration.split(/(\d+)/);
-            
 
         }
         try {

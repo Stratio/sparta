@@ -79,7 +79,7 @@ export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
     private _cd: ChangeDetectorRef,
     private _fb: FormBuilder, private calendar: NgbCalendar) {
     const date = new Date();
-    this.startTimeFormControl = new FormControl((date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2)));
+    this.startTimeFormControl = new FormControl((date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2)) + ':' + ('0' + date.getSeconds()).slice(-2));
     const currentDate: NgbDateStruct = {
       year: date.getFullYear(),
       month: date.getMonth() + 1,

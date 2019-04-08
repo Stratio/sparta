@@ -25,6 +25,7 @@
           [formControl]="startTimeFormControl"
           [forceValidations]="forceValidations"
           class="scheduler__timepicker st-form-field" 
+          step="1"
           fieldType="time"></sp-input>
       </div>
     </div>
@@ -41,7 +42,7 @@
     <div *ngIf="repeatFormGroup" [formGroup]="repeatFormGroup">
       <div class="row scheduler__running-repeat">
         <div class="col-sm-12">
-          <st-checkbox formControlName="unique">Don't execute if other execution is still running</st-checkbox>
+          <st-checkbox formControlName="unique">Don't execute if another execution is still running</st-checkbox>
         </div>
       </div>
       <sp-input class="scheduler__time-value st-form-field" 

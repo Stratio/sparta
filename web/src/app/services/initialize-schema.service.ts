@@ -51,7 +51,6 @@ export class InitializeSchemaService {
     model.supportedEngines = value.supportedEngines;
     model.supportedDataRelations = value.supportedDataRelations;
     model.executionEngine = workflowtype;
-
     value.properties.map((prop: any) => {
       model.configuration[prop.propertyId] = prop.default ? prop.default : null;
     });

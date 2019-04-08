@@ -80,12 +80,13 @@ export function formatDate(stringDate: string, hours = true, complete = false) {
     if (!complete && date.setHours(0, 0, 0, 0) === todaysDate.setHours(0, 0, 0, 0)) {
       // Date equals today's date
       const dateToday: Date = new Date(stringDate);
-      return dateToday.getHours() + ':' + ('0' + dateToday.getMinutes()).slice(-2);
+      return dateToday.getHours() + ':' + ('0' + dateToday.getMinutes()).slice(-2) + ':' + + ('0' + dateToday.getSeconds()).slice(-2);
 
     } else {
       const date: Date = new Date(stringDate);
       const month: any = date.getMonth();
-      return hours ?  date.getDate() + ' ' + monthNames[month] + ' ' + date.getFullYear() + ' - ' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2):
+      return hours ?  date.getDate() + ' ' + monthNames[month] + ' ' + 
+      date.getFullYear() + ' - ' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2) :
         date.getDate() + ' ' + 'Jan' + ' ' + date.getFullYear();
 
     }

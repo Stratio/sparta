@@ -54,9 +54,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
   private settingsSubscription: Subscription;
 
   ngOnInit(): void {
-    setTimeout(() => {
       this.fadeActive = true;
-    });
     // get all error management outputs
     this.store.pipe(select(fromWizard.getErrorsManagementOutputs)).pipe(take(1)).subscribe((errorManagementOutputs: Array<string>) => {
       this.errorManagementOutputs = errorManagementOutputs;

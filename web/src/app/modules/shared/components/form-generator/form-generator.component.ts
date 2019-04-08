@@ -54,7 +54,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
         } catch(error) {
           val = value;
         }
-      this.stFormGroup.patchValue(val);
+      this.stFormGroup.patchValue(value);
     } else {
       this.stModel = {};
     }
@@ -89,7 +89,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
       for (const prop of properties) {
         prop.classed = this._getClass(prop.width);
         const formControl = new FormControl();
-        this.stFormGroup.addControl(prop.propertyId, formControl);
+        this.stFormGroup.addControl(prop.propertyId ? prop.propertyId : prop.name, formControl);
         this.formDataValues.push({
           formControl: formControl,
           field: prop
