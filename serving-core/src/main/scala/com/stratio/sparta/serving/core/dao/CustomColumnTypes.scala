@@ -21,6 +21,7 @@ import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.Sch
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.migration.SettingsOrion
+import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
 
 import scala.util.Try
 
@@ -178,8 +179,8 @@ object CustomColumnTypes extends SpartaSerializer {
     objToDeSerialize => read[ExecutionContext](objToDeSerialize)
   )
 
-  implicit val loggedUserType = MappedColumnType.base[LoggedUser, String](
+  implicit val loggedUserType = MappedColumnType.base[HeaderAuthUser, String](
     objToSerialize => write(objToSerialize),
-    objToDeSerialize => read[LoggedUser](objToDeSerialize)
+    objToDeSerialize => read[HeaderAuthUser](objToDeSerialize)
   )
 }

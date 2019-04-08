@@ -10,7 +10,7 @@ import java.util.UUID
 
 import com.stratio.sparta.serving.core.dao.{CustomColumnTypes, ScheduledWorkflowTaskDao}
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.authorization.{GosecUser, LoggedUser}
+import com.stratio.sparta.serving.core.models.authorization.{GosecUser, HeaderAuthUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.orchestrator._
@@ -59,7 +59,7 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
       state = ScheduledTaskState.NOT_EXECUTED,
       duration = scheduledWorkflowTaskInsert.duration,
       initDate = scheduledWorkflowTaskInsert.initDate,
-      loggedUser = user
+      loggedUser = user.map(usr => HeaderAuthUser(usr.id, usr.gid))
     )
       createAndReturn(scheduledWorkflowTask)
     }

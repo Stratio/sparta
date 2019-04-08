@@ -6,7 +6,7 @@
 
 package com.stratio.sparta.serving.core.models.orchestrator
 
-import com.stratio.sparta.serving.core.models.authorization.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.HeaderAuthUser
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
@@ -24,7 +24,7 @@ case class ScheduledWorkflowTask(
                                   state: ScheduledTaskState,
                                   initDate: Long,
                                   duration: Option[String],
-                                  loggedUser: Option[LoggedUser]
+                                  loggedUser: Option[HeaderAuthUser]
                                 )
 
 case class ScheduledWorkflowTaskDtoLifted(
@@ -41,7 +41,7 @@ case class ScheduledWorkflowTaskDtoLifted(
                                            state: Rep[ScheduledTaskState],
                                            initDate: Rep[Long],
                                            duration: Rep[Option[String]],
-                                           loggedUser: Rep[Option[LoggedUser]]
+                                           loggedUser: Rep[Option[HeaderAuthUser]]
                                          )
 
 case class ScheduledWorkflowTaskDto(
@@ -58,7 +58,7 @@ case class ScheduledWorkflowTaskDto(
                                      state: ScheduledTaskState,
                                      initDate: Long,
                                      duration: Option[String],
-                                     loggedUser: Option[LoggedUser]
+                                     loggedUser: Option[HeaderAuthUser]
                                    )
 
 

@@ -13,7 +13,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.RunWorkflowPublisherActor._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.authorization.{LoggedUser, SimpleUser}
+import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
 
 class RunWorkflowListenerActor(launcherActor: ActorRef)
@@ -37,7 +37,7 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
         launcherActor ! Launch(
           workflowIdExecutionContext = workflowIdExecutionContext,
           user = workflowIdExecutionContext.executionSettings.flatMap(_.userId.map(user =>
-            SimpleUser(user, user, user).asInstanceOf[LoggedUser]
+            HeaderAuthUser(user, user).asInstanceOf[LoggedUser]
           ))
         )
       }

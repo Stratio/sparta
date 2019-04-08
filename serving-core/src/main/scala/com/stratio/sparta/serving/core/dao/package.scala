@@ -17,7 +17,7 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.constants.DatabaseTableConstant._
-import com.stratio.sparta.serving.core.models.authorization.LoggedUser
+import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
@@ -379,7 +379,7 @@ package object daoTables {
 
     def initDate = column[Long]("init_date")
 
-    def loggedUser = column[Option[LoggedUser]]("logged_user")
+    def loggedUser = column[Option[HeaderAuthUser]]("logged_user")
 
     def * = (id, taskType, actionType, entityId, executionContext, active, state, initDate, duration, loggedUser) <>
       ((ScheduledWorkflowTask.apply _).tupled, ScheduledWorkflowTask.unapply _)
