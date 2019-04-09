@@ -69,7 +69,7 @@ class JmxMetricsActor extends Actor
       val name = executionStatusChange.executionChange.newExecution.getWorkflowToExecute.name
       val workflowStatusEnum = executionStatusChange.executionChange.newExecution.resumedStatus
         .getOrElse(WorkflowStatusEnum.NotDefined)
-      log.info(s"Changing jmx state for workflow: $name to ${workflowStatusEnum.toString}")
+      log.debug(s"Changing jmx state for workflow: $name to ${workflowStatusEnum.toString}")
 
       if(jmxMetricMap.exists(_._1 == id)){
         jmxMetricMap(id).value = workflowStatusEnum.id

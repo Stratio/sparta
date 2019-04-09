@@ -78,8 +78,24 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       } else cancelAndClearAllActions()
     case RunWorkflowAction(actionId, taskType, workflowIdExecutionContext, userId) =>
       if (isThisNodeClusterLeader(cluster)) {
-        scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
-        launcherActor ! Launch(workflowIdExecutionContext, userId)
+        if(taskType == UNIQUE_PERIODICAL) {
+          val mustRun = getWorkflowsRunning.map(workflowIdsRunning => workflowIdsRunning.contains(workflowIdExecutionContext.workflowId))
+
+          mustRun.onSuccess{ case runningWorkflow =>
+            if(!runningWorkflow) {
+              log.debug(s"Running workflow with unique periodical task $actionId for workflow ${workflowIdExecutionContext.workflowId}")
+              scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
+              launcherActor ! Launch(workflowIdExecutionContext, userId)
+            } else {
+              log.debug(s"Aborting running workflow with unique periodical task $actionId for workflow" +
+                s" ${workflowIdExecutionContext.workflowId} because there are other instance running")
+            }
+          }
+        } else {
+          log.debug(s"Running workflow with scheduled task $actionId for workflow ${workflowIdExecutionContext.workflowId}")
+          scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
+          launcherActor ! Launch(workflowIdExecutionContext, userId)
+        }
       } else cancelAndClearAllActions()
     case StopExecutionAction(actionId, taskType, executionId) =>
       if (isThisNodeClusterLeader(cluster)) {
@@ -101,21 +117,29 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
         if (!activeAndRunningTask) {
           activeTask.taskType match {
             case PERIODICAL =>
+              log.debug(s"Executing periodical task with id ${activeTask.id} for entity ${activeTask.entityId}")
               executeTask(activeTask)
             case ONE_TIME =>
-              if (activeTask.state != ScheduledTaskState.EXECUTED)
+              if (activeTask.state != ScheduledTaskState.EXECUTED) {
+                log.debug(s"Executing one time task with id ${activeTask.id} for entity ${activeTask.entityId}")
                 executeTask(activeTask)
-              else None
+              } else {
+                log.debug(s"The active one time task with id ${activeTask.id} for entity ${activeTask.entityId}" +
+                  s" don't be executed because the status is ${ScheduledTaskState.EXECUTED}")
+                None
+              }
             case UNIQUE_PERIODICAL =>
-              if (!workflowIdsRunning.contains(activeTask.entityId))
+              if (!workflowIdsRunning.contains(activeTask.entityId)) {
+                log.debug(s"Executing unique periodical task with id ${activeTask.id} for entity ${activeTask.entityId}" +
+                  s" because the current running workflows are $workflowIdsRunning and the entity is not present")
                 executeTask(activeTask)
-              else {
-                log.debug(s"There are other instance running with the same id ${activeTask.entityId}")
+              } else {
+                log.debug(s"There are other instance running with the same id ${activeTask.entityId}, aborting execute task")
                 None
               }
           }
         } else {
-          log.debug(s"There are other scheduled action with the same id ${activeTask.id}")
+          log.debug(s"There are other scheduled action with the same id ${activeTask.id}, aborting execute task")
           None
         }
       }
@@ -217,7 +241,7 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
   }
 
   def getWorkflowsRunning: Future[Seq[String]] = {
-    val runningStates = Seq(Launched, Starting, Started, Uploaded)
+    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
     executionPgService.findExecutionsByStatus(runningStates).map { executions =>
       executions.map(_.getWorkflowToExecute.id.get)
     }

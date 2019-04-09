@@ -47,14 +47,14 @@ class ClasspathUtils extends SLF4JLogging {
 
     if (printClasspath) {
       Try {
-        log.debug("SPARK MUTABLE_URL_CLASS_LOADER:")
-        log.debug(getClass.getClassLoader.toString)
+        log.trace("SPARK MUTABLE_URL_CLASS_LOADER:")
+        log.trace(getClass.getClassLoader.toString)
         printClassPath(getClass.getClassLoader)
-        log.debug("APP_CLASS_LOADER / SYSTEM CLASSLOADER:")
-        log.debug(ClassLoader.getSystemClassLoader.toString)
+        log.trace("APP_CLASS_LOADER / SYSTEM CLASSLOADER:")
+        log.trace(ClassLoader.getSystemClassLoader.toString)
         printClassPath(ClassLoader.getSystemClassLoader)
-        log.debug("EXTRA_CLASS_LOADER:")
-        log.debug(getClass.getClassLoader.getParent.getParent.toString)
+        log.trace("EXTRA_CLASS_LOADER:")
+        log.trace(getClass.getClassLoader.getParent.getParent.toString)
         printClassPath(getClass.getClassLoader.getParent.getParent)
       }
     }
@@ -63,9 +63,9 @@ class ClasspathUtils extends SLF4JLogging {
       reflections.getSubTypesOf(clazz).map(t => t.getSimpleName -> t.getCanonicalName)
     }.toMap
 
-    log.debug("PLUGINS LOADED:")
+    log.trace("PLUGINS LOADED:")
     result.foreach {
-      case (_, canonicalName) => log.debug(s"$canonicalName")
+      case (_, canonicalName) => log.trace(s"$canonicalName")
     }
 
     result
@@ -103,6 +103,6 @@ class ClasspathUtils extends SLF4JLogging {
 
   private def printClassPath(cl: ClassLoader): Unit = {
     val urls = cl.asInstanceOf[URLClassLoader].getURLs
-    urls.foreach(url => log.debug(url.getFile))
+    urls.foreach(url => log.trace(url.getFile))
   }
 }

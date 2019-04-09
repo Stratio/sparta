@@ -15,7 +15,7 @@ import com.stratio.sparta.serving.core.actor.RunWorkflowPublisherActor._
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Launched, Started, Starting, Uploaded}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.WorkflowIdExecutionContext
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
 
@@ -49,9 +49,9 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
             if(!result) {
               launchWorkflowWithLauncher(workflowIdExecutionContext)
             } else {
-              log.warn(s"There are other workflow instance running with the same " +
+              log.info(s"There are other workflow instance running with the same " +
                 s"id ${workflowIdExecutionContext.workflowId} and " +
-                s"execution context ${workflowIdExecutionContext.executionContext}")
+                s"execution context ${workflowIdExecutionContext.executionContext}, aborting workflow run")
             }
           }
         }
@@ -82,7 +82,7 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
 
   //TODO ROCKET must support projects??
   def getWorkflowsRunning: Future[Map[String, com.stratio.sparta.serving.core.models.workflow.ExecutionContext]] = {
-    val runningStates = Seq(Launched, Starting, Started, Uploaded)
+    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
     executionPgService.findExecutionsByStatus(runningStates).map { executions =>
       executions.map(execution =>
         execution.getWorkflowToExecute.id.get -> execution.genericDataExecution.executionContext
