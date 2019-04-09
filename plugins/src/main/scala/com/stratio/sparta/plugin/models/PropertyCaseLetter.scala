@@ -6,19 +6,7 @@
 
 package com.stratio.sparta.plugin.models
 
-import com.stratio.sparta.core.properties.JsoneyStringSerializer
-import com.stratio.sparta.plugin.enumerations._
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.{DefaultFormats, Formats}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.plugin.enumerations.CaseLetter.CaseLetter
 
-object SerializationImplicits {
-
-  implicit val json4sJacksonFormats: Formats = DefaultFormats +
-    new JsoneyStringSerializer() +
-    new EnumNameSerializer(CaseValueType) +
-    new EnumNameSerializer(TableSide) +
-    new EnumNameSerializer(JoinTypes) +
-    new EnumNameSerializer(OrderByType) +
-    new EnumNameSerializer(CaseLetter)
-
-}
+case class PropertyCaseLetter(name: String, operationCaseLetter: CaseLetter){}

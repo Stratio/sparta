@@ -677,6 +677,8 @@
    "_COLUMNS_TO_DROP_" : "Columns to delete",
    "_COLUMN_TO_DUPLICATE_" : "Column to duplicate",
    "_COLUMNS_TO_DUPLICATE_": "Columns to duplicate",
+    "_COLUMNS_TO_CASE_LETTER_": "Columns to modify",
+   "_OPERATION_CASE_LETTER_": "Case action",
    "_COLUMNS_TO_RENAME_" : "Columns to Rename",
    "_NEW_COLUMN_NAME_": "New column name",
    "_COLUMNS_TO_ADD_" : "Columns to add",

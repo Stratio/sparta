@@ -44,6 +44,7 @@ export const icons: any = {
     Custom: '\ue60a',
     CustomLite: '\ue60a',
     CustomLiteXD: '\ue60a',
+    CaseLetter: '\ue988',
     ElasticSearch: '\ue624',
     MlPipeline: '\ue993',
     MlModel: '\ue993',

@@ -47,12 +47,14 @@ import triggerStreamingTemplate from './transformations/triggerStreaming.json';
 import triggerBatchTemplate from './transformations/triggerBatch.json';
 import unionTemplate from './transformations/union.json';
 import windowTemplate from './transformations/window.json';
+import caseLetterTemplate from './transformations/caseLetter.json';
 
 export const transformations: any = [
     addColumnTemplate,
     avroTemplate,
     basicDataQualityTemplate,
     caseTemplate,
+    caseLetterTemplate,
     castingTemplate,
     checkpointTemplate,
     coalesceTemplate,
