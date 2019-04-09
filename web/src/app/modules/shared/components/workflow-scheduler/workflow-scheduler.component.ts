@@ -34,7 +34,7 @@ export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
   public isWeekend = (date: NgbDate) => this.calendar.getWeekday(date) >= 6;
   public dateFormControl;
   public startTimeFormControl: FormControl;
-  public activeFormControl = new FormControl(false);
+  public activeFormControl = new FormControl(true);
 
   public repeatFormControl = new FormControl(false);
 
@@ -83,8 +83,9 @@ export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
     const currentDate: NgbDateStruct = {
       year: date.getFullYear(),
       month: date.getMonth() + 1,
-      day: date.getDay()
+      day: date.getDate()
     };
+
     this.dateFormControl = new FormControl(currentDate);
 
     this.startDate = currentDate;
@@ -137,12 +138,12 @@ export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
 
   private _getFormModel() {
     const dateValue = this.dateFormControl.value;
-    const date = new Date(`${dateValue.year}-${dateValue.month}-${dateValue.day}`);
     const time = this.startTimeFormControl.value.split(':');
  
     const initDate = new Date(`${dateValue.year}-${dateValue.month}-${dateValue.day}`);
     initDate.setHours(time[0]);
     initDate.setMinutes(time[1]);
+    initDate.setSeconds(time[2]);
     const initDateMillis = initDate.getTime();
     let taskType;
     if (this.repeatFormControl.value) {

@@ -1,0 +1,12 @@
+.executions {
+  &__container {
+    margin-top: 90px;
+    max-width: 100%;
+    width: 100%;
+
+    transition: max-width 0.3s;
+    &.compressed {
+      max-width: calc(100vw - 415px - (100vw - 100%) / 2);
+    }
+  }
+}

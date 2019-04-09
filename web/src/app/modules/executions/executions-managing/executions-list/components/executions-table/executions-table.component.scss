@@ -1,0 +1,149 @@
+@import '~@stratio/egeo/theme/constants';
+
+:host {
+   .st-table__header {
+      background-color: $action-secondary-02;
+   }
+}
+
+  #executions-managing-table-element {
+  .execution-link {
+    display: inline-block;
+    cursor: pointer;
+    &:hover {
+        color: $action-secondary-07;
+        text-decoration: underline;
+    }
+  }
+
+  .execution-table {
+    display: block;
+    tr:hover {
+        cursor: pointer;
+    }
+
+    td {
+      padding:16px 20px;
+      st-checkbox{
+        pointer-events: none;
+      }
+    }
+
+  }
+
+  .icon-row {
+      margin-right: 8px;
+      margin-top: 1px;
+      width: 20px;
+      float: left;
+  }
+
+  .execution-links {
+    padding-left: 0;
+    padding-right: 30px;
+    padding-left: 0px!important;
+    padding-right: 10px!important;
+
+  &__container {
+      float: right;
+    }
+    a {
+      display: inline-block;
+      margin-left: 6px;
+
+    }
+    i {
+        color: $neutral-10;
+        font-size: 20px;
+    }
+  }
+
+  .tag-column {
+    label {
+        display: inline-block;
+        span {
+          max-width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          display: inline-block;
+        }
+    }
+  }
+
+  st-pagination {
+    display: block;
+  }
+
+  hr {
+    height: 1px;
+    background: $neutral-05;
+    margin: 24px 0;
+  }
+
+  .oval {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+    background-color: $status-success-default;
+    border-radius: 50%;
+    display: inline-block;
+    &.Stopped {
+    background-color: $neutral-06;
+    }
+    &.Failed {
+        background-color: $status-critical-default;
+    }
+  }
+
+  .status-field {
+    font-family: $egeo-nunito-sans-semiBold;
+    color: $neutral-11;
+    min-width: 80px;
+    display: block;
+  }
+
+  .starting-spinner {
+      width: 16px;
+      display: inline-block;
+      margin-top: -2px;
+      margin-left: -4px;
+      float: left;
+      margin-right: 4px;
+  }
+
+  .all-executions button{
+    margin: 0 auto;
+    display: block;
+  }
+
+  .executions__scheduled {
+    font-size: 20px;
+    color: $neutral-09;
+    margin-left: 14px;
+    display: inline-block;
+  }
+
+  .execution-group {
+    color: $action-secondary-05;
+    font-size: 14px;
+    line-height: 7px;
+    margin-top: 5px;
+    padding-left: 28px;
+
+  }
+
+  hr {
+      height: 1px;
+      background: #dedede;
+      margin: 24px 0;
+  }
+
+  .empty-table {
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      font-size: 15px;
+      color: #555555;
+  }
+}

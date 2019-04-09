@@ -125,7 +125,7 @@ export class CustomExecutionComponent implements AfterViewInit, OnInit, OnDestro
       if (this.showSheduler) {
         const config = {
           ...this.scheduledFormControl.value,
-          executionContexts: paramConfig,
+          executionContext: paramConfig,
           entityId: this.workflowId
         };
         this.scheduleWorkflow.emit(config);

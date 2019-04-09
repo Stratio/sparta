@@ -3,28 +3,20 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { ExecutionsComponent } from './executions.component';
 
-const executionsRoutes: Routes = [
-   {
-      path: '',
-      component: ExecutionsComponent
-   },
-   {
-      path: ':id',
-      loadChildren: '@app/executions/execution-detail/execution-detail.module#ExecutionDetailModule'
-   }
-];
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ScheduledSidebarComponent } from './scheduled-sidebar.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { StHorizontalTabsModule } from '@stratio/egeo';
 
 @NgModule({
-   exports: [
-      RouterModule
-   ],
    imports: [
-      RouterModule.forChild(executionsRoutes)
-   ]
+     CommonModule,
+     StHorizontalTabsModule,
+     TranslateModule
+   ],
+   declarations: [ScheduledSidebarComponent],
+   exports: [ScheduledSidebarComponent]
 })
-
-export class ExecutionsRouterModule { }
+export class ScheduledSidebarModule { }

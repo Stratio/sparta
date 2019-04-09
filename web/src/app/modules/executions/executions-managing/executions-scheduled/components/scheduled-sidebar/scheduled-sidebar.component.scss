@@ -1,0 +1,48 @@
+@import '~@stratio/egeo/theme/constants';
+
+
+.not-selected {
+    text-align: center;
+    min-height: 230px;
+    margin-top: 20px;
+    .execution-detail-image {
+       width: 140px;
+       margin-top: 20px;
+    }
+  
+    .execution-info {
+     font-size: $egeo-font-size-xxsmall;
+     color: $neutral-10;
+   }
+  }
+  
+
+.execution-group {
+  color: $action-secondary-06;
+  font-size: 14px;
+}
+
+.description {
+  display: block;
+  font-size: $egeo-font-size-xxsmall;
+  display: block;
+}
+
+.title {
+  display: block;
+  margin-top: 10px;
+}
+
+.title2 {
+  display: block;
+  margin-top: 15px;
+  font-size: 14px;
+  color: $action-secondary-07;
+}
+
+.details-option{
+  width: 100%;
+  display: block;
+  margin-bottom: 25px;
+  border-bottom: 1px solid $neutral-05;
+}

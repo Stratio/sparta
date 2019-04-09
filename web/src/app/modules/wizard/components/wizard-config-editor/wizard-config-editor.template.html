@@ -73,7 +73,7 @@
         <form-generator *ngIf="!isTemplate" [variableList]="formVariables" [showVars]="true" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')"
                         [forceValidations]="submitted" name="global" [formData]="basicSettings" [valueDictionary]="valueDictionary" [(ngModel)]="entityFormModel.configuration"></form-generator>
 
-        <div class="mocks-tab" *ngIf="config.editionType.stepType === 'Input'" [hidden]="activeOption !== 'Mocks'">
+        <div class="mocks-tab" *ngIf="config.editionType.stepType === 'Input'" [style.visibility]="activeOption === 'Mocks' ? 'visible' : 'hidden'">
           <mocks-config [model]="debugOptions"></mocks-config>
         </div>
         <div class="template-data" *ngIf="isTemplate && templateData && activeOption === 'Global'">

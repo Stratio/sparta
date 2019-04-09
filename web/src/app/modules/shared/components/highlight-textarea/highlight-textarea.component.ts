@@ -194,7 +194,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
     this._ngZone.runOutsideAngular(() => {
       this._handleElement.addEventListener('mousedown', (e) => {    
-        document.body.addEventListener('mousemove', this._onDrag);
+        window.addEventListener('mousemove', this._onDrag);
         window.addEventListener('mouseup', this._onRelease);
       });
     });
@@ -223,6 +223,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     this.internalControl.setValue(value);
     this.instance && this.instance.setValue(value ? value : '');
     this.internalTextareaModel = value;
+    this._cd.markForCheck();
 
   }
 
@@ -287,7 +288,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
   
   private _onRelease(e) {
-    document.body.removeEventListener('mousemove', this._onDrag);
+    window.removeEventListener('mousemove', this._onDrag);
     window.removeEventListener('mouseup', this._onRelease);
   }
 

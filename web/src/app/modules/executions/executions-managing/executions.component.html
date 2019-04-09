@@ -1,0 +1,18 @@
+<div class="executions" [ngClass]="{'toolbar-showed' : hiddenToolBar}">
+  <executions-toolbar [showSidebar]="showSidebar" (onShowSidebar)="onShowSidebar()"></executions-toolbar>
+  <div class="container">
+    <div class="executions__container" [ngClass]="{'compressed' : showSidebar}">
+      <st-horizontal-tabs *ngIf="!isArchivedPage" class="executions__tabs" 
+        [options]="executionsTabs" 
+        [activeOption]="selectedTab"
+        (changedOption)="changedOption($event)"></st-horizontal-tabs>
+        <executions-list *ngIf="selectedTab.id === 'executions'"
+          [isArchivedPage]="isArchivedPage"
+          (closeSidebar)="closeSidebar()" 
+          [showSidebar]="showSidebar"></executions-list>
+        <scheduled-container *ngIf="selectedTab.id === 'scheduled'" 
+          (closeSidebar)="closeSidebar()" 
+          [showSidebar]="showSidebar"></scheduled-container>
+    </div>
+  </div>
+</div>

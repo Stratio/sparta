@@ -11,7 +11,7 @@ import { StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
 import { Subscription } from 'rxjs';
 
 import {Info, ShowedActions} from "@app/executions/execution-detail/types/execution-detail";
-import {State} from "@app/executions/executions-managing/reducers";
+import {State} from "@app/executions/executions-managing/executions-list/reducers";
 import * as executionDetailActions from '../../actions/execution-detail';
 import { take } from 'rxjs/operators';
 

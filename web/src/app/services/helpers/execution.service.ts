@@ -67,6 +67,7 @@ export class ExecutionHelperService {
          endDate,
          endDateMillis,
          endDateFormatted,
+         executedFromScheduler: !!execution.executedFromScheduler,
          launchDate,
          launchDateMillis,
          launchDateFormatted,

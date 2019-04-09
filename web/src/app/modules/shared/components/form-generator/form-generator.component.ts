@@ -54,7 +54,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
         } catch(error) {
           val = value;
         }
-      this.stFormGroup.patchValue(value);
+      this.stFormGroup.patchValue(val);
     } else {
       this.stModel = {};
     }

@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 
 import { State } from './../../reducers';
-import { SelectStatusFilterAction } from '@app/executions/executions-managing/actions/executions';
+import { SelectStatusFilterAction } from '@app/executions/executions-managing/executions-list/actions/executions';
 
 @Component({
   selector: 'executions-header',

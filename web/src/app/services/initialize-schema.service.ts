@@ -51,9 +51,7 @@ export class InitializeSchemaService {
     model.supportedEngines = value.supportedEngines;
     model.supportedDataRelations = value.supportedDataRelations;
     model.executionEngine = workflowtype;
-    value.properties.map((prop: any) => {
-      model.configuration[prop.propertyId] = prop.default ? prop.default : null;
-    });
+    model.configuration = this.getConfiguration(value)
     model.classPrettyName = value.classPrettyName;
     model.className = value.className;
     // model.description = value.description;
@@ -66,6 +64,19 @@ export class InitializeSchemaService {
       model.writer = this.getDefaultWriterModel();
     }
     return model;
+  }
+
+  getConfiguration(value: any) {
+    const configuration = {};
+    value.properties.map((prop: any) => {
+      if(prop.properties) {
+        configuration[prop.propertyId] = this.getConfiguration(prop);
+      } else {
+        configuration[prop.propertyId] = prop.default ? prop.default : null;
+      }
+    });
+
+    return configuration;
   }
 
   setTemplateEntityModel(template: any): any {

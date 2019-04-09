@@ -1,0 +1,33 @@
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary
+    information of Stratio Big Data Inc., Sucursal en España and
+    may not be revealed, sold, transferred, modified, distributed or
+    otherwise made available, licensed or sublicensed to third parties;
+    nor reverse engineered, disassembled or decompiled, without express
+    written authorization from Stratio Big Data Inc., Sucursal en España.
+-->
+<div #newExecutionsModalMonitoring qaTag="executions-modal"></div>
+<div class="executions__container" *ngIf="!(showInitialMode | async)">
+  <div [hidden]="executionInfo">
+    <div class="executions__data" >
+      <div class="executions__content">
+        <executions-managing-header-container
+          [isArchivedPage]="isArchivedPage"
+          [fixSubHeaders]="fixSubHeaders"
+          [selectedExecutions]="selectedExecutionsIds"></executions-managing-header-container>
+        <div class="table-container">
+          <div class="executions-list">
+            <executions-managing-table-container [executionList]="executionsList$ | async" [selectedExecutionsIds]="selectedExecutionsIds"></executions-managing-table-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <sparta-sidebar class="executions__sidebar sidebar" [isVisible]="showSidebar" (onCloseSidebar)="closeSidebar.emit()">
+    <executions-sidebar-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo()"
+      [executionData]="selectedExecution" (showConsole)="showConsole($event)"></executions-sidebar-detail>
+  </sparta-sidebar>
+  <executions-console *ngIf="showDebugConsole" [execution]="selectedExecution" (closeConsole)="onCloseConsole()"></executions-console>
+  <execution-info *ngIf="executionInfo" [executionInfo]="executionInfo" (closeExecutionInfo)="closeExecutionInfo()"></execution-info>
+</div>

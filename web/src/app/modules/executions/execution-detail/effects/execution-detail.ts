@@ -13,7 +13,7 @@ import {switchMap, map, catchError, takeUntil, mergeMap} from 'rxjs/operators';
 import * as executionDetailActions from './../actions/execution-detail';
 import { ExecutionService } from 'services/execution.service';
 import {ExecutionDetailHelperService} from '@app/executions/execution-detail/services/execution-detail.service';
-import * as fromRoot from '@app/executions/executions-managing/reducers';
+import * as fromRoot from '@app/executions/executions-managing/executions-list/reducers';
 import {Router} from '@angular/router';
 import * as errorActions from 'actions/errors';
 
