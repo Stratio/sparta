@@ -380,6 +380,27 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
       executionsRunning.nonEmpty
     }
 
+  def getWorkflowsRunning: Future[Map[String, com.stratio.sparta.serving.core.models.workflow.ExecutionContext]] = {
+    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
+    findExecutionsByStatus(runningStates).map { executions =>
+      executions.map(execution =>
+        execution.getWorkflowToExecute.id.get -> execution.genericDataExecution.executionContext
+      ).toMap
+    }
+  }
+
+  def otherWorkflowInstanceRunning(workflowId: String, executionContext: ExecutionContext): Future[Boolean] = {
+    for{
+      workflowsRunning <- getWorkflowsRunning
+    } yield {
+      workflowsRunning.exists{ case (id, exContext) =>
+        id == workflowId &&
+          executionContext.paramsLists.forall(exContext.paramsLists.contains(_)) &&
+          executionContext.extraParams.forall(exContext.extraParams.contains(_))
+      }
+    }
+  }
+
   /** Ignite predicates */
   private def ignitePredicateByArchived(archived: Option[Boolean]): ScanQuery[String, WorkflowExecution] = new ScanQuery[String, WorkflowExecution](
     new IgniteBiPredicate[String, WorkflowExecution]() {

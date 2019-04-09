@@ -45,7 +45,10 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
         if(workflowIdExecutionContext.executionSettings.forall(settings => settings.uniqueInstance.forall(unique => !unique))) {
           launchWorkflowWithLauncher(workflowIdExecutionContext)
         } else {
-          otherWorkflowInstanceRunning(workflowIdExecutionContext).onSuccess{ case result =>
+          executionPgService.otherWorkflowInstanceRunning(
+            workflowIdExecutionContext.workflowId,
+            workflowIdExecutionContext.executionContext
+          ).onSuccess{ case result =>
             if(!result) {
               launchWorkflowWithLauncher(workflowIdExecutionContext)
             } else {
@@ -66,28 +69,6 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
         HeaderAuthUser(user, user).asInstanceOf[LoggedUser]
       ))
     )
-  }
-
-  def otherWorkflowInstanceRunning(workflowIdExecutionContext: WorkflowIdExecutionContext): Future[Boolean] = {
-    for{
-      workflowsRunning <- getWorkflowsRunning
-    } yield {
-      workflowsRunning.exists{ case (id, exContext) =>
-        id == workflowIdExecutionContext.workflowId &&
-          workflowIdExecutionContext.executionContext.paramsLists.forall(exContext.paramsLists.contains(_)) &&
-          workflowIdExecutionContext.executionContext.extraParams.forall(exContext.extraParams.contains(_))
-      }
-    }
-  }
-
-  //TODO ROCKET must support projects??
-  def getWorkflowsRunning: Future[Map[String, com.stratio.sparta.serving.core.models.workflow.ExecutionContext]] = {
-    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
-    executionPgService.findExecutionsByStatus(runningStates).map { executions =>
-      executions.map(execution =>
-        execution.getWorkflowToExecute.id.get -> execution.genericDataExecution.executionContext
-      ).toMap
-    }
   }
 
 }

@@ -15,9 +15,9 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType._
+import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.enumerators.{ScheduledTaskState, ScheduledTaskType}
 import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
 import com.stratio.sparta.serving.core.models.workflow.{RunExecutionSettings, WorkflowIdExecutionContext}
 import com.stratio.sparta.serving.core.utils.SpartaClusterUtils
@@ -63,14 +63,14 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
 
         stopActions(activeWorkflowTasksInDb).onComplete {
           case Success(newActionsExecuted) =>
-            if(newActionsExecuted.nonEmpty)
+            if (newActionsExecuted.nonEmpty)
               log.info(s"Stopped scheduled actions in workflow scheduler: ${newActionsExecuted.mkString(",")}")
           case Failure(ex) =>
             log.error(ex.getLocalizedMessage, ex)
         }
         executeActions(activeWorkflowTasksInDb).onComplete {
           case Success(newActionsExecuted) =>
-            if(newActionsExecuted.nonEmpty)
+            if (newActionsExecuted.nonEmpty)
               log.info(s"Scheduled new actions in workflow scheduler: ${newActionsExecuted.mkString(",")}")
           case Failure(ex) =>
             log.error(ex.getLocalizedMessage, ex)
@@ -78,11 +78,14 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       } else cancelAndClearAllActions()
     case RunWorkflowAction(actionId, taskType, workflowIdExecutionContext, userId) =>
       if (isThisNodeClusterLeader(cluster)) {
-        if(taskType == UNIQUE_PERIODICAL) {
-          val mustRun = getWorkflowsRunning.map(workflowIdsRunning => workflowIdsRunning.contains(workflowIdExecutionContext.workflowId))
+        if (taskType == UNIQUE_PERIODICAL) {
+          val mustRun = executionPgService.otherWorkflowInstanceRunning(
+            workflowIdExecutionContext.workflowId,
+            workflowIdExecutionContext.executionContext
+          )
 
-          mustRun.onSuccess{ case runningWorkflow =>
-            if(!runningWorkflow) {
+          mustRun.onSuccess { case runningWorkflow =>
+            if (!runningWorkflow) {
               log.debug(s"Running workflow with unique periodical task $actionId for workflow ${workflowIdExecutionContext.workflowId}")
               scheduledWorkflowTaskPgService.setStateScheduledWorkflowTask(actionId, ScheduledTaskState.EXECUTED)
               launcherActor ! Launch(workflowIdExecutionContext, userId)
@@ -107,9 +110,16 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
   def executeActions(activeWorkflowTasksInDb: Future[Seq[ScheduledWorkflowTask]]): Future[Seq[String]] = {
     for {
       activeTasksInDb <- activeWorkflowTasksInDb
-      workflowIdsRunning <- getWorkflowsRunning
+      activeTaskResult <- Future.sequence {
+        activeTasksInDb.map { activeTask =>
+          executionPgService.otherWorkflowInstanceRunning(
+            activeTask.entityId,
+            activeTask.executionContext.getOrElse(com.stratio.sparta.serving.core.models.workflow.ExecutionContext())
+          ).map(mustRun => (activeTask, mustRun))
+        }
+      }
     } yield {
-      activeTasksInDb.flatMap { activeTask =>
+      activeTaskResult.flatMap { case (activeTask, mustRun) =>
         val activeAndRunningTask = scheduledActions.exists { case (_, workflowAction) =>
           activeTask.id == workflowAction.scheduledWorkflowTask.id
         }
@@ -129,9 +139,9 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
                 None
               }
             case UNIQUE_PERIODICAL =>
-              if (!workflowIdsRunning.contains(activeTask.entityId)) {
+              if (!mustRun) {
                 log.debug(s"Executing unique periodical task with id ${activeTask.id} for entity ${activeTask.entityId}" +
-                  s" because the current running workflows are $workflowIdsRunning and the entity is not present")
+                  s" because the entity is not present in the current running workflows")
                 executeTask(activeTask)
               } else {
                 log.debug(s"There are other instance running with the same id ${activeTask.entityId}, aborting execute task")
@@ -238,13 +248,6 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
       scheduledActions -= scheduledWorkflowTask.id
     }
     scheduledWorkflowTask.id
-  }
-
-  def getWorkflowsRunning: Future[Seq[String]] = {
-    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
-    executionPgService.findExecutionsByStatus(runningStates).map { executions =>
-      executions.map(_.getWorkflowToExecute.id.get)
-    }
   }
 
   def getActiveActionsToExecuteInDb: Future[Seq[ScheduledWorkflowTask]] = {
