@@ -340,7 +340,7 @@ package object daoTables {
 
     def searchText = column[Option[String]]("search_text")
 
-    def executedFromScheduler = column[Option[Boolean]]("executed_from_scheduler", O.Default(Option(false)))
+    def executedFromScheduler = column[Option[String]]("executed_from_scheduler")
 
     def executedFromExecution = column[Option[String]]("executed_from_execution")
 

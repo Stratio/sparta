@@ -45,7 +45,7 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
         val templatesSql = s"ALTER TABLE IF EXISTS $schemaName.$TemplateTableName ADD COLUMN IF NOT EXISTS supported_data_relations character varying;"
         basicPostgresService.executeSql(templatesSql)
         val createFromSchedulerInExecutionSql =
-          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_scheduler boolean DEFAULT false;"
+          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_scheduler character varying;"
         basicPostgresService.executeSql(createFromSchedulerInExecutionSql)
         val createFromExecutionInExecutionSql =
           s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_execution character varying;"

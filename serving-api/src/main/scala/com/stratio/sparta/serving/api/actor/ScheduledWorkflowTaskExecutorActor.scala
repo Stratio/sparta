@@ -189,7 +189,7 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
           workflowId = scheduledWorkflowTask.entityId,
           executionContext = scheduledWorkflowTask.executionContext.getOrElse(com.stratio.sparta.serving.core.models.workflow.ExecutionContext()),
-          executionSettings = Option(RunExecutionSettings(executedFromScheduler = true))
+          executionSettings = Option(RunExecutionSettings(executedFromScheduler = Option(scheduledWorkflowTask.id)))
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
         val cancellableTask = context.system.scheduler.schedule(delay millis, period millis, self, action)
@@ -212,7 +212,7 @@ class ScheduledWorkflowTaskExecutorActor(launcherActor: ActorRef) extends Actor 
         val workflowIdExecutionContext = WorkflowIdExecutionContext(
           workflowId = scheduledWorkflowTask.entityId,
           executionContext = scheduledWorkflowTask.executionContext.getOrElse(com.stratio.sparta.serving.core.models.workflow.ExecutionContext()),
-          executionSettings = Option(RunExecutionSettings(executedFromScheduler = true))
+          executionSettings = Option(RunExecutionSettings(executedFromScheduler = Option(scheduledWorkflowTask.id)))
         )
         val action = RunWorkflowAction(scheduledWorkflowTask.id, scheduledWorkflowTask.taskType, workflowIdExecutionContext, scheduledWorkflowTask.loggedUser)
         val cancellableTask = context.system.scheduler.scheduleOnce(delay millis, self, action)

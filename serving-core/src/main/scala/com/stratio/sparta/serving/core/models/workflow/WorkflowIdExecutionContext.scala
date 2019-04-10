@@ -13,7 +13,7 @@ case class WorkflowIdExecutionContext(
                                      )
 
 case class RunExecutionSettings(
-                                 executedFromScheduler: Boolean = false,
+                                 executedFromScheduler: Option[String] = None,
                                  name: Option[String] = None,
                                  description: Option[String] = None,
                                  userId: Option[String] = None,

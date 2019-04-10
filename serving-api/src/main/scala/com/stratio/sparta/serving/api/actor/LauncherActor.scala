@@ -86,7 +86,7 @@ class LauncherActor(
               execution.genericDataExecution.executionContext
             ),
             Option(RunExecutionSettings(
-              execution.executedFromScheduler.getOrElse(false),
+              execution.executedFromScheduler,
               execution.genericDataExecution.name,
               execution.genericDataExecution.description,
               execution.executedFromExecution
@@ -327,7 +327,7 @@ class LauncherActor(
         description = runExecutionSettings.flatMap(_.description)
       ),
       localExecution = Option(LocalExecution(sparkURI = sparkUri)),
-      executedFromScheduler = runExecutionSettings.map(_.executedFromScheduler),
+      executedFromScheduler = runExecutionSettings.flatMap(_.executedFromScheduler),
       executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution)
     )
 
@@ -377,7 +377,7 @@ class LauncherActor(
         name = runExecutionSettings.flatMap(_.name),
         description = runExecutionSettings.flatMap(_.description)
       ),
-      executedFromScheduler = runExecutionSettings.map(_.executedFromScheduler),
+      executedFromScheduler = runExecutionSettings.flatMap(_.executedFromScheduler),
       executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution)
     )
 
