@@ -45,4 +45,9 @@
   display: block;
   margin-bottom: 25px;
   border-bottom: 1px solid $neutral-05;
+
+  &__params-list {
+    margin-top: 30px;
+    display: block;
+  }
 }

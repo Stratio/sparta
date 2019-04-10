@@ -25,7 +25,7 @@
     </div>
   </div>
   <sparta-sidebar class="executions__sidebar sidebar" [isVisible]="showSidebar" (onCloseSidebar)="closeSidebar.emit()">
-    <executions-sidebar-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo()"
+    <executions-sidebar-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
       [executionData]="selectedExecution" (showConsole)="showConsole($event)"></executions-sidebar-detail>
   </sparta-sidebar>
   <executions-console *ngIf="showDebugConsole" [execution]="selectedExecution" (closeConsole)="onCloseConsole()"></executions-console>

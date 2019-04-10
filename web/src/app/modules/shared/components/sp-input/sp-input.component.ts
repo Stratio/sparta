@@ -125,8 +125,11 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
   ngOnInit(): void {
     this.internalControl = new FormControl(this.internalInputModel);
     this.valueChangeSub = this.internalControl.valueChanges.subscribe((value) => {
+      if(!this.focusPristine) {
+        this.valuechange();
+      }
       this.focusPristine = false;
-      this.valuechange();
+
     });
   }
 
@@ -182,7 +185,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
     }
     this.internalInputModel = value;
     this._value = value;
-      setTimeout(() => this.internalControl.setValue(value));
+    setTimeout(() => this.internalControl.setValue(value));
     this.focusPristine = true;
   }
 

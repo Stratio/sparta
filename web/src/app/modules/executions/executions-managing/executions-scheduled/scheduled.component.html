@@ -83,7 +83,7 @@
         <td st-table-cell st-table-row-content>
           {{execution.active ? 'Yes' : 'No'}}
         </td>
-        <td st-table-cell st-table-row-content>
+        <td st-table-cell st-table-row-content class="scheduled__status-column">
           <div *ngIf="execution.executed">
               <div class="scheduled__status scheduled__status--started"></div>Executed
           </div>
@@ -96,7 +96,7 @@
         </td>
         <td st-table-cell st-table-row-content>
           <menu-options-list [options]="execution.active ? activeExecutionOptions : inactiveExecutionOptions" (selectedOption)="selectedExecutionAction($event, execution)">
-            <span class="show-options icon-ellipsis"></span>
+            <span class="scheduled__show-options icon-ellipsis"></span>
           </menu-options-list>
         </td>
       </tr>

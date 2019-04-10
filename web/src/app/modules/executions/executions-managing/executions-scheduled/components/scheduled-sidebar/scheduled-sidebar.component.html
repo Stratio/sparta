@@ -1,32 +1,41 @@
 <div class="scheduled-sidebar">
-    <div class="not-selected" *ngIf="!executionData || !executionData.name">
-        <img src="assets/images/planet.svg" class="execution-detail-image" />
-        <div class="execution-info">{{'DASHBOARD.EXECUTION_INFO' | translate}}</div>
-    </div>
-    <div class="selected" *ngIf="executionData">
-      <st-horizontal-tabs class="details-option" (changedOption)="changedOption($event)" [activeOption]="activeOption" [options]="options"
-        qaTag="scheduled-execution-details">
-         </st-horizontal-tabs>
-      <div class="scheduled-sidebar__overview" *ngIf="activeOption.id === 'overview'">
-        <h3 class="egeo-title-medium">{{executionData.name}} - v{{executionData.version}}</h3>
-        <span class="execution-group">{{executionData.groupName}}</span>
-        <span class="description">{{executionData.description}}</span>
-        <div>
-          <span class="egeo-title-mini title2">Execution ID</span>
-          <span class="values">{{executionData.id}}</span>
-        </div>
+  <div class="not-selected" *ngIf="!executionData || !executionData.name">
+    <img src="assets/images/planet.svg" class="execution-detail-image" />
+    <div class="execution-info">{{'DASHBOARD.EXECUTION_INFO' | translate}}</div>
+  </div>
+  <div class="selected" *ngIf="executionData">
+    <st-horizontal-tabs class="details-option" (changedOption)="changedOption($event)" [activeOption]="activeOption"
+      [options]="options" qaTag="scheduled-execution-details">
+    </st-horizontal-tabs>
+    <div class="scheduled-sidebar__overview" *ngIf="activeOption.id === 'overview'">
+      <h3 class="egeo-title-medium">{{executionData.name}} - v{{executionData.version}}</h3>
+      <span class="execution-group">{{executionData.groupName}}</span>
+      <span class="description">{{executionData.description}}</span>
+      <div>
+        <span class="egeo-title-mini title2">Execution ID</span>
+        <span class="values">{{executionData.id}}</span>
       </div>
-      <div *ngIf="activeOption.id === 'parameters' && executionData.executionContext" class="scheduled-sidebar__parameters">
+    </div>
+    <div *ngIf="activeOption.id === 'parameters' && executionData.executionContext"
+      class="scheduled-sidebar__parameters">
 
-        <div *ngIf="executionData.executionContext.extraParams && executionData.executionContext.extraParams.length">
-          <span class="egeo-title-mini scheduled-sidebar__extra-params">Extra params</span>
-          <div *ngFor="let param of executionData.executionContext.extraParams">
-            <div>
-              <span class="egeo-title-mini title2">{{param.name}}</span>
-              <span class="values">{{param.value}}</span>
-            </div>
+      <div *ngIf="executionData.executionContext.extraParams && executionData.executionContext.extraParams.length">
+        <span class="egeo-title-mini scheduled-sidebar__extra-params">Extra params</span>
+        <div *ngFor="let param of executionData.executionContext.extraParams">
+          <div>
+            <span class="egeo-title-mini title2">{{param.name}}</span>
+            <span class="values">{{param.value}}</span>
           </div>
         </div>
+      </div>
+      <div class="details-option__params-list" *ngIf="executionData.executionContext.paramsLists && executionData.executionContext.paramsLists.length">
+        <span class="egeo-title-mini scheduled-sidebar__extra-params">Param Lists</span>
+        <div *ngFor="let paramList of executionData.executionContext.paramsLists">
+          <div>
+            <span class="values">{{paramList}}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

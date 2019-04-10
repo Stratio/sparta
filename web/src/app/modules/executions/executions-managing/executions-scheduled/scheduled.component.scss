@@ -74,14 +74,17 @@
       padding: 16px 20px;
     }
   }
-  .show-options {
+  &__show-options {
     padding: 6px 5px;
-    color: transparent;
     font-size: 22px;
   }
 
   &__buttons{ 
     float: right;
+  }
+
+  &__status-column {
+    width: 135px!important;
   }
 }
 

@@ -51,11 +51,15 @@
   }
   .custom-day {
     text-align: center;
-    padding: 0.185rem 0.25rem;
+    padding: 0.35rem 0.25rem;
     border-radius: 0.25rem;
     display: inline-block;
     width: 2rem;
     font-size: 14px;
+  }
+
+  .ngb-dp-arrow-btn {
+    cursor: pointer;
   }
   .custom-day:hover, .custom-day.focused {
     background-color: #e6e6e6;

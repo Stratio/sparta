@@ -116,14 +116,16 @@ export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
     });
 
     if (this.scheduledFormControl) {
-      this.groupForm.valueChanges.subscribe(value => {
+      this.groupForm.valueChanges.subscribe(value => this._checkForm());
+      this._checkForm();
+    }
+  }
 
-        if (this.groupForm.invalid) {
-          this.scheduledFormControl.setValue(null);
-        } else {
-          this.scheduledFormControl.setValue(this._getFormModel());
-        }
-      });
+  private _checkForm() {
+    if (this.groupForm.invalid) {
+      this.scheduledFormControl.setValue(null);
+    } else {
+      this.scheduledFormControl.setValue(this._getFormModel());
     }
   }
 
@@ -139,7 +141,7 @@ export class WorkflowSchedulerComponent implements OnInit, OnDestroy {
   private _getFormModel() {
     const dateValue = this.dateFormControl.value;
     const time = this.startTimeFormControl.value.split(':');
- 
+
     const initDate = new Date(`${dateValue.year}-${dateValue.month}-${dateValue.day}`);
     initDate.setHours(time[0]);
     initDate.setMinutes(time[1]);

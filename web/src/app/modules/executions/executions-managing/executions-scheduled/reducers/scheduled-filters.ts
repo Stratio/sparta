@@ -24,7 +24,7 @@ const initialState: State = {
   searchQuery: '',
   order: {
     orderBy: 'initDateMillis',
-    type: 1
+    type: 0
   }
 };
 

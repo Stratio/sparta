@@ -77,7 +77,8 @@ export class ExecutionDetailHelperService {
       response.genericDataExecution.workflow &&
       response.genericDataExecution.workflow.parametersUsedInExecution ||
       undefined;
-    return Object.keys(parametersOrigin).map(parameterKey => {
+
+    return parametersOrigin ? Object.keys(parametersOrigin).map(parameterKey => {
       const [parameterName, parameterType = 'User defined'] = parameterKey.split('.').reverse();
       const parameterValue = parametersOrigin[parameterKey];
 
@@ -88,7 +89,7 @@ export class ExecutionDetailHelperService {
         completeName: parameterKey,
         selected: false
       };
-    });
+    }) : [];
   }
 
   public getExecutionStatuses(response): Array<Status> {

@@ -73,6 +73,7 @@ export function formatDate(stringDate: string, hours = true, complete = false) {
   if(!stringDate) {
     return '';
   }
+  
   try {
     const date: Date = new Date(stringDate);
     const todaysDate = new Date();
@@ -80,7 +81,7 @@ export function formatDate(stringDate: string, hours = true, complete = false) {
     if (!complete && date.setHours(0, 0, 0, 0) === todaysDate.setHours(0, 0, 0, 0)) {
       // Date equals today's date
       const dateToday: Date = new Date(stringDate);
-      return dateToday.getHours() + ':' + ('0' + dateToday.getMinutes()).slice(-2) + ':' + + ('0' + dateToday.getSeconds()).slice(-2);
+      return dateToday.getHours() + ':' + ('0' + dateToday.getMinutes()).slice(-2) + ':' + ('0' + dateToday.getSeconds()).slice(-2);
 
     } else {
       const date: Date = new Date(stringDate);
