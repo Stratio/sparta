@@ -13,9 +13,12 @@ import akka.event.slf4j.SLF4JLogging
 import com.amazonaws.auth.{BasicAWSCredentials, _}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.Regions
-import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder
+import com.amazonaws.services.securitytoken.{AWSSecurityTokenService, AWSSecurityTokenServiceClientBuilder}
+import com.amazonaws.{ClientConfiguration, ClientConfigurationFactory, Protocol}
+import com.stratio.sparta.core.utils.Utils
 import com.stratio.sparta.serving.core.constants.MarathonConstant
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.s3a.Constants
 import org.apache.spark.security.{ConfigSecurity, HTTPHelper}
 
 import scala.util.control.NonFatal
@@ -35,16 +38,24 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
   lazy val STS_DEFAULT_SESSION_DURATION: Int = 900
   lazy val STS_DEFAULT_REGION: Regions = Regions.EU_WEST_1
 
+  lazy val STS_PROXY_HOST: String = "fs.s3a.sts.proxy.host"
+  lazy val STS_PROXY_PORT: String = "fs.s3a.sts.proxy.port"
+  lazy val STS_PROXY_PASS_SUFFIX: String = "fs.s3a.sts.proxy.credentials.vault.path"
+  lazy val STS_PROXY_SSL_ENABLED: String = "fs.s3a.sts.proxy.ssl.enabled"
 
   private def propertyWithBucketPattern(optionSuffix: String, bucket: String): String =
     s"$S3A_PREFIX.bucket.$bucket.$optionSuffix"
 
-  private def resolvePropValue(propertyName: String, conf: Configuration, bucket: Option[String]): Option[String] = {
+  private def resolvePropValue(propertyName: String, conf: Configuration, bucket: Option[String] = None): Option[String] = {
     val suffixPropertyName = propertyName.replaceFirst(S3A_PREFIX, "")
     bucket.map(b => propertyWithBucketPattern(suffixPropertyName, b))
       .flatMap(bucketProp => Option(conf.get(bucketProp)))
       .orElse(Option(conf.get(s"$S3A_PREFIX.$suffixPropertyName")))
   }
+
+  private def resolveIntPropValue(propertyName: String, conf: Configuration, bucket: Option[String] = None): Option[Int] =
+    resolvePropValue(propertyName, conf, bucket).flatMap(v => Try(v.toInt).toOption)
+
 
   def loadCredentials(name: URI, conf: Configuration): STSAssumeRoleSessionCredentialsProvider = {
     val bucket = Option(name).map(_.getHost)
@@ -54,8 +65,7 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
     val stsEndpoint: Option[String] = resolvePropValue(STS_ENDPOINT_SUFFIX, conf, bucket)
 
     val roleSessionDuration: Int =
-      resolvePropValue(STS_SESSION_DURATION_SUFFIX, conf, bucket)
-        .flatMap(v => Try(v.toInt).toOption)
+      resolveIntPropValue(STS_SESSION_DURATION_SUFFIX, conf, bucket)
         .getOrElse(STS_DEFAULT_SESSION_DURATION)
 
     val roleSessionName =
@@ -78,12 +88,10 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
         .flatMap{ basicCredentials => getUserPassFromVault(roleVaultPath.get)
           .map{ case (_, roleARN) =>
             createAssumeRoleCredentialsProvider(
-              basicCredentials,
+              createSTSClient(createAwsConfig(conf), basicCredentials, stsEndpoint, region),
               roleSessionName,
               roleARN,
-              roleSessionDuration,
-              region,
-              stsEndpoint
+              roleSessionDuration
             )
           }
         }
@@ -100,31 +108,37 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
       .map{ case (aKey, sKey) => new BasicAWSCredentials(aKey, sKey)}
 
 
-  private def createAssumeRoleCredentialsProvider(
-                                                   longLivedCredentials: AWSCredentials,
-                                                   roleSessionName: String,
-                                                   roleARN: String,
-                                                   roleSessionDurationSeconds: Int,
-                                                   stsRegion: Regions,
-                                                   stsEndpoint: Option[String] = None
-                                                 ): STSAssumeRoleSessionCredentialsProvider = {
+
+  private def createSTSClient( awsConf: ClientConfiguration,
+                               longLivedCredentials: AWSCredentials,
+                               stsEndpoint: Option[String] = None,
+                               stsRegion: Regions
+                             ): AWSSecurityTokenService = {
+
 
     val stsClientBuilder = AWSSecurityTokenServiceClientBuilder
       .standard()
+      .withClientConfiguration(awsConf)
       .withCredentials(new AWSStaticCredentialsProvider(longLivedCredentials))
 
-    val stsClient =
-      stsEndpoint.map(endpoint =>
-        stsClientBuilder.withEndpointConfiguration(new EndpointConfiguration(endpoint, stsRegion.getName))
-      ).getOrElse(
-        stsClientBuilder.withRegion(stsRegion)
-      ).build
+    stsEndpoint.map(endpoint =>
+      stsClientBuilder.withEndpointConfiguration(new EndpointConfiguration(endpoint, stsRegion.getName))
+    ).getOrElse(
+      stsClientBuilder.withRegion(stsRegion)
+    ).build
+  }
 
+
+  private def createAssumeRoleCredentialsProvider(
+                                                   stsClient: AWSSecurityTokenService,
+                                                   roleSessionName: String,
+                                                   roleARN: String,
+                                                   roleSessionDurationSeconds: Int
+                                                 ): STSAssumeRoleSessionCredentialsProvider =
     new STSAssumeRoleSessionCredentialsProvider.Builder(roleARN, roleSessionName)
       .withRoleSessionDurationSeconds(roleSessionDurationSeconds)
       .withStsClient(stsClient)
       .build()
-  }
 
   private def getUserPassFromVault(vaultPath: String): Try[(String,String)] = {
     val requestUrl = s"${ConfigSecurity.vaultURI.get}/$vaultPath"
@@ -146,6 +160,58 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
         .map(Success(_))
         .getOrElse(Failure(new RuntimeException("User or pass not found within Vault response")))
     }
+  }
+
+
+  private[auth] def createAwsConfig(conf: Configuration): ClientConfiguration = {
+
+    import Constants._
+    import Utils.optionImplicits._
+
+    val awsConfig = new ClientConfigurationFactory().getConfig
+    val isSecured = resolvePropValue(SECURE_CONNECTIONS, conf).map(_.equalsIgnoreCase("true")).getOrElse(true)
+
+    // connection props
+    awsConfig.setMaxConnections(
+      resolveIntPropValue(MAXIMUM_CONNECTIONS, conf).getOrElse(DEFAULT_MAXIMUM_CONNECTIONS)
+    )
+    awsConfig.setProtocol(if (isSecured) Protocol.HTTPS else Protocol.HTTP)
+
+    awsConfig.setMaxErrorRetry(
+      resolveIntPropValue(MAX_ERROR_RETRIES, conf).getOrElse(DEFAULT_MAX_ERROR_RETRIES)
+    )
+    awsConfig.setConnectionTimeout(
+      resolveIntPropValue(ESTABLISH_TIMEOUT, conf).getOrElse(DEFAULT_ESTABLISH_TIMEOUT)
+    )
+    awsConfig.setSocketTimeout(
+      resolveIntPropValue(SOCKET_TIMEOUT, conf).getOrElse(DEFAULT_SOCKET_TIMEOUT)
+    )
+
+    // proxy props
+    resolvePropValue(STS_PROXY_HOST, conf).foreach { proxyHost =>
+      awsConfig.setProxyHost(proxyHost)
+      awsConfig.setProxyPort(
+        resolveIntPropValue(STS_PROXY_PORT, conf).getOrElse(if (isSecured) 443 else 80)
+      )
+
+      val proxySSLEnabled = resolvePropValue(STS_PROXY_SSL_ENABLED, conf).map(_.equalsIgnoreCase("true")).getOrElse(false)
+      awsConfig.setProxyProtocol(if (proxySSLEnabled) Protocol.HTTPS else Protocol.HTTP)
+
+      val proxyPasswordVaultPath: String =
+        resolvePropValue(STS_PROXY_PASS_SUFFIX, conf)
+          .getOrThrown(s"$STS_PROXY_PASS_SUFFIX is required when using a proxy")
+
+      val (proxyUser, proxyPass) = getUserPassFromVault(proxyPasswordVaultPath).recoverWith {
+        case NonFatal(exception) =>
+          Failure(new Exception("Error loading credentials for STS proxy", exception))
+      }.get
+
+      log.debug(s"Set proxy username@password to: $proxyUser@$proxyPass")
+
+      awsConfig.setProxyUsername(proxyUser)
+      awsConfig.setProxyPassword(proxyPass)
+    }
+    awsConfig
   }
 
 }
@@ -171,9 +237,9 @@ class VaultAWSCredentialsProvider private(private val stsCredsProvider: STSAssum
   override def toString: String = getClass.getSimpleName
 
   override def close(): Unit =
-  Try(stsCredsProvider.close())
-    .recover{
-      case NonFatal(exception) => log.warn("Exception closing STS provider", exception);
-    }
+    Try(stsCredsProvider.close())
+      .recover{
+        case NonFatal(exception) => log.warn("Exception closing STS provider", exception);
+      }
 
 }
