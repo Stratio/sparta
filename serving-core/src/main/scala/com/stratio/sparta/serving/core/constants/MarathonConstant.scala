@@ -27,7 +27,7 @@ object MarathonConstant {
   val DefaultIntervalSeconds = 20
   val DefaultTimeoutSeconds = 20
   val DefaultMaxConsecutiveFailures = 3
-  val DefaultForcePullImage = false
+  val DefaultForcePullImage = true
   val DefaultPrivileged = false
   val DefaultIncludeCommonVolumes = true
   val DefaultIncludeCertVolumes = true

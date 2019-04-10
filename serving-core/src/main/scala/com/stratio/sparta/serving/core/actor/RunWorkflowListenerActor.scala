@@ -43,6 +43,7 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
     case RunWorkflowNotification(_, workflowIdExecutionContext) =>
       if (isThisNodeClusterLeader(cluster)) {
         if(workflowIdExecutionContext.executionSettings.forall(settings => settings.uniqueInstance.forall(unique => !unique))) {
+          log.debug(s"Executing run workflow without unique instance from execution context: $workflowIdExecutionContext")
           launchWorkflowWithLauncher(workflowIdExecutionContext)
         } else {
           executionPgService.otherWorkflowInstanceRunning(
@@ -50,6 +51,7 @@ class RunWorkflowListenerActor(launcherActor: ActorRef)
             workflowIdExecutionContext.executionContext
           ).onSuccess{ case result =>
             if(!result) {
+              log.debug(s"Executing run workflow preventing unique instance from execution context: $workflowIdExecutionContext")
               launchWorkflowWithLauncher(workflowIdExecutionContext)
             } else {
               log.info(s"There are other workflow instance running with the same " +

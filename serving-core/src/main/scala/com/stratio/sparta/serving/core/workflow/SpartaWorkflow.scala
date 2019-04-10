@@ -84,8 +84,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     */
   def cleanUp(options: Map[String, String]): Unit = {
     val phaseEnum = PhaseEnum.Cleanup
-    val errorMessage = s"An error was encountered while executing the cleanup steps."
-    val okMessage = s"Cleanup steps executed successfully"
+    val errorMessage = s"An error was encountered while executing the cleanup steps with options: $options."
+    val okMessage = s"Cleanup steps executed successfully with options: $options"
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       steps.foreach(step => step.cleanUp(options))

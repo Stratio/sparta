@@ -61,6 +61,27 @@
             "qa": "fragment-details-actionsoncomplete-fileOrigin"
           },
           {
+            "propertyId": "deleteDestinationBefore",
+            "propertyName": "_DELETE_DESTINATION_BEFORE_",
+            "propertyType": "boolean",
+            "default": true,
+            "float": false,
+            "visibleOR": [
+              [
+                {
+                  "propertyId": "fileAction",
+                  "value": "COPY"
+                },
+                {
+                  "propertyId": "fileAction",
+                  "value": "MOVE"
+                }
+              ]
+            ],
+            "tooltip": "Delete the destination file or directory before copy or move",
+            "qa": "fragment-delete-destination"
+          },
+          {
             "propertyId": "addTimestampToFilename",
             "propertyName": "_ADD_TIMESTAMP_FILENAME_",
             "propertyType": "boolean",
@@ -200,10 +221,31 @@
             "qa": "fragment-details-actionsoncomplete-fileOrigin"
           },
           {
+            "propertyId": "deleteDestinationBeforeFromDataframe",
+            "propertyName": "_DELETE_DESTINATION_BEFORE_",
+            "propertyType": "boolean",
+            "default": true,
+            "float": false,
+            "visibleOR": [
+              [
+                {
+                  "propertyId": "inputDataframeAction",
+                  "value": "COPY"
+                },
+                {
+                  "propertyId": "inputDataframeAction",
+                  "value": "MOVE"
+                }
+              ]
+            ],
+            "tooltip": "Delete the destination file or directory before copy or move",
+            "qa": "fragment-delete-destination"
+          },
+          {
             "propertyId": "addTimestampToFilenameFromDataframe",
             "propertyName": "_ADD_TIMESTAMP_FILENAME_",
             "propertyType": "boolean",
-            "float": true,
+            "float": false,
             "default": false,
             "visibleOR": [
               [

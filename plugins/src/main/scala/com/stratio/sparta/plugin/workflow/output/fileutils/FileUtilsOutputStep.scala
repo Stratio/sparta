@@ -27,6 +27,7 @@ import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.{Failure, Success, Try}
 
+//scalastyle:off
 class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
@@ -74,6 +75,7 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
             filesystemAction(fileOrigin,
               fileDestination,
               getAction(inputDataFrame.inputDataframeAction.get),
+              inputDataFrame.deleteDestinationBeforeFromDataframe,
               inputDataFrame.addTimestampToFilenameFromDataframe,
               getErrorPolicy(inputDataFrame.errorPolicy.get)
             )
@@ -128,14 +130,17 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
   }
 
   override def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {
-    if (!options.contains(GraphStep.FailedKey))
+    if (!options.contains(GraphStep.FailedKey)) {
+      log.info("Executing file actions on workflow finish ...")
       fileActionsOnComplete.foreach { fileAction =>
         filesystemAction(fileAction.fileOrigin, fileAction.fileDestination,
           getAction(fileAction.fileAction),
+          fileAction.deleteDestinationBefore,
           fileAction.addTimestampToFilename,
           getErrorPolicy(fileAction.errorPolicy)
         )
       }
+    }
   }
 
   protected def getAction(action: String): FilesystemActionType.FilesystemActionType = Try {
@@ -150,6 +155,7 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
   protected def filesystemAction(fileOrigin: String,
                                  fileDestination: String,
                                  actionType: FilesystemActionType,
+                                 deleteDestinationBefore: Boolean = true,
                                  addTimestampToFilename: Boolean = false,
                                  errorPolicy: FilesystemErrorPolicyType): Unit =
     Try {
@@ -163,6 +169,9 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
 
       actionType match {
         case FilesystemActionType.COPY =>
+          if(deleteDestinationBefore)
+            destinationFS.delete(new Path(finalFileDestination), true)
+
           FileUtil.copy(
             originFS,
             new Path(fileOrigin),
@@ -172,6 +181,9 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
             true,
             filesystemConfiguration)
         case FilesystemActionType.MOVE =>
+          if(deleteDestinationBefore)
+            destinationFS.delete(new Path(finalFileDestination), true)
+
           FileUtil.copy(
             originFS,
             new Path(fileOrigin),
@@ -190,7 +202,7 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
           case FilesystemErrorPolicyType.ERROR =>
             throw new RuntimeException(s"Cannot execute action $actionType on $fileOrigin. Error: ${e.getLocalizedMessage}")
           case FilesystemErrorPolicyType.DISCARD =>
-            log.error(s"Cannot execute action $actionType on $fileOrigin. Error: ${e.getLocalizedMessage}")
+            log.warn(s"Cannot execute action $actionType on $fileOrigin. Error: ${e.getLocalizedMessage}")
         }
     }
 }
@@ -200,6 +212,7 @@ object FileUtilsOutputStep {
   case class FileActions(fileOrigin: String,
                          fileDestination: String,
                          fileAction: String,
+                         deleteDestinationBefore: Boolean = true,
                          addTimestampToFilename: Boolean = false,
                          errorPolicy: String)
 
@@ -211,7 +224,8 @@ object FileUtilsOutputStep {
   case class InputFromDataframe(inputDataframeField: Option[String],
                                 inputDataframeDestination: Option[String],
                                 inputDataframeAction: Option[String],
-                                addTimestampToFilenameFromDataframe: Boolean,
+                                deleteDestinationBeforeFromDataframe: Boolean = true,
+                                addTimestampToFilenameFromDataframe: Boolean = false,
                                 errorPolicy: Option[String]
                                )
 

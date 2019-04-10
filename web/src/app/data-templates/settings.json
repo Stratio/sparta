@@ -50,6 +50,7 @@
           "propertyType": "text",
           "regexp": "^[0-9]*$",
           "width": 4,
+          "default": "240",
           "tooltip": "Ignore Marathon health checks within this number of seconds or until the task becomes healthy for the first time",
           "qa": "workflow-gracePeriodSeconds"
         },
@@ -59,6 +60,7 @@
             "propertyType": "text",
             "regexp": "^[0-9]*$",
             "width": 4,
+            "default": "20",
             "tooltip": "Number of seconds to wait between Marathon health checks",
             "qa": "workflow-intervalSeconds"
           },
@@ -68,6 +70,7 @@
             "propertyType": "text",
             "regexp": "^[0-9]*$",
             "width": 4,
+            "default": "20",
             "tooltip": "Number of seconds after which a health check is considered a failure regardless of the response",
             "qa": "workflow-timeoutSeconds"
           },
@@ -77,6 +80,7 @@
             "propertyType": "text",
             "regexp": "^[0-9]*$",
             "width": 4,
+            "default": "3",
             "tooltip": " Number of consecutive health check failures after which the unhealthy task should be killed.",
             "qa": "workflow-maxFailures"
           },
@@ -84,7 +88,7 @@
             "propertyId": "forcePullImage",
             "propertyName": "SETTINGS._FORCE_PULL_",
             "propertyType": "boolean",
-            "default": false,
+            "default": true,
             "width": 4,
             "tooltip": "Force Docker to pull the image before launching each task",
             "qa": "workflow-forcePull"

@@ -94,16 +94,18 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
       implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
 
       val workflowIdExecutionContext = runWorkflowToWorkflowIdExecutionContext(runWorkflowProperty)
+      val workflowIdExecutionContextStr = write(workflowIdExecutionContext)
       if (CuratorFactoryHolder.existsPath(RunWorkflowZkPath))
         CuratorFactoryHolder.getInstance().setData()
-          .forPath(RunWorkflowZkPath, write(workflowIdExecutionContext).getBytes)
+          .forPath(RunWorkflowZkPath, workflowIdExecutionContextStr.getBytes)
       else CuratorFactoryHolder.getInstance().create().creatingParentsIfNeeded()
-        .forPath(RunWorkflowZkPath, write(workflowIdExecutionContext).getBytes)
+        .forPath(RunWorkflowZkPath, workflowIdExecutionContextStr.getBytes)
+      workflowIdExecutionContextStr
     } match {
-      case Success(_) =>
+      case Success(runWorkflowSaved) =>
         log.info(s"Workflow run notified in Zookeeper for workflow ${runWorkflowProperty.workflowId}" +
           s" with properties ${runWorkflowProperty.variables}" +
-          s" and contexts ${runWorkflowProperty.contexts}")
+          s" and contexts ${runWorkflowProperty.contexts}. The object saved is $runWorkflowSaved")
       case Failure(e) =>
         log.error(s"Error notifying run workflow in Zookeeper for workflow ${runWorkflowProperty.workflowId}" +
           s" with properties ${runWorkflowProperty.variables}" +
