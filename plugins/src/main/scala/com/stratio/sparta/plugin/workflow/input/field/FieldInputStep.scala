@@ -28,7 +28,7 @@ import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
 
 //scalastyle:off
-abstract class FieldInputStep[Underlying[Row]](
+abstract class RowGeneratorInputStep[Underlying[Row]](
                                                 name: String,
                                                 outputOptions: OutputOptions,
                                                 ssc: Option[StreamingContext],
@@ -86,13 +86,13 @@ abstract class FieldInputStep[Underlying[Row]](
   }
 }
 
-class FieldInputStepBatch(
+class RowGeneratorInputStepBatch(
                            name: String,
                            outputOptions: OutputOptions,
                            ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable]
-                         ) extends FieldInputStep[RDD](name, outputOptions, ssc, xDSession, properties) {
+                         ) extends RowGeneratorInputStep[RDD](name, outputOptions, ssc, xDSession, properties) {
 
   //Dummy function on batch inputs that generates DataSets with schema
   def init(): DistributedMonad[RDD] = {
