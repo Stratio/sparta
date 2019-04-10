@@ -1,0 +1,98 @@
+{
+   "name": "RowGenerator",
+   "className": "RowGeneratorInputStep",
+   "classPrettyName": "RowGenerator",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "supportedDataRelations": ["ValidData"],
+   "executionEngine": "Batch",
+   "description": "Generate rows with the provided data",
+   "properties": [
+      {
+        "propertyId": "rows",
+        "propertyName": "_ROWS_",
+        "propertyType": "list",
+        "width": 12,
+        "required": true,
+        "complexForm": true,
+        "tooltip": "Rows to generate with the provided fields",
+        "qa": "fragment-details-rows",
+        "fields": [
+          {
+            "propertyId": "fields",
+            "propertyName": "_FIELDS_",
+            "propertyType": "list",
+            "required": true,
+            "tooltip": "Fields provided for each row",
+            "qa": "fragment-details-fields",
+            "width": 12,
+            "fields": [
+              {
+                "propertyId": "fieldName",
+                "propertyName": "_FIELD_NAME_",
+                "propertyType": "text",
+                "required": true,
+                "width": 4,
+                "tooltip": "Field name",
+                "qa": "fragment-details-field-name"
+              },
+              {
+                "propertyId": "fieldValue",
+                "propertyName": "_FIELD_VALUE_",
+                "propertyType": "text",
+                "tooltip": "Field value",
+                "width": 4,
+                "qa": "fragment-details-field-value"
+              },
+              {
+                "propertyId": "type",
+                "propertyName": "_TYPE_",
+                "propertyType": "select",
+                "required": true,
+                "width": 3,
+                "values": [{
+                  "label": "String",
+                  "value": "string"
+                },
+                  {
+                    "label": "Long",
+                    "value": "long"
+                  },
+                  {
+                    "label": "Float",
+                    "value": "float"
+                  },
+                  {
+                    "label": "Double",
+                    "value": "double"
+                  },
+                  {
+                    "label": "Integer",
+                    "value": "integer"
+                  },
+                  {
+                    "label": "Boolean",
+                    "value": "boolean"
+                  },
+                  {
+                    "label": "Binary",
+                    "value": "binary"
+                  },
+                  {
+                    "label": "Date",
+                    "value": "date"
+                  },
+                  {
+                    "label": "Timestamp",
+                    "value": "timestamp"
+                  }
+                ],
+                "default": "string",
+                "qa": "fragment-details-field-type"
+              }
+            ]
+          }
+        ]
+      }
+   ]
+}

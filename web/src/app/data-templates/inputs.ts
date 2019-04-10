@@ -30,6 +30,7 @@ import filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import twitterJsonTemplate from './inputs/twitter-json.json';
 import restBatchTemplate from './inputs/restBatch.json';
 import restStreamingTemplate from './inputs/restStreaming.json';
+import rowGeneratorBatchTemplate from './inputs/rowGeneratorBatch.json';
 import sftpTemplate from './inputs/sftp.json';
 import testStreamingTemplate from './inputs/testStreaming.json';
 import testBatchTemplate from './inputs/testBatch.json';
@@ -62,6 +63,7 @@ export const inputs = [
     parquetTemplate,
     restBatchTemplate,
     restStreamingTemplate,
+    rowGeneratorBatchTemplate,
     sftpTemplate,
     testBatchTemplate,
     testStreamingTemplate,
