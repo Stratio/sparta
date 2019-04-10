@@ -568,9 +568,14 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
-      val configuration = if(node.className.equalsIgnoreCase("MlModelTransformStep"))
-        node.configuration ++ getIntelligenceConfiguration
-      else node.configuration
+      val configuration = {
+        if(node.className.equalsIgnoreCase("MlModelTransformStep"))
+          node.configuration ++ getIntelligenceConfiguration
+        else node.configuration
+      }  ++
+        workflow.executionId.fold(Map.empty[String, JsoneyString]) { executionId =>
+          Map(ExecutionIdKey -> JsoneyString(executionId))
+        }
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.name,
@@ -618,6 +623,10 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
       val classType = node.configuration.getOrElse(CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
+      val configuration = node.configuration ++
+        workflow.executionId.fold(Map.empty[String, JsoneyString]) { executionId =>
+          Map(ExecutionIdKey -> JsoneyString(executionId))
+        }
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.name,
@@ -638,7 +647,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
+        ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, configuration)
           .asInstanceOf[InputStep[Underlying]],
         customClasspathClasses
       )
@@ -661,12 +670,17 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(node.name)) {
       val classType = node.configuration.getOrElse(CustomTypeKey, node.className).toString
-      val configuration = if (node.className.equalsIgnoreCase("DebugOutputStep")) {
-        val extraConfig = Map(WorkflowIdKey -> JsoneyString(workflow.id.get))
-        node.configuration ++ extraConfig
-      } else if(node.className.equalsIgnoreCase("MlPipelineOutputStep"))
-        node.configuration ++ getIntelligenceConfiguration
-      else node.configuration
+      val configuration = {
+        if (node.className.equalsIgnoreCase("DebugOutputStep")) {
+          val extraConfig = Map(WorkflowIdKey -> JsoneyString(workflow.id.get))
+          node.configuration ++ extraConfig
+        } else if(node.className.equalsIgnoreCase("MlPipelineOutputStep"))
+          node.configuration ++ getIntelligenceConfiguration
+        else node.configuration
+      } ++
+        workflow.executionId.fold(Map.empty[String, JsoneyString]) { executionId =>
+          Map(ExecutionIdKey -> JsoneyString(executionId))
+        }
       workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],

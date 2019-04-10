@@ -342,7 +342,9 @@ package object daoTables {
 
     def executedFromScheduler = column[Option[Boolean]]("executed_from_scheduler", O.Default(Option(false)))
 
-    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, executedFromScheduler) <>
+    def executedFromExecution = column[Option[String]]("executed_from_execution")
+
+    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, executedFromScheduler, executedFromExecution) <>
       ((WorkflowExecution.apply _).tupled, WorkflowExecution.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)

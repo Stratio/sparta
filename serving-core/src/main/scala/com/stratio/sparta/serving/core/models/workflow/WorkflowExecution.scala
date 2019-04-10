@@ -28,7 +28,8 @@ case class WorkflowExecution(
                               resumedStatus: Option[WorkflowStatusEnum] = None,
                               executionEngine: Option[ExecutionEngine] = None,
                               searchText: Option[String] = None,
-                              executedFromScheduler: Option[Boolean] = Option(false)
+                              executedFromScheduler: Option[Boolean] = Option(false),
+                              executedFromExecution: Option[String] = None
                             ) extends EntityAuthorization {
 
   def authorizationId: String = genericDataExecution.workflow.authorizationId
@@ -99,6 +100,7 @@ case class WorkflowExecutionDto(
                                  executionEngine: Option[ExecutionEngine] = None,
                                  searchText: Option[String] = None,
                                  executedFromScheduler: Option[Boolean] = Option(false),
+                                 executedFromExecution: Option[String] = None,
                                  totalCount :Int = 0
                                ) extends Dto with EntityAuthorization {
 

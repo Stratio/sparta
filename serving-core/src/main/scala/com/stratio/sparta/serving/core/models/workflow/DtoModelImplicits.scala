@@ -59,6 +59,7 @@ object DtoModelImplicits {
           execution.executionEngine,
           execution.searchText,
           execution.executedFromScheduler,
+          execution.executedFromExecution,
           totalCount
         )
     }

@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.runWorkflow
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.core.constants.SdkConstants
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -17,6 +18,7 @@ import com.stratio.sparta.plugin.models.{RunWithContext, RunWithVariable, RunWor
 import com.stratio.sparta.plugin.workflow.output.runWorkflow.RunWorkflowOutputStep._
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.constants.MarathonConstant.ExecutionIdEnv
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
 import com.stratio.sparta.serving.core.models.workflow.{ExecutionContext, RunExecutionSettings, WorkflowIdExecutionContext}
@@ -39,6 +41,9 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
     properties.getString("uniqueInstance", "false").toBoolean
   }.getOrElse(false)
 
+  val executionId : Option[String] =
+    sys.env.get(ExecutionIdEnv).orElse(properties.getString(SdkConstants.ExecutionIdKey, None))
+
   lazy val runWorkflowProperty: Option[RunWorkflowAction] = Try {
 
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -53,7 +58,8 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
       workflowId = workflowId,
       contexts = contexts,
       variables = variables,
-      uniqueInstance = uniqueInstance
+      uniqueInstance = uniqueInstance,
+      fromExecutionId = executionId
     )
   }.toOption
 
@@ -124,7 +130,8 @@ class RunWorkflowOutputStep(name: String, xDSession: XDSession, properties: Map[
       ),
       executionSettings = Option(RunExecutionSettings(
         userId = Properties.envOrNone(MarathonConstant.UserNameEnv).orElse(Option(xDSession.user)),
-        uniqueInstance = Option(runWorkflowProperty.uniqueInstance)
+        uniqueInstance = Option(runWorkflowProperty.uniqueInstance),
+        executedFromExecution = runWorkflowProperty.fromExecutionId
       ))
     )
   }

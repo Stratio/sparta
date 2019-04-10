@@ -47,6 +47,9 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
         val createFromSchedulerInExecutionSql =
           s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_scheduler boolean DEFAULT false;"
         basicPostgresService.executeSql(createFromSchedulerInExecutionSql)
+        val createFromExecutionInExecutionSql =
+          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_execution character varying;"
+        basicPostgresService.executeSql(createFromExecutionInExecutionSql)
       }
     } match {
       case Success(_) =>

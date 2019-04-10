@@ -21,6 +21,7 @@ object SdkConstants {
   val DefaultZKRetryInterval = 10000
 
   val WorkflowIdKey = "workflowId"
+  val ExecutionIdKey = "executionId"
   val ModelRepositoryUrl = "modelRepositoryUrl"
   val ModelRepositoryPath = "modelRepositoryPath"
 

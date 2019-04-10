@@ -17,5 +17,6 @@ case class RunExecutionSettings(
                                  name: Option[String] = None,
                                  description: Option[String] = None,
                                  userId: Option[String] = None,
-                                 uniqueInstance: Option[Boolean] = None
+                                 uniqueInstance: Option[Boolean] = None,
+                                 executedFromExecution: Option[String] = None
                                )

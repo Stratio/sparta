@@ -9,7 +9,8 @@ case class RunWorkflowAction(
                               workflowId: String,
                               contexts: Seq[RunWithContext],
                               variables: Seq[RunWithVariable],
-                              uniqueInstance: Boolean
+                              uniqueInstance: Boolean,
+                              fromExecutionId: Option[String]
                             )
 
 case class RunWithContext(contextName: String)
