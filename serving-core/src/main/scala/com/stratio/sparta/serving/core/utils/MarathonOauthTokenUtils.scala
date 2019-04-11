@@ -10,6 +10,7 @@ import java.net.HttpCookie
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.typesafe.config.Config
 
 import scala.util.{Failure, Success, Try}
@@ -20,6 +21,7 @@ object MarathonOauthTokenUtils extends SLF4JLogging {
   lazy private val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
   lazy private val dcosAuthCookieName = "dcos-acs-auth-cookie"
   lazy private val ssoUriField = "sso.uri"
+  lazy private val ssoTrimUriField = "sso.trimUri"
   lazy private val usernameField = "sso.username"
   lazy private val passwordField = "sso.password"
   lazy private val retriesField = "sso.retries"
@@ -98,17 +100,21 @@ object MarathonOauthTokenUtils extends SLF4JLogging {
     Try {
       //Configuration properties
       val ssoUri = {
+        val trimUri = Try(marathonConfig.getString(ssoUriField).toBoolean).getOrElse(false)
         val ssoUriProperty = Try(marathonConfig.getString(ssoUriField))
           .getOrElse(throw new Exception("SSO Uri not defined"))
-        val colonCount = ssoUriProperty.count(char => char == ':')
-        val slashCount = ssoUriProperty.count(char => char == '/')
 
-        if(colonCount == 2)
-          ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf(":"))
-        else if (slashCount == 3)
-          ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf("/"))
-        else
-          ssoUriProperty
+        if(trimUri) {
+          val colonCount = ssoUriProperty.count(char => char == ':')
+          val slashCount = ssoUriProperty.count(char => char == '/')
+
+          if (colonCount == 2)
+            ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf(":"))
+          else if (slashCount == 3)
+            ssoUriProperty.substring(0, ssoUriProperty.lastIndexOf("/"))
+          else
+            ssoUriProperty
+        } else ssoUriProperty
       }
       val ssoLogin = {
         val loginPath = "/login"

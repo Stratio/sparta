@@ -93,4 +93,5 @@ object MarathonConstant {
   val MesosTaskId = "MESOS_TASK_ID"
   val GenericWorkflowIdentity = "GENERIC_WORKFLOW_IDENTITY"
   val SpartaPostgresUser = "SPARTA_POSTGRES_USER"
+  val TrimMarathonUri = "MARATHON_SSO_TRIM_URI"
 }
