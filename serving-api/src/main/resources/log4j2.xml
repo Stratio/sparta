@@ -130,6 +130,6 @@
         <Logger name="com.stratio.governance" level="ERROR"/>
         <Logger name="com.stratio.sparta.dg.agent" level="ERROR"/>
         <Logger name="com.stratio.spark.fs.s3a" level="ERROR"/>
-        <Logger name="com.amazonaws.services" level="ERROR"/>
+        <Logger name="com.amazonaws" level="ERROR"/>
     </Loggers>
 </Configuration>
