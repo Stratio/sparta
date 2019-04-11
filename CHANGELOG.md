@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.7.0 (upcoming)
+## 2.7.0 (April 11, 2019)
 
 * Improvements and new features:
     - Support AWS STS authentication
