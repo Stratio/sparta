@@ -3,17 +3,26 @@
 ## 2.7.0 (upcoming)
 
 * Improvements and new features:
-    - Upgrade Stratio Spark to 2.4.0 final version
-    - PgBouncer lineage integration
-    - Support postgres functions in pk updates
+    - Support AWS STS authentication
+    - Workflow executions scheduler
+    - Run workflow output
+    - Workflows identity
+    - FileUtils output
+    - Row generator input
+    - Binary input
+    - Support query executions on each window in XD streaming input
+    - (2.6.1) Upgrade Stratio Spark to 2.4.0 final version
+    - (2.6.1) PgBouncer lineage integration
+    - (2.6.1) Support postgres functions in pk updates
 
 * Bug fixing
-    - Fixed duplicates <nameWorkflow,groupId,Version>, templates, upsert environment
-    - Fix hour format of the executions in the detail
-    - Added spark.mesos.driver.failoverTimeout
-    - Fix for SSO URI not being strip properly
-    - Fix bugs and add validations to sftp output/input
-    - Fix GBTClassifier cacheNodeProperty
+    - Fix continuous queries executions
+    - (2.6.1) Fixed duplicates <nameWorkflow,groupId,Version>, templates, upsert environment
+    - (2.6.1) Fix hour format of the executions in the detail
+    - (2.6.1) Added spark.mesos.driver.failoverTimeout
+    - (2.6.1) Fix for SSO URI not being strip properly
+    - (2.6.1) Fix bugs and add validations to sftp output/input
+    - (2.6.1) Fix GBTClassifier cacheNodeProperty
 
 ## 2.6.0 (March 21, 2019)
 
