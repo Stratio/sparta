@@ -247,7 +247,10 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    (workflow.settings.sparkSettings.sparkKerberos, HdfsService.getPrincipalName(hdfsConfig).notBlank) match {
+    (
+      workflow.settings.sparkSettings.sparkKerberos,
+      HdfsService.getPrincipalNameWorkflow.orElse(HdfsService.getPrincipalName(hdfsConfig).notBlank)
+    ) match {
       case (true, Some(principalName)) =>
         log.info(s"Launching Spark Submit with Kerberos security, adding principal configurations")
         sparkConfs ++ Map(
@@ -307,7 +310,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   }
 
   private[core] def getMesosRoleConfs: Map[String, String] = {
-    val newRole = workflow.settings.global.mesosRole.notBlank.orElse(Properties.envOrNone(TenantEnv).notBlank)
+    val newRole = workflow.settings.global.mesosRole.notBlank.orElse(Properties.envOrNone(WorkflowIdentity).notBlank)
     newRole.fold(Map.empty[String, String]) { role =>
       Map(SubmitMesosRoleConf -> role)
     }
@@ -317,7 +320,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val securityOptions = getSecurityConfigurations
 
     if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
-      Properties.envOrNone(TenantEnv).notBlank match {
+      Properties.envOrNone(WorkflowIdentity).notBlank match {
         case Some(tenantName) =>
           Map(
             "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_ENABLE" -> "true",
@@ -359,9 +362,9 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
         {
           for {
-            certPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH").notBlank
-            certPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH").notBlank
-            keyPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH").notBlank
+            certPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH_WORKFLOW").notBlank
+            certPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH_WORKFLOW").notBlank
+            keyPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH_WORKFLOW").notBlank
             trustStorePath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
             trustStorePassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
             driverSecretFolder <- envOrNone("SPARK_DRIVER_SECRET_FOLDER").notBlank
@@ -442,8 +445,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   private[core] def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
     (
       workflow.settings.sparkSettings.sparkKerberos,
-      HdfsService.getPrincipalName(hdfsConfig).notBlank,
-      HdfsService.getKeyTabPath(hdfsConfig).notBlank
+      HdfsService.getPrincipalNameWorkflow.orElse(HdfsService.getPrincipalName(hdfsConfig).notBlank),
+      HdfsService.getKeyTabPathWorkflow.orElse(HdfsService.getKeyTabPath(hdfsConfig).notBlank)
     ) match {
       case (true, Some(principalName), Some(keyTabPath)) =>
         log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments")

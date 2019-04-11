@@ -70,7 +70,7 @@ object MarathonConstant {
   val CalicoEnableEnv = "CALICO_ENABLED"
   val CalicoNetworkEnv = "CALICO_NETWORK"
   val MesosRoleEnv = "SPARK_MESOS_ROLE"
-  val TenantEnv = "TENANT_NAME"
+  val WorkflowIdentity = "WORKFLOW_IDENTITY"
   val DynamicAuthEnv = "USE_DYNAMIC_AUTHENTICATION"
   val SpartaZookeeperPathEnv = "SPARTA_ZOOKEEPER_PATH"
   val NginxMarathonLBUserHostEnv = "USER_HAPROXY_VHOST"
@@ -91,4 +91,6 @@ object MarathonConstant {
   val PrometheusEnvironmentPortCalico = "PORT_6080"
   val PrometheusEnvironmentPortHost = "PORT_METRICS"
   val MesosTaskId = "MESOS_TASK_ID"
+  val GenericWorkflowIdentity = "GENERIC_WORKFLOW_IDENTITY"
+  val SpartaPostgresUser = "SPARTA_POSTGRES_USER"
 }

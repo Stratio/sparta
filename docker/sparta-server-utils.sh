@@ -2,35 +2,25 @@
 
 function initDatastoreTls() {
     if [ -v SECURITY_TLS_ENABLE ] && [ ${#SECURITY_TLS_ENABLE} != 0 ] && [ $SECURITY_TLS_ENABLE == "true" ] ; then
-        echo "" >> ${VARIABLES}
         echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${VARIABLES}
-        echo "" >> ${SYSTEM_VARIABLES}
         echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${SYSTEM_VARIABLES}
-        echo "" >> ${VARIABLES}
     fi
 }
 
 function initLocalSparkIp() {
     if ([ -v CROSSDATA_SERVER_CONFIG_SPARK_MASTER ] && [ $CROSSDATA_SERVER_CONFIG_SPARK_MASTER == "local[*]" ]) || [ ! -v LIBPROCESS_IP ] ; then
-        echo "" >> ${VARIABLES}
         echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${VARIABLES}
-        echo "" >> ${SYSTEM_VARIABLES}
         echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${SYSTEM_VARIABLES}
     elif [ -v LIBPROCESS_IP ] && [ ${#LIBPROCESS_IP} != 0 ]; then
-        echo "" >> ${VARIABLES}
         echo "export SPARK_LOCAL_IP=$LIBPROCESS_IP" >> ${VARIABLES}
-        echo "" >> ${SYSTEM_VARIABLES}
         echo "export SPARK_LOCAL_IP=$LIBPROCESS_IP" >> ${SYSTEM_VARIABLES}
     fi
 }
 
 function initSparkUICrossdata() {
     if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v MARATHON_APP_LABEL_HAPROXY_1_PATH ] ; then
-        echo "" >> ${VARIABLES}
         echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI" >> ${VARIABLES}
-        echo "" >> ${SYSTEM_VARIABLES}
         echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI" >> ${SYSTEM_VARIABLES}
-        echo "" >> ${VARIABLES}
     fi
 }
 

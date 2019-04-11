@@ -85,7 +85,9 @@ object AppConstant extends ZookeeperUtils {
   val HDFSSite = "hdfs-site.xml"
   val SystemHadoopUserName = "HADOOP_USER_NAME"
   val SystemPrincipalName = "SPARTA_PRINCIPAL_NAME"
+  val SystemPrincipalNameWorkflow = "SPARTA_PRINCIPAL_NAME_WORKFLOW"
   val SystemKeyTabPath = "SPARTA_KEYTAB_PATH"
+  val SystemKeyTabPathWorkflow = "SPARTA_KEYTAB_PATH_WORKFLOW"
   val SystemHostName = "HOSTNAME"
   val DefaultFSProperty = "fs.defaultFS"
 

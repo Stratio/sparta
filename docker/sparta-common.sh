@@ -52,16 +52,11 @@ function initSpark() {
     SPARK_CONF_DEFAULTS_FILE="${SPARK_HOME}/conf/spark-defaults.conf"
   fi
 
-  echo "" >> ${VARIABLES}
   echo "export SPARK_HOME=${SPARK_HOME}" >> ${VARIABLES}
-  echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_HOME=${SPARK_HOME}" >> ${SYSTEM_VARIABLES}
-  echo "" >> ${VARIABLES}
   echo "export SPARK_ENV_FILE=${SPARK_ENV_FILE}" >> ${VARIABLES}
-  echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_ENV_FILE=${SPARK_ENV_FILE}" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${VARIABLES}
-  echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${SYSTEM_VARIABLES}
 
   rm "${SPARK_HOME}/jars/curator-client-2.6.0.jar"

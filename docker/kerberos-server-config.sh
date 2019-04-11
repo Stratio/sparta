@@ -7,17 +7,20 @@ INFO "[KERBEROS] Downloading keytab from vault"
 
 #The principal is saved to SPARTA_PRINCIPAL_NAME
 getKrb userland "$TENANT_NAME" "$TENANT_NAME" "/etc/sds/sparta/security" SPARTA_PRINCIPAL_NAME
+getKrb userland "$WORKFLOW_IDENTITY" "$WORKFLOW_IDENTITY" "/etc/sds/sparta/security/workflow" SPARTA_PRINCIPAL_NAME_WORKFLOW
 INFO "[KERBEROS] Download ok , now exporting variables"
 
 export SPARTA_PRINCIPAL_NAME=${SPARTA_PRINCIPAL_NAME}
-echo "" >> ${VARIABLES}
 echo "export SPARTA_PRINCIPAL_NAME=${SPARTA_PRINCIPAL_NAME}" >> ${VARIABLES}
+echo "export SPARTA_PRINCIPAL_NAME_WORKFLOW=${SPARTA_PRINCIPAL_NAME_WORKFLOW}" >> ${VARIABLES}
 
 INFO "[KERBEROS] Setting configuration options needed for securized Zookeeper"
 
 ##In sparta keytab is expected in SPARTA_KEYTAB_PATH
 export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/$TENANT_NAME.keytab
+export SPARTA_KEYTAB_PATH_WORKFLOW=/etc/sds/sparta/security/$WORKFLOW_IDENTITY.keytab
 echo "export SPARTA_KEYTAB_PATH=${SPARTA_KEYTAB_PATH}" >> ${VARIABLES}
+echo "export SPARTA_KEYTAB_PATH_WORKFLOW=${SPARTA_KEYTAB_PATH_WORKFLOW}" >> ${VARIABLES}
 
 ## Creating a jaas.conf that must be used to connect to Zookeeper if Zookeeper is securized
 

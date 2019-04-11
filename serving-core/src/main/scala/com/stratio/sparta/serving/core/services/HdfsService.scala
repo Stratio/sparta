@@ -185,6 +185,9 @@ object HdfsService extends SLF4JLogging {
   def getKeyTabPath(hdfsConfig: Option[Config]): Option[String] =
     Option(System.getenv(SystemKeyTabPath)).orElse(Try(hdfsConfig.get.getString(KeytabPath)).toOption.notBlank)
 
+  def getPrincipalNameWorkflow: Option[String] = sys.env.get(SystemPrincipalNameWorkflow)
+
+  def getKeyTabPathWorkflow: Option[String] = sys.env.get(SystemKeyTabPathWorkflow)
 
   def apply(): HdfsService = {
     log.debug("Creating HDFS connection ...")

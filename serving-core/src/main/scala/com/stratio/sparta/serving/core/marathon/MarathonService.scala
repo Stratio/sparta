@@ -232,7 +232,8 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       envProperties(workflowModel, execution, marathonAppHeapSize) ++ envVariablesFromSubmit(submitExecution) ++ dynamicAuthEnv ++ vaultProperties ++
         gosecPluginProperties ++ xdProperties ++ xdGosecProperties ++ hadoopProperties ++ logLevelProperties ++ securityProperties ++
         calicoProperties ++ extraProperties ++ spartaExtraProperties ++ postgresProperties ++ zookeeperProperties ++ spartaConfigProperties ++
-        intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties ++ mesosRoleFromSubmit(submitExecution) ++ getUserDefinedEnvVariables(workflowModel) ++ healthCheckEnvVariables
+        intelligenceProperties ++ marathonAppProperties ++ configProperties ++ actorsProperties ++ marathonProperties ++ mesosRoleFromSubmit(submitExecution) ++
+        getUserDefinedEnvVariables(workflowModel) ++ healthCheckEnvVariables ++ appIdentity
     )
     val javaCertificatesVolume = {
       if (!Try(marathonConfig.getString("docker.includeCertVolumes").toBoolean).getOrElse(DefaultIncludeCertVolumes) ||
@@ -406,6 +407,14 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   private def marathonAppProperties: Map[String, String] =
     sys.env.filterKeys(key => key.startsWith("MARATHON_APP"))
 
+  private def appIdentity: Map[String, String] = {
+    val workflowsIdentity = Properties.envOrNone(GenericWorkflowIdentity).getOrElse(spartaTenant)
+    Map(
+      DcosServiceName -> workflowsIdentity,
+      SpartaPostgresUser -> workflowsIdentity,
+      SystemHadoopUserName -> workflowsIdentity
+    )
+  }
 
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, marathonAppHeapSize: Int): Map[String, String] = {
     val submitExecution = execution.sparkSubmitExecution.get
@@ -425,7 +434,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
       DatastoreCaNameEnv -> Properties.envOrSome(DatastoreCaNameEnv, Option("ca")),
       SpartaSecretFolderEnv -> Properties.envOrNone(SpartaSecretFolderEnv),
-      DcosServiceName -> Properties.envOrNone(DcosServiceName),
+      GenericWorkflowIdentity -> Properties.envOrNone(GenericWorkflowIdentity),
       GosecAuthEnableEnv -> Properties.envOrNone(GosecAuthEnableEnv),
       UserNameEnv -> execution.genericDataExecution.userId,
       MarathonAppConstraints -> submitExecution.sparkConfigurations.get(SubmitMesosConstraintConf),

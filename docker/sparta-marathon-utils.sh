@@ -3,9 +3,7 @@
 function initClusterSparkIp() {
 
   if [ -v LIBPROCESS_IP ] && [ ${#LIBPROCESS_IP} != 0 ]; then
-    echo "" >> ${VARIABLES}
     echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${VARIABLES}
-    echo "" >> ${SYSTEM_VARIABLES}
     echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${SYSTEM_VARIABLES}
   fi
 
