@@ -108,5 +108,7 @@
         <Logger name="com.stratio.gosec" level="${env:GOSEC_LOG_LEVEL:-ERROR}"/>
         <Logger name="com.stratio.governance" level="${env:LINEAGE_LOG_LEVEL:-ERROR}"/>
         <Logger name="com.stratio.sparta.dg.agent" level="${env:LINEAGE_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.stratio.spark.fs.s3a" level="${env:AWS_LOG_LEVEL:-ERROR}"/>
+        <Logger name="com.amazonaws.services" level="${env:AWS_LOG_LEVEL:-ERROR}"/>
     </Loggers>
 </Configuration>

@@ -58,6 +58,9 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
 
 
   def loadCredentials(name: URI, conf: Configuration): STSAssumeRoleSessionCredentialsProvider = {
+
+    log.debug(s"Loading AWS credentials from uri ($name) and configuration")
+
     val bucket = Option(name).map(_.getHost)
     val region: Regions =
       resolvePropValue(STS_REGION_SUFFIX, conf, bucket).map(Regions.fromName).getOrElse(STS_DEFAULT_REGION)
@@ -87,6 +90,9 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
       loadLongLivedCredentialsFromVault(secretKeyVaultPath.get)
         .flatMap{ basicCredentials => getUserPassFromVault(roleVaultPath.get)
           .map{ case (_, roleARN) =>
+
+            log.debug(s"Creating Assume role credentials provider from roleARN $roleARN")
+
             createAssumeRoleCredentialsProvider(
               createSTSClient(createAwsConfig(conf), basicCredentials, stsEndpoint, region),
               roleSessionName,
@@ -98,14 +104,18 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
 
     stsCredentialsProvider.recoverWith{
       case NonFatal(exception) =>
-        Failure(new Exception("Error loading STS credentials for S3", exception))
+        Failure(new Exception(s"Error loading STS credentials for S3 with error ${exception.getLocalizedMessage}", exception))
     }.get
   }
 
 
   private def loadLongLivedCredentialsFromVault(secretKeyVaultPath: String): Try[BasicAWSCredentials] =
     getUserPassFromVault(secretKeyVaultPath)
-      .map{ case (aKey, sKey) => new BasicAWSCredentials(aKey, sKey)}
+      .map{ case (aKey, sKey) =>
+        log.debug(s"Creating Basic AWS credentials from Vault path $secretKeyVaultPath")
+
+        new BasicAWSCredentials(aKey, sKey)
+      }
 
 
 
@@ -114,18 +124,22 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
                                stsEndpoint: Option[String] = None,
                                stsRegion: Regions
                              ): AWSSecurityTokenService = {
-
+    log.debug(s"Creating STS client with sts endpoint $stsEndpoint and stsRegion $stsRegion")
 
     val stsClientBuilder = AWSSecurityTokenServiceClientBuilder
       .standard()
       .withClientConfiguration(awsConf)
       .withCredentials(new AWSStaticCredentialsProvider(longLivedCredentials))
 
-    stsEndpoint.map(endpoint =>
+    val aWSSecurityTokenService = stsEndpoint.map(endpoint =>
       stsClientBuilder.withEndpointConfiguration(new EndpointConfiguration(endpoint, stsRegion.getName))
     ).getOrElse(
       stsClientBuilder.withRegion(stsRegion)
     ).build
+
+    log.debug("Created STS client successfully")
+
+    aWSSecurityTokenService
   }
 
 
@@ -134,11 +148,19 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
                                                    roleSessionName: String,
                                                    roleARN: String,
                                                    roleSessionDurationSeconds: Int
-                                                 ): STSAssumeRoleSessionCredentialsProvider =
-    new STSAssumeRoleSessionCredentialsProvider.Builder(roleARN, roleSessionName)
+                                                 ): STSAssumeRoleSessionCredentialsProvider = {
+    log.debug(s"Creating assume role credential provider with sessionName $roleSessionName," +
+      s" roleARN $roleARN and duration $roleSessionDurationSeconds")
+
+    val assumeRoleCredentialsProvider = new STSAssumeRoleSessionCredentialsProvider.Builder(roleARN, roleSessionName)
       .withRoleSessionDurationSeconds(roleSessionDurationSeconds)
       .withStsClient(stsClient)
       .build()
+
+    log.debug("Created assume role credential provider successfully")
+
+    assumeRoleCredentialsProvider
+  }
 
   private def getUserPassFromVault(vaultPath: String): Try[(String,String)] = {
     val requestUrl = s"${ConfigSecurity.vaultURI.get}/$vaultPath"
@@ -168,6 +190,8 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
     import Constants._
     import Utils.optionImplicits._
 
+    log.debug("Creating AWS configuration")
+
     val awsConfig = new ClientConfigurationFactory().getConfig
     val isSecured = resolvePropValue(SECURE_CONNECTIONS, conf).map(_.equalsIgnoreCase("true")).getOrElse(true)
 
@@ -189,6 +213,9 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
 
     // proxy props
     resolvePropValue(STS_PROXY_HOST, conf).foreach { proxyHost =>
+
+      log.debug(s"Using proxy in AWS connection with host $proxyHost")
+
       awsConfig.setProxyHost(proxyHost)
       awsConfig.setProxyPort(
         resolveIntPropValue(STS_PROXY_PORT, conf).getOrElse(if (isSecured) 443 else 80)
@@ -203,7 +230,7 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
 
       val (proxyUser, proxyPass) = getUserPassFromVault(proxyPasswordVaultPath).recoverWith {
         case NonFatal(exception) =>
-          Failure(new Exception("Error loading credentials for STS proxy", exception))
+          Failure(new Exception(s"Error loading credentials for STS proxy with error ${exception.getLocalizedMessage}", exception))
       }.get
 
       log.debug(s"Set proxy username@password to: $proxyUser@$proxyPass")
@@ -211,6 +238,9 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
       awsConfig.setProxyUsername(proxyUser)
       awsConfig.setProxyPassword(proxyPass)
     }
+
+    log.debug("Created AWS configuration successfully")
+
     awsConfig
   }
 
@@ -231,15 +261,19 @@ class VaultAWSCredentialsProvider private(private val stsCredsProvider: STSAssum
     stsCredsProvider.refresh()
   }
 
-  def getCredentials: AWSCredentials =
+  def getCredentials: AWSCredentials = {
+
+    log.debug("Obtaining AWS credentials in vault credentials provider")
+
     stsCredsProvider.getCredentials
+  }
 
   override def toString: String = getClass.getSimpleName
 
   override def close(): Unit =
     Try(stsCredsProvider.close())
       .recover{
-        case NonFatal(exception) => log.warn("Exception closing STS provider", exception);
+        case NonFatal(exception) => log.warn(s"Exception closing STS provider with error ${exception.getLocalizedMessage}", exception);
       }
 
 }

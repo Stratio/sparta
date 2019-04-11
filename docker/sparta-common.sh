@@ -238,6 +238,14 @@ function logLevelOptions() {
   sed -i "s|com.stratio.gosec.*|com.stratio.gosec= ${GOSEC_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   echo "export LINEAGE_LOG_LEVEL=${GOSEC_LOG_LEVEL}" >> ${VARIABLES}
   echo "export LINEAGE_LOG_LEVEL=${GOSEC_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
+
+  if [[ ! -v AWS_LOG_LEVEL ]]; then
+    AWS_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|com.stratio.spark.fs.s3a.*|com.stratio.spark.fs.s3a= ${AWS_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  sed -i "s|com.amazonaws.services.*|com.amazonaws.services= ${AWS_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export AWS_LOG_LEVEL=${AWS_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export AWS_LOG_LEVEL=${AWS_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 }
 
 function logLevelAppender() {
