@@ -323,11 +323,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     sys.env.filterKeys(key => key.startsWith("SPARTA_PLUGIN") && !invalid.contains(key))
   }
 
-  private def extraProperties: Map[String, String] =
-    sys.env.filterKeys { key =>
-      key.startsWith("EXTRA_PROPERTIES")
-    }
-
   private def marathonProperties: Map[String, String] =
     sys.env.filterKeys { key =>
       key.startsWith("SPARTA_MARATHON")
@@ -337,6 +332,9 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     sys.env.filterKeys(key => key.startsWith("SPARTA_EXTRA")).map { case (key, value) =>
       key.replaceAll("SPARTA_EXTRA_", "") -> value
     }
+
+  private def extraProperties: Map[String, String] =
+    sys.env.filterKeys(key => key.contains("EXTRA_PROPERTIES"))
 
   private def vaultProperties: Map[String, String] =
     sys.env.filterKeys(key => key.startsWith("VAULT") && key != VaultTokenEnv)
