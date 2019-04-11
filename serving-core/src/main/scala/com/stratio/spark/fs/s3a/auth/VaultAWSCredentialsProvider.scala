@@ -27,7 +27,7 @@ import scala.util.{Failure, Success, Try}
 
 object VaultAWSCredentialsProvider extends SLF4JLogging {
 
-  lazy val S3A_PREFIX: String = "fs.s3a"
+  lazy val S3A_PREFIX: String = "fs.s3a."
   lazy val S3A_SECRET_KEY_SUFFIX: String = "assumedrole.credentials.vault.path"
   lazy val S3A_ROLE_SUFFIX: String = "assumedrole.role.arn.vault.path"
 
@@ -44,13 +44,13 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
   lazy val STS_PROXY_SSL_ENABLED: String = "fs.s3a.sts.proxy.ssl.enabled"
 
   private def propertyWithBucketPattern(optionSuffix: String, bucket: String): String =
-    s"$S3A_PREFIX.bucket.$bucket.$optionSuffix"
+    s"${S3A_PREFIX}bucket.$bucket.$optionSuffix"
 
   private def resolvePropValue(propertyName: String, conf: Configuration, bucket: Option[String] = None): Option[String] = {
     val suffixPropertyName = propertyName.replaceFirst(S3A_PREFIX, "")
     bucket.map(b => propertyWithBucketPattern(suffixPropertyName, b))
       .flatMap(bucketProp => Option(conf.get(bucketProp)))
-      .orElse(Option(conf.get(s"$S3A_PREFIX.$suffixPropertyName")))
+      .orElse(Option(conf.get(s"$S3A_PREFIX$suffixPropertyName")))
   }
 
   private def resolveIntPropValue(propertyName: String, conf: Configuration, bucket: Option[String] = None): Option[Int] =
@@ -88,7 +88,8 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
 
     val stsCredentialsProvider: Try[STSAssumeRoleSessionCredentialsProvider] =
       loadLongLivedCredentialsFromVault(secretKeyVaultPath.get)
-        .flatMap{ basicCredentials => getUserPassFromVault(roleVaultPath.get)
+        .flatMap{ basicCredentials =>
+          getUserPassFromVault(roleVaultPath.get)
           .map{ case (_, roleARN) =>
 
             log.debug(s"Creating Assume role credentials provider from roleARN $roleARN")
