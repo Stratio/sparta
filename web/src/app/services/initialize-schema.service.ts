@@ -72,7 +72,13 @@ export class InitializeSchemaService {
       if(prop.properties) {
         configuration[prop.propertyId] = this.getConfiguration(prop);
       } else {
-        configuration[prop.propertyId] = prop.default ? prop.default : null;
+        if(prop.default) {
+          configuration[prop.propertyId] = prop.default ? prop.default : null;
+        } else {
+          if(prop.propertyType === 'boolean' || prop.propertyType === 'switch') {
+            configuration[prop.propertyId] = false;
+          }
+        }
       }
     });
 

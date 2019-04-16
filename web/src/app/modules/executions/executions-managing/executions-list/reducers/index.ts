@@ -150,5 +150,5 @@ export const showUnarchiveButton = createSelector(
 export const getAllSelectedStates = createSelector(
   getFilteredExecutionsList,
   getSelectedExecutions,
-  (executions, selectedExecutions) => executions.length === selectedExecutions.length
+  (executions, selectedExecutions) => selectedExecutions.length && executions.length === selectedExecutions.length
 );

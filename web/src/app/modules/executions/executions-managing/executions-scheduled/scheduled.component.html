@@ -10,7 +10,7 @@
 <div class="executions">
   <div class="executions__content">
     <div class="executions__bar">
-      <h2 class="egeo-title-large title">Executions</h2>
+      <h2 class="egeo-title-large title">Scheduled executions</h2>
       <div class="executions__filters">
         <span class="item">
           <st-dropdown-menu [items]="workflowTypes" [active]="showedFilter === 'type'" [selectedItem]="typeFilter"
@@ -53,7 +53,7 @@
     </div>
     <st-table [fields]="fields" [sortable]="true" [currentOrder]="currentOrder" [selectableAll]="true"
       [ngClass]="{'active-selection' : selectedExecutions.length}"
-      [selectedAll]="scheduledExecutions.length === selectedExecutions.length" qaTag="scheduled-table" class="scheduled__table checkbox-table"
+      [selectedAll]="scheduledExecutions.length && scheduledExecutions.length === selectedExecutions.length" qaTag="scheduled-table" class="scheduled__table checkbox-table"
       (changeOrder)="onChangeOrder.emit($event)" 
       (selectAll)="toggleAllExecutions(scheduledExecutions.length !== selectedExecutions.length)">
       <tr st-table-row *ngFor="let execution of scheduledExecutions;"
