@@ -10,7 +10,6 @@ import java.net.HttpCookie
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.MarathonConstant
 import com.typesafe.config.Config
 
 import scala.util.{Failure, Success, Try}
@@ -100,7 +99,7 @@ object MarathonOauthTokenUtils extends SLF4JLogging {
     Try {
       //Configuration properties
       val ssoUri = {
-        val trimUri = Try(marathonConfig.getString(ssoUriField).toBoolean).getOrElse(false)
+        val trimUri = Try(marathonConfig.getString(ssoTrimUriField).toBoolean).getOrElse(false)
         val ssoUriProperty = Try(marathonConfig.getString(ssoUriField))
           .getOrElse(throw new Exception("SSO Uri not defined"))
 
