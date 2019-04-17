@@ -12,6 +12,7 @@ export const icons: any = {
     FileSystem: '\uE95E',
     FileUtils:'\uE95E',
     Jdbc: '\uE602',
+    CharacterTrimmer: '\ue91d',
     CSV: '\uE9AF',
     Csv: '\uE9AF',
     Cube: '\ue079',

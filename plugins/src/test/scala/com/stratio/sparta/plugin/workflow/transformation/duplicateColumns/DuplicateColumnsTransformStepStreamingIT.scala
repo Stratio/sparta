@@ -20,6 +20,7 @@ import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManageme
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import org.apache.spark.streaming.dstream.InputDStream
 
+@RunWith(classOf[JUnitRunner])
 class DuplicateColumnsTransformStepStreamingIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits{
 
   "A DuplicateColumnsTransformStepBatchIT" should "duplicate columns with a new name" in {

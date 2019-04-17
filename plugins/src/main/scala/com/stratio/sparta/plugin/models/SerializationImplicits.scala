@@ -19,6 +19,6 @@ object SerializationImplicits {
     new EnumNameSerializer(TableSide) +
     new EnumNameSerializer(JoinTypes) +
     new EnumNameSerializer(OrderByType) +
+    new EnumNameSerializer(TrimType) +
     new EnumNameSerializer(CaseLetter)
-
 }

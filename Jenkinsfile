@@ -27,7 +27,7 @@ hose {
             ],
             ['POSTGRESQL':[
               'image': 'postgres:9.6',
-              'sleep': 30,
+              'sleep': 50,
               'healthcheck': 5432]
             ],
             ['ELASTIC': [
@@ -46,7 +46,7 @@ hose {
             ],
             ['KAFKA': [
               'image': 'wurstmeister/kafka:2.11-0.10.2.2',
-              'sleep': 30,
+              'sleep': 50,
               'healthcheck': 9092,
               'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181',
                 'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']

@@ -1,0 +1,103 @@
+{
+  "name": "CharacterTrimmer",
+  "icon": "CharacterTrimmer",
+  "category": "Column",
+  "className": "CharacterTrimmerTransformStep",
+  "classPrettyName": "CharacterTrimmer",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "description": "This transformation returns a copy with leading or/and trailing specified character omitted.",
+  "properties": [
+    {
+      "propertyId": "columnsToTrim",
+      "propertyName": "_COLUMNS_TO_TRIM_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of columns to trim.",
+      "qa": "fragment-details-trim-fields",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 4,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "characterToTrim",
+          "propertyName": "_CHARACTER_TO_TRIM_",
+          "propertyType": "text",
+          "required": true,
+          "width": 2,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "trimType",
+          "propertyName": "_TRIM_IN_TYPE_",
+          "propertyType": "select",
+          "default": "LEFT",
+          "values": [
+            {
+              "label": "Left",
+              "value": "TRIM_LEFT"
+            },
+            {
+              "label": "Right",
+              "value": "TRIM_RIGHT"
+            },
+            {
+              "label": "Both",
+              "value": "TRIM_BOTH"
+            }
+          ],
+          "required": true,
+          "width": 2,
+          "qa": "workflow-transformation-trim-type-selection"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}
+

@@ -47,6 +47,7 @@ import triggerStreamingTemplate from './transformations/triggerStreaming.json';
 import triggerBatchTemplate from './transformations/triggerBatch.json';
 import unionTemplate from './transformations/union.json';
 import windowTemplate from './transformations/window.json';
+import characterTrimmerTemplate from './transformations/characterTrimmer.json';
 import caseLetterTemplate from './transformations/caseLetter.json';
 
 export const transformations: any = [
@@ -56,6 +57,7 @@ export const transformations: any = [
     caseTemplate,
     caseLetterTemplate,
     castingTemplate,
+    characterTrimmerTemplate,
     checkpointTemplate,
     coalesceTemplate,
     csvTemplate,
