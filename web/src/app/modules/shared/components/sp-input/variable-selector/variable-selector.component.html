@@ -4,7 +4,8 @@
     <sp-select [(ngModel)]="sourceValue" (change)="loadVariables($event)" placeholder="Select a source" label="Source" [options]="sourceOptions"></sp-select>
   </div>
   <div class="col-sm-7">
-    <sp-select *ngIf="!setParamValue && sourceValue && sourceValue.length" placeholder="Select a parameter" [(ngModel)]="paramName" label="Parameter name" [options]="variableSelector" (change)="loadVariablesValue($event)"></sp-select>    <sp-input *ngIf="setParamValue" [(ngModel)]="paramValue" label="Parameter name"></sp-input>
+    <st-select *ngIf="!setParamValue && sourceValue && sourceValue.length" placeholder="Select a parameter" [search]="true" [(ngModel)]="paramName" label="Parameter name" [options]="variableSelector" (change)="loadVariablesValue($event)"></st-select>
+    <sp-input *ngIf="setParamValue" [(ngModel)]="paramValue" label="Parameter name"></sp-input>
     <span class="default-value">{{paramDefault ? 'default value: ' : ' '}} <span>{{paramDefault}}</span></span>
   </div>
 </div>

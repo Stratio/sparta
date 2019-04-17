@@ -7,7 +7,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StModalModule, StModalService, StLabelModule } from '@stratio/egeo';
+import {StModalModule, StModalService, StLabelModule, StSelectModule} from '@stratio/egeo';
 
 import { SpInputComponent } from './sp-input.component';
 
@@ -21,6 +21,7 @@ import { SpSelectModule } from '@app/shared/components/sp-select/sp-select.modul
      ReactiveFormsModule,
      StLabelModule,
      SpSelectModule,
+     StSelectModule,
      StModalModule.withComponents([VariableSelectorComponent])
    ],
    declarations: [SpInputComponent,  VariableSelectorComponent],

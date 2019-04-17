@@ -231,11 +231,10 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   }
 
   private[core] def getS3Config(): Map[String, String] =
-    SpartaConfig.getS3Config().map{ s3Config =>
-      s3Config.entrySet().iterator().toSeq.map { values =>
-        s"$ConfigS3.${values.getKey}" -> values.getValue.render().replace("\"", "")
-      }.filter{ case (k, v) => v.trim.nonEmpty}.toMap
-    }.getOrElse(Map.empty)
+    SpartaConfig.getS3Config()
+      .map(sparkConf => typesafeToSpark(sparkConf, ConfigS3))
+      .getOrElse(Map.empty)
+
 
   private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
     getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
@@ -519,16 +518,22 @@ object SparkSubmitService {
     val defaultConf = Map(
       SubmitNameConf -> spartaLocalAppName
     )
-    val referenceConf = SpartaConfig.getSparkConfig().fold(defaultConf) { sparkConfig =>
-      sparkConfig.entrySet().iterator().toSeq.map { values =>
-        s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
-      }.toMap
-    }
+    val referenceConf =
+      SpartaConfig.getSparkConfig()
+        .map(sparkConf => typesafeToSpark(sparkConf, "spark"))
+        .getOrElse(defaultConf)
+
     val envConf = sys.env.filterKeys(key => key.startsWith("SPARK_EXTRA_CONFIG"))
       .map { case (key, value) =>
         key.replaceAll("SPARK_EXTRA_CONFIG_", "").replaceAll("_", ".") -> value
       }
     referenceConf ++ defaultConf ++ envConf
   }
+
+  def typesafeToSpark(sparkConfig: Config, sparkPrefix: String = "spark"): Map[String, String] =
+    sparkConfig.entrySet().iterator().toSeq.map { values =>
+      s"$sparkPrefix.${values.getKey}" -> values.getValue.render().replace("\"", "")
+    }.filter{ case (k, v) => v.trim.nonEmpty}.toMap
+
 
 }

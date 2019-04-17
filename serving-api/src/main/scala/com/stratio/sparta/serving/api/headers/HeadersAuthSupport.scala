@@ -31,11 +31,30 @@ trait HeadersAuthSupport {
   }
 
   val authorizeHeaders: Directive1[HeaderAuthUser] = extractHeaders.flatMap{ headersInfo =>
-    headersInfo.map(hinfo => provide(hinfo)).getOrElse(complete(Unauthorized,""))
+    headersInfo.map(hinfo => provide(hinfo)).getOrElse(complete(HeadersAuthSupport.UnauthorizedTemplate))
   }
 
   private def optionalValue(header: String): PartialFunction[HttpHeader, String] = {
     case HttpHeader(`header`, value) ⇒ value
   }
+
+}
+
+object HeadersAuthSupport {
+
+  val UnauthorizedTemplate: HttpResponse =
+    HttpResponse(
+      StatusCodes.Unauthorized,
+      HttpEntity(
+        new ContentType(MediaTypes.`text/html`, Some(HttpCharsets.`UTF-8`)),
+        """|<html lang="en">
+           |      <head></head>
+           |      <body>
+           |        <h1>Unauthorized</h1>
+           |        <p> You don't have permission to access this server.</p>
+           |      </body>
+           |</html>""".stripMargin
+      )
+    )
 
 }
