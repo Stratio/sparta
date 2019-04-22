@@ -16,7 +16,7 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.securitytoken.{AWSSecurityTokenService, AWSSecurityTokenServiceClientBuilder}
 import com.amazonaws.{ClientConfiguration, ClientConfigurationFactory, Protocol}
 import com.stratio.sparta.core.utils.Utils
-import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.s3a.Constants
 import org.apache.spark.security.{ConfigSecurity, HTTPHelper}
@@ -32,10 +32,12 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
   lazy val S3A_ROLE_SUFFIX: String = "assumedrole.role.arn.vault.path"
 
   lazy val STS_SESSION_DURATION_SUFFIX: String = "assumedrole.session.duration"
+  lazy val STS_SESSION_NAME_SUFFIX: String = "assumedrole.session.name"
   lazy val STS_REGION_SUFFIX: String = "assumedrole.sts.region"
   lazy val STS_ENDPOINT_SUFFIX: String = "assumedrole.sts.endpoint"
 
   lazy val STS_DEFAULT_SESSION_DURATION: Int = 900
+  lazy val STS_DEFAULT_SESSION_NAME_MAX_SIZE: Int = 64
   lazy val STS_DEFAULT_REGION: Regions = Regions.EU_WEST_1
 
   lazy val STS_PROXY_HOST: String = "fs.s3a.sts.proxy.host"
@@ -71,11 +73,9 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
       resolveIntPropValue(STS_SESSION_DURATION_SUFFIX, conf, bucket)
         .getOrElse(STS_DEFAULT_SESSION_DURATION)
 
-    val roleSessionName =
-      sys.env
-        .get(MarathonConstant.ExecutionIdEnv)
-        .orElse(sys.env.get(MarathonConstant.MesosTaskId).map(_.replaceAll("_", "-")))
-        .getOrElse(UUID.randomUUID().toString)
+    val roleSessionName = resolvePropValue(STS_SESSION_NAME_SUFFIX, conf, bucket).getOrElse {
+        sys.env.getOrElse(MarathonConstant.ExecutionIdEnv, AppConstant.spartaTenant)
+      }.replaceAll("_", "-").substring(0, STS_DEFAULT_SESSION_NAME_MAX_SIZE)
 
     val secretKeyVaultPath: Option[String] = resolvePropValue(S3A_SECRET_KEY_SUFFIX, conf, bucket)
     val roleVaultPath: Option[String] = resolvePropValue(S3A_ROLE_SUFFIX, conf, bucket)

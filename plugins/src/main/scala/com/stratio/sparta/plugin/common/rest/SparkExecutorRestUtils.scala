@@ -11,6 +11,7 @@ import java.nio.file.Paths
 import javax.net.ssl.SSLContext
 
 import akka.actor.ActorSystem
+import akka.event.slf4j.SLF4JLogging
 import akka.http.scaladsl.HttpsConnectionContext
 import akka.http.scaladsl.{ConnectionContext, Http}
 import akka.http.scaladsl.Http.HostConnectionPool
@@ -107,7 +108,7 @@ object SparkExecutorRestUtils {
 
 }
 
-class SparkExecutorRestUtils(private val actorSystem: ActorSystem){
+class SparkExecutorRestUtils(private val actorSystem: ActorSystem) extends SLF4JLogging{
 
   private val pools: MutableMap[String, Flow[(HttpRequest, Row), (Try[HttpResponse], Row), HostConnectionPool]] = MutableMap.empty
 
@@ -124,7 +125,10 @@ class SparkExecutorRestUtils(private val actorSystem: ActorSystem){
     Try(SSLHelper.getSSLContextV2(withHttps = true)) // This is done due to debug mode}
       .recover { case unloggedException => TemporalSSLContextUtils.sslContext} // TODO log exception
       .map(ConnectionContext.https(_))
-      .get
+      .getOrElse{
+        log.warn("Cannot retrieve CAs. Using default SSL context")
+        ConnectionContext.https(new SSLContextBuilder().useProtocol("TLSv1.2").build())
+      }
 
   def getOrCreatePool(
                        host: String,
