@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.0 (upcoming)
+* Improvements and new features:
+    - Quality Rules
+    - Scheduler
+    - Integration with Schema Registry for Kafka Input/Output step
+
 ## 2.7.0 (April 12, 2019)
 
 * Improvements and new features:
