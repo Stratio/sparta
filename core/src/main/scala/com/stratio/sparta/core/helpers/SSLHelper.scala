@@ -90,4 +90,20 @@ object SSLHelper extends SLF4JLogging {
 
     (trustStoreFile, trustStorePassword)
   }
+
+  def getPemFileAndKey: (String, String) = {
+    val config = ConfigFactory.load()
+
+    val pemLocation = Try(config.getString("sparta.ssl.pem.location")).recover { case _ =>
+      log.debug("Impossible to obtain PEM file location from configuration")
+      Properties.envOrNone("SPARTA_PEM_LOCATION").get
+    }.getOrElse(throw new Exception("Impossible to obtain PEM file location"))
+
+    val pemKeyLocation = Try(config.getString("sparta.ssl.pem.key.location")).recover { case _ =>
+      log.debug("Impossible to obtain PEM key file location from configuration")
+      Properties.envOrNone("SPARTA_PEM_KEY_LOCATION").get
+    }.getOrElse(throw new Exception("Impossible to obtain PEM key location"))
+
+    (pemLocation, pemKeyLocation)
+  }
 }

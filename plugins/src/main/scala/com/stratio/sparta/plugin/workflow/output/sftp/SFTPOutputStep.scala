@@ -8,6 +8,7 @@ package com.stratio.sparta.plugin.workflow.output.sftp
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.core.helpers.SSLHelper
 import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
@@ -32,6 +33,7 @@ class SFTPOutputStep(name: String,
   lazy val username: Option[String] = properties.getString("sftpServerUsername", None)
   lazy val password: Option[String] = properties.getString("password", None)
   lazy val fileType: Option[String] = properties.getString(key = "fileType", None)
+  lazy val fileName: Option[String] = properties.getString("fileName", None)
   lazy val header: Boolean = Try(getCustomProperties.getOrElse("header", "false").toBoolean).getOrElse(false)
   lazy val inferSchema: Boolean = Try(getCustomProperties.getOrElse("inferSchema", "false").toBoolean).getOrElse(false)
   lazy val delimiter: String = getCustomProperties.getOrElse("delimiter", ",")
@@ -43,11 +45,13 @@ class SFTPOutputStep(name: String,
   lazy val FieldName = "extractedData"
 
   lazy val sparkConf = xDSession.conf.getAll
-  lazy val pemOption = if(tlsEnable) {
-    SecurityHelper.getPemUri(sparkConf).fold(Map.empty[String, String]) { pemUri => Map("pem" -> pemUri) }
+
+  //SFTP wants just the key of the pem in order to connect [SPARTA-2997]
+  lazy val securityOptions = if(tlsEnable) {
+    Try(SSLHelper.getPemFileAndKey).toOption.fold(Map.empty[String, String]){ case (_, keyPemURI) => Map("pem" -> keyPemURI)}
   } else Map.empty[String, String]
 
-  lazy val commonOptions: Map[String, String] = Map(
+  lazy val commonOptions: Map[String,String] = Map(
     "path" -> path,
     "host" -> host,
     "port" -> port,
@@ -56,8 +60,7 @@ class SFTPOutputStep(name: String,
     "password" -> password,
     "delimiter" -> properties.getString("delimiter", None),
     "rowTag" -> properties.getString("rowTag", None)
-  ).filter { case (key, value) => value.isDefined}.map { case (key, optValue) => (key, optValue.get)} ++ pemOption
-
+  ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getCustomProperties ++ securityOptions
 
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =

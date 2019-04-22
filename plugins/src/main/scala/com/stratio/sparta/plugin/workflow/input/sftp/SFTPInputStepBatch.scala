@@ -10,16 +10,17 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
-import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions}
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step._
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper
-import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
 import com.stratio.sparta.serving.core.models.enumerators.SftpFileTypeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
+import com.stratio.sparta.core.helpers.SSLHelper
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper
+import com.stratio.sparta.serving.core.helpers.ErrorValidationsHelper.HasError
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.Try
@@ -33,17 +34,20 @@ class SFTPInputStepBatch(
                         )
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val path = properties.getString("path", None)
-  lazy val host = properties.getString("host", None)
+  lazy val path = properties.getString("path", None).notBlank
+  lazy val host = properties.getString("host", None).notBlank
   lazy val port = properties.getInt("port", None)
-  lazy val username = properties.getString("username", None)
-  lazy val fileType = properties.getString(key = "fileType", None)
-  lazy val delimiter = properties.getString("delimiter", ",")
+  lazy val username = properties.getString("username", None).notBlank
+  lazy val fileType = properties.getString(key = "fileType", None).notBlank
+  lazy val delimiter = properties.getString("delimiter", None).notBlank
   lazy val rowTag = properties.getString("rowTag", None).notBlank
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
   lazy val sparkConf = xDSession.conf.getAll
-  lazy val pemOption = if (tlsEnable) {
-    SecurityHelper.getPemUri(sparkConf).fold(Map.empty[String, String]) { pemUri => Map("pem" -> pemUri) }
+
+  //SFTP wants just the key of the pem in order to connect [SPARTA-2997]
+  lazy val securityOptions = if(tlsEnable) {
+    Try(SSLHelper.getPemFileAndKey).toOption.fold(Map.empty[String, String]){ case (_, keyPemURI) => Map("pem" -> keyPemURI)}
   } else Map.empty[String, String]
 
   //Dummy function on batch inputs that generates DataSets with schema
@@ -66,9 +70,7 @@ class SFTPInputStepBatch(
       ((fileType.get == SftpFileTypeEnum.csv.toString) && delimiter.isEmpty) -> "Delimiter is not defined.",
       (debugOptions.isDefined && !validDebuggingOptions) -> s"$errorDebugValidation"
     )
-
     ErrorValidationsHelper.validate(validationSeq, name)
-
   }
 
   override def initWithSchema(): (DistributedMonad[RDD], Option[StructType]) = {
@@ -78,10 +80,8 @@ class SFTPInputStepBatch(
       "port" -> properties.getString("port", None),
       "username" -> properties.getString("username", None),
       "fileType" -> properties.getString(key = "fileType", None),
-      "password" -> properties.getString(key = "password", None),
-      "delimiter" -> properties.getString("delimiter", None),
-      "rowTag" -> properties.getString("rowTag", None))
-      .filter { case (key, value) => value.isDefined }.map { case (key, optValue) => (key, optValue.get) } ++ pemOption
+      "password" -> properties.getString(key = "password", None))
+      .filter { case (key, value) => value.isDefined }.map { case (key, optValue) => (key, optValue.get) } ++ getCustomProperties ++ securityOptions
 
     val dataframeReader = xDSession.read.format("com.springml.spark.sftp")
 

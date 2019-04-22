@@ -70,8 +70,6 @@ object SecurityHelper extends SLF4JLogging {
     }
   }
 
-  def getPemUri(sparkConf: Map[String, String]): Option[String] = sparkConf.get("spark.ssl.datastore.certPem.path")
-
   def getDataStoreSecurityOptions(sparkConf: Map[String, String]): Map[String, AnyRef] = {
     val prefixDataStore = "spark.ssl.datastore."
 
