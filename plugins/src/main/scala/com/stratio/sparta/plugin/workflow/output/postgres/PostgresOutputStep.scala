@@ -101,19 +101,20 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override def lineageProperties(): Map[String, String] = getJdbcLineageProperties(OutputStep.StepType)
 
   //scalastyle:off
-  private[postgres] def constraintSql(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: String, outputName: String,
+  private[postgres] def constraintSql(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: Seq[String], outputName: String,
                                       isNewTable: Boolean, dialect: JdbcDialect)(placeHolders: String, upsertFields: Option[Seq[String]], primaryKeyField : String, primaryKeyWithFunctions: Boolean) = {
     val schema = df.schema
 
     val (columns, valuesPlaceholders) = {
-      val fields = upsertFields.getOrElse(schema.fields.map(_.name).toSeq)
-      (fields.map(dialect.quoteIdentifier(_)).mkString(","), fields.map(field => s"${dialect.quoteIdentifier(field)} = EXCLUDED.${dialect.quoteIdentifier(field)}").mkString(","))
+      val upsertFieldsSql = upsertFields.getOrElse(schema.fields.map(_.name).toSeq)
+      (schema.fields.map(_.name).toSeq.map(dialect.quoteIdentifier(_)).mkString(","), upsertFieldsSql.map(field => s"${dialect.quoteIdentifier(field)} = EXCLUDED.${dialect.quoteIdentifier(field)}").mkString(","))
     }
 
     if (uniqueConstraintName.nonEmpty) {
       //If is a new table OR constraint does not exists, constraint is created with constraint fields
       val constraintName = if (isNewTable || !constraintExists(properties, uniqueConstraintName, outputName, dialect)) {
-        SpartaJdbcUtils.createConstraint(properties, outputName, uniqueConstraintName, uniqueConstraintFields, ConstraintType.Unique)
+        val uniqueConstraintFieldsSql =  uniqueConstraintFields.map(f => dialect.quoteIdentifier(f)).mkString(",")
+        SpartaJdbcUtils.createConstraint(properties, outputName, uniqueConstraintName, uniqueConstraintFieldsSql, ConstraintType.Unique)
       } else {
         uniqueConstraintName
       }
@@ -136,7 +137,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   //scalastyle:on
 
   //scalastyle:off
-  private def upsert(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: String, outputName: String, txSaveMode: TxSaveMode,
+  private def upsert(df: DataFrame, properties: JDBCOptions, searchFields: Seq[String], uniqueConstraintName: String, uniqueConstraintFields: Seq[String], outputName: String, txSaveMode: TxSaveMode,
                      isNewTable: Boolean, dialect: JdbcDialect, upsertFields: Option[Seq[String]], primaryKeyField: String, primaryKeyWithFunctions: Boolean): Unit = {
     //only pk
     val schema = df.schema
@@ -144,10 +145,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       SpartaJdbcUtils.getJdbcType(field.dataType, dialect).jdbcNullType
     }
 
-    val placeHolders = upsertFields match {
-      case None => s"VALUES(${schema.fields.map(_ => "?").mkString(",")})"
-      case Some(fields) => s"VALUES(${fields.map(_ => "?").mkString(",")})"
-    }
+    val placeHolders = s"VALUES(${schema.fields.map(_ => "?").mkString(",")})"
 
     val upsertSql = constraintSql(df, properties, searchFields, uniqueConstraintName, uniqueConstraintFields, outputName, isNewTable, dialect)(placeHolders, upsertFields, primaryKeyField, primaryKeyWithFunctions)
 
@@ -214,11 +212,10 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 case Some(pk) => pk.trim
                 case None => ""
               }
-              val uniqueConstraintFields = getUniqueConstraintFieldsOptions(options)
-              match {
-                case Some(pk) => pk.split(",").map(f => dialect.quoteIdentifier(f.trim)).mkString(",").trim
-                case None => ""
-              }
+              val uniqueConstraintFields = getUniqueConstraintFieldsOptions(options).map{ uconstr =>
+                uconstr.split(",").map(_.trim).toSeq
+              }.getOrElse(Seq.empty)
+
               val upsertFields = getUpdateFieldsOptions(options) match {
                 case Some(fields) => Some(fields.split(",").map(f => f.trim).toSeq)
                 case None => None
@@ -239,19 +236,13 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                   require(updatePrimaryKeyFields.forall(dataFrame.schema.fieldNames.contains(_)), "All the primary key fields should be present in the dataFrame schema")
                 }
 
-                val dfUpsert = upsertFields match {
-                  case None => dataFrame
-                  case Some(fields) => dataFrame.select(fields.map(col): _*)
-                }
                 if (!primaryKeyWithFunctions && updatePrimaryKeyFields.nonEmpty && upsertFields.nonEmpty) {
-                  require(upsertFields.get.forall(dfUpsert.schema.fieldNames.contains(_)), "All the update fields should be present in the dataFrame schema")
-                  require(upsertFields.get.mkString(",").contains(getPrimaryKeyOptions(options).get), "The update fields should contains the primary key fields")
+                  require(upsertFields.get.forall(dataFrame.schema.fieldNames.contains(_)), "All the update fields should be present in the dataFrame schema")
                 } else if (uniqueConstraintName.nonEmpty && upsertFields.nonEmpty) {
-                  require(upsertFields.get.forall(dfUpsert.schema.fieldNames.contains(_)), "All the update fields should be present in the dataFrame schema")
-                  require(upsertFields.get.mkString(",").contains(getUniqueConstraintFieldsOptions(options).get), "The update fields should contains the unique constraint fields")
+                  require(upsertFields.get.forall(dataFrame.schema.fieldNames.contains(_)), "All the update fields should be present in the dataFrame schema")
                 }
 
-                upsert(dfUpsert, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, txSaveMode, isNewTable, dialect, upsertFields, updatePrimaryKey, primaryKeyWithFunctions)
+                upsert(dataFrame, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, txSaveMode, isNewTable, dialect, upsertFields, updatePrimaryKey, primaryKeyWithFunctions)
               }
               else if (postgresSaveMode == TransactionTypes.COPYIN) {
                 val schema = dataFrame.schema

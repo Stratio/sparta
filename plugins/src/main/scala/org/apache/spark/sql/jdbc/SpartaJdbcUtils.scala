@@ -157,15 +157,15 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def createConstraint(connectionProperties: JDBCOptions, outputName: String, uniqueConstraintName: String, uniqueConstraintFields: String, constraintType: ConstraintType.Value): String = {
+  def createConstraint(connectionProperties: JDBCOptions, outputName: String, uniqueConstraintName: String, uniqueConstraintFieldsSql: String, constraintType: ConstraintType.Value): String = {
     synchronized {
       val connection = getConnection(connectionProperties, s"constraint_${connectionProperties.table}_$outputName")
       connection.setAutoCommit(false)
       val constraintSql = constraintType match {
         case ConstraintType.Unique =>
-          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $uniqueConstraintName UNIQUE ($uniqueConstraintFields)"
+          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $uniqueConstraintName UNIQUE ($uniqueConstraintFieldsSql)"
         case ConstraintType.PrimaryKey =>
-          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $uniqueConstraintName PRIMARY KEY ($uniqueConstraintFields)"
+          s"ALTER TABLE  ${connectionProperties.table} ADD CONSTRAINT $uniqueConstraintName PRIMARY KEY ($uniqueConstraintFieldsSql)"
       }
       val stmt = connection.prepareStatement(constraintSql)
       Try(stmt.execute()) match {
