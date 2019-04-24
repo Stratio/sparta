@@ -61,8 +61,8 @@
           <span>{{executionDetailInfo.status}}</span>
         </div>
         <div class="detail-info__state__column__link">
-          <a (click)="showSparkUI(executionDetailInfo.sparkURI)" *ngIf="executionDetailInfo.sparkURI">View on Spark UI</a>
-          <a (click)="showSparkUI(executionDetailInfo.historyServerURI)" *ngIf="executionDetailInfo.historyServerURI">Open on History Server</a>
+          <a (click)="showSparkUI(executionDetailInfo.sparkURI)" *ngIf="isVisibleSparkUI">View on Spark UI</a>
+          <a (click)="showSparkUI(executionDetailInfo.historyServerURI)" *ngIf="isVisibleHistoryServer">Open on History Server</a>
         </div>
       </div>
       <div class="detail-info__state__column">

@@ -3,25 +3,27 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, OnChanges, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import {Router} from "@angular/router";
-import {Store} from "@ngrx/store";
+import {Router} from '@angular/router';
+import {Store} from '@ngrx/store';
 import { StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
 import { Subscription } from 'rxjs';
 
-import {Info, ShowedActions} from "@app/executions/execution-detail/types/execution-detail";
-import {State} from "@app/executions/executions-managing/executions-list/reducers";
+import {Info, ShowedActions} from '@app/executions/execution-detail/types/execution-detail';
+import {State} from '@app/executions/executions-managing/executions-list/reducers';
 import * as executionDetailActions from '../../actions/execution-detail';
 import { take } from 'rxjs/operators';
+import { ExecutionStatus } from '@models/enums';
 
 @Component({
   selector: 'workflow-execution-detail-info',
   templateUrl: './detail-info.component.html',
-  styleUrls: ['./detail-info.component.scss']
+  styleUrls: ['./detail-info.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class DetailInfoComponent implements OnInit {
+export class DetailInfoComponent implements OnChanges {
 
   @Input() executionDetailInfo: Info;
   @Input() showedActions: ShowedActions;
@@ -34,11 +36,15 @@ export class DetailInfoComponent implements OnInit {
   private runExecutionModalTitle: string;
   private runExecutionModalMessage: string;
 
+  public isVisibleSparkUI = false;
+  public isVisibleHistoryServer = false;
+
   constructor(
     private route: Router,
     private _store: Store<State>,
     private _translate: TranslateService,
-    private _modalService: StModalService
+    private _modalService: StModalService,
+    private _cd: ChangeDetectorRef
   ) {
 
     const runExecutionModalHeader = 'EXECUTIONS.RUN_EXECUTION_MODAL_HEADER';
@@ -62,7 +68,11 @@ export class DetailInfoComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {}
+  ngOnChanges(): void {
+    this.isVisibleSparkUI = this.executionDetailInfo.sparkURI && this.executionDetailInfo.status === ExecutionStatus.RunningStatus;
+    this.isVisibleHistoryServer = this.executionDetailInfo.historyServerURI && this.executionDetailInfo.status !== ExecutionStatus.RunningStatus;
+    this._cd.detectChanges();
+  }
 
   selectGroupAction(event: string) {
     switch (event) {

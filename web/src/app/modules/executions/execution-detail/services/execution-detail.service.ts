@@ -19,9 +19,18 @@ export class ExecutionDetailHelperService {
   ) { }
 
   private _getDuration = function(startDate, endDate){
-    let diff = endDate - startDate;
-    let duration = moment.duration(diff);
-    return duration.hours() + ":" + duration.minutes() + ":" + duration.seconds() + "." + duration.milliseconds();
+    const diff = endDate - startDate;
+    const duration = moment.duration(diff);
+    const days = duration.days();
+    const hours = duration.hours();
+    const minutes = duration.minutes();
+    const seconds = duration.seconds();
+    const daysString = days ? days + 'd' : '';
+    const hoursString = hours ? hours + 'h' : '';
+    const minutesString = minutes ? minutes + 'm' : '';
+    const secondsString = seconds ? seconds + 's' : '';
+
+    return `${daysString} ${hoursString} ${minutesString} ${secondsString}`;
   }
 
   private _getContextMenu(exec): Array<any>{

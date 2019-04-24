@@ -27,3 +27,9 @@ export const DateFormats = {
   executionDateFormat: 'DD/MM/YYYY',
   executionHourFormat: 'HH:mm:ss'
 };
+
+export enum ExecutionStatus {
+  RunningStatus = 'Running',
+  StoppedStatus = 'Stopped',
+  FailedStatus = 'Failed'
+}
