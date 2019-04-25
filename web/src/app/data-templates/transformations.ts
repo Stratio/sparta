@@ -49,6 +49,7 @@ import unionTemplate from './transformations/union.json';
 import windowTemplate from './transformations/window.json';
 import characterTrimmerTemplate from './transformations/characterTrimmer.json';
 import caseLetterTemplate from './transformations/caseLetter.json';
+import commaDelimiterTemplate from './transformations/commaDelimiter.json';
 
 export const transformations: any = [
     addColumnTemplate,
@@ -60,6 +61,7 @@ export const transformations: any = [
     characterTrimmerTemplate,
     checkpointTemplate,
     coalesceTemplate,
+    commaDelimiterTemplate,
     csvTemplate,
     cubeTemplate,
     cubeBatchTemplate,

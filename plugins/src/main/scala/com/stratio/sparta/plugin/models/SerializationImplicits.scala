@@ -20,5 +20,7 @@ object SerializationImplicits {
     new EnumNameSerializer(JoinTypes) +
     new EnumNameSerializer(OrderByType) +
     new EnumNameSerializer(TrimType) +
-    new EnumNameSerializer(CaseLetter)
+    new EnumNameSerializer(CaseLetter) +
+    new EnumNameSerializer(CommaDelimiterDirectionModel)
+
 }

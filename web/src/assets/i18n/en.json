@@ -325,6 +325,7 @@
       "_SPARK_CONF_KEY_": "Configuration key",
       "_SPARK_CONF_VALUE_": "Configuration value",
       "_SPARK_LOCAL_DIR_": "Spark local path",
+      "_SPARK_HOST_DIR_": "Spark host path",
       "_SPARK_EXECUTOR_JAVA_OPTIONS_": "Executor Java options",
       "_WORKFLOW_REMEMBER_FIELD_": "Remember time"
    },
@@ -405,6 +406,9 @@
    "_DEFAULT_COLUMN_VALUES_": "Default column values",
    "_DEFAULT_TYPE_VALUES_": "Default types values",
    "_COLUMN_VALUE_": "Value",
+   "_COLUMNS_TO_DELIMIT_": "Columns to delimit",
+   "_LENGTH_DECIMAL_": "Decimal length",
+   "_SEPARATOR_DECIMAL_": "Decimal separator",
    "_RESET_ON_START_": "Reset offsets on start",
    "_IGNORE_STARTED_STATUS_": "Ignore started status when reset offsets",
    "_FILTER_EXPRESSION_": "Filter expression",
