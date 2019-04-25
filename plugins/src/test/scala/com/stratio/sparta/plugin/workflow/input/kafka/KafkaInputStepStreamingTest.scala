@@ -102,13 +102,19 @@ class KafkaInputStepStreamingTest extends WordSpec with Matchers with MockitoSug
         "test" -> "notinclude")
       val input = new KafkaInputStepStreaming("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getRowSerializerProperties
-      result should be(Map("value.deserializer.inputFormat" -> "JSON",
-        "value.deserializer.json.schema.fromRow" -> "true",
-        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
-        "value.deserializer.json.schema.provided" -> "",
-        "value.deserializer.avro.schema" -> "",
+      result should be(Map("outputField" -> "rawTest",
         "value.deserializer.outputField" -> "rawTest",
-        "key.deserializer.json.foo" -> "var"
+        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
+        "value.deserializer.avro.schema" -> "",
+        "value.deserializer.inputFormat" -> "JSON",
+        "json.foo" -> "var",
+        "json.schema.fromRow" -> "true",
+        "key.deserializer.json.foo" -> "var",
+        "inputFormat" -> "JSON", "avro.schema" -> "",
+        "json.schema.inputMode" -> "SPARKFORMAT",
+        "value.deserializer.json.schema.fromRow" -> "true",
+        "value.deserializer.json.schema.provided" -> "",
+        "json.schema.provided" -> ""
       ))
     }
 

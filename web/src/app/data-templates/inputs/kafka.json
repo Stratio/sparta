@@ -157,6 +157,10 @@
              {
                "label": "Binary",
                "value": "BINARY"
+             },
+             {
+               "label": "SchemaRegistry",
+               "value": "SCHEMAREGISTRY"
              }
           ],
           "default": "STRING",
@@ -271,6 +275,25 @@
           "required": false,
           "qa": "fragment-details-kafka-deserializer-avro-schema"
        },
+      {
+        "propertyId": "value.deserializer.schema.registry.url",
+        "propertyName": "_DESERIALIZER_SCHEMAREGISTRY_SCHEMA_URL_",
+        "propertyType": "text",
+        "contentType": "URL",
+        "width": 12,
+        "tooltip": "Get the Schema Registry schema.",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "value.deserializer.inputFormat",
+              "value": "SCHEMAREGISTRY"
+            }
+          ]
+        ],
+        "required": true,
+        "qa": "fragment-details-kafka-deserializer-schemaRegistry-schema"
+      },
       {
         "propertyId": "partition.assignment.strategy",
         "propertyName": "_PARTITION_STRATEGY_",

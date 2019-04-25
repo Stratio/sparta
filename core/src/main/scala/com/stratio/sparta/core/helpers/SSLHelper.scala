@@ -18,11 +18,11 @@ import scala.util.{Properties, Try}
 
 object SSLHelper extends SLF4JLogging {
 
-  def getSSLContext(withHttps: Boolean): SSLContext = {
+  def getSSLContext(withHttps: Boolean, sslProperties: Map[String, String] = Map.empty): SSLContext = {
     val context = SSLContext.getInstance("TLS")
     if (withHttps) {
 
-      val (keyStoreFile, keyStorePassword) = getKeyStoreFileAndPassword
+      val (keyStoreFile, keyStorePassword) = getKeyStoreFileAndPassword(sslProperties)
 
       val keyStore = KeyStore.getInstance(KeyStore.getDefaultType)
       keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword.toCharArray)
@@ -38,12 +38,12 @@ object SSLHelper extends SLF4JLogging {
     context
   }
 
-  def getSSLContextV2(withHttps: Boolean): SSLContext = {
+  def getSSLContextV2(withHttps: Boolean, sslProperties: Map[String, String] = Map.empty): SSLContext = {
     if (withHttps) {
 
-      val (keyStoreFile, keyStorePassword) = getKeyStoreFileAndPassword
+      val (keyStoreFile, keyStorePassword) = getKeyStoreFileAndPassword(sslProperties)
 
-      val (trustStoreFile, trustStorePassword) = getTrustStoreFileAndPassword
+      val (trustStoreFile, trustStorePassword) = getTrustStoreFileAndPassword(sslProperties)
 
       val keyStore = KeyStore.getInstance(KeyStore.getDefaultType)
       keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword.toCharArray)
@@ -59,33 +59,45 @@ object SSLHelper extends SLF4JLogging {
     } else SSLContext.getInstance("TLS")
   }
 
-  def getKeyStoreFileAndPassword: (String, String) = {
+  private def getKeyStoreFileAndPassword(sslProperties: Map[String, String]): (String, String) = {
     val config = ConfigFactory.load()
 
     val keyStoreFile = Try(config.getString("sparta.ssl.keystore.location")).recover { case _ =>
       log.debug("Impossible to obtain keystore file from configuration")
       Properties.envOrNone("SPARTA_TLS_KEYSTORE_LOCATION").get
+    }.recover { case _ =>
+      log.debug("Impossible to obtain keystore file from env variable")
+      sslProperties("ssl.keystore.location")
     }.getOrElse(throw new Exception("Impossible to obtain keystore file"))
 
     val keyStorePassword = Try(config.getString("sparta.ssl.keystore.password")).recover { case _ =>
       log.debug("Impossible to obtain keystore password from configuration")
       Properties.envOrNone("SPARTA_TLS_KEYSTORE_PASSWORD").get
+    }.recover { case _ =>
+      log.debug("Impossible to obtain keystore password from env variable")
+      sslProperties("ssl.keystore.password")
     }.getOrElse(throw new Exception("Impossible to obtain keystore password"))
 
     (keyStoreFile, keyStorePassword)
   }
 
-  def getTrustStoreFileAndPassword: (String, String) = {
+  def getTrustStoreFileAndPassword(sslProperties: Map[String, String]): (String, String) = {
     val config = ConfigFactory.load()
 
     val trustStoreFile = Try(config.getString("sparta.ssl.truststore.location")).recover { case _ =>
       log.debug("Impossible to obtain truststore file from configuration")
       Properties.envOrNone("SPARTA_TLS_TRUSTSTORE_LOCATION").get
+    }.recover { case _ =>
+      log.debug("Impossible to obtain truststore file from env variable")
+      sslProperties("ssl.truststore.location")
     }.getOrElse(throw new Exception("Impossible to obtain truststore file"))
 
     val trustStorePassword = Try(config.getString("sparta.ssl.truststore.password")).recover { case _ =>
       log.debug("Impossible to obtain truststore password from configuration")
       Properties.envOrNone("SPARTA_TLS_TRUSTSTORE_PASSWORD").get
+    }.recover { case _ =>
+      log.debug("Impossible to obtain truststore password from env variable")
+      sslProperties("ssl.truststore.password")
     }.getOrElse(throw new Exception("Impossible to obtain truststore password"))
 
     (trustStoreFile, trustStorePassword)

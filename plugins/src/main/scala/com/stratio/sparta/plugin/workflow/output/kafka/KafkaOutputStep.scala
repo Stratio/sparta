@@ -47,12 +47,14 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
   val sparkConf: Map[String, String] = xDSession.conf.getAll
   val securityOpts: Map[String, AnyRef] = {
     if (tlsEnabled)
-      SecurityHelper.getDataStoreSecurityOptions(sparkConf)
+      SecurityHelper.getDataStoreSecurityOptions(sparkConf) + ("tlsEnabled" -> tlsEnabled.toString)
     else Map.empty
   }
 
+
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
+
 
     if (brokerList.isEmpty)
       validation = ErrorValidations(
@@ -62,6 +64,7 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
       )
 
     validation
+  
   }
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {

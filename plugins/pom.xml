@@ -16,6 +16,17 @@ This software – including all its source code – contains proprietary informa
     <modelVersion>4.0.0</modelVersion>
     <artifactId>plugins</artifactId>
 
+
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <name>Confluent</name>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+
+
+
     <properties>
         <breeze.version>0.13.2</breeze.version>
         <amqp-client.version>3.5.1</amqp-client.version>
@@ -142,6 +153,22 @@ This software – including all its source code – contains proprietary informa
             <artifactId>kafka_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-avro-serializer</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.databricks</groupId>
+            <artifactId>spark-avro_${scala.binary.version}</artifactId>
+            <version>${avro.spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>net.debasishg</groupId>
             <artifactId>redisclient_${scala.binary.version}</artifactId>
             <version>${redis.version}</version>
@@ -232,11 +259,6 @@ This software – including all its source code – contains proprietary informa
             <groupId>com.github.davidmoten</groupId>
             <artifactId>geo</artifactId>
             <version>${geo.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.databricks</groupId>
-            <artifactId>spark-avro_${scala.binary.version}</artifactId>
-            <version>${avro.spark.version}</version>
         </dependency>
         <dependency>
             <groupId>com.databricks</groupId>

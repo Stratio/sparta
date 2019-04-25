@@ -71,6 +71,16 @@ hose {
                'cmd': 'foo:pass:1001',
                'volumes': [
                '/tmp:/home/foo/tmp'],
+
+             ]
+            ],
+            ['SCHEMAREGISTRY': [
+                'image': 'confluentinc/cp-schema-registry:4.1.0',
+                'healthcheck': 8081,
+                'sleep': 30,
+                'env': ['SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=%%ZOOKEEPER:2181',
+                  'SCHEMA_REGISTRY_HOST_NAME=%%OWNHOSTNAME',
+                  'SCHEMA_REGISTRY_LISTENERS=http://%%OWNHOSTNAME:8081']
              ]
             ]
     ]
@@ -88,6 +98,7 @@ hose {
       |    -Dsftp.host=%%SFTP
       |    -Dsftp.port=22
       |    -Dsftp.volume=/home/foo/tmp
+      |    -Dschemaregistry.host=%%SCHEMAREGISTRY
       | """
 
     DEV = { config ->
@@ -130,7 +141,7 @@ hose {
     ]
     INSTALLPARAMETERS = """
             | -DDCOS_SERVICE_NAME=sparta-server
-            | -DFORCEPULLIMAGE=false    
+            | -DFORCEPULLIMAGE=false
             | -DZOOKEEPER_NAME=zkuserland
             | -DMARATHON_SSO_CLIENT_ID=adminrouter_paas-master-1.node.paas.labs.stratio.com
             | -DHDFS_IP=10.200.0.74

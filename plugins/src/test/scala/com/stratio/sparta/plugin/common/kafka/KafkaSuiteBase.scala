@@ -64,6 +64,18 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
       log.info(s"Zookeeper hosts from default")
       "127.0.0.1:2181"
   }
+  /**
+    * Schema Registry Properties
+    * */
+  val schemaRegistry = Try(config.getString("schemaregistry.host")) match {
+    case Success(configHost) =>
+      log.info(s"Schema Registry host from config: $configHost")
+      s"http://$configHost:8081"
+    case Failure(e) =>
+      log.info(s"Schema Registry host from default")
+      "http://127.0.0.1:8081"
+  }
+
   var sc: Option[SparkContext] = None
   var ssc: Option[StreamingContext] = None
   var sparkSession: Option[XDSession] = None

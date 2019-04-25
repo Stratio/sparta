@@ -8,6 +8,6 @@ package com.stratio.sparta.core.enumerators
 object OutputFormatEnum extends Enumeration {
 
   type Status = Value
-  val ROW, JSON, AVRO, BINARY = Value
+  val ROW, JSON, AVRO, BINARY, SCHEMAREGISTRY = Value
 
 }

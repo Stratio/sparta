@@ -83,6 +83,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       addSupervisedArgument(
         addKerberosArguments(
           submitArgsFiltered(submitArgs))),
+      getReferenceClusterConfig ++
       getS3Config ++
         addExecutorLogConf(
         addKerberosConfs(
@@ -518,19 +519,52 @@ object SparkSubmitService {
     val defaultConf = Map(
       SubmitNameConf -> spartaLocalAppName
     )
-    val referenceConf =
-      SpartaConfig.getSparkConfig()
-        .map(sparkConf => typesafeToSpark(sparkConf, "spark"))
-        .getOrElse(defaultConf)
 
     val envConf = sys.env.filterKeys(key => key.startsWith("SPARK_EXTRA_CONFIG"))
       .map { case (key, value) =>
         key.replaceAll("SPARK_EXTRA_CONFIG_", "").replaceAll("_", ".") -> value
       }
-    referenceConf ++ defaultConf ++ envConf
+    getReferenceConfig ++ defaultConf ++ envConf
   }
 
-  def typesafeToSpark(sparkConfig: Config, sparkPrefix: String = "spark"): Map[String, String] =
+  private def getReferenceClusterConfig: Map[String, String] = {
+    val localSparkProps = Seq(
+      "spark.master",
+      "spark.ui.enabled",
+      "spark.ui.port",
+      "spark.executor.memory",
+      "spark.executor.cores",
+      "spark.driver.memory",
+      "spark.driver.cores",
+      "spark.cores.max",
+      "spark.hadoop.fs.hdfs.impl.disable.cache",
+      "spark.mesos.executor.home",
+      "spark.mesos.executor.docker.image",
+      "spark.mesos.executor.docker.volumes",
+      "spark.mesos.role",
+      "spark.mesos.principal",
+      "spark.mesos.secret",
+      "spark.mesos.executor.docker.network.name",
+      "spark.executorEnv.SPARK_LOG_LEVEL",
+      "spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY",
+      "spark.executorEnv.SPARK_DRIVER_SECRET_FOLDER",
+      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH",
+      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH",
+      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH",
+      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH",
+      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH"
+    )
+
+    getReferenceConfig
+      .filterKeys(sparkKey => !localSparkProps.contains(sparkKey))
+  }
+
+  private def getReferenceConfig: Map[String, String] =
+      SpartaConfig.getSparkConfig()
+        .map(sparkConf => typesafeToSpark(sparkConf, "spark"))
+        .getOrElse(Map.empty)
+
+  private def typesafeToSpark(sparkConfig: Config, sparkPrefix: String = "spark"): Map[String, String] =
     sparkConfig.entrySet().iterator().toSeq.map { values =>
       s"$sparkPrefix.${values.getKey}" -> values.getValue.render().replace("\"", "")
     }.filter{ case (k, v) => v.trim.nonEmpty}.toMap

@@ -22,11 +22,12 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class KafkaOutputStepIT extends KafkaSuiteBase {
 
-  val topics = Seq(
-    s"topicTest-${UUID.randomUUID().toString}",
-    s"topicTest2-${UUID.randomUUID().toString}",
-    s"topicTest3-${UUID.randomUUID().toString}"
-  )
+  val topic1 = s"topicTest1-${UUID.randomUUID().toString}"
+  val topic2 = s"topicTest2-${UUID.randomUUID().toString}"
+  val topic3 = s"topicTest3-${UUID.randomUUID().toString}"
+  val topic4 = s"topicTest4-${UUID.randomUUID().toString}"
+
+  val topics = Seq(topic1, topic2, topic3, topic4)
 
   override def beforeAll(): Unit = {
     createTopics(topics)
@@ -59,7 +60,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       )
       val rdd = sc.get.parallelize(data1).asInstanceOf[RDD[Row]]
       val data = sparkSession.get.createDataFrame(rdd, schema)
-      val saveOpts = Map("tableName" -> topics.head)
+      val saveOpts = Map("tableName" -> topic1)
 
       log.info("Send dataframe to kafka")
 
@@ -70,12 +71,11 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       val topicsProp =
         s"""[
            |{
-           |   "topic":"${topics.head}"
+           |   "topic":"${topic1}"
            |}]
            | """.stripMargin
       val propsConsumer = Map(
         "storeOffsetInKafka" -> "false",
-        "value.deserializer" -> "row",
         "value.deserializer.inputFormat" -> "BINARY",
         "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
@@ -97,9 +97,10 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         log.info(s"TOTAL EVENTS : $totalEvents")
         val streamingRegisters = rdd.collect()
         if (!rdd.isEmpty())
-          streamingRegisters.foreach{row =>
+          streamingRegisters.foreach { row =>
             val elemToCheck = row.get(0).asInstanceOf[Array[Byte]].map(_.toChar).mkString
-            assert(data1.map(_.toString()).contains(elemToCheck))}
+            assert(data1.map(_.toString()).contains(elemToCheck))
+          }
       })
 
       ssc.get.start()
@@ -134,7 +135,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       )
       val rdd = sc.get.parallelize(data1).asInstanceOf[RDD[Row]]
       val data = sparkSession.get.createDataFrame(rdd, schema)
-      val saveOpts = Map("tableName" -> topics(1))
+      val saveOpts = Map("tableName" -> topic2)
 
       log.info("Send dataframe to kafka")
 
@@ -145,12 +146,11 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       val topicsProp =
         s"""[
            |{
-           |   "topic":"${topics(1)}"
+           |   "topic":"$topic2"
            |}]
            | """.stripMargin
       val propsConsumer = Map(
         "storeOffsetInKafka" -> "false",
-        "value.deserializer" -> "row",
         "value.deserializer.inputFormat" -> "JSON",
         "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
@@ -208,7 +208,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       val dataRaw = Seq("blue,12.1", "red,12.2")
       val rdd = sc.get.parallelize(data1).asInstanceOf[RDD[Row]]
       val data = sparkSession.get.createDataFrame(rdd, schema)
-      val saveOpts = Map("tableName" -> topics.last)
+      val saveOpts = Map("tableName" -> topic3)
 
       log.info("Send dataframe to kafka")
 
@@ -219,12 +219,11 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       val topicsProp =
         s"""[
            |{
-           |   "topic":"${topics.last}"
+           |   "topic":"$topic3"
            |}]
            | """.stripMargin
       val propsConsumer = Map(
         "storeOffsetInKafka" -> "false",
-        "value.deserializer" -> "row",
         "value.deserializer.inputFormat" -> "STRING",
         "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
         "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
@@ -258,6 +257,80 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
       log.info("Finished Streaming")
 
       totalEvents.value should ===(data1.size)
+    }
+
+    "Send all the records in Avro format using Schema Registry" in {
+      val hostPort =
+        s"""[
+           |{
+           |    "port": "9092",
+           |    "host": "$hosts"
+           |}]
+           | """.stripMargin
+
+      val props = Map(
+        "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
+        "value.serializer.outputFormat" -> "SCHEMAREGISTRY",
+        "value.serializer.schema.registry.url" -> schemaRegistry
+      )
+      val output = new KafkaOutputStep("kafka10", sparkSession.get, props)
+
+
+      val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+      val rows = Seq(
+        new GenericRowWithSchema(Array("blue", 12.1), schema),
+        new GenericRowWithSchema(Array("red", 12.2), schema)
+      )
+      val rdd = sc.get.parallelize(rows).asInstanceOf[RDD[Row]]
+      val data = sparkSession.get.createDataFrame(rdd, schema)
+      val saveOpts = Map("tableName" -> topic4)
+
+      log.info("Send dataframe to kafka")
+
+      output.save(data, SaveModeEnum.Append, saveOpts)
+      output.cleanUp()
+
+      val topicsProp =
+        s"""[
+           |{
+           |   "topic":"$topic4"
+           |}]
+           | """.stripMargin
+
+      val propsConsumer = Map(
+        "value.deserializer.inputFormat" -> "SCHEMAREGISTRY",
+        "bootstrap.servers" -> hostPort.asInstanceOf[java.io.Serializable],
+        "topics" -> topicsProp.asInstanceOf[java.io.Serializable],
+        "value.deserializer.schema.registry.url" -> schemaRegistry,
+        "auto.offset.reset" -> "earliest"
+      )
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+      val input = new KafkaInputStepStreaming("kafka10", outputOptions, ssc, sparkSession.get, propsConsumer)
+      val distributedStream = input.init
+      val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
+
+      log.info("Evaluate the DStream")
+
+      distributedStream.ds.foreachRDD(rdd => {
+        if (!rdd.isEmpty()) {
+          val count = rdd.count()
+          log.info(s"EVENTS COUNT : $count")
+          totalEvents.add(count)
+        } else log.info("RDD is empty")
+        log.info(s"TOTAL EVENTS : $totalEvents")
+
+      })
+
+      ssc.get.start()
+      log.info("Started Streaming")
+
+      ssc.get.awaitTerminationOrTimeout(SparkTimeOut)
+      log.info("Finished Streaming")
+
+      totalEvents.value should ===(rows.size)
+
+      input.cleanUp()
+
     }
   }
 }

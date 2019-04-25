@@ -151,7 +151,7 @@ class KafkaInputStepStreaming(
       val securityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
       require(securityOptions.nonEmpty,
         "The property TLS is enabled and the sparkConf does not contain security properties")
-      securityOptions
+      securityOptions + ("tlsEnabled" -> tlsEnabled.toString)
     } else Map.empty
     val kafkaConsumerParams = autoCommit ++ autoOffset ++ serializers ++ rowSerializerProps ++ brokerList ++ groupId ++
       partitionStrategy ++ kafkaSecurityOptions ++ consumerProperties
@@ -271,21 +271,28 @@ class KafkaInputStepStreaming(
   /** SERIALIZERS **/
 
   //scalastyle:off
-  private[kafka] def getSerializers = Map(
+  private[kafka] def
+  getSerializers = Map(
     "key.deserializer" -> classOf[StringDeserializer],
     "value.deserializer" -> classOf[RowDeserializer]
   )
 
-  private[kafka] def getRowSerializerProperties: Map[String, String] =
-    Map(
+  private[kafka] def getRowSerializerProperties: Map[String, String] = {
+    val inputDeserializerProperties = properties.mapValues(_.toString).filterKeys(key => key.contains("key.deserializer.") || key.contains("value.deserializer."))
+    val deserializerProperties = Map(
       "value.deserializer.inputFormat" -> properties.getString("value.deserializer.inputFormat", "STRING"),
       "value.deserializer.json.schema.fromRow" -> properties.getBoolean("value.deserializer.json.schema.fromRow", true).toString,
       "value.deserializer.json.schema.inputMode" -> properties.getString("value.deserializer.json.schema.inputMode", "SPARKFORMAT"),
       "value.deserializer.json.schema.provided" -> properties.getString("value.deserializer.json.schema.provided", ""),
       "value.deserializer.avro.schema" -> properties.getString("value.deserializer.avro.schema", ""),
       "value.deserializer.outputField" -> outputField
-    ) ++ properties.mapValues(_.toString)
-      .filterKeys(key => key.contains("key.deserializer.json") || key.contains("key.deserializer.avro"))
+    )
+    val allProperties = inputDeserializerProperties ++ deserializerProperties
+
+    allProperties.map{case (key, value) =>
+      key.replaceAll(s"value.deserializer.", "").replaceAll(s"key.deserializer.", "") -> value
+    } ++ allProperties
+  }
 
   //scalastyle:on
 

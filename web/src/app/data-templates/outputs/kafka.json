@@ -57,6 +57,10 @@
            {
              "label": "Binary",
              "value": "BINARY"
+           },
+           {
+            "label": "SchemaRegistry",
+            "value": "SCHEMAREGISTRY"
            }
         ],
         "default": "ROW",
@@ -85,12 +89,16 @@
           "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_NAMESPACE_",
           "propertyType": "text",
           "required": false,
-          "visible": [
+          "visibleOR": [
              [
                 {
                    "propertyId": "value.serializer.outputFormat",
                    "value": "AVRO"
-                }
+                },
+               {
+                 "propertyId": "value.serializer.outputFormat",
+                 "value": "SCHEMAREGISTRY"
+               }
              ]
           ],
           "tooltip": "Character located in-between records. Default value set to comma.",
@@ -101,12 +109,16 @@
           "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_NAME",
           "propertyType": "text",
           "required": false,
-          "visible": [
+          "visibleOR": [
              [
                 {
                    "propertyId": "value.serializer.outputFormat",
                    "value": "AVRO"
-                }
+                },
+               {
+                 "propertyId": "value.serializer.outputFormat",
+                 "value": "SCHEMAREGISTRY"
+               }
              ]
           ],
           "tooltip": "Name given to the record.",
@@ -152,6 +164,41 @@
           "required": false,
           "qa": "workflow-transformation-json-schema-provided"
        },
+      {
+        "propertyId": "value.serializer.schema.registry.url",
+        "propertyName": "_SERIALIZER_SCHEMAREGISTRY_SCHEMA_URL_",
+        "propertyType": "text",
+        "contentType": "URL",
+        "width": 12,
+        "tooltip": "Post the Schema Registry schema.",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "value.serializer.outputFormat",
+              "value": "SCHEMAREGISTRY"
+            }
+          ]
+        ],
+        "required": true,
+        "qa": "fragment-details-kafka-deserializer-schemaRegistry-schema"
+      },
+      {
+        "propertyId": "value.serializer.auto.register.schemas",
+        "propertyName": "_SERIALIZER_SCHEMAREGISTRY_AUTO_REGISTER_SCHEMA_",
+        "propertyType": "boolean",
+        "tooltip": "Auto register schema",
+        "default": true,
+        "visible": [
+          [
+            {
+              "propertyId": "value.serializer.outputFormat",
+              "value": "SCHEMAREGISTRY"
+            }
+          ]
+        ],
+        "qa": "fragment-details-kafka-deserializer-auto-register-schema"
+      },
        {
           "propertyId": "keySeparator",
           "propertyName": "_KEY_SEPARATOR_",
