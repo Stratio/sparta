@@ -8,7 +8,7 @@ package com.stratio.sparta.serving.core
 
 import scala.util.Try
 import org.joda.time.DateTime
-import com.stratio.sparta.core.models.{DebugResults, ResultStep}
+import com.stratio.sparta.core.models.{DebugResults, ResultStep, SpartaQualityRule}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -23,6 +23,8 @@ import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.Sc
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.governance.QualityRuleResult
+import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
 import com.stratio.sparta.serving.core.models.orchestrator.ScheduledWorkflowTask
 import com.stratio.sparta.serving.core.models.workflow.migration.{SettingsOrion, TemplateElementOrion, WorkflowOrion}
 //scalastyle:off
@@ -344,7 +346,9 @@ package object daoTables {
 
     def executedFromExecution = column[Option[String]]("executed_from_execution")
 
-    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, executedFromScheduler, executedFromExecution) <>
+    def qualityRules = column[Seq[SpartaQualityRule]]("quality_rules")
+
+    def * = (id.?, statuses, genericDataExecution, sparkSubmitExecution, sparkExecution, sparkDispatcherExecution, marathonExecution, localExecution, archived, resumedDate, resumedStatus, executionEngine, searchText, qualityRules, executedFromScheduler, executedFromExecution) <>
       ((WorkflowExecution.apply _).tupled, WorkflowExecution.unapply _)
 
     def pk = primaryKey(s"pk_$tableName", id)
@@ -392,6 +396,56 @@ package object daoTables {
 
     def fk = foreignKey(s"fk_${tableName}_workflow", entityId, TableQuery[WorkflowTable])(_.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
 
+  }
+
+  class QualityRuleResultTable(tag: Tag) extends Table[QualityRuleResult](tag, dbSchemaName, QualityRuleResultTable){
+
+    def id = column[String]("data_quality_result_id")
+
+    def executionId =  column[String]("workflow_execution_id")
+
+    def dataQualityRuleId =  column[String]("data_quality_rule_id")
+
+    def numTotalEvents = column[Long]("num_total_events")
+
+    def numPassedEvents = column[Long]("num_passed_events")
+
+    def numDiscardedEvents = column[Long]("num_discarded_events")
+
+    def metadataPath = column[String]("metadata_path")
+
+    def transformationStepName = column[String]("transformation_step_name")
+
+    def outputStepName =  column[String]("output_step_name")
+
+    def satisfied = column[Boolean]("rule_satisfied")
+
+    def successfulWriting = column[Boolean]("successful_writing")
+
+    def condition =  column[String]("condition")
+
+    def sentToApi =  column[Boolean]("sent_to_api")
+
+    def warning =  column[Boolean]("warning")
+
+    def qualityRuleName =  column[String]("qualityRuleName")
+
+    def conditionsString =  column[String]("conditionsString")
+
+    def globalAction =  column[String]("globalAction")
+
+    def creationDate = column[Option[DateTime]]("creation_date")
+
+    def * = (id.?, executionId, dataQualityRuleId, numTotalEvents, numPassedEvents, numDiscardedEvents, metadataPath,
+      transformationStepName, outputStepName, satisfied, successfulWriting, condition, sentToApi, warning, qualityRuleName,
+      conditionsString, globalAction, creationDate) <>
+      ((QualityRuleResult.apply _).tupled, QualityRuleResult.unapply _)
+
+    def pk = primaryKey(s"pk_$tableName", id)
+
+    def fk = foreignKey(s"fk_${tableName}_execution", executionId, TableQuery[WorkflowExecutionTable])(_.id, onUpdate = ForeignKeyAction.NoAction, onDelete = ForeignKeyAction.Cascade)
+
+    def executionIndex = index(s"idx_${tableName}_execution", executionId)
   }
 
 }

@@ -16,8 +16,12 @@ import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionMode
 import com.stratio.sparta.serving.core.models.files.SpartaFile
+import com.stratio.sparta.serving.core.models.governance.QualityRuleResult
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterList, ParameterVariable}
 import com.stratio.sparta.serving.core.models.workflow._
+import com.typesafe.config.ConfigFactory
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import spray.testkit.ScalatestRouteTest
 
 /**
  * Common operations for http service specs. All of them must extend from this class.
@@ -145,6 +149,28 @@ trait HttpServiceBaseTest extends WordSpec
         sparkHome = "sparkHome"
       ))
     )
+
+  protected def getQualityRuleResultModel: QualityRuleResult =
+    QualityRuleResult(
+      id = Option("id"),
+      executionId = "exec1",
+      dataQualityRuleId = "dqId",
+      numTotalEvents = 100,
+      numPassedEvents = 60,
+      numDiscardedEvents = 40,
+      metadataPath = "a/metadata/path",
+      transformationStepName = "transformationStep",
+      outputStepName = "outputStep",
+      satisfied = true,
+      conditionThreshold = ">= 80 %",
+      successfulWriting = true,
+      warning = false,
+      qualityRuleName = "Dummy quality rule",
+      conditionsString = "If column date is not null",
+      globalAction = "ACT_PASS"
+    )
+
+
 
   protected def getSpartaFiles: Seq[SpartaFile] =
     Seq(SpartaFile(

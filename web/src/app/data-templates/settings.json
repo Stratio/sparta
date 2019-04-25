@@ -23,6 +23,15 @@
     "name": "global",
     "listCompressed": true,
     "properties": [{
+        "propertyId": "enableQualityRules",
+        "propertyName": "SETTINGS._QUALITY_RULES_",
+        "propertyType": "boolean",
+        "default": true,
+        "width": 4,
+        "tooltip": "Retrieve and execute the quality rules defined for this workflow",
+        "qa": "workflow-qualityRules"
+      },
+      {
       "propertyId": "executionMode",
       "propertyName": "SETTINGS._EXECUTION_MODE_",
       "required": true,
@@ -368,6 +377,7 @@
   },
     {
       "name": "streamingSettings",
+      "propertyId": "streamingSettings",
       "properties": [{
         "propertyId": "window",
         "propertyName": "SETTINGS._SPARK_STREAMING_WINDOW_",
@@ -559,6 +569,7 @@
         },
         {
           "name": "submitArguments",
+          "propertyId": "submitArguments",
           "listCompressed": true,
           "properties": [{
             "propertyId": "userArguments",
@@ -605,6 +616,7 @@
         },
         {
           "name": "sparkConf",
+          "propertyId": "sparkConf",
           "listCompressed": true,
           "properties": [{
             "name": "sparkResourcesConf",
@@ -704,6 +716,7 @@
           },
             {
               "name": "sparkHistoryServerConf",
+              "propertyId": "sparkHistoryServerConf",
               "listCompressed": true,
               "properties": [
                 {
@@ -1004,6 +1017,7 @@
         },
         {
           "name": "transactionsManagement",
+          "propertyId": "transactionsManagement",
           "properties": [{
             "propertyId": "sendToOutputs",
             "propertyName": "SETTINGS._ERROR_SAVE_TO_OUTPUTS_",

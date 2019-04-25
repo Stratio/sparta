@@ -32,6 +32,8 @@ import com.stratio.sparta.serving.core.utils.SpartaIgnite
   */
 object SpartaHelper extends SLF4JLogging with SSLSupport {
 
+
+
   //scalastyle:off
   /**
     * Initializes Sparta's akka system running an embedded http server with the REST API.
@@ -85,7 +87,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       system.actorOf(Props[SpartaClusterNodeActor], "clusterNode")
       Cluster(system) registerOnMemberUp {
 
-        system.actorOf(Props[TopLevelSupervisorActor])
+        val topLevelSupervisorActor = system.actorOf(Props[TopLevelSupervisorActor])
 
         val controllerActor = system.actorOf(Props(new ControllerActor()), ControllerActorName)
 
@@ -97,6 +99,9 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
 
         log.info("Sparta server initiated successfully")
       }
+
+      import com.stratio.sparta.serving.api.cluster.SpartaAkkaCluster._
+      startClusterSingletons(Seq((QualityRuleActor.name, QualityRuleActor.props)))
     }
     else log.info("Sparta configuration is not defined")
 

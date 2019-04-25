@@ -16,7 +16,8 @@ import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.SdkSchemaHelper.discardExtension
 import com.stratio.sparta.core.helpers.{AggregationTimeHelper, SdkSchemaHelper}
-import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, TransformationStepManagement}
+import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
+import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, SpartaQualityRule, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.UserFirstURLClassLoader
@@ -40,13 +41,14 @@ import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
+import scalax.collection.Graph
+import scalax.collection.GraphTraversal.{Parameters, Predecessors}
+import scalax.collection.edge.LDiEdge
 
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 import scala.util.{Properties, Try}
-import scalax.collection.Graph
-import scalax.collection.GraphTraversal.{Parameters, Predecessors}
-import scalax.collection.edge.LDiEdge
+import scala.collection.mutable.ListBuffer
 
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                                                              workflow: Workflow,
@@ -65,9 +67,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   private var order = 0L
 
   /**
-    * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
-    * function because the steps variable is mutable and is initialized to empty value.
-    */
+   * Execute the setup function associated to all the steps. Previously is mandatory execute the stages
+   * function because the steps variable is mutable and is initialized to empty value.
+   */
   def setup(): Unit = {
     val phaseEnum = PhaseEnum.Setup
     val errorMessage = s"An error was encountered while executing the setup steps"
@@ -93,9 +95,9 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   }
 
   /**
-    * Execute the validate function associated to all the steps. Previously is mandatory execute the stages
-    * function because the steps variable is mutable and is initialized to empty value.
-    */
+   * Execute the validate function associated to all the steps. Previously is mandatory execute the stages
+   * function because the steps variable is mutable and is initialized to empty value.
+   */
   def validate(): Seq[ErrorValidations] = {
     val phaseEnum = PhaseEnum.Validate
     val errorMessage = s"An error was encountered while executing the validate steps"
@@ -111,10 +113,20 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     val errorMessage = s"An error was encountered while extracting the lineage properties."
     val okMessage = s"Lineage properties successfully extracted."
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
-
-      steps.filter(step => inOutNodes.contains(step.name)).map{ step =>
+      steps.filter(step => inOutNodes.contains(step.name)).map { step =>
         step.name -> step.lineageProperties()
       }.toMap.filter(_._2.nonEmpty)
+    }
+  }
+
+  def inputOutputGraphNodesWithLineageProperties(workflow: Workflow): Seq[(NodeGraph, Map[String, String])] = {
+    val phaseEnum = PhaseEnum.Lineage
+    val errorMessage = s"An error was encountered while extracting the lineage properties."
+    val okMessage = s"Lineage properties successfully extracted."
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+      workflow.pipelineGraph.nodes
+        .filter(node => node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType)
+        .map(node => (node, steps.find(_.name == node.name).headOption.fold(Map.empty[String,String])(_.lineageProperties())))
     }
   }
 
@@ -124,7 +136,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     *
     * @return The streaming context created, is used by the desing pattern in the Spark Streaming Context creation
     */
-  def stages(execute: Boolean = true): Unit = {
+  def stages(execute: Boolean = true,
+             qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule]): Seq[SparkQualityRuleResults] = {
 
     log.debug("Creating workflow stages")
 
@@ -241,7 +254,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
       }
     }
 
-    if (execute) executeWorkflow
+    val results: Seq[SparkQualityRuleResults] = if (execute) executeWorkflow(qualityRules) else Seq.empty[SparkQualityRuleResults]
+    if (workflow.debugMode.getOrElse(false)) Seq.empty[SparkQualityRuleResults] else results
   }
 
   /**
@@ -254,16 +268,19 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     *
     * @param workflowContext The Spark Contexts used in the steps creation
     */
-  def executeWorkflow(implicit workflowContext: WorkflowContext, customClasspathClasses: Map[String, String]): Unit = {
+  def executeWorkflow(qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule])(implicit workflowContext: WorkflowContext,
+                      customClasspathClasses: Map[String, String] ) : Seq[SparkQualityRuleResults] = {
 
     import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
 
-    log.debug("Executing workflow")
+    log.debug(s"Executing workflow with quality rules: ${qualityRules.mkString(",")}")
 
     order = 0L
 
     val nodesModel = workflow.pipelineGraph.nodes
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
+    val seqSparkResults = new ListBuffer[SparkQualityRuleResults]()
+
 
     implicit val outputStepOrdering = new Ordering[OutputStep[Underlying]] {
       override def compare(x: OutputStep[Underlying], y: OutputStep[Underlying]): Int = {
@@ -360,12 +377,16 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
           errorManager.traceFunction(phaseEnum, okMessage, errorMessage, Logging.DebugLevel, Option(predecessor.name)) {
             inputs.find(_._1 == predecessor.name).foreach {
               case (_, InputStepData(step, data, _, _)) =>
-                newOutput.writeTransform(
+                seqSparkResults ++= newOutput.writeTransform(
                   data,
                   step.outputOptions,
                   workflow.settings.errorsManagement,
                   errorOutputs,
-                  Seq.empty[String]
+                  Seq.empty[String],
+                  qualityRules.filter{ qr => qr.enable &&
+                    qr.outputName == outputNode.name &&
+                      (qr.stepName == predecessor.name || qr.stepName == step.outputOptions.tableName)
+                  }
                 )
             }
           }
@@ -387,15 +408,20 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
             */
             val stepName = nodeName(predecessor.name, relationSettings.dataType)
             transformations.filterKeys(_ == stepName).foreach { case (_, transform) =>
-              newOutput.writeTransform(
+              val newOutputOptions = transform.step.outputOptions.copy(
+                stepName = stepName,
+                tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType, transform.step.outputOptions.discardTableName)
+              )
+              seqSparkResults ++= newOutput.writeTransform(
                 transform.data,
-                transform.step.outputOptions.copy(
-                  stepName = stepName,
-                  tableName = nodeName(transform.step.outputOptions.tableName, relationSettings.dataType, transform.step.outputOptions.discardTableName)
-                ),
+                newOutputOptions,
                 workflow.settings.errorsManagement,
                 errorOutputs,
-                transform.predecessors
+                transform.predecessors,
+                qualityRules.filter { qr => qr.enable &&
+                  qr.outputName == outputNode.name &&
+                    (qr.stepName == stepName || qr.stepName == newOutputOptions.tableName)
+                }
               )
             }
           }
@@ -411,11 +437,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         case _ =>
       }
     }
+    seqSparkResults
   }
 
   /**
-    * Execute steps once Spark execution has ended successfully. It applies only to batch workflows.
-    */
+   * Execute steps once Spark execution has ended successfully. It applies only to batch workflows.
+   */
   def postExecutionStep(): Unit = {
     val errorMessage = s"An error was encountered while executing final sql sentences"
     val okMessage = s"Final Sql sentences executed successfully"
@@ -426,12 +453,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   }
 
   /**
-    * Create the step associated to the node passed as parameter.
-    *
-    * @param node            The node of the graph
-    * @param workflowContext The Spark contexts are contained into this parameter
-    * @param graphContext    The context contains the graph and the steps created
-    */
+   * Create the step associated to the node passed as parameter.
+   *
+   * @param node            The node of the graph
+   * @param workflowContext The Spark contexts are contained into this parameter
+   * @param graphContext    The context contains the graph and the steps created
+   */
   private[core] def createStep(node: NodeGraph)
                               (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying], customClasspathClasses: Map[String, String])
   : Unit =
@@ -513,12 +540,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
   }
 
   /**
-    * Find the input steps that are predecessors to the node passed as parameter.
-    *
-    * @param node    The node to find predecessors
-    * @param context The context that contains the graph and the steps created
-    * @return The predecessors steps
-    */
+   * Find the input steps that are predecessors to the node passed as parameter.
+   *
+   * @param node    The node to find predecessors
+   * @param context The context that contains the graph and the steps created
+   * @return The predecessors steps
+   */
   private[core] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, InputStepData[Underlying]] =
     context.inputs.filter { input =>
@@ -529,12 +556,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
 
   /**
-    * Find the transform steps that are predecessors to the node passed as parameter.
-    *
-    * @param node    The node to find predecessors
-    * @param context The context that contains the graph and the steps created
-    * @return The predecessors steps
-    */
+   * Find the transform steps that are predecessors to the node passed as parameter.
+   *
+   * @param node    The node to find predecessors
+   * @param context The context that contains the graph and the steps created
+   * @return The predecessors steps
+   */
   private[core] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
   : scala.collection.mutable.HashMap[String, TransformStepData[Underlying]] =
     context.transformations.filter { transform =>

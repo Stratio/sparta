@@ -50,3 +50,7 @@ case object TemplateResource extends ResourceType{
 case object WorkflowsResource extends ResourceType{
   override def name(): String = "Workflows"
 }
+
+case object QRResultResource extends ResourceType{
+  override def name(): String = "QRResult"
+}

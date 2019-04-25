@@ -113,6 +113,7 @@ object SecurityManagerHelper {
       case "ParameterList" => Resource(ParameterListResource, resource)
       case "Template" => Resource(TemplateResource, resource)
       case "Workflows" => Resource(WorkflowsResource, resource)
+      case "QRResult" => Resource(QRResultResource, resource)
     }
   }
 
@@ -128,6 +129,7 @@ object SecurityManagerHelper {
       case "ParameterList" => Resource(ParameterListResource, resource._2)
       case "Template" => Resource(TemplateResource, resource._2)
       case "Workflows" => Resource(WorkflowsResource, resource._2)
+      case "QRResult" => Resource(QRResultResource, resource._2)
     }
   }
 }

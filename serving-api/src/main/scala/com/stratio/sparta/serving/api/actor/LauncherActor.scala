@@ -12,8 +12,9 @@ import akka.actor.{Props, _}
 import akka.pattern.ask
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
-import com.stratio.sparta.core.models.WorkflowError
+import com.stratio.sparta.core.models.{SpartaQualityRule, WorkflowError}
 import com.stratio.sparta.security.SpartaSecurityManager
+import com.stratio.sparta.serving.api.actor.QualityRuleActor.RetrieveQualityRules
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
@@ -37,7 +38,8 @@ import scala.util.{Failure, Success, Try}
 class LauncherActor(
                      parametersStateActor: ActorRef,
                      localLauncherActor: ActorRef,
-                     debugLauncherActor: ActorRef
+                     debugLauncherActor: ActorRef,
+                     qualityRuleActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -331,7 +333,12 @@ class LauncherActor(
       executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution)
     )
 
-    executionService.createExecution(newExecution)
+    for {
+      qualityRules <- retrieveQualityRules(workflow)
+      workflowExecution <- Future { newExecution.copy(qualityRules = qualityRules) }
+      result <- executionService.createExecution(workflowExecution)
+    } yield { result }
+
   }
 
   case class LauncherExecutionSettings(
@@ -381,8 +388,37 @@ class LauncherActor(
       executedFromExecution = runExecutionSettings.flatMap(_.executedFromExecution)
     )
 
-    executionService.createExecution(newExecution)
+    for {
+      launcherExecutionSettings <- Future {newExecution}
+      qualityRules <- retrieveQualityRules(workflow)
+      workflowExecution <- Future {
+        launcherExecutionSettings.copy(qualityRules = qualityRules)
+      }
+      result <- executionService.createExecution(workflowExecution)
+    } yield {
+      result
+    }
   }
+
+  protected[actor] def createLocalWorkflowExecution( workflow: Workflow,
+                                                     executionContext: ExecutionContext,
+                                                     runExecutionSettings: Option[RunExecutionSettings],
+                                                     user: Option[LoggedUser],
+                                                     launchDate: DateTime,
+                                                     sparkUri: Option[String]): WorkflowExecution =
+    WorkflowExecution(
+      genericDataExecution = GenericDataExecution(
+        workflow = workflow,
+        executionMode = WorkflowExecutionMode.local,
+        executionContext = executionContext,
+        startDate = Option(launchDate),
+        launchDate = Option(launchDate),
+        userId = user.map(_.id),
+        name = runExecutionSettings.flatMap(_.name),
+        description = runExecutionSettings.flatMap(_.description)
+      ),
+      localExecution = Option(LocalExecution(sparkURI = sparkUri)))
+
 
   private def getLauncherExecutionSettings(workflowWithContext: Workflow): LauncherExecutionSettings = {
     val sparkSubmitService = new SparkSubmitService(workflowWithContext)
@@ -397,5 +433,10 @@ class LauncherActor(
 
     LauncherExecutionSettings(driverFile, pluginJars, sparkHome, driverArgs, sparkSubmitArgs, sparkConfigurations)
   }
+
+  def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] =
+    (qualityRuleActor ? RetrieveQualityRules(workflow)).mapTo[Seq[SpartaQualityRule]]
+
+
 
 }

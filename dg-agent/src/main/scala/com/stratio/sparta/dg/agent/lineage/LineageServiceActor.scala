@@ -42,11 +42,11 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   val actorRefFactory: ActorRefFactory = context
   val actorMaterializer = ActorMaterializer()
 
-  lazy val uri = Try(SpartaConfig.getLineageConfig().get.getString("uri"))
+  lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
-  lazy val postEndpoint = Try(SpartaConfig.getLineageConfig().get.getString("post.endpoint"))
+  lazy val postEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.post.endpoint"))
     .getOrElse("v1/lineage/actor")
-  lazy val getEndpoint = Try(SpartaConfig.getLineageConfig().get.getString("get.endpoint"))
+  lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.get.endpoint"))
     .getOrElse("v1/lineage/actor/searchByTransactionId?transactionId=")
 
   lazy val actorTypeKey = "SPARTA"
@@ -155,6 +155,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
       val parsedLineageProperties =
         LineageUtils.addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
 
+      // TODO nistal (QR)
       val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
         props.get(ServiceKey).map { serviceName =>
           val stepType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.stepType.toLowerCase

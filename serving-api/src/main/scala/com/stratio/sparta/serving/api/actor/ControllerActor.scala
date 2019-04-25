@@ -10,8 +10,8 @@ import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.security.SpartaSecurityManager
+import com.stratio.sparta.serving.api.cluster.SpartaAkkaCluster
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, HeadersAuthSupport}
 import com.stratio.sparta.serving.api.oauth.OauthClient
@@ -28,10 +28,10 @@ import spray.httpx.encoding.Gzip
 import spray.routing._
 
 import scala.concurrent.duration._
-import scala.util.{Properties, Try}
+import scala.util.Try
 
 class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
-  extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient with HeadersAuthSupport{
+  extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient with HeadersAuthSupport {
 
   override implicit def actorRefFactory: ActorContext = context
 
@@ -56,8 +56,9 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     .props(Props(new TemplateActor())), TemplateActorName)
   val localLauncherActor = context.actorOf(Props(new LocalLauncherActor()), LocalLauncherActorName)
   val debugLauncherActor = context.actorOf(Props(new DebugLauncherActor()), DebugLauncherActorName)
+  val qualityRuleActor = SpartaAkkaCluster.proxyInstanceForName(QualityRuleActor.name)(context.system)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(parametersListenerActor, localLauncherActor, debugLauncherActor))), LauncherActorName)
+    .props(Props(new LauncherActor(parametersListenerActor, localLauncherActor, debugLauncherActor, qualityRuleActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new WorkflowActor(launcherActor, parametersListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -78,6 +79,8 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     .props(Props(new DebugWorkflowActor(launcherActor))), DebugWorkflowActorName)
   val mlModelActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new MlModelActor())), MlModelsActorName)
+  val qualityRuleResultActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new QualityRuleResultActor())), QualityRuleResultActorName)
   val scheduledWorkflowTaskActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ScheduledWorkflowTaskActor())), ScheduledWorkflowTaskActorName)
 
@@ -98,6 +101,7 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     DebugWorkflowActorName -> debugActor,
     ParameterListActorName -> parameterListActor,
     MlModelsActorName -> mlModelActor,
+    QualityRuleResultActorName -> qualityRuleResultActor,
     ScheduledWorkflowTaskActorName -> scheduledWorkflowTaskActor
   )
 
@@ -162,7 +166,7 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
         serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
         serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
         serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
-        serviceRoutes.mlModelsRoutes(user) ~ serviceRoutes.scheduledWorkflowTasksRoutes(user)
+        serviceRoutes.mlModelsRoutes(user) ~ serviceRoutes.scheduledWorkflowTasksRoutes(user) ~ serviceRoutes.qualityRuleResultRoutes(user)
     }
   }
 
@@ -213,6 +217,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   def debugRoutes(user: Option[LoggedUser]): Route = debugService.routes(user)
 
   def mlModelsRoutes(user: Option[LoggedUser]): Route = mlModelsService.routes(user)
+
+  def qualityRuleResultRoutes(user: Option[LoggedUser]): Route = qualityRuleResultService.routes(user)
 
   def scheduledWorkflowTasksRoutes(user: Option[LoggedUser]): Route = scheduledWorkflowTasksService.routes(user)
 
@@ -299,6 +305,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext) {
   private val scheduledWorkflowTasksService = new ScheduledWorkflowTaskHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.ScheduledWorkflowTaskActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val qualityRuleResultService = new QualityRuleResultHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.QualityRuleResultActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

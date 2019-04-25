@@ -5,7 +5,7 @@
  */
 package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.core.models.WorkflowError
+import com.stratio.sparta.core.models.{SpartaQualityRule, WorkflowError}
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.dto.Dto
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
@@ -28,6 +28,7 @@ case class WorkflowExecution(
                               resumedStatus: Option[WorkflowStatusEnum] = None,
                               executionEngine: Option[ExecutionEngine] = None,
                               searchText: Option[String] = None,
+                              qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
                               executedFromScheduler: Option[String] = None,
                               executedFromExecution: Option[String] = None
                             ) extends EntityAuthorization {

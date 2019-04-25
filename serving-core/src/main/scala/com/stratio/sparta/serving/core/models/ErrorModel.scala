@@ -184,12 +184,16 @@ object ErrorModel extends SpartaSerializer {
   val DebugWorkflowServiceDeleteFile = "924"
   val DebugWorkflowServiceDownload = "925"
 
-  /* history Service 950 - 974 */
-  val WorkflowHistoryExecutionUnexpected = "950"
-  val WorkflowHistoryExecutionFindByUserId = "951"
-  val WorkflowHistoryExecutionFindByWorkflowId = "952"
-  val WorkflowHistoryStatusUnexpected = "953"
-  val WorkflowHistoryStatusFindByWorkflowId = "954"
+  /* Data quality result service 950 - 974 */
+  val QualityRuleResultServiceFindAll = "950"
+  val QualityRuleResultServiceFindById = "951"
+  val QualityRuleResultServiceFindByExecutionId = "952"
+  val QualityRuleResultServiceFindAllUnsent = "953"
+  val QualityRuleResultServiceCreate = "954"
+  val QualityRuleResultServiceDeleteAll = "955"
+  val QualityRuleResultServiceDeleteById = "956"
+  val QualityRuleResultServiceDeleteByExecutionId = "957"
+
 
   /* Parameter lists Service 975 - 999 */
   val ParameterListServiceUnexpected = "975"
@@ -342,11 +346,14 @@ object ErrorModel extends SpartaSerializer {
     DebugWorkflowServiceUpload -> "Error while uploading a mock file",
     DebugWorkflowServiceDownload -> "Error while downloading a mock file",
     DebugWorkflowServiceDeleteFile -> "Error while deleting a mock file",
-    WorkflowHistoryExecutionUnexpected -> "Unexpected behaviour in Workflow History Execution service",
-    WorkflowHistoryExecutionFindByUserId -> "Error finding workflow History Execution by userId",
-    WorkflowHistoryExecutionFindByWorkflowId -> "Error finding workflow History Execution by workflowId",
-    WorkflowHistoryStatusUnexpected -> "Unexpected behaviour in Workflow Status History service",
-    WorkflowHistoryStatusFindByWorkflowId -> "Error finding workflow status history by workflow ID",
+    QualityRuleResultServiceFindAll -> "Error while obtaining all quality rule results",
+    QualityRuleResultServiceFindById -> "Error while obtaining the  quality rule result with the specified ID",
+    QualityRuleResultServiceFindByExecutionId -> "Error while obtaining the  quality rule result with the specified execution ID",
+    QualityRuleResultServiceFindAllUnsent -> "Error while obtaining all the non sent  quality rule results",
+    QualityRuleResultServiceCreate -> "Error while creating a new quality rule result",
+    QualityRuleResultServiceDeleteAll -> "Error while deleting all quality rule results",
+    QualityRuleResultServiceDeleteById -> "Error while deleting a quality rule result with the specified ID",
+    QualityRuleResultServiceDeleteByExecutionId -> "Error while deleting a quality rule result with the specified execution ID",
     ParameterListServiceUnexpected -> "Unexpected behaviour in parameter list service",
     ParameterListServiceFindById -> "Error finding parameter list by ID",
     ParameterListServiceFindByName -> "Error finding parameter list by Name",

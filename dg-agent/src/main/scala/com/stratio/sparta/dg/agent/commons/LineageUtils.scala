@@ -10,6 +10,7 @@ import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.dg.agent.models.LineageWorkflow
 import com.stratio.sparta.serving.core.constants.AppConstant.defaultWorkflowRelationSettings
@@ -26,6 +27,8 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.{Properties, Try}
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
+
+import scala.util.{Properties, Try}
 
 //scalastyle:off
 object LineageUtils extends ContextBuilderImplicits {
@@ -149,6 +152,8 @@ object LineageUtils extends ContextBuilderImplicits {
       outputName -> newProperties
     }
   }
+
+
 
   def extraPathFromFilesystemOutput(stepType: String, stepClass: String, path: Option[String],
                                     resource: Option[String]): String =

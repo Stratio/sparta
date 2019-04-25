@@ -242,7 +242,8 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
 
     val updateWithZKFuture = updateFuture.map { case (actualExecutionStatus, newExecutionWithStatus) =>
-      writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
+      if(actualExecutionStatus.lastStatus.state != newExecutionWithStatus.lastStatus.state)
+        writeExecutionStatusInZk(WorkflowExecutionStatusChange(actualExecutionStatus, newExecutionWithStatus))
       newExecutionWithStatus
     }
 

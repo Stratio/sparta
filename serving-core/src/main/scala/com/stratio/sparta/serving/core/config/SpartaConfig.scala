@@ -106,9 +106,9 @@ object SpartaConfig extends SLF4JLogging {
     if(force) initIgniteConfig(fromConfig)
     else igniteConfig.orElse(initIgniteConfig(fromConfig))
 
-  def getLineageConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
-    if(force) initLineageConfig(fromConfig)
-    else lineageConfig.orElse(initLineageConfig(fromConfig))
+  def getGovernanceConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initGovernanceConfig(fromConfig)
+    else lineageConfig.orElse(initGovernanceConfig(fromConfig))
 
   def getS3Config(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initS3Config(fromConfig)
@@ -222,9 +222,9 @@ object SpartaConfig extends SLF4JLogging {
     igniteConfig
   }
 
-  private[config] def initLineageConfig(fromConfig: Option[Config] = None): Option[Config] = {
+  private[config] def initGovernanceConfig(fromConfig: Option[Config] = None): Option[Config] = {
     val configFactory = SpartaConfigFactory(fromConfig)
-    lineageConfig = initConfig(ConfigLineage, configFactory)
+    lineageConfig = initConfig(ConfigGovernance, configFactory)
     lineageConfig
   }
 

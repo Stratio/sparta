@@ -21,14 +21,14 @@ case class MetadataPath(
     serviceRes.append(pathRes).append(resourceRes).append(fieldRes).toString
   }
 
-  def addLevelCharPathWithResource(path: String) = {
+  def addLevelCharPathWithResource(path: String): String = {
     path.equals(PROTOCOL_CHAR) match {
       case true => path.concat(LEVEL_CHAR).concat(SPLIT_CHAR)
       case false => PROTOCOL_CHAR.concat(path.concat(LEVEL_CHAR).concat(SPLIT_CHAR))
     }
   }
 
-  def addLevelCharPathWithOutResource(path: String) = {
+  def addLevelCharPathWithOutResource(path: String): String = {
     PROTOCOL_CHAR.concat(path.reverse.replaceFirst(PROTOCOL_CHAR, REVERSE_LEVEL_CHAR).reverse.concat(SPLIT_CHAR))
   }
 }

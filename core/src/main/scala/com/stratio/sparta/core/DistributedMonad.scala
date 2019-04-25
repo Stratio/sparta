@@ -6,39 +6,44 @@
 package com.stratio.sparta.core
 
 import java.sql.Timestamp
+import java.time.Instant
 import java.util.Calendar
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.{TableNameKey, saveOptionsFromOutputOptions}
-import com.stratio.sparta.core.helpers.SdkSchemaHelper
-import com.stratio.sparta.core.helpers.SdkSchemaHelper._
-import com.stratio.sparta.core.models.{DiscardCondition, ErrorOutputAction, ErrorsManagement, OutputOptions}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.enumerators.{SaveModeEnum, WhenError}
+import com.stratio.sparta.core.helpers.SdkSchemaHelper._
+import com.stratio.sparta.core.helpers.{CastingHelper, QualityRuleActionEnum, SdkSchemaHelper}
+import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.models.qualityrule._
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Dataset, Encoder, Row}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.util.LongAccumulator
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success, Try}
+import QualityRuleActionEnum._
 
 /**
-  * This is a typeclass interface whose goal is to abstract over DStreams, RDD, Datasets and whichever
-  * distributed collection of rows may come in the future.
-  *
-  * Concrete implementations of the type class are provided by [[DistributedMonad.DistributedMonadImplicits]] for
-  * [[DStream]], [[RDD]] and [[Dataset]]. These are implicit classes which, wherever they are visible, allow using
-  * [[DStream]]s, [[RDD]]s and [[Dataset]]s indistinctively thus providing a delayed (after type definition) level of
-  * polymorphism.
-  *
-  * @tparam Underlying Collection of [[Row]]s wrapped to be used through the [[DistributedMonad]] interface.
-  */
+ * This is a typeclass interface whose goal is to abstract over DStreams, RDD, Datasets and whichever
+ * distributed collection of rows may come in the future.
+ *
+ * Concrete implementations of the type class are provided by [[DistributedMonad.DistributedMonadImplicits]] for
+ * [[DStream]], [[RDD]] and [[Dataset]]. These are implicit classes which, wherever they are visible, allow using
+ * [[DStream]]s, [[RDD]]s and [[Dataset]]s indistinctively thus providing a delayed (after type definition) level of
+ * polymorphism.
+ *
+ * @tparam Underlying Collection of [[Row]]s wrapped to be used through the [[DistributedMonad]] interface.
+ */
 trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
   val ds: Underlying[Row] // Wrapped collection
@@ -85,39 +90,41 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
     ssc = streamingContext
 
   /**
-    * Write operation, note this is a public interface for users to call,
-    * its implementation should be provided by [[writeTemplate]]. The reason
-    * for this convoluted approach (compared to just offering an unimplemented method
-    * for subclasses to implement) is that `xDSession` needs to be captured
-    * as a transient variable in order to be able to serialize the whole [[DistributedMonad]]
-    * implementation.
-    *
-    * @param outputOptions Options for the write operation.
-    * @param xDSession     Crossdata session potentially used in the write operation.
-    * @param save          Write operation implementation (it'll be executed at the end of each window).
-    */
+   * Write operation, note this is a public interface for users to call,
+   * its implementation should be provided by [[writeTemplate]]. The reason
+   * for this convoluted approach (compared to just offering an unimplemented method
+   * for subclasses to implement) is that `xDSession` needs to be captured
+   * as a transient variable in order to be able to serialize the whole [[DistributedMonad]]
+   * implementation.
+   *
+   * @param outputOptions Options for the write operation.
+   * @param xDSession     Crossdata session potentially used in the write operation.
+   * @param save          Write operation implementation (it'll be executed at the end of each window).
+   */
   final def write(
                    outputOptions: OutputOptions,
                    xDSession: XDSession,
                    errorsManagement: ErrorsManagement,
                    errorOutputs: Seq[OutputStep[Underlying]],
-                   predecessors: Seq[String]
-                 )(save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit): Unit = {
+                   predecessors: Seq[String],
+                   qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule]
+                 )(save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit): Seq[SparkQualityRuleResults] = {
     xdSession = xDSession
-    writeTemplate(outputOptions, errorsManagement, errorOutputs, predecessors, save)
+    writeTemplate(outputOptions, errorsManagement, errorOutputs, predecessors, qualityRules, save)
   }
 
   /**
-    * Use this template method to implement [[write]], this is required in order
-    * to be able to use xdSession within functions which should be serialized to work with Spark.
-    */
+   * Use this template method to implement [[write]], this is required in order
+   * to be able to use xdSession within functions which should be serialized to work with Spark.
+   */
   protected def writeTemplate(
                                outputOptions: OutputOptions,
                                errorsManagement: ErrorsManagement,
                                errorOutputs: Seq[OutputStep[Underlying]],
                                predecessors: Seq[String],
+                               qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
                                save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
-                             ): Unit
+                             ): Seq[SparkQualityRuleResults]
 
   private def redirectDependencies(redirectContext: RedirectContext, predecessors: Seq[String]): Unit = {
     import redirectContext._
@@ -192,26 +199,122 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
   //scalastyle:off
 
-  protected def writeRDDTemplate(
-                                  rdd: RDD[Row],
-                                  outputOptions: OutputOptions,
-                                  errorsManagement: ErrorsManagement,
-                                  errorOutputs: Seq[OutputStep[Underlying]],
-                                  predecessors: Seq[String],
-                                  save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
-                                ): Unit = {
+  protected[core] def writeRDDTemplate(
+                                        rdd: RDD[Row],
+                                        outputOptions: OutputOptions,
+                                        errorsManagement: ErrorsManagement,
+                                        errorOutputs: Seq[OutputStep[Underlying]],
+                                        predecessors: Seq[String],
+                                        qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
+                                        save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
+                                      ): Seq[SparkQualityRuleResults] = {
+
+    val res = new ListBuffer[SparkQualityRuleResults]()
     Try {
       SdkSchemaHelper.getSchemaFromSession(xdSession, outputOptions.stepName)
         .orElse(if (!rdd.isEmpty()) Option(rdd.first().schema) else None).foreach { schemaExtracted =>
         val dataFrame = xdSession.createDataFrame(rdd, schemaExtracted)
-        val saveOptions = saveOptionsFromOutputOptions(outputOptions)
+        val saveOptions: Map[String, String] = saveOptionsFromOutputOptions(outputOptions)
 
-        if(dataFrame.schema.fields.nonEmpty)
+        if (qualityRules.nonEmpty) {
+
+          log.info(s"Quality rules to be executed for step ${outputOptions.stepName} and table ${outputOptions.tableName} : ${qualityRules.mkString(",")}" )
+
+          val sparkRules: Seq[SparkQualityRule[Row]] = qualityRules.map(rule => new SparkQualityRule[Row](rule, schemaExtracted))
+
+          val rowCountAccumulator: LongAccumulator = xdSession.sparkContext.longAccumulator("Accumulator_row_count")
+
+          val mapAccumulators: Map[Long, LongAccumulator] =
+            sparkRules.map(rule => rule.id -> xdSession.sparkContext.longAccumulator(s"Accumulator_QR_${rule.id}")).toMap
+
+          xdSession.sparkContext.broadcast(mapAccumulators)
+          xdSession.sparkContext.broadcast(sparkRules)
+
+          val cachedRDD: DataFrame = dataFrame.cache()
+
+          val executionTime = CastingHelper.castingToSchemaType(TimestampType,
+            Timestamp.from(Instant.now).getTime)
+
+          val executionId = Try(qualityRules.head.executionId.get).toOption.getOrElse("")
+
+          val qualityRulesStructFields: Array[StructField] = Array(
+            StructField("passingQualityRules", ArrayType(StringType)),
+            StructField("failingQualityRules", ArrayType(StringType)),
+            StructField("executionId", StringType),
+            StructField("executionTime", TimestampType)
+          )
+
+          val schemaWithQualityRulesNewFields = StructType(cachedRDD.schema.fields ++ qualityRulesStructFields)
+
+          val qualityRulesPassingDataFrame = cachedRDD.filter { row =>
+            sparkRules.forall(rule => rule.composedPredicates(row))
+          }
+
+          val qualityRulesFailingDataFrame = cachedRDD.map { row =>
+            val failingQRs = sparkRules.filter(rule => !rule.composedPredicates(row)).map(_.id)
+            val passingQRs = sparkRules.filterNot(x => failingQRs.contains(x.id)).map(_.id)
+            if(failingQRs.nonEmpty)
+              Row.fromSeq(row.toSeq ++ Seq(passingQRs) ++ Seq(failingQRs) ++ Seq(executionId) ++ Seq(executionTime))
+            else Row.empty
+          } (RowEncoder(schemaWithQualityRulesNewFields)).filter(_.toSeq.nonEmpty)
+
+          cachedRDD.foreach { row =>
+            sparkRules.foreach(rule => if (rule.composedPredicates(row)) mapAccumulators(rule.id).add(1))
+            rowCountAccumulator.add(1)
+          }
+
+          val seqThresholds: Map[Long, (Boolean, String, SpartaQualityRuleThresholdActionType)] =
+            qualityRules.map { rule =>
+              val validationThreshold = new SparkQualityRuleThreshold(rule.threshold, mapAccumulators(rule.id).value, rowCountAccumulator.value)
+              val validationResult =
+                if (validationThreshold.valid && validationThreshold.isThresholdSatisfied) (true, s"${validationThreshold.toString}", rule.threshold.actionType)
+                else (false, s"${validationThreshold.toString}", rule.threshold.actionType)
+              rule.id -> validationResult
+            }.toMap
+
+          val strictestPolicy = findOutputMode(seqThresholds)
+
+          res ++= qualityRules.map { qr =>
+            val stringConditions = qr.predicates.mkString(s"\n${qr.logicalOperator.toUpperCase} ")
+
+            SparkQualityRuleResults(
+              dataQualityRuleId = qr.id.toString,
+              numTotalEvents = rowCountAccumulator.value,
+              numPassedEvents = mapAccumulators(qr.id).value,
+              numDiscardedEvents = rowCountAccumulator.value - mapAccumulators(qr.id).value,
+              metadataPath = qr.metadataPath,
+              transformationStepName = qr.stepName,
+              outputStepName = qr.outputName,
+              satisfied = seqThresholds(qr.id)._1,
+              condition = seqThresholds(qr.id)._2,
+              successfulWriting = true,
+              qualityRuleName = qr.name,
+              conditionsString = stringConditions,
+              globalAction = strictestPolicy.toString
+            )}
+
+          log.info(s"Quality Rule Results: ${res.mkString(",")}")
+
+          strictestPolicy match {
+            case ActionPassthrough if (dataFrame.schema.fields.nonEmpty) =>
+              save(dataFrame, outputOptions.saveMode, saveOptions)
+
+            case ActionMove if (dataFrame.schema.fields.nonEmpty) =>
+              val tableNameRefusals = ("tableName" -> s"${saveOptions("tableName")}_refusals")
+              save(qualityRulesPassingDataFrame, outputOptions.saveMode, saveOptions)
+              save(qualityRulesFailingDataFrame, outputOptions.saveMode, saveOptions + tableNameRefusals)
+          }
+          dataFrame.unpersist()
+        }
+        else if (dataFrame.schema.fields.nonEmpty)
           save(dataFrame, outputOptions.saveMode, saveOptions)
+
+
       }
     } match {
       case Success(_) =>
         log.debug(s"Input data saved correctly into ${outputOptions.tableName}")
+        res
       case Failure(e) =>
         Try {
           import errorsManagement.transactionsManagement._
@@ -241,17 +344,23 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
             log.debug(s"Error management executed correctly in ${outputOptions.tableName}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
               throw e
-            else log.warn(s"Error executing the workflow, the error will be discarded by the errors management." +
-              s" The exception is: ${e.toString}")
+            else {
+              log.warn(s"Error executing the workflow, the error will be discarded by the errors management." +
+                s" The exception is: ${e.toString}")
+              res ++= res.map(sparkQRResult => sparkQRResult.copy(successfulWriting = false))
+            }
           case Failure(exception) =>
             log.debug(s"Error management executed with errors in ${outputOptions.tableName}." +
               s" ${exception.getLocalizedMessage}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
               throw new Exception(s"Main exception: ${e.getLocalizedMessage}." +
                 s" Error management exception: ${exception.getLocalizedMessage}", e)
-            else log.warn(s"Error executing the workflow and executing the errors management," +
-              s" the error will be discarded by the errors management." +
-              s" Main exception: ${e.toString}. Error management exception: ${exception.toString}")
+            else {
+              log.warn(s"Error executing the workflow and executing the errors management," +
+                s" the error will be discarded by the errors management." +
+                s" Main exception: ${e.toString}. Error management exception: ${exception.toString}")
+              res ++= res.map(sparkQRResult => sparkQRResult.copy(successfulWriting = false))
+            }
         }
     }
   }
@@ -275,13 +384,13 @@ object DistributedMonad {
     implicit def rowEncoder(schema: StructType): Encoder[Row] = RowEncoder(schema)
 
     /**
-      * Type class instance for [[DStream[Row]]]
-      * This is an implicit class. Therefore, whenever a [[DStream]] is passed to a function
-      * expecting a [[DistributedMonad]] being this class visible, the compiler will wrapp that [[DStream]] using
-      * the constructor of this class.
-      *
-      * @param ds [[DStream[Row]]] to be wrapped.
-      */
+     * Type class instance for [[DStream[Row]]]
+     * This is an implicit class. Therefore, whenever a [[DStream]] is passed to a function
+     * expecting a [[DistributedMonad]] being this class visible, the compiler will wrapp that [[DStream]] using
+     * the constructor of this class.
+     *
+     * @param ds [[DStream[Row]]] to be wrapped.
+     */
     implicit class DStreamAsDistributedMonad(val ds: DStream[Row]) extends DistributedMonad[DStream] {
 
       override def map(func: Row => Row): DStream[Row] =
@@ -338,22 +447,25 @@ object DistributedMonad {
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[DStream]],
                                   predecessors: Seq[String],
+                                  qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
-                                ): Unit = {
+                                ): Seq[SparkQualityRuleResults] = {
+        val res = new ListBuffer[SparkQualityRuleResults]()
         ds.foreachRDD { rdd =>
-          writeRDDTemplate(rdd, outputOptions, errorsManagement, errorOutputs, predecessors, save)
+          res ++= writeRDDTemplate(rdd, outputOptions, errorsManagement, errorOutputs, predecessors, qualityRules, save)
         }
+        res
       }
     }
 
     /**
-      * Type class instance for [[Dataset[Row]]]
-      * This is an implicit class. Therefore, whenever a [[Dataset]] is passed to a function
-      * expecting a [[DistributedMonad]] being this class visible, the compiler will wrapp that [[Dataset]] using
-      * the constructor of this class.
-      *
-      * @param ds [[Dataset[Row]] to be wrapped.
-      */
+     * Type class instance for [[Dataset[Row]]]
+     * This is an implicit class. Therefore, whenever a [[Dataset]] is passed to a function
+     * expecting a [[DistributedMonad]] being this class visible, the compiler will wrapp that [[Dataset]] using
+     * the constructor of this class.
+     *
+     * @param ds [[Dataset[Row]] to be wrapped.
+     */
     implicit class DatasetDistributedMonad(val ds: Dataset[Row]) extends DistributedMonad[Dataset] {
 
       override def map(func: Row => Row): Dataset[Row] = {
@@ -409,20 +521,21 @@ object DistributedMonad {
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[Dataset]],
                                   predecessors: Seq[String],
+                                  qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
-                                ): Unit =
-        writeRDDTemplate(ds.rdd, outputOptions, errorsManagement, errorOutputs, predecessors, save)
+                                ): Seq[SparkQualityRuleResults] =
+        writeRDDTemplate(ds.rdd, outputOptions, errorsManagement, errorOutputs, predecessors, qualityRules, save)
 
     }
 
     /**
-      * Type class instance for [[org.apache.spark.rdd.RDD[Row]]]
-      * This is an implicit class. Therefore, whenever a [[org.apache.spark.rdd.RDD]] is passed to a function
-      * expecting a [[DistributedMonad]] being this class visible,
-      * the compiler will wrapp that [[org.apache.spark.rdd.RDD]] using the constructor of this class.
-      *
-      * @param ds [[org.apache.spark.rdd.RDD[Row]] to be wrapped.
-      */
+     * Type class instance for [[org.apache.spark.rdd.RDD[Row]]]
+     * This is an implicit class. Therefore, whenever a [[org.apache.spark.rdd.RDD]] is passed to a function
+     * expecting a [[DistributedMonad]] being this class visible,
+     * the compiler will wrapp that [[org.apache.spark.rdd.RDD]] using the constructor of this class.
+     *
+     * @param ds [[org.apache.spark.rdd.RDD[Row]] to be wrapped.
+     */
     implicit class RDDDistributedMonad(val ds: RDD[Row]) extends DistributedMonad[RDD] {
 
       override def map(func: Row => Row): RDD[Row] =
@@ -471,9 +584,10 @@ object DistributedMonad {
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[RDD]],
                                   predecessors: Seq[String],
+                                  qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule],
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
-                                ): Unit =
-        writeRDDTemplate(ds, outputOptions, errorsManagement, errorOutputs, predecessors, save)
+                                ): Seq[SparkQualityRuleResults] =
+        writeRDDTemplate(ds, outputOptions, errorsManagement, errorOutputs, predecessors, qualityRules, save)
     }
 
     implicit def asDistributedMonadMap[K, Underlying[Row]](m: Map[K, Underlying[Row]])(
@@ -502,9 +616,9 @@ object DistributedMonad {
       outputOptions.uniqueConstraintName.notBlank.fold(Map.empty[String, String]) { key =>
         Map(UniqueConstraintName -> key)
       } ++
-    outputOptions.uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
-      Map(UniqueConstraintFields -> key)
-    } ++
+      outputOptions.uniqueConstraintFields.notBlank.fold(Map.empty[String, String]) { key =>
+        Map(UniqueConstraintFields -> key)
+      } ++
       outputOptions.updateFields.notBlank.fold(Map.empty[String, String]) { key =>
         Map(UpdateFields -> key)
       }

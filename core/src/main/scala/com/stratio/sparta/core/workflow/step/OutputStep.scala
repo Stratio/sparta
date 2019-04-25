@@ -10,7 +10,8 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.enumerators.SaveModeEnum
-import com.stratio.sparta.core.models.{ErrorsManagement, OutputOptions}
+import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
+import com.stratio.sparta.core.models.{ErrorsManagement, OutputOptions, SpartaQualityRule}
 import com.stratio.sparta.core.properties.Parameterizable
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.crossdata.XDSession
@@ -42,9 +43,10 @@ abstract class OutputStep[Underlying[Row]](
                                       outputOptions: OutputOptions,
                                       errorsManagement: ErrorsManagement,
                                       errorOutputs: Seq[OutputStep[Underlying]],
-                                      predecessors: Seq[String]
-                                    ): Unit =
-    inputData.write(outputOptions, xDSession, errorsManagement, errorOutputs, predecessors)(save)
+                                      predecessors: Seq[String],
+                                      qualityRules: Seq[SpartaQualityRule] = Seq.empty[SpartaQualityRule]
+                                    ): Seq[SparkQualityRuleResults] =
+    inputData.write(outputOptions, xDSession, errorsManagement, errorOutputs, predecessors, qualityRules)(save)
 
   /**
     * Save function that implements the plugins.

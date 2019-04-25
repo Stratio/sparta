@@ -6,22 +6,23 @@
 
 package com.stratio.sparta.serving.core.dao
 
+import com.stratio.sparta.core.models.{DebugResults, SpartaQualityRule}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
-import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
-import com.stratio.sparta.serving.core.models.workflow._
-import org.joda.time.DateTime
-import org.json4s.jackson.Serialization._
-import com.stratio.sparta.core.models.DebugResults
-import com.stratio.sparta.serving.core.models.authorization.LoggedUser
+
 import com.stratio.sparta.serving.core.models.enumerators.DataType.DataType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledActionType.ScheduledActionType
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskState.ScheduledTaskState
 import com.stratio.sparta.serving.core.models.enumerators.ScheduledTaskType.ScheduledTaskType
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.parameters.ParameterVariable
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.models.workflow.migration.SettingsOrion
 import com.stratio.sparta.serving.core.models.authorization.{HeaderAuthUser, LoggedUser}
+
+import org.joda.time.DateTime
+import org.json4s.jackson.Serialization._
 
 import scala.util.Try
 
@@ -183,4 +184,12 @@ object CustomColumnTypes extends SpartaSerializer {
     objToSerialize => write(objToSerialize),
     objToDeSerialize => read[HeaderAuthUser](objToDeSerialize)
   )
+
+  //SpartaQualityRule
+
+  implicit val spartaQualityRuleType = MappedColumnType.base[Seq[SpartaQualityRule], String](
+    objToSerialize => write(objToSerialize),
+    objToDeSerialize => read[Seq[SpartaQualityRule]](objToDeSerialize)
+  )
+
 }

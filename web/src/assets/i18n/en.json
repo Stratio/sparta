@@ -245,6 +245,7 @@
       "_NAME_": "Name",
       "_DESCRIPTION_": "Description",
       "_EXECUTION_MODE_": "Execution Mode",
+      "_QUALITY_RULES_": "Enable quality rules for this workflow",
       "_TEMPORAL_TABLE_TRANSFORMATIONS_": "Transformations temporal table",
       "_MONITORING_LINK_": "Monitoring link",
       "_USER_PLUGINS_JARS_": "User plugins",

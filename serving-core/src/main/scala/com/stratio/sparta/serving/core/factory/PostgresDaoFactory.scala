@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 /**
-  * Utiliy class for manage dao object creation
+  * Utility class for manage dao object creation
   */
 object PostgresDaoFactory {
 
@@ -31,6 +31,7 @@ object PostgresDaoFactory {
   lazy val globalParametersService = new GlobalParametersPostgresDao()
   lazy val parameterListPostgresDao = new ParameterListPostgresDao()
   lazy val templatePgService = new TemplatePostgresDao()
+  lazy val qualityRuleResultPgService = new QualityRuleResultPostgresDao()
   lazy val scheduledWorkflowTaskPgService = new ScheduledWorkflowTaskPostgresDao()
 
 }

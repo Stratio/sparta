@@ -32,7 +32,8 @@ case class GlobalSettings(
                            udfsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
                            udafsToRegister: Seq[UserUDF] = Seq.empty[UserUDF],
                            mesosRole: Option[JsoneyString] = None,
-                           marathonDeploymentSettings: Option[MarathonDeploymentSettings] = None
+                           marathonDeploymentSettings: Option[MarathonDeploymentSettings] = None,
+                           enableQualityRules: Option[Boolean] = Option(false)
                          )
 
 case class GlobalSettingsDto(

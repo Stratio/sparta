@@ -35,7 +35,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigMarathon = "sparta.marathon"
   val ConfigIntelligence = "sparta.intelligence"
   val ConfigIgnite = "sparta.ignite"
-  val ConfigLineage = "lineage.http"
+  val ConfigGovernance = "governance"
   val ConfigS3 = "spark.hadoop.fs.s3a"
   val HdfsKey = "hdfs"
   val DefaultOauth2CookieName = "user"

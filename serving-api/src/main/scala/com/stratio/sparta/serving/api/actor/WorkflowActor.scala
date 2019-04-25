@@ -46,7 +46,8 @@ class WorkflowActor(
   def receiveApiActions(action: Any): Any = action match {
     case Run(id, user) => run(id, user)
     case RunWithVariables(executionVariables, user) => runWithVariables(executionVariables, user)
-    case RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user) => runWithExecutionContext(workflowIdExecutionContext, user)
+    case RunWithWorkflowIdExecutionContext(workflowIdExecutionContext, user) =>
+      runWithExecutionContext(workflowIdExecutionContext, user)
     case CreateWorkflow(workflow, user) => create(workflow, user)
     case Update(workflow, user) => update(workflow, user)
     case Find(id, user) => find(id, user)

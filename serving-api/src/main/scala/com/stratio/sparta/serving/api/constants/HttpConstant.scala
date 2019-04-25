@@ -30,6 +30,7 @@ object HttpConstant {
   final val AppInfoPath = "appInfo"
   final val MetadataPath = "metadata"
   final val MlModelsPath = "mlModels"
+  final val QualityRuleResultsPath = "qualityRuleResults"
   final val NotFound = 400
   final val NotFoundMessage = "Not Found"
 
