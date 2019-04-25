@@ -39,13 +39,13 @@
           "propertyType": "text",
           "required": true,
           "width": 2,
-          "qa": "fragment-details-field-name"
+          "qa": "fragment-details-field-characterToTrim"
         },
         {
           "propertyId": "trimType",
           "propertyName": "_TRIM_IN_TYPE_",
           "propertyType": "select",
-          "default": "LEFT",
+          "default": "TRIM_LEFT",
           "values": [
             {
               "label": "Left",
