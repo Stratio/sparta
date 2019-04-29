@@ -69,7 +69,8 @@ export const icons: any = {
     RunWorkflow: '\ue052',
     DuplicateColumns: '\uE61c',
     Formatter: '\ue63c',
-    CommaDelimiter: '\ue93b'
+    CommaDelimiter: '\ue93b',
+    Hash: '\ue921',
     Binarizer: '\ue941',
     BucketedRandomProjectionLSH: '\ue941',
     Bucketizer: '\ue941',
