@@ -40,6 +40,7 @@
           "propertyType": "text",
           "required": true,
           "width": 2,
+          "tooltip": "Size of the decimal part.",
           "qa": "fragment-details-length-decimal"
         },
         {
@@ -49,6 +50,7 @@
           "required": true,
           "default": ".",
           "width": 3,
+          "tooltip": "Separator to use. Default '.'",
           "qa": "workflow-transformation-separator-decimal"
         },
         {

@@ -741,6 +741,9 @@
    "_ERROR_POLICY_" : "Error policy",
    "_INPUT_DESTINATION_FIELD_": "Field containing destination path",
    "_ADD_TIMESTAMP_FILENAME_": "Add timestamp to filename",
+  "_COLUMNS_TO_DELIMIT_": "Columns to delimit",
+  "_LENGTH_DECIMAL_": "Decimal length",
+  "_SEPARATOR_DECIMAL_": "Decimal separator",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",
