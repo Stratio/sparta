@@ -3,7 +3,7 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
-package com.stratio.sparta.testsAT.automated.dcos.executions;
+package com.stratio.sparta.testsAT.automated.dcos.uninstall;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.data.BrowsersDataProvider;
@@ -13,17 +13,18 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
-
+        "src/test/resources/features/automated/dcos/03_uninstall/SPARTA_2811_Uninstall_Governance.feature"
 },format = "json:target/cucumber.json")
+public class SPARTA_2755_Uninstall_Governance_IT extends BaseTest {
 
-public class SPARTA_1279_KafkaPostgres_IT extends BaseTest  {
-    public SPARTA_1279_KafkaPostgres_IT() {this.browser = browser;
+    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+    public SPARTA_2755_Uninstall_Governance_IT(String browser) {
+        this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_execution_postgres"})
-    public void ExecuteWorkflow() throws Exception {
+    @Test(enabled = true, groups = {"Governance_Uninstall"})
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
 }

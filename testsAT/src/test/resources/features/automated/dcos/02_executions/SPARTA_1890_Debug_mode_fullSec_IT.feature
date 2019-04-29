@@ -27,7 +27,7 @@ Feature: [SPARTA-1890] E2E Execution DebugMode Workflow -Batch mode
     Then I save selenium cookies in context
     #include workflow
     When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
-    Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/crossdata-write-batch.json' as 'json' with:
+    Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/linage-workflow.json' as 'json' with:
       |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_INSTANCE}?user=${DCOS_SERVICE_NAME}   | n/a |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'

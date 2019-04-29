@@ -12,7 +12,7 @@ This software – including all its source code – contains proprietary informa
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <stratio-test-bdd.version>0.8.0</stratio-test-bdd.version>
+        <stratio-test-bdd.version>0.9.0</stratio-test-bdd.version>
         <kotlin.version>1.1.2-4</kotlin.version>
         <cucumber-reporting.version>4.1.1</cucumber-reporting.version>
     </properties>
@@ -45,7 +45,7 @@ This software – including all its source code – contains proprietary informa
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <projectName>zookeeper-framework</projectName>
+                            <projectName>sparta</projectName>
                             <outputDirectory>${project.build.directory}</outputDirectory>
                             <inputDirectory>${project.build.directory}</inputDirectory>
                             <jsonFiles>
@@ -89,7 +89,6 @@ This software – including all its source code – contains proprietary informa
                     </properties>
                     <argLine>-Xmx1024m -XX:+HeapDumpOnOutOfMemoryError
                         -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/1.8.8/aspectjweaver-1.8.8.jar</argLine>
-                    <useSystemClassloader>true</useSystemClassloader>
                 </configuration>
             </plugin>
             <plugin>

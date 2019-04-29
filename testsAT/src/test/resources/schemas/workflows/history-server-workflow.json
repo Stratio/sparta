@@ -1,0 +1,286 @@
+{
+  "id": "71959708-3dad-44a9-b35a-b6ac7fa36614",
+  "name": "history-server-streaming-test",
+  "description": "Automatic Workflow testinput kafka 400ev",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "preExecutionSqlSentences": [],
+      "postExecutionSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER",
+      "parametersLists": [
+        "Environment"
+      ],
+      "parametersUsed": [
+        "Global.SPARK_DRIVER_JAVA_OPTIONS",
+        "Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS",
+        "Global.SPARK_LOCAL_PATH",
+        "Global.SPARK_STREAMING_CHECKPOINT_PATH"
+      ],
+      "udfsToRegister": [],
+      "udafsToRegister": [],
+      "mesosRole": "",
+      "marathonDeploymentSettings": {
+        "gracePeriodSeconds": "",
+        "intervalSeconds": "",
+        "timeoutSeconds": "",
+        "maxConsecutiveFailures": "",
+        "forcePullImage": false,
+        "privileged": false,
+        "userEnvVariables": [],
+        "userLabels": [],
+        "logLevel": ""
+      }
+    },
+    "streamingSettings": {
+      "window": "10s",
+      "remember": "",
+      "backpressure": false,
+      "blockInterval": "100ms",
+      "stopGracefully": false,
+      "checkpointSettings": {
+        "checkpointPath": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "1",
+          "executorMemory": "2G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "2G",
+          "mesosExtraCores": "",
+          "localityWait": "100",
+          "taskMaxFailures": "8",
+          "sparkMemoryFraction": "0.6",
+          "sparkParallelism": ""
+        },
+        "sparkHistoryServerConf": {
+          "enableHistoryServerMonitoring": true,
+          "sparkHistoryServerLogDir": "hdfs:///tmp/logs/history/",
+          "sparkHistoryServerMonitoringURL": "https:///spark-history.labs.stratio.com/spark-history"
+        },
+        "userSparkConf": [
+          {
+            "sparkConfKey": " spark.eventLog.rotate",
+            "sparkConfValue": true
+          }
+        ],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "{{{Global.SPARK_LOCAL_PATH}}}",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": false,
+        "logStagesProgress": false,
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "{{{Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": false,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "Test",
+        "stepType": "Input",
+        "className": "TestInputStepStreaming",
+        "classPrettyName": "Test",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "description": "Json with ID",
+        "uiConfiguration": {
+          "position": {
+            "x": 476,
+            "y": 234
+          }
+        },
+        "configuration": {
+          "maxNumbEvents": "400",
+          "eventType": "STRING",
+          "outputField": "raw",
+          "event": "{\"id\":\"550\"}",
+          "numEvents": "400"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "JsonPath",
+        "stepType": "Transformation",
+        "className": "JsonPathTransformStepStreaming",
+        "classPrettyName": "JsonPath",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 729,
+            "y": 234
+          }
+        },
+        "configuration": {
+          "queries": [
+            {
+              "field": "id",
+              "query": "$.id",
+              "type": "string"
+            }
+          ],
+          "whenError": "Error",
+          "supportNullValues": true,
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "idtable",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStreaming",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "idtopic",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 954,
+            "y": 234
+          }
+        },
+        "configuration": {
+          "sql": "select id from JsonPath"
+        },
+        "supportedEngines": [],
+        "executionEngine": "Streaming",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Print",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1199,
+            "y": 235
+          }
+        },
+        "configuration": {
+          "printData": true,
+          "printSchema": false,
+          "errorSink": false,
+          "printMetadata": true,
+          "logLevel": "warn"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Streaming",
+        "lineageProperties": []
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Test",
+        "destination": "JsonPath",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "JsonPath",
+        "destination": "idtable",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "idtable",
+        "destination": "Print",
+        "dataType": "ValidData"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2019-02-18T11:38:35Z",
+  "version": 3,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "debugMode": false,
+  "groupId": "940800b2-6d81-44a8-84d9-26913a2faea4"
+}

@@ -23,7 +23,7 @@
           "acls": [
             {
               "resourceType": "Function",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Execute"
@@ -32,7 +32,7 @@
             },
             {
               "resourceType": "Foreign Server",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Usage"
@@ -41,7 +41,7 @@
             },
             {
               "resourceType": "Language",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Usage"
@@ -50,7 +50,7 @@
             },
             {
               "resourceType": "Large object",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Select",
@@ -60,7 +60,7 @@
             },
             {
               "resourceType": "Table",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Select",
@@ -75,7 +75,7 @@
             },
             {
               "resourceType": "Foreign Data Wrapper",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Usage"
@@ -84,8 +84,8 @@
             },
             {
               "resourceType": "Schema",
-              "name": "*",
-              "recursive": false,
+              "name": "sparta.*",
+              "recursive": true,
               "actions": [
                 "Create",
                 "Usage"
@@ -94,7 +94,7 @@
             },
             {
               "resourceType": "View",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Select",
@@ -109,7 +109,7 @@
             },
             {
               "resourceType": "Database",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Create",
@@ -120,7 +120,7 @@
             },
             {
               "resourceType": "Type",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Usage"
@@ -129,7 +129,7 @@
             },
             {
               "resourceType": "Domain",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Usage"
@@ -138,7 +138,7 @@
             },
             {
               "resourceType": "Tablespace",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Create"
@@ -147,7 +147,7 @@
             },
             {
               "resourceType": "Sequence",
-              "name": "*",
+              "name": "sparta.*",
               "recursive": false,
               "actions": [
                 "Select",
@@ -159,7 +159,6 @@
           ]
         }
       ],
-       "version":"1.3.0"
     }
   ]
 }

@@ -5,7 +5,14 @@
  */
 package com.stratio.sparta.testsAT.specs;
 
+import com.stratio.qa.assertions.Assertions;
+import com.stratio.qa.assertions.SeleniumAssert;
+import com.stratio.qa.cucumber.converter.NullableStringConverter;
+import com.stratio.qa.specs.BaseGSpec;
+import cucumber.api.Transform;
 import cucumber.api.java.en.When;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,7 +27,6 @@ public class WhenSpec extends BaseSpec {
     public WhenSpec(Common spec) {
 	    this.commonspec = spec;
     }
-
     @When("^I start a socket in '([^:]+?):(.+?)?'$")
     public void startSocket(String socketHost, String socketPort) throws java.io.IOException, java.net.UnknownHostException {
         assertThat(socketHost).isNotEmpty();

@@ -1,0 +1,186 @@
+{
+  "id": "datagov",
+  "name": "datagov",
+  "users": [
+      "dg-agent"
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "communitypostgres",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "postgrestls"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Type",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Database",
+              "name": "governance",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Temporary",
+                "Connect"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Sequence",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Update",
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "View",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Insert",
+                "Update",
+                "Delete",
+                "Truncate",
+                "References",
+                "Trigger"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Foreign Data Wrapper",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Table",
+              "name": "postgres.pg_catalog.pg_database",
+              "recursive": false,
+              "actions": [
+                "Select"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Large object",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Update"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Schema",
+              "name": "postgres.pg_catalog",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Tablespace",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Domain",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Table",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Insert",
+                "Update",
+                "Delete",
+                "Truncate",
+                "References",
+                "Trigger"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Language",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Schema",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Foreign Server",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Database",
+              "name": "postgres",
+              "recursive": false,
+              "actions": [
+                "Connect"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Function",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Execute"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

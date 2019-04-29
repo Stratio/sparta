@@ -1,0 +1,349 @@
+{
+  "id": "ad20d3be-dbc4-4590-ac1d-91e535cff1b6",
+  "name": "lineage-workflow",
+  "description": "",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "preExecutionSqlSentences": [],
+      "postExecutionSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraintOperator": "CLUSTER",
+      "parametersLists": [
+        "Environment"
+      ],
+      "parametersUsed": [
+        "Global.DEFAULT_DELIMITER",
+        "Global.DEFAULT_OUTPUT_FIELD",
+        "Global.SPARK_CORES_MAX",
+        "Global.SPARK_DRIVER_CORES",
+        "Global.SPARK_DRIVER_JAVA_OPTIONS",
+        "Global.SPARK_DRIVER_MEMORY",
+        "Global.SPARK_EXECUTOR_CORES",
+        "Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS",
+        "Global.SPARK_EXECUTOR_MEMORY",
+        "Global.SPARK_LOCALITY_WAIT",
+        "Global.SPARK_LOCAL_PATH",
+        "Global.SPARK_MEMORY_FRACTION",
+        "Global.SPARK_STREAMING_BLOCK_INTERVAL",
+        "Global.SPARK_STREAMING_CHECKPOINT_PATH",
+        "Global.SPARK_STREAMING_WINDOW",
+        "Global.SPARK_TASK_MAX_FAILURES"
+      ],
+      "udfsToRegister": [],
+      "udafsToRegister": [],
+      "marathonDeploymentSettings": {
+        "forcePullImage": false,
+        "privileged": false,
+        "userEnvVariables": [],
+        "userLabels": []
+      }
+    },
+    "streamingSettings": {
+      "window": "{{{Global.SPARK_STREAMING_WINDOW}}}",
+      "blockInterval": "{{{Global.SPARK_STREAMING_BLOCK_INTERVAL}}}",
+      "stopGracefully": true,
+      "checkpointSettings": {
+        "checkpointPath": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "{{{Global.SPARK_CORES_MAX}}}",
+          "executorMemory": "{{{Global.SPARK_EXECUTOR_MEMORY}}}",
+          "executorCores": "{{{Global.SPARK_EXECUTOR_CORES}}}",
+          "driverCores": "{{{Global.SPARK_DRIVER_CORES}}}",
+          "driverMemory": "{{{Global.SPARK_DRIVER_MEMORY}}}",
+          "localityWait": "{{{Global.SPARK_LOCALITY_WAIT}}}",
+          "taskMaxFailures": "{{{Global.SPARK_TASK_MAX_FAILURES}}}",
+          "sparkMemoryFraction": "{{{Global.SPARK_MEMORY_FRACTION}}}"
+        },
+        "sparkHistoryServerConf": {
+          "enableHistoryServerMonitoring": false
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkLocalDir": "{{{Global.SPARK_LOCAL_PATH}}}",
+        "sparkSqlCaseSensitive": true,
+        "hdfsTokenCache": true,
+        "executorExtraJavaOptions": "{{{Global.SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendPredecessorsData": true,
+        "sendInputData": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "Test",
+        "stepType": "Input",
+        "className": "TestInputStep",
+        "classPrettyName": "Test",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": "",
+          "errorTableName": "",
+          "discardTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 220,
+            "y": 283
+          }
+        },
+        "configuration": {
+          "eventType": "STRING",
+          "outputField": "{{{Global.DEFAULT_OUTPUT_FIELD}}}",
+          "event": "{\"id\":\"222\",\"detail\":\"prueba1\",\"detail2\":\"prueba2\"}",
+          "debugOptions": "{\"userProvidedExample\":\"{\\\"id\\\":\\\"value1\\\",\\\"detail\\\":\\\"detail1\\\"}\"}",
+          "numEvents": "100"
+        },
+        "supportedEngines": [
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Postgres",
+        "stepType": "Output",
+        "className": "PostgresOutputStep",
+        "classPrettyName": "Postgres",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 947,
+            "y": 164
+          }
+        },
+        "configuration": {
+          "errorSink": false,
+          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/governance?user=sparta-server",
+          "postgresSaveMode": "STATEMENT",
+          "batchsize": "1000",
+          "isolationLevel": "READ_UNCOMMITTED",
+          "failFast": true,
+          "tlsEnabled": true,
+          "driver": "",
+          "schemaFromDatabase": false,
+          "saveOptions": "[]"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "lineageProperties": []
+      },
+      {
+        "name": "JsonPath",
+        "stepType": "Transformation",
+        "className": "JsonPathTransformStep",
+        "classPrettyName": "JsonPath",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "governance.automatic_idtable",
+          "partitionBy": "",
+          "errorTableName": "",
+          "discardTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 515,
+            "y": 383
+          }
+        },
+        "configuration": {
+          "queries": [
+            {
+              "field": "id",
+              "query": "$.id",
+              "type": "string"
+            }
+          ],
+          "inputSchemas": "[]",
+          "supportNullValues": true,
+          "whenFieldError": "",
+          "whenRowError": "",
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Json",
+        "stepType": "Transformation",
+        "className": "JsonTransformStep",
+        "classPrettyName": "Json",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "governance.automatic_details",
+          "partitionBy": "",
+          "errorTableName": "",
+          "discardTableName": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 514,
+            "y": 192
+          }
+        },
+        "configuration": {
+          "inputSchemas": "[]",
+          "schema.fromRow": true,
+          "whenFieldError": "",
+          "whenRowError": "",
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "supportedDataRelations": [
+          "ValidData",
+          "DiscardedData"
+        ],
+        "lineageProperties": []
+      },
+      {
+        "name": "Csv",
+        "stepType": "Output",
+        "className": "CsvOutputStep",
+        "classPrettyName": "Csv",
+        "arity": [
+          "NullaryToNullary",
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 965,
+            "y": 359
+          }
+        },
+        "configuration": {
+          "path": "/tmp/sparta-server",
+          "errorSink": false,
+          "inferSchema": false,
+          "header": false,
+          "saveOptions": "[]",
+          "delimiter": "{{{Global.DEFAULT_DELIMITER}}}"
+        },
+        "supportedEngines": [
+          "Streaming",
+          "Batch"
+        ],
+        "executionEngine": "Batch",
+        "lineageProperties": []
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Test",
+        "destination": "JsonPath",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Test",
+        "destination": "Json",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Json",
+        "destination": "Postgres",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "JsonPath",
+        "destination": "Postgres",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "JsonPath",
+        "destination": "Csv",
+        "dataType": "ValidData"
+      },
+      {
+        "origin": "Json",
+        "destination": "Csv",
+        "dataType": "ValidData"
+      }
+    ]
+  },
+  "executionEngine": "Batch",
+  "uiSettings": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2019-02-14T15:47:04Z",
+  "version": 1,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "debugMode": false,
+  "groupId": "940800b2-6d81-44a8-84d9-26913a2faea4"
+}

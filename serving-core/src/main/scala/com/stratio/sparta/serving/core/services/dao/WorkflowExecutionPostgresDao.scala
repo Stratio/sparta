@@ -528,7 +528,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
                                             sparkConfs: Map[String, String]
                                           ): Map[String, String] = {
     if (WorkflowHelper.isMarathonLBConfigured) {
-      val proxyLocation = WorkflowHelper.getProxyLocation(WorkflowHelper.getExecutionDeploymentId(workflowExecution))
+      val proxyLocation = WorkflowHelper.getReverseProxyLocation(WorkflowHelper.getExecutionDeploymentId(workflowExecution))
       sparkConfs + (SubmitUiProxyPrefix -> proxyLocation)
     } else sparkConfs
   }

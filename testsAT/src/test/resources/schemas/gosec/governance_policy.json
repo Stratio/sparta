@@ -1,0 +1,299 @@
+{
+  "id": "governancepolicy",
+  "name": "governancepolicy",
+  "users": [
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "communitypostgres",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "postgrestls"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Function",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Execute"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Foreign Server",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Language",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Large object",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Update"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Table",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Insert",
+                "Update",
+                "Delete",
+                "Truncate",
+                "References",
+                "Trigger"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Foreign Data Wrapper",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Schema",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "View",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Insert",
+                "Update",
+                "Delete",
+                "Truncate",
+                "References",
+                "Trigger"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Database",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Temporary",
+                "Connect"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Type",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Domain",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Tablespace",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Sequence",
+              "name": "sparta.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Update",
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Function",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Execute"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Foreign Server",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Language",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Large object",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Update"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Table",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Insert",
+                "Update",
+                "Delete",
+                "Truncate",
+                "References",
+                "Trigger"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Foreign Data Wrapper",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Schema",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "View",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Insert",
+                "Update",
+                "Delete",
+                "Truncate",
+                "References",
+                "Trigger"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Database",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Temporary",
+                "Connect"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Type",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Domain",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Usage"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Tablespace",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Create"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Sequence",
+              "name": "governance.*",
+              "recursive": false,
+              "actions": [
+                "Select",
+                "Update",
+                "Usage"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

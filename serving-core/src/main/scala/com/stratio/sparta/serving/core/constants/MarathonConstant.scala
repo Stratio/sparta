@@ -33,6 +33,7 @@ object MarathonConstant {
   val DefaultIncludeCertVolumes = true
   val DefaultSparkUIPort = 4040
   val DefaultMetricsMarathonDriverPort = 6080
+  val DefaultJmxMetricsMarathonDriverPort = 5080
   val DefaultSOMemSize = 1024
   val MinSOMemSize = 512
   val DefaultFileEncodingSystemProperty = "-Dfile.encoding=UTF-8"
@@ -60,11 +61,14 @@ object MarathonConstant {
   val SpartaMarathonTotalTimeBeforeKill = "SPARTA_MARATHON_TOTAL_TIME_BEFORE_KILL"
   val SparkHomeEnv = "SPARK_HOME"
   val DcosServiceName = "MARATHON_APP_LABEL_DCOS_SERVICE_NAME"
+  val DcosServiceBaseApplicationPath = "ROOT_SERVICE_PATH"
+  val DcosServiceCompanyLabelPrefix = "MARATHON_COMPANY_LABEL_PREFIX"
   val HostnameConstraint = "MESOS_HOSTNAME_CONSTRAINT"
   val OperatorConstraint = "MESOS_OPERATOR_CONSTRAINT"
   val AttributeConstraint = "MESOS_ATTRIBUTE_CONSTRAINT"
   val MarathonAppConstraints = "MARATHONAPP_CONSTRAINTS"
   val SpartaSecretFolderEnv = "SPARTA_SECRET_FOLDER"
+  val NginxIgnoreInvalidHeadersEnv = "SPARTA_NGINX_IGNORE_INVALID_HEADERS"
   val AppRoleEnv = "APPROLE"
   val AppRoleNameEnv = "APPROLENAME"
   val CalicoEnableEnv = "CALICO_ENABLED"
@@ -77,6 +81,9 @@ object MarathonConstant {
   val NginxMarathonLBUserPathEnv = "USER_HAPROXY_PATH"
   val NginxMarathonLBHostEnv = "MARATHON_APP_LABEL_HAPROXY_1_VHOST"
   val NginxMarathonLBPathEnv = "MARATHON_APP_LABEL_HAPROXY_1_PATH"
+  val NginxMarathonLBProxyPassPathEnv = "HAPROXY_1_HTTP_BACKEND_PROXYPASS_PATH"
+  val NginxMarathonLBFrontendAclWithPathEnv = "HAPROXY_1_HTTPS_FRONTEND_ACL_WITH_PATH"
+  val NginxMarathonLBRemovePathLocationEnv = "HAPROXY_1_REMOVE_PATH_LOCATION"
   val ServerMarathonLBHostEnv = "MARATHON_APP_LABEL_HAPROXY_0_VHOST"
   val ServerMarathonLBPathEnv = "MARATHON_APP_LABEL_HAPROXY_0_PATH"
   val GosecAuthEnableEnv = "ENABLE_GOSEC_AUTH"
@@ -88,10 +95,15 @@ object MarathonConstant {
   val spartaLogLevel = "SPARTA_LOG_LEVEL"
   val workflowLabelsPrefix = "WORKFLOW_LABELS_PREFIX"
   val fixedWorkflowLabels = "FIXED_WORKFLOW_LABELS"
-  val PrometheusEnvironmentPortCalico = "PORT_6080"
-  val PrometheusEnvironmentPortHost = "PORT_METRICS"
   val MesosTaskId = "MESOS_TASK_ID"
   val GenericWorkflowIdentity = "GENERIC_WORKFLOW_IDENTITY"
   val SpartaPostgresUser = "SPARTA_POSTGRES_USER"
   val TrimMarathonUri = "MARATHON_SSO_TRIM_URI"
+  val PrometheusMetricsPortEnv = "SPARTA_METRICS_PORT"
+  val JmxMetricsPortEnv = "SPARTA_JMX_METRICS_PORT"
+  val HostInUseMetricsEnv = "HOST_IN_USE"
+  val MarathonLabelPrefixEnv = "MARATHON_APP_LABEL_"
+  val ProductLabelEnv = "PRODUCT"
+  val ApplicationLabelEnv = "APPLICATION"
+
 }

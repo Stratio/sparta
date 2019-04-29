@@ -129,6 +129,7 @@ This software – including all its source code – contains proprietary informa
         <mlmodelrep.version>1.3.2-ad18aeb</mlmodelrep.version>
         <olthu.version>1.0.1</olthu.version>
         <amazonaws.version>1.11.528</amazonaws.version>
+        <sftp.client.version>0.1.53</sftp.client.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -609,6 +610,10 @@ This software – including all its source code – contains proprietary informa
                         <groupId>log4j</groupId>
                         <artifactId>log4j</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.jcraft</groupId>
+                        <artifactId>jsch</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -630,6 +635,11 @@ This software – including all its source code – contains proprietary informa
                         <artifactId>aws-java-sdk-kinesisvideo</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.jcraft</groupId>
+                <artifactId>jsch</artifactId>
+                <version>${sftp.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.stratio.crossdata</groupId>
@@ -1368,6 +1378,9 @@ This software – including all its source code – contains proprietary informa
                         <exclude>**/*S3AFileSystem.java</exclude>
                         <exclude>**/*S3AFastOutputStream.java</exclude>
                         <exclude>**/*S3AOutputStream.java</exclude>
+                        <exclude>**/*SFTPConnectionPool.java</exclude>
+                        <exclude>**/*SFTPFileSystem.java</exclude>
+                        <exclude>**/*SFTPInputStream.java</exclude>
                     </excludes>
                 </configuration>
                 <executions>

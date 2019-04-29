@@ -151,7 +151,7 @@
         {
           "instances": [
             {
-              "name": "sparta-max"
+              "name": "*"
             }
           ],
           "acls": [
@@ -261,7 +261,7 @@
         {
           "instances": [
             {
-              "name": "sparta-fl"
+              "name": "*"
             }
           ],
           "acls": [
@@ -312,124 +312,6 @@
               "recursive": false,
               "actions": [
                 "FilterColumn"
-              ],
-              "allActions": []
-            }
-          ]
-        },
-        {
-          "instances": [
-            {
-              "name": "sparta-server"
-            }
-          ],
-          "acls": [
-            {
-              "resourceType": "column",
-              "name": "*.*",
-              "recursive": false,
-              "actions": [
-                "FilterColumn"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "database",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Create",
-                "Delete",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "datastore",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "Write",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "table",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Other",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            }
-          ]
-        },
-        {
-          "instances": [
-            {
-              "name": "sparta-max"
-            }
-          ],
-          "acls": [
-            {
-              "resourceType": "datastore",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "Write",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "column",
-              "name": "*.*",
-              "recursive": false,
-              "actions": [
-                "FilterColumn"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "table",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Other",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "database",
-              "name": "*",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Create",
-                "Delete",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
               ],
               "allActions": []
             }

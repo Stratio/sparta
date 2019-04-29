@@ -41,8 +41,7 @@ class WorkflowHelperTest extends WordSpec with ShouldMatchers with Matchers with
 
     "a workflow execution is passed" should{
       "create correcly a path" in {
-        //It is "undefined" instead of sparta-server or any tenant because there is no Environment Variable
-        val expected = "sparta/undefined/workflows/home/kafka-to-kafka/kafka-to-kafka-v2/1234-5678"
+        val expected = s"sparta/$spartaTenant/workflows/home/kafka-to-kafka/kafka-to-kafka-v2/1234-5678"
         val execution = WorkflowExecution(
           id = Option("1234-5678"),
           statuses = Seq(ExecutionStatus()),

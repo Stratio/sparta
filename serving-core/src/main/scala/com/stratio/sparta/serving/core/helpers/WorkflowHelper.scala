@@ -10,7 +10,8 @@ import java.io.Serializable
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.utils.ClasspathUtils
 import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
-import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowExecution}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -74,10 +75,40 @@ object WorkflowHelper extends SLF4JLogging {
       s"/${workflowExecution.getExecutionId}"
   }
 
-  def getMarathonId(workflowExecution: WorkflowExecution): String = {
-    val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
+  def getMarathonId(workflowExecution: WorkflowExecution): String =
+    s"$getMarathonBaseId/${getExecutionDeploymentId(workflowExecution)}"
 
-    s"sparta/$inputServiceName/workflows/${getExecutionDeploymentId(workflowExecution)}"
+  def getMarathonBaseId: String = {
+    val companyLabelPrefix = Properties.envOrNone(DcosServiceCompanyLabelPrefix)
+    val basicApplicationPath = {
+      val baseApplicationPath = Properties.envOrElse(DcosServiceBaseApplicationPath, "sparta")
+      s"$baseApplicationPath/$spartaTenant/workflows"
+    }
+
+    if(companyLabelPrefix.isDefined) {
+      (
+        Properties.envOrNone(s"$MarathonLabelPrefixEnv${companyLabelPrefix.get}_$ProductLabelEnv"),
+        Properties.envOrNone(s"$MarathonLabelPrefixEnv${companyLabelPrefix.get}_$ApplicationLabelEnv")
+      ) match {
+        case (Some(productPath), Some(appPath)) =>
+          val baseApplicationPath = Properties.envOrElse(DcosServiceBaseApplicationPath, "project")
+          s"$baseApplicationPath/$productPath/$appPath/$spartaTenant/workflows"
+        case _ =>
+          basicApplicationPath
+      }
+    } else basicApplicationPath
+  }
+
+  def getReverseProxyLocation(workflowLocation: String): String = {
+    if(isReverseProxyConfigured)
+      s"/$workflowLocation/"
+    else getProxyLocation(workflowLocation)
+  }
+
+  def isReverseProxyConfigured: Boolean = {
+    Properties.envOrNone(NginxMarathonLBProxyPassPathEnv).isDefined &&
+    Properties.envOrNone(NginxMarathonLBFrontendAclWithPathEnv).isDefined &&
+    Try(Properties.envOrNone(NginxMarathonLBRemovePathLocationEnv).map(_.toBoolean).get).getOrElse(false)
   }
 
   def getProxyLocation(workflowLocation: String): String = s"$getVirtualPath/$workflowLocation/"

@@ -18,9 +18,16 @@ function initLocalSparkIp() {
 }
 
 function initSparkUICrossdata() {
-    if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v MARATHON_APP_LABEL_HAPROXY_1_PATH ] ; then
-        echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI" >> ${VARIABLES}
-        echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI" >> ${SYSTEM_VARIABLES}
+
+    if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v HAPROXY_1_HTTP_BACKEND_PROXYPASS_PATH ]  && [ -v HAPROXY_1_HTTPS_FRONTEND_ACL_WITH_PATH ] && [ -v HAPROXY_1_REMOVE_PATH_LOCATION ] && [ ${#HAPROXY_1_REMOVE_PATH_LOCATION} != 0 ] && [ $HAPROXY_1_REMOVE_PATH_LOCATION == "true" ]; then
+        echo "export APPLICATION_WEB_PROXY_BASE=/crossdata-sparkUI/" >> ${VARIABLES}
+        echo "export APPLICATION_WEB_PROXY_BASE=/crossdata-sparkUI/" >> ${SYSTEM_VARIABLES}
+    elif [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v USER_HAPROXY_PATH ] ; then
+        echo "export APPLICATION_WEB_PROXY_BASE=${USER_HAPROXY_PATH}/crossdata-sparkUI/" >> ${VARIABLES}
+        echo "export APPLICATION_WEB_PROXY_BASE=${USER_HAPROXY_PATH}/crossdata-sparkUI/" >> ${SYSTEM_VARIABLES}
+    elif [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] && [ -v MARATHON_APP_LABEL_HAPROXY_1_PATH ] ; then
+        echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI/" >> ${VARIABLES}
+        echo "export APPLICATION_WEB_PROXY_BASE=${MARATHON_APP_LABEL_HAPROXY_1_PATH}/crossdata-sparkUI/" >> ${SYSTEM_VARIABLES}
     fi
 }
 

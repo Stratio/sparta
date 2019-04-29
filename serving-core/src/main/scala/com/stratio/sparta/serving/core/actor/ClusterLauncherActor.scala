@@ -18,6 +18,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.spark.launcher.SpartaLauncher
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import org.joda.time.DateTime
 
 import scala.util.{Failure, Properties, Success, Try}
@@ -42,24 +43,19 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
 
   //scalastyle:off
   def doRun(workflowExecution: WorkflowExecution): Unit = {
-    import com.stratio.sparta.serving.core.constants._
     Try {
       val workflow = workflowExecution.getWorkflowToExecute
       val submitExecution = workflowExecution.sparkSubmitExecution.get
-      val sparkSubmitWithMetrics = submitExecution.submitArguments
-        .mkString(",")
-        .replaceAll(
-          SparkDriverMetricsReplaceRegex,
-          Properties.envOrNone(MarathonConstant.PrometheusEnvironmentPortHost)
-            .orElse(Properties.envOrNone(MarathonConstant.PrometheusEnvironmentPortCalico))
-            .getOrElse(MarathonConstant.PrometheusEnvironmentPortCalico)
-        )
+      val sparkSubmitWithMetrics = submitExecution.submitArguments.map{case (argument, value) =>
+        replaceWithEnvVariable(argument) -> replaceWithEnvVariable(value)
+      }
+
       log.info(s"Launching Sparta workflow with options ... \n\t" +
         s"Workflow name: ${workflow.name}\n\t" +
         s"Main Class: $SpartaDriverClass\n\t" +
         s"Driver file: ${submitExecution.driverFile}\n\t" +
         s"Master: ${submitExecution.master}\n\t" +
-        s"Spark submit arguments: $sparkSubmitWithMetrics\n\t" +
+        s"Spark submit arguments: ${sparkSubmitWithMetrics.mkString(",")}\n\t" +
         s"Spark configurations: ${submitExecution.sparkConfigurations.mkString(",")}\n\t" +
         s"Driver arguments: ${submitExecution.driverArguments}")
 
@@ -71,9 +67,9 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
       //Set Spark Home
       spartaLauncher.setSparkHome(submitExecution.sparkHome)
       //Spark arguments
-      submitExecution.submitArguments.filter(_._2.nonEmpty)
+      sparkSubmitWithMetrics.filter(_._2.nonEmpty)
         .foreach { case (k: String, v: String) => spartaLauncher.addSparkArg(k, v) }
-      submitExecution.submitArguments.filter(_._2.isEmpty)
+      sparkSubmitWithMetrics.filter(_._2.isEmpty)
         .foreach { case (k: String, v: String) => spartaLauncher.addSparkArg(k) }
       // Spark properties
       submitExecution.sparkConfigurations.filter(_._2.nonEmpty)
@@ -112,5 +108,12 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
         executionService.setStartDate(updateStateResult, new DateTime())
         log.debug(s"Updated correctly the execution status ${workflowExecution.getExecutionId} to $Launched in ClusterLauncherActor")
     }
+  }
+
+  private def replaceWithEnvVariable(toReplace: String): String = {
+    toReplace
+      .replaceAll(PrometheusMetricsPortEnv, Properties.envOrElse(PrometheusMetricsPortEnv, DefaultMetricsMarathonDriverPort.toString))
+      .replaceAll(JmxMetricsPortEnv, Properties.envOrElse(JmxMetricsPortEnv, DefaultJmxMetricsMarathonDriverPort.toString))
+      .replaceAll(HostInUseMetricsEnv, Properties.envOrElse(HostInUseMetricsEnv, "0.0.0.0"))
   }
 }

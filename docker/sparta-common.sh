@@ -17,9 +17,10 @@ function initAkkaNetwork() {
        else
           DOCKER_HOST="$(hostname -i)"
        fi
-      HOST_IN_USE=$DOCKER_HOST
+      export HOST_IN_USE=$DOCKER_HOST
   fi
 
+  echo "export HOST_IN_USE=${HOST_IN_USE}" >> ${VARIABLES}
   echo "export SPARTA_AKKA_HOST=${HOST_IN_USE}" >> ${VARIABLES}
   echo "export SPARTA_AKKA_BIND_HOST=${HOST_IN_USE}" >> ${VARIABLES}
   echo "export SPARTA_AKKA_HOST=${HOST_IN_USE}" >> ${SYSTEM_VARIABLES}
@@ -322,5 +323,32 @@ function extraProperties() {
  if [[ -v DYPLON_EXTRA_PROPERTIES ]]; then
    sed -i "s|.*DYPLON_EXTRA_PROPERTIES.*|${DYPLON_EXTRA_PROPERTIES}|" $1
  fi
+
+}
+
+function initMetricsVariables() {
+
+ # JMX metrics
+ SPARTA_JMX_METRICS_PORT=5080
+ if [ -v PORT_5080 ] && [ ${#PORT_5080} != 0 ]; then
+   export SPARTA_JMX_METRICS_PORT=$PORT_5080
+ fi
+ if [ -v PORT_JMX_METRICS ] && [ ${#PORT_JMX_METRICS} != 0 ]; then
+   export SPARTA_JMX_METRICS_PORT=$PORT_JMX_METRICS
+ fi
+
+ # Prometheus metrics
+ SPARTA_METRICS_PORT=6080
+ if [ -v PORT_6080 ] && [ ${#PORT_6080} != 0 ]; then
+   export SPARTA_METRICS_PORT=$PORT_6080
+ fi
+ if [ -v PORT_METRICS ] && [ ${#PORT_METRICS} != 0 ]; then
+   export SPARTA_METRICS_PORT=$PORT_METRICS
+ fi
+
+ echo "export SPARTA_METRICS_PORT=${SPARTA_METRICS_PORT}" >> ${VARIABLES}
+ echo "export SPARTA_JMX_METRICS_PORT=${SPARTA_JMX_METRICS_PORT}" >> ${VARIABLES}
+ echo "export SPARTA_METRICS_PORT=${SPARTA_METRICS_PORT}" >> ${SYSTEM_VARIABLES}
+ echo "export SPARTA_JMX_METRICS_PORT=${SPARTA_JMX_METRICS_PORT}" >> ${SYSTEM_VARIABLES}
 
 }

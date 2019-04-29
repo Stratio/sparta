@@ -42,7 +42,13 @@ class TopLevelSupervisorActor extends Actor with SLF4JLogging {
 
     context.actorOf(Props[SchedulerMonitorActor])
 
-    if (Try(SpartaConfig.getDetailConfig().get.getBoolean("user.metrics.enable")).getOrElse(false)) {
+    if (
+      (
+        Try(SpartaConfig.getDetailConfig().get.getBoolean("metrics.jmx.enable")).getOrElse(false) ||
+        Try(SpartaConfig.getDetailConfig().get.getBoolean("metrics.prometheus.enable")).getOrElse(false)
+        ) &&
+      Try(SpartaConfig.getDetailConfig().get.getBoolean("user.metrics.enable")).getOrElse(false)
+    ) {
       log.info("Initializing JMX user metrics")
       context.actorOf(Props[JmxMetricsActor])
     }

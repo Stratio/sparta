@@ -13,15 +13,18 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-       "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA-2811_Lineage_fullSec_IT.feature"
 },format = "json:target/cucumber.json")
+public class SPARTA_2755_Lineage_IT extends BaseTest {
 
-public class SPARTA_1278_Executions_IT extends BaseTest  {
-    public SPARTA_1278_Executions_IT() {this.browser = browser;
+    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+    public SPARTA_2755_Lineage_IT(String browser) {
+        this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_executions"}, dependsOnGroups = {"dcos_instalation"})
-    public void ExecuteWorkflow() throws Exception {
+    @Test(enabled = true, groups = {"linage"})
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
 }

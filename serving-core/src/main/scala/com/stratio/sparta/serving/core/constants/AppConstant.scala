@@ -37,6 +37,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigIgnite = "sparta.ignite"
   val ConfigGovernance = "governance"
   val ConfigS3 = "spark.hadoop.fs.s3a"
+  val ConfigSftp = "spark.hadoop.fs.sftp"
   val HdfsKey = "hdfs"
   val DefaultOauth2CookieName = "user"
   val DriverPackageLocation = "driverPackageLocation"

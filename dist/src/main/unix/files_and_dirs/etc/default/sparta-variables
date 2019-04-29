@@ -35,16 +35,7 @@ if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK
    else
       DOCKER_HOST="$(hostname -i)"
    fi
-  HOST_IN_USE=$DOCKER_HOST
-fi
-
-# JMX metrics
-SPARTA_JMX_METRICS_PORT=5080
-if [ -v PORT_5080 ] && [ ${#PORT_5080} != 0 ]; then
-  SPARTA_JMX_METRICS_PORT=$PORT_5080
-fi
-if [ -v PORT_JMX_METRICS ] && [ ${#PORT_JMX_METRICS} != 0 ]; then
-  SPARTA_JMX_METRICS_PORT=$PORT_JMX_METRICS
+  export HOST_IN_USE=$DOCKER_HOST
 fi
 
 # Heap Size
@@ -55,22 +46,9 @@ export SPARTA_JVM_UNLOCK_EXPERIMENTAL_OPTIONS="-XX:+UnlockExperimentalVMOptions"
 export SPARTA_JVM_USE_CGROUP_MEMORY_LIMIT="-XX:+UseCGroupMemoryLimitForHeap"
 export SPARTA_JVM_GARBAGE_COLLECTOR="-XX:+UseConcMarkSweepGC"
 export SPARTA_JVM_DISABLE_MEMORY_MAPPING="-Dsun.zip.disableMemoryMapping=true"
-export SPARTA_JVM_JMX="-Djava.rmi.server.hostname=$HOST_IN_USE -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$SPARTA_JMX_METRICS_PORT -Dcom.sun.management.jmxremote.rmi.port=5080 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-
-# Prometheus metrics
-SPARTA_METRICS_PORT=6080
-if [ -v PORT_6080 ] && [ ${#PORT_6080} != 0 ]; then
-  SPARTA_METRICS_PORT=$PORT_6080
-fi
-if [ -v PORT_METRICS ] && [ ${#PORT_METRICS} != 0 ]; then
-  SPARTA_METRICS_PORT=$PORT_METRICS
-fi
-
-
-export SPARTA_PROMETHEUS_JAVA_AGENT="-javaagent:$JMX_PROMETHEUS_PATH/jmx_prometheus_javaagent-0.11.0.jar=$SPARTA_METRICS_PORT:$JMX_PROMETHEUS_PATH/config.yaml"
 
 # Additional Java OPTS
-export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_JVM_UNLOCK_EXPERIMENTAL_OPTIONS $SPARTA_JVM_SUMMARY $SPARTA_JVM_USE_CGROUP_MEMORY_LIMIT $SPARTA_JVM_GARBAGE_COLLECTOR $SPARTA_JVM_DISABLE_MEMORY_MAPPING $SPARTA_JVM_EXTRA_OPTIONS $SPARTA_PROMETHEUS_JAVA_AGENT"
+export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_JVM_UNLOCK_EXPERIMENTAL_OPTIONS $SPARTA_JVM_SUMMARY $SPARTA_JVM_USE_CGROUP_MEMORY_LIMIT $SPARTA_JVM_GARBAGE_COLLECTOR $SPARTA_JVM_DISABLE_MEMORY_MAPPING $SPARTA_JVM_EXTRA_OPTIONS"
 export DAEMON_OPTS="-Dconfig.file=$CONFIG_FILE -Djava.util.logging.config.file=file://$LOG_CONFIG_FILE"
 #export SPARTA_CONFIG_JAAS_FILE=jaas.conf
 
@@ -78,7 +56,13 @@ if [ -v SPARTA_CONFIG_JAAS_FILE ] && [ ${#SPARTA_CONFIG_JAAS_FILE} != 0 ]; then
     export SPARTA_OPTS="$SPARTA_OPTS $SPARTA_CONFIG_JAAS_FILE"
 fi
 
-if [ -v JMX_METRICS_ENABLE ] && [ $JMX_METRICS_ENABLE == "true" ]; then
+if [ -v PROMETHEUS_METRICS_ENABLE ] && [ $PROMETHEUS_METRICS_ENABLE == "true" ] && [ -v SPARTA_METRICS_PORT ] && [ -v JMX_PROMETHEUS_PATH ]; then
+    export SPARTA_PROMETHEUS_JAVA_AGENT="-javaagent:$JMX_PROMETHEUS_PATH/jmx_prometheus_javaagent-0.11.0.jar=$SPARTA_METRICS_PORT:$JMX_PROMETHEUS_PATH/config.yaml"
+    export SPARTA_OPTS="$SPARTA_OPTS $SPARTA_PROMETHEUS_JAVA_AGENT"
+fi
+
+if [ -v JMX_METRICS_ENABLE ] && [ $JMX_METRICS_ENABLE == "true" ] && [ -v SPARTA_JMX_METRICS_PORT ] && [ -v HOST_IN_USE ]; then
+    export SPARTA_JVM_JMX="-Djava.rmi.server.hostname=$HOST_IN_USE -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$SPARTA_JMX_METRICS_PORT -Dcom.sun.management.jmxremote.rmi.port=$SPARTA_JMX_METRICS_PORT -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
     export SPARTA_OPTS="$SPARTA_OPTS $SPARTA_JVM_JMX"
 fi
 

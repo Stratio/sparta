@@ -1,13 +1,12 @@
 @rest
 Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with all security enabled
-  Background: Connect to Dcos-cli
+  Scenario:[QATM-1863][13 -PRE] Get Dns from marathonLB - Workflow Kafka Postgres
     When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
-    Then I run 'dcos task ${MARATHON_LB_TASK:-marathon-lb-sec} | awk '{print $2}'| tail -n 1' in the ssh connection and save the value in environment variable 'marathonIP'
+    And I run 'dcos marathon task list | grep marathon.*lb.* | awk '{print $4}'' in the ssh connection and save the value in environment variable 'marathonIP'
     And I wait '1' seconds
     When  I run 'echo !{marathonIP}' in the ssh connection
-    And I open a ssh connection to '!{marathonIP}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
-    And I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
-
+    And I open a ssh connection to '!{marathonIP}' with user '${BOOTSTRAP_USER:-operador}' using pem file '${BOOTSTRAP_PEM:-src/test/resources/credentials/key.pem}'
+    Then I run 'hostname | sed -e 's|\..*||'' in the ssh connection with exit status '0' and save the value in environment variable 'MarathonLbDns'
   #********************
   # ADD KAFKA POLICY  *
   #********************
@@ -19,9 +18,8 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | kafka_${DCOS_SERVICE_NAME}     | n/a |
       |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}_kf     | n/a |
-      |   $.users[0]              |  UPDATE    | ${SPARTA-USER:-sparta-server}  | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME:-sparta-server}  | n/a |
     Then the service response status must be '201'
-
 
   Scenario: [QATM-1863][14] - Create topic for sparta in kafka
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
@@ -29,16 +27,19 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     When I send a 'PUT' request to '/service/${KAFKA_NAME:-eos-kafka-framework}/v1/topics/${TOPIC:-idtopic}?partitions=${KAFKA_PARTITION:-1}&replication=${KAFKA_REPLICATION:-1}'
     Then the service response status must be '200'
 
-
   #************************************************
   # INSTALL AND EXECUTE kafka to postgres WORKFLOW*
   #************************************************
+
   @web
   Scenario:[QATM-1863][15] Install kafka-postgres workflow
     #Get cookie from app
-    Given My app is running in '!{MarathonLbDns}.labs.stratio.com:443'
-    When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
     And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
@@ -47,7 +48,7 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     And I click on the element on index '0'
     And I wait '1' seconds
     Then I save selenium cookies in context
-    When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
+    Then I securely send requests to '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/kafka-postgres.json' as 'json' with:
     |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_HOST:-pg-0001.postgrestls.mesos}:5432/${POSTGRES_DATABASE:-sparta}?user=${DCOS_SERVICE_NAME}   | n/a |
     #|$.pipelineGraph.nodes.configuration.bootstrap.servers.port |  UPDATE  | 9093 | n/a |
@@ -61,8 +62,11 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
   Scenario:[QATM-1863][16] Execute kafka-postgres workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
-    When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
     And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
@@ -76,7 +80,6 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID1}'
     And the service response status must be '200'
     And I save element '$' in environment variable 'previousWorkflow_execution_ID1'
-    When  I run 'echo !{previousWorkflow_execution_ID1}' in the ssh connection
 
   #*********************************
   # VERIFY Kafka-Postgres WORKFLOW*
@@ -86,8 +89,7 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     Given in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-postgres' contains 'kafka-postgres-v0'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/kafka-postgres/kafka-postgres-v0/!{previousWorkflow_execution_ID1}  | awk '{print $5}' | grep kafka-postgres ' in the ssh connection and save the value in environment variable 'workflowTaskId1'
-        #Check workflow is runing in DCOS
-    When  I run 'echo !{workflowTaskId1}' in the ssh connection
+    #Check workflow is runing in DCOS
     Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId1} | grep TASK_RUNNING' contains 'TASK_RUNNING'
     And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId1} | grep healthCheckResults' contains 'healthCheckResults'
     And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId1} | grep  '"alive": true'' contains '"alive": true'
@@ -100,8 +102,11 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
   Scenario:[QATM-1863][18] Install testInput-Kafka workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
-    When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
     And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
@@ -111,7 +116,7 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     And I wait '1' seconds
     Then I save selenium cookies in context
     #include workflow
-    When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
+    When I securely send requests to '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/testinput-kafka.json' as 'json' with:
       | id | DELETE | N/A|
     Then the service response status must be '200'
@@ -123,17 +128,20 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
   Scenario:[QATM-1863][19] Execute testInput-Kafka workflow
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
     And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
-    And I type '${PASSWORD:-sparta-server}' on the element on index '0'
+    And I type '${SPARTA-PASSWORD:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'id:login-button'
     And I click on the element on index '0'
     And I wait '1' seconds
     Then I save selenium cookies in context
-    When I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
+    When I securely send requests to '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Given I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID2}'
     Then the service response status must be '200'
     And I save element '$' in environment variable 'previousWorkflow_execution_ID2'
@@ -159,6 +167,7 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
   #   TEST RESULT IN POSTGRES *
   #****************************
   Scenario:[QATM-1863][21] Obtain postgres docker
+    When I open a ssh connection to '${DCOS_CLI_HOST}' with user '${ROOT_USER:-root}' and password '${ROOT_PASSWORD:-stratio}'
     Given I set sso token using host '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}' with user '${USER:-admin}' and password '${PASSWORD:-1234}' and tenant 'NONE'
     And I securely send requests to '${CLUSTER_ID}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When in less than '600' seconds, checking each '20' seconds, I send a 'GET' request to '/exhibitor/exhibitor/v1/explorer/node-data?key=%2Fdatastore%2Fcommunity%2F${POSTGRES_NAME:-postgrestls}%2Fplan-v2-json&_=' so that the response contains 'str'
@@ -170,44 +179,54 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     And I run 'echo !{parsed_answer} | jq '.phases[0]' | jq '."0001".steps[0]'| jq '."0"'.container_hostname | sed 's/^.\|.$//g'' in the ssh connection with exit status '0' and save the value in environment variable 'pgIPCalico'
     Then I wait '4' seconds
     And I run 'echo !{pgIPCalico}' locally
-    Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When I run 'docker ps -q | xargs -n 1 docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{ .Name }}' | sed 's/ \// /'| grep !{pgIPCalico} | awk '{print $2}'' in the ssh connection and save the value in environment variable 'postgresDocker'
+    Given I open a ssh connection to '!{pgIP}' with user '${BOOTSTRAP_USER:-operador}' using pem file '${BOOTSTRAP_PEM:-src/test/resources/credentials/key.pem}'
+    When I run 'sudo docker ps -q | sudo xargs -n 1 docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}} {{ .Name }}' | sed 's/ \// /'| grep '!{pgIPCalico} ' | awk '{print $2}'' in the ssh connection and save the value in environment variable 'postgresDocker'
     And I run 'echo !{postgresDocker}' locally
     And I wait '10' seconds
-    And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
 
   Scenario:[QATM-1863][22] TestResult in postgres
-    Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    Then in less than '600' seconds, checking each '10' seconds, the command output 'docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tabletest"' contains '${TABLETEST_NUMBER:-400}'
-    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection and save the value in environment variable 'postgresresult'
+    Given I open a ssh connection to '!{pgIP}' with user '${BOOTSTRAP_USER:-operador}' using pem file '${BOOTSTRAP_PEM:-src/test/resources/credentials/key.pem}'
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'sudo docker exec -t !{postgresDocker} psql -d ${POSTGRES_DATABASE:-sparta} -p 5432 -U postgres -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tabletest"' contains '${TABLETEST_NUMBER:-400}'
+    When I run 'sudo docker exec -t !{postgresDocker} psql -p 5432 -U postgres -d ${POSTGRES_DATABASE:-sparta} -c "select count(*) as total  from \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection and save the value in environment variable 'postgresresult'
 
   @web
   Scenario:[QATM-1863][23] Streaming evidences kafka-postgres
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
-    And I type '${USER:-sparta-server}' on the element on index '0'
+    And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
-    And I type '${PASSWORD:-sparta-server}' on the element on index '0'
+    And I type '${SPARTA-PASSWORD:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'id:login-button'
     And I click on the element on index '0'
-    And I wait '1' seconds
+    And I wait '3' seconds
+    Then I take a snapshot
     Then I save selenium cookies in context
     When I securely browse to '/workflows-${DCOS_SERVICE_NAME}/home/kafka-postgres/kafka-postgres-v0/!{previousWorkflow_execution_ID1}/streaming/'
-    Then I take a snapshot
     And this text exists '${TABLETEST_NUMBER:-400}'
+    Then I take a snapshot
     And I wait '02' seconds
     When I securely browse to '/workflows-${DCOS_SERVICE_NAME}/home/kafka-postgres/kafka-postgres-v0/!{previousWorkflow_execution_ID1}/executors/'
-    And I wait '03' seconds
+    And I wait '02' seconds
+    Then I take a snapshot
+    When I securely browse to '/${DCOS_SERVICE_NAME}/#/executions/!{previousWorkflow_execution_ID1}'
+    And I wait '02' seconds
+    Then I take a snapshot
 
   @web
   Scenario: [QATM-1863][24] Stop Streaming workflows
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
     And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
@@ -216,7 +235,7 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     And I click on the element on index '0'
     And I wait '1' seconds
     Then I save selenium cookies in context
-    Given I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
+    Given I securely send requests to '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     Then I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflowExecutions/stop/!{previousWorkflow_execution_ID1}'
     And the service response status must be '200'
     Given I send a 'POST' request to '/${DCOS_SERVICE_NAME}/workflowExecutions/stop/!{previousWorkflow_execution_ID2}'
@@ -232,8 +251,11 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
   Scenario: [QATM-1863][26] Remove Streaming workflows
     #Get cookie from app
     Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
+    When I securely browse to '/${DCOS_SERVICE_NAME}/login'
+    And I wait '2' seconds
+    Given My app is running in '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I securely browse to '/${DCOS_SERVICE_NAME}'
-    And I wait '3' seconds
+    And I wait '1' seconds
     And '1' elements exists with 'xpath://*[@id="username"]'
     And I type '${SPARTA-USER:-sparta-server}' on the element on index '0'
     And '1' elements exists with 'xpath://*[@id="password"]'
@@ -242,7 +264,7 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
     And I click on the element on index '0'
     And I wait '1' seconds
     Then I save selenium cookies in context
-    Given I securely send requests to '!{MarathonLbDns}.labs.stratio.com:443'
+    Given I securely send requests to '!{MarathonLbDns}.${CLUSTER_DOMAIN:-labs.stratio.com}:443'
     When I send a 'DELETE' request to '/${DCOS_SERVICE_NAME}/workflows/!{previousWorkflowID1}'
     Then the service response status must be '200'
     Given I send a 'DELETE' request to '/${DCOS_SERVICE_NAME}/workflows/!{previousWorkflowID2}'
@@ -257,6 +279,6 @@ Feature: [QATM-1863] E2E Execution of Workflow Kafka Postgres x Elements with al
 
   Scenario:[QATM-1863][28] Delete tables in postgres
     #Delete postgres table
-    Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    When I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection
-    And I run 'docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".cube"' in the ssh connection
+    Given I open a ssh connection to '!{pgIP}' with user '${BOOTSTRAP_USER:-operador}' using pem file '${BOOTSTRAP_PEM:-src/test/resources/credentials/key.pem}'
+    When I run 'sudo docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".tabletest"' in the ssh connection
+    And I run 'sudo docker exec -t !{postgresDocker} psql -p 5432 -d ${POSTGRES_DATABASE:-sparta} -U postgres -c "drop table \"${DCOS_SERVICE_NAME}\".cube"' in the ssh connection

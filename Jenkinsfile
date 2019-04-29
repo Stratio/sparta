@@ -127,17 +127,23 @@ hose {
             'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID "']
             ]
         ],
-        ['DCOSCLI':   ['image': 'stratio/dcos-cli:0.4.15-SNAPSHOT',
-                           'env':     ['DCOS_IP=10.200.0.205',
-                                      'SSL=true',
-                                      'SSH=true',
-                                      'TOKEN_AUTHENTICATION=true',
-                                      'DCOS_USER=admin',
-                                      'DCOS_PASSWORD=1234',
-                                      'CLI_BOOTSTRAP_USER=root',
-                                'CLI_BOOTSTRAP_PASSWORD=stratio'],
-                           'sleep':  120,
-                           'healthcheck': 5000]]
+        ['DCOSCLI': [
+                'image': 'stratio/dcos-cli:0.4.15-SNAPSHOT',
+                'volumes': ['stratio/paasintegrationpem:0.1.0'],
+                'env': [
+                    'DCOS_IP=10.130.15.11',
+                    'SSL=true',
+                    'SSH=true',
+                    'TOKEN_AUTHENTICATION=true',
+                    'DCOS_USER=admin',
+                    'DCOS_PASSWORD=1234',
+                    'CLI_BOOTSTRAP_USER=operador',
+                    'PEM_FILE_PATH=/paascerts/PaasIntegration.pem'
+                    ],
+                'sleep':  10,
+                'healthcheck': 5000
+                ]
+        ]
     ]
     INSTALLPARAMETERS = """
             | -DDCOS_SERVICE_NAME=sparta-server

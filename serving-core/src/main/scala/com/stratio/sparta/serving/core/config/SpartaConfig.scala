@@ -35,6 +35,7 @@ object SpartaConfig extends SLF4JLogging {
   private var igniteConfig: Option[Config] = None
   private var lineageConfig: Option[Config] = None
   private var s3Config: Option[Config] = None
+  private var sftpConfig: Option[Config] = None
 
   def getSpartaConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initMainConfig(fromConfig)
@@ -113,6 +114,10 @@ object SpartaConfig extends SLF4JLogging {
   def getS3Config(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
     if(force) initS3Config(fromConfig)
     else s3Config.orElse(initS3Config(fromConfig))
+
+  def getSftpConfig(fromConfig: Option[Config] = None, force: Boolean = false): Option[Config] =
+    if(force) initSftpConfig(fromConfig)
+    else sftpConfig.orElse(initSftpConfig(fromConfig))
 
   def daemonicAkkaConfig: Config = mainConfig match {
     case Some(mainSpartaConfig) =>
@@ -232,5 +237,11 @@ object SpartaConfig extends SLF4JLogging {
     val configFactory = SpartaConfigFactory(fromConfig)
     s3Config = initConfig(ConfigS3, configFactory)
     s3Config
+  }
+
+  private[config] def initSftpConfig(fromConfig: Option[Config] = None): Option[Config] = {
+    val configFactory = SpartaConfigFactory(fromConfig)
+    sftpConfig = initConfig(ConfigSftp, configFactory)
+    sftpConfig
   }
 }

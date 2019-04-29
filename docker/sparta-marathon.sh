@@ -16,6 +16,10 @@
  initAkkaNetwork
  INFO "[SPARTA-MARATHON] Created Akka network variables"
 
+ INFO "[SPARTA-MARATHON] Creating metrics variables ... "
+ initMetricsVariables
+ INFO "[SPARTA-MARATHON] Created metrics variables"
+
  INFO "[SPARTA-MARATHON] Creating persistence paths ... "
  initPersistencePaths
  INFO "[SPARTA-MARATHON] Created persistence paths"

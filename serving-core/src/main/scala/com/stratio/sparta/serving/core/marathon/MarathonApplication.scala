@@ -61,6 +61,11 @@ object MarathonApplication {
         name = Option("metrics"),
         port = 0,
         labels = None
+      ),
+      MarathonPortDefinition(
+        name = Option("jmx"),
+        port = 0,
+        labels = None
       )
     )),
     requirePorts = None,

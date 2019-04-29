@@ -256,7 +256,8 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
         Option(
           Seq(
             DockerPortMapping(DefaultSparkUIPort, DefaultSparkUIPort, Option(0), protocol = "tcp"),
-            DockerPortMapping(DefaultMetricsMarathonDriverPort, DefaultMetricsMarathonDriverPort, Option(0), protocol = "tcp", name = Option("metrics"))
+            DockerPortMapping(DefaultMetricsMarathonDriverPort, DefaultMetricsMarathonDriverPort, Option(0), protocol = "tcp", name = Option("metrics")),
+            DockerPortMapping(DefaultJmxMetricsMarathonDriverPort, DefaultJmxMetricsMarathonDriverPort, Option(0), protocol = "tcp", name = Option("jmx"))
           ) ++
             app.container.docker.portMappings.getOrElse(Seq.empty)
         )
@@ -307,7 +308,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       secrets = newSecrets,
       portDefinitions = newPortDefinitions,
       ipAddress = newIpAddress,
-      labels = app.labels ++ getWorkflowInheritedVariables ++ getUserDefinedLabels(workflowModel),
+      labels = app.labels ++ companyBillingLabels ++ getWorkflowInheritedVariables ++ getUserDefinedLabels(workflowModel),
       constraints = newConstraint
     )
   }
@@ -414,6 +415,16 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       SpartaPostgresUser -> workflowsIdentity,
       SystemHadoopUserName -> workflowsIdentity
     )
+  }
+
+  private def companyBillingLabels: Map[String, String] = {
+    Properties.envOrNone(DcosServiceCompanyLabelPrefix).fold(Map.empty[String, String]) { companyPrefix =>
+      sys.env.filterKeys { key =>
+        key.contains(MarathonLabelPrefixEnv) && key.contains(companyPrefix)
+      }.map { case (key, value) =>
+        key.replaceAll(MarathonLabelPrefixEnv, "") -> value
+      }
+    }
   }
 
   private def envProperties(workflow: Workflow, execution: WorkflowExecution, marathonAppHeapSize: Int): Map[String, String] = {

@@ -3,7 +3,7 @@ Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
 
   Background: [SetUp] Setup EOS GUI
     Given My app is running in '${CLUSTER_ID}.labs.stratio.com:443'
-    When I securely browse to '/service/${DCOS_SERVICE_NAME}/#/'
+    When I securely browse to '/'
     Then I switch to iframe with 'id:oauth-iframe'
 
   Scenario: [SPARTA-1196][01]See workflow Details
@@ -18,4 +18,4 @@ Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
     Then I take a snapshot
 
     #MVN Example
-    #mvn verify -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.SPARTA_1196_WorkflowDetail_IT -DCLUSTER_ID='nightly' -DWORKFLOW_LIST=testinput-kafka,kafka-elastic  -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-newcore.demo.stratio.com -DDCOS_SERVICE_NAME=sparta-server -DSELENIUM_GRID=localhost:4444 -DFORCE_BROWSER=chrome_48iddiegotest
+    #mvn verify -Dgroups=dcos_workflowDetail -DlogLevel=DEBUG  -DCLUSTER_ID=nightly -DSELENIUM_GRID=sl.demo.stratio.com:4444 -DFORCE_BROWSER=chrome_64sparta

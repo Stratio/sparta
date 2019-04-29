@@ -27,6 +27,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Properties, Success, Try}
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 
 class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   extends SLF4JLogging with SpartaSerializer {
@@ -166,7 +167,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
 
   def retrieveApps(): Future[String] = {
     retrieveIPandPorts
-    val appsList = s"v2/apps?id=sparta/$spartaTenant/workflows&embed=apps.tasks"
+    val appsList = s"v2/apps?id=$getMarathonBaseId&embed=apps.tasks"
     val appsInDcosResponse = for {
       responseMarathon <- doRequest(marathonApiUri.get,
         appsList,
@@ -200,7 +201,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
-    val groupsPath = s"v2/groups/sparta/$spartaTenant/workflows"
+    val groupsPath = s"v2/groups/$getMarathonBaseId/workflows"
     for {
       groups <- doRequest(marathonApiUri.get,
         groupsPath,
@@ -228,7 +229,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
-    val groupPath = s"v2/groups/sparta/$spartaTenant/workflows"
+    val groupPath = s"v2/groups/$getMarathonBaseId"
 
     import oauthUtils._
 

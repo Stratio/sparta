@@ -1,557 +1,557 @@
-{
-  "id": "ab3a2ebf-b333-43c0-afeb-a1fb750109b1",
-  "name": "kafka-postgres-pnf",
-  "description": "kafka-postgres-12ex",
-  "settings": {
-    "global": {
-      "executionMode": "marathon",
-      "userPluginsJars": [],
-      "preExecutionSqlSentences": [],
-      "postExecutionSqlSentences": [],
-      "addAllUploadedPlugins": true,
-      "mesosConstraint": "",
-      "mesosConstraintOperator": "CLUSTER",
-      "parametersLists": [
-        "Environment"
-      ],
-      "parametersUsed": [],
-      "udfsToRegister": [],
-      "udafsToRegister": []
-    },
-    "streamingSettings": {
-      "window": "{{{Global.SPARK_STREAMING_WINDOW}}}",
-      "remember": "",
-      "backpressure": true,
-      "backpressureInitialRate": "",
-      "backpressureMaxRate": "",
-      "blockInterval": "{{{Global.SPARK_STREAMING_BLOCK_INTERVAL}}}",
-      "stopGracefully": true,
-      "checkpointSettings": {
-        "checkpointPath": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}",
-        "enableCheckpointing": true,
-        "autoDeleteCheckpoint": true,
-        "addTimeToCheckpointPath": false
-      }
-    },
-    "sparkSettings": {
-      "master": "mesos://leader.mesos:5050",
-      "sparkKerberos": true,
-      "sparkDataStoreTls": true,
-      "sparkMesosSecurity": true,
-      "submitArguments": {
-        "userArguments": [],
-        "deployMode": "client",
-        "driverJavaOptions": "{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}"
+  {
+    "id": "ab3a2ebf-b333-43c0-afeb-a1fb750109b1",
+    "name": "kafka-postgres-pnf",
+    "description": "kafka-postgres-12ex",
+    "settings": {
+      "global": {
+        "executionMode": "marathon",
+        "userPluginsJars": [],
+        "preExecutionSqlSentences": [],
+        "postExecutionSqlSentences": [],
+        "addAllUploadedPlugins": true,
+        "mesosConstraint": "",
+        "mesosConstraintOperator": "CLUSTER",
+        "parametersLists": [
+          "Environment"
+        ],
+        "parametersUsed": [],
+        "udfsToRegister": [],
+        "udafsToRegister": []
       },
-      "sparkConf": {
-        "sparkResourcesConf": {
-          "coresMax": "24",
-          "executorMemory": "4G",
-          "executorCores": "2",
-          "driverCores": "2",
-          "driverMemory": "4G",
-          "mesosExtraCores": "",
-          "localityWait": "{{Global.SPARK_LOCALITY_WAIT}}",
-          "taskMaxFailures": "{{Global.SPARK_TASK_MAX_FAILURES}}",
-          "sparkMemoryFraction": "{{Global.SPARK_MEMORY_FRACTION}}",
-          "sparkParallelism": ""
+      "streamingSettings": {
+        "window": "{{{Global.SPARK_STREAMING_WINDOW}}}",
+        "remember": "",
+        "backpressure": true,
+        "backpressureInitialRate": "",
+        "backpressureMaxRate": "",
+        "blockInterval": "{{{Global.SPARK_STREAMING_BLOCK_INTERVAL}}}",
+        "stopGracefully": true,
+        "checkpointSettings": {
+          "checkpointPath": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}",
+          "enableCheckpointing": true,
+          "autoDeleteCheckpoint": true,
+          "addTimeToCheckpointPath": false
+        }
+      },
+      "sparkSettings": {
+        "master": "mesos://leader.mesos:5050",
+        "sparkKerberos": true,
+        "sparkDataStoreTls": true,
+        "sparkMesosSecurity": true,
+        "submitArguments": {
+          "userArguments": [],
+          "deployMode": "client",
+          "driverJavaOptions": "{{{Global.SPARK_DRIVER_JAVA_OPTIONS}}}"
         },
-        "userSparkConf": [
-          {
-            "sparkConfKey": "spark.streaming.kafka.consumer.cache.enabled",
-            "sparkConfValue": false
+        "sparkConf": {
+          "sparkResourcesConf": {
+            "coresMax": "24",
+            "executorMemory": "4G",
+            "executorCores": "2",
+            "driverCores": "2",
+            "driverMemory": "4G",
+            "mesosExtraCores": "",
+            "localityWait": "{{Global.SPARK_LOCALITY_WAIT}}",
+            "taskMaxFailures": "{{Global.SPARK_TASK_MAX_FAILURES}}",
+            "sparkMemoryFraction": "{{Global.SPARK_MEMORY_FRACTION}}",
+            "sparkParallelism": ""
           },
-          {
-            "sparkConfKey": "spark.streaming.backpressure.enabled",
-            "sparkConfValue": true
-          }
-        ],
-        "coarse": true,
-        "sparkUser": "",
-        "sparkLocalDir": "{{{Global.SPARK_LOCAL_PATH}}}",
-        "executorDockerImage": "{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}",
-        "sparkKryoSerialization": false,
-        "sparkSqlCaseSensitive": true,
-        "logStagesProgress": false,
-        "hdfsTokenCache": true,
-        "executorExtraJavaOptions": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}"
-      }
-    },
-    "errorsManagement": {
-      "genericErrorManagement": {
-        "whenError": "Error"
-      },
-      "transformationStepsManagement": {
-        "whenError": "Error",
-        "whenRowError": "RowError",
-        "whenFieldError": "Error"
-      },
-      "transactionsManagement": {
-        "sendToOutputs": [],
-        "sendStepData": false,
-        "sendPredecessorsData": false,
-        "sendInputData": true
-      }
-    }
-  },
-  "pipelineGraph": {
-    "nodes": [
-      {
-        "name": "transfor",
-        "stepType": "Transformation",
-        "className": "JsonTransformStepStreaming",
-        "classPrettyName": "Json",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 527.07958984375,
-            "y": 218
-          }
-        },
-        "configuration": {
-          "inputSchemas": "[]",
-          "schema.fromRow": true,
-          "whenFieldError": "",
-          "whenRowError": "RowDiscard",
-          "fieldsPreservationPolicy": "REPLACE",
-          "inputField": "raw"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData",
-          "DiscardedData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "Explode",
-        "stepType": "Transformation",
-        "className": "ExplodeTransformStepStreaming",
-        "classPrettyName": "Explode",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 713,
-            "y": 218
-          }
-        },
-        "configuration": {
-          "explodedField": "line",
-          "inputSchemas": "[]",
-          "whenFieldError": "Null",
-          "whenRowError": "RowDiscard",
-          "fieldsPreservationPolicy": "REPLACE",
-          "inputField": "lines"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "Datetime",
-        "stepType": "Transformation",
-        "className": "DateTimeTransformStepStreaming",
-        "classPrettyName": "Datetime",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 918,
-            "y": 217
-          }
-        },
-        "configuration": {
-          "fieldsDatetime": [
+          "userSparkConf": [
             {
-              "formatFrom": "AUTOGENERATED",
-              "localeTime": "ENGLISH",
-              "granularityNumber": "",
-              "granularityTime": "minute",
-              "fieldsPreservationPolicy": "APPEND",
-              "outputFieldName": "dateparsed",
-              "outputFieldType": "string",
-              "nullable": true,
-              "outputFormatFrom": "DEFAULT"
+              "sparkConfKey": "spark.streaming.kafka.consumer.cache.enabled",
+              "sparkConfValue": false
+            },
+            {
+              "sparkConfKey": "spark.streaming.backpressure.enabled",
+              "sparkConfValue": true
             }
           ],
-          "whenRowError": "",
-          "whenFieldError": ""
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData",
-          "DiscardedData"
-        ],
-        "lineageProperties": []
+          "coarse": true,
+          "sparkUser": "",
+          "sparkLocalDir": "{{{Global.SPARK_LOCAL_PATH}}}",
+          "executorDockerImage": "{{{Global.SPARK_EXECUTOR_BASE_IMAGE}}}",
+          "sparkKryoSerialization": false,
+          "sparkSqlCaseSensitive": true,
+          "logStagesProgress": false,
+          "hdfsTokenCache": true,
+          "executorExtraJavaOptions": "{{{Global.SPARK_STREAMING_CHECKPOINT_PATH}}}"
+        }
       },
-      {
-        "name": "triggercf11",
-        "stepType": "Transformation",
-        "className": "TriggerTransformStepStreaming",
-        "classPrettyName": "Trigger",
-        "arity": [
-          "BinaryToNary",
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
+      "errorsManagement": {
+        "genericErrorManagement": {
+          "whenError": "Error"
         },
-        "uiConfiguration": {
-          "position": {
-            "x": 1155,
-            "y": 99
-          }
-        },
-        "configuration": {
-          "sql": "SELECT id, dateparsed, clientId, storeId, totalSale, line.itemId, line.itemName, line.groupId as sectionid, line.totalLine FROM Datetime WHERE line.totalLine > 30",
-          "discardConditions": "[]",
-          "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData",
-          "DiscardedData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "triggerinfocf11",
-        "stepType": "Transformation",
-        "className": "TriggerTransformStepStreaming",
-        "classPrettyName": "Trigger",
-        "arity": [
-          "BinaryToNary",
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1150,
-            "y": 215
-          }
-        },
-        "configuration": {
-          "sql": "SELECT id, dateparsed, clientId, storeId, totalSale, line.itemId, line.itemName, line.groupId as sectionid, line.totalLine FROM Datetime",
-          "discardConditions": "[]",
-          "inputSchemas": "[]",
-          "executeSqlWhenEmpty": false
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData",
-          "DiscardedData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "cubecf11",
-        "stepType": "Transformation",
-        "className": "CubeTransformStep",
-        "classPrettyName": "Cube",
-        "arity": [
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1154.819580078125,
-            "y": 332.2600402832031
-          }
-        },
-        "configuration": {
-          "waterMark": "dateparsed",
+        "transformationStepsManagement": {
           "whenError": "Error",
-          "availability": "2m",
-          "inputSchemas": "[]",
-          "whenFieldError": "FieldError",
-          "dimensions": [
-            {
-              "name": "dateparsed"
-            },
-            {
-              "name": "groupId"
-            }
-          ],
           "whenRowError": "RowError",
-          "partitions": "",
-          "timeoutKey": "",
-          "operators": [
-            {
-              "name": "totalSection",
-              "inputField": "groupId",
-              "classType": "Sum"
-            }
-          ]
+          "whenFieldError": "Error"
         },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "Postgres4",
-        "stepType": "Output",
-        "className": "PostgresOutputStep",
-        "classPrettyName": "Postgres",
-        "arity": [
-          "NullaryToNullary",
-          "NaryToNullary"
-        ],
-        "writer": {
-          "saveMode": "Append"
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 1421,
-            "y": 215
-          }
-        },
-        "configuration": {
-          "newQuotesSubstitution": "",
-          "errorSink": false,
-          "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
-          "postgresSaveMode": "COPYIN",
-          "isolationLevel": "READ_COMMITTED",
-          "encoding": "UTF8",
-          "tlsEnabled": true,
-          "driver": "",
-          "schemaFromDatabase": false,
-          "newLineSubstitution": " ",
-          "saveOptions": "[]",
-          "delimiter": "\t"
-        },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "lineageProperties": []
-      },
-      {
-        "name": "Kafka",
-        "stepType": "Input",
-        "className": "KafkaInputStep",
-        "classPrettyName": "Kafka",
-        "arity": [
-          "NullaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
-        },
-        "uiConfiguration": {
-          "position": {
-            "x": 305.4579772949219,
-            "y": 219
-          }
-        },
-        "configuration": {
-          "spark.streaming.kafka.consumer.poll.ms": "1000",
-          "locationStrategy": "preferconsistent",
-          "inputOptions": [
-            {
-              "inputOptionsKey": "session.timeout.ms",
-              "inputOptionsValue": "60000"
-            },
-            {
-              "inputOptionsKey": "heartbeat.interval.ms",
-              "inputOptionsValue": "20000"
-            },
-            {
-              "inputOptionsKey": "request.timeout.ms",
-              "inputOptionsValue": "62000"
-            }
+        "transactionsManagement": {
+          "sendToOutputs": [],
+          "sendStepData": false,
+          "sendPredecessorsData": false,
+          "sendInputData": true
+        }
+      }
+    },
+    "pipelineGraph": {
+      "nodes": [
+        {
+          "name": "transfor",
+          "stepType": "Transformation",
+          "className": "JsonTransformStepStreaming",
+          "classPrettyName": "Json",
+          "arity": [
+            "UnaryToNary"
           ],
-          "topics": [
-            {
-              "topic": "khermes12-2"
-            }
-          ],
-          "auto.offset.reset": "latest",
-          "partition.assignment.strategy": "range",
-          "outputField": "raw",
-          "debugOptions": {
-            "userProvidedExample": "{\"id\": \"5729ce380f7cf66a149fa10e\",\"idSale\": \"2014-T17-71707\",\"dateFlat\": {\"year\":2014,\"month\":12,\"day\":12,\"hour\":11,\"minute\":50,\"second\":14},\"date\": \"2014-12-12T10:50:14.000Z\",\"cashier\": \"OSCAR DELGADO\",\"clientId\": \"1\",\"clientName\": \"CLIENTE VENTA CONTADO\",\"storeId\": \"7025\",\"totalSale\": 13.863249778747559,\"lines\": [{\"lineId\":12,\"itemId\":\"4411\",\"itemName\":\"BOL.STRATIO 40X\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"0\",\"aecoc\":\"3011104\",\"tax\":3.0,\"quantity\":2.0,\"unitCost\":16.990020751953125,\"unitPrice\":0.019999999552965164,\"totalLine\":0.03999999910593033},{\"lineId\":10,\"itemId\":\"806557\",\"itemName\":\"PIMIENTO ROJO\",\"groupId\":\"5\",\"groupName\":\"FRUTERIA\",\"offerId\":\"0\",\"aecoc\":\"0\",\"tax\":0.0,\"quantity\":0.4350000023841858,\"unitCost\":1.5,\"unitPrice\":1.9500000476837158,\"totalLine\":0.8482500314712524},{\"lineId\":9,\"itemId\":\"806724\",\"itemName\":\"PERA DEVOER\",\"groupId\":\"5\",\"groupName\":\"FRUTERIA\",\"offerId\":\"0\",\"aecoc\":\"0\",\"tax\":0.0,\"quantity\":0.5,\"unitCost\":1.5499999523162842,\"unitPrice\":2.1700000762939453,\"totalLine\":1.0850000381469727},{\"lineId\":7,\"itemId\":\"816141\",\"itemName\":\"MENTOS POMME VERTE 37,5 GR (20)\",\"groupId\":\"0\",\"groupName\":\"DEPARTAMENTO NO ESPECIFICADO\",\"offerId\":\"0\",\"aecoc\":\"99999999\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":0.3149999976158142,\"unitPrice\":0.6000000238418579,\"totalLine\":0.6000000238418579},{\"lineId\":6,\"itemId\":\"811462\",\"itemName\":\"MATUTANO FRUTOS SECOS ALMENDRA 180 GR. (20)\",\"groupId\":\"0\",\"groupName\":\"DEPARTAMENTO NO ESPECIFICADO\",\"offerId\":\"0\",\"aecoc\":\"99999999\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":2.194999933242798,\"unitPrice\":2.950000047683716,\"totalLine\":2.950000047683716},{\"lineId\":5,\"itemId\":\"11025\",\"itemName\":\"GALLETA FLORA DORADA 200\",\"groupId\":\"6\",\"groupName\":\"ALIMENTACION\",\"offerId\":\"0\",\"aecoc\":\"1011101\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":0.637499988079071,\"unitPrice\":0.949999988079071,\"totalLine\":0.949999988079071},{\"lineId\":4,\"itemId\":\"12408\",\"itemName\":\"(P)LIMPIADOR PH NEUTRO DON LIMPIO 1.3 L\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"25-14\",\"aecoc\":\"3010604\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":1.4500000476837158,\"unitPrice\":2.0999999046325684,\"totalLine\":2.0999999046325684},{\"lineId\":3,\"itemId\":\"14552\",\"itemName\":\"(P)LAVAVAJILLAS ORIGINAL MISTOL 900 ML\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"25-14\",\"aecoc\":\"3010401\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":0.800000011920929,\"unitPrice\":1.25,\"totalLine\":1.25},{\"lineId\":2,\"itemId\":\"467203\",\"itemName\":\"PAPEL ALUMINIO STRATIO 30 M\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"0\",\"aecoc\":\"3011101\",\"tax\":7.0,\"quantity\":1.0,\"unitCost\":1.1957606077194214,\"unitPrice\":1.7599999904632568,\"totalLine\":1.7599999904632568},{\"lineId\":1,\"itemId\":\"807212\",\"itemName\":\"PALACIO DEL CAMPO TINTO 75CL (12)\",\"groupId\":\"0\",\"groupName\":\"DEPARTAMENTO NO ESPECIFICADO\",\"offerId\":\"0\",\"aecoc\":\"99999999\",\"tax\":7.0,\"quantity\":1.0,\"unitCost\":0.8059999942779541,\"unitPrice\":1.2799999713897705,\"totalLine\":1.2799999713897705}],\"pays\": [{\"idPay\":1,\"namePay\":\"CONTADO\",\"dueDate\":{\"dateLong\":\"1418381464000\"},\"totalPay\":13.863249778747559}]}"
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
           },
-          "value.deserializer.inputFormat": "STRING",
-          "spark.streaming.kafka.maxRatePerPartition": "",
-          "tlsEnabled": true,
-          "spark.streaming.kafka.consumer.cache.enabled": false,
-          "group.id": "otro",
-          "bootstrap.servers": [
-            {
-              "host": "kafka-0-broker.eos-kafka-framework.mesos",
-              "port": "{{{Environment.KAFKA_BROKER_PORT}}}"
-            },
-            {
-              "host": "kafka-1-broker.eos-kafka-framework.mesos",
-              "port": "{{{Environment.KAFKA_BROKER_PORT}}}"
-            },
-            {
-              "host": "kafka-2-broker.eos-kafka-framework.mesos",
-              "port": "{{{Environment.KAFKA_BROKER_PORT}}}"
+          "uiConfiguration": {
+            "position": {
+              "x": 527.07958984375,
+              "y": 218
             }
+          },
+          "configuration": {
+            "inputSchemas": "[]",
+            "schema.fromRow": true,
+            "whenFieldError": "",
+            "whenRowError": "RowDiscard",
+            "fieldsPreservationPolicy": "REPLACE",
+            "inputField": "raw"
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData",
+            "DiscardedData"
           ],
-          "enable.auto.commit": false,
-          "storeOffsetInKafka": false
+          "lineageProperties": []
         },
-        "supportedEngines": [],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData"
-        ],
-        "lineageProperties": []
-      },
-      {
-        "name": "Trigger",
-        "stepType": "Transformation",
-        "className": "TriggerTransformStep",
-        "classPrettyName": "Trigger",
-        "arity": [
-          "BinaryToNary",
-          "UnaryToNary"
-        ],
-        "writer": {
-          "saveMode": "Append",
-          "tableName": "",
-          "partitionBy": "",
-          "errorTableName": ""
+        {
+          "name": "Explode",
+          "stepType": "Transformation",
+          "className": "ExplodeTransformStepStreaming",
+          "classPrettyName": "Explode",
+          "arity": [
+            "UnaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 713,
+              "y": 218
+            }
+          },
+          "configuration": {
+            "explodedField": "line",
+            "inputSchemas": "[]",
+            "whenFieldError": "Null",
+            "whenRowError": "RowDiscard",
+            "fieldsPreservationPolicy": "REPLACE",
+            "inputField": "lines"
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData"
+          ],
+          "lineageProperties": []
         },
-        "uiConfiguration": {
-          "position": {
-            "x": 918.4727008875744,
-            "y": 333.3282866326509
-          }
+        {
+          "name": "Datetime",
+          "stepType": "Transformation",
+          "className": "DateTimeTransformStepStreaming",
+          "classPrettyName": "Datetime",
+          "arity": [
+            "UnaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 918,
+              "y": 217
+            }
+          },
+          "configuration": {
+            "fieldsDatetime": [
+              {
+                "formatFrom": "AUTOGENERATED",
+                "localeTime": "ENGLISH",
+                "granularityNumber": "",
+                "granularityTime": "minute",
+                "fieldsPreservationPolicy": "APPEND",
+                "outputFieldName": "dateparsed",
+                "outputFieldType": "string",
+                "nullable": true,
+                "outputFormatFrom": "DEFAULT"
+              }
+            ],
+            "whenRowError": "",
+            "whenFieldError": ""
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData",
+            "DiscardedData"
+          ],
+          "lineageProperties": []
         },
-        "configuration": {
-          "sql": "select line.groupId as groupId, dateparsed from Datetime",
-          "discardConditions": "[]",
-          "inputSchemas": "[]",
-          "executeSqlWhenEmpty": true
+        {
+          "name": "triggercf11",
+          "stepType": "Transformation",
+          "className": "TriggerTransformStepStreaming",
+          "classPrettyName": "Trigger",
+          "arity": [
+            "BinaryToNary",
+            "UnaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 1155,
+              "y": 99
+            }
+          },
+          "configuration": {
+            "sql": "SELECT id, dateparsed, clientId, storeId, totalSale, line.itemId, line.itemName, line.groupId as sectionid, line.totalLine FROM Datetime WHERE line.totalLine > 30",
+            "discardConditions": "[]",
+            "inputSchemas": "[]",
+            "executeSqlWhenEmpty": false
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData",
+            "DiscardedData"
+          ],
+          "lineageProperties": []
         },
-        "supportedEngines": [
-          "Streaming"
-        ],
-        "executionEngine": "Streaming",
-        "supportedDataRelations": [
-          "ValidData",
-          "DiscardedData"
-        ],
-        "lineageProperties": []
+        {
+          "name": "triggerinfocf11",
+          "stepType": "Transformation",
+          "className": "TriggerTransformStepStreaming",
+          "classPrettyName": "Trigger",
+          "arity": [
+            "BinaryToNary",
+            "UnaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 1150,
+              "y": 215
+            }
+          },
+          "configuration": {
+            "sql": "SELECT id, dateparsed, clientId, storeId, totalSale, line.itemId, line.itemName, line.groupId as sectionid, line.totalLine FROM Datetime",
+            "discardConditions": "[]",
+            "inputSchemas": "[]",
+            "executeSqlWhenEmpty": false
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData",
+            "DiscardedData"
+          ],
+          "lineageProperties": []
+        },
+        {
+          "name": "cubecf11",
+          "stepType": "Transformation",
+          "className": "CubeTransformStep",
+          "classPrettyName": "Cube",
+          "arity": [
+            "UnaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 1154.819580078125,
+              "y": 332.2600402832031
+            }
+          },
+          "configuration": {
+            "waterMark": "dateparsed",
+            "whenError": "Error",
+            "availability": "2m",
+            "inputSchemas": "[]",
+            "whenFieldError": "FieldError",
+            "dimensions": [
+              {
+                "name": "dateparsed"
+              },
+              {
+                "name": "groupId"
+              }
+            ],
+            "whenRowError": "RowError",
+            "partitions": "",
+            "timeoutKey": "",
+            "operators": [
+              {
+                "name": "totalSection",
+                "inputField": "groupId",
+                "classType": "Sum"
+              }
+            ]
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData"
+          ],
+          "lineageProperties": []
+        },
+        {
+          "name": "Postgres4",
+          "stepType": "Output",
+          "className": "PostgresOutputStep",
+          "classPrettyName": "Postgres",
+          "arity": [
+            "NullaryToNullary",
+            "NaryToNullary"
+          ],
+          "writer": {
+            "saveMode": "Append"
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 1421,
+              "y": 215
+            }
+          },
+          "configuration": {
+            "newQuotesSubstitution": "",
+            "errorSink": false,
+            "url": "jdbc:postgresql://pg-0001.postgrestls.mesos:5432/postgres?user=sparta-server",
+            "postgresSaveMode": "COPYIN",
+            "isolationLevel": "READ_COMMITTED",
+            "encoding": "UTF8",
+            "tlsEnabled": true,
+            "driver": "",
+            "schemaFromDatabase": false,
+            "newLineSubstitution": " ",
+            "saveOptions": "[]",
+            "delimiter": "\t"
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "lineageProperties": []
+        },
+        {
+          "name": "Kafka",
+          "stepType": "Input",
+          "className": "KafkaInputStep",
+          "classPrettyName": "Kafka",
+          "arity": [
+            "NullaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 305.4579772949219,
+              "y": 219
+            }
+          },
+          "configuration": {
+            "spark.streaming.kafka.consumer.poll.ms": "1000",
+            "locationStrategy": "preferconsistent",
+            "inputOptions": [
+              {
+                "inputOptionsKey": "session.timeout.ms",
+                "inputOptionsValue": "60000"
+              },
+              {
+                "inputOptionsKey": "heartbeat.interval.ms",
+                "inputOptionsValue": "20000"
+              },
+              {
+                "inputOptionsKey": "request.timeout.ms",
+                "inputOptionsValue": "62000"
+              }
+            ],
+            "topics": [
+              {
+                "topic": "khermes12-2"
+              }
+            ],
+            "auto.offset.reset": "latest",
+            "partition.assignment.strategy": "range",
+            "outputField": "raw",
+            "debugOptions": {
+              "userProvidedExample": "{\"id\": \"5729ce380f7cf66a149fa10e\",\"idSale\": \"2014-T17-71707\",\"dateFlat\": {\"year\":2014,\"month\":12,\"day\":12,\"hour\":11,\"minute\":50,\"second\":14},\"date\": \"2014-12-12T10:50:14.000Z\",\"cashier\": \"OSCAR DELGADO\",\"clientId\": \"1\",\"clientName\": \"CLIENTE VENTA CONTADO\",\"storeId\": \"7025\",\"totalSale\": 13.863249778747559,\"lines\": [{\"lineId\":12,\"itemId\":\"4411\",\"itemName\":\"BOL.STRATIO 40X\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"0\",\"aecoc\":\"3011104\",\"tax\":3.0,\"quantity\":2.0,\"unitCost\":16.990020751953125,\"unitPrice\":0.019999999552965164,\"totalLine\":0.03999999910593033},{\"lineId\":10,\"itemId\":\"806557\",\"itemName\":\"PIMIENTO ROJO\",\"groupId\":\"5\",\"groupName\":\"FRUTERIA\",\"offerId\":\"0\",\"aecoc\":\"0\",\"tax\":0.0,\"quantity\":0.4350000023841858,\"unitCost\":1.5,\"unitPrice\":1.9500000476837158,\"totalLine\":0.8482500314712524},{\"lineId\":9,\"itemId\":\"806724\",\"itemName\":\"PERA DEVOER\",\"groupId\":\"5\",\"groupName\":\"FRUTERIA\",\"offerId\":\"0\",\"aecoc\":\"0\",\"tax\":0.0,\"quantity\":0.5,\"unitCost\":1.5499999523162842,\"unitPrice\":2.1700000762939453,\"totalLine\":1.0850000381469727},{\"lineId\":7,\"itemId\":\"816141\",\"itemName\":\"MENTOS POMME VERTE 37,5 GR (20)\",\"groupId\":\"0\",\"groupName\":\"DEPARTAMENTO NO ESPECIFICADO\",\"offerId\":\"0\",\"aecoc\":\"99999999\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":0.3149999976158142,\"unitPrice\":0.6000000238418579,\"totalLine\":0.6000000238418579},{\"lineId\":6,\"itemId\":\"811462\",\"itemName\":\"MATUTANO FRUTOS SECOS ALMENDRA 180 GR. (20)\",\"groupId\":\"0\",\"groupName\":\"DEPARTAMENTO NO ESPECIFICADO\",\"offerId\":\"0\",\"aecoc\":\"99999999\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":2.194999933242798,\"unitPrice\":2.950000047683716,\"totalLine\":2.950000047683716},{\"lineId\":5,\"itemId\":\"11025\",\"itemName\":\"GALLETA FLORA DORADA 200\",\"groupId\":\"6\",\"groupName\":\"ALIMENTACION\",\"offerId\":\"0\",\"aecoc\":\"1011101\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":0.637499988079071,\"unitPrice\":0.949999988079071,\"totalLine\":0.949999988079071},{\"lineId\":4,\"itemId\":\"12408\",\"itemName\":\"(P)LIMPIADOR PH NEUTRO DON LIMPIO 1.3 L\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"25-14\",\"aecoc\":\"3010604\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":1.4500000476837158,\"unitPrice\":2.0999999046325684,\"totalLine\":2.0999999046325684},{\"lineId\":3,\"itemId\":\"14552\",\"itemName\":\"(P)LAVAVAJILLAS ORIGINAL MISTOL 900 ML\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"25-14\",\"aecoc\":\"3010401\",\"tax\":3.0,\"quantity\":1.0,\"unitCost\":0.800000011920929,\"unitPrice\":1.25,\"totalLine\":1.25},{\"lineId\":2,\"itemId\":\"467203\",\"itemName\":\"PAPEL ALUMINIO STRATIO 30 M\",\"groupId\":\"8\",\"groupName\":\"DROGUERIA\",\"offerId\":\"0\",\"aecoc\":\"3011101\",\"tax\":7.0,\"quantity\":1.0,\"unitCost\":1.1957606077194214,\"unitPrice\":1.7599999904632568,\"totalLine\":1.7599999904632568},{\"lineId\":1,\"itemId\":\"807212\",\"itemName\":\"PALACIO DEL CAMPO TINTO 75CL (12)\",\"groupId\":\"0\",\"groupName\":\"DEPARTAMENTO NO ESPECIFICADO\",\"offerId\":\"0\",\"aecoc\":\"99999999\",\"tax\":7.0,\"quantity\":1.0,\"unitCost\":0.8059999942779541,\"unitPrice\":1.2799999713897705,\"totalLine\":1.2799999713897705}],\"pays\": [{\"idPay\":1,\"namePay\":\"CONTADO\",\"dueDate\":{\"dateLong\":\"1418381464000\"},\"totalPay\":13.863249778747559}]}"
+            },
+            "value.deserializer.inputFormat": "STRING",
+            "spark.streaming.kafka.maxRatePerPartition": "",
+            "tlsEnabled": true,
+            "spark.streaming.kafka.consumer.cache.enabled": false,
+            "group.id": "otro",
+            "bootstrap.servers": [
+              {
+                "host": "kafka-0-broker.eos-kafka-framework.mesos",
+                "port": "{{{Environment.KAFKA_BROKER_PORT}}}"
+              },
+              {
+                "host": "kafka-1-broker.eos-kafka-framework.mesos",
+                "port": "{{{Environment.KAFKA_BROKER_PORT}}}"
+              },
+              {
+                "host": "kafka-2-broker.eos-kafka-framework.mesos",
+                "port": "{{{Environment.KAFKA_BROKER_PORT}}}"
+              }
+            ],
+            "enable.auto.commit": false,
+            "storeOffsetInKafka": false
+          },
+          "supportedEngines": [],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData"
+          ],
+          "lineageProperties": []
+        },
+        {
+          "name": "Trigger",
+          "stepType": "Transformation",
+          "className": "TriggerTransformStep",
+          "classPrettyName": "Trigger",
+          "arity": [
+            "BinaryToNary",
+            "UnaryToNary"
+          ],
+          "writer": {
+            "saveMode": "Append",
+            "tableName": "",
+            "partitionBy": "",
+            "errorTableName": ""
+          },
+          "uiConfiguration": {
+            "position": {
+              "x": 918.4727008875744,
+              "y": 333.3282866326509
+            }
+          },
+          "configuration": {
+            "sql": "select line.groupId as groupId, dateparsed from Datetime",
+            "discardConditions": "[]",
+            "inputSchemas": "[]",
+            "executeSqlWhenEmpty": true
+          },
+          "supportedEngines": [
+            "Streaming"
+          ],
+          "executionEngine": "Streaming",
+          "supportedDataRelations": [
+            "ValidData",
+            "DiscardedData"
+          ],
+          "lineageProperties": []
+        }
+      ],
+      "edges": [
+        {
+          "origin": "transfor",
+          "destination": "Explode",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "Explode",
+          "destination": "Datetime",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "Datetime",
+          "destination": "triggercf11",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "Datetime",
+          "destination": "triggerinfocf11",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "triggercf11",
+          "destination": "Postgres4",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "triggerinfocf11",
+          "destination": "Postgres4",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "cubecf11",
+          "destination": "Postgres4",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "Kafka",
+          "destination": "transfor",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "Datetime",
+          "destination": "Trigger",
+          "dataType": "ValidData"
+        },
+        {
+          "origin": "Trigger",
+          "destination": "cubecf11",
+          "dataType": "ValidData"
+        }
+      ]
+    },
+    "executionEngine": "Streaming",
+    "uiSettings": {
+      "position": {
+        "x": -50.064043223918816,
+        "y": 28.628266023021524,
+        "k": 0.8471280701163431
       }
-    ],
-    "edges": [
-      {
-        "origin": "transfor",
-        "destination": "Explode",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Explode",
-        "destination": "Datetime",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Datetime",
-        "destination": "triggercf11",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Datetime",
-        "destination": "triggerinfocf11",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "triggercf11",
-        "destination": "Postgres4",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "triggerinfocf11",
-        "destination": "Postgres4",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "cubecf11",
-        "destination": "Postgres4",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Kafka",
-        "destination": "transfor",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Datetime",
-        "destination": "Trigger",
-        "dataType": "ValidData"
-      },
-      {
-        "origin": "Trigger",
-        "destination": "cubecf11",
-        "dataType": "ValidData"
-      }
-    ]
-  },
-  "executionEngine": "Streaming",
-  "uiSettings": {
-    "position": {
-      "x": -50.064043223918816,
-      "y": 28.628266023021524,
-      "k": 0.8471280701163431
-    }
-  },
-  "lastUpdateDate": "2018-07-25T16:58:14Z",
-  "version": 2,
-  "group": {
-    "id": "91654270-c79b-4855-80a8-a2ac8982ba4b",
-    "name": "/home/rendimiento"
-  },
-  "versionSparta": "2.4.0-7175f42",
-  "groupId": "91654270-c79b-4855-80a8-a2ac8982ba4b"
-}
+    },
+    "lastUpdateDate": "2018-07-25T16:58:14Z",
+    "version": 2,
+    "group": {
+      "id": "91654270-c79b-4855-80a8-a2ac8982ba4b",
+      "name": "/home/rendimiento"
+    },
+    "versionSparta": "2.4.0-7175f42",
+    "groupId": "91654270-c79b-4855-80a8-a2ac8982ba4b"
+  }

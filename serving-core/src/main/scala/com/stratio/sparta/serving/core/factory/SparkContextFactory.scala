@@ -62,7 +62,11 @@ object SparkContextFactory extends SLF4JLogging {
   }
   private lazy val proxyVariables: Seq[(String, String)] = {
     if (WorkflowHelper.isMarathonLBConfigured) {
-      val proxyPath = s"${WorkflowHelper.getVirtualPath}/crossdata-sparkUI"
+      val proxyPath = {
+        if(WorkflowHelper.isReverseProxyConfigured)
+          "/crossdata-sparkUI/"
+        else s"${WorkflowHelper.getVirtualPath}/crossdata-sparkUI/"
+      }
       log.debug(s"XDSession with proxy base: $proxyPath")
       Seq(("spark.ui.proxyBase", proxyPath))
     } else Seq.empty[(String, String)]

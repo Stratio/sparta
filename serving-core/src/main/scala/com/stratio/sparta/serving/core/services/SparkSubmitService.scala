@@ -84,7 +84,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         addKerberosArguments(
           submitArgsFiltered(submitArgs))),
       getReferenceClusterConfig ++
-      getS3Config ++
+      getS3Config ++ getSftpConfig ++
         addExecutorLogConf(
         addKerberosConfs(
           addExecutorHdfsSecurityConfs(
@@ -163,20 +163,21 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitDeployMode -> workflow.settings.sparkSettings.submitArguments.deployMode.map(_.toString),
       SubmitDriverJavaOptions -> {
         workflow.settings.sparkSettings.submitArguments.driverJavaOptions.notBlank.map { options =>
-          val calicoEnableEnv = Try(Properties.envOrNone(CalicoEnableEnv).notBlank.exists(_.toBoolean)).getOrElse(false)
-          val prometheusPort = if(calicoEnableEnv) {
-            Properties.envOrNone(PrometheusEnvironmentPortCalico)
-              .orElse(Properties.envOrNone(PrometheusEnvironmentPortHost))
-          } else {
-            Properties.envOrNone(PrometheusEnvironmentPortHost)
-              .orElse(Properties.envOrNone(PrometheusEnvironmentPortCalico))
-              .map( _ => SparkDriverMetricsReplaceRegex)
+          val prometheusJavaOption = {
+            if(Try(SpartaConfig.getDetailConfig().get.getBoolean("metrics.prometheus.enable")).getOrElse(false)){
+              s" -javaagent:/opt/sds/sparta/jmx-prometheus/jmx_prometheus_javaagent-0.11.0.jar=$PrometheusMetricsPortEnv" +
+                s":/opt/sds/sparta/jmx-prometheus/config.yaml"
+            } else ""
           }
-          val prometheusJavaOption = prometheusPort.map(prometheusPort =>
-            s" -javaagent:/opt/sds/sparta/jmx-prometheus/jmx_prometheus_javaagent-0.11.0.jar=" +
-              s"$prometheusPort:/opt/sds/sparta/jmx-prometheus/config.yaml"
-          )
-          options + prometheusJavaOption.getOrElse("")
+          val jmxJavaOption = {
+            if(Try(SpartaConfig.getDetailConfig().get.getBoolean("metrics.jmx.enable")).getOrElse(false)){
+                s" -Djava.rmi.server.hostname=$HostInUseMetricsEnv" +
+                  s" -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=$JmxMetricsPortEnv" +
+                  s" -Dcom.sun.management.jmxremote.rmi.port=$JmxMetricsPortEnv" +
+                  s" -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+            } else ""
+          }
+          options + prometheusJavaOption + jmxJavaOption
         }
       }
     ).flatMap {
@@ -236,6 +237,10 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       .map(sparkConf => typesafeToSpark(sparkConf, ConfigS3))
       .getOrElse(Map.empty)
 
+  private[core] def getSftpConfig(): Map[String, String] =
+    SpartaConfig.getSftpConfig()
+      .map(sparkConf => typesafeToSpark(sparkConf, ConfigSftp))
+      .getOrElse(Map.empty)
 
   private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
     getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs

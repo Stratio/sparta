@@ -20,14 +20,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.sys.process._
 import scala.util.{Properties, Try}
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 
 object NginxUtils {
 
   def buildSparkUI(id: String): Option[String] = {
     if (WorkflowHelper.isMarathonLBConfigured) {
       val useSsl = Properties.envOrNone(MarathonConstant.SpartaTLSEnableEnv) flatMap { strVal =>
-          Try(strVal.toBoolean).toOption
+        Try(strVal.toBoolean).toOption
       } getOrElse false
       Option(monitorUrl(WorkflowHelper.getVirtualHost, WorkflowHelper.getVirtualPath, id, useSsl))
     } else None
@@ -47,19 +46,24 @@ object NginxUtils {
                               workflowsUiVhost: String,
                               workflowsUiVpath: String,
                               workflowsUiPort: Int,
-                              useSsl: Boolean
+                              useSsl: Boolean,
+                              ignoreInvalidHeaders: String
                             )
 
   object NginxMetaConfig {
-    def apply(configPath: String = "/etc/nginx/nginx.conf",
-              pidFilePath: String = "/run/nginx.pid",
-              instanceName: String = AppConstant.spartaTenant,
-              securityFolder: String = Properties.envOrElse(MarathonConstant.SpartaSecretFolderEnv, "/etc/sds/sparta/security"),
-              workflowsUiVhost: String = WorkflowHelper.getVirtualHost,
-              workflowsUiVpath: String = WorkflowHelper.getVirtualPath,
-              workflowsUiPort: Int = Properties.envOrElse(SparkConstant.SparkUiPortEnv, SparkConstant.DefaultUIPort.toString).toInt,
-              useSsl: Boolean = AppConstant.securityTLSEnable
+
+    def apply(
+               configPath: String = "/etc/nginx/nginx.conf",
+               pidFilePath: String = "/run/nginx.pid",
+               instanceName: String = AppConstant.spartaTenant,
+               securityFolder: String = Properties.envOrElse(MarathonConstant.SpartaSecretFolderEnv, "/etc/sds/sparta/security"),
+               workflowsUiVhost: String = WorkflowHelper.getVirtualHost,
+               workflowsUiVpath: String = WorkflowHelper.getVirtualPath,
+               workflowsUiPort: Int = Properties.envOrElse(SparkConstant.SparkUiPortEnv, SparkConstant.DefaultUIPort.toString).toInt,
+               useSsl: Boolean = AppConstant.securityTLSEnable,
+               ignoreInvalidHeaders: String = Try(Properties.envOrNone(MarathonConstant.NginxIgnoreInvalidHeadersEnv).get).getOrElse("on")
              ): NginxMetaConfig = {
+
       implicit def path2file(path: String): File = new File(path)
 
       new NginxMetaConfig(
@@ -70,7 +74,8 @@ object NginxUtils {
         workflowsUiVhost,
         workflowsUiVpath,
         workflowsUiPort,
-        useSsl
+        useSsl,
+        ignoreInvalidHeaders
       )
     }
 
@@ -278,6 +283,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
        |    ${if (useSsl) s"ssl_certificate_key $securityFolder/$instanceName.key;" else ""}
        |    access_log /dev/stdout combined;
        |    error_log stderr info;
+       |    ignore_invalid_headers $ignoreInvalidHeaders;
        |
        |    ${workflowNginxLocations(listWorkflows, uiVirtualHost, uiVirtualPath)}
        |
@@ -296,6 +302,14 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
       s"""
          |
          |    location $nginxLocation {
+         |      proxy_pass        http://$ip:$port/;
+         |      proxy_redirect    http://$uiVirtualHost/ $monitorEndUrl;
+         |      proxy_set_header  Host             $$host;
+         |      proxy_set_header  X-Real-IP        $$remote_addr;
+         |      proxy_set_header  X-Forwarded-For  $$proxy_add_x_forwarded_for;
+         |    }
+         |
+         |    location s"/$workflowName/" {
          |      proxy_pass        http://$ip:$port/;
          |      proxy_redirect    http://$uiVirtualHost/ $monitorEndUrl;
          |      proxy_set_header  Host             $$host;

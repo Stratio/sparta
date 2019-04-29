@@ -73,9 +73,15 @@ object VaultAWSCredentialsProvider extends SLF4JLogging {
       resolveIntPropValue(STS_SESSION_DURATION_SUFFIX, conf, bucket)
         .getOrElse(STS_DEFAULT_SESSION_DURATION)
 
-    val roleSessionName = resolvePropValue(STS_SESSION_NAME_SUFFIX, conf, bucket).getOrElse {
+    val roleSessionName = {
+      val inputSessionName = resolvePropValue(STS_SESSION_NAME_SUFFIX, conf, bucket).getOrElse {
         sys.env.getOrElse(MarathonConstant.ExecutionIdEnv, AppConstant.spartaTenant)
-      }.replaceAll("_", "-").substring(0, STS_DEFAULT_SESSION_NAME_MAX_SIZE)
+      }
+
+      inputSessionName
+        .replaceAll("_", "-")
+        .substring(0, math.min(inputSessionName.length, STS_DEFAULT_SESSION_NAME_MAX_SIZE))
+    }
 
     val secretKeyVaultPath: Option[String] = resolvePropValue(S3A_SECRET_KEY_SUFFIX, conf, bucket)
     val roleVaultPath: Option[String] = resolvePropValue(S3A_ROLE_SUFFIX, conf, bucket)
