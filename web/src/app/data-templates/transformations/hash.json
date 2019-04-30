@@ -1,0 +1,135 @@
+{
+  "name": "Hash",
+  "icon": "Hash",
+  "category": "Column",
+  "className": "HashTransformStep",
+  "classPrettyName": "Hash",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "description": "Rename input columns",
+  "properties": [
+    {
+      "propertyId": "columnsToHash",
+      "propertyName": "_COLUMNS_TO_HASH_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "Schema definition from a list of fields.",
+      "qa": "fragment-details-hash-fields",
+      "fields": [
+        {
+          "propertyId": "columnToHash",
+          "propertyName": "_COLUMN_TO_HASH_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "float": false,
+          "width": 4,
+          "tooltip":  "Column of interest to hash",
+          "qa": "fragment-details-field-column-to-hash"
+        },
+        {
+          "propertyId": "hashType",
+          "propertyName": "_HASH_TYPE_",
+          "propertyType": "select",
+          "required": true,
+          "width": 4,
+          "values": [
+            {
+              "label": "MD5",
+              "value": "MD5"
+            },
+            {
+              "label": "SHA1",
+              "value": "SHA1"
+            },
+            {
+              "label": "SHA2",
+              "value": "SHA2"
+            }
+          ],
+          "tooltip":  "The hashing algorithm to apply,MD5, SHA1, or SHA2",
+          "qa": "fragment-details-field-hash-type"
+        },
+        {
+          "propertyId": "hashlength",
+          "propertyName": "_HASH_LENGTH_",
+          "propertyType": "select",
+          "width": 4,
+          "required": true,
+          "values": [
+            {
+              "label": "0",
+              "value": 0
+            },
+            {
+              "label": "224",
+              "value": 224
+            },
+            {
+              "label": "256",
+              "value": 256
+            },
+            {
+              "label": "384",
+              "value": 384
+            },
+            {
+              "label": "512",
+              "value": 512
+            }
+          ],
+          "visible": [
+            [
+              {
+                "propertyId": "hashType",
+                "value": "SHA2"
+              }
+            ]
+          ],
+          "tooltip": "Number of bits of the SHA-2 hash function. Only applied to sha2, one of 0, 224, 256, 384, 512",
+          "qa": "fragment-details-select-hash-length"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}

@@ -40,7 +40,7 @@ class AddColumnsTransformStepBatchIT extends TemporalSparkContext with Matchers 
         | """.stripMargin
 
     val inputSchema = StructType(Seq(StructField("text", StringType)))
-    val outputSchema = StructType(Seq(StructField("text", StringType), StructField("color", StringType,false), StructField("price", IntegerType,false)))
+    val outputSchema = StructType(Seq(StructField("text", StringType), StructField("color", StringType, false), StructField("price", IntegerType, false)))
     val dataIn =
       Seq(
         new GenericRowWithSchema(Array("A"), inputSchema),
@@ -62,6 +62,54 @@ class AddColumnsTransformStepBatchIT extends TemporalSparkContext with Matchers 
       Option(ssc),
       sparkSession,
       Map("columns" -> fields.asInstanceOf[JSerializable])
+    ).transformWithDiscards(inputData)._1
+
+    val arrayValues = result.ds.collect()
+
+    arrayValues.foreach { row =>
+      assert(dataOut.contains(row))
+      assert(outputSchema == row.schema)
+    }
+
+    assert(arrayValues.length === 2)
+  }
+
+
+  "A DefaultColumnValuesTransformStepBatchIT" should "add new columns using expressions" in {
+
+    val fields =
+      """[
+        |   {
+        |      "addColumnExpression":"price - discount",
+        |      "addColumnAlias":"result"
+        |   }
+        |]""".stripMargin
+
+    val inputSchema = StructType(Seq(StructField("price", IntegerType), StructField("discount", IntegerType)))
+    val outputSchema = StructType(Seq(StructField("price", IntegerType), StructField("discount", IntegerType), StructField("result", IntegerType)))
+    val dataIn =
+      Seq(
+        new GenericRowWithSchema(Array(10,5), inputSchema),
+        new GenericRowWithSchema(Array(10,5), inputSchema)
+      )
+    val dataInRow = dataIn.map(_.asInstanceOf[Row])
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array(10, 5, 5), outputSchema),
+      new GenericRowWithSchema(Array(10, 5, 5), outputSchema)
+    )
+    val dataSet = sc.parallelize(dataInRow)
+    val inputData = Map("step1" -> dataSet)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
+
+    val result = new AddColumnsTransformStepBatch(
+      "dummy",
+      outputOptions,
+      TransformationStepManagement(),
+      Option(ssc),
+      sparkSession,
+      Map(
+        "addColumnExpressionList" -> fields,
+        "selectType" -> "EXPRESSION")
     ).transformWithDiscards(inputData)._1
 
     val arrayValues = result.ds.collect()

@@ -9,9 +9,13 @@ import { StepType, Engine } from '@models/enums';
 import addColumnTemplate from './transformations/addColumns.json';
 import avroTemplate from './transformations/avro.json';
 import basicDataQualityTemplate from './transformations/basicDataQuality.json';
+import caseLetterTemplate from './transformations/caseLetter.json';
+import caseTemplate from './transformations/case.json';
 import castingTemplate from './transformations/casting.json';
+import characterTrimmerTemplate from './transformations/characterTrimmer.json';
 import checkpointTemplate from './transformations/checkpoint.json';
 import coalesceTemplate from './transformations/coalesce.json';
+import commaDelimiterTemplate from './transformations/commaDelimiter.json';
 import csvTemplate from './transformations/csv.json';
 import cubeTemplate from './transformations/cube.json';
 import cubeBatchTemplate from './transformations/cubeBatch.json';
@@ -24,8 +28,11 @@ import distinctTemplate from './transformations/distinct.json';
 import dropColumnsTemplate from './transformations/dropColumns.json';
 import dropDuplicatesTemplate from './transformations/dropDuplicates.json';
 import dropNullsTemplate from './transformations/dropNulls.json';
+import duplicateColumnsTemplate from './transformations/duplicateColumns.json';
 import explodeTemplate from './transformations/explode.json';
 import filterTemplate from './transformations/filter.json';
+import hashTemplate from './transformations/hash.json';
+import formatterTemplate from './transformations/formatter.json';
 import initNullsTemplate from './transformations/initNulls.json';
 import intersectionTemplate from './transformations/intersection.json';
 import joinTemplate from './transformations/join.json';
@@ -46,13 +53,18 @@ import triggerBatchTemplate from './transformations/triggerBatch.json';
 import unionTemplate from './transformations/union.json';
 import windowTemplate from './transformations/window.json';
 
+
 export const transformations: any = [
     addColumnTemplate,
     avroTemplate,
     basicDataQualityTemplate,
+    caseTemplate,
+    caseLetterTemplate,
     castingTemplate,
+    characterTrimmerTemplate,
     checkpointTemplate,
     coalesceTemplate,
+    commaDelimiterTemplate,
     csvTemplate,
     cubeTemplate,
     cubeBatchTemplate,
@@ -65,8 +77,11 @@ export const transformations: any = [
     dropColumnsTemplate,
     dropDuplicatesTemplate,
     dropNullsTemplate,
+    duplicateColumnsTemplate,
     explodeTemplate,
     filterTemplate,
+    hashTemplate,
+    formatterTemplate,
     initNullsTemplate,
     intersectionTemplate,
     joinTemplate,

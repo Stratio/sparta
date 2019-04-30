@@ -1,0 +1,91 @@
+{
+  "name": "CaseLetter",
+  "icon": "CaseLetter",
+  "category": "Column",
+  "className": "CaseLetterTransformStep",
+  "classPrettyName": "CaseLetter",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+
+  ],
+  "description": "Convert the text of a column to lowercase or uppercase.",
+  "properties": [
+    {
+      "propertyId": "columnsToCaseLetter",
+      "propertyName": "_COLUMNS_TO_CASE_LETTER_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of columns to make lowercase or uppercase.",
+      "qa": "fragment-details-case-letter-fields",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 6,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "operationCaseLetter",
+          "propertyName": "_OPERATION_CASE_LETTER_",
+          "propertyType": "select",
+          "default": "UPPERCASE",
+          "values": [
+            {
+              "label": "Uppercase",
+              "value": "UPPERCASE"
+            },
+            {
+              "label": "Lowercase",
+              "value": "LOWERCASE"
+            }
+          ],
+          "required": true,
+          "width": 4,
+          "qa": "workflow-transformation-case-letter-selection"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}

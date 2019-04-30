@@ -133,4 +133,9 @@ object WorkflowHelper extends SLF4JLogging {
       (Properties.envOrNone(MarathonConstant.NginxMarathonLBUserHostEnv).notBlank.isDefined &&
         Properties.envOrNone(MarathonConstant.NginxMarathonLBUserPathEnv).notBlank.isDefined)
 
+  def isCalicoEnabled: Boolean = {
+    val calicoEnabled = Properties.envOrNone(CalicoEnableEnv)
+    val calicoNetwork = Properties.envOrNone(CalicoNetworkEnv).notBlank
+    if (calicoEnabled.isDefined && calicoEnabled.get.equals("true") && calicoNetwork.isDefined) true else false
+  }
 }

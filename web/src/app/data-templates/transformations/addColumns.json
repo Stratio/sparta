@@ -16,7 +16,60 @@
    ],
    "description": "Add new columns",
    "properties": [
-      {
+     {
+       "propertyId": "selectType",
+       "propertyName": "_SELECT_TYPE_",
+       "required": true,
+       "propertyType": "select",
+       "default": "EXPRESSION",
+       "values": [
+         {
+           "label": "By SQL expression",
+           "value": "EXPRESSION"
+         },
+         {
+           "label": "By columns",
+           "value": "COLUMNS"
+         }
+       ],
+       "qa": "workflow-transformation-select-type"
+     },
+     {
+       "propertyId": "addColumnExpressionList",
+       "propertyName": "_ADD_COLUMNS_EXPRESSION_LIST_",
+       "propertyType": "list",
+       "required": false,
+       "complexForm": true,
+       "tooltip": "Section that allows the user to insert differents expressions and UDF",
+       "qa": "fragment-details-addColumns-expression",
+       "fields": [
+         {
+           "propertyId": "addColumnExpression",
+           "propertyName": "_ADD_COLUMN_EXPRESSION_",
+           "propertyType": "textarea",
+           "float": false,
+           "contentType": "SQL",
+           "width": 12,
+           "required": true
+         },
+         {
+           "propertyId": "addColumnAlias",
+           "propertyName": "_ADD_COLUMN_ALIAS_",
+           "propertyType": "text",
+           "width": 8,
+           "required": true
+         }
+       ],
+       "visible": [
+         [
+           {
+             "propertyId": "selectType",
+             "value": "EXPRESSION"
+           }
+         ]
+       ]
+     },
+     {
          "propertyId": "columns",
          "propertyName": "_COLUMNS_TO_ADD_",
          "propertyType": "list",
@@ -88,7 +141,15 @@
                "width": 3,
                "qa": "fragment-details-field-type"
             }
+         ],
+       "visible": [
+         [
+           {
+             "propertyId": "selectType",
+             "value": "COLUMNS"
+           }
          ]
+       ]
       },
       {
          "propertyId": "inputSchemas",

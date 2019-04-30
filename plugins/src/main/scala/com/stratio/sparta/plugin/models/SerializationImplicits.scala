@@ -7,10 +7,20 @@
 package com.stratio.sparta.plugin.models
 
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
+import com.stratio.sparta.plugin.enumerations._
+import org.json4s.ext.EnumNameSerializer
 import org.json4s.{DefaultFormats, Formats}
 
 object SerializationImplicits {
 
-  implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+  implicit val json4sJacksonFormats: Formats = DefaultFormats +
+    new JsoneyStringSerializer() +
+    new EnumNameSerializer(CaseValueType) +
+    new EnumNameSerializer(TableSide) +
+    new EnumNameSerializer(JoinTypes) +
+    new EnumNameSerializer(OrderByType) +
+    new EnumNameSerializer(TrimType) +
+    new EnumNameSerializer(CaseLetter) +
+    new EnumNameSerializer(CommaDelimiterDirectionModel)
 
 }
