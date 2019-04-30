@@ -15,7 +15,15 @@
     </div>
   </tool-bar>
   <div class="execution-detail">
+    <modal-layout [title]="modalTitle" [returnTo]="returnTo" [modalOpened]="showQualityRuleDetail" (onCloseModal)="toggleQualityRuleData()" >
+      <quality-rule-detail
+        [qualityRule]="qualityRules$ | async"
+        (closeQualityRulesInfo)="toggleQualityRuleData()"
+        *ngIf="showQualityRuleDetail">
+      </quality-rule-detail>
+    </modal-layout>
+
     <workflow-execution-detail-info-container class="execution-detail__info"></workflow-execution-detail-info-container>
-    <sparta-execution-detail-table-container></sparta-execution-detail-table-container>
+    <sparta-execution-detail-table-container (onSelectQualityRule)="loadQualityRules($event)"></sparta-execution-detail-table-container>
   </div>
 </div>

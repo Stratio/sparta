@@ -23,6 +23,7 @@ import { WizardEdgeModel } from './wizard-edge.model';
 
 import { ENTITY_BOX } from './../../wizard.constants';
 import { WizardNodePosition } from './../../models/node';
+import { getEdgePosition } from '@app/shared/wizard/utils/edge.utils';
 
 @Component({
   selector: '[wizard-edge]',
@@ -33,16 +34,18 @@ import { WizardNodePosition } from './../../models/node';
 })
 export class WizardEdgeComponent implements AfterContentInit, OnChanges {
 
-
   @Input() edge: WizardEdgeModel;
   @Input() selectedEdge: any;
   @Input() workflowID = '';
   @Input() initPosition: WizardNodePosition;
   @Input() endPosition: WizardNodePosition;
   @Input() activedEdge: Boolean;
+  @Input() qualityRule: number;
+  @Input() qualityStatus: boolean;
 
   @Output() selectEdge = new EventEmitter<any>();
   @Output() showEdgeOptions = new EventEmitter<any>();
+  @Output() showQualityRuleDetail = new EventEmitter<any>();
 
   public isSelected = false;
 
@@ -50,8 +53,10 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   private w = ENTITY_BOX.width;
   private _dataType: string;
 
+  private _container: any;
   private _svgAuxDefs: any;
   private _edgeElement: any;
+  private _edgeLabel: any;
 
   private _supportedDataRelations: Array<string>;
 
@@ -67,20 +72,21 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
   ngAfterContentInit(): void {
     this._supportedDataRelations = this.edge.origin.supportedDataRelations;
     this._dataType = this.edge.dataType;
-    const container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
+    this._container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-edge-container'));
 
-    this._svgAuxDefs = container.append('defs')
+    this._svgAuxDefs = this._container.append('defs')
       .append('path')
       .attr('id', 'path' + this._internalUUID);
 
-    this._edgeElement = container.append('use')
+    this._edgeElement = this._container.append('use')
       .attr('xlink:xlink:href', '#path' + this._internalUUID)
       .attr('class', 'edge')
       .classed('special', this._dataType && this._dataType !== 'ValidData')
-      .attr('marker-start', 'url(#UpArrowPrecise)')
-      .attr('marker-end', 'url(#DownArrowPrecise)');
+      .attr('marker-end', 'url(#UpArrowPrecise)')
+      .attr('marker-start', 'url(#DownArrowPrecise)');
 
-    const auxEdge = container.append('use')
+
+    const auxEdge = this._container.append('use')
       .attr('xlink:xlink:href', '#path' + this._internalUUID)
       .attr('class', 'edge-hover')
       .attr('stroke-width', '15')
@@ -103,11 +109,17 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
         });
       });
     auxEdge.on('click', this.selectedge.bind(this));
+
+    if (this.qualityRule) {
+      this._paintQRLabel(this.qualityStatus);
+    }
     this.getPosition(this.initPosition.x, this.initPosition.y, this.endPosition.x, this.endPosition.y);
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     this._ngZone.runOutsideAngular(() => {
+
       if (this._edgeElement && changes.selectedEdge) {
         this._edgeElement.classed('selected', this.selectedEdge && this.selectedEdge.origin === this.edge.origin.name
           && this.selectedEdge.destination === this.edge.destination.name ? true : false);
@@ -120,6 +132,11 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
         this._dataType = this.edge.dataType;
         this._edgeElement.classed('special', this._dataType && this._dataType !== 'ValidData');
       }
+
+      if (!this._edgeLabel && changes.qualityRule) {
+        this._paintQRLabel(this.qualityStatus);
+        this.getPosition(this.initPosition.x, this.initPosition.y, this.endPosition.x, this.endPosition.y);
+      }
       this._edgeElement.classed('actived', this.activedEdge);
     });
   }
@@ -128,25 +145,10 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
     if (!this._svgAuxDefs) {
       return;
     }
-    const diff = Math.abs(x1 - x2);
-    if (diff > this.w + 16) {
-      y1 += this.h / 2;
-      y2 += this.h / 2;
-      if (x1 > x2) {
-        x2 += this.w;
-      } else {
-        x1 += this.w;
-      }
-      this._svgAuxDefs.attr('d', 'M' + x2 + ',' + y2 + ' C' + x1 + ',' + y2 + ' ' + x2 + ',' + y1 + ' ' + x1 + ',' + y1);
-    } else {
-      x1 += this.w / 2;
-      x2 += this.w / 2;
-      if (y1 > y2) {
-        y2 += this.h;
-      } else {
-        y1 += this.h;
-      }
-      this._svgAuxDefs.attr('d', 'M' + x2 + ',' + y2 + ' C' + x2 + ',' + y1 + ' ' + x1 + ',' + y2 + ' ' + x1 + ',' + y1);
+    const coors = getEdgePosition(this._svgAuxDefs, x1, y1, x2, y2, this.h, this.w);
+
+    if (this._edgeLabel) {
+      this._edgeLabel.attr('transform', `translate(${(coors.x1 - (coors.x1 - coors.x2) / 2)}, ${(coors.y1 - (coors.y1 - coors.y2) / 2)})`);
     }
   }
 
@@ -164,5 +166,36 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
       const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
+  }
+
+  private _paintQRLabel(status) {
+    this._edgeLabel = this._container.append('g')
+    .attr('class', 'edge__label-container');
+
+    this._edgeLabel.on('click', () => {
+      this.showQualityRuleDetail.emit();
+    });
+
+    this._edgeLabel.append('circle')
+      .attr('fill', 'white')
+      .attr('r', 18)
+      .attr('stroke', '#eaeff5')
+      .attr('stroke-width', '2');
+
+    this._edgeLabel.append('text')
+      .text('QR')
+      .attr('y', -2)
+      .attr('class', 'edge__label-text');
+
+    this._edgeLabel.append('text')
+      .text(this.qualityRule)
+      .attr('y', 12)
+      .attr('class', 'edge__label-text');
+
+    this._edgeLabel.append('circle')
+      .attr('r', 4)
+      .attr('cy', -15)
+      .attr('cx', 15)
+      .attr('fill', status ? '#2cce93' : '#ec445c');
   }
 }

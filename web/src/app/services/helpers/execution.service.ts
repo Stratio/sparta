@@ -10,6 +10,64 @@ import { formatDate } from '@utils';
 @Injectable()
 export class ExecutionHelperService {
 
+  public normalizeQualityRules(qualityRules) {
+
+    if (qualityRules && qualityRules.length) {
+      return qualityRules.map(qualityRule => {
+        const {
+          id,
+          qualityRuleName: name,
+          conditionsString: description,
+          conditionThreshold: threshold,
+          satisfied: status,
+          numTotalEvents: totalRows,
+          numPassedEvents: rowsPassed,
+          numDiscardedEvents: rowsFailed,
+          globalAction,
+          warning,
+          successfulWriting,
+          sentToApi,
+          conditionsString: condition,
+          outputStepName,
+          transformationStepName,
+          metadataPath
+        } = qualityRule;
+
+        return {
+          id,
+          name,
+          description,
+          threshold,
+          status,
+          totalRows,
+          rowsPassed,
+          rowsFailed,
+          successfulWriting,
+          qualityScore: ((rowsPassed / totalRows) * 100).toFixed(2).toString() + '%',
+          globalAction,
+          sentToApi,
+          warning,
+          condition,
+          outputStepName,
+          transformationStepName,
+          metadataPath,
+          satisfiedMessage: status ?
+          'OK' :
+          'KO',
+          satisfiedIcon: status ?
+          'icon-dot status-icon success-color' :
+          'icon-dot status-icon error-color'
+          ,
+          warningIcon: warning ?
+          'icon-alert warning-color' :
+          ''
+        };
+      });
+    }
+
+    return [];
+  }
+
    public normalizeExecution(execution) {
       const {
         id,

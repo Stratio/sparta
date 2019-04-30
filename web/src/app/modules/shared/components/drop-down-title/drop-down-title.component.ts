@@ -6,14 +6,15 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, ViewContainerRef } from '@angular/core';
 
 @Component({
-  selector: 'sparta-execution-detail-drop-down-title',
-  templateUrl: './execution-detail-drop-down-title.component.html',
-  styleUrls: ['./execution-detail-drop-down-title.component.scss']
+  selector: 'drop-down-title',
+  templateUrl: './drop-down-title.component.html',
+  styleUrls: ['./drop-down-title.component.scss']
 })
-export class ExecutionDetailDropDownTitleComponent implements OnInit {
+export class DropDownTitleComponent implements OnInit {
 
   @Input() title: String = '';
   @Input() isVisibleContent = false;
+  @Input() labelSize: number;
   @ViewChild('icon') iconElement: ElementRef;
 
   constructor() {}

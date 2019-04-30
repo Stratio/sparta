@@ -48,3 +48,13 @@ export const executionDetailShowedState = createSelector(
   executionDetailState,
   state => state.showedActions
 );
+
+export const qualityRulesState = createSelector(
+  executionDetailState,
+  state => state.qualityRules
+);
+
+export const executionDetailfilterParametersState = createSelector(
+  executionDetailState,
+  state => state.filterParameters
+);

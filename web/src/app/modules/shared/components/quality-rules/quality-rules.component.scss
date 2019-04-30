@@ -1,0 +1,130 @@
+@import '~@stratio/egeo/theme/constants';
+.quality-rules {
+
+  .section {
+    border-bottom: 1px solid $neutral-03;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+
+  .status-icon {
+    font-size: 24px;
+  }
+
+  .success-color {
+    color: $status-success-default;
+  }
+
+  .error-color {
+    color: $status-critical-default;
+  }
+
+  .warning-color {
+    color: $status-warning-default;
+  }
+
+  .rule {
+    width: 100%;
+    background-color: white;
+    padding: 24px;
+
+    &__name {
+        font-size: 25px;
+        color: $neutral-13;
+        font-family: $egeo-nunito-sans-bold;
+    }
+
+    &__description {
+        margin-top: 10px;
+    }
+
+    &__status {
+      display: flex;
+      align-items: center;
+    }
+
+    hr {
+        border-bottom: 1px solid $neutral-05;
+        padding: 10px 0;
+        margin-bottom: 17px;
+    }
+
+    &__label {
+      color: $neutral-11;
+      font-family: $egeo-nunito-sans-bold;
+    }
+
+    &__title-secondary {
+        color: $neutral-11;
+        font-size: 16px;
+        font-family: $egeo-nunito-sans-bold;
+        margin: 14px 0 10px;
+    }
+
+    &__title-primary {
+        color: $neutral-13;
+        font-size: 16px;
+        font-family: $egeo-nunito-sans-extraBold;
+
+        &--inline {
+            margin-right: 15px;
+        }
+    }
+
+    &__title-technical {
+      font-size: 20px;
+      font-family: $egeo-nunito-sans-bold;
+      color: $neutral-13;
+    }
+
+    &__warning-icon {
+      color: $status-warning-hover;
+      float: right;
+      font-size: 20px;
+    }
+
+    &__value {
+        color: $neutral-11;
+
+        &--critical {
+          color: $status-critical-default;
+        }
+    }
+
+    &__path {
+        font-size: 14px;
+        color: $neutral-09;
+        margin-top: 10px;
+    }
+
+    &__rows-data {
+        display: flex;
+        text-align: center;
+        margin-left: -10px;
+    }
+
+    &__rows-data-column {
+        padding: 0 15px;
+        flex: 1;
+        border-right: 1px solid $neutral-05;
+
+        &:last-child {
+            border: 0;
+        }
+    }
+
+    &__details {
+      margin: 20px 0;
+
+      .rule__title-primary{
+        margin-top: 30px;
+        margin-bottom: 10px;
+      }
+    }
+
+    &__technical-data {
+      margin: 10px 0;
+    }
+  }
+}
+

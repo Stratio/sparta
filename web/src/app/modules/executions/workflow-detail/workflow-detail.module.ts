@@ -19,6 +19,9 @@ import {WorkflowDetailEffect} from '@app/executions/workflow-detail/effects/work
 import {workflowDetailReducers} from '@app/executions/workflow-detail/reducers';
 import { SchemaDataModule } from '@app/shared/components/schema-data/schema-data.module';
 import { StHorizontalTabsModule } from '@stratio/egeo';
+import { DropDownTitleModule } from '@app/shared/components/drop-down-title/drop-down-title.module';
+import { ExecutionHelperService } from 'app/services/helpers/execution.service';
+import { QualityRulesModule} from '@app/shared/components/quality-rules/quality-rules.module';
 
 @NgModule({
   imports: [
@@ -33,11 +36,14 @@ import { StHorizontalTabsModule } from '@stratio/egeo';
     StHorizontalTabsModule,
     SchemaDataModule,
     TranslateModule,
+    DropDownTitleModule,
+    QualityRulesModule,
     StoreModule.forFeature('workflowDetail', workflowDetailReducers),
     EffectsModule.forFeature([WorkflowDetailEffect]),
   ],
   declarations: [WorkflowDetailComponent],
-  exports: [WorkflowDetailComponent]
+  exports: [WorkflowDetailComponent],
+  providers: [ExecutionHelperService]
 })
 
 export class WorkflowDetailModule { }

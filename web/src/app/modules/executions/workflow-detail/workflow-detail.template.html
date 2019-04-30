@@ -23,9 +23,12 @@
       *ngFor="let edge of edges; let i=index;"
       [edge]="edge"
       [selectedEdge]="''"
+      [qualityRule]="qualityRulesCount[i]"
+      [qualityStatus]="qualityRulesStatus[i]"
       [initPosition]="edge.origin.uiConfiguration.position"
-      [endPosition]="edge.destination.uiConfiguration.position">
-    </svg:g> -->
+      [endPosition]="edge.destination.uiConfiguration.position"
+      (click)="selectEdge(edge)">
+    </svg:g>
     <svg:g draggable-element
       *ngFor="let nodeData of nodes"
       [(position)]="nodeData.uiConfiguration.position"
@@ -35,21 +38,21 @@
         [data]="nodeData"
         [selected]="selectedStep && selectedStep.name === nodeData.name">
       </svg:g>
-      <svg:defs>
-      <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
-        <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
-      </svg:marker>
-      <svg:marker id="UpArrowPreciseSelected" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
-        <svg:path d="M9,0 L9,8 L0,4 Z" fill="#128bde" />
-      </svg:marker>
-      <svg:marker id="createConnectorMarker" orient="auto" markerUnits="userSpaceOnUse" markerWidth="200" markerHeight="20" refX="13" refY="7.5">
-        <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
-      </svg:marker>
-    </svg:defs>
+      <defs>
+        <marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="8" refY="4">
+          <path d="M0,0 L0,8 L8,4 Z" fill="#999" />
+        </marker>
+        <marker id="UpArrowPreciseSelected" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="8" refY="4">
+          <path d="M0,0 L0,8 L8,4 Z" fill="#128bde" />
+        </marker>
+        <marker id="createConnectorMarker" orient="auto" markerUnits="userSpaceOnUse" markerWidth="200" markerHeight="20" refX="13" refY="7.5">
+          <path d="M0,0 L0,15 L15,7 z" fill="#777" />
+        </marker>
+      </defs>
     </svg:g>
   </graph-editor>
   <sparta-sidebar [isVisible]="true" [darkBorder]="true" showScrollBar="true" [showCloseButton]="false">
-    <div class="not-selected" *ngIf="!selectedStep">
+    <div class="not-selected" *ngIf="!selectedStep && !filteredQualityRules.length">
       <img src="assets/images/planet.svg" class="step-detail-image" />
       <div class="step-info">Select a step to view its details</div>
     </div>
@@ -57,20 +60,37 @@
       <div class="egeo-title-medium">{{selectedStep.name}}</div>
       <div>{{selectedStep.stepType}} - {{selectedStep.classPrettyName}}</div>
       <div class="configuration">
-          <st-horizontal-tabs class="sidebar-tabs" 
+          <st-horizontal-tabs class="sidebar-tabs"
             *ngIf="selectedStep.stepType !== 'Output'"
-            [options]="tabOptions" 
+            [options]="tabOptions"
             [activeOption]="tabSelectedOption"
             (changedOption)="changedOption($event)"
             qaTag="workflow-details-tabs"></st-horizontal-tabs>
-        <schema-data *ngIf="tabSelectedOption.id === 'writer'" 
-          [schema]="writerTemplate" 
+        <schema-data *ngIf="tabSelectedOption.id === 'writer'"
+          [schema]="writerTemplate"
           [data]="selectedStep.writer"></schema-data>
-        <schema-data *ngIf="tabSelectedOption.id === 'global'" 
-          [schema]="currentStepTemplate.properties" 
+        <schema-data *ngIf="tabSelectedOption.id === 'global'"
+          [schema]="currentStepTemplate.properties"
           [data]="selectedStep.configuration">
         </schema-data>
       </div>
     </div>
+
+    <div class="sidebar-content" *ngIf="filteredQualityRules && filteredQualityRules.length && !selectedStep">
+      <div class="execution-details__sidebar-title">Quality Rules</div>
+      <div class="execution-detail s__separator"></div>
+      <drop-down-title class="drop-down-title" *ngFor="let qualityRule of filteredQualityRules" [title]="qualityRule.name">
+        <div class="execution-details__status" info>
+          <i [ngClass]="{'icon-dot status-icon success-color': qualityRule.status}" ></i>
+          <i [ngClass]="{'icon-dot status-icon error-color': !qualityRule.status}" ></i>
+          <span *ngIf="qualityRule.status" >OK</span>
+          <span *ngIf="!qualityRule.status" >KO</span>
+        </div>
+
+        <quality-rule-detail [compactMode]="true" [qualityRule]="qualityRule" ></quality-rule-detail>
+
+      </drop-down-title>
+    </div>
+
   </sparta-sidebar>
 </section>

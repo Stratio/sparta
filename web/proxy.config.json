@@ -74,5 +74,9 @@
   "/mlModels/*": {
     "target": "http://localhost:9090",
     "secure": "debug"
+  },
+  "/qualityRuleResults/*": {
+    "target": "http://localhost:9090",
+    "secure": "debug"
   }
 }

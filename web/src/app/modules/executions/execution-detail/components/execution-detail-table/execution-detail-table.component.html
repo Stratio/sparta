@@ -29,9 +29,9 @@
       [fields]="fields"
       [sortable]="true"
       (changeOrder)="onSortTable($event)">
-      <tr class="execution-detail-table__row" st-table-row *ngFor="let parameterData of filteredParameters">
+      <tr (click)="selectItem(parameterData)" class="execution-detail-table__row" st-table-row *ngFor="let parameterData of filteredParameters">
           <td st-table-cell st-table-row-content *ngFor="let field of fields">
-              <label>{{parameterData[field.id]}}</label>
+              <i [ngClass]="parameterData[field.icon]" ></i><label>{{parameterData[field.id]}}</label>
           </td>
       </tr>
     </st-table>

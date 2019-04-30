@@ -32,6 +32,7 @@ const initialState: executionParametersTypes.ExecutionDetail = {
     completeName: '',
     selected: false
   }],
+  filterParameters: '',
   statuses: [{
     name: '',
     statusInfo: '',
@@ -42,7 +43,8 @@ const initialState: executionParametersTypes.ExecutionDetail = {
     showedStop: false,
     showedContextMenu: false,
     menuOptions: []
-  }
+  },
+  qualityRules: []
 };
 
 export function reducer(state: executionParametersTypes.ExecutionDetail = initialState, action: any): executionParametersTypes.ExecutionDetail {
@@ -57,6 +59,18 @@ export function reducer(state: executionParametersTypes.ExecutionDetail = initia
     case executionDetailActions.RESET_EXECUTION_DETAIL:
       return {
         ...initialState
+      };
+
+    case executionDetailActions.GET_QUALITY_RULES_COMPLETE:
+      return {
+        ...state,
+        qualityRules: action.payload
+      };
+
+    case executionDetailActions.FILTER_PARAMETERS:
+      return {
+        ...state,
+        filterParameters: action.filter
       };
 
     default:

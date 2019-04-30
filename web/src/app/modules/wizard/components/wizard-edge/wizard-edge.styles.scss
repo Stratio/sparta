@@ -26,6 +26,16 @@ body.dragging g[draggable-element] {
       &.actived {
         stroke: $action-secondary-07;
      }
+
+     &__label-text {
+         text-anchor: middle;
+         font-size: 12px;
+         color: #0f1b27;
+      }
+
+      &__label-container, &__label-container * {
+        cursor: pointer;
+      }
    }
 
    use.edge-hover {

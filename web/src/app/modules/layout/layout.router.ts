@@ -8,47 +8,51 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout.component';
 
 const layoutRoutes: Routes = [
-  {
-    path: '',
-    component: LayoutComponent,
-    children: [
-      {
-        path: '',
-        loadChildren: '@app/executions/executions-monitoring/executions.monitoring.module#ExecutionsMonitoringModule'
-      },
-      {
-        path: 'workflow/:id',
-        loadChildren: '@app/executions/workflow-detail/workflow-detail.module#WorkflowDetailModule'
-      },
-      {
-        path: 'executions',
-        loadChildren: '@app/executions/executions-managing/executions.module#ExecutionsManagingModule'
-      },
-      {
-        path: 'archived',
-        loadChildren: '@app/executions/executions-managing/executions.module#ExecutionsManagingModule',
-        data: {
-          archived: true
-        }
-      },
-      {
-        path: 'repository',
-        loadChildren: '@app/repository/workflows.module#WorkflowsManageModule'
-      },
-      {
-        path: 'templates',
-        loadChildren: '@app/templates/templates.module#TemplatesModule'
-      },
-      {
-        path: 'sparta-settings',
-        loadChildren: '@app/settings/settings.module#SettingsModule'
-      },
-      {
-        path: 'catalog',
-        loadChildren: '@app/catalog/crossdata.module#CrossdataModule'
-      }
-    ]
-  }
+   {
+      path: '',
+      component: LayoutComponent,
+      children: [
+         {
+            path: '',
+            loadChildren: '@app/executions/executions-monitoring/executions.monitoring.module#ExecutionsMonitoringModule'
+         },
+         {
+            path: 'executions/:id',
+            loadChildren: '@app/executions/execution-detail/execution-detail.module#ExecutionDetailModule'
+         },
+         {
+            path: 'workflow/:id',
+            loadChildren: '@app/executions/workflow-detail/workflow-detail.module#WorkflowDetailModule'
+         },
+         {
+            path: 'executions',
+            loadChildren: '@app/executions/executions-managing/executions.module#ExecutionsManagingModule'
+         },
+         {
+            path: 'archived',
+            loadChildren: '@app/executions/executions-managing/executions.module#ExecutionsManagingModule',
+            data: {
+               archived: true
+            }
+         },
+         {
+            path: 'repository',
+            loadChildren: '@app/repository/workflows.module#WorkflowsManageModule'
+         },
+         {
+            path: 'templates',
+            loadChildren: '@app/templates/templates.module#TemplatesModule'
+         },
+         {
+            path: 'sparta-settings',
+            loadChildren: '@app/settings/settings.module#SettingsModule'
+         },
+         {
+            path: 'catalog',
+            loadChildren: '@app/catalog/crossdata.module#CrossdataModule'
+         }
+      ]
+   }
 ];
 
 @NgModule({

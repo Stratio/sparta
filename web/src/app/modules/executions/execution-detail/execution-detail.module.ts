@@ -18,8 +18,10 @@ import { ExecutionDetailTableModule } from './components/execution-detail-table/
 import { DetailInfoModule } from '@app/executions/execution-detail/components/execution-detail-info/detail-info.module';
 import { StBreadcrumbsModule, StModalService, StModalModule } from '@stratio/egeo';
 import { ToolBarModule } from '@app/shared';
-import { WorkflowDetailModule } from "@app/executions/workflow-detail/workflow-detail.module";
-import { ExecutionDetailHelperService } from "@app/executions/execution-detail/services/execution-detail.service";
+import { WorkflowDetailModule } from '@app/executions/workflow-detail/workflow-detail.module';
+import { ExecutionDetailHelperService } from '@app/executions/execution-detail/services/execution-detail.service';
+import { QualityRulesModule } from '@app/shared/components/quality-rules/quality-rules.module';
+import { ModalLayoutModule } from '@app/shared/components/modal-layout/modal-layout.module';
 
 
 @NgModule({
@@ -31,13 +33,15 @@ import { ExecutionDetailHelperService } from "@app/executions/execution-detail/s
         StoreModule.forFeature('executionDetail', reducers),
         EffectsModule.forFeature([ExecutionDetailEffect]),
         ExecutionDetailRouterModule,
+        QualityRulesModule,
         StBreadcrumbsModule,
         TranslateModule,
         ExecutionDetailTableModule,
         WorkflowDetailModule,
         DetailInfoModule,
         ToolBarModule,
-        StModalModule
+        StModalModule,
+        ModalLayoutModule
     ],
     providers: [ExecutionDetailHelperService, StModalService]
 })

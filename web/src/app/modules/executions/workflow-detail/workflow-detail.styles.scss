@@ -6,6 +6,15 @@
   height: 100vh;
   width: 100vw;
   z-index: 9999;
+
+  &__separator {
+    border-bottom: 1px solid $action-secondary-03;
+  }
+
+  &__sidebar-title {
+    font-size: $egeo-font-size-large;
+    margin-bottom: 27px;
+  }
 }
 
 .execution-details__header{
@@ -81,4 +90,28 @@ sparta-sidebar{
    font-size: $egeo-font-size-xxsmall;
    color: $neutral-10;
  }
+}
+
+.sidebar-content {
+  .execution-details__status{
+    font-size: $egeo-font-size-xxsmall;
+    display: flex;
+    align-items: center;
+  }
+
+  .status-icon {
+    font-size: $egeo-font-size-xxlarge;
+  }
+
+  .success-color {
+    color: $status-success-default;
+  }
+
+  .error-color {
+    color: $status-critical-default;
+  }
+
+  .warning-color {
+    color: $status-warning-default;
+  }
 }

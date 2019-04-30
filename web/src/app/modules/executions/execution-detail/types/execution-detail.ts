@@ -5,6 +5,7 @@
  */
 
 import {MenuOptionListGroup} from "@app/shared/components/menu-options-list/menu-options-list.component";
+import { QualityRule } from '@app/executions/models';
 
 export interface Parameter {
   name: String;
@@ -48,6 +49,8 @@ export interface ShowedActions {
 export interface ExecutionDetail {
   info: Info;
   parameters: Array<Parameter>;
+  filterParameters: string;
   statuses: Array<Status>;
   showedActions: ShowedActions;
+  qualityRules: Array<QualityRule>;
 }

@@ -16,6 +16,7 @@ import {ExecutionDetailHelperService} from '@app/executions/execution-detail/ser
 import * as fromRoot from '@app/executions/executions-managing/executions-list/reducers';
 import {Router} from '@angular/router';
 import * as errorActions from 'actions/errors';
+import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 @Injectable()
 export class ExecutionDetailEffect {
@@ -59,8 +60,8 @@ export class ExecutionDetailEffect {
     }))
     .pipe(catchError(error => {
       let message = {
-        title: "Error",
-        description: "Workflow couldnt be archived"
+        title: 'Error',
+        description: 'Workflow couldnt be archived'
       };
       return of(new errorActions.ServerErrorCompleteAction(message));
     }))
@@ -76,8 +77,8 @@ export class ExecutionDetailEffect {
       }))
       .pipe(catchError(error => {
         let message = {
-          title: "Error",
-          description: "Workflow couldnt be unarchived"
+          title: 'Error',
+          description: 'Workflow couldnt be unarchived'
         };
         return of(new errorActions.ServerErrorCompleteAction(message));
       }))
@@ -93,8 +94,8 @@ export class ExecutionDetailEffect {
       }))
       .pipe(catchError((error) => {
         let message = {
-          title: "Error",
-          description: "Workflow couldnt be deleted"
+          title: 'Error',
+          description: 'Workflow couldnt be deleted'
         };
         return of(new errorActions.ServerErrorCompleteAction(message));
       }))
@@ -107,7 +108,9 @@ export class ExecutionDetailEffect {
     .pipe(switchMap((executionId: any) =>
       this._executionService.stopExecutionsById(executionId)
       .pipe(map(status => new executionDetailActions.GetExecutionDetailAction(executionId)))
-      .pipe(map(() => {return {type: 'NO_ACTION'}}))
+      .pipe(map(() => {
+        return { type: 'NO_ACTION' };
+      }))
       .pipe(catchError(error => {
         const message = {
           title: 'Error',
@@ -133,11 +136,29 @@ export class ExecutionDetailEffect {
       return of(new errorActions.ServerErrorCompleteAction(message));
     }));
 
+  @Effect()
+  getQualityRules$: Observable<Action> = this.actions$
+    .pipe(
+      ofType(executionDetailActions.GET_QUALITY_RULES),
+      map((action: any) => action.executionId),
+      switchMap((executionId) =>
+        timer(0, 30000)
+        .pipe(
+          switchMap(() => this._executionService.getQualityRules(executionId)),
+          takeUntil(this.actions$.pipe(ofType(executionDetailActions.CANCEL_QUALITY_RULES_POLLING))),
+          map(response => {
+           return this._executionHelperService.normalizeQualityRules(response);
+          }),
+          map(executionDetail => new executionDetailActions.GetQualityRulesActionComplete(executionDetail))
+        )
+    ));
+
   constructor(
     private actions$: Actions,
     private _executionService: ExecutionService,
     private store: Store<fromRoot.State>,
     private _executionDetailHelperService: ExecutionDetailHelperService,
+    private _executionHelperService: ExecutionHelperService,
     private route: Router
   ) { }
 }

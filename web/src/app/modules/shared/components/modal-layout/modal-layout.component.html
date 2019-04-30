@@ -1,0 +1,12 @@
+
+<st-fullscreen-layout class="modal-layout" *ngIf="modalOpened">
+    <div class="st-fullscreen-layout-title">
+        <span class="title">{{title}}</span>
+      </div>
+  <div class="st-fullscreen-layout-buttons" >
+    <a class="button button-link-primary" (click)="closeModal($event)" >Return to {{returnTo}}</a>
+  </div>
+  <div class="st-fullscreen-layout-content">
+  <ng-content ></ng-content>
+  </div>
+</st-fullscreen-layout>

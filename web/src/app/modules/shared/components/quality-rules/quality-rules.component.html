@@ -1,0 +1,114 @@
+<!-- <st-fullscreen-layout class="quality-rules" [ngClass]="{'modal': modal}" [title]="qualityRule.name">
+  <div class="st-fullscreen-layout-buttons" *ngIf="modal">
+    <a class="button button-link-primary" (click)="closeQualityRulesInfo.emit()" >Return to Quality rules list</a>
+  </div>
+  <div class="st-fullscreen-layout-content">
+
+  </div>
+</st-fullscreen-layout> -->
+<div  class="rule quality-rules">
+  <h2 class="rule__name section" *ngIf="!compactMode" >{{qualityRule.name}}</h2>
+  <div class="row section">
+    <div class="col-sm-12" >
+      <div class="row">
+        <div [ngClass]="{'col-xs-6': compactMode, 'col-xs-4': !compactMode}">
+          <div>
+            <div class="rule__label">Threshold: </div>
+            <div class="rule__value">{{qualityRule.threshold}}</div>
+          </div>
+        </div>
+        <div [ngClass]="{'col-xs-6': compactMode, 'col-xs-4': !compactMode}">
+          <div>
+            <div class="rule__label">Quality score: </div>
+            <div class="" [ngClass]="{'success-color': qualityRule.status, 'error-color': !qualityRule.status}">{{qualityRule.qualityScore}}</div>
+          </div>
+        </div>
+        <div class="col-xs-4" *ngIf="!compactMode">
+          <div class="rule__status">
+            <i class="icon-dot status-icon" [ngClass]="{'success-color': qualityRule.status, 'error-color': !qualityRule.status}"></i>
+            <span class="rule__value" *ngIf="qualityRule.status">OK</span>
+            <span class="rule__value" *ngIf="!qualityRule.status">KO</span>
+          </div>
+        </div>
+      </div>
+      <hr class="section" />
+      <div class="rule__rows-data">
+        <div class="rule__rows-data-column">
+          <div class="rule__title-secondary">Total rows</div>
+          <div class="rule__value">{{qualityRule.totalRows}}</div>
+        </div>
+        <div class="rule__rows-data-column">
+          <div class="rule__title-secondary">Rows passed</div>
+          <div class="rule__value">{{qualityRule.rowsPassed}}</div>
+        </div>
+        <div class="rule__rows-data-column">
+          <div class="rule__title-secondary">Rows failed</div>
+          <div class="rule__value">{{qualityRule.rowsFailed}}</div>
+        </div>
+      </div>
+      <hr class="section" />
+      <div>
+        <span class="rule__title-primary rule__title-primary--inline">If Quality score fails</span>
+        <span class="rule__value">{{qualityRule.globalActionResume}}</span>
+      </div>
+      <hr class="section" />
+      <div>
+        <span class="rule__title-primary rule__title-primary--inline">Written to database</span>
+        <span class="rule__value" *ngIf="qualityRule.successfulWriting" >Yes</span>
+        <span class="rule__value" *ngIf="!qualityRule.successfulWriting" >No</span>
+      </div>
+      <hr class="section" />
+      <div>
+        <span class="rule__title-primary rule__title-primary--inline">Synched with Governance</span>
+        <span class="rule__value" *ngIf="qualityRule.sentToApi" >Yes</span>
+        <span class="rule__value" *ngIf="!qualityRule.sentToApi" >No</span>
+        <span [ngClass]="{'rule__warning-icon icon icon-info2': qualityRule.warning}"></span>
+      </div>
+      <hr class="section" />
+      <div class="rule__details">
+
+        <div class="rule__detail">
+          <div class="rule__title-primary">The rule condition</div>
+          <div class="rule__value">
+            {{qualityRule.condition}}
+          </div>
+        </div>
+
+        <div class="rule__detail" *ngIf="qualityRule.globalAction === QUALITY_RULE_ACT_NOT_PASS" >
+          <div class="rule__title-primary" >If Quality score fails…</div>
+          <div class="rule__value" >write only the correct records to the destination dataset</div>
+          <div class="rule__title-primary" >If the rule find evidences…</div>
+          <div class="rule__value" >It will move failed items to Evidence folde</div>
+        </div>
+
+        <div class="rule__detail" *ngIf="qualityRule.globalAction === QUALITY_RULE_ACT_PASS" >
+          <div class="rule__title-primary" >If Quality score fails…</div>
+          <div class="rule__value" >Write anyway the failed items to the destination dataset</div>
+          <div class="rule__title-primary" >If the rule find evidences...</div>
+          <div class="rule__value" >It will move failed items to Evidence folder</div>
+        </div>
+      </div>
+      <hr class="section" />
+      <div class="rule__technical-details">
+        <div class="rule__title-technical">Technical details</div>
+        <div class="rule__technical-data">
+          <span class="rule__title-secondary">ID: </span>
+          <span class="rule__value">{{qualityRule.id}}</span>
+        </div>
+        <div class="rule__technical-data">
+          <span class="rule__title-secondary">Input: </span>
+          <span class="rule__value">{{qualityRule.transformationStepName}}</span>
+        </div>
+        <div class="rule__technical-data">
+          <span class="rule__title-secondary">Output: </span>
+          <span class="rule__value">{{qualityRule.outputStepName}}</span>
+        </div>
+        <div class="rule__technical-data">
+          <span class="rule__title-secondary">Path: </span>
+          <span class="rule__value">{{qualityRule.metadataPath}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

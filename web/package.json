@@ -18,7 +18,8 @@
     "e2e": "ng e2e",
     "commit": "git-cz",
     "environment": "./tools/launcher/init-sparta.sh",
-    "env": "./tools/launcher/init-sparta.sh"
+    "env": "./tools/launcher/init-sparta.sh",
+    "mocks": "dyson mocks"
   },
   "dependencies": {
     "@angular/animations": "7.1.1",
@@ -74,6 +75,8 @@
     "copy-webpack-plugin": "4.3.0",
     "cz-conventional-changelog": "2.0.0",
     "dotenv": "^6.0.0",
+    "dyson": "^2.0.3",
+    "dyson-generators": "^0.2.0",
     "jasmine-core": "2.9.1",
     "jasmine-spec-reporter": "4.1.1",
     "karma": "2.0.0",

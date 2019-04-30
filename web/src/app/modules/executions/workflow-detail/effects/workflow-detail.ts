@@ -5,11 +5,13 @@
  */
 
 import { Injectable } from '@angular/core';
+import {Action} from '@ngrx/store';
 import { Actions, Effect, ofType } from '@ngrx/effects';
 import { Observable, of } from 'rxjs';
 import * as workflowDetailActions from '../actions/workflow-detail';
 import { switchMap, catchError, map } from 'rxjs/operators';
 import { ExecutionService } from 'services/execution.service';
+import { ExecutionHelperService } from 'app/services/helpers/execution.service';
 
 @Injectable()
 export class WorkflowDetailEffect {
@@ -26,9 +28,22 @@ export class WorkflowDetailEffect {
     )
   );
 
+  @Effect()
+  getQualityRules$: Observable<Action> = this.actions$
+    .pipe(
+      ofType(workflowDetailActions.GET_QUALITY_RULES),
+      map((action: any) => action.executionId),
+      switchMap(executionId => this._executionService.getQualityRules(executionId)),
+      map(response => {
+        return this._executionHelperService.normalizeQualityRules(response);
+      }),
+      map(executionDetail => new workflowDetailActions.GetQualityRulesActionComplete(executionDetail))
+    );
+
   constructor(
     private actions$: Actions,
-    private _executionService: ExecutionService
+    private _executionService: ExecutionService,
+    private _executionHelperService: ExecutionHelperService
   ) { }
 
 }

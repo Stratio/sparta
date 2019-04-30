@@ -1,0 +1,31 @@
+@import '~@stratio/egeo/theme/constants.scss';
+
+.drop-down-title {
+
+  margin: 0;
+
+  h2 {
+    display: inline-block;
+    font-size: $egeo-font-size-small;
+    font-family: $egeo-nunito-sans-bold;
+    margin-left: 10px;
+  }
+
+  .drop-down-title__header {
+    cursor: pointer;
+    border-bottom: $neutral-04 solid 1px;
+    padding: 10px 0;
+    display: flex;
+  }
+
+  .drop-down-title__title {
+    flex: 3;
+    display: flex;
+    align-items: center;
+  }
+
+  .drop-down-title__info {
+    flex: 1;
+  }
+
+}

@@ -1,9 +1,20 @@
+@import '~@stratio/egeo/theme/constants.scss';
+
 .execution-detail-table {
 
   margin: 18px 0 23px;
 
-  .execution-detail-table__row {
+  tr * {
+    cursor: pointer;
+  }
 
+  td i, td label{
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  td {
+    padding: 13px 0 13px 35px;
   }
 
   .execution-detail-table__table {
@@ -28,6 +39,22 @@
        margin-right: 13px;
        margin-left: 5px;
     }
- }
+  }
+
+  .status-icon {
+    font-size: 24px;
+  }
+
+  .success-color {
+    color: $status-success-default;
+  }
+
+  .error-color {
+    color: $status-critical-default;
+  }
+
+  .warning-color {
+    color: $status-warning-default;
+  }
 
 }

@@ -15,6 +15,6 @@ import {ExecutionHelperService} from "../../../../../services/helpers/execution.
   imports: [ CommonModule, MenuOptionsListModule ],
   declarations: [ DetailInfoComponent, DetailInfoContainer ],
   exports: [ DetailInfoContainer ],
-  providers: [ExecutionHelperService],
+  providers: [ExecutionHelperService]
 })
 export class DetailInfoModule {}

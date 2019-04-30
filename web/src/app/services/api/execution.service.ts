@@ -89,4 +89,9 @@ export class ExecutionService extends ApiService {
     };
     return this.request('workflowExecutions/executionsByDate', 'post', options);
   }
+
+  getQualityRules(executionId): Observable<any> {
+    const options: any = {};
+    return this.request(`qualityRuleResults/executionId/${executionId}`, 'get', options);
+  }
 }

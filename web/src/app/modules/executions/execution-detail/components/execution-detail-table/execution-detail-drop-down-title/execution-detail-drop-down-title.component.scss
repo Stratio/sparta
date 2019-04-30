@@ -2,17 +2,16 @@
 
 .execution-detail-drop-down-title {
 
-  margin: 22px 0 0;
-
   .execution-detail-drop-down-title__header {
     cursor: pointer;
+    padding: 10px 0;
+    border-bottom: $neutral-04 solid 1px;
   }
 
   h2 {
     display: inline-block;
-    font-size: $egeo-font-size-xlarge;
+    font-size: $egeo-font-size-medium;
     font-family: $egeo-nunito-sans-bold;
-    margin-bottom: 20px;
     margin-left: 19px;
   }
 

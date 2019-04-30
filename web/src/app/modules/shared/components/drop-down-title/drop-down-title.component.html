@@ -7,9 +7,15 @@
     nor reverse engineered, disassembled or decompiled, without express
     written authorization from Stratio Big Data Inc., Sucursal en España.
 -->
-<div class="execution-detail-drop-down-title" >
-  <div class="execution-detail-drop-down-title__header" (click)="showTable()" >
-    <i #icon id="icon"></i><h2>{{title}}</h2>
+<div class="drop-down-title" >
+  <div class="drop-down-title__header" (click)="showTable()" >
+    <div class="drop-down-title__title" >
+      <i #icon id="icon"></i><h2>{{title}}<ng-content select="title"></ng-content></h2>
+
+    </div>
+    <div class="drop-down-title__info">
+      <ng-content select="[info]"></ng-content>
+    </div>
   </div>
   <ng-content *ngIf="isVisibleContent"></ng-content>
 </div>
