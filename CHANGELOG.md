@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.8.0 (upcoming)
+## 2.8.0 (April 30, 2019)
 * Improvements and new features:
     - Quality Rules
     - Scheduler
