@@ -309,7 +309,7 @@ case class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, ngin
          |      proxy_set_header  X-Forwarded-For  $$proxy_add_x_forwarded_for;
          |    }
          |
-         |    location s"/$workflowName/" {
+         |    location /$workflowName/ {
          |      proxy_pass        http://$ip:$port/;
          |      proxy_redirect    http://$uiVirtualHost/ $monitorEndUrl;
          |      proxy_set_header  Host             $$host;
