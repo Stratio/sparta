@@ -5,6 +5,8 @@
     - Quality Rules
     - Scheduler
     - Integration with Schema Registry for Kafka Input/Output step
+* Bug fixing
+    - [SPARTA-3067] Allow whitespaces in partitionBy
 
 ## 2.7.0 (April 12, 2019)
 
@@ -16,6 +18,10 @@
     - FileUtils output
     - Row generator input
     - Binary input
+    - SFTP security support
+    - Workflow DCOS path configurable
+    - Billing marathon labels
+    - Nginx redirection support without vPath
     - Support query executions on each window in XD streaming input
     - (2.6.1) Upgrade Stratio Spark to 2.4.0 final version
     - (2.6.1) PgBouncer lineage integration
@@ -29,6 +35,7 @@
     - (2.6.1) Fix for SSO URI not being strip properly
     - (2.6.1) Fix bugs and add validations to sftp output/input
     - (2.6.1) Fix GBTClassifier cacheNodeProperty
+    - (2.6.1) Fix postgres upsert
 
 ## 2.6.0 (March 21, 2019)
 

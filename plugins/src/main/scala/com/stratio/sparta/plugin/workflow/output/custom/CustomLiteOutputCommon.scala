@@ -102,7 +102,7 @@ class CustomLiteOutputCommon[T <: SDKCustomOutput](name: String, xDSession: XDSe
 
         val partitionByKey = getPartitionByKeyOptions(options).map{ partitions =>
           val fieldsInDataFrame = dataFrame.schema.fields.map(field => field.name)
-          val partitionFields = partitions.split(",")
+          val partitionFields = partitions.split(",").map(_.trim)
           if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))
             partitionFields.toSeq
           else {

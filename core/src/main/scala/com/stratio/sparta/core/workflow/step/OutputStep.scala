@@ -108,7 +108,7 @@ abstract class OutputStep[Underlying[Row]](
 
     options.get(PartitionByKey).notBlank.fold(dataFrame)(partitions => {
       val fieldsInDataFrame = schemaFields.map(field => field.name)
-      val partitionFields = partitions.split(",")
+      val partitionFields = partitions.split(",").map(_.trim)
       if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))
         dataFrame.partitionBy(partitionFields: _*)
       else {
