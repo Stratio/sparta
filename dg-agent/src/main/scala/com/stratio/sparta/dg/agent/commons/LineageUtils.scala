@@ -13,6 +13,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
 import com.stratio.sparta.dg.agent.models.LineageWorkflow
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.defaultWorkflowRelationSettings
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
@@ -27,7 +28,6 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.{Properties, Try}
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
-
 import scala.util.{Properties, Try}
 
 //scalastyle:off
@@ -40,10 +40,9 @@ object LineageUtils extends ContextBuilderImplicits {
   val TypeFinishedKey = "detailedStatus"
   val ErrorKey = "error"
   val UrlKey = "link"
-  val DefaultSchema = "public."
+  val PublicSchema = "public"
 
-  lazy val spartaVHost = Properties.envOrNone("HAPROXY_HOST").getOrElse("sparta")
-  lazy val spartaInstanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
+  lazy val spartaVHost = AppConstant.virtualHost.getOrElse("localhost")
 
   def checkIfProcessableWorkflow(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
     val eventStatus = executionStatusChange.newExecution.lastStatus.state
@@ -101,7 +100,7 @@ object LineageUtils extends ContextBuilderImplicits {
   }
 
   def setExecutionUrl(executionId: String): String = {
-    "https://" + spartaVHost + "/" + spartaInstanceName + "/#/executions/" + executionId
+    "https://" + spartaVHost + "/" + AppConstant.spartaTenant + "/#/executions/" + executionId
   }
 
   def setExecutionProperties(newExecution: WorkflowExecution): Map[String, String] = {
@@ -137,14 +136,15 @@ object LineageUtils extends ContextBuilderImplicits {
        val newProperties = {
          val outputProperties = lineageProperties.getOrElse(outputName, Map.empty)
          val sourceProperty = outputProperties.get(SourceKey)
+         val schema = outputProperties.getOrElse(DefaultSchemaKey, PublicSchema)
 
          outputProperties.map { case property@(key, value) =>
            if (key.equals(ResourceKey) && isFileSystemStepType(outputClassPrettyName))
              (ResourceKey, nodeTableName)
            else if (key.equals(ResourceKey) && isJdbcStepType(outputClassPrettyName))
-             if(!nodeTableName.contains(".") && sourceProperty.isDefined && sourceProperty.get.toLowerCase.contains("postgres"))
-               (ResourceKey, DefaultSchema + nodeTableName)
-             else (ResourceKey, nodeTableName)
+             if(!nodeTableName.contains(".") && sourceProperty.isDefined && sourceProperty.get.toLowerCase.contains("postgres")) {
+               (ResourceKey, s"$schema.$nodeTableName")
+             } else (ResourceKey, nodeTableName)
            else property
          }
        }
