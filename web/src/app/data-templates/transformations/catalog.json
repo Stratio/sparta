@@ -1,0 +1,98 @@
+{
+  "name": "Catalog",
+  "icon": "Catalog",
+  "category": "Column",
+  "className": "CatalogTransformStep",
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "classPrettyName": "Catalog",
+  "description": "TODO",
+  "properties": [
+    {
+      "propertyId": "columnName",
+      "propertyName": "_COLUMN_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "showSchemaFields": true,
+      "tooltip": "Column that will be changed by a value based in a key-value dictionary",
+      "qa": "fragment-details-catalog-column-name"
+    },
+    {
+      "propertyId": "catalogStrategy",
+      "propertyName": "_CATALOG_STRATEGY_",
+      "propertyType": "select",
+      "custom": true,
+      "required": true,
+      "width": 4,
+      "values": [
+        {
+          "label": "Catalog from csv",
+          "value": "CATALOG_FROM_CSV"
+        },
+        {
+          "label": "Catalog from dictionary",
+          "value": "CATALOG_FROM_DICTIONARY"
+        }
+      ],
+      "qa": "fragment-details-catalog-strategy"
+    },
+    {
+      "propertyId": "catalogFromCsv",
+      "propertyName": "_CATALOG_FROM_CSV_",
+      "propertyType": "text",
+      "required": true,
+      "width": 8,
+      "tooltip": "Csv path that will be used in the catalog",
+      "visible": [
+        [
+          {
+            "propertyId": "catalogStrategy",
+            "value": "CATALOG_FROM_CSV"
+          }
+        ]
+      ],
+      "qa": "fragment-details-field-alias"
+    },
+    {
+      "propertyId": "catalogFromDictionary",
+      "propertyName": "_CATALOG_FROM_DICTIONARY_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "Key-value dictionary that will be used in the catalog",
+      "visible": [
+        [
+          {
+            "propertyId": "catalogStrategy",
+            "value": "CATALOG_FROM_DICTIONARY"
+          }
+        ]
+      ],
+      "qa": "fragment-details-duplicate-columns-fields",
+      "fields": [
+        {
+          "propertyId": "dictionaryKey",
+          "propertyName": "_DICTIONARY_KEY_",
+          "propertyType": "text",
+          "required": true,
+          "width": 4,
+          "tooltip": "Key of the dictionary.",
+          "qa": "fragment-details-catalog-dictionary-key"
+        },
+        {
+          "propertyId": "dictionaryValue",
+          "propertyName": "_DICTIONARY_VALUE_",
+          "propertyType": "text",
+          "required": true,
+          "tooltip": "Value of the dictionary.",
+          "width": 4,
+          "qa": "fragment-details-catalog-dictionary-value"
+        }
+      ]
+    }
+  ]
+}

@@ -329,6 +329,11 @@
       "_SPARK_EXECUTOR_JAVA_OPTIONS_": "Executor Java options",
       "_WORKFLOW_REMEMBER_FIELD_": "Remember time"
    },
+   "_CATALOG_STRATEGY_": "Catalog Strategy",
+   "_CATALOG_FROM_CSV_": "Catalog from Csv",
+   "_CATALOG_FROM_DICTIONARY_": "Catalog from Dictionary",
+   "_DICTIONARY_KEY_": "Key",
+   "_DICTIONARY_VALUE_": "Value",
    "_DISCARD_CONDITIONS_": "Discard conditions",
    "_PREVIOUS_FIELD_": "Previous field to compare",
    "_TRANSFORMED_FIELD_": "Transformed field to compare",

@@ -12,6 +12,7 @@ import basicDataQualityTemplate from './transformations/basicDataQuality.json';
 import caseLetterTemplate from './transformations/caseLetter.json';
 import caseTemplate from './transformations/case.json';
 import castingTemplate from './transformations/casting.json';
+import catalogTemplate from './transformations/catalog.json';
 import characterTrimmerTemplate from './transformations/characterTrimmer.json';
 import checkpointTemplate from './transformations/checkpoint.json';
 import coalesceTemplate from './transformations/coalesce.json';
@@ -61,6 +62,7 @@ export const transformations: any = [
     caseTemplate,
     caseLetterTemplate,
     castingTemplate,
+    catalogTemplate,
     characterTrimmerTemplate,
     checkpointTemplate,
     coalesceTemplate,
