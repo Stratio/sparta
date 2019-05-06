@@ -69,6 +69,8 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
       postEndpoint + "/" + metaDataId.getOrElse("")
     else postEndpoint
 
+    log.debug(s"Sending lineage data to metadata id [$metaDataId] and execution id [$executionId] with data: $newWorkflow")
+
     val result = doRequest(
       uri = uri,
       resource = newEndpoint,

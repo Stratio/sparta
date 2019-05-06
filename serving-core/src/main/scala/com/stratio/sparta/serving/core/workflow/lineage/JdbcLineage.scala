@@ -33,6 +33,8 @@ trait JdbcLineage extends SLF4JLogging {
   lazy val config = getDBConfig
   lazy val basicPgService = new CustomPostgresService(lineageUri,config)
   lazy val showServiceSql = s"SHOW $DbServiceProperty;"
+  lazy val showCurrentSchemaSql = "select current_schema();"
+  lazy val PublicSchema = "public"
 
   def getJdbcLineageProperties(stepType: String): Map[String, String] = {
     if (
@@ -46,7 +48,8 @@ trait JdbcLineage extends SLF4JLogging {
             ServiceKey -> serviceName,
             PathKey -> s"/$path",
             ResourceKey -> getLineageResource(stepType),
-            SourceKey -> lineageUri
+            SourceKey -> lineageUri,
+            DefaultSchemaKey -> getDefaultSchema
           )
         case _ =>
           Map.empty[String, String]
@@ -54,10 +57,20 @@ trait JdbcLineage extends SLF4JLogging {
     } else Map.empty[String, String]
   }
 
+  private def getDefaultSchema: String = {
+    Try(basicPgService.executeMetadataSql(showCurrentSchemaSql)) match {
+      case Success(response) =>
+        response.headOption.getOrElse(PublicSchema)
+      case Failure(e) =>
+        log.warn(s"Error reading current schema in database.", e)
+        PublicSchema
+    }
+  }
+
   private def getLineageResource(stepType: String): String = {
-    if(stepType.equals(InputStep.StepType) && !lineageResource.contains("."))
-      s"public.$lineageResource"
-    else lineageResource
+    if(stepType.equals(InputStep.StepType) && !lineageResource.contains(".")) {
+      s"$getDefaultSchema.$lineageResource"
+    } else lineageResource
   }
 
   //scalastyle:off
