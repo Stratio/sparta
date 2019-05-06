@@ -29,5 +29,4 @@ object SdkConstants {
   private[sparta] lazy val ResourceKey = "resource"
   private[sparta] lazy val ServiceKey = "service"
   private[sparta] lazy val SourceKey = "source"
-  private[sparta] lazy val DefaultSchemaKey = "defaultSchema"
 }

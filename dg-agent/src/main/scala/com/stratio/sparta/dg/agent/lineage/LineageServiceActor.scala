@@ -69,8 +69,6 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
       postEndpoint + "/" + metaDataId.getOrElse("")
     else postEndpoint
 
-    log.info(s"Sending lineage data to metadata id [$metaDataId] and execution id [$executionId] with data: $newWorkflow")
-
     val result = doRequest(
       uri = uri,
       resource = newEndpoint,
@@ -98,8 +96,6 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
         val lineageWorkflow = extractWorkflowChanges(executionStatusChange)
         val exEngine = executionStatusChange.newExecution.executionEngine.get
         val executionId = executionStatusChange.newExecution.getExecutionId
-
-        log.warn(s"Lineage workflow extracted $lineageWorkflow")
 
         lineageWorkflow match {
           case Some(wf) if exEngine == Streaming  =>
@@ -151,30 +147,13 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
     val executionId = executionStatusChange.newExecution.getExecutionId
 
     if (LineageUtils.checkIfProcessableWorkflow(executionStatusChange)) {
-
-      log.warn("COMPAE 1")
-
       val executionProperties = LineageUtils.setExecutionProperties(executionStatusChange.newExecution)
-
-      log.warn(s"COMPAE 2: $executionProperties")
-
       val lineageProperties = LineageUtils.getAllStepsProperties(workflow)
-
-      log.warn(s"COMPAE 3: $lineageProperties")
-
       val nodesOutGraph = LineageUtils.getOutputNodesWithWriter(workflow)
-
-      log.warn(s"COMPAE 4: $nodesOutGraph")
-
       val inputNodes = workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType).map(_.name).toSet
       val inputNodesProperties = lineageProperties.filterKeys(inputNodes).toSeq
-
-      log.warn(s"COMPAE 5: $inputNodesProperties")
-
       val parsedLineageProperties =
         LineageUtils.addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
-
-      log.warn(s"COMPAE 6: $parsedLineageProperties")
 
       // TODO nistal (QR)
       val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
