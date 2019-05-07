@@ -71,12 +71,16 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
         dataframe =>
           dataframe.foreach { row =>
             val fileOrigin = row.getString(row.fieldIndex(inputDataFrame.inputDataframeField.get))
-            val fileDestination = row.getString(row.fieldIndex(inputDataFrame.inputDataframeDestination.get))
-            filesystemAction(fileOrigin,
+            val fileDestination = inputDataFrame.inputDataframeDestination.map(destination =>
+              row.getString(row.fieldIndex(destination))
+            )
+
+            filesystemAction(
+              fileOrigin,
               fileDestination,
               getAction(inputDataFrame.inputDataframeAction.get),
-              inputDataFrame.deleteDestinationBeforeFromDataframe,
-              inputDataFrame.addTimestampToFilenameFromDataframe,
+              inputDataFrame.deleteDestinationBeforeFromDataframe.getOrElse(DefaultDeleteDestinationBefore),
+              inputDataFrame.addTimestampToFilenameFromDataframe.getOrElse(DefaultAddTimestampToFilename),
               getErrorPolicy(inputDataFrame.errorPolicy.get)
             )
           }
@@ -135,8 +139,8 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
       fileActionsOnComplete.foreach { fileAction =>
         filesystemAction(fileAction.fileOrigin, fileAction.fileDestination,
           getAction(fileAction.fileAction),
-          fileAction.deleteDestinationBefore,
-          fileAction.addTimestampToFilename,
+          fileAction.deleteDestinationBefore.getOrElse(DefaultDeleteDestinationBefore),
+          fileAction.addTimestampToFilename.getOrElse(DefaultAddTimestampToFilename),
           getErrorPolicy(fileAction.errorPolicy)
         )
       }
@@ -152,46 +156,50 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
   }.getOrElse(FilesystemErrorPolicyType.ERROR)
 
 
-  protected def filesystemAction(fileOrigin: String,
-                                 fileDestination: String,
-                                 actionType: FilesystemActionType,
-                                 deleteDestinationBefore: Boolean = true,
-                                 addTimestampToFilename: Boolean = false,
-                                 errorPolicy: FilesystemErrorPolicyType): Unit =
+  protected def filesystemAction(
+                                  fileOrigin: String,
+                                  fileDestination: Option[String],
+                                  actionType: FilesystemActionType,
+                                  deleteDestinationBefore: Boolean,
+                                  addTimestampToFilename: Boolean,
+                                  errorPolicy: FilesystemErrorPolicyType
+                                ): Unit =
     Try {
-      val extensionFileOutput = FilenameUtils.getExtension(fileDestination)
-      val finalFileDestination = if (addTimestampToFilename && !new File(fileOrigin).isDirectory)
-        s"${FilenameUtils.removeExtension(fileDestination)}-${format.format(new java.util.Date())}.$extensionFileOutput"
-      else fileDestination
-
       val originFS = FileSystem.get(URI.create(fileOrigin), filesystemConfiguration)
-      val destinationFS = FileSystem.get(URI.create(finalFileDestination), filesystemConfiguration)
 
       actionType match {
-        case FilesystemActionType.COPY =>
-          if(deleteDestinationBefore)
+        case FilesystemActionType.COPY | FilesystemActionType.MOVE =>
+          val destinationFile = fileDestination.getOrElse(throw new Exception("Destination file or path is mandatory"))
+          val extensionFileOutput = FilenameUtils.getExtension(destinationFile)
+          val finalFileDestination = if (addTimestampToFilename && !new File(fileOrigin).isDirectory)
+            s"${FilenameUtils.removeExtension(destinationFile)}-${format.format(new java.util.Date())}.$extensionFileOutput"
+          else destinationFile
+          val destinationFS = FileSystem.get(URI.create(finalFileDestination), filesystemConfiguration)
+
+          if (deleteDestinationBefore)
             destinationFS.delete(new Path(finalFileDestination), true)
 
-          FileUtil.copy(
-            originFS,
-            new Path(fileOrigin),
-            destinationFS,
-            new Path(finalFileDestination),
-            false,
-            true,
-            filesystemConfiguration)
-        case FilesystemActionType.MOVE =>
-          if(deleteDestinationBefore)
-            destinationFS.delete(new Path(finalFileDestination), true)
+          if (actionType == FilesystemActionType.COPY)
+            FileUtil.copy(
+              originFS,
+              new Path(fileOrigin),
+              destinationFS,
+              new Path(finalFileDestination),
+              false,
+              true,
+              filesystemConfiguration
+            )
 
-          FileUtil.copy(
-            originFS,
-            new Path(fileOrigin),
-            destinationFS,
-            new Path(finalFileDestination),
-            true,
-            true,
-            filesystemConfiguration)
+          if (actionType == FilesystemActionType.MOVE)
+            FileUtil.copy(
+              originFS,
+              new Path(fileOrigin),
+              destinationFS,
+              new Path(finalFileDestination),
+              true,
+              true,
+              filesystemConfiguration
+            )
         case FilesystemActionType.DELETE =>
           originFS.delete(new Path(fileOrigin), true)
       }
@@ -209,24 +217,32 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
 
 object FileUtilsOutputStep {
 
-  case class FileActions(fileOrigin: String,
-                         fileDestination: String,
-                         fileAction: String,
-                         deleteDestinationBefore: Boolean = true,
-                         addTimestampToFilename: Boolean = false,
-                         errorPolicy: String)
+  val DefaultDeleteDestinationBefore = true
+  val DefaultAddTimestampToFilename = false
 
-  case class InputBinary(inputBinaryField: Option[String],
-                         inputBinaryDestinationPath: Option[String],
-                         inputBinaryDestinationField: Option[String],
-                         errorPolicy: Option[String])
+  case class FileActions(
+                          fileOrigin: String,
+                          fileDestination: Option[String],
+                          fileAction: String,
+                          deleteDestinationBefore: Option[Boolean] = Option(DefaultDeleteDestinationBefore),
+                          addTimestampToFilename: Option[Boolean] = Option(DefaultAddTimestampToFilename),
+                          errorPolicy: String
+                        )
 
-  case class InputFromDataframe(inputDataframeField: Option[String],
-                                inputDataframeDestination: Option[String],
-                                inputDataframeAction: Option[String],
-                                deleteDestinationBeforeFromDataframe: Boolean = true,
-                                addTimestampToFilenameFromDataframe: Boolean = false,
-                                errorPolicy: Option[String]
+  case class InputBinary(
+                          inputBinaryField: Option[String],
+                          inputBinaryDestinationPath: Option[String],
+                          inputBinaryDestinationField: Option[String],
+                          errorPolicy: Option[String]
+                        )
+
+  case class InputFromDataframe(
+                                 inputDataframeField: Option[String],
+                                 inputDataframeDestination: Option[String],
+                                 inputDataframeAction: Option[String],
+                                 deleteDestinationBeforeFromDataframe: Option[Boolean] = Option(DefaultDeleteDestinationBefore),
+                                 addTimestampToFilenameFromDataframe: Option[Boolean] = Option(DefaultAddTimestampToFilename),
+                                 errorPolicy: Option[String]
                                )
 
 }

@@ -17,25 +17,6 @@
         "qa": "fragment-details-actionsoncomplete-properties",
         "fields": [
           {
-            "propertyId": "fileOrigin",
-            "propertyName": "_FILE_ORIGIN_",
-            "propertyType": "text",
-            "width": 8,
-            "required": false,
-            "tooltip": "",
-            "qa": "fragment-details-actionsoncomplete-fileOrigin"
-          },
-          {
-            "propertyId": "fileDestination",
-            "propertyName": "_FILE_DESTINATION_",
-            "propertyType": "text",
-            "width": 8,
-            "required": false,
-            "tooltip": "",
-            "float": false,
-            "qa": "fragment-details-actionsoncomplete-fileDestination"
-          },
-          {
             "propertyId": "fileAction",
             "propertyName": "_FILE_ACTION_",
             "propertyType": "select",
@@ -59,6 +40,37 @@
             "required": false,
             "tooltip": "Filesystem action to execute on the file",
             "qa": "fragment-details-actionsoncomplete-fileOrigin"
+          },
+          {
+            "propertyId": "fileOrigin",
+            "propertyName": "_FILE_ORIGIN_",
+            "propertyType": "text",
+            "width": 8,
+            "required": false,
+            "tooltip": "",
+            "qa": "fragment-details-actionsoncomplete-fileOrigin"
+          },
+          {
+            "propertyId": "fileDestination",
+            "propertyName": "_FILE_DESTINATION_",
+            "propertyType": "text",
+            "width": 8,
+            "required": false,
+            "tooltip": "",
+            "visibleOR": [
+              [
+                {
+                  "propertyId": "fileAction",
+                  "value": "COPY"
+                },
+                {
+                  "propertyId": "fileAction",
+                  "value": "MOVE"
+                }
+              ]
+            ],
+            "float": false,
+            "qa": "fragment-details-actionsoncomplete-fileDestination"
           },
           {
             "propertyId": "deleteDestinationBefore",
@@ -179,24 +191,6 @@
         "listCompressed": true,
         "properties": [
           {
-            "propertyId": "inputDataframeField",
-            "propertyName": "_INPUT_FIELD_",
-            "width": 8,
-            "propertyType": "text",
-            "showSchemaFields": true,
-            "tooltip": "Select the field containing the filename",
-            "qa": "workflow-inputDataframeField"
-          },
-          {
-            "propertyId": "inputDataframeDestination",
-            "propertyName": "_INPUT_DESTINATION_FIELD_",
-            "width": 8,
-            "propertyType": "text",
-            "showSchemaFields": true,
-            "tooltip": "Field containing the destination path",
-            "qa": "workflow-inputDataframeDestination"
-          },
-          {
             "propertyId": "inputDataframeAction",
             "propertyName": "_FILE_ACTION_",
             "propertyType": "select",
@@ -219,6 +213,36 @@
             "required": false,
             "tooltip": "Filesystem action to execute on the file",
             "qa": "fragment-details-actionsoncomplete-fileOrigin"
+          },
+          {
+            "propertyId": "inputDataframeField",
+            "propertyName": "_INPUT_FIELD_",
+            "width": 8,
+            "propertyType": "text",
+            "showSchemaFields": true,
+            "tooltip": "Select the field containing the filename",
+            "qa": "workflow-inputDataframeField"
+          },
+          {
+            "propertyId": "inputDataframeDestination",
+            "propertyName": "_INPUT_DESTINATION_FIELD_",
+            "width": 8,
+            "propertyType": "text",
+            "showSchemaFields": true,
+            "visibleOR": [
+              [
+                {
+                  "propertyId": "inputDataframeAction",
+                  "value": "COPY"
+                },
+                {
+                  "propertyId": "inputDataframeAction",
+                  "value": "MOVE"
+                }
+              ]
+            ],
+            "tooltip": "Field containing the destination path",
+            "qa": "workflow-inputDataframeDestination"
           },
           {
             "propertyId": "deleteDestinationBeforeFromDataframe",
