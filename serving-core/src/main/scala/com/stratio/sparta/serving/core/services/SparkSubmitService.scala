@@ -240,7 +240,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   private[core] def getSftpConfig(): Map[String, String] =
     SpartaConfig.getSftpConfig()
       .map(sparkConf => typesafeToSpark(sparkConf, ConfigSftp))
-      .getOrElse(Map.empty)
+      .getOrElse(Map.empty).filterKeys(key => !key.contains("keyfile"))
 
   private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
     getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
@@ -561,10 +561,13 @@ object SparkSubmitService {
     )
 
     getReferenceConfig
-      .filterKeys(sparkKey => !localSparkProps.contains(sparkKey))
+      .filterKeys(sparkKey => !localSparkProps.contains(sparkKey) &&
+        !sparkKey.contains("hadoop.fs.s3a") &&
+        !sparkKey.contains("hadoop.fs.sftp")
+      )
   }
 
-  private def getReferenceConfig: Map[String, String] =
+  def getReferenceConfig: Map[String, String] =
       SpartaConfig.getSparkConfig()
         .map(sparkConf => typesafeToSpark(sparkConf, "spark"))
         .getOrElse(Map.empty)

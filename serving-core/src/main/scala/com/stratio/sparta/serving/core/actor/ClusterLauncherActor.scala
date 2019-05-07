@@ -49,6 +49,7 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
       val sparkSubmitWithMetrics = submitExecution.submitArguments.map{case (argument, value) =>
         replaceWithEnvVariable(argument) -> replaceWithEnvVariable(value)
       }
+      val runtimeConfigurations = SparkSubmitService.getReferenceConfig
 
       log.info(s"Launching Sparta workflow with options ... \n\t" +
         s"Workflow name: ${workflow.name}\n\t" +
@@ -57,6 +58,7 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
         s"Master: ${submitExecution.master}\n\t" +
         s"Spark submit arguments: ${sparkSubmitWithMetrics.mkString(",")}\n\t" +
         s"Spark configurations: ${submitExecution.sparkConfigurations.mkString(",")}\n\t" +
+        s"Spark runtime configurations: ${runtimeConfigurations.mkString(",")}\n\t" +
         s"Driver arguments: ${submitExecution.driverArguments}")
 
       val spartaLauncher = new SpartaLauncher()
@@ -72,7 +74,7 @@ class ClusterLauncherActor(executionStatusListenerActor: Option[ActorRef] = None
       sparkSubmitWithMetrics.filter(_._2.isEmpty)
         .foreach { case (k: String, v: String) => spartaLauncher.addSparkArg(k) }
       // Spark properties
-      submitExecution.sparkConfigurations.filter(_._2.nonEmpty)
+      (submitExecution.sparkConfigurations ++ runtimeConfigurations).filter(_._2.nonEmpty)
         .foreach { case (key: String, value: String) => spartaLauncher.setConf(key.trim, value.trim) }
       // Driver (Sparta) params
       submitExecution.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
