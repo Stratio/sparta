@@ -367,7 +367,7 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
         key.startsWith("CROSSDATA_PLUGIN_SERVICE_NAME") ||
         key.startsWith("DYPLON_SYSTEM_TENANT") ||
         key.startsWith("DYPLON_TENANT_NAME")
-    }
+    } + ("SPARTA_TENANT_NAME" -> sys.env.getOrElse("SPARTA_TENANT_NAME", AppConstant.spartaTenant))
   }
 
   private def postgresProperties: Map[String, String] =
