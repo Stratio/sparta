@@ -12,19 +12,19 @@
 @import '~@stratio/egeo/theme/constants';
 
 .user-profile {
-    width: 40px;
-    height: 40px;
-    border-radius: 100%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-    font-family: $egeo-nunito-sans;
-    font-size: $egeo-font-size-large;
-    text-align: left;
-    color: $neutral-00;
-    background-color: $brand;
-    cursor: pointer;
+  font-family: $egeo-nunito-sans;
+  font-size: $egeo-font-size-large;
+  text-align: left;
+  color: $neutral-00;
+  background-color: $brand;
+  cursor: pointer;
 }
 
 .user-profile-container {
@@ -32,25 +32,33 @@
 }
 
 .profile {
-    display: inline-block;
-    padding-left: 5px;
+  display: inline-block;
+  padding-left: 5px;
 
-    .name {
-        color: white;
-        font-size: 18px;
-        font-family: $egeo-nunito-sans-semiBold;
-    }
+  .name {
+    color: white;
+    font-size: 18px;
+    font-family: $egeo-nunito-sans-semiBold;
+  }
 }
 
 .logout {
-    border-top: 1px solid $action-secondary-03;
+  border-top: 1px solid $action-secondary-03;
 }
 
 .section {
-    padding: 15px 30px;
+  padding: 15px 30px;
 
-    .settings-link {
-        cursor: pointer;
-        color: $neutral-12;
-    }
+  .settings-link {
+    cursor: pointer;
+    color: $neutral-12;
+  }
+}
+
+.version {
+  border-top: 1px solid #eee;
+  text-align: right;
+  font-size: 11px;
+  color: #333;
+  padding-right: 6px;
 }

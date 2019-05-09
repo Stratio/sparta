@@ -5,10 +5,7 @@
  */
 
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  ElementRef,
   EventEmitter,
   Input,
   Output,
@@ -35,7 +32,7 @@ export class VariableSelectorComponent implements OnInit {
       value: 'Undefined'
     }
   ];
-  public variableSelector: Array<string> = [];
+  public variableSelector: Array<any> = [];
   public setParamValue = false;
 
   public paramValue = '';
@@ -72,7 +69,7 @@ export class VariableSelectorComponent implements OnInit {
         this.loadVariables(this.sourceValue);
         this.paramName = value;
       } else {
-        this.paramName = existList ? this.currentParameter.value.substr(this.currentParameter.value.indexOf('.') + 1) : undefined;
+        this.paramName = existList ? this.currentParameter.value : undefined;
       }
     }
   }
@@ -118,9 +115,23 @@ export class VariableSelectorComponent implements OnInit {
         }
       }
     }
+
+    this.variableSelector = this.variableSelector.sort((a, b) => {
+      if (a.label < b.label) {
+        return -1;
+      }
+      if (a.label > b.label) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
-  loadVariablesValue(value) {
+  loadVariablesValue() {
+    if (!this.paramName) {
+      return;
+    }
+    const value = this.paramName;
     const variableValue = this.sourceValue === 'undefined' ?
       this.currentParameter.value : value.substr(value.indexOf('.') + 1);
     switch (this.sourceValue) {
@@ -151,4 +162,7 @@ export class VariableSelectorComponent implements OnInit {
       this.onSelectValue.emit(this.paramName);
     }
   }
+
 }
+
+

@@ -292,7 +292,7 @@ export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit
       if (event.key === 'Backspace') {
         this.isParameterValue = false;
         this.internalControl.setValue('');
-      } else {
+      } else if(event.keyCode !== 37 && event.keyCode !== 39)  {
         event.preventDefault();
       }
     }

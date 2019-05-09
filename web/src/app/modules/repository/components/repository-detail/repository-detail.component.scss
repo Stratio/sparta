@@ -1,14 +1,6 @@
 @import '~@stratio/egeo/theme/constants';
 :host {
-    display: block;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 20px;
-    height: 100%;
-    margin-top: 18px;
-    word-wrap: break-word;
-    word-break: break-all;
-    white-space: normal;
+   display: block;
 }
 
 .version-title {

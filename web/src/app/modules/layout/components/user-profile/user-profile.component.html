@@ -9,25 +9,28 @@
 -->
 
 <div #userProfile>
-   <st-pop-over qaTag="notifications-pop" [hidden]="!showUserProfileMenu" [offset]="userMenuOffset">
-      <div pop-over-button>
-         <div [title]="userName ? userName : ''" class="user-profile" (click)="toggleUserProfile($event)">
-            <span *ngIf="userName && userName.length">{{userName.substring(0, 2).toUpperCase()}}</span>
-            <span *ngIf="!userName || !userName.length">S</span>
-         </div>
-         <div class="profile" *ngIf="userName && userName.length">
-            <span class="name">{{userName}}</span>
-         </div>
+  <st-pop-over qaTag="notifications-pop" [hidden]="!showUserProfileMenu" [offset]="userMenuOffset">
+    <div pop-over-button>
+      <div [title]="userName ? userName : ''" class="user-profile" (click)="toggleUserProfile($event)">
+        <span *ngIf="userName && userName.length">{{userName.substring(0, 2).toUpperCase()}}</span>
+        <span *ngIf="!userName || !userName.length">S</span>
       </div>
-      <div pop-over-content class="user-profile-container">
-         <div>
-            <div class="section">
-               <span class="settings-link" routerLink="/sparta-settings">Settings</span>
-            </div>
-            <div class="section logout">
-               <button class="button button-link-primary" (click)="logout()">{{'GLOBAL.USER_PROFILE.LOGOUT' | translate}}</button>
-            </div>
-         </div>
+      <div class="profile" *ngIf="userName && userName.length">
+        <span class="name">{{userName}}</span>
       </div>
-   </st-pop-over>
+    </div>
+    <div pop-over-content class="user-profile-container">
+      <div>
+        <div class="section">
+          <span class="settings-link" routerLink="/sparta-settings">Settings</span>
+        </div>
+        <div class="section logout">
+          <button class="button button-link-primary" (click)="logout()">{{'GLOBAL.USER_PROFILE.LOGOUT' | translate}}</button>
+        </div>
+        <div class="version">
+          v2.8
+        </div>
+      </div>
+    </div>
+  </st-pop-over>
 </div>

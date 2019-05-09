@@ -3,6 +3,13 @@
    width: 100%;
 }
 
+.move-group {
+   max-height: calc(100vh - 120px);
+   overflow: auto;
+   padding-right:12px;
+   padding-bottom: 4px;
+}
+
 .footer {
    margin-top: 20px;
 }

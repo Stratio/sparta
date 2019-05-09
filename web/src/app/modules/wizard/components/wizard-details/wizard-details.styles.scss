@@ -27,15 +27,6 @@
 
 }
 
-.selected {
-  position: absolute;
-    width: 375px;
-    margin-top: -15px;
-    height: calc(100% - 25px);
-    overflow-y: scroll;
-    padding-right: 35px;
-}
-
 .values {
    display: block;
    word-break: break-all;
