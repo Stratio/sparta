@@ -25,7 +25,6 @@ class DebugLauncherActor() extends Actor with SLF4JLogging {
 
   implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
 
-  lazy private val contextService: ContextsService = ContextsService()
   lazy private val debugWorkflowPgService = PostgresDaoFactory.debugWorkflowPgService
 
   override def receive: PartialFunction[Any, Unit] = {
@@ -42,11 +41,11 @@ class DebugLauncherActor() extends Actor with SLF4JLogging {
         log.info(s"Starting workflow debug")
 
         if (workflow.executionEngine == Streaming) {
-          contextService.localStreamingContext(execution, jars)
+          ContextsService.localStreamingContext(execution, jars)
           stopStreamingContext()
         }
         if (workflow.executionEngine == Batch)
-          contextService.localContext(execution, jars)
+          ContextsService.localContext(execution, jars)
       } match {
         case Success(_) =>
           log.info("Workflow debug executed successfully")

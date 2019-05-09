@@ -6,14 +6,16 @@
 package com.stratio.sparta.driver.services
 
 
+import java.lang.management.ManagementFactory
+
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
-import com.stratio.sparta.core.models.SpartaQualityRule
-import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
 import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.GraphStep
+import com.stratio.sparta.driver.services.ContextServiceJmx.JmxMetric
+import com.stratio.sparta.driver.services.ContextsService.{inputRate, processingTime, schedulingDelay, totalDelay}
 import com.stratio.sparta.serving.core.config.SpartaConfig.getCrossdataConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
@@ -27,24 +29,36 @@ import com.stratio.sparta.serving.core.models.governance.QualityRuleResult
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
+import javax.management.ObjectName
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted}
 
+import scala.beans.BeanProperty
 import scala.util.{Failure, Properties, Success, Try}
 import com.stratio.sparta.core.workflow.step.GraphStep
 
 
-case class ContextsService()
-
-  extends SchedulerUtils with CheckpointUtils with DistributedMonadImplicits with ContextBuilderImplicits {
+object ContextsService extends SchedulerUtils
+  with CheckpointUtils
+  with DistributedMonadImplicits
+  with ContextBuilderImplicits {
 
   private val executionService = PostgresDaoFactory.executionPgService
   private val qualityRuleService = PostgresDaoFactory.qualityRuleResultPgService
   private val phase = PhaseEnum.Checkpoint
   private val errorMessage = s"An error was encountered while initializing Checkpoint"
   private val okMessage = s"Spark Checkpoint initialized successfully"
+
+  // Monitoring
+  private val mBeanServer = ManagementFactory.getPlatformMBeanServer
+
+  val totalDelay: JmxMetric = new JmxMetric(-1L)
+  val schedulingDelay: JmxMetric = new JmxMetric(-1L)
+  val processingTime: JmxMetric = new JmxMetric(-1L)
+  val inputRate: JmxMetric = new JmxMetric(-1L)
 
   def localStreamingContext(execution: WorkflowExecution, files: Seq[String]): Unit = {
     val workflow = execution.getWorkflowToExecute
@@ -66,6 +80,10 @@ case class ContextsService()
       val ssc = getStreamingContext
       spartaWorkflow.setup()
       ssc.start()
+
+      // Monitoring
+      ContextServiceJmx.enableStreamingMonitoring(ssc, execution)
+
       notifyWorkflowExecutionStarted(execution)
       ssc.awaitTermination()
     } match {
@@ -135,6 +153,9 @@ case class ContextsService()
 
       getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
       spartaWorkflow.setup()
+
+      // Listener for monitoring
+      ContextServiceJmx.enableStreamingMonitoring(ssc, execution)
       ssc.start
       notifyWorkflowExecutionStarted(execution)
       getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
@@ -295,5 +316,48 @@ case class ContextsService()
     spartaWorkflow.cleanUp(cleanUpProperties)
     log.debug("CleanUp in workflow steps executed")
   }
-  
+
+  def registerMetricBean(metric: JmxMetric, objectName: ObjectName): Unit = {
+    if(!mBeanServer.isRegistered(objectName))
+      mBeanServer.registerMBean(metric, objectName)
+  }
+
+}
+
+object ContextServiceJmx {
+
+  trait JmxMetricMBean {
+    def getValue(): Long
+    def setValue(d: Long): Unit
+  }
+
+  class JmxMetric(@BeanProperty var value: Long) extends JmxMetricMBean
+
+  def enableStreamingMonitoring(ssc: StreamingContext, execution: WorkflowExecution): Unit = {
+    ssc.addStreamingListener(new StreamingListener {
+      override def onBatchCompleted(batchCompleted: StreamingListenerBatchCompleted): Unit = {
+        totalDelay.setValue(batchCompleted.batchInfo.totalDelay.fold(-1L){ x => x })
+        schedulingDelay.setValue(batchCompleted.batchInfo.schedulingDelay.fold(-1L){ x => x})
+        processingTime.setValue((for {
+          processingEndTime <- batchCompleted.batchInfo.processingEndTime
+          processingStartTime <- batchCompleted.batchInfo.processingStartTime
+        } yield {processingEndTime - processingStartTime}).fold(-1L){ x => x})
+        inputRate.setValue(batchCompleted.batchInfo.numRecords)
+
+        val group = execution.getWorkflowToExecute.group.name
+        val version = execution.getWorkflowToExecute.version
+        val name = execution.getWorkflowToExecute.name
+        val executionId = execution.id.get
+
+        ContextsService.registerMetricBean(totalDelay,
+          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=totalDelay,key=$group/${name}_$version,executionId=$executionId"))
+        ContextsService.registerMetricBean(schedulingDelay,
+          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=schedulingDelay,key=$group/${name}_$version,executionId=$executionId"))
+        ContextsService.registerMetricBean(processingTime,
+          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=processingTime,key=$group/${name}_$version,executionId=$executionId"))
+        ContextsService.registerMetricBean(inputRate,
+          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=inputRate,key=$group/${name}_$version,executionId=$executionId"))
+      }
+    })
+  }
 }

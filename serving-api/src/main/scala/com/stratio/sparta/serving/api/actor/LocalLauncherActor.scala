@@ -22,7 +22,6 @@ import com.stratio.sparta.serving.core.models.workflow._
 
 class LocalLauncherActor() extends Actor with SLF4JLogging {
 
-  lazy private val contextService: ContextsService = ContextsService()
   lazy private val executionService = PostgresDaoFactory.executionPgService
 
   override def receive: PartialFunction[Any, Unit] = {
@@ -48,9 +47,9 @@ class LocalLauncherActor() extends Actor with SLF4JLogging {
           statusInfo = Option(startedInformation)
         )))
       if (workflow.executionEngine == Streaming)
-        contextService.localStreamingContext(workflowExecution, jars)
+        ContextsService.localStreamingContext(workflowExecution, jars)
       if (workflow.executionEngine == Batch) {
-        contextService.localContext(workflowExecution, jars)
+        ContextsService.localContext(workflowExecution, jars)
         executionService.updateStatus(ExecutionStatusUpdate(
           workflowExecution.getExecutionId,
           ExecutionStatus(

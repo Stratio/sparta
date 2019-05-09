@@ -54,11 +54,10 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
           executionId,
           ExecutionStatus(state = Starting, statusInfo = Option(startingInfo))
         ))
-        val contextService = ContextsService()
         val workflow = execution.getWorkflowToExecute
         if (workflow.executionEngine == WorkflowExecutionEngine.Batch)
-          contextService.clusterContext(execution, pluginsFiles)
-        else contextService.clusterStreamingContext(execution, pluginsFiles)
+          ContextsService.clusterContext(execution, pluginsFiles)
+        else ContextsService.clusterStreamingContext(execution, pluginsFiles)
       } match {
         case Success(_) =>
           val information = s"Workflow in Spark driver was properly stopped"
