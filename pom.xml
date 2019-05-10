@@ -126,7 +126,7 @@ This software – including all its source code – contains proprietary informa
         <junit.version>4.12</junit.version>
         <ignite.version>2.6.0</ignite.version>
         <license.header>LICENSE.txt</license.header>
-        <mlmodelrep.version>1.3.2-ad18aeb</mlmodelrep.version>
+        <mlmodelrep.version>1.4.0-6de84fd</mlmodelrep.version>
         <olthu.version>1.0.1</olthu.version>
         <amazonaws.version>1.11.528</amazonaws.version>
         <sftp.client.version>0.1.53</sftp.client.version>
