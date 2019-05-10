@@ -38,6 +38,7 @@
     display: block;
     margin-top: 20px;
     user-select: none;
+    padding-bottom: 20px;
     tr:hover {
         cursor: pointer;
         .show-options {
@@ -50,6 +51,15 @@
     st-checkbox {
         pointer-events: none;
     }
+}
+
+.workflow-table {
+    min-height: calc(100vh - 450px);
+}
+
+.version-table {
+    min-height: calc(100vh - 520px);
+
 }
 
 .tag-column {

@@ -38,6 +38,12 @@
     color: $neutral-11;
     display: block;
   }
+  &__last-error {
+    padding-left: 54px;
+    display: block;
+    color: $status-critical-default;
+    font-size: 14px;
+  }
   &__state{
     margin-top: 24px;
     border: solid $neutral-04;
@@ -82,7 +88,7 @@
         }
       }
       &__link {
-        margin-top: 20px;
+        margin-top: 10px;
         margin-left: 54px;
         a {
           color: #128bdd;

@@ -519,6 +519,8 @@ export function reducer(state: State = initialState, action: any): State {
           ...state.edges,
           ...action.payload.edges
         ],
+        undoStates: getUndoState(state),
+        redoStates: [],
         selectedEntities: action.payload.nodes.map(pastedNodes => pastedNodes.name)
       };
     }

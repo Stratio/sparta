@@ -5,15 +5,19 @@
 }
 
 .workflow-list {
-   width: 100%;
    background: white;
    padding: 10px 20px;
    margin-top: 20px;
-   transition: max-width 0.3s;
-   max-width: 100%;
-   &.compressed {
-     max-width: calc(100vw - 415px - (100vw - 100%) / 2);
-   }
+
+}
+
+.collapse-container {
+  width: 100%;
+  transition: max-width 0.3s;
+  max-width: 100%;
+  &.compressed {
+    max-width: calc(100vw - 415px - (100vw - 100%) / 2);
+  }
 }
 
 .repository-sidebar {

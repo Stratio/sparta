@@ -58,3 +58,13 @@ export const executionDetailfilterParametersState = createSelector(
   executionDetailState,
   state => state.filterParameters
 );
+
+export const showConsole = createSelector(
+  executionDetailState,
+  state => state.showConsole
+);
+
+export const getLastExecutionError = createSelector(
+  executionDetailInfoState,
+  state => state.lastError
+);

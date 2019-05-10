@@ -63,10 +63,18 @@
    margin-top: -30px;
 }
 
-.templates-table {
-   tr:hover {
-      cursor: pointer;
+.templates {
+   &__table {
+      tr:hover {
+         cursor: pointer;
+      }
    }
+
+   &__content {
+      min-height: calc(100vh - 400px);
+      display: block;
+   }
+
 }
 
 .template-link {

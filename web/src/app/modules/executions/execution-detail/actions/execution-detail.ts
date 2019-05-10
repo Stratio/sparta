@@ -23,6 +23,9 @@ export const GET_QUALITY_RULES = '[Execution detail] List Quality Rules';
 export const GET_QUALITY_RULES_COMPLETE = '[Execution detail] Complete list Quality Rules';
 export const CANCEL_QUALITY_RULES_POLLING = '[Execution detail] Cancel polling of the Quality Rules';
 
+export const SHOW_CONSOLE = '[Execution detail] Show console';
+export const HIDE_CONSOLE = '[Execution detail] Hide console';
+
 export const FILTER_PARAMETERS = '[Execution detail] Change the filter for search parameters';
 
 export class CreateExecutionDetailAction implements Action {
@@ -87,6 +90,15 @@ export class FilterParametersAction implements Action {
   constructor(public filter: string) {}
 }
 
+export class ShowConsoleAction implements Action {
+  readonly type = SHOW_CONSOLE;
+}
+
+export class HideConsoleAction implements Action {
+  readonly type = HIDE_CONSOLE;
+}
+
+
 export type Actions =
   | CreateExecutionDetailAction
   | GetExecutionDetailAction
@@ -100,4 +112,6 @@ export type Actions =
   | GetQualityRulesActionComplete
   | CancelPollingQualityRulesAction
   | ResetExecutionDetail
-  | FilterParametersAction;
+  | FilterParametersAction
+  | ShowConsoleAction
+  | HideConsoleAction;

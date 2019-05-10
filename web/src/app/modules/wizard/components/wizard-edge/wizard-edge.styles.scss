@@ -21,7 +21,7 @@ body.dragging g[draggable-element] {
          stroke: $action-primary-default;
          stroke-width: 1px;
          stroke-dasharray: 1, 1.3;
-         marker-start: url(#UpArrowPreciseSelected);
+         marker-end: url(#UpArrowPreciseSelected);
       }
       &.actived {
         stroke: $action-secondary-07;
@@ -60,7 +60,7 @@ body.dragging g[draggable-element] {
          stroke: $action-primary-default;
          stroke-width: 1px;
          stroke-dasharray: 1, 1.3;
-         marker-start: url(#UpArrowPreciseSelected);
+         marker-end: url(#UpArrowPreciseSelected);
       }
    }
 }

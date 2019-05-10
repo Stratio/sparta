@@ -36,6 +36,7 @@ export interface Info {
   startDate: String;
   duration: String;
   endHour: String;
+  lastError: any;
   endDate: String;
 }
 
@@ -53,4 +54,5 @@ export interface ExecutionDetail {
   statuses: Array<Status>;
   showedActions: ShowedActions;
   qualityRules: Array<QualityRule>;
+  showConsole: boolean;
 }

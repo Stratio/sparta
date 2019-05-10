@@ -23,7 +23,8 @@ const initialState: executionParametersTypes.ExecutionDetail = {
     startDate: '',
     duration: '',
     endHour: '',
-    endDate: ''
+    endDate: '',
+    lastError: null
   },
   parameters: [{
     name: '',
@@ -44,7 +45,8 @@ const initialState: executionParametersTypes.ExecutionDetail = {
     showedContextMenu: false,
     menuOptions: []
   },
-  qualityRules: []
+  qualityRules: [],
+  showConsole: false
 };
 
 export function reducer(state: executionParametersTypes.ExecutionDetail = initialState, action: any): executionParametersTypes.ExecutionDetail {
@@ -72,7 +74,16 @@ export function reducer(state: executionParametersTypes.ExecutionDetail = initia
         ...state,
         filterParameters: action.filter
       };
-
+    case executionDetailActions.SHOW_CONSOLE:
+      return {
+        ...state,
+        showConsole: true
+      };
+    case executionDetailActions.HIDE_CONSOLE:
+      return {
+        ...state,
+        showConsole: false
+      };
     default:
       return state;
   }

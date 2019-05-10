@@ -27,8 +27,10 @@ export class DetailInfoComponent implements OnChanges {
 
   @Input() executionDetailInfo: Info;
   @Input() showedActions: ShowedActions;
+  @Input() lastError: any;
   @Output() onStopExecution = new EventEmitter<string>();
   @Output() onRerunExecution = new EventEmitter<string>();
+  @Output() showErrorDetails = new EventEmitter<void>();
 
   private _modalSubscription: Subscription;
   private runExecutionModalHeader: string;

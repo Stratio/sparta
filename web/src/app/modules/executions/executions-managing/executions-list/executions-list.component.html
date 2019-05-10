@@ -28,6 +28,6 @@
     <executions-sidebar-detail class="execution-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)"
       [executionData]="selectedExecution" (showConsole)="showConsole($event)"></executions-sidebar-detail>
   </sparta-sidebar>
-  <executions-console *ngIf="showDebugConsole" [execution]="selectedExecution" (closeConsole)="onCloseConsole()"></executions-console>
+  <executions-console *ngIf="showDebugConsole" [error]="selectedExecution && selectedExecution.lastError" (closeConsole)="onCloseConsole()"></executions-console>
   <execution-info *ngIf="executionInfo" [executionInfo]="executionInfo" (closeExecutionInfo)="closeExecutionInfo()"></execution-info>
 </div>

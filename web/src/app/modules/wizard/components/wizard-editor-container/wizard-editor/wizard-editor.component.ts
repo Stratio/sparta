@@ -68,10 +68,8 @@ export class WizardEditorComponent {
   public initialSelectionCoors: any;
 
   constructor(
-    private _initializeStepService: InitializeStepService,
     private _cd: ChangeDetectorRef,
     private _el: ElementRef,
-    private _ngZone: NgZone
   ) { }
 
   createEdge(edgeEvent) {
@@ -108,7 +106,7 @@ export class WizardEditorComponent {
   }
 
   trackBySegmentFn(index: number, item: any) {
-    return index; // or item.id
+    return item.origin.name + '////' + item.destination.name;
   }
 
   onFinishSelection(event) {

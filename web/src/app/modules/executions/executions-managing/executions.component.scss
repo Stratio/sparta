@@ -1,6 +1,6 @@
 .executions {
-  &__container {
-    margin-top: 90px;
+
+  &__collapsable {
     max-width: 100%;
     width: 100%;
 
@@ -8,5 +8,9 @@
     &.compressed {
       max-width: calc(100vw - 415px - (100vw - 100%) / 2);
     }
+  }
+  &__container {
+    margin-top: 90px;
+
   }
 }

@@ -25,5 +25,7 @@
 
     <workflow-execution-detail-info-container class="execution-detail__info"></workflow-execution-detail-info-container>
     <sparta-execution-detail-table-container (onSelectQualityRule)="loadQualityRules($event)"></sparta-execution-detail-table-container>
+    <executions-console *ngIf="showDebugConsole" [error]="lastError" (closeConsole)="onCloseConsole()"></executions-console>
+
   </div>
 </div>

@@ -10,6 +10,8 @@
   &__content {
     background: white;
     padding: 5px 25px;
+    padding-bottom: 40px;
+    min-height: calc(100vh - 330px);
   }
 
   &__data {

@@ -10,11 +10,11 @@
   </div>
   <div content>
     <div *ngIf="selectedOption.id === 'Exceptions'">
-      <div class="exceptions" *ngIf="execution && execution.lastError">
-        <div class="message">{{execution.lastError.localizedMsg}}</div>
-        <div class="exception">{{execution.lastError.exceptionMsg}}</div>
+      <div class="exceptions" *ngIf="error">
+        <div class="message">{{error.localizedMsg}}</div>
+        <div class="exception">{{error.exceptionMsg}}</div>
       </div>
-      <div class="no-exceptions no-data" *ngIf="!execution">
+      <div class="no-exceptions no-data" *ngIf="!error">
         No exceptions
       </div>
     </div>

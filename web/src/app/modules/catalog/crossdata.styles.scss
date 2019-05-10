@@ -13,7 +13,7 @@
 .crossdata {
    display: flex;
    margin-top: 30px;
-   min-height: 400px;
+   min-height: calc(100vh - 320px);
 }
 
 .left-bar {

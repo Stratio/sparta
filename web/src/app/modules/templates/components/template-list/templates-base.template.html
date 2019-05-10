@@ -37,36 +37,43 @@
    <div class="container top-separation">
       <div class="row">
          <div class="col-xs-12">
-            <st-table [fields]="fields" [sortable]="true" qaTag="templates-list" (changeOrder)="changeOrder($event)" class="templates-table">
-               <tr st-table-row *ngFor="let template of templateList | paginate: { perPage: perPage, currentPage: currentPage }; trackBy: trackByTemplateFn; let i=index; let i = index;"
-                  [selected]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1" (click)="checkRow(!(selectedTemplates.selectedIds.indexOf(template.id) > -1), template)">
-                  <td st-table-cell st-table-row-content class="check-column">
-                     <st-checkbox [value]="template" (change)="onCheckedTemplate($event)" [checked]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1"></st-checkbox>
-                  </td>
-                  <td st-table-cell st-table-row-content>
-                     <label (click)="editTemplate(template)" class="template-link">
-                    <!-- <span class="template-icon">{{icons[template.classPrettyName]}}</span> -->
-                    {{template.name}}</label>
-                  </td>
-                  <td st-table-cell st-table-row-content class="type-column">
-                     <label>{{template.classPrettyName}}</label>
-                  </td>
-                  <td st-table-cell st-table-row-content>
-                     <label>{{template.executionEngine}}</label>
-                  </td>
-                  <td st-table-cell st-table-row-content>
-                     <label>{{template.description}}</label>
-                  </td>
-               </tr>
-            </st-table>
-            <table-notification *ngIf="!templateList.length && (loaded$ | async)" (onClickLink)="createTemplate()" [text]="noItemsMessage"
-               [link]="'TEMPLATES.NO_ITEMS_LINK' | translate"></table-notification>
-            <div *ngIf="templateList.length && templateList.length > 10">
-               <hr>
-               <st-pagination [id]="generatedId" [total]="templateList.length" [perPage]="perPage" [currentPage]="currentPage" [perPageOptions]="perPageOptions"
-                  (change)="changePage($event)">
-               </st-pagination>
+            <div class="templates__content">
+               <st-table [fields]="fields" 
+                  [sortable]="true" 
+                  qaTag="templates-list" 
+                  (changeOrder)="changeOrder($event)" 
+                  class="templates__table">
+                  <tr st-table-row *ngFor="let template of templateList | paginate: { perPage: perPage, currentPage: currentPage }; trackBy: trackByTemplateFn; let i=index; let i = index;"
+                     [selected]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1" (click)="checkRow(!(selectedTemplates.selectedIds.indexOf(template.id) > -1), template)">
+                     <td st-table-cell st-table-row-content class="check-column">
+                        <st-checkbox [value]="template" (change)="onCheckedTemplate($event)" [checked]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1"></st-checkbox>
+                     </td>
+                     <td st-table-cell st-table-row-content>
+                        <label (click)="editTemplate(template)" class="template-link">
+                     <!-- <span class="template-icon">{{icons[template.classPrettyName]}}</span> -->
+                     {{template.name}}</label>
+                     </td>
+                     <td st-table-cell st-table-row-content class="type-column">
+                        <label>{{template.classPrettyName}}</label>
+                     </td>
+                     <td st-table-cell st-table-row-content>
+                        <label>{{template.executionEngine}}</label>
+                     </td>
+                     <td st-table-cell st-table-row-content>
+                        <label>{{template.description}}</label>
+                     </td>
+                  </tr>
+               </st-table>
+               <table-notification *ngIf="!templateList.length && (loaded$ | async)" (onClickLink)="createTemplate()" [text]="noItemsMessage"
+                  [link]="'TEMPLATES.NO_ITEMS_LINK' | translate"></table-notification>
+               <div *ngIf="templateList.length && templateList.length > 10">
+                  <hr>
+                  <st-pagination [id]="generatedId" [total]="templateList.length" [perPage]="perPage" [currentPage]="currentPage" [perPageOptions]="perPageOptions"
+                     (change)="changePage($event)">
+                  </st-pagination>
+               </div>
             </div>
+            <sp-footer></sp-footer>
          </div>
       </div>
    </div>

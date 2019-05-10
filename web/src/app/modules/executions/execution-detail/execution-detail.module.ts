@@ -22,6 +22,7 @@ import { WorkflowDetailModule } from '@app/executions/workflow-detail/workflow-d
 import { ExecutionDetailHelperService } from '@app/executions/execution-detail/services/execution-detail.service';
 import { QualityRulesModule } from '@app/shared/components/quality-rules/quality-rules.module';
 import { ModalLayoutModule } from '@app/shared/components/modal-layout/modal-layout.module';
+import { ExecutionsConsoleModule } from '../executions-managing/executions-list/components/executions-console/executions-console.module';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { ModalLayoutModule } from '@app/shared/components/modal-layout/modal-lay
         CommonModule,
         StoreModule.forFeature('executionDetail', reducers),
         EffectsModule.forFeature([ExecutionDetailEffect]),
+        ExecutionsConsoleModule,
         ExecutionDetailRouterModule,
         QualityRulesModule,
         StBreadcrumbsModule,

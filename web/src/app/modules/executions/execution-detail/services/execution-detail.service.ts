@@ -5,10 +5,10 @@
  */
 
 import * as moment from 'moment';
-import {Injectable} from "@angular/core";
-import {Info, Parameter, ShowedActions, Status} from "@app/executions/execution-detail/types/execution-detail";
-import * as utils from "@utils";
-import {ExecutionHelperService} from "../../../../services/helpers/execution.service";
+import {Injectable} from '@angular/core';
+import {Info, Parameter, ShowedActions, Status} from '@app/executions/execution-detail/types/execution-detail';
+import * as utils from '@utils';
+import {ExecutionHelperService} from '../../../../services/helpers/execution.service';
 import { DateFormats } from '../../../../models/enums.ts';
 
 @Injectable()
@@ -31,36 +31,36 @@ export class ExecutionDetailHelperService {
     const secondsString = seconds ? seconds + 's' : '';
 
     return `${daysString} ${hoursString} ${minutesString} ${secondsString}`;
-  }
+  };
 
   private _getContextMenu(exec): Array<any>{
-    let archiveBtn = {
+    const archiveBtn = {
         icon: 'icon-inbox2',
         label: 'Archive',
         id: 'workflow-archive'
     };
-    let unArchiveBtn = {
+    const unArchiveBtn = {
       icon: 'icon-outbox',
       label: 'Unarchive',
       id: 'workflow-unarchive'
     };
-    let deleteBtn = {
+    const deleteBtn = {
       icon: 'icon-trash',
       label: 'Delete',
       id: 'workflow-delete'
-    }
-    let options = [deleteBtn];
-    if (exec.status !== "Running" && !exec.archived){ // && !== Archived
+    };
+    const options = [deleteBtn];
+    if (exec.status !== 'Running' && !exec.archived) { // && !== Archived
       options.unshift(archiveBtn);
-    } else if (exec.status !== "Running" && exec.archived){
+    } else if (exec.status !== 'Running' && exec.archived){
       options.unshift(unArchiveBtn);
     }
     return [{options: options}];
   }
 
   public getExecutionDetail(execution): Info {
-    let filteredStatus = utils.getFilterStatus(execution.resumedStatus);
-    let execNorm = this._executionHelperService.normalizeExecution(execution);
+    const filteredStatus = utils.getFilterStatus(execution.resumedStatus);
+    const execNorm = this._executionHelperService.normalizeExecution(execution);
 
     return {
       name: execNorm.name,
@@ -70,6 +70,7 @@ export class ExecutionDetailHelperService {
       status: filteredStatus,
       executionEngine: execNorm.executionEngine,
       sparkURI: execNorm.sparkURI,
+      lastError: execNorm.genericDataExecution.lastError,
       historyServerURI: execNorm.historyServerURI,
       launchHour: execNorm.launchDate ? moment(execNorm.launchDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionHourFormat) : "Not launched",
       launchDate: execNorm.launchDate ? moment(execNorm.launchDate, DateFormats.executionTimeStampMoment).format(DateFormats.executionDateFormat) : "",
@@ -82,7 +83,7 @@ export class ExecutionDetailHelperService {
   }
 
   public getExecutionParameters(response): Array<Parameter> {
-    let parametersOrigin = response.genericDataExecution &&
+    const parametersOrigin = response.genericDataExecution &&
       response.genericDataExecution.workflow &&
       response.genericDataExecution.workflow.parametersUsedInExecution ||
       undefined;
@@ -102,7 +103,7 @@ export class ExecutionDetailHelperService {
   }
 
   public getExecutionStatuses(response): Array<Status> {
-    let statuses = response.statuses || undefined;
+    const statuses = response.statuses || undefined;
     return statuses.map(status => {
 
       return {
@@ -114,7 +115,7 @@ export class ExecutionDetailHelperService {
   }
 
   public getShowedActions(execution): ShowedActions {
-    let filteredStatus = utils.getFilterStatus(execution.resumedStatus);
+    const filteredStatus = utils.getFilterStatus(execution.resumedStatus);
     return {
       showedReRun: !execution.archived && ['Stopped', 'Failed'].includes(filteredStatus),
       showedStop: ['Running', 'Starting'].includes(filteredStatus),

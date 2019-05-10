@@ -7,61 +7,60 @@ import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, Output, ElementR
 import { DOCUMENT } from '@angular/common';
 
 @Component({
-    selector: 'console-box',
-    styleUrls: ['console-box.styles.scss'],
-    templateUrl: 'console-box.template.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'console-box',
+  styleUrls: ['console-box.styles.scss'],
+  templateUrl: 'console-box.template.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConsoleBoxComponent implements OnInit, AfterViewInit, OnDestroy {
 
-   private pos1 = 0;
-   private pos2 = 0;
-   private _element: any;
-   private _entityData: any;
+  private pos1 = 0;
+  private pos2 = 0;
+  private _element: any;
 
-   ngOnInit(): void {}
+  ngOnInit(): void { }
 
-   constructor(
-      private _el: ElementRef,
-      private _ngZone: NgZone,
-      @Inject(DOCUMENT) private _document: Document) {
-         this._element = _el.nativeElement;
-         this._element.style.transform = 'translateY(100%)';
-      }
+  constructor(
+    private _el: ElementRef,
+    private _ngZone: NgZone,
+    @Inject(DOCUMENT) private _document: Document) {
+    this._element = this._el.nativeElement;
+    this._element.style.transform = 'translateY(100%)';
+  }
 
-   moveBox(e) {
-      this._document.body.classList.add('dragging-console');
-      this._ngZone.runOutsideAngular(() => {
-         this.pos2 = e.clientY;
-         document.onmouseup = this._closeDragElement.bind(this);
-         document.onmousemove = this._elementDrag.bind(this);
-       });
-   }
-   ngAfterViewInit(): void {
-      this._element.style.top = window.innerHeight - 200 + 'px';
-      setTimeout(() => {
-          this._element.style.transform = 'translateY(0)';
-      });
-    }
-
-    private _elementDrag(e) {
-      // calculate the new cursor position:
-      this.pos1 = this.pos2 - e.clientY;
+  moveBox(e) {
+    this._document.body.classList.add('dragging-console');
+    this._ngZone.runOutsideAngular(() => {
       this.pos2 = e.clientY;
-      // set the element's new position:
-      const top = this._element.offsetTop - this.pos1;
-      const maxH = window.innerHeight - 50;
-      this._element.style.top = top > maxH ? maxH : top + 'px';
-    }
+      document.onmouseup = this._closeDragElement.bind(this);
+      document.onmousemove = this._elementDrag.bind(this);
+    });
+  }
+  ngAfterViewInit(): void {
+    this._element.style.top = window.innerHeight - 200 + 'px';
+    setTimeout(() => {
+      this._element.style.transform = 'translateY(0)';
+    });
+  }
 
-    private _closeDragElement() {
-      this._document.body.classList.remove('dragging-console');
-      /* stop moving when mouse button is released:*/
-      document.onmouseup = null;
-      document.onmousemove = null;
-    }
+  private _elementDrag(e) {
+    // calculate the new cursor position:
+    this.pos1 = this.pos2 - e.clientY;
+    this.pos2 = e.clientY;
+    // set the element's new position:
+    const top = this._element.offsetTop - this.pos1;
+    const maxH = 50;
+    this._element.style.top = top < maxH ? maxH : top + 'px';
+  }
 
-    public ngOnDestroy(): void {
+  private _closeDragElement() {
+    this._document.body.classList.remove('dragging-console');
+    /* stop moving when mouse button is released:*/
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
 
-    }
+  public ngOnDestroy(): void {
+
+  }
 }

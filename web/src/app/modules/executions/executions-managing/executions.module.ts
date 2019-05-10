@@ -14,6 +14,7 @@ import { StHorizontalTabsModule } from '@stratio/egeo';
 import { ExecutionsListModule } from './executions-list/executions-list.module';
 import { ScheduledModule } from './executions-scheduled/scheduled.module';
 import { ExecutionsToolbarModule } from './executions-toolbar/executions-toolbar.module';
+import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.module';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { ExecutionsToolbarModule } from './executions-toolbar/executions-toolbar
       ExecutionsToolbarModule,
       ScheduledModule,
       RouterModule,
+      SpFooterModule,
       StHorizontalTabsModule
    ]
 })

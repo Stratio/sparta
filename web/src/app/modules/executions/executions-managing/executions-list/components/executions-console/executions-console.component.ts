@@ -24,7 +24,7 @@ import { StHorizontalTab } from '@stratio/egeo';
 })
 
 export class ExecutionsConsoleComponent implements OnInit {
-   @Input() execution: any;
+   @Input() error: any;
 
    @Output() closeConsole = new EventEmitter<boolean>();
 
