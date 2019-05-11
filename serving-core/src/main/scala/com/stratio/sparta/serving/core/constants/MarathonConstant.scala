@@ -105,5 +105,7 @@ object MarathonConstant {
   val MarathonLabelPrefixEnv = "MARATHON_APP_LABEL_"
   val ProductLabelEnv = "PRODUCT"
   val ApplicationLabelEnv = "APPLICATION"
+  val SpartaPluginInstance = "SPARTA_PLUGIN_INSTANCE"
+  val SpartaWorkflowsPluginInstance = "SPARTA_WORKFLOWS_PLUGIN_INSTANCE"
 
 }

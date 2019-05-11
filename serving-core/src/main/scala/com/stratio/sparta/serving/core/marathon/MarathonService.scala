@@ -314,7 +314,8 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     val invalid = Seq(
       "SPARTA_PLUGIN_LOCAL_HOSTNAME",
       "SPARTA_PLUGIN_LDAP_CREDENTIALS",
-      "SPARTA_PLUGIN_LDAP_PRINCIPAL"
+      "SPARTA_PLUGIN_LDAP_PRINCIPAL",
+      "SPARTA_PLUGIN_INSTANCE"
     )
 
     sys.env.filterKeys(key => key.startsWith("SPARTA_PLUGIN") && !invalid.contains(key))
@@ -366,8 +367,11 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
         key.startsWith("GOSEC_CROSSDATA_VERSION") ||
         key.startsWith("CROSSDATA_PLUGIN_SERVICE_NAME") ||
         key.startsWith("DYPLON_SYSTEM_TENANT") ||
-        key.startsWith("DYPLON_TENANT_NAME")
-    } + ("SPARTA_TENANT_NAME" -> sys.env.getOrElse("SPARTA_TENANT_NAME", AppConstant.spartaTenant))
+        key.startsWith("DYPLON_TENANT_NAME") ||
+        key.startsWith("SPARTA_TENANT_NAME")
+    } + (SpartaPluginInstance -> Properties.envOrElse(SpartaWorkflowsPluginInstance,
+      Properties.envOrElse(WorkflowIdentity, Properties.envOrElse(SpartaPluginInstance, "sparta")
+      )))
   }
 
   private def postgresProperties: Map[String, String] =
