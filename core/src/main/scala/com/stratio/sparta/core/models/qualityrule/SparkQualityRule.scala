@@ -9,7 +9,9 @@ package com.stratio.sparta.core.models.qualityrule
 import com.stratio.sparta.core.models.qualityrule.operations._
 import com.stratio.sparta.core.models.{SpartaQualityRule, SpartaQualityRulePredicate}
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{DecimalType, _}
+
+import scala.math.Ordering
 
 
 class SparkQualityRule[U <: Row](spartaQualityRule: SpartaQualityRule,
@@ -68,6 +70,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType => new EqualOperation[Short, U](Ordering[Short])
           case FloatType => new EqualOperation[Float, U](Ordering[Float])
           case DoubleType => new EqualOperation[Double, U](Ordering[Double])
+          case x: DecimalType => new EqualOperation[Any, U](new DecimalOrdering(x))
           case _ => new EqualOperation[String, U](Ordering[String])
         }
         equalOperation.operation
@@ -80,6 +83,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType => new NotEqualOperation[Short, U](Ordering[Short])
           case FloatType => new NotEqualOperation[Float, U](Ordering[Float])
           case DoubleType => new NotEqualOperation[Double, U](Ordering[Double])
+          case x: DecimalType => new NotEqualOperation[Any, U](new DecimalOrdering(x))
           case _ => new NotEqualOperation[String, U](Ordering[String])
         }
         notEqualOperation.operation
@@ -92,6 +96,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new GreaterOperation[Short,U](Ordering[Short])
           case FloatType => new GreaterOperation[Float,U](Ordering[Float])
           case DoubleType => new GreaterOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new GreaterOperation[Any, U](new DecimalOrdering(x))
           case _ => new GreaterOperation[String, U](Ordering[String])
         }
        greaterOperation.operation
@@ -104,6 +109,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new GreaterEqualOperation[Short,U](Ordering[Short])
           case FloatType => new GreaterEqualOperation[Float,U](Ordering[Float])
           case DoubleType => new GreaterEqualOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new GreaterEqualOperation[Any, U](new DecimalOrdering(x))
           case _ => new GreaterEqualOperation[String, U](Ordering[String])
         }
         greaterEqualOperation.operation
@@ -116,6 +122,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new MinorOperation[Short,U](Ordering[Short])
           case FloatType => new MinorOperation[Float,U](Ordering[Float])
           case DoubleType => new MinorOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new MinorOperation[Any, U](new DecimalOrdering(x))
           case _ => new MinorOperation[String, U](Ordering[String])
         }
         minorOperation.operation
@@ -128,6 +135,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new MinorEqualOperation[Short,U](Ordering[Short])
           case FloatType => new MinorEqualOperation[Float,U](Ordering[Float])
           case DoubleType => new MinorEqualOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new MinorEqualOperation[Any, U](new DecimalOrdering(x))
           case _ => new MinorEqualOperation[String, U](Ordering[String])
         }
         minorEqualOperation.operation
@@ -140,6 +148,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new InOperation[Short,U](Ordering[Short])
           case FloatType => new InOperation[Float,U](Ordering[Float])
           case DoubleType => new InOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new InOperation[Any, U](new DecimalOrdering(x))
           case _ => new InOperation[String, U](Ordering[String])
         }
         inOperation.operation
@@ -152,6 +161,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new NotInOperation[Short,U](Ordering[Short])
           case FloatType => new NotInOperation[Float,U](Ordering[Float])
           case DoubleType => new NotInOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new NotInOperation[Any, U](new DecimalOrdering(x))
           case _ => new NotInOperation[String, U](Ordering[String])
         }
         notInOperation.operation
@@ -164,6 +174,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new IsNullOperation[Short,U](Ordering[Short])
           case FloatType => new IsNullOperation[Float,U](Ordering[Float])
           case DoubleType => new IsNullOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsNullOperation[Any, U](new DecimalOrdering(x))
           case _ => new IsNullOperation[String, U](Ordering[String])
         }
         isNullOperation.operation
@@ -176,6 +187,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new NotNullOperation[Short,U](Ordering[Short])
           case FloatType => new NotNullOperation[Float,U](Ordering[Float])
           case DoubleType => new NotNullOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new NotNullOperation[Any, U](new DecimalOrdering(x))
           case _ => new NotNullOperation[String, U](Ordering[String])
         }
         notNullOperation.operation
@@ -188,6 +200,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new LikeOperation[Short,U](Ordering[Short])
           case FloatType => new LikeOperation[Float,U](Ordering[Float])
           case DoubleType => new LikeOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new LikeOperation[Any, U](new DecimalOrdering(x))
           case _ => new LikeOperation[String, U](Ordering[String])
         }
         likeOperation.operation
@@ -200,6 +213,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new NotLikeOperation[Short,U](Ordering[Short])
           case FloatType => new NotLikeOperation[Float,U](Ordering[Float])
           case DoubleType => new NotLikeOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new NotLikeOperation[Any, U](new DecimalOrdering(x))
           case _ => new NotLikeOperation[String, U](Ordering[String])
         }
         notLikeOperation.operation
@@ -212,6 +226,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new RegexOperation[Short,U](Ordering[Short])
           case FloatType => new RegexOperation[Float,U](Ordering[Float])
           case DoubleType => new RegexOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new RegexOperation[Any, U](new DecimalOrdering(x))
           case _ => new RegexOperation[String, U](Ordering[String])
         }
         regexOperation.operation
@@ -224,6 +239,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new IsDateOperation[Short,U](Ordering[Short])
           case FloatType => new IsDateOperation[Float,U](Ordering[Float])
           case DoubleType => new IsDateOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsDateOperation[Any, U](new DecimalOrdering(x))
           case _ => new IsDateOperation[String, U](Ordering[String])
         }
         isDateOperation.operation
@@ -236,6 +252,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new IsNotDateOperation[Short,U](Ordering[Short])
           case FloatType => new IsNotDateOperation[Float,U](Ordering[Float])
           case DoubleType => new IsNotDateOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsNotDateOperation[Any, U](new DecimalOrdering(x))
           case _ => new IsNotDateOperation[String, U](Ordering[String])
         }
         isNotDateOperation.operation
@@ -248,6 +265,7 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new IsTimestampOperation[Short,U](Ordering[Short])
           case FloatType => new IsTimestampOperation[Float,U](Ordering[Float])
           case DoubleType => new IsTimestampOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsTimestampOperation[Any, U](new DecimalOrdering(x))
           case _ => new IsTimestampOperation[String, U](Ordering[String])
         }
         isDateOperation.operation
@@ -260,9 +278,19 @@ class SparkPredicate[U <: Row](spartaQualityRulePredicate : SpartaQualityRulePre
           case ShortType=> new IsNotTimestampOperation[Short,U](Ordering[Short])
           case FloatType => new IsNotTimestampOperation[Float,U](Ordering[Float])
           case DoubleType => new IsNotTimestampOperation[Double,U](Ordering[Double])
+          case x: DecimalType => new IsNotTimestampOperation[Any, U](new DecimalOrdering(x))
           case _ => new IsNotTimestampOperation[String, U](Ordering[String])
         }
         isNotTimestampOperation.operation
     }
   }
+
+  private class DecimalOrdering(x: DecimalType) extends Ordering[Any] {
+    import org.apache.spark.sql.BigDecimalHelper
+
+    def compare(a: Any, b: Any) = {
+      BigDecimalHelper.convertToDecimal(a)(x).compare(BigDecimalHelper.convertToDecimal(b)(x))
+    }
+  }
+
 }

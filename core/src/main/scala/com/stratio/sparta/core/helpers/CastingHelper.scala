@@ -18,6 +18,8 @@ import org.json4s.JDecimal
 import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
 
 import scala.collection.JavaConverters._
+import org.apache.spark.sql.BigDecimalHelper
+
 
 //scalastyle:off
 object CastingHelper {
@@ -48,6 +50,7 @@ object CastingHelper {
       case MapType(_: StringType, _: IntegerType, _) => checkMapStringIntType(origValue)
       case MapType(_: StringType, _: DoubleType, _) => checkMapStringDoubleType(origValue)
       case MapType(_: StringType, _: StructType, _) => checkMapStringStructType(origValue)
+      case dt: DecimalType => BigDecimalHelper.convertToDecimal(origValue)(dt)
       case _: StructType => checkStructType(origValue)
       case _ => origValue
     }
@@ -73,6 +76,10 @@ object CastingHelper {
       case _: Array[Byte] => BinaryType
       case _: String => StringType
       case _: Boolean => BooleanType
+      case num: BigDecimal => new DecimalType(num.precision, num.scale)
+      case num: java.math.BigDecimal => new DecimalType(num.precision(), num.scale())
+      case _: BigInt => BigDecimalHelper.BigIntDecimalType
+      case _: java.math.BigInteger => BigDecimalHelper.BigIntDecimalType
       case value: Seq[_] => arrayValuesToSparkType(value)
       case value: Map[_, _] => mapValuesToStructType(value)
       case value: GenericRowWithSchema => value.schema
