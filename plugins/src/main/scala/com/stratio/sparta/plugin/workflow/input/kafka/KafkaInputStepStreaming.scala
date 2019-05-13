@@ -51,6 +51,7 @@ class KafkaInputStepStreaming(
   lazy val consumerPollMsKey = "spark.streaming.kafka.consumer.poll.ms"
   lazy val maxRatePerPartitionKey = "spark.streaming.kafka.maxRatePerPartition"
 
+  var inputData : Option[Any] = None
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)

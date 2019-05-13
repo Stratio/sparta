@@ -5,6 +5,7 @@
     - Quality Rules
     - Scheduler
     - Integration with Schema Registry for Kafka Input/Output step
+    - CrossdataInput Streaming: improve polling when using JDBC tables
 * Bug fixing
     - [SPARTA-3067] Allow whitespaces in partitionBy
 
@@ -29,6 +30,7 @@
 
 * Bug fixing
     - Fix continuous queries executions
+    - [SPARTA-3067] Allow whitespaces in partitionBy
     - (2.6.1) Fixed duplicates <nameWorkflow,groupId,Version>, templates, upsert environment
     - (2.6.1) Fix hour format of the executions in the detail
     - (2.6.1) Added spark.mesos.driver.failoverTimeout
@@ -37,7 +39,7 @@
     - (2.6.1) Fix GBTClassifier cacheNodeProperty
     - (2.6.1) Fix postgres upsert
 
-## 2.6.0 (March 21, 2019)
+## 2.6.0-65e4295 (Built: March 21, 2019 | Released: March 22, 2019)
 
 * Improvements and new features:
     - [SPARTA-2686] Support virtual host and virtual path for Nginx redirections 
@@ -59,7 +61,7 @@
     - Fix Last update date in creation of a new workflow or a new version 
     - [SPARTA-2700] [SPARTA-2701] Added assign consumer strategy and more configuration properties in kafka input
     - Added Kafka offsets commit after all outputs writes correctly (one transaction)
-    
+
 ## 2.5.0-062b5c9 (Built: January 24, 2019 | Released: January 25, 2019)
 
 * New steps:

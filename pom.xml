@@ -94,7 +94,7 @@ This software – including all its source code – contains proprietary informa
         <reflections.version>0.9.10</reflections.version>
         <guava.version>18.0</guava.version>
         <scala-reflect.version>2.11.8</scala-reflect.version>
-        <curator.version>4.0.0</curator.version>
+        <curator.version>4.2.0</curator.version>
         <zookeeper.version>3.5.3-beta</zookeeper.version>
         <http.client.version>4.5.2</http.client.version>
         <scala.mock.version>3.2.2</scala.mock.version>

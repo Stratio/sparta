@@ -99,61 +99,69 @@
          "tooltip": "Limit the records processed on each streaming window.",
          "qa": "fragment-details-crossdata-limitRecords"
       },
-       {
-          "propertyId": "offsetFields",
-          "propertyName": "_OFFSET_FIELDS_",
-          "propertyType": "list",
-          "required": false,
-          "tooltip": "List of fields used as offsets in the source table.",
-          "qa": "fragment-details-datetime-fields",
-          "fields": [
-             {
-                "propertyId": "offsetField",
-                "propertyName": "_OFFSET_FILED_",
-                "propertyType": "text",
-                "required": true,
-                "width": 4,
-                "tooltip": "Offset field in the source table",
-                "qa": "fragment-details-crossdata-offsetField"
-             },
-             {
-                "propertyId": "offsetValue",
-                "propertyName": "_OFFSET_VALUE_",
-                "propertyType": "text",
-                "width": 4,
-                "tooltip": "Initial offset value",
-                "qa": "fragment-details-crossdata-offsetValue"
-             },
-             {
-                "propertyId": "offsetOperator",
-                "propertyName": "_OFFSET_OPERATOR_",
-                "propertyType": "select",
-                "required": true,
-                "width": 3,
-                "values": [
-                   {
-                      "label": ">",
-                      "value": ">"
-                   },
-                   {
-                      "label": ">=",
-                      "value": ">="
-                   },
-                   {
-                      "label": "<",
-                      "value": "<"
-                   },
-                   {
-                      "label": "<=",
-                      "value": "<="
-                   }
-                ],
-                "default": ">=",
-                "tooltip": "Offset operator to generate incremental or decremental queries in the source table",
-                "qa": "fragment-details-crossdata-offsetOperator"
-             }
-          ]
-       },
+      {
+         "propertyId": "offsetFields",
+         "propertyName": "_OFFSET_FIELDS_",
+         "propertyType": "list",
+         "required": false,
+         "tooltip": "List of fields used as offsets in the source table.",
+         "qa": "fragment-details-datetime-fields",
+         "fields": [
+            {
+               "propertyId": "offsetField",
+               "propertyName": "_OFFSET_FILED_",
+               "propertyType": "text",
+               "required": true,
+               "width": 4,
+               "tooltip": "Offset field in the source table",
+               "qa": "fragment-details-crossdata-offsetField"
+            },
+            {
+               "propertyId": "offsetValue",
+               "propertyName": "_OFFSET_VALUE_",
+               "propertyType": "text",
+               "width": 4,
+               "tooltip": "Initial offset value",
+               "qa": "fragment-details-crossdata-offsetValue"
+            },
+            {
+               "propertyId": "offsetOperator",
+               "propertyName": "_OFFSET_OPERATOR_",
+               "propertyType": "select",
+               "required": true,
+               "width": 3,
+               "values": [
+                  {
+                     "label": ">",
+                     "value": ">"
+                  },
+                  {
+                     "label": ">=",
+                     "value": ">="
+                  },
+                  {
+                     "label": "<",
+                     "value": "<"
+                  },
+                  {
+                     "label": "<=",
+                     "value": "<="
+                  }
+               ],
+               "default": ">=",
+               "tooltip": "Offset operator to generate incremental or decremental queries in the source table",
+               "qa": "fragment-details-crossdata-offsetOperator"
+            }
+         ]
+      },
+      {
+        "propertyId": "storeOffsetAfterWritingOutputs",
+        "propertyName": "_STORE_OFFSET_AFTER_WRITING_OUTPUTS_",
+        "propertyType": "boolean",
+        "tooltip": "Store offsets in Kafka after all workflow outputs writes correctly. Is possible to simulates ONE TRANSACTION policy. It's mandatory to disable the auto commit when checked.",
+        "default": true,
+        "qa": "fragment-details-crossdata-offset-after-write"
+      },
       {
         "propertyId": "offsetLocation",
         "propertyName": "_OFFSET_LOCATION_",

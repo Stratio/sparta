@@ -112,7 +112,7 @@ abstract class OutputStep[Underlying[Row]](
       if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))
         dataFrame.partitionBy(partitionFields: _*)
       else {
-        log.warn(s"Impossible to execute partition by fields: $partitionFields because the dataFrame does not " +
+        log.warn(s"Impossible to execute partition by fields: ${partitionFields.mkString(",")} because the dataFrame does not " +
           s"contain all fields. The dataFrame only contains: ${fieldsInDataFrame.mkString(",")}")
         dataFrame
       }

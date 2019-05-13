@@ -22,6 +22,7 @@ object ConfigParameters {
   val SparkConsumerPropertiesKeys =
     List(StorageLevelKey, RememberDuration, OffsetsLocation, ZookeeperConnection, ZookeeperPath,
       ResetOffsetOnStart, IgnoreStartedStatus)
+  val StoreOffsetAfterWritingOutputs = "storeOffsetAfterWritingOutputs"
 
   /**
    * Configuration Defaults

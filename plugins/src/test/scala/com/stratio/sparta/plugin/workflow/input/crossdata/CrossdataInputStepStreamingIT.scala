@@ -6,18 +6,24 @@
 package com.stratio.sparta.plugin.workflow.input.crossdata
 
 import java.io.{Serializable => JSerializable}
+import java.util.{Properties, UUID}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.models.OutputOptions
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.plugin.common.postgresql.PostgresSuiteBase
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
+import scala.util.Random
+
 @RunWith(classOf[JUnitRunner])
-class CrossdataInputStepStreamingIT extends TemporalSparkContext with Matchers {
+class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSuiteBase with Matchers {
+
 
   "CrossdataInput " should "read all the records in one streaming batch" in {
     SparkSession.clearActiveSession()
@@ -75,5 +81,77 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with Matchers {
 
     assert(totalEvents.value === (totalRegisters.toLong/4))
   }
+
+
+
+  it should "read postgres records using an autoincremental column" in {
+
+
+    SparkSession.clearActiveSession()
+
+    val tableName = (Random.alphanumeric take 10).dropWhile(!_.isLetter).mkString
+    println(tableName)
+    val testView = "testview"
+    val totalRecords = 40
+
+    withConnectionExecute(
+      Seq(
+        s"CREATE TABLE $tableName (id SERIAL, age INT);"
+      ) ++  (1 to totalRecords).map( age => s"INSERT INTO $tableName (age) VALUES ($age);"): _*
+    )
+
+    val offsetFields =
+      """[
+        |{
+        |"offsetField":"id",
+        |"offsetOperator":">=",
+        |"offsetValue": "0"
+        |}
+        |]
+      """.stripMargin
+    val offsetLimit = 20
+
+    val postgresTableOptions =
+      Map("url" -> postgresURL, "dbtable" -> s"public.$tableName", "user" -> "postgres", "driver" -> "org.postgresql.Driver", "stratiosecurity" -> "false")
+
+    withCrossdataTable(testView, "jdbc", postgresTableOptions, sparkSession){
+      val totalEvents = ssc.sparkContext.longAccumulator("Number of events received")
+
+      val crossdataInput = {
+        val datasourceParams: Map[String, JSerializable] = Map(
+          "query" -> s"select * from $testView",
+          "limitRecords" -> offsetLimit,
+          "offsetFields" -> offsetFields
+        )
+
+        new CrossdataInputStepStreaming(
+          "crossdata", OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None), Option(ssc), sparkSession, datasourceParams
+        )
+      }
+
+      val inputStream = crossdataInput.init
+
+      inputStream.ds.foreachRDD(rdd => {
+        val streamingEvents = rdd.count()
+        log.info(s" EVENTS COUNT : \t $streamingEvents")
+        totalEvents.add(streamingEvents)
+        log.info(s" TOTAL EVENTS : \t $totalEvents")
+        if (streamingEvents != 0){
+          streamingEvents shouldBe offsetLimit
+        }
+      })
+
+      ssc.start()
+      ssc.awaitTerminationOrTimeout(2000L)
+      ssc.stop()
+
+      totalEvents.value.intValue() shouldBe totalRecords
+    }
+
+
+  }
+
+
+
 }
 

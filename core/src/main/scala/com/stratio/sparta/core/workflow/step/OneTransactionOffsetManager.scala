@@ -8,8 +8,6 @@ package com.stratio.sparta.core.workflow.step
 
 trait OneTransactionOffsetManager {
 
-  var inputData : Option[Any] = None
-
   val executeOffsetCommit: Boolean
 
   def commitOffsets(): Unit

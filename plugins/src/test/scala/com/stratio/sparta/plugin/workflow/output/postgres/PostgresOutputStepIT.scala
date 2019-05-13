@@ -9,43 +9,38 @@ package com.stratio.sparta.plugin.workflow.output.postgres
 import java.io.{Serializable => JSerializable}
 import java.sql.Connection
 
-import scala.util.{Failure, Success, Try}
-import com.typesafe.config.ConfigFactory
+import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.plugin.common.postgresql.PostgresSuiteBase
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.{DataFrame, Row}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, Matchers, ShouldMatchers}
-import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.core.enumerators.SaveModeEnum
+
+import scala.util.Try
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])
-class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with Matchers with BeforeAndAfterAll {
+class PostgresOutputStepIT extends
+  TemporalSparkContext with
+  PostgresSuiteBase with
+  ShouldMatchers with
+  Matchers with
+  BeforeAndAfterAll {
 
-  private lazy val config = ConfigFactory.load()
 
-  val host = Try(config.getString("postgresql.host")) match {
-    case Success(configHost) =>
-      val hostUrl = s"jdbc:postgresql://$configHost:5432/postgres?user=postgres"
-      log.info(s"Postgres host from config: $hostUrl")
-      hostUrl
-    case Failure(e) =>
-      log.info(s"Postgres host from default")
-      "jdbc:postgresql://127.0.0.1:5432/postgres?user=postgres"
-  }
-
-  val properties: Map[String, JSerializable] = Map("url" -> host)
+  val properties: Map[String, JSerializable] = Map("url" -> postgresURL)
 
   Class.forName("org.postgresql.Driver")
 
   trait PostgresCommons {
 
-    def createTable()(table: String) = s"CREATE TABLE $table USING org.apache.spark.sql.jdbc OPTIONS (url '$host', dbtable '$table', driver 'org.postgresql.Driver')"
+    def createTable()(table: String) = s"CREATE TABLE $table USING org.apache.spark.sql.jdbc OPTIONS (url '$postgresURL', dbtable '$table', driver 'org.postgresql.Driver')"
 
     val tableCreate = createTable() _
 
@@ -169,7 +164,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "CopyIn" should "first truncate table and then insert data in table" in new JdbcCommons {
     val tableName = s"test_overwrite_${System.currentTimeMillis()}"
-    val connectionProperties = new JDBCOptions(host,
+    val connectionProperties = new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
@@ -218,7 +213,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "Native upsert only fields with  primary key statement" should "update color column" in new JdbcCommonsUpsertFields {
     val tableName = s"test_upsert_pk_fields_${System.currentTimeMillis()}"
-    val connectionProperties = new JDBCOptions(host,
+    val connectionProperties = new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
@@ -266,7 +261,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "Native upsert only fields with unique constraint statement" should "update color column" in new JdbcCommonsUpsertFieldsCamelCase {
     val tableName = s"test_upsert_fields_${System.currentTimeMillis()}"
-    val connectionProperties = new JDBCOptions(host,
+    val connectionProperties = new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
@@ -301,7 +296,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
 
   private def jdbcOptions(tableName: String): JDBCOptions =
-    new JDBCOptions(host,
+    new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
@@ -357,7 +352,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "Native upsert with one transaction" should "fail with two records with same primary key in temporal table" in new JdbcCommons {
     val tableName = s"test_upsert_${System.currentTimeMillis()}"
-    val connectionProperties = new JDBCOptions(host,
+    val connectionProperties = new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
@@ -389,7 +384,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "Delete that no affects records" should "maintain record with id = 4 " in new JdbcCommons {
     val tableName = s"test_delete_${System.currentTimeMillis()}"
-    val connectionProperties = new JDBCOptions(host,
+    val connectionProperties = new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
@@ -415,7 +410,7 @@ class PostgresOutputStepIT extends TemporalSparkContext with ShouldMatchers with
 
   "Delete despite duplicated id = 2" should "remove records when predicate is true on 'text' column" in new JdbcCommons {
     val tableName = s"test_delete_${System.currentTimeMillis()}"
-    val connectionProperties = new JDBCOptions(host,
+    val connectionProperties = new JDBCOptions(postgresURL,
       tableName,
       properties.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )

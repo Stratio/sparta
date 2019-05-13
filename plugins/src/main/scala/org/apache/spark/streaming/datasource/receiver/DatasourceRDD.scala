@@ -9,16 +9,18 @@ import org.apache.spark.partial.{BoundedDouble, CountEvaluator, PartialResult}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.streaming.datasource.models.{InputSentences, OffsetField, OffsetOperator}
+import org.apache.spark.streaming.datasource.receiver.DatasourceRDDHelper._
 import org.apache.spark.{Partition, TaskContext}
 
 import scala.util.Try
 
-private[datasource]
-class DatasourceRDD(
-                     @transient sparkSession: SparkSession,
-                     inputSentences: InputSentences,
-                     datasourceParams: Map[String, String]
-                   ) extends RDD[Row](sparkSession.sparkContext, Nil) with DatasourceRDDHelper {
+
+private[datasource] class DatasourceRDD(
+                                         @transient sparkSession: SparkSession,
+                                         inputSentences: InputSentences,
+                                         datasourceParams: Map[String, String],
+                                         originalQuery: String
+                                       ) extends RDD[Row](sparkSession.sparkContext, Nil) with DatasourceRDDHelper {
 
   private var totalCalculated: Option[Long] = None
 
@@ -35,12 +37,10 @@ class DatasourceRDD(
     sparkSession.sql(statement)
   }
 
-  lazy val dataFrame: DataFrame =
-    inputSentences.offsetConditions.fold(sparkSession.sql(inputSentences.query)) { offset =>
-      val parsedQuery = parseInitialQuery(complexQuery, inputSentences.query)
+  // TODO cacheDataFrame?? optimizedForJDBC progressInputSentences
+  lazy val dataFrame: DataFrame = {
 
-      if (parsedQuery.equals(TempInitQuery))
-        initializeTempTable()
+    inputSentences.offsetConditions.map { offset =>
 
       val conditionsSentence = offset.extractConditionSentence(initialWhereCondition)
       val orderSentence = offset.extractOrderSentence(offset.limitRecords.isEmpty)
@@ -49,11 +49,35 @@ class DatasourceRDD(
       if (possibleConflictsWRTColumns(initialWhereCondition, offset))
         log.warn("One or more columns specified as Offset appear in the user-provided WHERE condition")
 
-      sparkSession.sql(parsedQuery + conditionsSentence + orderSentence + limitSentence)
-    }
+      val parsedPlan = sparkSession.sessionState.sqlParser.parsePlan(originalQuery)
 
-  private def initializeTempTable(): Unit =
-    sparkSession.sql(inputSentences.query).createOrReplaceTempView(InitTableName)
+      retrieveValidPollingTable(sparkSession, parsedPlan).map { jdbcTN =>
+        DatasourceRDDHelper
+          .getCreateViewIncludingQuery(jdbcTN, originalQuery, conditionsSentence + orderSentence + limitSentence)
+          .run(sparkSession)
+        sparkSession.sql(selectAll(InitTableName))
+      }.getOrElse {
+
+        val basicQuery =
+          if (!complexQuery) {
+            retrieveBasicQuery(inputSentences.query)
+          } else {
+            None
+          }
+
+        val parsedQuery = basicQuery.getOrElse {
+          sparkSession.sql(inputSentences.query).createOrReplaceTempView(InitTableName)
+          selectAll(InitTableName)
+        }
+
+        sparkSession.sql(parsedQuery + conditionsSentence + orderSentence + limitSentence)
+      }
+
+    }.getOrElse(
+      sparkSession.sql(inputSentences.query)
+    )
+
+  }
 
   def progressInputSentences: InputSentences = {
     if (!dataFrame.rdd.isEmpty()) {
@@ -68,8 +92,8 @@ class DatasourceRDD(
               .first()
           }
 
-          offset.fromOffset.map{ currentField =>
-            val currentValue = Try{
+          offset.fromOffset.map { currentField =>
+            val currentValue = Try {
               Option(firstRecord.get(dataFrame.schema.fieldIndex(currentField.name)))
             }.getOrElse(currentField.value)
 

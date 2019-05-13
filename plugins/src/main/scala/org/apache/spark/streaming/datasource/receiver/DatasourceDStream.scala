@@ -5,8 +5,12 @@
  */
 package org.apache.spark.streaming.datasource.receiver
 
+import java.util.concurrent.atomic.AtomicBoolean
+
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming.datasource.config.ConfigParameters
 import org.apache.spark.streaming.datasource.config.ConfigParameters._
 import org.apache.spark.streaming.datasource.config.ParametersHelper._
 import org.apache.spark.streaming.datasource.models.OffsetLocation.OffsetLocation
@@ -18,7 +22,8 @@ import org.apache.spark.streaming.scheduler.rate.RateEstimator
 import org.apache.spark.streaming.scheduler.{RateController, StreamInputInfo}
 import org.apache.spark.streaming.{Seconds, StreamingContext, Time}
 
-private[streaming]
+import scala.util.Try
+
 class DatasourceDStream[C <: SparkSession](
                                             @transient val _ssc: StreamingContext,
                                             val inputSentences: InputSentences,
@@ -26,7 +31,15 @@ class DatasourceDStream[C <: SparkSession](
                                             @ transient val sparkSession: C
                                           ) extends InputDStream[Row](_ssc) {
 
+  var progressInputSentences: Option[InputSentences] = None
+
+  private[spark] val hasPendingJob: AtomicBoolean = new AtomicBoolean(false)
+
   private[streaming] override def name: String = s"Datasource stream [$id]"
+
+  lazy val storeOffsetAfterWritingOutputs: Boolean =
+    Try(datasourceParams.getOrElse(ConfigParameters.StoreOffsetAfterWritingOutputs, "false").toBoolean)
+      .getOrElse(false)
 
   storageLevel = calculateStorageLevel()
 
@@ -95,8 +108,16 @@ class DatasourceDStream[C <: SparkSession](
     }
   }
 
-  override def compute(validTime: Time): Option[DatasourceRDD] = {
+  override def compute(validTime: Time): Option[RDD[Row]] =
+    if (hasPendingJob.compareAndSet(false, true)) {
+      val datasourceRDD = doCompute(validTime)
+      datasourceRDD
+    } else {
+      Some(_ssc.sparkContext.emptyRDD)
+    }
 
+
+  private def doCompute(validTime: Time): Option[DatasourceRDD] = {
     // Report the record number and metadata of this batch interval to InputInfoTracker and calculate the maxRecords
     val maxRecordsCalculation = maxRecords().map { case (estimated, newLimitRecords) =>
       val description =
@@ -118,15 +139,19 @@ class DatasourceDStream[C <: SparkSession](
       inputSentencesCalculated.copy(offsetConditions = inputSentencesCalculated.offsetConditions.map(conditions =>
         conditions.copy(limitRecords = Option(maxMessages))))
     }
-    val datasourceRDD = new DatasourceRDD(sparkSession, inputSentencesLimited, datasourceParams)
 
-    setIncrementalOffsets(
-      datasourceRDD.progressInputSentences,
-      offsetsLocation,
-      zookeeperParams,
-      resetOffsetOnStart,
-      ignoreStartedStatus
+    val datasourceRDD = new DatasourceRDD(
+      sparkSession,
+      inputSentencesLimited,
+      datasourceParams,
+      inputSentences.query
     )
+
+    progressInputSentences = Some(datasourceRDD.progressInputSentences)
+
+    if (!storeOffsetAfterWritingOutputs){
+      commitOffsets()
+    }
 
     //publish data in Spark UI
     ssc.scheduler.inputInfoTracker.reportInfo(validTime, StreamInputInfo(id, datasourceRDD.count(), metadata))
@@ -145,6 +170,20 @@ class DatasourceDStream[C <: SparkSession](
   override def stop(): Unit = {
     ZookeeperHelper.setNotStarted(zookeeperParams)
     ZookeeperHelper.resetInstance()
+  }
+
+  def commitOffsets(): Unit = {
+    progressInputSentences.foreach{ progressInputSent =>
+      log.debug(s"commiting offsets: $progressInputSent")
+      setIncrementalOffsets(
+        progressInputSent,
+        offsetsLocation,
+        zookeeperParams,
+        resetOffsetOnStart,
+        ignoreStartedStatus
+      )
+    }
+    hasPendingJob.lazySet(false)
   }
 
   /**
@@ -214,4 +253,3 @@ private[streaming] object DatasourceDStream {
       }
   }
 }
-

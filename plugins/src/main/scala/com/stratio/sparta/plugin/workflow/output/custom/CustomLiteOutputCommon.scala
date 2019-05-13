@@ -106,7 +106,7 @@ class CustomLiteOutputCommon[T <: SDKCustomOutput](name: String, xDSession: XDSe
           if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))
             partitionFields.toSeq
           else {
-            log.warn(s"Impossible to execute partition by fields: $partitionFields because the dataFrame does not " +
+            log.warn(s"Impossible to execute partition by fields: ${partitionFields.mkString(",")} because the dataFrame does not " +
               s"contain all fields. The dataFrame only contains: ${fieldsInDataFrame.mkString(",")}")
             Seq.empty
           }

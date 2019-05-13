@@ -753,6 +753,7 @@
   "_COLUMNS_TO_DELIMIT_": "Columns to delimit",
   "_LENGTH_DECIMAL_": "Decimal length",
   "_SEPARATOR_DECIMAL_": "Decimal separator",
+   "_STORE_OFFSET_AFTER_WRITING_OUTPUTS_": "Store offsets after outputs write",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming",
       "SPARKSETTINGS": "Spark",

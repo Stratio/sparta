@@ -9,25 +9,25 @@ import java.io.{Serializable => JSerializable}
 
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
-import com.stratio.sparta.plugin.models.{OffsetFieldItem, SqlModel}
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
-import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.core.workflow.step.{InputStep, OneTransactionOffsetManager}
+import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
+import com.stratio.sparta.plugin.models.{OffsetFieldItem, SqlModel}
 import com.typesafe.config.ConfigFactory
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.datasource.DatasourceUtils
 import org.apache.spark.streaming.datasource.config.ConfigParameters
 import org.apache.spark.streaming.datasource.models._
+import org.apache.spark.streaming.datasource.receiver.DatasourceDStream
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted}
 import org.json4s.jackson.Serialization.read
-import org.json4s.{DefaultFormats, Formats}
 
 import scala.concurrent.duration._
 import scala.language.implicitConversions
@@ -41,7 +41,11 @@ class CrossdataInputStepStreaming(
                                    xDSession: XDSession,
                                    properties: Map[String, JSerializable]
                                  )
-  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with OneTransactionOffsetManager {
+
+  import com.stratio.sparta.plugin.models.SerializationImplicits._
+
+  var inputData: Option[DatasourceDStream[SparkSession]] = None
 
   lazy val query = properties.getString("query", "").trim
   lazy val finishApplicationWhenEmpty = Try(properties.getBoolean("finishAppWhenEmpty", default = false))
@@ -63,14 +67,14 @@ class CrossdataInputStepStreaming(
     }
   }
   lazy val continuousSentences = {
-    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
     val sentences =
       s"""${properties.getString("continuousSentences", None).notBlank.fold("[]") { values => values.toString }}""".stripMargin
 
     read[Seq[SqlModel]](sentences)
   }
+  private val storeOffsetAfterWritingOutputs = Try(properties.getString("storeOffsetAfterWritingOutputs", "false").toBoolean).getOrElse(false)
+
   lazy val offsetItems = {
-    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
     val offsetFields =
       s"""${properties.getString("offsetFields", None).notBlank.fold("[]") { values => values.toString }}""".stripMargin
 
@@ -146,7 +150,11 @@ class CrossdataInputStepStreaming(
     )
     val datasourceProperties = {
       getCustomProperties ++
-        properties.mapValues(value => value.toString) ++ Map(ConfigParameters.ZookeeperPath -> zookeeperPath)
+        properties.mapValues(value => value.toString) ++
+        Map(
+          ConfigParameters.ZookeeperPath -> zookeeperPath,
+          ConfigParameters.StoreOffsetAfterWritingOutputs -> storeOffsetAfterWritingOutputs.toString
+        )
     }.filter(_._2.nonEmpty)
 
     ssc.get.addStreamingListener(new StreamingListenerStop)
@@ -167,10 +175,28 @@ class CrossdataInputStepStreaming(
       }
     }))
 
-    DatasourceUtils.createStream(ssc.get, inputSentences, datasourceProperties, sparkSession).transform{ rdd =>
+    val datasourceDstream = DatasourceUtils.createStream(ssc.get, inputSentences, datasourceProperties, sparkSession)
+
+    datasourceDstream match {
+      case dsdstream: DatasourceDStream[SparkSession]  =>
+        inputData = Option(dsdstream)
+    }
+
+    datasourceDstream.transform{ rdd =>
       SchemaHelper.getSchemaFromSessionOrRdd(xDSession, name, rdd)
         .foreach(schema => xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(name))
       rdd
+    }
+  }
+
+  override val executeOffsetCommit: Boolean = storeOffsetAfterWritingOutputs
+
+
+  override def commitOffsets(): Unit = {
+    inputData.foreach{ inputDStream =>
+      inputDStream.foreachRDD{ rdd =>
+        inputDStream.commitOffsets()
+      }
     }
   }
 
