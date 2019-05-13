@@ -6,6 +6,11 @@
     - Scheduler
     - Integration with Schema Registry for Kafka Input/Output step
     - CrossdataInput Streaming: improve polling when using JDBC tables
+    - Upgrade dg-commons to 1.0.0-0c72260
+    - Upgrade gosec-dyplon to 0.16.0-988a912
+    - Upgrade crossdata-dyplon to 0.15.5-a6e5b87
+    - Upgrade crossdata to 2.16.0-c9d4d41
+
 * Bug fixing
     - [SPARTA-3067] Allow whitespaces in partitionBy
 
