@@ -9,13 +9,19 @@ import {
   Component,
 } from '@angular/core';
 import { appInfo } from '@app/shared/constants/appInfo';
+import { BreadcrumbMenuService } from 'services/*';
 
 @Component({
-  selector: 'sp-footer',
-  templateUrl: './sp-footer.component.html',
-  styleUrls: ['./sp-footer.component.scss'],
+  selector: 'about',
+  templateUrl: './about.component.html',
+  styleUrls: ['./about.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpFooterComponent {
+export class AboutComponent {
   public info = appInfo;
+  public breadcrumbOptions: string[] = [];
+
+  constructor(public breadcrumbMenuService: BreadcrumbMenuService) {
+    this.breadcrumbOptions = breadcrumbMenuService.getOptions();
+  }
 }

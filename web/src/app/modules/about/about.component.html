@@ -1,0 +1,21 @@
+<tool-bar class="tool-bar" [hideOnScroll]="true">
+  <div breadcrumb>
+    <st-breadcrumbs [options]="breadcrumbOptions" 
+    (select)="breadcrumbMenuService.setRoute($event)"
+    qaTag="about-breadcrumb"></st-breadcrumbs>
+  </div>
+  <div general-tools></div>
+</tool-bar>
+
+<section class="about">
+  <div class="container">
+    <div class="about__content">
+    <img src="assets/images/planet.svg" class="about__image" />
+    <h1 class="about__name">Stratio Sparta</h1>
+    <p class="about__version">Version {{info.version}}</p>
+    <p class="about__description">Stratio Sparta is a tool of Stratio Data-centric that allows you to gather different entry data to, afterward, group, transform, and operate with it. 
+        When the desired operations are done, this data is stored in different output elements. All these steps are done continuously and in real time.</p>
+    <a class="about__link button button-link-primary" href="https://www.stratio.com/" target="_blank">stratio.com</a>
+    </div>
+  </div>
+</section>

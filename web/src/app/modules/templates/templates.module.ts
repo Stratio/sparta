@@ -29,7 +29,6 @@ import { reducers } from './reducers';
 import { InputEffect } from './effects/input';
 import { TransformationEffect } from './effects/transformation';
 import { OutputEffect } from './effects/output';
-import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.module';
 
 @NgModule({
    declarations: [
@@ -50,7 +49,6 @@ import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.modul
       TableNotificationModule,
       FormGeneratorModule,
       SpHelpModule,
-      SpFooterModule,
       SpSelectModule,
       ToolBarModule,
       StRadioMenuModule,

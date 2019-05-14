@@ -50,6 +50,10 @@ const layoutRoutes: Routes = [
          {
             path: 'catalog',
             loadChildren: '@app/catalog/crossdata.module#CrossdataModule'
+         },
+         {
+            path: 'about',
+            loadChildren: '@app/about/about.module#AboutModule'
          }
       ]
    }

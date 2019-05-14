@@ -32,7 +32,6 @@
                         [selectedWorkflows]="selectedWorkflows$ | async"
                         (showExecution)="showExecutionConfiguration($event)"></repository-table-container>
                 </div>
-                <sp-footer></sp-footer>
             </div>
             <div class="workflow-detail-container">
                 <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()" class="repository-sidebar">

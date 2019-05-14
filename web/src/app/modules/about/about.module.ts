@@ -5,14 +5,27 @@
  */
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
-import { SpFooterComponent } from './sp-footer.component';
+import { AboutComponent } from './about.component';
+import { ToolBarModule } from '@app/shared';
+import { StBreadcrumbsModule } from '@stratio/egeo';
+
+const aboutRoutes: Routes = [
+  {
+    path: '',
+    component: AboutComponent
+  }
+];
 
 @NgModule({
-   imports: [
-     CommonModule
-   ],
-   declarations: [SpFooterComponent],
-   exports: [SpFooterComponent]
+  imports: [
+    CommonModule,
+    RouterModule.forChild(aboutRoutes),
+    StBreadcrumbsModule,
+    ToolBarModule
+  ],
+  declarations: [AboutComponent],
+  exports: [AboutComponent]
 })
-export class SpFooterModule { }
+export class AboutModule { }
