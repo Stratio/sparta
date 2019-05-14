@@ -9,7 +9,8 @@
     - Upgrade dg-commons to 1.0.0-0c72260
     - Upgrade gosec-dyplon to 0.16.0-988a912
     - Upgrade crossdata-dyplon to 0.15.5-a6e5b87
-    - Upgrade crossdata to 2.16.0-c9d4d41
+    - Upgrade crossdata to 2.16.0-fc09c7d
+    - Upgrade mlmodelrep to 1.4.0-8e4d1b0
 
 * Bug fixing
     - [SPARTA-3067] Allow whitespaces in partitionBy
