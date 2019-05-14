@@ -25,7 +25,6 @@ import { CrossdataRouter } from './crossdata.router';
 import { CrossdataEffect } from './effects/crossdata';
 import { reducers } from './reducers/';
 import { CrossdataCatalogComponent } from './components/crossdata-catalog/crossdata-catalog.component';
-import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.module';
 
 @NgModule({
   exports: [
@@ -46,7 +45,6 @@ import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.modul
     SpPipesModule,
     HighlightTextareaModule,
     LoadingSpinnerModule,
-    SpFooterModule,
     StSearchModule,
     StSwitchModule,
     StTableModule,

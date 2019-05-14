@@ -22,7 +22,6 @@ import { ExecutionsChartModule } from './components/executions-chart/executions-
 import { ExecutionsComponent } from './executions.component';
 import { ExecutionsRouterModule } from './executions.router';
 import { ExecutionPeriodsService } from './services/execution-periods.service';
-import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.module';
 
 
 @NgModule({
@@ -38,8 +37,7 @@ import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.modul
       StoreModule.forFeature('executionsMonitoring', reducerToken),
       EffectsModule.forFeature([ExecutionsEffect]),
       ExecutionsRouterModule,
-      TranslateModule,
-      SpFooterModule
+      TranslateModule
     ],
     providers: [ExecutionHelperService, ExecutionPeriodsService, reducerProvider]
 })

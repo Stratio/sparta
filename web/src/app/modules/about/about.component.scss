@@ -1,0 +1,41 @@
+@import '~@stratio/egeo/theme/constants';
+
+.about {
+  margin-top: 100px;
+  background-color: white;
+  padding: 60px 30px;
+  text-align: center;
+
+  &__content {
+    width: 100%;
+  }
+
+  &__image {
+    width: 285px;
+    max-width: 100%;
+  }
+
+  &__name {
+    color: $neutral-13;
+    font-size: 29px;
+    font-family: $egeo-nunito-sans-bold;
+  }
+
+  &__version {
+    color: $action-secondary-06;
+    font-size: 22px;
+  }
+
+  &__description {
+    color: $neutral-13;
+    max-width: 400px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 40px;
+  }
+
+  &__link {
+    margin-top: 30px;
+    display: inline-block;
+  }
+}

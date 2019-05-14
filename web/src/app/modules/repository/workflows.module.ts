@@ -31,7 +31,6 @@ import { WorkflowJsonModalComponent } from './components/workflow-json-modal/wor
 import { WorkflowJsonModalModule } from './components/workflow-json-modal/workflow-json-modal.module';
 import { WorkflowSchedulerComponent } from '@app/shared/components/workflow-scheduler/workflow-scheduler.component';
 import { WorkflowSchedulerModule } from '@app/shared/components/workflow-scheduler/workflow-scheduler-modal.module';
-import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.module';
 
 @NgModule({
     declarations: [
@@ -50,7 +49,6 @@ import { SpFooterModule } from '@app/shared/components/sp-footer/sp-footer.modul
         RepositoryHeaderModule,
         RepositoryTableHeaderModule,
         RepositoryTableModule,
-        SpFooterModule,
         WorkflowGroupModalModule,
         WorkflowSchedulerModule,
         WorkflowJsonModalModule,
