@@ -41,7 +41,7 @@ trait JdbcSlickUtils {
             .map(_.replace("currentSchema=", ""))
         }.notBlank
 
-    lazy val defaultSchema = AppConstant.instanceName.getOrElse("sparta-server")
+    lazy val defaultSchema = AppConstant.instanceNameWithDefault
 
     schemaNameFromConfig.orElse(schemaNameFromExtraParams).orElse(Some(defaultSchema))
   }
@@ -62,7 +62,7 @@ trait JdbcSlickHelper {
     val urlConnection = s"jdbc:postgresql://${config.getString("host")}"
     val user = Try {
       config.getString("user")
-    }.toOption.notBlank.getOrElse(AppConstant.instanceName.getOrElse("sparta-server"))
+    }.toOption.notBlank.getOrElse(AppConstant.spartaTenant)
     val urlWithDatabase = urlConnection.concat(s"/${config.getString("database")}").concat(s"?user=$user")
     if (config.getBoolean("sslenabled")) {
       val sslCert = config.getString("sslcert")

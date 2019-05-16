@@ -325,11 +325,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val securityOptions = getSecurityConfigurations
 
     if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
-      Properties.envOrNone(WorkflowIdentity).notBlank match {
-        case Some(tenantName) =>
+      (Properties.envOrNone(WorkflowIdentity).notBlank, Properties.envOrNone(VaultPasswordsPath).notBlank) match {
+        case (Some(tenantName), Some(passwordPath)) =>
           Map(
             "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_ENABLE" -> "true",
-            "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_VAULT_PATH" -> s"v1/userland/passwords/$tenantName/mesos"
+            "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_VAULT_PATH" -> s"$passwordPath/$tenantName/mesos"
           ) ++ securityOptions
         case _ =>
           log.warn("Mesos security is enabled but the properties are wrong")
@@ -479,7 +479,7 @@ object SparkSubmitService {
   val ExecutionIdKey = "executionId"
   val PluginsKey = "plugins"
 
-  lazy val spartaLocalAppName = s"${AppConstant.spartaTenant}-spark-standalone"
+  lazy val spartaLocalAppName = s"${AppConstant.instanceNameWithDefault}-spark-standalone"
   lazy val extraSparkJarsPath = Try(SpartaConfig.getCrossdataConfig().get.getString("session.sparkjars-path"))
     .getOrElse("/opt/sds/sparta/repo")
   lazy val mapExtraSparkJars: Seq[String] = Seq(

@@ -146,7 +146,7 @@ class LineageUtilsTest extends WordSpec with Matchers {
         FinishedKey -> "None",
         TypeFinishedKey -> "StoppedByUser",
         ErrorKey -> "None",
-        UrlKey -> s"https://localhost/sparta-server/#/executions/$expectedID")
+        UrlKey -> s"https://localhost/sparta/#/executions/$expectedID")
 
       LineageUtils.setExecutionProperties(actualExecution) should equal(expectedMap)
     }

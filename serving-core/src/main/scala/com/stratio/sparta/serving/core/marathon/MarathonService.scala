@@ -346,7 +346,9 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     }
 
   private def securityProperties: Map[String, String] =
-    sys.env.filterKeys(key => key.startsWith("SECURITY") && key.contains("ENABLE"))
+    sys.env.filterKeys { key =>
+      (key.startsWith("SECURITY") && key.contains("ENABLE")) || key.contains("SPARTA_SECURITY_VAULT")
+    }
 
   private def hadoopProperties: Map[String, String] =
     sys.env.filterKeys { key =>
@@ -410,6 +412,8 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   private def appIdentity: Map[String, String] = {
     val workflowsIdentity = Properties.envOrNone(GenericWorkflowIdentity).getOrElse(spartaTenant)
     Map(
+      ServerTenantName -> spartaTenant,
+      TenantIdentity -> workflowsIdentity,
       DcosServiceName -> workflowsIdentity,
       SpartaPostgresUser -> workflowsIdentity,
       SystemHadoopUserName -> workflowsIdentity

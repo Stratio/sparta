@@ -93,13 +93,20 @@ object AppConstant extends ZookeeperUtils {
   val DefaultFSProperty = "fs.defaultFS"
 
   //Postgres
-  val PostgresDaos="com.stratio.sparta.serving.core.services.dao"
+  val PostgresDaos = "com.stratio.sparta.serving.core.services.dao"
 
+  //Service variables to identify
   val instanceName = Properties.envOrNone(MarathonConstant.DcosServiceName)
-  val spartaTenant = instanceName.getOrElse(Properties.envOrElse("TENANT_NAME", "sparta-server"))
-  val securityTLSEnable = Try(Properties.envOrElse(MarathonConstant.SpartaTLSEnableEnv, "false").toBoolean).getOrElse(false)
+  val instanceNameWithDefault = instanceName.getOrElse("sparta-server")
+  val instanceNameHttpService = instanceName.getOrElse("sparta")
   val virtualHost = Properties.envOrNone(MarathonConstant.ServerMarathonLBHostEnv).notBlank
   val virtualPath = Properties.envOrNone(MarathonConstant.ServerMarathonLBPathEnv).notBlank
+
+  //Tenant variable to use as identity
+  val spartaTenant = Properties.envOrElse(MarathonConstant.TenantName, "sparta")
+
+  //Security ON/OFF
+  val securityTLSEnable = Try(Properties.envOrElse(MarathonConstant.SpartaTLSEnableEnv, "false").toBoolean).getOrElse(false)
 
   //Zookeeper
   val DefaultZKPath = "/stratio/sparta/sparta"

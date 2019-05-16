@@ -28,13 +28,15 @@ mkdir -p /etc/sds/sparta/security
 # Main execution
 
 # Init tenant name, used as identity when obtains vault secrets
-if [ -v MARATHON_APP_LABEL_DCOS_SERVICE_NAME ] && [ ${#MARATHON_APP_LABEL_DCOS_SERVICE_NAME} != 0 ]; then
+if [ -v TENANT_IDENTITY ] && [ ${#TENANT_IDENTITY} != 0 ]; then
+    export TENANT_NAME=${TENANT_IDENTITY}
+elif [ -v MARATHON_APP_LABEL_DCOS_SERVICE_NAME ] && [ ${#MARATHON_APP_LABEL_DCOS_SERVICE_NAME} != 0 ]; then
     export TENANT_NAME=${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}
 else
-    export TENANT_NAME='sparta'   # MARATHON_APP_ID without slash
+    export TENANT_NAME='sparta'
 fi
 
-# All workflows will be executed with this identity
+# All workflows will be executed with this identity(tenant_name) and DCOS service name
 if [ -v GENERIC_WORKFLOW_IDENTITY ] && [ ${#GENERIC_WORKFLOW_IDENTITY} != 0 ]; then
     export WORKFLOW_IDENTITY=${GENERIC_WORKFLOW_IDENTITY}
 else
@@ -43,17 +45,33 @@ fi
 
 # Paths and variables used in secrets scripts
 if [ -v DATASTORE_TRUSTSTORE_CA_NAME ] && [ ${#DATASTORE_TRUSTSTORE_CA_NAME} != 0 ]; then
-export TRUSTSTORE_CA_NAME=${DATASTORE_TRUSTSTORE_CA_NAME}
+    export TRUSTSTORE_CA_NAME=${DATASTORE_TRUSTSTORE_CA_NAME}
 else
-export TRUSTSTORE_CA_NAME='ca'
+    export TRUSTSTORE_CA_NAME='ca'
 fi
 
 if [[ ! -v SPARTA_SECRET_FOLDER ]]; then
-export SPARTA_SECRET_FOLDER="/etc/sds/sparta/security"
+    export SPARTA_SECRET_FOLDER="/etc/sds/sparta/security"
 fi
 
 if [[ ! -v SPARK_DRIVER_SECRET_FOLDER ]]; then
-export SPARK_DRIVER_SECRET_FOLDER="/tmp/secrets"
+    export SPARK_DRIVER_SECRET_FOLDER="/tmp/secrets"
+fi
+
+if [[ ! -v SPARTA_SECURITY_VAULT_CERTIFICATES_PATH ]]; then
+    export SPARTA_SECURITY_VAULT_CERTIFICATES_PATH="/v1/userland/certificates"
+fi
+
+if [[ ! -v SPARTA_SECURITY_VAULT_PASSWORDS_PATH ]]; then
+    export SPARTA_SECURITY_VAULT_PASSWORDS_PATH="/v1/userland/passwords"
+fi
+
+if [[ ! -v SPARTA_SECURITY_VAULT_CA_PATH ]]; then
+    export SPARTA_SECURITY_VAULT_CA_PATH="/v1/ca-trust/certificates"
+fi
+
+if [[ ! -v SPARTA_SECURITY_VAULT_CA_KEY_PATH ]]; then
+    export SPARTA_SECURITY_VAULT_CA_KEY_PATH="/v1/ca-trust/passwords/default/keystore"
 fi
 
 # Setup tenant_normalized for access kms_utils
@@ -68,12 +86,12 @@ export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 export SPARTA_KEYTAB_NAME_WORKFLOW="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 
 # Vault paths used to obtain the secrets for the server and the workflows
-export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/$TRUSTSTORE_CA_NAME"
-export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="/v1/ca-trust/passwords/default/keystore"
-export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="/v1/userland/certificates/$TENANT_NAME"
-export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH_WORKFLOW="/v1/userland/certificates/$WORKFLOW_IDENTITY"
-export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="/v1/userland/passwords/$TENANT_NAME/keystore"
-export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH_WORKFLOW="/v1/userland/passwords/$WORKFLOW_IDENTITY/keystore"
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="$SPARTA_SECURITY_VAULT_CA_PATH/$TRUSTSTORE_CA_NAME"
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="$SPARTA_SECURITY_VAULT_CA_KEY_PATH"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="$SPARTA_SECURITY_VAULT_CERTIFICATES_PATH/$TENANT_NAME"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH_WORKFLOW="$SPARTA_SECURITY_VAULT_CERTIFICATES_PATH/$WORKFLOW_IDENTITY"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="$SPARTA_SECURITY_VAULT_PASSWORDS_PATH/$TENANT_NAME/keystore"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH_WORKFLOW="$SPARTA_SECURITY_VAULT_PASSWORDS_PATH/$WORKFLOW_IDENTITY/keystore"
 export SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH=$SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH
 export SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH_WORKFLOW=$SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH_WORKFLOW
 export VAULT_PROTOCOL="https"

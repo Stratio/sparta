@@ -14,7 +14,7 @@ getCert "userland" "$TENANT_NAME" "$TENANT_NAME" "PEM" $SPARTA_SECRET_FOLDER || 
 #GET CA-BUNDLE for given CA and store in ca.crt
 VAULT_URI="$VAULT_PROTOCOL://$VAULT_HOSTS:$VAULT_PORT"
 JSON_KEY="${TRUSTSTORE_CA_NAME}_crt"
-CA_BUNDLE=$(curl -k -XGET -H "X-Vault-Token:$VAULT_TOKEN" "$VAULT_URI/v1/ca-trust/certificates/$TRUSTSTORE_CA_NAME" -s |  jq -cMSr --arg fqdn "" ".data[\"$JSON_KEY\"]")
+CA_BUNDLE=$(curl -k -XGET -H "X-Vault-Token:$VAULT_TOKEN" "$VAULT_URI$SPARTA_SECURITY_VAULT_CA_PATH/$TRUSTSTORE_CA_NAME" -s |  jq -cMSr --arg fqdn "" ".data[\"$JSON_KEY\"]")
 
 echo "$CA_BUNDLE" > ${SPARTA_SECRET_FOLDER}/ca.crt
 sed -i 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\n/g' ${SPARTA_SECRET_FOLDER}/ca.crt

@@ -100,7 +100,7 @@ object LineageUtils extends ContextBuilderImplicits {
   }
 
   def setExecutionUrl(executionId: String): String = {
-    "https://" + spartaVHost + "/" + AppConstant.spartaTenant + "/#/executions/" + executionId
+    "https://" + spartaVHost + "/" + AppConstant.instanceNameHttpService + "/#/executions/" + executionId
   }
 
   def setExecutionProperties(newExecution: WorkflowExecution): Map[String, String] = {

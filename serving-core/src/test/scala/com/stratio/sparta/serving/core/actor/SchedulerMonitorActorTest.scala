@@ -53,7 +53,6 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
   trait TestActor {
     self: SchedulerMonitorActor =>
 
-    override lazy val currentInstanceName = Some("sparta-fl")
     override lazy val inconsistentStatusCheckerActor: ActorRef = checkerProp.ref
 
     /*def receiveTest: Receive = {
@@ -92,7 +91,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
     "the method fromExecutionsToMapMarathonIdExecutionId is invoked" should {
       "retrieve correctly the app names in Marathon" in {
         val objectSchedulerMonitorActor = SchedulerMonitorActor
-        val extractApp = objectSchedulerMonitorActor.fromExecutionsToMapMarathonIdExecutionId(executionsTest)(Some("sparta-fl"))
+        val extractApp = objectSchedulerMonitorActor.fromExecutionsToMapMarathonIdExecutionId(executionsTest)
         extractApp should be(
           Map("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234" -> "1234"))
       }

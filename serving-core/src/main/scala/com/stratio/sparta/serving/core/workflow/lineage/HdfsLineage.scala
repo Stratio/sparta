@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.workflow.lineage
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.hadoop.fs.{FileSystem, Path}
 
@@ -75,9 +76,7 @@ trait HdfsLineage {
   }
 
   private def stripPrefixAndFormatPath(path: String): String = {
-    val userName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
-      Properties.envOrElse("TENANT_NAME", "sparta"))
-
+    val userName = AppConstant.spartaTenant
     val stripPrefixPath = if (path.toLowerCase.startsWith("hdfs://")) {
       "/" + path.toLowerCase.stripPrefix("hdfs://").split("/", 2).lastOption.getOrElse("")
     } else if (!path.startsWith("/")) {

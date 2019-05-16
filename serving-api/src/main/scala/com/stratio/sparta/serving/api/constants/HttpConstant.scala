@@ -5,13 +5,13 @@
  */
 package com.stratio.sparta.serving.api.constants
 
-import com.stratio.sparta.serving.core.constants.MarathonConstant
+import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 
 import scala.util.{Properties, Try}
 
 object HttpConstant {
 
-  final val SpartaRootPath = Properties.envOrElse(MarathonConstant.DcosServiceName, "sparta")
+  final val SpartaRootPath = AppConstant.instanceNameHttpService
   final val DebugWorkflowsPath = "debug"
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"

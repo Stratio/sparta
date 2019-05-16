@@ -54,7 +54,6 @@ class SchedulerMonitorActor extends Actor with SchedulerUtils with SpartaCluster
     Props(new InconsistentStatusCheckerActor()),
     s"$InconsistentStatusCheckerActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
   )
-  implicit lazy val currentInstanceName: Option[String] = instanceName
 
   type SchedulerAction = WorkflowExecution => Unit
 
@@ -523,9 +522,7 @@ object SchedulerMonitorActor {
       }.toOption
     }
 
-  def fromExecutionsToMapMarathonIdExecutionId(
-                                                executions: Seq[WorkflowExecution]
-                                              )(implicit instanceName: Option[String]): Map[String, String] = {
+  def fromExecutionsToMapMarathonIdExecutionId(executions: Seq[WorkflowExecution]): Map[String, String] = {
     executions.filter { execution =>
       execution.genericDataExecution.executionMode == marathon &&
         !notRunningStates.contains(execution.lastStatus.state)
