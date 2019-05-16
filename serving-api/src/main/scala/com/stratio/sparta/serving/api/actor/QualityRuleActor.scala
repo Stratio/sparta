@@ -156,7 +156,7 @@ class QualityRuleActor extends Actor
                              metadataPath: MetadataPath): Future[StepOutputRule] = {
 
     val metadataPathString = s"${metadataPath.toString}%"
-    val query = URLEncoder.encode(metadataPathString, StandardCharsets.UTF_8.toString).toLowerCase
+    val query = URLEncoder.encode(metadataPathString, StandardCharsets.UTF_8.toString)
 
     val resultGet = doRequest(
       uri = uri,
@@ -190,7 +190,7 @@ class QualityRuleActor extends Actor
 
 
 
-  def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String,MetadataPath)]): Future[Seq[SpartaQualityRule]] = {
+  def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String, MetadataPath)]): Future[Seq[SpartaQualityRule]] = {
     import org.json4s.native.Serialization.read
 
     val rulesFromApi: Seq[Future[StepOutputRule]] = metadataPaths.toSeq.map{
@@ -200,7 +200,6 @@ class QualityRuleActor extends Actor
 
     val seqQualityRules: Future[Seq[SpartaQualityRule]] = for {
       sequenceRules <- fromSeqFutureToFutureSeq
-
     } yield {
       sequenceRules.filter(_.rule.trim.nonEmpty).flatMap(stepOutputRule =>
         read[GovernanceQualityRule](stepOutputRule.rule).parse(stepOutputRule.stepName, stepOutputRule.outputName))

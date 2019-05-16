@@ -32,8 +32,8 @@ import dropNullsTemplate from './transformations/dropNulls.json';
 import duplicateColumnsTemplate from './transformations/duplicateColumns.json';
 import explodeTemplate from './transformations/explode.json';
 import filterTemplate from './transformations/filter.json';
-import hashTemplate from './transformations/hash.json';
 import formatterTemplate from './transformations/formatter.json';
+import hashTemplate from './transformations/hash.json';
 import initNullsTemplate from './transformations/initNulls.json';
 import intersectionTemplate from './transformations/intersection.json';
 import joinTemplate from './transformations/join.json';
@@ -82,8 +82,8 @@ export const transformations: any = [
     duplicateColumnsTemplate,
     explodeTemplate,
     filterTemplate,
-    hashTemplate,
     formatterTemplate,
+    hashTemplate,
     initNullsTemplate,
     intersectionTemplate,
     joinTemplate,

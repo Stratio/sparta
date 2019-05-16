@@ -208,7 +208,7 @@ class FileUtilsOutputStep(name: String, xDSession: XDSession, properties: Map[St
       case Failure(e) =>
         errorPolicy match {
           case FilesystemErrorPolicyType.ERROR =>
-            throw new RuntimeException(s"Cannot execute action $actionType on $fileOrigin. Error: ${e.getLocalizedMessage}")
+            throw new RuntimeException(s"Cannot execute action $actionType on $fileOrigin. Error: ${e.getLocalizedMessage}", e)
           case FilesystemErrorPolicyType.DISCARD =>
             log.warn(s"Cannot execute action $actionType on $fileOrigin. Error: ${e.getLocalizedMessage}")
         }

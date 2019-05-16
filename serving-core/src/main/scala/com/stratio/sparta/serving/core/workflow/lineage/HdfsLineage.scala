@@ -10,6 +10,7 @@ import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.services.HdfsService
+import com.stratio.sparta.serving.core.helpers.StringHelper._
 import org.apache.hadoop.fs.{FileSystem, Path}
 
 import scala.util.control.NonFatal
@@ -33,17 +34,17 @@ object HdfsLineage extends SLF4JLogging {
 
 trait HdfsLineage {
 
-  val lineagePath : String
+  val lineagePath: String
   val lineageResourceSuffix: Option[String]
 
 
-  def getHdfsLineageProperties(stepType: String) : Map[String, String] =
+  def getHdfsLineageProperties(stepType: String): Map[String, String] =
     if (!isHdfsScheme) {
       Map.empty
     } else {
       val newPath = stripPrefixAndFormatPath(lineagePath)
 
-      val resource = if(stepType.equals(OutputStep.StepType)) {
+      val resource = if (stepType.equals(OutputStep.StepType)) {
         lineageResourceSuffix.fold("") { suffix => getFileSystemResource(newPath, suffix) }
       } else {
         getFileSystemResourceFromPathOrFile(newPath)
@@ -51,7 +52,7 @@ trait HdfsLineage {
 
       val finalPath =
         lineageResourceSuffix
-          .map(_ => newPath.replace(resource,""))
+          .map(_ => newPath.replace(resource, ""))
           .getOrElse(newPath)
           .stripSuffix("/")
 
@@ -64,7 +65,7 @@ trait HdfsLineage {
     }
 
   private def getFileSystemResource(path: String, suffix: String): String =
-    if (path.toLowerCase.endsWith(suffix.toLowerCase))
+    if (path.endsWithIgnoreCase(suffix))
       path.split("/").lastOption.getOrElse("")
     else ""
 
@@ -77,8 +78,9 @@ trait HdfsLineage {
 
   private def stripPrefixAndFormatPath(path: String): String = {
     val userName = AppConstant.spartaTenant
-    val stripPrefixPath = if (path.toLowerCase.startsWith("hdfs://")) {
-      "/" + path.toLowerCase.stripPrefix("hdfs://").split("/", 2).lastOption.getOrElse("")
+
+    val stripPrefixPath = if (path.startWithIgnoreCase("hdfs://")) {
+      "/" + path.stripPrefixWithIgnoreCase("hdfs://").split("/", 2).lastOption.getOrElse("")
     } else if (!path.startsWith("/")) {
       "/user/" + userName + "/" + path
     } else {
@@ -102,7 +104,7 @@ trait HdfsLineage {
       val propValues = (hdfsConfFile \\ "property" \ "value").map(_.toString.stripPrefix("<value>").stripSuffix("</value>"))
       val mapOfProps = propNames.zip(propValues).toMap
 
-      mapOfProps.get("fs.defaultFS").flatMap(_.toLowerCase.stripPrefix("hdfs://").split(":").headOption).map(_.stripSuffix(HdfsLineage.DomainSuffix))
+      mapOfProps.get("fs.defaultFS").flatMap(_.stripPrefixWithIgnoreCase("hdfs://").split(":").headOption).map(_.stripSuffix(HdfsLineage.DomainSuffix))
     }
   }
 

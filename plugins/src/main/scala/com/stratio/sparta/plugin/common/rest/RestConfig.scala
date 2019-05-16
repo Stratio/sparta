@@ -58,7 +58,7 @@ object RestConfig{
     (for {
       (k,v) <- properties.getOptionsList(KeyAkkaOptionsGroupProperty,
         KeyAkkaOptionsKeyProperty, KeyAkkaOptionsValueProperty)
-        .filter{ case (key,value) => key.nonEmpty && ! key.startsWith("akka") || value.trim.nonEmpty }
+        .filter{ case (key,value) => key.nonEmpty && ! key.startsWith("akka") || value.trim.isEmpty }
     } yield s"$k = $v").toSeq
 
 

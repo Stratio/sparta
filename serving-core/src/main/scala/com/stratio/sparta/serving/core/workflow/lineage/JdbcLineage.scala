@@ -9,8 +9,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.helpers.StringHelper._
 import com.stratio.sparta.serving.core.services.CustomPostgresService
 import com.typesafe.config.{Config, ConfigFactory}
+
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -38,9 +40,9 @@ trait JdbcLineage extends SLF4JLogging {
 
   def getJdbcLineageProperties(stepType: String): Map[String, String] = {
     if (
-      lineageUri.toLowerCase.contains("postgres") ||
-        lineageUri.toLowerCase.contains("oracle") ||
-        lineageUri.toLowerCase.contains("sqlserver")
+      lineageUri.containsIgnoreCase("postgres") ||
+        lineageUri.containsIgnoreCase("oracle") ||
+        lineageUri.containsIgnoreCase("sqlserver")
     ) {
       (getJdbcServiceName(lineageUri), getJdbcDatabase(lineageUri)) match {
         case (Some(serviceName), Some(path)) =>
@@ -83,7 +85,7 @@ trait JdbcLineage extends SLF4JLogging {
           log.warn(s"Error reading property $DbServiceProperty in database.", e)
 
           if (url.contains(PostgresPrefix)) {
-            val stripUrl = url.toLowerCase.stripPrefix(PostgresPrefix).split("/").headOption.flatMap(_.split(":")
+            val stripUrl = url.stripPrefixWithIgnoreCase(PostgresPrefix).split("/").headOption.flatMap(_.split(":")
               .headOption).getOrElse("")
 
             if (stripUrl.endsWith(VipSuffix)) {
@@ -108,12 +110,12 @@ trait JdbcLineage extends SLF4JLogging {
               None
           }
           else {
-            if (url.toLowerCase.contains(OracleName))
-              url.toLowerCase.split("@").lastOption.flatMap(_.stripPrefix("//").split(":", 2).headOption)
-            else if (url.toLowerCase.contains(SqlServerName))
-              url.toLowerCase.stripPrefix(SqlServerPrefix).split(";", 2).headOption.flatMap(_.split(":").headOption)
+            if (url.containsIgnoreCase(OracleName))
+              url.split("@").lastOption.flatMap(_.stripPrefix("//").split(":", 2).headOption)
+            else if (url.containsIgnoreCase(SqlServerName))
+              url.stripPrefixWithIgnoreCase(SqlServerPrefix).split(";", 2).headOption.flatMap(_.split(":").headOption)
             else
-              url.toLowerCase.split("//").lastOption.flatMap(_.split("/").headOption.flatMap(_.split(":").headOption))
+              url.split("//").lastOption.flatMap(_.split("/").headOption.flatMap(_.split(":").headOption))
           }
       }
     } match {
@@ -127,12 +129,12 @@ trait JdbcLineage extends SLF4JLogging {
 
   private def getJdbcDatabase(url: String): Option[String] = {
     Try {
-      if (url.toLowerCase.contains(SqlServerName))
-        url.toLowerCase.split(";", 2).lastOption.flatMap(_.split("=", 2).lastOption.flatMap(_.split(";").headOption))
-      else if (url.toLowerCase.contains(OracleName))
+      if (url.containsIgnoreCase(SqlServerName))
+        url.split(";", 2).lastOption.flatMap(_.split("=", 2).lastOption.flatMap(_.split(";").headOption))
+      else if (url.containsIgnoreCase(OracleName))
         url.split("//").lastOption.flatMap(_.split("/").lastOption)
       else
-        url.toLowerCase.stripPrefix(PostgresPrefix).split("/", 2).lastOption.flatMap(_.split("\\?").headOption)
+        url.stripPrefixWithIgnoreCase(PostgresPrefix).split("/", 2).lastOption.flatMap(_.split("\\?").headOption)
     } match {
       case Success(database) =>
         database
@@ -143,7 +145,7 @@ trait JdbcLineage extends SLF4JLogging {
   }
 
   private def getDBConfig:Config = {
-    val hostName = s""""${lineageUri.toLowerCase.stripPrefix(PostgresPrefix).split("/").headOption.getOrElse("")}""""
+    val hostName = s""""${lineageUri.stripPrefixWithIgnoreCase(PostgresPrefix).split("/").headOption.getOrElse("")}""""
     val customConfig = ConfigFactory.parseString(s"host = $hostName\n")
     val mainConfig = SpartaConfig.getPostgresConfig().get
 

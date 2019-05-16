@@ -14,13 +14,15 @@ class SparkQualityRuleThreshold(spartaQualityRuleThreshold: SpartaQualityRuleThr
 
   lazy val valid: Boolean  = allowedOperations.contains(spartaQualityRuleThreshold.operation) && Try(rowsSatisfyingQR.toDouble/totalRows).isSuccess
 
+  val hundredDouble = 100.00
+
   val allowedOperations: Set[String] = Set("=", ">", ">=", "<", "<=")
 
   def isThresholdSatisfied : Boolean = {
     spartaQualityRuleThreshold.`type` match {
       case "%" => applyOperations(spartaQualityRuleThreshold.operation,
         rowsSatisfyingQR.toDouble/totalRows,
-        spartaQualityRuleThreshold.value/100.0)
+        spartaQualityRuleThreshold.value/hundredDouble)
       case "abs" => applyOperations(spartaQualityRuleThreshold.operation,
         rowsSatisfyingQR.toDouble,
         spartaQualityRuleThreshold.value)
@@ -29,11 +31,11 @@ class SparkQualityRuleThreshold(spartaQualityRuleThreshold: SpartaQualityRuleThr
 
    def applyOperations(operation: String, firstOperand: Double, thresholdValue: Double): Boolean = {
      operation match {
-       case "=" => firstOperand == thresholdValue
-       case ">" => firstOperand > thresholdValue
-       case ">=" => firstOperand >= thresholdValue
-       case "<" => firstOperand < thresholdValue
-       case "<=" => firstOperand <= thresholdValue
+       case "=" => roundTwoDecimalPositions(firstOperand) == roundTwoDecimalPositions(thresholdValue)
+       case ">" => roundTwoDecimalPositions(firstOperand) > roundTwoDecimalPositions(thresholdValue)
+       case ">=" => roundTwoDecimalPositions(firstOperand) >= roundTwoDecimalPositions(thresholdValue)
+       case "<" => roundTwoDecimalPositions(firstOperand) < roundTwoDecimalPositions(thresholdValue)
+       case "<=" => roundTwoDecimalPositions(firstOperand) <= roundTwoDecimalPositions(thresholdValue)
      }
    }
 
@@ -45,4 +47,6 @@ class SparkQualityRuleThreshold(spartaQualityRuleThreshold: SpartaQualityRuleThr
       case "%" => s"$commonString %"
     }
   }
+
+  private def roundTwoDecimalPositions(numberToRound: Double): Double = math.round(numberToRound * hundredDouble)/hundredDouble
 }

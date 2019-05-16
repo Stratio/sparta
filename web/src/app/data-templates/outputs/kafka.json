@@ -187,7 +187,7 @@
         "propertyId": "value.serializer.auto.register.schemas",
         "propertyName": "_SERIALIZER_SCHEMAREGISTRY_AUTO_REGISTER_SCHEMA_",
         "propertyType": "boolean",
-        "tooltip": "Auto register schema",
+        "tooltip": "Specify if the Serializer should attempt to register the Schema with Schema Registry\n",
         "default": true,
         "visible": [
           [
