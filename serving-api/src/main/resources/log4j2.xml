@@ -124,12 +124,13 @@
         <Logger name="org.apache.parquet" level="ERROR"/>
         <Logger name="org.apache.avro" level="ERROR"/>
         <Logger name="org.apache.http" level="ERROR"/>
-        <Logger name="com.typesafe.slick" level="ERROR"/>
+        <Logger name="com.typesafe.slick" level="WARN"/>
         <Logger name="org.apache.ignite" level="ERROR"/>
         <Logger name="com.stratio.gosec" level="ERROR"/>
         <Logger name="com.stratio.governance" level="ERROR"/>
         <Logger name="com.stratio.sparta.dg.agent" level="ERROR"/>
         <Logger name="com.stratio.spark.fs.s3a" level="ERROR"/>
         <Logger name="com.amazonaws" level="ERROR"/>
+        <Logger name="com.zaxxer.hikari" level="WARN"/>
     </Loggers>
 </Configuration>

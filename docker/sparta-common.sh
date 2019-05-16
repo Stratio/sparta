@@ -219,7 +219,7 @@ function logLevelOptions() {
   echo "export HTTP_LOG_LEVEL=${HTTP_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v SLICK_LOG_LEVEL ]]; then
-    SLICK_LOG_LEVEL="ERROR"
+    SLICK_LOG_LEVEL="WARN"
   fi
   sed -i "s|com.typesafe.slick.*|com.typesafe.slick= ${SLICK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   echo "export SLICK_LOG_LEVEL=${SLICK_LOG_LEVEL}" >> ${VARIABLES}
@@ -247,6 +247,13 @@ function logLevelOptions() {
   sed -i "s|com.amazonaws.*|com.amazonaws= ${AWS_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   echo "export AWS_LOG_LEVEL=${AWS_LOG_LEVEL}" >> ${VARIABLES}
   echo "export AWS_LOG_LEVEL=${AWS_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
+
+  if [[ ! -v HIKARI_LOG_LEVEL ]]; then
+    HIKARI_LOG_LEVEL="WARN"
+  fi
+  sed -i "s|com.zaxxer.hikari.*|com.zaxxer.hikari= ${HIKARI_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export HIKARI_LOG_LEVEL=${AWS_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export HIKARI_LOG_LEVEL=${AWS_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 }
 
 function logLevelAppender() {
