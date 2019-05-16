@@ -1,0 +1,112 @@
+{
+  "name": "InsertLiteral",
+  "icon": "InsertLiteral",
+  "category": "Column",
+  "className": "InsertLiteralTransformStep",
+  "classPrettyName": "InsertLiteral",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "description": "Insert a string literal into a column at a given position",
+  "properties": [
+    {
+      "propertyId": "columnsToInsertLiteral",
+      "propertyName": "_COLUMNS_TO_INSERT_LITERAL_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of columns to transform.",
+      "qa": "fragment-details-insert-literal-fields",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "float": false,
+          "width": 6,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "value",
+          "propertyName": "_VALUE_TO_INSERT_",
+          "propertyType": "text",
+          "required": true,
+          "width": 2,
+          "tooltip": "Literal value to insert",
+          "qa": "fragment-details-length-decimal"
+        },
+        {
+          "propertyId": "offset",
+          "propertyName": "_OFFSET_INSERT_LITERAL_",
+          "propertyType": "text",
+          "required": true,
+          "width": 3,
+          "tooltip": "The position to insert the value at",
+          "qa": "workflow-transformation-separator-decimal"
+        },
+        {
+          "propertyId": "offsetFrom",
+          "propertyName": "_OFFSET_INSERT_FROM_",
+          "propertyType": "select",
+          "required": true,
+          "tooltip": "Side of the string the position is calculated from. Default is left",
+          "default": "INSERT_LEFT",
+          "width": 3,
+          "values": [
+            {
+              "label": "Left",
+              "value": "INSERT_LEFT"
+            },
+            {
+              "label": "Right",
+              "value": "INSERT_RIGHT"
+            }
+          ],
+          "qa": "workflow-transformation-comma-direction"
+
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}
+

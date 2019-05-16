@@ -35,6 +35,8 @@ import filterTemplate from './transformations/filter.json';
 import formatterTemplate from './transformations/formatter.json';
 import hashTemplate from './transformations/hash.json';
 import initNullsTemplate from './transformations/initNulls.json';
+import insertLiteralTemplate from './transformations/insertLiteral.json';
+import integrityTemplate from './transformations/integrity.json';
 import intersectionTemplate from './transformations/intersection.json';
 import joinTemplate from './transformations/join.json';
 import jsonPathTemplate from './transformations/jsonpath.json';
@@ -85,6 +87,8 @@ export const transformations: any = [
     formatterTemplate,
     hashTemplate,
     initNullsTemplate,
+    insertLiteralTemplate,
+    integrityTemplate,
     intersectionTemplate,
     joinTemplate,
     jsonPathTemplate,

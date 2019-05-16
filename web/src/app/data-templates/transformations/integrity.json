@@ -1,0 +1,91 @@
+{
+  "name": "Integrity",
+  "icon": "Integrity",
+  "category": "Column",
+  "className": "IntegrityTransformStep",
+  "classPrettyName": "Integrity",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "description": "Compare value of fields with catalog stored in HDFS in txt format.",
+  "properties": [
+    {
+      "propertyId": "path",
+      "propertyName": "_FILESYSTEM_PATH_",
+      "propertyType": "text",
+      "required": true,
+      "width": 8,
+      "tooltip": "Path to file with to check integrity.",
+      "qa": "fragment-details-length-decimal"
+    },
+    {
+      "propertyId": "columnsIntegrity",
+      "propertyName": "_COLUMNS_INTEGRITY_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of columns to compare.",
+      "qa": "fragment-details-integrity-fields",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 4,
+          "tooltip": "Column to transform.",
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "defaultValue",
+          "propertyName": "_DEFAULT_VALUE_",
+          "propertyType": "text",
+          "required": false,
+          "width": 4,
+          "tooltip": "The default value to use when field does not exist in the file.",
+          "qa": "workflow-transformation-separator-decimal"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}
+

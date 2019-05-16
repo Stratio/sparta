@@ -5,8 +5,8 @@
  */
 export const icons: any = {
     Catalog: '\uE98A',
-    RowGenerator: '\uE120',
     Kafka: '\uE645',
+    RowGenerator: '\uE120',
     WebSocket: '\ue078',
     Print: '\uE64A',
     Binary: '\uE124',
