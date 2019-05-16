@@ -5,7 +5,7 @@
   <div class="hide-scrollbar">
     <ul [style.maxHeight.px]="maxHeight" (scroll)="onScroll($event)">
       <li class="search" *ngIf="search">
-        <input type="text" id="search-menu-box" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
+        <input type="text" autocomplete="off" id="search-menu-box" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
         <span class="delete icon-cross"  id="delete-search-content" *ngIf="searchOption.length"></span>
       </li>
       <li

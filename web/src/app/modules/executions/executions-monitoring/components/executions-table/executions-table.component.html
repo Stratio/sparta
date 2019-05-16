@@ -37,7 +37,7 @@
       </td>
       <td st-table-cell st-table-row-content class="execution-links">
         <div class="execution-links__container">
-          <a spTitle="History server" (click)="showURI(execution.historyServerURI)" *ngIf="execution.historyServerURI && execution.historyServerURI.length"><i class="icon-history"></i></a>
+          <a spTitle="History server" (click)="showURI(execution.historyServerURI)" *ngIf="execution.historyServerURI && execution.historyServerURI.length"><i class="icon-report"></i></a>
           <a spTitle="Show SparkUI" (click)="showURI(execution.sparkURI)" *ngIf="execution.sparkURI && execution.sparkURI.length && execution.status === 'Started'"><i class="icon-globe"></i></a>
         </div>
       </td>
