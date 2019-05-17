@@ -5,14 +5,18 @@
  */
 package com.stratio.sparta.plugin.common.kafka
 
+import java.io.IOException
 import java.util
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.SSLHelper
 import io.confluent.kafka.schemaregistry.client.rest.RestService
+import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import io.confluent.kafka.schemaregistry.client.{CachedSchemaRegistryClient, SchemaRegistryClient}
+import org.apache.avro.Schema
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 import scala.collection.mutable.{Map => MutableMap}
 
 object SchemaRegistryClientFactory extends SLF4JLogging {
@@ -31,7 +35,7 @@ object SchemaRegistryClientFactory extends SLF4JLogging {
             val socketFactory = SSLHelper.getSSLContextV2(tlsEnabled, configs.toMap.mapValues(_.toString)).getSocketFactory
             restService.setSslSocketFactory(socketFactory)
           }
-          val schemaRegClient = new CachedSchemaRegistryClient(restService, 1000)
+          val schemaRegClient = new SpartaCachedSchemaRegistryClient(restService, 1000)
           schemaRegistryClientMap.put(schemaRegistryUrl, schemaRegClient)
           schemaRegClient
         }

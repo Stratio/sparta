@@ -77,7 +77,7 @@ hose {
             ['SCHEMAREGISTRY': [
                 'image': 'confluentinc/cp-schema-registry:4.1.0',
                 'healthcheck': 8081,
-                'sleep': 30,
+                'sleep': 80,
                 'env': ['SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=%%ZOOKEEPER:2181',
                   'SCHEMA_REGISTRY_HOST_NAME=%%OWNHOSTNAME',
                   'SCHEMA_REGISTRY_LISTENERS=http://%%OWNHOSTNAME:8081']
