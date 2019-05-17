@@ -18,7 +18,7 @@ case class SettingsOrion(
                    )
 
 case class SparkSettingsOrion(
-                          master: JsoneyString = JsoneyString("mesos://leader.mesos:5050"),
+                          master: JsoneyString = JsoneyString("mesos://zk://master.mesos:2181/mesos"),
                           sparkKerberos: Boolean = true,
                           sparkDataStoreTls: Boolean = true,
                           sparkMesosSecurity: Boolean = true,

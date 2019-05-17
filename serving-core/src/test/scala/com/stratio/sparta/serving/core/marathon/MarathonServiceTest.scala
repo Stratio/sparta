@@ -87,7 +87,7 @@ object MarathonServiceTest{
                        |      }
                        |    },
                        |    "sparkSettings": {
-                       |      "master": "mesos://leader.mesos:5050",
+                       |      "master": "mesos://zk://master.mesos:2181/mesos",
                        |      "sparkKerberos": true,
                        |      "sparkDataStoreTls": true,
                        |      "sparkMesosSecurity": true,
@@ -267,7 +267,7 @@ object MarathonServiceTest{
                           |      }
                           |    },
                           |    "sparkSettings": {
-                          |      "master": "mesos://leader.mesos:5050",
+                          |      "master": "mesos://zk://master.mesos:2181/mesos",
                           |      "sparkKerberos": true,
                           |      "sparkDataStoreTls": true,
                           |      "sparkMesosSecurity": true,

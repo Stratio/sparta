@@ -14861,7 +14861,7 @@ export const  WIZARD_STORE_MOCK = {
             },
             {
                name: 'SPARK_MASTER',
-               value: 'mesos://leader.mesos:5050'
+               value: 'mesos://zk://master.mesos:2181/mesos'
             },
             {
                name: 'SPARK_MEMORY_FRACTION',

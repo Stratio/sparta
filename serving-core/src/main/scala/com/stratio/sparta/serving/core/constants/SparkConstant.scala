@@ -96,7 +96,7 @@ object SparkConstant {
   val SubmitSupervise = "--supervise"
 
   // Other properties
-  val SparkMesosMaster = "mesos://leader.mesos:5050"
+  val SparkMesosMaster = "mesos://zk://master.mesos:2181/mesos"
   val SparkLocalMaster = "local[2]"
 
   val SparkUiPortEnv = "PORT_SPARKAPI"

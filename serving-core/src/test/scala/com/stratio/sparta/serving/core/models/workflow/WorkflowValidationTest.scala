@@ -419,7 +419,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(deployMode = Option(DeployMode.cluster)),
           SparkConf(SparkResourcesConf())
         )
@@ -436,7 +436,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(coresMax = Option(JsoneyString("1")), executorCores = Option(JsoneyString("3"))))
         )
@@ -453,7 +453,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(coresMax = None, executorCores = Option(JsoneyString("3"))))
         )
@@ -470,7 +470,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(coresMax = Option(JsoneyString("0")), executorCores = Option(JsoneyString("3"))))
         )
@@ -487,7 +487,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(coresMax = Option(JsoneyString("1")), executorCores = None))
         )
@@ -504,7 +504,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(coresMax = Option(JsoneyString("1")), executorCores = Option(JsoneyString("0"))))
         )
@@ -521,7 +521,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(driverCores = None))
         )
@@ -538,7 +538,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf(driverCores = Option(JsoneyString("0"))))
         )
@@ -559,7 +559,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
         StreamingSettings(
           JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"), false)),
         SparkSettings(
-          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          JsoneyString("mesos://zk://master.mesos:2181/mesos"), sparkKerberos = false, sparkDataStoreTls = false,
           sparkMesosSecurity = false, None, SubmitArguments(),
           SparkConf(SparkResourcesConf())
         )
