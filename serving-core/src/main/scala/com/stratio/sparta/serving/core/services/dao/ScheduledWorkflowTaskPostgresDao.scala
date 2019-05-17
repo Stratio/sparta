@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.services.dao
 
 import java.util.UUID
 
+import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.serving.core.dao.{CustomColumnTypes, ScheduledWorkflowTaskDao}
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.authorization.{GosecUser, HeaderAuthUser, LoggedUser}
@@ -24,6 +25,8 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
   override val profile = PostgresProfile
   override val db = JdbcSlickConnection.getDatabase
 
+  val MinimumPeriodTime = 500
+
   import profile.api._
   import CustomColumnTypes._
 
@@ -37,9 +40,9 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
     filterByActive(active)
 
   def filterScheduledWorkflowTaskByActiveAndState(
-                                                      active: Boolean,
-                                                      state: ScheduledTaskState
-                                                    ): Future[Seq[ScheduledWorkflowTask]] =
+                                                   active: Boolean,
+                                                   state: ScheduledTaskState
+                                                 ): Future[Seq[ScheduledWorkflowTask]] =
     filterByActiveAndState(active, state)
 
   def findScheduledWorkflowTaskById(id: String): Future[ScheduledWorkflowTask] =
@@ -61,11 +64,15 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
       initDate = scheduledWorkflowTaskInsert.initDate,
       loggedUser = user.map(usr => HeaderAuthUser(usr.id, usr.gid))
     )
-      createAndReturn(scheduledWorkflowTask)
-    }
+
+    validateScheduledPeriod(scheduledWorkflowTask)
+
+    createAndReturn(scheduledWorkflowTask)
+  }
 
   def updateScheduledWorkflowTask(scheduledWorkflowTask: ScheduledWorkflowTask): Future[ScheduledWorkflowTask] = {
-      upsert(scheduledWorkflowTask).map(_ => scheduledWorkflowTask)
+    validateScheduledPeriod(scheduledWorkflowTask)
+    upsert(scheduledWorkflowTask).map(_ => scheduledWorkflowTask)
   }
 
   def setStateScheduledWorkflowTask(id: String, state: ScheduledTaskState): Future[ScheduledWorkflowTask] = {
@@ -79,10 +86,10 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
   }
 
   def deleteById(id: String): Future[Boolean] = {
-      for {
-        task <- findByIdHead(id)
-        result <- deleteYield(Seq(task))
-      } yield result
+    for {
+      task <- findByIdHead(id)
+      result <- deleteYield(Seq(task))
+    } yield result
   }
 
   def deleteAllWorkflowTasks(): Future[Boolean] =
@@ -112,8 +119,8 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
 
   private[services] def deleteYield(tasks: Seq[ScheduledWorkflowTask]): Future[Boolean] = {
     val deleteActions = tasks.map { currentTask =>
-        log.debug(s"Deleting task ${currentTask.id}")
-        Future(Seq(deleteByIDAction(currentTask.id)))
+      log.debug(s"Deleting task ${currentTask.id}")
+      Future(Seq(deleteByIDAction(currentTask.id)))
     }
 
     Future.sequence(deleteActions).flatMap { actionsSequence =>
@@ -124,6 +131,15 @@ class ScheduledWorkflowTaskPostgresDao extends ScheduledWorkflowTaskDao {
         log.info(s"Tasks ${tasks.map(_.id).mkString(",")} deleted")
         true
       }
+    }
+  }
+
+  private def validateScheduledPeriod(scheduledWorkflowTask: ScheduledWorkflowTask): Unit = {
+    scheduledWorkflowTask.duration.foreach { durationTime =>
+      val period = AggregationTimeHelper.parseValueToMilliSeconds(durationTime)
+
+      if (period < MinimumPeriodTime)
+        throw new Exception(s"The configured period ($period) is less than the minimun period time ($MinimumPeriodTime) in scheduled tasks")
     }
   }
 }
