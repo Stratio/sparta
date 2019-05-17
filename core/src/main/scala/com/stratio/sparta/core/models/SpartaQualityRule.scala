@@ -46,6 +46,7 @@ case class SpartaQualityRulePredicate(`type`: Option[String] = None,
       case "<" => "is less than"
       case "<=" => "is less than or equal to"
       case "<>" => "is not equal to"
+      case op => s"$op (this operator is not allowed in Sparta. It will be discarded)"
     }
   }
 }
