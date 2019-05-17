@@ -47,6 +47,12 @@ class HydraMigrationService(orionMigrationService: OrionMigrationService) extend
         val createQualityRulesExecutionSql =
           s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS quality_rules character varying;"
         basicPostgresService.executeSql(createQualityRulesExecutionSql)
+        val defaultQualityRulesExecutionSql =
+          s"UPDATE $schemaName.$WorkflowExecutionTableName SET quality_rules='[]' WHERE quality_rules IS NULL;"
+        basicPostgresService.executeSql(defaultQualityRulesExecutionSql)
+        val notNullQualityRulesExecutionSql =
+          s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ALTER COLUMN quality_rules SET NOT NULL;"
+        basicPostgresService.executeSql(notNullQualityRulesExecutionSql)
         val createFromSchedulerInExecutionSql =
           s"ALTER TABLE IF EXISTS $schemaName.$WorkflowExecutionTableName ADD COLUMN IF NOT EXISTS executed_from_scheduler character varying;"
         basicPostgresService.executeSql(createFromSchedulerInExecutionSql)
