@@ -41,7 +41,7 @@ class JmxMetricsActor extends Actor
   val cluster = Cluster(context.system)
   val mediator = DistributedPubSub(context.system).mediator
 
-  val jmxMetricsTick = context.system.scheduler.schedule(0 seconds, 1 second, self, JmxMetricsTick)
+  val jmxMetricsTick = context.system.scheduler.schedule(0 seconds, JmxTickDuration, self, JmxMetricsTick)
 
   val mBeanServer = ManagementFactory.getPlatformMBeanServer
 
@@ -105,7 +105,7 @@ class JmxMetricsActor extends Actor
 
 
   def buildJmxMetricStateMapFromDatabase: Future[Unit] =
-    executionPgService.findAllExecutions().map { executions =>
+    executionPgService.findRunningExecutions().map { executions =>
       val workflowStatuses: Seq[WorkflowStatus] = for {
         execution <- executions
         date <- execution.resumedDate

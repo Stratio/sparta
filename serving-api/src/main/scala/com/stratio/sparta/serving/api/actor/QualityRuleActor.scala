@@ -96,7 +96,7 @@ class QualityRuleActor extends Actor
 
     }
     case GovernancePushTick =>
-      log.info("Received GovernancePushTick")
+      log.debug("Received GovernancePushTick")
       governancePushRest
     case workflowExecutionStatusChange: ExecutionStatusChange =>
       if (

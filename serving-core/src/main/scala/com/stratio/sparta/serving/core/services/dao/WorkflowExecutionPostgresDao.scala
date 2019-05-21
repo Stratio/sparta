@@ -61,6 +61,11 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
   def findExecutionsByStatus(statuses: Seq[WorkflowStatusEnum]): Future[Seq[WorkflowExecution]] =
     db.run(table.filter(_.resumedStatus.inSet(statuses)).result)
 
+  def findRunningExecutions(): Future[Seq[WorkflowExecution]] = {
+    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
+    findExecutionsByStatus(runningStates)
+  }
+
   def findExecutionsByIds(ids: Seq[String]): Future[Seq[WorkflowExecution]] =
     db.run(table.filter(_.id.inSet(ids)).result)
 
@@ -382,8 +387,7 @@ class WorkflowExecutionPostgresDao extends WorkflowExecutionDao {
     }
 
   def getWorkflowsRunning: Future[Map[String, com.stratio.sparta.serving.core.models.workflow.ExecutionContext]] = {
-    val runningStates = Seq(Created, NotStarted, Launched, Starting, Started, Uploaded)
-    findExecutionsByStatus(runningStates).map { executions =>
+    findRunningExecutions().map { executions =>
       executions.map(execution =>
         execution.getWorkflowToExecute.id.get -> execution.genericDataExecution.executionContext
       ).toMap
