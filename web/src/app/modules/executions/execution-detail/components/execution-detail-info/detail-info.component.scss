@@ -43,6 +43,12 @@
     display: block;
     color: $status-critical-default;
     font-size: 14px;
+    height: 100px;
+    width: 200px;
+    word-break: break-all;
+    white-space: unset;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
   &__state{
     margin-top: 24px;

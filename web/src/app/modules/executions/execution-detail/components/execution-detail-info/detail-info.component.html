@@ -60,7 +60,7 @@
           <span class="oval {{executionDetailInfo.status}}"></span>
           <span>{{executionDetailInfo.status}}</span>
         </div>
-        <span class="detail-info__last-error" *ngIf="lastError && lastError.localizedMsg">{{lastError.localizedMsg}}</span>
+        <div class="detail-info__last-error" *ngIf="lastError && lastError.localizedMsg">{{lastError.localizedMsg}}</div>
 
         <div class="detail-info__state__column__link">
           <a (click)="showErrorDetails.emit()" *ngIf="lastError && lastError.localizedMsg">More details</a>
