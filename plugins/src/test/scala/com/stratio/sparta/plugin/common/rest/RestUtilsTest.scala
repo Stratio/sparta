@@ -35,6 +35,28 @@ class RestUtilsTest extends FlatSpec with Matchers {
     RestUtils.findReplaceableFields(url).toSeq shouldBe empty
   }
 
+  it should "parse values including special characters in regex like $" in {
+
+    val typeSchema: StructType = StructType(Seq(StructField("id", StringType), StructField("value", StringType)))
+    val schema: StructType = StructType(
+      Seq(
+        StructField("title", StringType),
+        StructField("year", IntegerType),
+        StructField("imdbID", StringType),
+        StructField("type", typeSchema))
+      )
+
+    import RestUtils._
+
+    replaceInputFields(
+      new GenericRowWithSchema(Array("$50K and a Call Girl: A Love Story", 2014, "tt2106284", new GenericRowWithSchema(Array("movie", "movie"), typeSchema)), schema),
+      Map("title" -> true, "year" -> false, "imdbID" -> true, "type" -> true),
+      """[ {"imdbID": ${imdbID}, "title": ${title}, "year": ${year}, "type": [[ ${type} ]] } ]"""
+    ) shouldBe """[ {"imdbID": "tt2106284", "title": "$50K and a Call Girl: A Love Story", "year": 2014, "type": [[ {"id":"movie","value":"movie"} ]] } ]"""
+
+  }
+
+
   it should "replace placeholders with row data" in {
     val schema: StructType = StructType(Seq(StructField("id", IntegerType), StructField("name", StringType), StructField("surname", StringType)))
 

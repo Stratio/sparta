@@ -82,7 +82,7 @@ object RestUtils {
       }
 
     (text /: replaceableFields) { case (formattedText, (fieldName, withPreprocessing)) =>
-      regexEnvelope(fieldName).replaceAllIn(formattedText, toJson(fieldName, withPreprocessing))
+      regexEnvelope(fieldName).replaceAllIn(formattedText, Regex.quoteReplacement(toJson(fieldName, withPreprocessing)))
     }
   }
 

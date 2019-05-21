@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.1 (upcoming)
+
+    -  [SPARTA-3085] Rest steps: support special characters in placeholder replacement
+
 ## 2.8.0 (May 17, 2019)
 * Improvements and new features:
     - Quality Rules
