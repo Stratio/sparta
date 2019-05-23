@@ -41,7 +41,9 @@ object DtoModelImplicits {
       execution.resumedDate,
       execution.resumedStatus,
       execution.executionEngine,
-      execution.searchText
+      execution.searchText,
+      execution.executedFromScheduler,
+      execution.executedFromExecution
     )
 
   implicit def executionToDtoTuple(executionTuple: (WorkflowExecution, Int)): WorkflowExecutionDto =

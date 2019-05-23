@@ -56,6 +56,13 @@ hr {
    margin-bottom: 32px;
 }
 
+.executions__scheduled {
+  font-size: 20px;
+  color: $neutral-09;
+  margin-left: 14px;
+  display: inline-block;
+}
+
 .execution-links {
   padding-left: 0;
   padding-right: 30px;
