@@ -5,9 +5,7 @@
  */
 package com.stratio.sparta.driver.services
 
-
 import java.lang.management.ManagementFactory
-
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
@@ -19,6 +17,7 @@ import com.stratio.sparta.driver.services.ContextsService.{inputRate, processing
 import com.stratio.sparta.serving.core.config.SpartaConfig.getCrossdataConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
+import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.error._
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
@@ -38,8 +37,6 @@ import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListene
 
 import scala.beans.BeanProperty
 import scala.util.{Failure, Properties, Success, Try}
-import com.stratio.sparta.core.workflow.step.GraphStep
-
 
 object ContextsService extends SchedulerUtils
   with CheckpointUtils
@@ -52,9 +49,7 @@ object ContextsService extends SchedulerUtils
   private val errorMessage = s"An error was encountered while initializing Checkpoint"
   private val okMessage = s"Spark Checkpoint initialized successfully"
 
-  // Monitoring
   private val mBeanServer = ManagementFactory.getPlatformMBeanServer
-
   val totalDelay: JmxMetric = new JmxMetric(-1L)
   val schedulingDelay: JmxMetric = new JmxMetric(-1L)
   val processingTime: JmxMetric = new JmxMetric(-1L)
@@ -80,10 +75,7 @@ object ContextsService extends SchedulerUtils
       val ssc = getStreamingContext
       spartaWorkflow.setup()
       ssc.start()
-
-      // Monitoring
-      ContextServiceJmx.enableStreamingMonitoring(ssc, execution)
-
+      ContextServiceJmx.exposeMetricsSparkStreamingJmx(ssc, execution)
       notifyWorkflowExecutionStarted(execution)
       ssc.awaitTermination()
     } match {
@@ -117,8 +109,8 @@ object ContextsService extends SchedulerUtils
   }
 
   def clusterStreamingContext(execution: WorkflowExecution, files: Seq[String]): Unit = {
+    ContextServiceJmx.exposeSparkConfigurationsJmx(execution)
     val workflow = execution.getWorkflowToExecute
-
     JarsHelper.addJarsToClassPath(files)
 
     if(Try(getCrossdataConfig().get.getBoolean("security.enable-manager")).getOrElse(false))
@@ -154,8 +146,9 @@ object ContextsService extends SchedulerUtils
       getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
       spartaWorkflow.setup()
 
-      // Listener for monitoring
-      ContextServiceJmx.enableStreamingMonitoring(ssc, execution)
+      ContextServiceJmx.exposeMetricsSparkStreamingJmx(ssc, execution)
+
+
       ssc.start
       notifyWorkflowExecutionStarted(execution)
       getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
@@ -170,6 +163,7 @@ object ContextsService extends SchedulerUtils
   }
 
   def clusterContext(execution: WorkflowExecution, files: Seq[String]): Unit = {
+    ContextServiceJmx.exposeSparkConfigurationsJmx(execution)
     val workflow = execution.getWorkflowToExecute
 
     JarsHelper.addJarsToClassPath(files)
@@ -188,6 +182,7 @@ object ContextsService extends SchedulerUtils
       notifyWorkflowExecutionStarted(execution)
       val qualityRulesWithExecutionId = execution.qualityRules.map( qr => qr.copy(executionId = execution.id))
       val qualityRulesResults = spartaWorkflow.stages(qualityRules = qualityRulesWithExecutionId)
+
       execution.id.map( id => saveQualityRuleResultsToPostgres(qualityRulesResults, id))
       getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
       getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
@@ -229,7 +224,8 @@ object ContextsService extends SchedulerUtils
           Option(s"${sparkHistoryServerMonitoringURL.get.toString}/history/$applicationId/jobs")
         else None
 
-      log.debug(s"Setting sparkHistoryServerMonitoringURL to ${historyServerURI.getOrElse("None")} for execution ${execution.id.getOrElse("No id")} with spark.app.id = $applicationId")
+      log.debug(s"Setting sparkHistoryServerMonitoringURL to ${historyServerURI.getOrElse("None")}" +
+        s" for execution ${execution.id.getOrElse("No id")} with spark.app.id = $applicationId")
 
       executionService.updateExecutionSparkURI(execution.copy(
         marathonExecution =
@@ -321,42 +317,93 @@ object ContextsService extends SchedulerUtils
     if(!mBeanServer.isRegistered(objectName))
       mBeanServer.registerMBean(metric, objectName)
   }
-
 }
 
+/**
+ * Helper object used mainly for metrics generation though Jmx
+ */
 object ContextServiceJmx {
 
+  private val ObjectNamePrefix = "com.stratio.monitoring.streaming:type"
+  private val PatternFloatNumber = """^([0-9]*\.[0-9]+|[0-9]+)""".r
+  private val ExposedConfigurationsJmx = Seq(
+    SparkConstant.SubmitDriverCoresConf,
+    SparkConstant.SubmitTotalExecutorCoresConf,
+    SparkConstant.SubmitDriverMemoryConf,
+    SparkConstant.SubmitExecutorCoresConf,
+    SparkConstant.SubmitExecutorMemoryConf
+  )
+
   trait JmxMetricMBean {
-    def getValue(): Long
-    def setValue(d: Long): Unit
+    def getValue(): Float
+    def setValue(d: Float): Unit
   }
 
-  class JmxMetric(@BeanProperty var value: Long) extends JmxMetricMBean
+  class JmxMetric(@BeanProperty var value: Float) extends JmxMetricMBean
 
-  def enableStreamingMonitoring(ssc: StreamingContext, execution: WorkflowExecution): Unit = {
+  /**
+   * It registers Spark Configurations used in a execution, take into account that it is going to do an optimistic parsing to a float value.
+   * @param execution that identifies a WorkflowExecution
+   */
+  def exposeSparkConfigurationsJmx(execution: WorkflowExecution): Unit = {
+    val group = execution.getWorkflowToExecute.group.name
+    val version = execution.getWorkflowToExecute.version
+    val name = execution.getWorkflowToExecute.name
+
+    for {
+      executionId <- execution.id
+      sparkSubmitExecution <- execution.sparkSubmitExecution
+    } yield {
+      sparkSubmitExecution.sparkConfigurations
+        .filter { case (key, _) => ExposedConfigurationsJmx.exists(_ == key) }
+        .foreach { case (key, value) =>
+          log.debug(s"Original property: $key -> $value")
+          PatternFloatNumber.findAllIn(value).matchData
+            .flatMap { m => Try(m.group(0).toFloat).toOption }
+            .toList
+            .headOption
+            .map { floatNumber =>
+              log.debug(s"Float property: $key -> $floatNumber")
+              ContextsService.registerMetricBean(new JmxMetric(floatNumber),
+                ObjectName.getInstance(
+                  s"$ObjectNamePrefix=${key.toLowerCase},key=$group/${name}_$version,executionId=$executionId"))
+            }.getOrElse { log.debug(s"Float property: $key -> Float parsing impossible") }
+        }
+    }
+  }
+
+  /**
+   * It registers or updates (in every batch of the stream) metrics related with the streaming workflow execution
+   * @param ssc current SparkStreamingContext
+   * @param execution that identifies a WorkflowExecution
+   */
+  def exposeMetricsSparkStreamingJmx(ssc: StreamingContext, execution: WorkflowExecution): Unit = {
+    val group = execution.getWorkflowToExecute.group.name
+    val version = execution.getWorkflowToExecute.version
+    val name = execution.getWorkflowToExecute.name
+
     ssc.addStreamingListener(new StreamingListener {
       override def onBatchCompleted(batchCompleted: StreamingListenerBatchCompleted): Unit = {
-        totalDelay.setValue(batchCompleted.batchInfo.totalDelay.fold(-1L){ x => x })
-        schedulingDelay.setValue(batchCompleted.batchInfo.schedulingDelay.fold(-1L){ x => x})
+        totalDelay.setValue(batchCompleted.batchInfo.totalDelay.fold(-1L) { x => x })
+        schedulingDelay.setValue(batchCompleted.batchInfo.schedulingDelay.fold(-1L) { x => x })
         processingTime.setValue((for {
           processingEndTime <- batchCompleted.batchInfo.processingEndTime
           processingStartTime <- batchCompleted.batchInfo.processingStartTime
-        } yield {processingEndTime - processingStartTime}).fold(-1L){ x => x})
+        } yield {
+          processingEndTime - processingStartTime
+        }).fold(-1L) { x => x })
         inputRate.setValue(batchCompleted.batchInfo.numRecords)
 
-        val group = execution.getWorkflowToExecute.group.name
-        val version = execution.getWorkflowToExecute.version
-        val name = execution.getWorkflowToExecute.name
-        val executionId = execution.id.get
-
-        ContextsService.registerMetricBean(totalDelay,
-          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=totalDelay,key=$group/${name}_$version,executionId=$executionId"))
-        ContextsService.registerMetricBean(schedulingDelay,
-          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=schedulingDelay,key=$group/${name}_$version,executionId=$executionId"))
-        ContextsService.registerMetricBean(processingTime,
-          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=processingTime,key=$group/${name}_$version,executionId=$executionId"))
-        ContextsService.registerMetricBean(inputRate,
-          ObjectName.getInstance(s"com.stratio.monitoring.streaming:type=inputRate,key=$group/${name}_$version,executionId=$executionId"))
+        execution.id.map { executionId =>
+          ContextsService.registerMetricBean(totalDelay,
+            ObjectName.getInstance(s"$ObjectNamePrefix=totalDelay,key=$group/${name}_$version,executionId=$executionId"))
+          ContextsService.registerMetricBean(schedulingDelay,
+            ObjectName.getInstance(s"$ObjectNamePrefix=schedulingDelay,key=$group/${name}_$version,executionId=$executionId"))
+          ContextsService.registerMetricBean(processingTime,
+            ObjectName.getInstance(s"$ObjectNamePrefix=processingTime,key=$group/${name}_$version,executionId=$executionId"))
+          ContextsService.registerMetricBean(inputRate,
+            ObjectName.getInstance(s"$ObjectNamePrefix=inputRate,key=$group/${name}_$version,executionId=$executionId"))
+        }
       }
     })
   }
