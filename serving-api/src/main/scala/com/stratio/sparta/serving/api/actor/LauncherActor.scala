@@ -334,7 +334,9 @@ class LauncherActor(
     )
 
     for {
-      qualityRules <- retrieveQualityRules(workflow)
+      qualityRules <-
+        if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow)
+        else Future(Seq.empty[SpartaQualityRule])
       workflowExecution <- Future { newExecution.copy(qualityRules = qualityRules) }
       result <- executionService.createExecution(workflowExecution)
     } yield { result }
@@ -390,7 +392,8 @@ class LauncherActor(
 
     for {
       launcherExecutionSettings <- Future {newExecution}
-      qualityRules <- retrieveQualityRules(workflow)
+      qualityRules <- if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow)
+      else Future(Seq.empty[SpartaQualityRule])
       workflowExecution <- Future {
         launcherExecutionSettings.copy(qualityRules = qualityRules)
       }

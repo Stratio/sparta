@@ -65,6 +65,8 @@ class QualityRuleActor extends Actor
 
   private lazy val governancePushTickTask: Cancellable = context.system.scheduler.schedule(1 minutes, GovernancePushDuration, self, GovernancePushTick)
 
+  lazy val enabled = Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)
+
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
   lazy val postEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.post.endpoint"))
@@ -75,17 +77,23 @@ class QualityRuleActor extends Actor
 
 
   override def preStart(): Unit = {
-    mediator ! Subscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
-    governancePushTickTask
+    if ( enabled ) {
+      mediator ! Subscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
+      governancePushTickTask
+    }
   }
 
   override def receive: Receive = {
 
     case RetrieveQualityRules(workflow) => {
-      log.debug(s"Received RetrieveQualityRules($workflow)")
+      log.debug(s"Received RetrieveQualityRules($workflow) and LINEAGE_ENABLED is set to $enabled")
       val currentSender = sender()
 
-      val qualityRules: Future[Seq[SpartaQualityRule]] = retrieveQualityRules(workflow)
+      val qualityRules: Future[Seq[SpartaQualityRule]] =
+        if ( enabled )
+          retrieveQualityRules(workflow)
+        else Future(Seq.empty[SpartaQualityRule])
+
       qualityRules.onComplete {
         case Success(value) =>
           currentSender ! value
@@ -96,7 +104,7 @@ class QualityRuleActor extends Actor
 
     }
     case GovernancePushTick =>
-      log.debug("Received GovernancePushTick")
+      log.debug(s"Received GovernancePushTickand LINEAGE_ENABLED is set to $enabled")
       governancePushRest
     case workflowExecutionStatusChange: ExecutionStatusChange =>
       if (
@@ -106,8 +114,10 @@ class QualityRuleActor extends Actor
   }
 
   override def postStop(): Unit = {
-    mediator ! Unsubscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
-    governancePushTickTask.cancel()
+    if (enabled) {
+      mediator ! Unsubscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
+      governancePushTickTask.cancel()
+    }
     super.postStop()
   }
 
@@ -208,17 +218,19 @@ class QualityRuleActor extends Actor
   }
 
   def governancePushRest: Unit = {
-    val finalResult: Future[List[String]] = for {
-      unsentRules <- qualityRuleResultsService.findAllUnsent()
-      result <- Future.sequence(
-        unsentRules.map(rule => sendResultsToApi(rule))
-      )
-    } yield {
-      result.map( res => res._1)
-    }
+    if (enabled) {
+      val finalResult: Future[List[String]] = for {
+        unsentRules <- qualityRuleResultsService.findAllUnsent()
+        result <- Future.sequence(
+          unsentRules.map(rule => sendResultsToApi(rule))
+        )
+      } yield {
+        result.map( res => res._1)
+      }
 
-    finalResult.onSuccess {
-      case list => log.debug(s"Correctly sent results for quality rules: ${list.mkString(",")}")
+      finalResult.onSuccess {
+        case list => log.debug(s"Correctly sent results for quality rules: ${list.mkString(",")}")
+      }
     }
   }
 
