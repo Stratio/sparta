@@ -128,3 +128,32 @@ export function getEdgePosition(svgAuxDef: any, x1: number, y1: number, x2: numb
     x1, y1, x2, y2
   };
 }
+
+export const getBezierEdge = function(svgAuxDef: any, x1: number, y1: number, x2: number, y2: number, h: number, w: number) {
+  if (!svgAuxDef) {
+    return;
+  }
+  const diff = Math.abs(x1 - x2);
+  if (diff > w + 16) {
+    y1 += h / 2;
+    y2 += h / 2;
+    if (x1 > x2) {
+      x2 += w;
+    } else {
+      x1 += w;
+    }
+    svgAuxDef.attr('d', 'M' + x1 + ',' + y1 + ' C' + x2 + ',' + y1 + ' ' + x1 + ',' + y2 + ' ' + x2 + ',' + y2);
+  } else {
+    x1 += w / 2;
+    x2 += w / 2;
+    if (y1 > y2) {
+      y2 += h;
+    } else {
+      y1 += h;
+    }
+    svgAuxDef.attr('d', 'M' + x1 + ',' + y1 + ' C' + x1 + ',' + y2 + ' ' + x2 + ',' + y1 + ' ' + x2 + ',' + y2);
+  }
+  return {
+    x1, y1, x2, y2
+  };
+};

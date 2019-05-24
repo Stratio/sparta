@@ -7,7 +7,7 @@
   [attr.title]="contextualHelp">
   {{label}}
 </label>
-<div class="st-input__container" [ngClass]="{'param-value' : isParameterValue}">
+<div class="st-input__container" [ngClass]="{'param-value' : isParameterValue, 'param-focus' : parameters && (isParameterValue || this.focus)}">
   <span class="icon-selected-param icon-json" *ngIf="isParameterValue"></span>
   <input
     #input

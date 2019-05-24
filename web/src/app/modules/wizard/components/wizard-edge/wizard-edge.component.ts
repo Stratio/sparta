@@ -23,7 +23,7 @@ import { WizardEdgeModel } from './wizard-edge.model';
 
 import { ENTITY_BOX } from './../../wizard.constants';
 import { WizardNodePosition } from './../../models/node';
-import { getEdgePosition } from '@app/shared/wizard/utils/edge.utils';
+import { getEdgePosition, getBezierEdge } from '@app/shared/wizard/utils/edge.utils';
 
 @Component({
   selector: '[wizard-edge]',
@@ -145,8 +145,7 @@ export class WizardEdgeComponent implements AfterContentInit, OnChanges {
     if (!this._svgAuxDefs) {
       return;
     }
-    const coors = getEdgePosition(this._svgAuxDefs, x1, y1, x2, y2, this.h, this.w);
-
+    const coors = getBezierEdge(this._svgAuxDefs, x1, y1, x2, y2, this.h, this.w);
     if (this._edgeLabel) {
       this._edgeLabel.attr('transform', `translate(${(coors.x1 - (coors.x1 - coors.x2) / 2)}, ${(coors.y1 - (coors.y1 - coors.y2) / 2)})`);
     }
