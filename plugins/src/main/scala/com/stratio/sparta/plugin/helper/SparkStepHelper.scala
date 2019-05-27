@@ -63,15 +63,4 @@ object SparkStepHelper {
   def failRDDWithException(rdd: RDD[Row], exception: Throwable): RDD[Row] =
     rdd.map(_ => Row.fromSeq(throw exception))
 
-  @annotation.tailrec
-  def retry[T](attempts: Int, wait: Int)(fn: => T): T = {
-    Try { fn } match {
-      case Success(result) => result
-      case Failure(e) if attempts > 1 && NonFatal(e) =>
-        Thread.sleep(wait)
-        retry(attempts - 1, wait)(fn)
-      case Failure(e) => throw e
-    }
-  }
-
 }

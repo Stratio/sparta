@@ -15,6 +15,7 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.JsoneyStringSerializer
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.utils.Utils
 import com.stratio.sparta.core.workflow.step.{InputStep, OneTransactionOffsetManager}
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
@@ -187,7 +188,7 @@ class KafkaInputStepStreaming(
         rdd match {
           case offsets: HasOffsetRanges =>
             val offsetRanges = offsets.offsetRanges
-            SparkStepHelper.retry(commitOffsetRetries, commitOffsetWait){
+            Utils.retry(commitOffsetRetries, commitOffsetWait){
               inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges, new DisplayOffsetCommits)
             }
           case _ =>

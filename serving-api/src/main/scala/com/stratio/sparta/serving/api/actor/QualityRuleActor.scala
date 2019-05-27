@@ -142,7 +142,7 @@ class QualityRuleActor extends Actor
         (status, response) <- resultPost
         _ <- qualityRuleResultsService.upsert(qualityRuleResult.copy(sentToApi = true, warning = false))
       } yield {
-        log.debug(s"Quality rule sent with requestBody $qualityRuleResultJson and receive status: $status and response: $response")
+        log.debug(s"Quality rule sent with requestBody $qualityRuleResultJson and receive status: ${status.value} and response: $response")
         response
       }
 
@@ -178,7 +178,7 @@ class QualityRuleActor extends Actor
     )
 
     resultGet.map{ case (status, response)  =>
-      log.debug(s"Quality rule request for metadatapath ${metadataPath.toString} received with status $status and response $response")
+      log.debug(s"Quality rule request for metadatapath ${metadataPath.toString} received with status ${status.value} and response $response")
       StepOutputRule(stepName, outputName, response)
     }
   }

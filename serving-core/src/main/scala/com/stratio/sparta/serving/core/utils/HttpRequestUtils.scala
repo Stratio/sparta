@@ -37,17 +37,14 @@ trait HttpRequestUtils extends SLF4JLogging {
                  body: Option[String] = None,
                  cookies: Seq[HttpCookie] = Seq.empty[HttpCookie],
                  headers: Seq[RawHeader] = Seq.empty[RawHeader]
-               )(implicit ev: Unmarshaller[ResponseEntity, String]): Future[(String, String)] = {
+               )(implicit ev: Unmarshaller[ResponseEntity, String]): Future[(StatusCode, String)] = {
 
     log.debug(s"Sending HTTP request [${method.value}] to $uri/$resource")
 
     val request = createRequest(uri, resource, method, body, cookies, headers)
     for {
       response <- httpSystem.singleRequest(request, getSSLContextFromURI(uri))
-      status = {
-        val status = response.status.value
-        status
-      }
+      status = response.status
       entity <- Unmarshal(response.entity).to[String]
     } yield (status, entity)
   }

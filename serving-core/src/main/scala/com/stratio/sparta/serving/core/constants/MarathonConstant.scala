@@ -37,6 +37,9 @@ object MarathonConstant {
   val DefaultSOMemSize = 1024
   val MinSOMemSize = 512
   val DefaultFileEncodingSystemProperty = "-Dfile.encoding=UTF-8"
+  val DefaultRetryAttempts = 3
+  val DefaultRetrySleep = 1000
+  val DefaultMaxTimeOutInMarathonRequests = 10000
 
   /* Environment variables to Marathon Application */
 

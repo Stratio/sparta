@@ -9,6 +9,7 @@ import java.net.HttpCookie
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods._
+import akka.http.scaladsl.model.StatusCode
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, MarathonAPIUtils}
@@ -31,7 +32,7 @@ trait MarathonUpAndDownComponent extends HttpRequestUtils with SpartaSerializer 
 
   lazy val marathonAPIUtils = new MarathonAPIUtils(system, actorMaterializer)
 
-  def upApplication(application: MarathonApplication, ssoToken: Option[HttpCookie]): Future[(String, String)] = {
+  def upApplication(application: MarathonApplication, ssoToken: Option[HttpCookie]): Future[(StatusCode, String)] = {
     val marathonAppJson = write(application)
 
     log.debug(s"Submitting Marathon application: $marathonAppJson")
@@ -49,7 +50,7 @@ trait MarathonUpAndDownComponent extends HttpRequestUtils with SpartaSerializer 
 
   def deploymentPath(deploymentId: String): String = s"$apiVersion/deployments/$deploymentId?force=true"
 
-  def downApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[(String, String)] = {
+  def downApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[(StatusCode, String)] = {
     log.info(s"Killing Marathon application: $applicationId")
 
     for {
@@ -61,7 +62,7 @@ trait MarathonUpAndDownComponent extends HttpRequestUtils with SpartaSerializer 
     } yield (resultHTTP._1, responseAuth)
   }
 
-  def killDeployment(deploymentId: String, ssoToken: Option[HttpCookie]): Future[(String, String)] = {
+  def killDeployment(deploymentId: String, ssoToken: Option[HttpCookie]): Future[(StatusCode, String)] = {
     log.info(s"Killing Marathon deployment: $deploymentId")
 
     for {
@@ -73,7 +74,7 @@ trait MarathonUpAndDownComponent extends HttpRequestUtils with SpartaSerializer 
     } yield (resultHTTP._1, responseAuth)
   }
 
-  def killDeploymentsAndDownApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[Seq[(String, String)]] = {
+  def killDeploymentsAndDownApplication(applicationId: String, ssoToken: Option[HttpCookie]): Future[Seq[(StatusCode, String)]] = {
     log.info(s"Kill and down Marathon application: $applicationId")
 
     for {

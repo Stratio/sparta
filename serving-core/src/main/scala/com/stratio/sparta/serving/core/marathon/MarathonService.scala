@@ -8,10 +8,12 @@ package com.stratio.sparta.serving.core.marathon
 import java.util.{Calendar, UUID}
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
+import akka.http.scaladsl.model.StatusCode
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.utils.Utils
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -48,7 +50,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   val appInfo = InfoHelper.getAppInfo
   val versionParsed = if (appInfo.pomVersion != "${project.version}") appInfo.pomVersion else version
   val DefaultSpartaDockerImage = s"qa.stratio.com/stratio/sparta:$versionParsed"
-  val DefaultMaxTimeOutInMarathonRequests = 5000
 
   /* Lazy variables */
   lazy val useDynamicAuthentication = Try(scala.util.Properties.envOrElse(DynamicAuthEnv, "false").toBoolean)
@@ -57,39 +58,55 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
   lazy val marathonUpAndDownComponent = MarathonUpAndDownComponent(marathonConfig)
   lazy val cleanerActor: ActorRef = context.actorOf(Props(new EnvironmentCleanerActor()),
     s"$EnvironmentCleanerActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
-
+  lazy val marathonApiRetryAttempts: Int = Try(marathonConfig.getInt("api.retry.attempts")).toOption.getOrElse(DefaultRetryAttempts)
+  lazy val marathonApiRetrySleep: Int = Try(marathonConfig.getInt("api.retry.sleep")).toOption.getOrElse(DefaultRetrySleep)
+  lazy val marathonApiTimeout: Int = Try(marathonConfig.getInt("api.timeout")).toOption.getOrElse(DefaultMaxTimeOutInMarathonRequests)
 
   /* PUBLIC METHODS */
 
   import MarathonService._
 
   def launch(execution: WorkflowExecution): Unit = {
-
     require(execution.marathonExecution.isDefined, "It is mandatory that the execution contains marathon settings")
 
     val workflow = execution.getWorkflowToExecute
     val marathonApplication = createMarathonApplication(workflow, execution)
-    val launchRequest = marathonUpAndDownComponent.upApplication(marathonApplication, Try(getToken).toOption)
+    
+    Utils.retry(marathonApiRetryAttempts, marathonApiRetrySleep) {
+      val launchRequest = marathonUpAndDownComponent.upApplication(marathonApplication, Try(getToken).toOption)
 
-    Await.result(launchRequest, DefaultMaxTimeOutInMarathonRequests seconds) match {
-      case response: (String, String) =>
-        log.info(s"Workflow App ${marathonApplication.id} launched with status code ${response._1} and response ${response._2}")
-      case _ =>
-        log.info(s"Workflow App ${marathonApplication.id} launched but the response is not serializable")
+      Await.result(launchRequest, marathonApiTimeout seconds) match {
+        case response: (StatusCode, String) =>
+          log.info(s"Workflow App ${marathonApplication.id} launched to marathon api with status code ${response._1} and response ${response._2}")
+          val statusResponse = response._1.intValue()
+          if(statusResponse >= 400 && statusResponse < 600)
+            throw new Exception(s"Invalid status response submitting marathon application with status code $statusResponse and response ${response._2}")
+          else log.info(s"Workflow App ${marathonApplication.id} launched with successful response")
+        case _ =>
+          log.info(s"Workflow App ${marathonApplication.id} launched but the response is not serializable")
+      }
     }
   }
 
   def kill(containerId: String): Unit = {
+    Utils.retry(marathonApiRetryAttempts, marathonApiRetrySleep) {
+      val killRequest = marathonUpAndDownComponent.killDeploymentsAndDownApplication(containerId, Try(getToken).toOption)
 
-    val killRequest = marathonUpAndDownComponent.killDeploymentsAndDownApplication(containerId, Try(getToken).toOption)
-
-    Await.result(killRequest, DefaultMaxTimeOutInMarathonRequests seconds) match {
-      case response: Seq[(String, String)] =>
-        cleanerActor ! TriggerCleaning
-        log.info(s"Workflow App $containerId correctly killed with responses: ${response.mkString(",")}")
-      case _ =>
-        cleanerActor ! TriggerCleaning
-        log.info(s"Workflow App $containerId killed but the response is not serializable")
+      Await.result(killRequest, marathonApiTimeout seconds) match {
+        case responses: Seq[(StatusCode, String)] =>
+          val statusFailed = responses.forall { case (statusResponse,  _) =>
+            (statusResponse.intValue() >= 400) && (statusResponse.intValue() < 600)
+          }
+          if(statusFailed)
+            throw new Exception(s"Invalid status response killing marathon application with responses: ${responses.mkString(",")}")
+          else {
+            cleanerActor ! TriggerCleaning
+            log.info(s"Workflow App $containerId correctly killed with responses: ${responses.mkString(",")}")
+          }
+        case _ =>
+          cleanerActor ! TriggerCleaning
+          log.info(s"Workflow App $containerId killed but the response is not serializable")
+      }
     }
   }
 

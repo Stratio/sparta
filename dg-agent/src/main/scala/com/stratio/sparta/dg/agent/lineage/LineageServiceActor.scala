@@ -9,7 +9,7 @@ package com.stratio.sparta.dg.agent.lineage
 import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
 import akka.cluster.Cluster
 import akka.event.slf4j.SLF4JLogging
-import akka.http.scaladsl.model.{HttpMethod, HttpMethods}
+import akka.http.scaladsl.model.{HttpMethod, HttpMethods, StatusCode, StatusCodes}
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.core.constants.SdkConstants._
@@ -52,7 +52,6 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   lazy val actorTypeKey = "SPARTA"
 
   lazy val rawHeaders = Seq(RawHeader("X-TenantID", "NONE"))
-  lazy val HttpStatusOK = "200 OK"
   lazy val noTenant = Some("NONE")
 
 
@@ -80,11 +79,11 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
       headers = rawHeaders
     )
 
-    result.onComplete { completedAction: Try[(String, String)] =>
+    result.onComplete { completedAction: Try[(StatusCode, String)] =>
       completedAction match {
         case Success((status, response)) =>
           log.debug(s"Execution workflow with id $executionId correctly sent to endpoint with Status:" +
-            s"$status and response: $response")
+            s"${status.value} and response: $response")
         case Failure(e) =>
           log.error(s"Error sending data to lineage API with $HttpMethod method", e)
       }
@@ -110,12 +109,12 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
               headers = rawHeaders
             )
 
-            resultGet.onComplete { completedAction: Try[(String, String)] =>
+            resultGet.onComplete { completedAction: Try[(StatusCode, String)] =>
               completedAction match {
                 case Success((statusCode, response)) =>
-                  log.debug(s"Status: $statusCode and response: $response")
+                  log.debug(s"Status: ${statusCode.value} and response: $response")
 
-                  if(statusCode == HttpStatusOK) {
+                  if(statusCode == StatusCodes.OK) {
                     val responseWorkflow = read[LineageWorkflow](response)
                     val newWorkflow = write(LineageUtils.updateLineageWorkflow(responseWorkflow, wf))
                     doPostPutRequest(HttpMethods.PUT, Option(responseWorkflow.id), newWorkflow, executionId)
