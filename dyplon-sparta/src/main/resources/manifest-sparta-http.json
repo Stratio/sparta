@@ -81,6 +81,14 @@
         "edit",
         "status"
       ]
+    },
+    {
+      "type": "QRResult",
+      "actions": [
+        "view",
+        "create",
+        "delete"
+      ]
     }
   ]
 }
