@@ -18,6 +18,7 @@ import com.stratio.sparta.serving.api.actor.QualityRuleActor.RetrieveQualityRule
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.constants.SparkConstant.SpartaDriverClass
@@ -56,6 +57,9 @@ class LauncherActor(
     Props(new ClusterLauncherActor()),
     s"$ClusterLauncherActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
   )
+
+  lazy val qualityRulesEnabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean)
+    .getOrElse(false)
 
   override def supervisorStrategy: SupervisorStrategy = OneForOneStrategy() {
     case _ => Restart
@@ -336,7 +340,7 @@ class LauncherActor(
     for {
       qualityRules <-
         if (workflow.settings.global.enableQualityRules.getOrElse(false)) retrieveQualityRules(workflow)
-        else Future(Seq.empty[SpartaQualityRule])
+        else Future.successful(Seq.empty[SpartaQualityRule])
       workflowExecution <- Future { newExecution.copy(qualityRules = qualityRules) }
       result <- executionService.createExecution(workflowExecution)
     } yield { result }
@@ -437,9 +441,10 @@ class LauncherActor(
     LauncherExecutionSettings(driverFile, pluginJars, sparkHome, driverArgs, sparkSubmitArgs, sparkConfigurations)
   }
 
-  def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] =
-    (qualityRuleActor ? RetrieveQualityRules(workflow)).mapTo[Seq[SpartaQualityRule]]
-
-
+  def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
+    if(qualityRulesEnabled)
+      (qualityRuleActor ? RetrieveQualityRules(workflow)).mapTo[Seq[SpartaQualityRule]]
+    else Future.successful(Seq.empty[SpartaQualityRule])
+  }
 
 }

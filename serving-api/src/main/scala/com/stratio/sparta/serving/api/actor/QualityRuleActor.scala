@@ -65,7 +65,7 @@ class QualityRuleActor extends Actor
 
   private lazy val governancePushTickTask: Cancellable = context.system.scheduler.schedule(1 minutes, GovernancePushDuration, self, GovernancePushTick)
 
-  lazy val enabled = Try(SpartaConfig.getDetailConfig().get.getBoolean("lineage.enable")).getOrElse(false)
+  lazy val enabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean).getOrElse(false)
 
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
