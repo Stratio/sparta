@@ -2,9 +2,15 @@
 
 ## 2.8.1 (upcoming)
 
-    -  [SPARTA-3085] Rest steps: support special characters in placeholder replacement
+* Bug fixing
+    - [SPARTA-3085] Rest steps: support special characters in placeholder replacement
+    - Fix quality rules security
+    - Marathon error management: add retry policy
+    - Fix metrics query executions performance 
+    - [SPARTA-3059] Export execution parameters together with metrics 
 
 ## 2.8.0 (May 17, 2019)
+
 * Improvements and new features:
     - Quality Rules
     - Scheduler
