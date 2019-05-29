@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.8.1 (upcoming)
+## 2.8.1 (May 29, 2019)
 
 * Bug fixing
     - [SPARTA-3085] Rest steps: support special characters in placeholder replacement
