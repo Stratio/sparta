@@ -5,11 +5,15 @@
  */
 package com.stratio.sparta.serving.api.actor
 
+import java.io.File
+
 import akka.actor.Actor
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.constants.HttpConstant._
 import com.stratio.sparta.serving.api.utils.FileActorUtils
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFile
@@ -17,7 +21,6 @@ import com.stratio.sparta.serving.core.services.HdfsFilesService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
-import HttpConstant._
 
 import scala.util.{Failure, Success, Try}
 
@@ -86,13 +89,28 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
 
   def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
     authorizeActions[Response](user, Map(ResourceType -> Upload)) {
-      uploadFiles(files, useTemporalDirectory = true).flatMap { spartaFile =>
+      val spartaFilesTry = uploadFiles(files, useTemporalDirectory = true)
+
+      val spartaResponse: Try[Unit] =
+        spartaFilesTry.flatMap{ spartaFiles =>
         Try {
-          spartaFile.foreach { file =>
+          spartaFiles.foreach { file =>
             hdfsFilesService.uploadPluginFile(file.path)
           }
         }.orElse(uploadFiles(files).map(_ => Unit))
       }
+
+      spartaFilesTry.foreach{ spartaFiles =>
+        refreshClassLoader(spartaFiles) // TODO refresh only new Files
+      }
+
+      spartaResponse
+    }
+
+  private def refreshClassLoader(spartaFiles: Seq[SpartaFile]): Unit =
+    if (sys.env.getOrElse("SPARTA_REFRESH_LATEST_PLUGIN_ENABLED", "true").toBoolean) {
+      val urls = spartaFiles.map{ spartaFile => new File(spartaFile.path).toURI.toURL } // path => localPath
+      JarsHelper.addPlugins(urls)
     }
 
   def validateFiles(files: Seq[BodyPart]): Unit = {

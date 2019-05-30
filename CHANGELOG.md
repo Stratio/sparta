@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.2
+
+* Bug fixing
+   - [SPARTA-3070] Improve performance when loading latest version of plugins at runtime
+
 ## 2.8.1 (May 29, 2019)
 
 * Bug fixing

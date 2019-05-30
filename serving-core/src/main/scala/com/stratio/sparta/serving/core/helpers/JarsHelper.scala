@@ -9,16 +9,33 @@ package com.stratio.sparta.serving.core.helpers
 import java.io.File
 import java.lang.reflect.Method
 import java.net.{URL, URLClassLoader}
+
 import scala.util.Try
-
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.utils.UserFirstURLClassLoader
 import org.apache.commons.io.FileUtils
-
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.{HdfsFilesService, HdfsService}
 
-object JarsHelper extends JarsHelper
+import scala.collection.mutable
+
+object JarsHelper extends JarsHelper {
+
+  private var pluginsClassLoader: ClassLoader = Thread.currentThread().getContextClassLoader
+  private val pluginsModifiedRuntime: mutable.Set[URL] = mutable.Set.empty
+
+  def getClassLoader: ClassLoader = synchronized {
+    pluginsClassLoader
+  }
+
+  def addPlugins(pluginPath: Seq[URL]): ClassLoader = synchronized { // TODO replace Thread.currentThread() with initialClassLoader
+    pluginPath.foreach(pluginsModifiedRuntime.add)
+    pluginsClassLoader = UserFirstURLClassLoader(pluginsModifiedRuntime.toArray, Thread.currentThread().getContextClassLoader)
+    pluginsClassLoader
+  }
+
+}
 
 trait JarsHelper extends SLF4JLogging {
 

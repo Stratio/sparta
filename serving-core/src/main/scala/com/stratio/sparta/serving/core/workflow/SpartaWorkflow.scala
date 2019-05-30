@@ -161,12 +161,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         extraConfiguration = stepsSparkConfig ++ sparkLocalConfig
       )
 
-      val userFirstURLClassLoader = {
-        JarsHelper.addJarsToClassPath(files)
-        val urls = JarsHelper.getLocalPathFromJars(files).map(new File(_).toURI.toURL)
-        UserFirstURLClassLoader(urls.toArray, Thread.currentThread().getContextClassLoader)
-      }
-      Thread.currentThread().setContextClassLoader(userFirstURLClassLoader)
+      Thread.currentThread().setContextClassLoader(JarsHelper.getClassLoader)
+      JarsHelper.addJarsToClassPath(files)
 
       xDSession
     }
