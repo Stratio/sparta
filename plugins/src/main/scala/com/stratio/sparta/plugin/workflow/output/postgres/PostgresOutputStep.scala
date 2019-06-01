@@ -23,7 +23,6 @@ import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.apache.spark.sql.jdbc._
 import org.apache.spark.sql.json.RowJsonHelper
@@ -43,6 +42,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = TransactionTypes.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+  lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(true)
   lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
   lazy val dropTemporalTableSuccess = Try(properties.getBoolean("dropTemporalTableSuccess")).getOrElse(true)
   lazy val dropTemporalTableFailure = Try(properties.getBoolean("dropTemporalTableFailure")).getOrElse(false)
@@ -78,9 +78,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     synchronized {
       val conn = getConnection(connectionProperties, outputName)
       var exists = false
-      val publicSchema = "public"
-      val schemaToQuery = if (connectionProperties.table.contains('.')) connectionProperties.table.split('.')(0)
-                          else publicSchema
+
+      val schemaToQuery = inferSchema(connectionProperties.table, SpartaPostgresDialect)
+
       val statement = conn.prepareStatement(s"SELECT true FROM pg_catalog.pg_constraint con INNER JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid " +
         s"INNER JOIN pg_catalog.pg_namespace nsp  ON nsp.oid = connamespace WHERE nsp.nspname = '$schemaToQuery' " +
         s"AND con.conname = '$uniqueConstraintName'")
@@ -119,7 +119,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
         uniqueConstraintName
       }
 
-      s"INSERT INTO ${properties.table}($columns) $placeHolders ON CONFLICT ON CONSTRAINT $constraintName " +
+      s"INSERT INTO ${properties.table} ($columns) $placeHolders ON CONFLICT ON CONSTRAINT $constraintName " +
         s"DO UPDATE SET $valuesPlaceholders"
     } else if(!primaryKeyWithFunctions) {
       //If is a new table, writer primaryKey is used for pk index creation, with a random name to avoid failures when upsert will we executed
@@ -127,10 +127,10 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
         val constraintFields = searchFields.map(field => dialect.quoteIdentifier(field)).mkString(",")
         SpartaJdbcUtils.createConstraint(properties, outputName, s"pk_${properties.table.replace('.','_')}_${uniqueConstraintName}_${System.currentTimeMillis()}", constraintFields, ConstraintType.PrimaryKey)
       }
-      s"INSERT INTO ${properties.table}($columns) $placeHolders ON CONFLICT (${searchFields.map(field => dialect.quoteIdentifier(field)).mkString(",")}) " +
+      s"INSERT INTO ${properties.table} ($columns) $placeHolders ON CONFLICT (${searchFields.map(field => dialect.quoteIdentifier(field)).mkString(",")}) " +
         s"DO UPDATE SET $valuesPlaceholders"
     } else {
-      s"INSERT INTO ${properties.table}($columns) $placeHolders ON CONFLICT ($primaryKeyField) DO UPDATE SET $valuesPlaceholders"
+      s"INSERT INTO ${properties.table} ($columns) $placeHolders ON CONFLICT ($primaryKeyField) DO UPDATE SET $valuesPlaceholders"
     }
   }
 
@@ -184,8 +184,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     if (dataFrame.schema.fields.nonEmpty) {
       val tableName = getTableNameFromOptions(options)
       val sparkSaveMode = getSparkSaveMode(saveMode)
-      val connectionProperties = new JDBCOptions(urlWithSSL,
-        tableName,
+      val connectionProperties = new JDBCOptions(
+        urlWithSSL,
+        if (isCaseSensitive) quoteTable(tableName) else tableName,
         propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
       )
 
@@ -250,10 +251,11 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                   if(rows.nonEmpty) {
                     val (rowsStream, empty) = rowsToInputStream(rows, schema)
                     if(!empty) {
-                      val conn = getConnection(connectionProperties, name)
-                      val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+                      val cm = {
+                        val conn = getConnection(connectionProperties, name)
+                        new CopyManager(conn.asInstanceOf[BaseConnection])
+                      }
                       val copySentence = s"""COPY $tableName (${schema.fields.map(field => dialect.quoteIdentifier(field.name)).mkString(",")}) FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')"""
-
                       cm.copyIn(copySentence, rowsStream)
                     }
                   }
@@ -272,11 +274,11 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                       try {
                         val sqlUpsert =
                           if (saveMode == SaveModeEnum.Upsert) {
-                            val placeHolders = s" SELECT * FROM ${txOne.map(_.temporalTableName).get} "
+                          val placeHolders = s"SELECT * FROM ${txOne.map(_.temporalTableName).get}"
                             constraintSql(dataFrame, connectionProperties, updatePrimaryKeyFields, uniqueConstraintName, uniqueConstraintFields, name, isNewTable, dialect)(placeHolders, None, updatePrimaryKey, primaryKeyWithFunctions)
-                          }
-                          else
+                          } else {
                             s"INSERT INTO ${connectionProperties.table} SELECT * FROM ${txOne.map(_.temporalTableName).get} ON CONFLICT DO NOTHING"
+                          }
                         txOne.map(_.connection).get.prepareStatement(sqlUpsert).execute()
                         txOne.map(_.connection).get.commit()
                       } catch {

@@ -12,7 +12,8 @@
     - Fix quality rules security
     - Marathon error management: add retry policy
     - Fix metrics query executions performance 
-    - [SPARTA-3059] Export execution parameters together with metrics 
+    - [SPARTA-3059] Export execution parameters together with metrics
+    - [SPARTA-3075] Support case sensitive table names in Postgres and Jdbc outputs
 
 ## 2.8.0 (May 17, 2019)
 
