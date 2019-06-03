@@ -20,7 +20,7 @@ class WorkflowValidationIT extends WordSpec with Matchers with MockitoSugar {
   val settingsModel = Settings(
     GlobalSettings(executionMode = WorkflowExecutionMode.local),
     StreamingSettings(
-      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+      JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
       JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
       None, SubmitArguments(), SparkConf(SparkResourcesConf())

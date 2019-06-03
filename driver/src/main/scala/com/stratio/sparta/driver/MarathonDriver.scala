@@ -8,7 +8,7 @@ package com.stratio.sparta.driver
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
-import com.stratio.sparta.core.helpers.{AggregationTimeHelper, ExceptionHelper}
+import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
@@ -39,7 +39,14 @@ object MarathonDriver extends SLF4JLogging with SpartaSerializer {
         s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
       log.debug(s"Arguments: ${args.mkString(", ")}")
       val executionId = args(ExecutionIdIndex)
+
       val system = ActorSystem("MarathonApp")
+      Runtime.getRuntime.addShutdownHook(new Thread() {
+        override def run(): Unit = {
+          Await.ready(system.terminate(), 3 minute)
+        }
+      })
+
       val executionService = PostgresDaoFactory.executionPgService
       val execution = Await.result(executionService.findExecutionById(executionId), Duration.Inf)
 

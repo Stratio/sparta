@@ -8,6 +8,7 @@ package com.stratio.sparta.serving.core.services
 import java.io._
 import java.security.PrivilegedExceptionAction
 
+import akka.actor.Cancellable
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.helpers.AggregationTimeHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
@@ -26,8 +27,6 @@ import scala.util.{Failure, Properties, Success, Try}
 
 
 case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation]) extends SLF4JLogging {
-
-  lazy private val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig()
 
   def reLogin(): Unit = {
     ugiOption.foreach { ugi =>
@@ -156,28 +155,37 @@ case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation])
     }
   }
 
-
-
-  def runReloaderKeyTab(): Unit = {
-    val reloadKeyTab = Try(hdfsConfig.get.getBoolean(ReloadKeyTab)).getOrElse(DefaultReloadKeyTab)
-
-    if (reloadKeyTab) {
-      import scala.concurrent.ExecutionContext.Implicits.global
-      val reloadTime = Try(hdfsConfig.get.getString(ReloadKeyTabTime)).toOption.notBlank
-        .getOrElse(DefaultReloadKeyTabTime)
-
-      log.info(s"Initializing keyTab reload task with time: $reloadTime")
-
-      SchedulerSystem.scheduler.schedule(0 seconds,
-        AggregationTimeHelper.parseValueToMilliSeconds(reloadTime) milli)(reLogin())
-    }
-  }
 }
 
 object HdfsService extends SLF4JLogging {
 
   lazy val hdfsConfig = SpartaConfig.getHdfsConfig()
   lazy val configuration  = hdfsConfiguration(hdfsConfig)
+
+  var reloadTask : Option[Cancellable] = None
+
+  def runReloaderKeyTab(hdfsService: HdfsService, hdfsConfig: Option[Config]): Unit = {
+    if(reloadTask.isEmpty) {
+      val reloadKeyTab = Try(hdfsConfig.get.getBoolean(ReloadKeyTab)).getOrElse(DefaultReloadKeyTab)
+
+      if (reloadKeyTab) {
+        import scala.concurrent.ExecutionContext.Implicits.global
+        val reloadTime = Try(hdfsConfig.get.getString(ReloadKeyTabTime)).toOption.notBlank
+          .getOrElse(DefaultReloadKeyTabTime)
+
+        log.info(s"Initializing keyTab reload task with time: $reloadTime")
+
+        reloadTask = Option(SchedulerSystem.scheduler.schedule(0 seconds,
+          AggregationTimeHelper.parseValueToMilliSeconds(reloadTime) milli)(hdfsService.reLogin()))
+
+        Runtime.getRuntime.addShutdownHook(new Thread() {
+          override def run(): Unit = {
+            reloadTask.foreach(_.cancel())
+          }
+        })
+      }
+    }
+  }
 
   def getPrincipalName(hdfsConfig: Option[Config]): Option[String] =
     Option(System.getenv(SystemPrincipalName)).orElse(Try(hdfsConfig.get.getString(PrincipalName)).toOption.notBlank)
@@ -231,7 +239,7 @@ object HdfsService extends SLF4JLogging {
 
     val hdfsService = new HdfsService(FileSystem.get(configuration), ugi)
 
-    ugi.foreach(_ => hdfsService.runReloaderKeyTab())
+    ugi.foreach(_ => runReloaderKeyTab(hdfsService, SpartaConfig.getHdfsConfig()))
 
     hdfsService
   }

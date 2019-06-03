@@ -80,7 +80,7 @@ object SparkConstant {
   val SubmitHistoryEventLogRotateNum = "spark.eventLog.rotate.num"
   val SubmitExecutorSecurityHdfsEnable = "spark.executorEnv.SPARK_SECURITY_HDFS_ENABLE"
   val SubmitExecutorSecurityHdfsUri = "spark.executorEnv.SPARK_SECURITY_HDFS_CONF_URI"
-
+  val SubmitMesosShutdownTimeout = "spark.mesos.coarse.shutdownTimeout"
 
   // Properties only available in spark-submit
   val SubmitPropertiesFile = "--properties-file"
@@ -104,5 +104,9 @@ object SparkConstant {
 
   val CrossdataSparkUiEnabled = "CROSSDATA_SERVER_SPARK_UI_ENABLED"
   val CrossdataSparkUiPort = "CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT"
+
+  val DefaultShutdownTaskTimeout = "10s"
+  val DefaultShutdownTaskTimeoutMs = 10000
+  val GracePeriodMsShutdown = 3000
 
 }

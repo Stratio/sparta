@@ -6,6 +6,8 @@
 package com.stratio.sparta.driver.services
 
 import java.lang.management.ManagementFactory
+import javax.management.ObjectName
+
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
@@ -28,7 +30,6 @@ import com.stratio.sparta.serving.core.models.governance.QualityRuleResult
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
-import javax.management.ObjectName
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
@@ -70,7 +71,7 @@ object ContextsService extends SchedulerUtils
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, files, execution.genericDataExecution.userId)
 
     Try {
-      val qualityRulesWithExecutionId = execution.qualityRules.map( qr => qr.copy(executionId = execution.id))
+      val qualityRulesWithExecutionId = execution.qualityRules.map(qr => qr.copy(executionId = execution.id))
       spartaWorkflow.stages(qualityRules = qualityRulesWithExecutionId)
       val ssc = getStreamingContext
       spartaWorkflow.setup()
@@ -95,9 +96,9 @@ object ContextsService extends SchedulerUtils
     Try {
       spartaWorkflow.setup()
       notifyWorkflowExecutionStarted(execution)
-      val qualityRulesWithExecutionId = execution.qualityRules.map( qr => qr.copy(executionId = execution.id))
+      val qualityRulesWithExecutionId = execution.qualityRules.map(qr => qr.copy(executionId = execution.id))
       val qualityRulesResults = spartaWorkflow.stages(qualityRules = qualityRulesWithExecutionId)
-      execution.id.map( id => saveQualityRuleResultsToPostgres(qualityRulesResults, id))
+      execution.id.foreach(id => saveQualityRuleResultsToPostgres(qualityRulesResults, id))
       spartaWorkflow.postExecutionStep()
     } match {
       case Success(_) =>
@@ -113,7 +114,7 @@ object ContextsService extends SchedulerUtils
     val workflow = execution.getWorkflowToExecute
     JarsHelper.addJarsToClassPath(files)
 
-    if(Try(getCrossdataConfig().get.getBoolean("security.enable-manager")).getOrElse(false))
+    if (Try(getCrossdataConfig().get.getBoolean("security.enable-manager")).getOrElse(false))
       JarsHelper.addDyplonCrossdataPluginsToClassPath()
 
 
@@ -124,7 +125,7 @@ object ContextsService extends SchedulerUtils
       val ssc = {
         import workflow.settings.streamingSettings.checkpointSettings._
 
-        val qualityRulesWithExecutionId = execution.qualityRules.map( qr => qr.copy(executionId = execution.id))
+        val qualityRulesWithExecutionId = execution.qualityRules.map(qr => qr.copy(executionId = execution.id))
 
         if (enableCheckpointing) {
           if (autoDeleteCheckpoint) {
@@ -148,10 +149,12 @@ object ContextsService extends SchedulerUtils
 
       ContextServiceJmx.exposeMetricsSparkStreamingJmx(ssc, execution)
 
-
       ssc.start
       notifyWorkflowExecutionStarted(execution)
-      getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
+      getSparkContext.foreach { sparkContext =>
+        log.info("Saving history server uri into execution")
+        setSparkHistoryServerURI(execution, sparkContext)
+      }
       ssc.awaitTermination()
     } match {
       case Success(_) =>
@@ -172,7 +175,7 @@ object ContextsService extends SchedulerUtils
 
     log.info(s"Quality rules: $qualityRulesExecution")
 
-    if(Try(getCrossdataConfig().get.getBoolean("security.enable-manager")).getOrElse(false))
+    if (Try(getCrossdataConfig().get.getBoolean("security.enable-manager")).getOrElse(false))
       JarsHelper.addDyplonCrossdataPluginsToClassPath()
 
     val spartaWorkflow = SpartaWorkflow[RDD](workflow, getErrorManager(workflow))
@@ -180,18 +183,28 @@ object ContextsService extends SchedulerUtils
     Try {
       spartaWorkflow.setup()
       notifyWorkflowExecutionStarted(execution)
-      val qualityRulesWithExecutionId = execution.qualityRules.map( qr => qr.copy(executionId = execution.id))
+      val qualityRulesWithExecutionId = execution.qualityRules.map(qr => qr.copy(executionId = execution.id))
       val qualityRulesResults = spartaWorkflow.stages(qualityRules = qualityRulesWithExecutionId)
 
-      execution.id.map( id => saveQualityRuleResultsToPostgres(qualityRulesResults, id))
-      getSparkContext.foreach(sparkContext => setSparkHistoryServerURI(execution, sparkContext))
-      getXDSession(Properties.envOrNone(UserNameEnv)).foreach(session => setDispatcherSettings(execution, session.sparkContext))
+      execution.id.foreach { id =>
+        log.info("Saving quality rule results into Postgres")
+        saveQualityRuleResultsToPostgres(qualityRulesResults, id)
+      }
+      getSparkContext.foreach { sparkContext =>
+        log.info("Saving history server uri into execution")
+        setSparkHistoryServerURI(execution, sparkContext)
+      }
+      getXDSession(Properties.envOrNone(UserNameEnv)).foreach { session =>
+        log.info("Saving dispatcher settings into execution")
+        setDispatcherSettings(execution, session.sparkContext)
+      }
+      log.info("Executing post execution step with sql sentences")
       spartaWorkflow.postExecutionStep()
     } match {
       case Success(_) =>
-        finishClusterBatchContext(spartaWorkflow, Map.empty)
+        finishClusterBatchContext(execution, spartaWorkflow, Map.empty)
       case Failure(e) =>
-        finishClusterBatchContext(spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        finishClusterBatchContext(execution, spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
         throw e
     }
   }
@@ -217,7 +230,7 @@ object ContextsService extends SchedulerUtils
 
   private[driver] def setSparkHistoryServerURI(execution: WorkflowExecution, sparkContext: SparkContext): Unit = {
     import execution.genericDataExecution.workflow.settings.sparkSettings.sparkConf.sparkHistoryServerConf._
-    if(execution.marathonExecution.isDefined && enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined) {
+    if (execution.marathonExecution.isDefined && enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined) {
       val applicationId = sparkContext.applicationId
       val historyServerURI =
         if (enableHistoryServerMonitoring && sparkHistoryServerMonitoringURL.isDefined)
@@ -256,6 +269,19 @@ object ContextsService extends SchedulerUtils
     }
   }
 
+  private[driver] def notifyWorkflowExecutionStopping(workflowExecution: WorkflowExecution): Unit = {
+    if (workflowExecution.getWorkflowToExecute.debugMode.forall(mode => !mode) && workflowExecution.id.isDefined) {
+      val startedInfo = s"Workflow stopping ..."
+      log.info(startedInfo)
+      executionService.updateStatus(ExecutionStatusUpdate(
+        workflowExecution.getExecutionId,
+        ExecutionStatus(
+          state = Stopping,
+          statusInfo = Some(startedInfo)
+        )))
+    }
+  }
+
   private[driver] def saveQualityRuleResultsToPostgres(qualityRulesResults: Seq[SparkQualityRuleResults], executionId: String): Unit =
     qualityRulesResults.foreach { sparkResult =>
       qualityRuleService.createQualityRuleResult(
@@ -280,11 +306,13 @@ object ContextsService extends SchedulerUtils
 
 
   private[driver] def finishClusterBatchContext(
+                                                 execution: WorkflowExecution,
                                                  spartaWorkflow: SpartaWorkflow[RDD],
                                                  cleanUpProperties: Map[String, String]
                                                ): Unit = {
     finishLocalBatchContext(spartaWorkflow, cleanUpProperties)
-    stopContexts()
+    notifyWorkflowExecutionStopping(execution)
+    stopSparkContext()
   }
 
   private[driver] def finishLocalBatchContext(
@@ -314,14 +342,14 @@ object ContextsService extends SchedulerUtils
   }
 
   def registerMetricBean(metric: JmxMetric, objectName: ObjectName): Unit = {
-    if(!mBeanServer.isRegistered(objectName))
+    if (!mBeanServer.isRegistered(objectName))
       mBeanServer.registerMBean(metric, objectName)
   }
 }
 
 /**
- * Helper object used mainly for metrics generation though Jmx
- */
+  * Helper object used mainly for metrics generation though Jmx
+  */
 object ContextServiceJmx {
 
   private val ObjectNamePrefix = "com.stratio.monitoring.streaming:type"
@@ -336,15 +364,17 @@ object ContextServiceJmx {
 
   trait JmxMetricMBean {
     def getValue(): Float
+
     def setValue(d: Float): Unit
   }
 
   class JmxMetric(@BeanProperty var value: Float) extends JmxMetricMBean
 
   /**
-   * It registers Spark Configurations used in a execution, take into account that it is going to do an optimistic parsing to a float value.
-   * @param execution that identifies a WorkflowExecution
-   */
+    * It registers Spark Configurations used in a execution, take into account that it is going to do an optimistic parsing to a float value.
+    *
+    * @param execution that identifies a WorkflowExecution
+    */
   def exposeSparkConfigurationsJmx(execution: WorkflowExecution): Unit = {
     val group = execution.getWorkflowToExecute.group.name
     val version = execution.getWorkflowToExecute.version
@@ -355,28 +385,31 @@ object ContextServiceJmx {
       sparkSubmitExecution <- execution.sparkSubmitExecution
     } yield {
       sparkSubmitExecution.sparkConfigurations
-        .filter { case (key, _) => ExposedConfigurationsJmx.exists(_ == key) }
+        .filter { case (key, _) => ExposedConfigurationsJmx.contains(key) }
         .foreach { case (key, value) =>
           log.debug(s"Original property: $key -> $value")
           PatternFloatNumber.findAllIn(value).matchData
             .flatMap { m => Try(m.group(0).toFloat).toOption }
             .toList
-            .headOption
-            .map { floatNumber =>
+            .headOption match {
+            case Some(floatNumber) =>
               log.debug(s"Float property: $key -> $floatNumber")
               ContextsService.registerMetricBean(new JmxMetric(floatNumber),
                 ObjectName.getInstance(
                   s"$ObjectNamePrefix=${key.toLowerCase},key=$group/${name}_$version,executionId=$executionId"))
-            }.getOrElse { log.debug(s"Float property: $key -> Float parsing impossible") }
+            case None =>
+              log.debug(s"Float property: $key -> Float parsing impossible")
+          }
         }
     }
   }
 
   /**
-   * It registers or updates (in every batch of the stream) metrics related with the streaming workflow execution
-   * @param ssc current SparkStreamingContext
-   * @param execution that identifies a WorkflowExecution
-   */
+    * It registers or updates (in every batch of the stream) metrics related with the streaming workflow execution
+    *
+    * @param ssc       current SparkStreamingContext
+    * @param execution that identifies a WorkflowExecution
+    */
   def exposeMetricsSparkStreamingJmx(ssc: StreamingContext, execution: WorkflowExecution): Unit = {
     val group = execution.getWorkflowToExecute.group.name
     val version = execution.getWorkflowToExecute.version
@@ -394,7 +427,7 @@ object ContextServiceJmx {
         }).fold(-1L) { x => x })
         inputRate.setValue(batchCompleted.batchInfo.numRecords)
 
-        execution.id.map { executionId =>
+        execution.id.foreach { executionId =>
           ContextsService.registerMetricBean(totalDelay,
             ObjectName.getInstance(s"$ObjectNamePrefix=totalDelay,key=$group/${name}_$version,executionId=$executionId"))
           ContextsService.registerMetricBean(schedulingDelay,

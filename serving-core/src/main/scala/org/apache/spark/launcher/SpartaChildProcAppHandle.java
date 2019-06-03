@@ -87,13 +87,17 @@ class SpartaChildProcAppHandle implements SparkAppHandle {
       disconnect();
     }
     if (childProc != null) {
+
       try {
         childProc.exitValue();
       } catch (IllegalThreadStateException e) {
-        childProc.destroyForcibly();
-      } finally {
-        childProc = null;
+        try {
+          childProc.destroy();
+        } catch (Exception exception) {
+          childProc.destroyForcibly();
+        }
       }
+
     }
   }
 

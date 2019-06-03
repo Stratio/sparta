@@ -5,27 +5,32 @@
  */
 package com.stratio.sparta.driver.actor
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{Actor, ActorRef, Cancellable, PoisonPill, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
-import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.{ForgetExecutionStatusActions, OnExecutionStatusChangeDo}
+import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.OnExecutionStatusChangeDo
 import com.stratio.sparta.serving.core.actor.LauncherActor.Run
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant.SchedulerSystem
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor with SLF4JLogging {
 
+  import scala.concurrent.ExecutionContext.Implicits.global
+
   lazy val executionService = PostgresDaoFactory.executionPgService
+
+  var finishTask : Option[Cancellable] = None
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(execution) => doStartApp(execution)
@@ -35,11 +40,12 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
 
   def preStopActions(): Unit = {
     log.info("Shutting down Sparta Marathon Actor system")
-    Await.ready(context.system.terminate(), 1 minute)
+    self ! PoisonPill
   }
 
   override def postStop(): Unit = {
     log.warn(s"Stopped MarathonAppActor at time ${System.currentTimeMillis()}")
+    finishTask.foreach(_.cancel())
   }
 
   //scalastyle:off
@@ -94,11 +100,13 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
 
     executionStatusListenerActor ! OnExecutionStatusChangeDo(executionId) { executionStatusChange =>
       if (executionStatusChange.newExecution.lastStatus.state == Stopped ||
+        executionStatusChange.newExecution.lastStatus.state == StoppedByUser ||
         executionStatusChange.newExecution.lastStatus.state == Failed) {
         try {
-          executionStatusListenerActor ! ForgetExecutionStatusActions(executionId)
           log.info(s"Executing pre-stop actions in Workflow App ...")
-          preStopActions()
+          finishTask = Option(context.system.scheduler.scheduleOnce(AppConstant.DefaultAwaitWorkflowChangeStatusSeconds milli) {
+            preStopActions()
+          })
         } finally {
           log.info(s"Pre-stop actions executed in Workflow App")
         }

@@ -14,6 +14,7 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.constants.{AppConstant, MarathonConstant}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.SparkSubmitService._
 import com.stratio.sparta.serving.core.utils.ArgumentsUtils
@@ -243,7 +244,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       .getOrElse(Map.empty).filterKeys(key => !key.contains("keyfile"))
 
   private[core] def addMesosConf(sparkConfs: Map[String, String]): Map[String, String] =
-    getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
+    getMesosRoleConfs ++ getMesosConstraintConf ++ getMesosSecurityConfs ++ getMesosTimeoutConf ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
     sparkConfs ++
@@ -319,6 +320,15 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     newRole.fold(Map.empty[String, String]) { role =>
       Map(SubmitMesosRoleConf -> role)
     }
+  }
+
+  private[core] def getMesosTimeoutConf: Map[String, String] = {
+    if(
+      workflow.executionEngine == WorkflowExecutionEngine.Streaming &&
+      workflow.settings.streamingSettings.stopGracefullyTimeout.isDefined
+    ) {
+      Map(SubmitMesosShutdownTimeout -> workflow.settings.streamingSettings.stopGracefullyTimeout.get)
+    } else Map.empty[String, String]
   }
 
   private[core] def getMesosSecurityConfs: Map[String, String] = {

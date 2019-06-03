@@ -299,6 +299,7 @@
     "_SPARK_LOG_STAGES_PROGRESS_": "Show stages progress in logs",
     "_SPARK_HDFS_DISABLE_CACHE_": "Disable HDFS cache",
     "_SPARK_STOP_GRACEFULLY_": "Stop gracefully",
+    "_SPARK_STOP_GRACEFULLY_TIMEOUT_": "Graceful timeout",
     "_SPARK_CORES_MAX_": "Cores max",
     "_SPARK_EXECUTOR_MEMORY_": "Executor memory",
     "_SPARK_EXECUTOR_CORES_": "Executor cores",

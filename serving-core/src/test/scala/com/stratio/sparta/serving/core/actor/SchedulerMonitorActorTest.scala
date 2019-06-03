@@ -125,7 +125,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       GlobalSettings(WorkflowExecutionMode.marathon, Seq.empty, Seq.empty, Seq.empty, true,
         Some(JsoneyString("constraint1:constraint2"))),
       StreamingSettings(
-        JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+        JsoneyString("6s"), None, None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(
         JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false,
         sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))

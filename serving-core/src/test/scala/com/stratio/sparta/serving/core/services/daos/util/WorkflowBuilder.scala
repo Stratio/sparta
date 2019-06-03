@@ -27,6 +27,7 @@ object WorkflowBuilder {
         None,
         blockInterval = Some(JsoneyString("100")),
         stopGracefully = None,
+        stopGracefullyTimeout = None,
         CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf()))

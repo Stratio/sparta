@@ -456,6 +456,15 @@
           "qa": "workflow-spark-stopGracefully"
         },
         {
+          "propertyId": "stopGracefullyTimeout",
+          "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_TIMEOUT_",
+          "propertyType": "text",
+          "tooltip": "Time to wait before kill marathon application after stop signal is received",
+          "required": false,
+          "width": 4,
+          "qa": "spark-streaming-stopGracefully-timeout"
+        },
+        {
           "name": "checkpointSettings",
           "properties": [{
             "propertyId": "enableCheckpointing",

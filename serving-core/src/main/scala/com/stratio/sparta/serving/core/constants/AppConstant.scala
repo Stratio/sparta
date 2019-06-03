@@ -79,7 +79,7 @@ object AppConstant extends ZookeeperUtils {
   val PrincipalName = "principalName"
   val ReloadKeyTabTime = "reloadKeyTabTime"
   val ReloadKeyTab = "reloadKeyTab"
-  val DefaultReloadKeyTab = false
+  val DefaultReloadKeyTab = true
   val DefaultReloadKeyTabTime = "23h"
   val SystemHadoopConfDir = "HADOOP_CONF_DIR"
   val CoreSite = "core-site.xml"
