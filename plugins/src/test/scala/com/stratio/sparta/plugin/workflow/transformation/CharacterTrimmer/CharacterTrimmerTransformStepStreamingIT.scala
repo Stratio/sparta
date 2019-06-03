@@ -34,23 +34,27 @@ class CharacterTrimmerTransformStepStreamingIT extends TemporalSparkContext with
       """[{"name": "Column1",
         |"characterToTrim": "b",
         |"trimType": "TRIM_LEFT"
+        |},
+        |{"name": "Column2",
+        |"characterToTrim": " ",
+        |"trimType": "TRIM_LEFT"
         |}
         |]""".stripMargin
 
-    val inputSchema = StructType(Seq(StructField("Column1", StringType)))
-    val outputSchema = StructType(Seq(StructField("Column1", StringType)))
+    val inputSchema = StructType(Seq(StructField("Column1", StringType),StructField("Column2", StringType)))
+    val outputSchema = StructType(Seq(StructField("Column1", StringType), StructField("Column2", StringType)))
 
     val dataQueue = new mutable.Queue[RDD[Row]]()
 
     val dataIn: Seq[Row] =
       Seq(
-        new GenericRowWithSchema(Array("baae"), inputSchema),
-        new GenericRowWithSchema(Array("booe"), inputSchema)
+        new GenericRowWithSchema(Array("baae", "  whitespace "), inputSchema),
+        new GenericRowWithSchema(Array("booe", " whitespace"), inputSchema)
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("aae"), outputSchema),
-      new GenericRowWithSchema(Array("ooe"), outputSchema)
+      new GenericRowWithSchema(Array("aae", "whitespace "), outputSchema),
+      new GenericRowWithSchema(Array("ooe", "whitespace"), outputSchema)
     )
 
     dataQueue += sc.parallelize(dataIn)
@@ -69,24 +73,27 @@ class CharacterTrimmerTransformStepStreamingIT extends TemporalSparkContext with
 
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty()) {
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
-      }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      print(row.toSeq)
+      assert(dataOut.contains(row))
+    }
   }
 
 
@@ -131,49 +138,56 @@ class CharacterTrimmerTransformStepStreamingIT extends TemporalSparkContext with
 
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty()) {
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
-      }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      print(row.toSeq)
+      assert(dataOut.contains(row))
+    }
   }
 
-  "A CharacterTrimmerTransformStepBatchIT" should "Remove selected characters into the left and right" in {
+  "A CharacterTrimmerTransformStepBatchIT" should "Remove selected characters into the left and right including whitespaces" in {
 
     val fields =
       """[{"name": "Column1",
         |"characterToTrim": "b",
         |"trimType": "TRIM_BOTH"
+        |},
+        |{"name": "Column2",
+        |"characterToTrim": " ",
+        |"trimType": "TRIM_BOTH"
         |}
         |]""".stripMargin
 
-    val inputSchema = StructType(Seq(StructField("Column1", StringType)))
-    val outputSchema = StructType(Seq(StructField("Column1", StringType)))
+    val inputSchema = StructType(Seq(StructField("Column1", StringType), StructField("Column2", StringType)))
+    val outputSchema = StructType(Seq(StructField("Column1", StringType), StructField("Column2", StringType)))
 
     val dataQueue = new mutable.Queue[RDD[Row]]()
 
     val dataIn: Seq[Row] =
       Seq(
-        new GenericRowWithSchema(Array("baab"), inputSchema),
-        new GenericRowWithSchema(Array("boob"), inputSchema)
+        new GenericRowWithSchema(Array("baab", " whitespace  "), inputSchema),
+        new GenericRowWithSchema(Array("boob", "   whitespace "), inputSchema)
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("aa"), outputSchema),
-      new GenericRowWithSchema(Array("oo"), outputSchema)
+      new GenericRowWithSchema(Array("aa", "whitespace"), outputSchema),
+      new GenericRowWithSchema(Array("oo", "whitespace"), outputSchema)
     )
 
     dataQueue += sc.parallelize(dataIn)
@@ -190,25 +204,27 @@ class CharacterTrimmerTransformStepStreamingIT extends TemporalSparkContext with
       Map("columnsToTrim" -> fields.asInstanceOf[JSerializable])
     ).transformWithDiscards(inputData)._1
 
-
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty()) {
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
-      }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      print(row.toSeq)
+      assert(dataOut.contains(row))
+    }
   }
 }
