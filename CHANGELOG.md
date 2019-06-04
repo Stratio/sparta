@@ -5,7 +5,7 @@
 * Bug fixing
    - [SPARTA-3070] Improve performance when loading latest version of plugins at runtime
 
-## 2.8.1 (May 29, 2019)
+## 2.8.1 (June 04, 2019)
 
 * Bug fixing
     - [SPARTA-3085] Rest steps: support special characters in placeholder replacement
