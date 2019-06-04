@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.9.0 (upcoming)
+* Improvements and new features:
+    - Integration with DCOS 1.12 (@TODO)
+    - Upgrade to new Gosec Facade version (@TODO)
+
 ## 2.8.2
 
 * Bug fixing
