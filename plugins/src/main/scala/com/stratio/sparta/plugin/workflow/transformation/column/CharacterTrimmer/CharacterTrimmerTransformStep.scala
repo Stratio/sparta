@@ -79,19 +79,24 @@ abstract class CharacterTrimmerTransformStep[Underlying[Row]](
 
           val newDataFrame = columnsToOperate.foldLeft(df)({
             case (df2, columnToOperate: CharacterTrimmerModel) =>
+              val regexLeft = s"^${columnToOperate.characterToTrim}+"
+              val regexRight   = s"${columnToOperate.characterToTrim}+$$"
               columnToOperate.trimType match {
                 case TrimType.TRIM_LEFT =>
-                  val regex = "^" + columnToOperate.characterToTrim + "+"
-                  df2.withColumn(columnToOperate.name,
-                    regexp_replace(col(columnToOperate.name), regex, ""))
-
+                  df2.withColumn(
+                    columnToOperate.name,
+                    regexp_replace(col(columnToOperate.name), regexLeft, "")
+                  )
                 case TrimType.TRIM_RIGHT =>
-                  df2.withColumn(columnToOperate.name,
-                    regexp_replace(col(columnToOperate.name), s"${columnToOperate.characterToTrim}+$$", ""))
-
+                  df2.withColumn(
+                    columnToOperate.name,
+                    regexp_replace(col(columnToOperate.name), regexRight, "")
+                  )
                 case TrimType.TRIM_BOTH =>
-                  val regex = "^" + columnToOperate.characterToTrim + "*(.?)" + columnToOperate.characterToTrim + "*$$"
-                  df2.withColumn(columnToOperate.name, regexp_extract(col(columnToOperate.name), regex, 1))
+                df2.withColumn(
+                  columnToOperate.name,
+                  regexp_replace(regexp_replace(col(columnToOperate.name), regexRight, ""), regexLeft, "")
+                )
                 case _ => df2
               }
           })

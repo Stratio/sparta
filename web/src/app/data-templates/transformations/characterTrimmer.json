@@ -31,6 +31,7 @@
           "showSchemaFields": true,
           "required": true,
           "width": 4,
+          "tooltip": "Column to trim",
           "qa": "fragment-details-field-name"
         },
         {
@@ -38,6 +39,7 @@
           "propertyName": "_CHARACTER_TO_TRIM_",
           "propertyType": "text",
           "required": true,
+          "tooltip": "Character to trim. Please, take note that whitespaces are allowed.",
           "width": 2,
           "qa": "fragment-details-field-characterToTrim"
         },
@@ -46,6 +48,7 @@
           "propertyName": "_TRIM_IN_TYPE_",
           "propertyType": "select",
           "default": "TRIM_LEFT",
+          "tooltip": "Indicates where it going to apply the trim, would be left, right or both(left and right)",
           "values": [
             {
               "label": "Left",

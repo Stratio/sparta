@@ -73,27 +73,31 @@ class CharacterTrimmerTransformStepBatchIT extends TemporalSparkContext with Mat
   }
 
 
-  "A CharacterTrimmerTransformStepBatchIT" should "Remove selected characters into the right" in {
+  "A CharacterTrimmerTransformStepBatchIT" should "Remove selected characters and whitespaces into the right" in {
 
     val fields =
       """[{"name": "Column1",
         |"characterToTrim": "e",
         |"trimType": "TRIM_RIGHT"
+        |},
+        |{"name": "Column2",
+        |"characterToTrim": " ",
+        |"trimType": "TRIM_RIGHT"
         |}
         |]""".stripMargin
 
-    val inputSchema = StructType(Seq(StructField("Column1", StringType)))
-    val outputSchema = StructType(Seq(StructField("Column1", StringType)))
+    val inputSchema = StructType(Seq(StructField("Column1", StringType), StructField("Column2", StringType)))
+    val outputSchema = StructType(Seq(StructField("Column1", StringType), StructField("Column2", StringType)))
 
     val dataIn: Seq[Row] =
       Seq(
-        new GenericRowWithSchema(Array("baae"), inputSchema),
-        new GenericRowWithSchema(Array("boae"), inputSchema)
+        new GenericRowWithSchema(Array("baae", "  whitespace  "), inputSchema),
+        new GenericRowWithSchema(Array("boae", "whitespace "), inputSchema)
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("baa"), outputSchema),
-      new GenericRowWithSchema(Array("boa"), outputSchema)
+      new GenericRowWithSchema(Array("baa", "  whitespace"), outputSchema),
+      new GenericRowWithSchema(Array("boa", "whitespace"), outputSchema)
     )
 
     val dataSet: RDD[Row] = sc.parallelize(dataIn)
@@ -125,21 +129,25 @@ class CharacterTrimmerTransformStepBatchIT extends TemporalSparkContext with Mat
       """[{"name": "Column1",
         |"characterToTrim": "e",
         |"trimType": "TRIM_BOTH"
+        |},
+        |{"name": "Column2",
+        |"characterToTrim": " ",
+        |"trimType": "TRIM_BOTH"
         |}
         |]""".stripMargin
 
-    val inputSchema = StructType(Seq(StructField("Column1", StringType)))
-    val outputSchema = StructType(Seq(StructField("Column1", StringType)))
+    val inputSchema = StructType(Seq(StructField("Column1", StringType), StructField("Column2", StringType)))
+    val outputSchema = StructType(Seq(StructField("Column1", StringType),StructField("Column2", StringType)))
 
     val dataIn: Seq[Row] =
       Seq(
-        new GenericRowWithSchema(Array("ebe"), inputSchema),
-        new GenericRowWithSchema(Array("ebe"), inputSchema)
+        new GenericRowWithSchema(Array("ebe", "  whitespace "), inputSchema),
+        new GenericRowWithSchema(Array("ebe", "    whitespace  "), inputSchema)
       ).map(_.asInstanceOf[Row])
 
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("b"), outputSchema),
-      new GenericRowWithSchema(Array("b"), outputSchema)
+      new GenericRowWithSchema(Array("b", "whitespace"), outputSchema),
+      new GenericRowWithSchema(Array("b", "whitespace"), outputSchema)
     )
 
     val dataSet: RDD[Row] = sc.parallelize(dataIn)
