@@ -9,13 +9,13 @@ package com.stratio.sparta.plugin.workflow.transformation.column.Formatter
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.core.DistributedMonad
-import com.stratio.sparta.plugin.workflow.transformation.column.AddColumnsTransformStep
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.plugin.helper.SchemaHelper.getSchemaFromRdd
+import com.stratio.sparta.plugin.workflow.transformation.column.AddColumns.AddColumnsTransformStep
 import org.apache.spark.sql.types.StructType
 
 class FormatterTransformStepBatch(
