@@ -1,0 +1,72 @@
+{
+  "name": "Mask",
+  "icon": "Mask",
+  "category": "Column",
+  "className": "MaskTransformStep",
+  "classPrettyName": "Mask",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "description": "Mask a column depending of the type of data",
+  "properties": [
+    {
+      "propertyId": "columnsToMask",
+      "propertyName": "_COLUMNS_TO_MASK_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of columns to mask.",
+      "qa": "fragment-details-duplicate-columns-fields",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 6,
+          "tooltip": "Select the column to mask.",
+          "qa": "fragment-details-mask-column-name"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}

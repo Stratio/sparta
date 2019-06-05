@@ -42,6 +42,7 @@ import joinTemplate from './transformations/join.json';
 import jsonPathTemplate from './transformations/jsonpath.json';
 import jsonTemplate from './transformations/json.json';
 import leftPaddingTemplate from './transformations/leftPadding.json';
+import maskTemplate from './transformations/mask.json';
 import mlModelTemplate from './transformations/mlModel.json';
 import orderByTemplate from './transformations/orderBy.json';
 import partialInfoTemplate from './transformations/partialInfo.json';
@@ -95,6 +96,7 @@ export const transformations: any = [
     joinTemplate,
     jsonPathTemplate,
     jsonTemplate,
+    maskTemplate,
     leftPaddingTemplate,
     mlModelTemplate,
     orderByTemplate,

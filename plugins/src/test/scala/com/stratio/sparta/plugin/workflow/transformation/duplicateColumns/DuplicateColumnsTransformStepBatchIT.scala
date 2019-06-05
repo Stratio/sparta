@@ -35,7 +35,6 @@ class DuplicateColumnsTransformStepBatchIT extends TemporalSparkContext with Mat
         |]""".stripMargin
 
 
-
     val inputSchema = StructType(Seq(StructField("Column3", StringType), StructField("Column4", StringType)))
     val outputSchema = StructType(Seq(StructField("Column3", StringType), StructField("Column4", StringType),
       StructField("newColumn3", StringType), StructField("newColumn4", StringType)))
