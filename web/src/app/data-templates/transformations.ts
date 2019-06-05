@@ -41,6 +41,7 @@ import intersectionTemplate from './transformations/intersection.json';
 import joinTemplate from './transformations/join.json';
 import jsonPathTemplate from './transformations/jsonpath.json';
 import jsonTemplate from './transformations/json.json';
+import leftPaddingTemplate from './transformations/leftPadding.json';
 import mlModelTemplate from './transformations/mlModel.json';
 import orderByTemplate from './transformations/orderBy.json';
 import persistTemplate from './transformations/persist.json';
@@ -93,6 +94,7 @@ export const transformations: any = [
     joinTemplate,
     jsonPathTemplate,
     jsonTemplate,
+    leftPaddingTemplate,
     mlModelTemplate,
     orderByTemplate,
     persistTemplate,

@@ -4,12 +4,20 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.column
+package com.stratio.sparta.plugin.workflow.transformation.column.RenameColumn
 
 import java.io.{Serializable => JSerializable}
 
-import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.DistributedMonad
+import com.stratio.sparta.core.helpers.SdkSchemaHelper
+import com.stratio.sparta.core.models._
+import com.stratio.sparta.core.properties.JsoneyStringSerializer
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
+import com.stratio.sparta.core.workflow.step.TransformStep
+import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
+import com.stratio.sparta.plugin.helper.SparkStepHelper
+import com.stratio.sparta.plugin.models.PropertyColumn
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -17,15 +25,8 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.json4s.jackson.Serialization.read
 import org.json4s.{DefaultFormats, Formats}
-import com.stratio.sparta.plugin.helper.SchemaHelper.{createOrReplaceTemporalViewDf, getSchemaFromSessionOrModelOrRdd, parserInputSchema}
-import com.stratio.sparta.plugin.helper.SparkStepHelper
-import com.stratio.sparta.plugin.models.PropertyColumn
-import com.stratio.sparta.core.DistributedMonad
-import com.stratio.sparta.core.helpers.SdkSchemaHelper
-import com.stratio.sparta.core.models._
-import com.stratio.sparta.core.properties.JsoneyStringSerializer
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.workflow.step.TransformStep
+
+import scala.util.{Failure, Success, Try}
 
 //scalastyle:off
 abstract class RenameColumnTransformStep[Underlying[Row]](

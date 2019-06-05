@@ -18,6 +18,7 @@ import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.models.{OutputOptions, TransformationStepManagement}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
+import com.stratio.sparta.plugin.workflow.transformation.column.AddColumns.AddColumnsTransformStepBatch
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])

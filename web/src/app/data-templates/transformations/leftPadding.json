@@ -1,0 +1,91 @@
+{
+  "name": "LeftPadding",
+  "icon": "LeftPadding",
+  "category": "Column",
+  "className": "LeftPaddingTransformStep",
+  "classPrettyName": "LeftPadding",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+
+  ],
+  "description": "Prepend n times a character. The column will be casted to string.",
+  "properties": [
+    {
+      "propertyId": "columnsToLeftPadding",
+      "propertyName": "_COLUMNS_TO_PADDING_LEFT_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "List of columns to apply the leftPadding transformation.",
+      "qa": "fragment-details-left-padding-fields",
+      "fields": [
+        {
+          "propertyId": "name",
+          "propertyName": "_NAME_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 6,
+          "tooltip": "Column to apply the transform",
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "lengthPaddingLeft",
+          "propertyName": "_LENGTH_PADDING_LEFT_",
+          "propertyType": "text",
+          "required": true,
+          "width": 2,
+          "tooltip": "Length of padding",
+          "qa": "workflow-transformation-lengthPaddingLeft-paddingLeft"
+        },
+        {
+          "propertyId": "characterFill",
+          "propertyName": "_CHARACTER_FILL_",
+          "propertyType": "text",
+          "tooltip": "Character that will be filled into the value",
+          "required": true,
+          "width": 2,
+          "qa": "workflow-transformation-characterFill-paddingLeft"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}
