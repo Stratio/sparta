@@ -44,6 +44,7 @@ import jsonTemplate from './transformations/json.json';
 import leftPaddingTemplate from './transformations/leftPadding.json';
 import mlModelTemplate from './transformations/mlModel.json';
 import orderByTemplate from './transformations/orderBy.json';
+import partialInfoTemplate from './transformations/partialInfo.json';
 import persistTemplate from './transformations/persist.json';
 import pivotTemplate from './transformations/pivot.json';
 import queryBuilderTemplate from './transformations/queryBuilder.json';
@@ -97,6 +98,7 @@ export const transformations: any = [
     leftPaddingTemplate,
     mlModelTemplate,
     orderByTemplate,
+    partialInfoTemplate,
     persistTemplate,
     pivotTemplate,
     queryBuilderTemplate,

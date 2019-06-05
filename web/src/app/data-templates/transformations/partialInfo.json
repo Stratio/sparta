@@ -1,0 +1,102 @@
+{
+  "name": "PartialInfo",
+  "icon": "PartialInfo",
+  "category": "Column",
+  "className": "PartialInfoTransformStep",
+  "classPrettyName": "PartialInfo",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "supportedEngines": [
+    "Streaming",
+    "Batch"
+  ],
+  "supportedDataRelations": [
+    "ValidData"
+  ],
+  "description": "Create a new column with a substring of other column.",
+  "properties": [
+    {
+      "propertyId": "columnsToPartialInfo",
+      "propertyName": "_COLUMNS_TO_PARTIAL_INFO_",
+      "propertyType": "list",
+      "required": true,
+      "complexForm": true,
+      "tooltip": "List of columns to extract the substring.",
+      "qa": "fragment-details-partial-info-columns-fields",
+      "fields": [
+        {
+          "propertyId": "columnToExtractPartialInfo",
+          "propertyName": "_COLUMN_TO_EXTRACT_INFO_",
+          "propertyType": "text",
+          "showSchemaFields": true,
+          "required": true,
+          "width": 6,
+          "float": false,
+          "tooltip": "Select the column to extract the info.",
+          "qa": "fragment-details-column-to-extract-info"
+        },
+        {
+          "propertyId": "newColumnName",
+          "propertyName": "_COLUMN_TO_CREATE_",
+          "propertyType": "text",
+          "required": true,
+          "tooltip": "Name of the new column.",
+          "width": 6,
+          "float": false,
+          "qa": "fragment-details-column-to-create-name"
+        },
+        {
+          "propertyId": "start",
+          "propertyName": "_START_POSITION_",
+          "propertyType": "text",
+          "required": true,
+          "tooltip": "Position where the desired value starts. It starts counting from the left.",
+          "width": 3,
+          "qa": "fragment-details-start-position"
+        },
+        {
+          "propertyId": "length",
+          "propertyName": "_LENGTH_",
+          "propertyType": "text",
+          "required": true,
+          "tooltip": "Length of the desired value.",
+          "width": 3,
+          "qa": "fragment-details-length-partial-info"
+        }
+      ]
+    },
+    {
+      "propertyId": "inputSchemas",
+      "propertyName": "_INPUTS_TRIGGER_SCHEMA_",
+      "propertyType": "list",
+      "required": false,
+      "complexForm": true,
+      "tooltip": "Section that allows the user to define incoming steps schemas. Once defined properly, the schema calculation for all incoming inputs will be avoided thus increasing the workflow performance and type-safety.",
+      "qa": "fragment-details-schema-fields",
+      "fields": [
+        {
+          "propertyId": "stepName",
+          "propertyName": "_INPUT_STEP_NAME_",
+          "propertyType": "text",
+          "showInputSteps": true,
+          "required": true,
+          "tooltip": "Incoming step name.",
+          "width": 8,
+          "float": false,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 12,
+          "tooltip": "Input schema either expressed in JSON/Spark format or by providing a valid sample.",
+          "required": true,
+          "qa": "fragment-details-field-query"
+        }
+      ]
+    }
+  ]
+}
