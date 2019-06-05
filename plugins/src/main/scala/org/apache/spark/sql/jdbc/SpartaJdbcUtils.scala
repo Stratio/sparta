@@ -8,18 +8,18 @@ package org.apache.spark.sql.jdbc
 
 import java.sql.{Connection, PreparedStatement, SQLException, Savepoint}
 import java.util.Locale
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.core.workflow.enumerators.ConstraintType
+import com.stratio.sparta.plugin.enumerations.TransactionTypes
+import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils._
 import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 
-import com.stratio.sparta.core.workflow.enumerators.ConstraintType
-import com.stratio.sparta.plugin.enumerations.TransactionTypes
-import com.stratio.sparta.plugin.enumerations.TransactionTypes.TxType
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 case class TxSaveMode(txType: TxType, failFast: Boolean)
 
@@ -1258,4 +1258,27 @@ object SpartaJdbcUtils extends SLF4JLogging {
         s"can not translate non-null value for field $fieldIndex")
     }
   }
+
+
+  def quoteTable(tableName: String, dialect: SpartaJDBCDialect = SpartaPostgresDialect): String =
+    if (tableName.exists(_.isUpper)) {
+      "\"" + inferSchema(tableName, SpartaPostgresDialect) +"\".\""+ inferTable(tableName) + "\""
+    } else {
+      tableName
+    }
+
+  def inferSchema(tableName: String, dialect: SpartaJDBCDialect): String =
+    if (tableName.contains('.')){
+      tableName.split('.')(0).replaceAll("^\"|\"$", "")
+    } else {
+      dialect.defaultSchema
+    }
+
+  def inferTable(maybeQualifiedTableName: String): String =
+    if (maybeQualifiedTableName.contains('.')){
+      Try(maybeQualifiedTableName.split('.')(1).replaceAll("^\"|\"$", "")).getOrElse(throw new RuntimeException("Invalid dbtable found:" + maybeQualifiedTableName))
+    } else {
+      maybeQualifiedTableName
+    }
+
 }

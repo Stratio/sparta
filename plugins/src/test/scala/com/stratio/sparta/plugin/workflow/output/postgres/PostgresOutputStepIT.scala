@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, Matchers, ShouldMatchers}
 
-import scala.util.Try
+import scala.util.{Random, Try}
 
 //scalastyle:off
 @RunWith(classOf[JUnitRunner])
@@ -43,6 +43,10 @@ class PostgresOutputStepIT extends
     def createTable()(table: String) = s"CREATE TABLE $table USING org.apache.spark.sql.jdbc OPTIONS (url '$postgresURL', dbtable '$table', driver 'org.postgresql.Driver')"
 
     val tableCreate = createTable() _
+
+    def createTableCaseSensitive(crossdataTableName: String, table: String, schema: String = "public") =
+      s"""CREATE TABLE $crossdataTableName USING org.apache.spark.sql.jdbc OPTIONS (url '$postgresURL', dbtable '\"public\".\"$table\"', driver 'org.postgresql.Driver')"""
+
 
     var xdSession = sparkSession
   }
@@ -348,6 +352,23 @@ class PostgresOutputStepIT extends
     rows should contain theSameElementsAs upsertWithConstraintDataOut
   }
 
+  it should "insert in tables containing upper case letters" in new JdbcCommons {
+
+    val randomLetters = (Random.alphanumeric take 5).dropWhile(!_.isLetter).mkString
+    val tableNames = Seq("lowerorupper", "LOWERORUPPER", "LowerOrUpper").map(_ + randomLetters)
+
+    tableNames.foreach{ tableName =>
+      val postgresOutputStep = new PostgresOutputStep("postgresOutBatch", xdSession, properties ++ Map("caseSensitiveEnabled" -> "true", "postgresSaveMode" -> "STATEMENT"))
+      postgresOutputStep.save(okData, SaveModeEnum.Append, Map("tableName" -> tableName))
+    }
+
+    tableNames.foreach{ tableName =>
+      val crossdataTableName = (Random.alphanumeric take 5).dropWhile(!_.isLetter).mkString
+      xdSession.sql(createTableCaseSensitive(crossdataTableName, tableName))
+      xdSession.sql(s"SELECT * FROM $crossdataTableName").count() shouldBe 2
+    }
+
+  }
 
 
   "Native upsert with one transaction" should "fail with two records with same primary key in temporal table" in new JdbcCommons {

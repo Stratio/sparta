@@ -16,12 +16,12 @@ import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
-import com.stratio.sparta.core.constants.SdkConstants.{PathKey, ResourceKey, ServiceKey}
+import com.stratio.sparta.core.constants.SdkConstants.{DefaultSchemaKey, PathKey, ServiceKey}
 import com.stratio.sparta.core.models.SpartaQualityRule
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.MetadataPath
-import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -42,7 +42,6 @@ import scalax.collection.edge.LDiEdge
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 
@@ -281,16 +280,28 @@ object QualityRuleActor extends ContextBuilderImplicits
       .filter {case ((_,(_,nodePrettyName,_))) =>  AllowedDataGovernanceOutputs.contains(nodePrettyName)}
       .flatMap { case (pluginName, (nodeName, _, props)) =>
         props.get(ServiceKey).map { serviceName =>
-          val stepType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.stepType.toLowerCase
-          val tableNameType = Option(workflow.pipelineGraph.nodes.filter(_.name == nodeName).head.writer.tableName.
-            fold(nodeName){ x => x.toString}).notBlank
-          val dataStoreType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.classPrettyName
+          val transformationStep = workflow.pipelineGraph.nodes.filter(_.name == nodeName).head
+          val outputStep = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head
+          val stepType = outputStep.stepType.toLowerCase
+          val tableNameType = getTableNameWithSchema(nodeName, transformationStep, outputStep, props)
+          val dataStoreType = outputStep.classPrettyName
           val extraPath = props.get(PathKey)
             .map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), tableNameType))
           Map(nodeName ->( pluginName, MetadataPath(serviceName, extraPath, tableNameType)))
         }
       }
   }
+
+  private def getTableNameWithSchema(nodeName: String, transformationStep: NodeGraph, outputStep: NodeGraph, props: Map[String, String]): Option[String] =  {
+    val tableName = transformationStep.writer.tableName.fold(nodeName){ nameFromWriter => nameFromWriter.toString }
+    val schema = props.get(DefaultSchemaKey).notBlank.getOrElse("public")
+    //The schema must be added only if it is a postgres or a jdbc output and if it was not specified by the user
+    if ((outputStep.classPrettyName.equalsIgnoreCase("Postgres") || outputStep.classPrettyName.equalsIgnoreCase("Jdbc"))
+        && !tableName.contains(".")) Option(s"$schema.$tableName")
+    else Option(tableName)
+  }
+
+
 
   def getOutputPredecessorsWithTableName(workflow: Workflow): Seq[Map[NodeGraph, (NodeGraph, String)]] = {
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)

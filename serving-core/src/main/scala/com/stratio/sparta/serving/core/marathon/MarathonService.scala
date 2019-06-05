@@ -15,7 +15,6 @@ import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.utils.Utils
 import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor
-import com.stratio.sparta.serving.core.actor.EnvironmentCleanerActor.TriggerCleaning
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant.EnvironmentCleanerActorName
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -56,8 +55,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
     .getOrElse(false)
   lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig().get
   lazy val marathonUpAndDownComponent = MarathonUpAndDownComponent(marathonConfig)
-  lazy val cleanerActor: ActorRef = context.actorOf(Props(new EnvironmentCleanerActor()),
-    s"$EnvironmentCleanerActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
   lazy val marathonApiRetryAttempts: Int = Try(marathonConfig.getInt("api.retry.attempts")).toOption.getOrElse(DefaultRetryAttempts)
   lazy val marathonApiRetrySleep: Int = Try(marathonConfig.getInt("api.retry.sleep")).toOption.getOrElse(DefaultRetrySleep)
   lazy val marathonApiTimeout: Int = Try(marathonConfig.getInt("api.timeout")).toOption.getOrElse(DefaultMaxTimeOutInMarathonRequests)
@@ -100,11 +97,9 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
           if(statusFailed)
             throw new Exception(s"Invalid status response killing marathon application with responses: ${responses.mkString(",")}")
           else {
-            cleanerActor ! TriggerCleaning
             log.info(s"Workflow App $containerId correctly killed with responses: ${responses.mkString(",")}")
           }
         case _ =>
-          cleanerActor ! TriggerCleaning
           log.info(s"Workflow App $containerId killed but the response is not serializable")
       }
     }

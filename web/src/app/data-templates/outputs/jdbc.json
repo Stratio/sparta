@@ -103,14 +103,22 @@
           "tooltip": "When enabled, if a transaction fails a exception is thrown and the application is stopped abruptly.",
           "qa": "fragment-details-jdbc-failfast"
        },
-      {
-        "propertyId": "tlsEnabled",
-        "propertyName": "_TLS_ENABLE_",
-        "propertyType": "boolean",
-        "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and the JDBC database.",
-        "default": false,
-        "qa": "fragment-details-postgres-tls"
-      },
+       {
+         "propertyId": "tlsEnabled",
+         "propertyName": "_TLS_ENABLE_",
+         "propertyType": "boolean",
+         "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection between Spark and the JDBC database.",
+         "default": false,
+         "qa": "fragment-details-postgres-tls"
+       },
+       {
+         "propertyId": "caseSensitiveEnabled",
+         "propertyName": "_CASE_SENSITIVE_ENABLED_",
+         "propertyType": "boolean",
+         "tooltip": "Sets whether the table name and schema should be case sensitive or not",
+         "default": true,
+         "qa": "fragment-details-postgres-tls"
+       },
        {
           "propertyId": "schemaFromDatabase",
           "propertyName": "_SCHEMA_FROM_DATABASE_",

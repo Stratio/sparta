@@ -90,7 +90,6 @@ class CrossdataInputStepStreamingIT extends TemporalSparkContext with PostgresSu
     SparkSession.clearActiveSession()
 
     val tableName = (Random.alphanumeric take 10).dropWhile(!_.isLetter).mkString
-    println(tableName)
     val testView = "testview"
     val totalRecords = 40
 

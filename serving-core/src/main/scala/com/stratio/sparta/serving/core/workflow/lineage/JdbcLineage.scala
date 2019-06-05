@@ -33,7 +33,7 @@ trait JdbcLineage extends SLF4JLogging {
   lazy val DbServiceProperty = "stratio.serviceid"
 
   lazy val config = getDBConfig
-  lazy val basicPgService = new CustomPostgresService(lineageUri,config)
+  lazy val basicPgService = new CustomPostgresService(lineageUri, config)
   lazy val showServiceSql = s"SHOW $DbServiceProperty;"
   lazy val showCurrentSchemaSql = "select current_schema();"
   lazy val PublicSchema = "public"

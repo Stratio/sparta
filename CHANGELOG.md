@@ -1,18 +1,24 @@
 # Changelog
 
+## 2.9.0 (upcoming)
+* Improvements and new features:
+    - Integration with DCOS 1.12 (@TODO)
+    - Upgrade to new Gosec Facade version (@TODO)
+
 ## 2.8.2
 
 * Bug fixing
    - [SPARTA-3070] Improve performance when loading latest version of plugins at runtime
 
-## 2.8.1 (May 29, 2019)
+## 2.8.1 (June 04, 2019)
 
 * Bug fixing
     - [SPARTA-3085] Rest steps: support special characters in placeholder replacement
     - Fix quality rules security
     - Marathon error management: add retry policy
     - Fix metrics query executions performance 
-    - [SPARTA-3059] Export execution parameters together with metrics 
+    - [SPARTA-3059] Export execution parameters together with metrics
+    - [SPARTA-3075] Support case sensitive table names in Postgres and Jdbc outputs
 
 ## 2.8.0 (May 17, 2019)
 

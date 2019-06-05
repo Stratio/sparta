@@ -232,6 +232,14 @@
           "qa": "fragment-details-postgres-tls"
        },
        {
+         "propertyId": "caseSensitiveEnabled",
+         "propertyName": "_CASE_SENSITIVE_ENABLED_",
+         "propertyType": "boolean",
+         "tooltip": "Sets whether the table name and schema should be case sensitive or not",
+         "default": true,
+         "qa": "fragment-details-postgres-tls"
+       },
+       {
           "propertyId": "schemaFromDatabase",
           "propertyName": "_SCHEMA_FROM_DATABASE_",
           "propertyType": "boolean",

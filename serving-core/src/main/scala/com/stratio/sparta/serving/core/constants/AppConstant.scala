@@ -58,7 +58,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
   val DefaultApiTimeout = 20
-  val DefaultVersion = "2.8.0"
+  val DefaultVersion = "2.9.0"
   lazy val version = Try(SpartaConfig.getDetailConfig().get.getString("version"))
     .toOption.notBlank.getOrElse(DefaultVersion)
   val AndromedaVersion = "2.2.6"
@@ -79,7 +79,7 @@ object AppConstant extends ZookeeperUtils {
   val PrincipalName = "principalName"
   val ReloadKeyTabTime = "reloadKeyTabTime"
   val ReloadKeyTab = "reloadKeyTab"
-  val DefaultReloadKeyTab = false
+  val DefaultReloadKeyTab = true
   val DefaultReloadKeyTabTime = "23h"
   val SystemHadoopConfDir = "HADOOP_CONF_DIR"
   val CoreSite = "core-site.xml"
