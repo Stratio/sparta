@@ -6,7 +6,7 @@
 
 package org.apache.spark.sql.jdbc
 
-import java.sql.{Connection, PreparedStatement, SQLException, Savepoint}
+import java.sql.{Connection, PreparedStatement, ResultSet, SQLException, Savepoint, Statement}
 import java.util.Locale
 
 import akka.event.slf4j.SLF4JLogging
@@ -25,13 +25,16 @@ case class TxSaveMode(txType: TxType, failFast: Boolean)
 
 case class TxOneValues(connection: Connection, savePoint: Savepoint, temporalTableName: String)
 
+// scalastyle:off
+
 object SpartaJdbcUtils extends SLF4JLogging {
+
+  lazy val ShowCurrentSchemaSql = "select current_schema();"
 
   /** Private mutable variables to optimize Streaming process **/
 
   private val connections = new java.util.concurrent.ConcurrentHashMap[String, Connection]()
 
-  //scalastyle:off
 
   /** PUBLIC METHODS **/
 
@@ -1260,19 +1263,38 @@ object SpartaJdbcUtils extends SLF4JLogging {
   }
 
 
-  def quoteTable(tableName: String, dialect: SpartaJDBCDialect = SpartaPostgresDialect): String =
+  def quoteTable(tableName: String, connection: => Connection): String =
     if (tableName.exists(_.isUpper)) {
-      "\"" + inferSchema(tableName, SpartaPostgresDialect) +"\".\""+ inferTable(tableName) + "\""
+      "\"" + inferSchema(tableName, connection) +"\".\""+ inferTable(tableName) + "\""
     } else {
       tableName
     }
 
-  def inferSchema(tableName: String, dialect: SpartaJDBCDialect): String =
+  def inferSchema(tableName: String, connection: Connection, dialect: SpartaJDBCDialect = SpartaPostgresDialect): String =
     if (tableName.contains('.')){
       tableName.split('.')(0).replaceAll("^\"|\"$", "")
     } else {
-      dialect.defaultSchema
+      Try(getDatabaseDefaultSchema(connection).get).recover{
+        case NonFatal(exception) =>
+          log.warn(s"Default schema not found for table $tableName", exception)
+          dialect.defaultSchema
+      }.get
     }
+
+  private def getDatabaseDefaultSchema(connection: Connection): Option[String] = {
+    connection.setAutoCommit(true)
+    val schema: Option[String] =
+      withStatement(connection){ statement =>
+        withResultSet(statement.executeQuery(ShowCurrentSchemaSql)){resultSet =>
+          if (resultSet.next()) {
+            Option(resultSet.getString("current_schema"))
+          } else {
+            None
+          }
+        }
+      }
+    schema
+  }
 
   def inferTable(maybeQualifiedTableName: String): String =
     if (maybeQualifiedTableName.contains('.')){
@@ -1280,5 +1302,23 @@ object SpartaJdbcUtils extends SLF4JLogging {
     } else {
       maybeQualifiedTableName
     }
+
+  private def withStatement[T](connection: Connection)(block: Statement => T): T = {
+    var statementOpt: Option[Statement] = None
+    try {
+      val statement = connection.createStatement(); statementOpt = Option(statement)
+      block(statement)
+    } finally {
+      statementOpt.foreach(_.close)
+    }
+  }
+
+  private def withResultSet[T](resultSet: ResultSet)(block: ResultSet => T): T = {
+    try {
+      block(resultSet)
+    } finally {
+      resultSet.close()
+    }
+  }
 
 }

@@ -31,7 +31,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   lazy val url = properties.getString("url")
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
   lazy val jdbcSaveMode = TransactionTypes.withName(properties.getString("jdbcSaveMode", "STATEMENT"))
-  lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(true)
+  lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(false)
   lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
@@ -70,16 +70,19 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
     if (dataFrame.schema.fields.nonEmpty) {
       val tableName = getTableNameFromOptions(options)
       val sparkSaveMode = getSparkSaveMode(saveMode)
+      val jdbcPropertiesMap = propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+      lazy val quotedTable =
+        quoteTable(tableName, getConnection(new JDBCOptions(urlWithSSL, tableName, jdbcPropertiesMap), name))
+
       val connectionProperties = new JDBCOptions(
         urlWithSSL,
-        if (isCaseSensitive) quoteTable(tableName) else tableName,
-        propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+        if (isCaseSensitive) quotedTable else tableName,
+        jdbcPropertiesMap
       )
 
       Try {
         if (sparkSaveMode == SaveMode.Overwrite)
           SpartaJdbcUtils.truncateTable(connectionProperties, name)
-
 
         synchronized {
           SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)

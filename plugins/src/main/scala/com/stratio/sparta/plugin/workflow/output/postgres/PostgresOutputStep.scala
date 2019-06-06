@@ -42,7 +42,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = TransactionTypes.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
-  lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(true)
+  lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(false)
   lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
   lazy val dropTemporalTableSuccess = Try(properties.getBoolean("dropTemporalTableSuccess")).getOrElse(true)
   lazy val dropTemporalTableFailure = Try(properties.getBoolean("dropTemporalTableFailure")).getOrElse(false)
@@ -79,7 +79,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       val conn = getConnection(connectionProperties, outputName)
       var exists = false
 
-      val schemaToQuery = inferSchema(connectionProperties.table, SpartaPostgresDialect)
+      val schemaToQuery = inferSchema(connectionProperties.table, conn, SpartaPostgresDialect)
 
       val statement = conn.prepareStatement(s"SELECT true FROM pg_catalog.pg_constraint con INNER JOIN pg_catalog.pg_class rel ON rel.oid = con.conrelid " +
         s"INNER JOIN pg_catalog.pg_namespace nsp  ON nsp.oid = connamespace WHERE nsp.nspname = '$schemaToQuery' " +
@@ -184,10 +184,14 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     if (dataFrame.schema.fields.nonEmpty) {
       val tableName = getTableNameFromOptions(options)
       val sparkSaveMode = getSparkSaveMode(saveMode)
+      val jdbcPropertiesMap = propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+      lazy val quotedTable =
+        quoteTable(tableName, getConnection(new JDBCOptions(urlWithSSL, tableName, jdbcPropertiesMap), name))
+
       val connectionProperties = new JDBCOptions(
         urlWithSSL,
-        if (isCaseSensitive) quoteTable(tableName) else tableName,
-        propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+        if (isCaseSensitive) quotedTable else tableName,
+        jdbcPropertiesMap
       )
 
       val dialect = JdbcDialects.get(connectionProperties.url)
