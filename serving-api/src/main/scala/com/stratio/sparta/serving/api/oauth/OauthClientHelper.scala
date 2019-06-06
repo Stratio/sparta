@@ -7,6 +7,7 @@ package com.stratio.sparta.serving.api.oauth
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest
 import org.apache.oltu.oauth2.common.message.types.GrantType
+import spray.http._
 
 import scala.util.Try
 import scala.util.parsing.json.JSON
@@ -80,4 +81,21 @@ object OauthClientHelper {
       .setCode(code)
       .buildQueryMessage.getLocationUri
   }
+
+
+  val ForbiddenTemplate: HttpResponse =
+    HttpResponse(
+      StatusCodes.Forbidden,
+      HttpEntity(
+        new ContentType(MediaTypes.`text/html`, Some(HttpCharsets.`UTF-8`)),
+        """|<html lang="en">
+           |      <head></head>
+           |      <body>
+           |        <h1>Forbidden</h1>
+           |        <p> You don't have permission to access this server.</p>
+           |      </body>
+           |</html>""".stripMargin
+      )
+    )
+
 }

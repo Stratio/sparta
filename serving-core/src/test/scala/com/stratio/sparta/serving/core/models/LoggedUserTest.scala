@@ -19,7 +19,7 @@ class LoggedUserTest extends WordSpec with Matchers {
     "containing a well-formed JSON" should {
       "be correctly transformed into a LoggedUser" in {
         val objectUser = GosecUser("1234-qwerty", "user1",
-          GosecUserConstants.DummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+          GosecUserConstants.DummyMail, dummyGroupID, Seq.empty[String], Seq("admin"), Some("NONE"))
         val stringJson =
           """
         {"id":"1234-qwerty",
@@ -28,7 +28,8 @@ class LoggedUserTest extends WordSpec with Matchers {
           {"mail":"email@email.com"},
           {"gidNumber":"66"},
           {"groups":[]},
-          {"roles":["admin"]}
+          {"roles":["admin"]},
+          {"tenant": "NONE"}
         ]}"""
 
         val parsedUser = GosecUser.jsonToDto(stringJson)

@@ -57,8 +57,8 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
   implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
-  val rootUser = Some(GosecUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
-  val limitedUser = Some(GosecUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty, Seq.empty))
+  val limitedUser = Some(GosecUser("4321", "limited", "dummyMail","0",Seq.empty ,Seq.empty))
 
   override def beforeEach(): Unit = {
     SpartaConfig.getApiConfig(Option(localConfig))

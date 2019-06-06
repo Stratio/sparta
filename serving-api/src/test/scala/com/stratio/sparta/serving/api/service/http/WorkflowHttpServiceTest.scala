@@ -31,7 +31,7 @@ class WorkflowHttpServiceTest extends WordSpec
   override val supervisor: ActorRef = testProbe.ref
   val id = UUID.randomUUID.toString
   val group = "default"
-  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty, Seq.empty))
   val dummyUser = Some(GosecUserConstants.AnonymousUser)
 
   override implicit val actors: Map[String, ActorRef] = Map()

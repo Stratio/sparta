@@ -29,7 +29,7 @@ class GroupHttpServiceTest extends WordSpec
   val workflowTestProbe = TestProbe()
   val groupTestProbe = TestProbe()
   val dummyUser = Some(GosecUserConstants.AnonymousUser)
-  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val rootUser = Some(GosecUser("1234", "root", "dummyMail", "0", Seq.empty, Seq.empty))
 
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.WorkflowActorName -> workflowTestProbe.ref,

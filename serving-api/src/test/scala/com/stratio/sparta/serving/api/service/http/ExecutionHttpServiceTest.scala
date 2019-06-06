@@ -24,7 +24,7 @@ class ExecutionHttpServiceTest extends WordSpec
   with ExecutionHttpService
   with HttpServiceBaseTest {
 
-  val rootUser = Option(GosecUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
+  val rootUser = Option(GosecUser("1234", "root", "dummyMail", "0", Seq.empty, Seq.empty))
 
   override implicit val actors: Map[String, ActorRef] = Map()
 

@@ -6,9 +6,11 @@
 package com.stratio.sparta.serving.api.oauth
 
 import akka.actor.ActorRef
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, PublishRemoveSessionInCluster, PublishSessionInCluster, RemoveSession}
 import com.stratio.sparta.serving.api.oauth.SessionStore._
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.authorization.GosecUser
 import spray.client.pipelining._
 import spray.http.StatusCodes._
 import spray.http.{DateTime, HttpCookie, HttpRequest, HttpResponse}
@@ -17,7 +19,7 @@ import spray.routing._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-trait OauthClient extends HttpService {
+trait OauthClient extends HttpService with SLF4JLogging{
 
   implicit val ec: ExecutionContext = ExecutionContext.global
 
@@ -105,12 +107,27 @@ trait OauthClient extends HttpService {
     parameter("code") { code: String =>
       val (token, expires) = getToken(code)
       val sessionId = getRandomSessionId
-      val newSession = NewSession(sessionId, getUserProfile(token), expires * 1000)
-      addSession(newSession)
-      clusterSessionActor ! PublishSessionInCluster(newSession)
-      setCookie(authCookieWithExpiration(sessionId, cookieDuration)) {
-        indexRedirect
+      val ssoUserProfile = getUserProfile(token)
+      val newSession = NewSession(sessionId, ssoUserProfile, expires * 1000)
+
+      val ssoUserInfo = GosecUser.jsonToDto(ssoUserProfile)
+      log.debug(s"login attempt by user: $ssoUserInfo")
+
+      val tenantAuth =
+        AppConstant.EosTenant.forall{ instanceEosTenant =>
+          ssoUserInfo.flatMap(_.tenant).contains(instanceEosTenant)
+        }
+
+      if (!tenantAuth){
+         complete(ForbiddenTemplate)
+      } else {
+        addSession(newSession)
+        clusterSessionActor ! PublishSessionInCluster(newSession)
+        setCookie(authCookieWithExpiration(sessionId, cookieDuration)) {
+          indexRedirect
+        }
       }
+
     }
   }
 

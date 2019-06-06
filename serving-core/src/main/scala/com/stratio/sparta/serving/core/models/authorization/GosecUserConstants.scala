@@ -10,9 +10,10 @@ object GosecUserConstants {
   val InfoIdTag = "id"
   val InfoMailTag = "mail"
   val InfoRolesTag = "roles"
-  val InfoGroupIDTag= "gidNumber"
-  val InfoGroupsTag= "groups"
+  val InfoGroupIDTag = "gidNumber"
+  val InfoGroupsTag = "groups"
+  val TenantTag = "tenant"
   val DummyMail = "email@email.com"
-  val AnonymousUser = GosecUser("*", "Anonymous", DummyMail,"0",Seq.empty[String],Seq.empty[String])
+  val AnonymousUser = GosecUser("*", "Anonymous", DummyMail,"0", Seq.empty, Seq.empty)
   val AllowedRoles = Seq("FullAdministrator","management_admin","sparta","sparta_zk")
 }
