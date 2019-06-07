@@ -69,7 +69,13 @@ class MarathonAppActor(executionStatusListenerActor: ActorRef) extends Actor wit
         executionService.updateStatus(ExecutionStatusUpdate(
           execution.getExecutionId,
           ExecutionStatus(
-            state = if (execution.lastStatus.state == Stopping) Stopped else execution.lastStatus.state,
+            state = {
+              if (execution.lastStatus.state == Stopping)
+                Stopped
+              else if(execution.lastStatus.state == StoppingByUser)
+                StoppedByUser
+              else execution.lastStatus.state
+            },
             statusInfo = Option(information)
           )))
       }
