@@ -38,8 +38,7 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
 
   def receiveApiActions(action : Any): Any = action match {
     case UploadPlugins(files, user) =>
-      validateFiles(files)
-      uploadPlugins(files, user)
+      if (validateFiles(files)) uploadPlugins(files, user)
     case ListPlugins(user) => browsePlugins(user)
     case DeletePlugins(user) => deletePlugins(user)
     case DeletePlugin(fileName, user) => deletePlugin(fileName, user)
@@ -113,25 +112,30 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
       JarsHelper.addPlugins(urls)
     }
 
-  def validateFiles(files: Seq[BodyPart]): Unit = {
+  def validateFiles(files: Seq[BodyPart]): Boolean = {
 
-    def validateFile(file: BodyPart): Unit = {
+    def validateFile(file: BodyPart): Boolean = {
       val filename = file.filename.orElse(file.name)
       if (filename.isEmpty) {
         sender ! Left(Failure(new Exception(s"It is necessary to specify a name in order to upload the file")))
       }
-      filename.foreach{ name =>
-        if (name.contains(" ")) {
-          log.warn(s"Plugin containing whitespaces found: $name")
-          sender ! Left(Failure(new Exception(s"Plugins name cannot contain whitespaces")))
+
+      val isValidFile =
+        filename.exists{ name =>
+          val hasWhitespaces =  name.contains(" ")
+          if (hasWhitespaces) {
+            log.warn(s"Plugin containing whitespaces found: $name")
+            sender ! Left(Failure(new Exception(s"Plugins name cannot contain whitespaces")))
+          }
+          !hasWhitespaces
         }
-      }
+      isValidFile
     }
 
     if (files.isEmpty) {
       sender ! Left(Failure(new Exception(s"At least one file is expected")))
     }
-    files.foreach(validateFile)
+    files.forall(validateFile)
   }
 
 }
