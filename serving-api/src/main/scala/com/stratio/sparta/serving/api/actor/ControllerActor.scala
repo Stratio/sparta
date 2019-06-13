@@ -110,6 +110,11 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
   private val oauthEnabled: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   private val headersAuthEnabled: Boolean = headersAuthConfig.exists(_.enabled)
 
+  private lazy val logRequestEnabled: Boolean =
+    Try(SpartaConfig.getApiConfig())
+      .getOrElse(None)
+      .exists(_.getBoolean("log-request"))
+
   require(
     !oauthEnabled || !headersAuthEnabled,
     "Authentication cannot be enabled to multiple options: oauth and headers"
@@ -143,6 +148,15 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     }
   }
 
+  private def logRequestEntity = mapRequest{ httpRequest =>
+    if (logRequestEnabled && log.isDebugEnabled) log.debug(httpRequest.toString)
+
+    httpRequest
+  }
+
+
+
+
   lazy val dynamicRoutes: Route = {
     val authRoutes: Option[LoggedUser] => Route =
       userAuth => allServiceRoutes(userAuth)
@@ -159,14 +173,16 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
 
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {
     compressResponse(Gzip) {
-      serviceRoutes.templateRoute(user) ~ serviceRoutes.executionRoute(user) ~
-        serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
-        serviceRoutes.pluginsRoute(user) ~ serviceRoutes.swaggerRoute ~
-        serviceRoutes.serviceInfoRoute(user) ~
-        serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
-        serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
-        serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
-        serviceRoutes.mlModelsRoutes(user) ~ serviceRoutes.scheduledWorkflowTasksRoutes(user) ~ serviceRoutes.qualityRuleResultRoutes(user)
+      serviceRoutes.pluginsRoute(user) ~ logRequestEntity {
+        serviceRoutes.templateRoute(user) ~ serviceRoutes.executionRoute(user) ~
+          serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
+          serviceRoutes.swaggerRoute ~ serviceRoutes.serviceInfoRoute(user) ~
+          serviceRoutes.configRoute(user) ~ serviceRoutes.crossdataRoute(user) ~
+          serviceRoutes.globalParametersRoute(user) ~ serviceRoutes.groupRoute(user) ~
+          serviceRoutes.debugRoutes(user) ~ serviceRoutes.parameterListRoute(user) ~
+          serviceRoutes.mlModelsRoutes(user) ~ serviceRoutes.scheduledWorkflowTasksRoutes(user) ~
+          serviceRoutes.qualityRuleResultRoutes(user)
+      }
     }
   }
 
