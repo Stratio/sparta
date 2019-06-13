@@ -11,6 +11,8 @@ import javax.management.ObjectName
 import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.core.enumerators.PhaseEnum
+import com.stratio.sparta.core.helpers.ExceptionHelper
+import com.stratio.sparta.core.models.WorkflowError
 import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.GraphStep
@@ -21,6 +23,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant.UserNameEnv
 import com.stratio.sparta.serving.core.constants.SparkConstant
 import com.stratio.sparta.serving.core.error._
+import com.stratio.sparta.serving.core.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
@@ -158,9 +161,9 @@ object ContextsService extends SchedulerUtils
       ssc.awaitTermination()
     } match {
       case Success(_) =>
-        finishClusterStreamingContext(spartaWorkflow, Map.empty)
+        finishClusterStreamingContext(execution, spartaWorkflow, Map.empty)
       case Failure(e) =>
-        finishClusterStreamingContext(spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        finishClusterStreamingContext(execution, spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage), Option(e))
         throw e
     }
   }
@@ -204,7 +207,7 @@ object ContextsService extends SchedulerUtils
       case Success(_) =>
         finishClusterBatchContext(execution, spartaWorkflow, Map.empty)
       case Failure(e) =>
-        finishClusterBatchContext(execution, spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage))
+        finishClusterBatchContext(execution, spartaWorkflow, Map(GraphStep.FailedKey -> e.getLocalizedMessage), Option(e))
         throw e
     }
   }
@@ -282,6 +285,37 @@ object ContextsService extends SchedulerUtils
     }
   }
 
+  private[driver] def notifyWorkflowExecutionFailed(workflowExecution: WorkflowExecution, exception: Throwable): Unit = {
+    if (workflowExecution.getWorkflowToExecute.debugMode.forall(mode => !mode) && workflowExecution.id.isDefined) {
+      val startedInfo = s"Workflow failing ..."
+      log.info(startedInfo)
+      exception match {
+        case ex: ErrorManagerException =>
+          executionService.updateStatus(ExecutionStatusUpdate(
+            workflowExecution.getExecutionId,
+            ExecutionStatus(
+              state = Failed,
+              statusInfo = Option(ex.getPrintableMsg))
+          ))
+        case ex =>
+          val message = ExceptionHelper.toPrintableException(ex)
+          val information = s"Error executing workflow in Spark driver context service"
+          val error = WorkflowError(
+            information,
+            PhaseEnum.Context,
+            exception.toString,
+            message
+          )
+          executionService.updateStatus(ExecutionStatusUpdate(
+            workflowExecution.getExecutionId,
+            ExecutionStatus(
+              state = Failed,
+              statusInfo = Option(message))
+          ), error)
+      }
+    }
+  }
+
   private[driver] def saveQualityRuleResultsToPostgres(qualityRulesResults: Seq[SparkQualityRuleResults], executionId: String): Unit =
     qualityRulesResults.foreach { sparkResult =>
       qualityRuleService.createQualityRuleResult(
@@ -308,10 +342,14 @@ object ContextsService extends SchedulerUtils
   private[driver] def finishClusterBatchContext(
                                                  execution: WorkflowExecution,
                                                  spartaWorkflow: SpartaWorkflow[RDD],
-                                                 cleanUpProperties: Map[String, String]
+                                                 cleanUpProperties: Map[String, String],
+                                                 exception: Option[Throwable] = None
                                                ): Unit = {
     finishLocalBatchContext(spartaWorkflow, cleanUpProperties)
-    notifyWorkflowExecutionStopping(execution)
+    exception match {
+      case Some(ex) => notifyWorkflowExecutionFailed(execution, ex)
+      case None => notifyWorkflowExecutionStopping(execution)
+    }
     stopSparkContext()
   }
 
@@ -325,10 +363,13 @@ object ContextsService extends SchedulerUtils
   }
 
   private[driver] def finishClusterStreamingContext(
+                                                     execution: WorkflowExecution,
                                                      spartaWorkflow: SpartaWorkflow[DStream],
-                                                     cleanUpProperties: Map[String, String]
+                                                     cleanUpProperties: Map[String, String],
+                                                     exception: Option[Throwable] = None
                                                    ): Unit = {
     finishLocalStreamingContext(spartaWorkflow, cleanUpProperties)
+    exception.foreach(ex => notifyWorkflowExecutionFailed(execution, ex))
     stopContexts()
   }
 

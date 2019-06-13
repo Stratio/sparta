@@ -107,6 +107,6 @@ object SparkConstant {
 
   val DefaultShutdownTaskTimeout = "10s"
   val DefaultShutdownTaskTimeoutMs = 10000
-  val GracePeriodMsShutdown = 3000
+  val GracePeriodMsShutdown = 5000
 
 }
