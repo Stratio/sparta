@@ -13,6 +13,7 @@ import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 import com.wordnik.swagger.annotations._
+import slick.jdbc.JdbcBackend
 import spray.http.StatusCodes
 import spray.routing._
 
@@ -41,9 +42,12 @@ trait AppStatusHttpService extends BaseHttpService {
             Option(ErrorModel(StatusCodes.InternalServerError.intValue, AppStatusZk, ErrorCodesMessages.getOrElse(AppStatusZk, UnknownError)))
           }
 
-          val maybePostgresError = Try(JdbcSlickConnection.getDatabase.createSession.conn).failed.map { _ =>
-            ErrorModel(StatusCodes.InternalServerError.intValue, AppStatusPostgres, ErrorCodesMessages.getOrElse(AppStatusPostgres, UnknownError))
-          }.toOption
+          val maybePostgresError =
+            Try(
+              withSession(JdbcSlickConnection.getDatabase)(session => session.conn)
+            ).failed.map { _ =>
+              ErrorModel(StatusCodes.InternalServerError.intValue, AppStatusPostgres, ErrorCodesMessages.getOrElse(AppStatusPostgres, UnknownError))
+            }.toOption
 
           val maybeErrors = maybeZKError ++ maybePostgresError
 
@@ -57,4 +61,14 @@ trait AppStatusHttpService extends BaseHttpService {
       }
     }
   }
+
+  private def withSession[T](slickDatabase: JdbcBackend.Database)(block: JdbcBackend.Session => T) = {
+    val session = slickDatabase.createSession()
+    try {
+      block(session)
+    } finally {
+      session.close()
+    }
+  }
+
 }
