@@ -281,7 +281,7 @@
         "propertyType": "text",
         "contentType": "URL",
         "width": 12,
-        "tooltip": "Get the Schema Registry schema.",
+        "tooltip": "Get the Schema Registry schema. E.g 'https://schemaNameinEos.marathon.mesos:8089'",
         "default": "",
         "visible": [
           [
