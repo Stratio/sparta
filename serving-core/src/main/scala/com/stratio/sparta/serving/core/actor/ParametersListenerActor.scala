@@ -12,6 +12,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.github.mustachejava.DefaultMustacheFactory
 import com.stratio.sparta.core.models.WorkflowValidationMessage
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecutionContext, WorkflowIdExecutionContext, _}
@@ -109,13 +110,21 @@ class ParametersListenerActor extends Actor with SpartaSerializer with SLF4JLogg
                                  ): Future[ParametersToApplyContext] = {
     for {
       workflowParamLists <- getVariablesFromParamLists(workflow.settings.global.parametersLists)
+      parentsParamLists <- getParentsFromParamLists(workflow.settings.global.parametersLists)
       paramListVariables <- getVariablesFromParamLists(executionContext.paramsLists)
       globalParametersVariables <- getVariablesFromGlobalParameters
     } yield {
-      val parametersToApply = globalParametersVariables ++ workflowParamLists ++
-        paramListVariables ++ executionContext.toParametersMap
-      val parametersWithoutValue = workflow.settings.global.parametersUsed.filterNot(parameter =>
-        parametersToApply.contains(parameter))
+      val parametersFromExecutionContext = executionContext.toParametersMap
+      val parentsParametersAndGlobal = parentsParamLists :+ "Global"
+      val executionParametersAddPrefixes: Map[String, String] = for {
+        (paramName, paramValue) <- parametersFromExecutionContext.filterKeys(!_.contains("."))
+        parentParamList <- parentsParametersAndGlobal
+      } yield (s"$parentParamList.$paramName", paramValue)
+
+        val parametersToApply = globalParametersVariables ++ workflowParamLists ++
+          paramListVariables ++ parametersFromExecutionContext ++ executionParametersAddPrefixes
+        val parametersWithoutValue = workflow.settings.global.parametersUsed.filterNot(parameter =>
+          parametersToApply.contains(parameter))
 
       ParametersToApplyContext(parametersToApply, parametersWithoutValue)
     }
@@ -224,6 +233,14 @@ class ParametersListenerActor extends Actor with SpartaSerializer with SLF4JLogg
       paramsLists.map(paramList => parameterListService.findByName(paramList))
     }.map { paramsLists =>
       paramsLists.flatMap(paramList => paramList.mapOfParameters ++ paramList.mapOfParametersWithPrefix).toMap
+    }
+  }
+
+  def getParentsFromParamLists(paramsLists: Seq[String]): Future[Seq[String]] = {
+    Future.sequence {
+      paramsLists.map(paramList => parameterListService.findByName(paramList))
+    }.map { paramsLists =>
+      paramsLists.map(paramList => paramList.parent.getOrElse(paramList.name))
     }
   }
 

@@ -48,5 +48,5 @@ class SparkQualityRuleThreshold(spartaQualityRuleThreshold: SpartaQualityRuleThr
     }
   }
 
-  private def roundTwoDecimalPositions(numberToRound: Double): Double = math.round(numberToRound * hundredDouble)/hundredDouble
+  private def roundTwoDecimalPositions(numberToRound: Double): Double = math.round(numberToRound * hundredDouble * hundredDouble)/hundredDouble * hundredDouble
 }

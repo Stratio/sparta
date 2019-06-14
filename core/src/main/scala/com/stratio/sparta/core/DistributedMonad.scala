@@ -251,8 +251,8 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
           }
 
           val qualityRulesFailingDataFrame = cachedRDD.map { row =>
-            val failingQRs = sparkRules.filter(rule => !rule.composedPredicates(row)).map(_.id)
-            val passingQRs = sparkRules.filterNot(x => failingQRs.contains(x.id)).map(_.id)
+            val failingQRs = sparkRules.filter(rule => !rule.composedPredicates(row)).map(_.id.toString)
+            val passingQRs = sparkRules.filterNot(x => failingQRs.contains(x.id)).map(_.id.toString)
             if(failingQRs.nonEmpty)
               Row.fromSeq(row.toSeq ++ Seq(passingQRs) ++ Seq(failingQRs) ++ Seq(executionId) ++ Seq(executionTime))
             else Row.empty

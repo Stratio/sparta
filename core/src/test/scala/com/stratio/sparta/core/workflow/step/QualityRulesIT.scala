@@ -49,6 +49,13 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     actionType = SpartaQualityRuleThresholdActionType(path = Some("error"), `type` = "ACT_PASS")
   )
 
+  val percentageThresholdNotToRound: SpartaQualityRuleThreshold = SpartaQualityRuleThreshold(
+    value = 79.98,
+    operation = "<=",
+    `type` = "%",
+    actionType = SpartaQualityRuleThresholdActionType(path = Some("error"), `type` = "ACT_PASS")
+  )
+
   def emptyFunction: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit =
     (_, _, _) => println("Fire in the hole!")
 
@@ -580,6 +587,35 @@ class QualityRulesIT extends TemporalSparkContext with Matchers {
     result.head.numPassedEvents shouldEqual 3
     result.head.numTotalEvents shouldEqual 5
     result.head.satisfied shouldEqual true
+  }
+
+  it should "not round more than 2 decimals" in {
+
+    val seqQualityRules = Seq(
+      SpartaQualityRulePredicate(`type` = Some("aaa"), order = 1, operands = Seq("yellow"), field = "color", operation = "NOT lIKe"))
+
+    val qualityRuleLike = SpartaQualityRule(id = 1, metadataPath = "blabla1",
+      name = "no yellow", qualityRuleScope = "data", logicalOperator = "and",
+      enable = true,
+      threshold = percentageThresholdNotToRound,
+      predicates = seqQualityRules,
+      stepName = "tableA",
+      outputName = "")
+
+    val result = classTest.get.writeRDDTemplate(dataSet.get,
+      outputOptions,
+      errorManagement,
+      Seq.empty[OutputStep[RDD]],
+      Seq("input1", "transformation1"),
+      Seq(qualityRuleLike),
+      emptyFunction)
+
+    result should not be empty
+
+    result.head.numDiscardedEvents shouldEqual 1
+    result.head.numPassedEvents shouldEqual 4
+    result.head.numTotalEvents shouldEqual 5
+    result.head.satisfied shouldEqual false
   }
 
 }
