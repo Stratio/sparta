@@ -122,7 +122,9 @@ export const getVersionsOrderedList = createSelector(
         return orderBy([
           ...(
               searchQuery.length ?
-              versions.filter(version => ('v' + version.version).indexOf(searchQuery) > -1) :
+              versions
+              .filter(version => ('v' + version.version)
+              .includes(searchQuery) || version.tagsAux.includes(searchQuery)) :
               versions
             )
           ],
