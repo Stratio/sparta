@@ -4,6 +4,11 @@
   margin-top: 10px;
   margin-bottom: 0;
   display: block;
+
+  i {
+    font-family: 'ico_stratio-custom' !important;
+  }
+
   &__buttons{
     float: right;
     .button{

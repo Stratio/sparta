@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'ico_stratio-custom';
-    src:  url('custom-font/ico_stratio-custom.eot?6tcoat');
-    src:  url('custom-font/ico_stratio-custom.eot?6tcoat#iefix') format('embedded-opentype'),
-      url('custom-font/ico_stratio-custom.ttf?6tcoat') format('truetype'),
-      url('custom-font/ico_stratio-custom.woff?6tcoat') format('woff'),
-      url('custom-font/ico_stratio-custom.svg?6tcoat#ico_stratio') format('svg');
+    src:  url('custom-font/ico_stratio-custom.eot?6tcoar');
+    src:  url('custom-font/ico_stratio-custom.eot?6tcoar#iefix') format('embedded-opentype'),
+      url('custom-font/ico_stratio-custom.ttf?6tcoar') format('truetype'),
+      url('custom-font/ico_stratio-custom.woff?6tcoar') format('woff'),
+      url('custom-font/ico_stratio-custom.svg?6tcoar#ico_stratio') format('svg');
     font-weight: normal;
     font-style: normal;
   }
@@ -1344,4 +1344,7 @@
   }
   .icon-lego:before {
     content: "\e941";
+  }
+  .icon-reload21:before {
+    content: "\e9c9";
   }
