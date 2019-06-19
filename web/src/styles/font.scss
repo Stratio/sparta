@@ -1,13 +1,13 @@
 @font-face {
-    font-family: 'ico_stratio-custom';
-    src:  url('custom-font/ico_stratio-custom.eot?6tcoar');
-    src:  url('custom-font/ico_stratio-custom.eot?6tcoar#iefix') format('embedded-opentype'),
-      url('custom-font/ico_stratio-custom.ttf?6tcoar') format('truetype'),
-      url('custom-font/ico_stratio-custom.woff?6tcoar') format('woff'),
-      url('custom-font/ico_stratio-custom.svg?6tcoar#ico_stratio') format('svg');
-    font-weight: normal;
-    font-style: normal;
-  }
+  font-family: 'ico_stratio-custom';
+  src:  url('custom-font/ico_stratio-custom.eot?6tcoar');
+  src:  url('custom-font/ico_stratio-custom.eot?6tcoar#iefix') format('embedded-opentype'),
+    url('custom-font/ico_stratio-custom.ttf?6tcoar') format('truetype'),
+    url('custom-font/ico_stratio-custom.woff?6tcoar') format('woff'),
+    url('custom-font/ico_stratio-custom.svg?6tcoar#ico_stratio') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
   i {
     /* use !important to prevent issues with browser extensions that change fonts */
@@ -1348,3 +1348,40 @@
   .icon-reload21:before {
     content: "\e9c9";
   }
+  .icon-xdata:before {
+    content: "\e9cf";
+  }
+  .icon-case1:before {
+    content: "\e9d0";
+  }
+  .icon-formatter:before {
+    content: "\e9d1";
+  }
+  .icon-pivot:before {
+    content: "\e9d2";
+  }
+  .icon-file-dictionary:before {
+    content: "\e9d3";
+  }
+  .icon-duplicatecolumn:before {
+    content: "\e9d4";
+  }
+  .icon-literal:before {
+    content: "\e9d5";
+  }
+  .icon-insert-literal:before {
+    content: "\e900";
+  }
+  .icon-integrity:before {
+    content: "\e901";
+  }
+  .icon-left-padding:before {
+    content: "\e902";
+  }
+  .icon-mask:before {
+    content: "\e903";
+  }
+  .icon-partial-info:before {
+    content: "\e904";
+  }
+
