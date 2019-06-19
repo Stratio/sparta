@@ -6,8 +6,8 @@
 package com.stratio.sparta.serving.api.oauth
 
 import java.util.UUID
-
-import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, RemoveSession}
+import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, RefreshSession, RemoveSession}
 
 object SessionStore {
 
@@ -17,6 +17,15 @@ object SessionStore {
     synchronized {
       import newSession._
       sessionStore += sessionId -> (identity, now + expires)
+    }
+  }
+
+  def refreshSession(refreshSession: RefreshSession): Unit = {
+    synchronized {
+      sessionStore.get(refreshSession.sessionId).foreach{
+        case (identity: String, _) =>
+          sessionStore += refreshSession.sessionId -> (identity, refreshSession.expirationTime)
+      }
     }
   }
 

@@ -7,7 +7,7 @@ package com.stratio.sparta.serving.api.oauth
 
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.api.actor.ClusterSessionActor.{NewSession, PublishRemoveSessionInCluster, PublishSessionInCluster, RemoveSession}
+import com.stratio.sparta.serving.api.actor.ClusterSessionActor._
 import com.stratio.sparta.serving.api.oauth.SessionStore._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.authorization.GosecUser
@@ -31,6 +31,10 @@ trait OauthClient extends HttpService with SLF4JLogging{
 
   private val cookieDuration: Long = sys.env.getOrElse("COOKIE_EXPIRATION_HOURS", "8").toLong * 3600000L
 
+  private def now: Long = System.currentTimeMillis
+
+  private def getCookieExpirationTime: Long = now + cookieDuration
+
   private val instancePath: Option[String] = AppConstant.virtualPath
 
   private def authCookieWithExpiration(sessionId: String, expirationDelta: Long = cookieDuration) = HttpCookie(
@@ -52,10 +56,11 @@ trait OauthClient extends HttpService with SLF4JLogging{
         case Some(x) => {
           getSession(x.content) match {
             case Some(cont: String) =>
+              val sessionToRefresh = RefreshSession(x.content, getCookieExpirationTime)
+              clusterSessionActor ! PublishRefreshSessionInCluster(sessionToRefresh)
               setCookie(authCookieWithExpiration(x.content)) & provide(cont)
             case None =>
               val sessionToRemove = RemoveSession(x.content)
-              removeSession(sessionToRemove)
               clusterSessionActor ! PublishRemoveSessionInCluster(sessionToRemove)
               complete(Unauthorized, "")
           }
@@ -63,15 +68,7 @@ trait OauthClient extends HttpService with SLF4JLogging{
         case None => complete(Unauthorized, "")
       }
     } else {
-      val sessionId = getRandomSessionId
-      val newSession = NewSession(sessionId, "*", Long.MaxValue)
-      addSession(newSession)
-      clusterSessionActor ! PublishSessionInCluster(newSession)
-      setCookie(HttpCookie(
-        configure.CookieName,
-        sessionId,
-        path = instancePath))
-      provide("*")
+      oauthDisabled
     }
   }
 
@@ -80,28 +77,30 @@ trait OauthClient extends HttpService with SLF4JLogging{
       optionalCookie(configure.CookieName) flatMap {
         case Some(x) =>
           getSession(x.content) match {
-            case Some(cont: String) => setCookie(authCookieWithExpiration(x.content)) & provide(cont)
+            case Some(cont: String) =>
+              setCookie(authCookieWithExpiration(x.content)) & provide(cont)
             case None =>
               val sessionToRemove = RemoveSession(x.content)
-              removeSession(sessionToRemove)
               clusterSessionActor ! PublishRemoveSessionInCluster(sessionToRemove)
               authorizeRedirect
           }
         case None => authorizeRedirect
       }
     } else {
-      val sessionId = getRandomSessionId
-      val newSession = NewSession(sessionId, "*", Long.MaxValue)
-      addSession(newSession)
-      clusterSessionActor ! PublishSessionInCluster(newSession)
-      setCookie(HttpCookie(
-        configure.CookieName,
-        sessionId,
-        path = instancePath))
-      provide("*")
+      oauthDisabled
     }
   }
 
+  private def oauthDisabled = {
+    val sessionId = getRandomSessionId
+    val newSession = NewSession(sessionId, "*", Long.MaxValue)
+    clusterSessionActor ! PublishSessionInCluster(newSession)
+    setCookie(HttpCookie(
+      configure.CookieName,
+      sessionId,
+      path = instancePath))
+    provide("*")
+  }
 
   val login: Route = (path("login") & get) {
     parameter("code") { code: String =>
@@ -121,7 +120,6 @@ trait OauthClient extends HttpService with SLF4JLogging{
       if (!tenantAuth){
          complete(ForbiddenTemplate)
       } else {
-        addSession(newSession)
         clusterSessionActor ! PublishSessionInCluster(newSession)
         setCookie(authCookieWithExpiration(sessionId, cookieDuration)) {
           indexRedirect
@@ -135,8 +133,6 @@ trait OauthClient extends HttpService with SLF4JLogging{
     get {
       optionalCookie(configure.CookieName) {
         case Some(x) => {
-          val sessionToRemove = RemoveSession(x.content)
-          removeSession(sessionToRemove)
           clusterSessionActor ! PublishRemoveSessionInCluster(RemoveSession(x.content))
           deleteCookie(configure.CookieName, path = "/") {
             logoutRedirect

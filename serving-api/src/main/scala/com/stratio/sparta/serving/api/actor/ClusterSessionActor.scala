@@ -33,10 +33,14 @@ class ClusterSessionActor extends Actor {
       SessionStore.addSession(newSession)
     case removeSession: RemoveSession =>
       SessionStore.removeSession(removeSession)
+    case refreshSession: RefreshSession =>
+      SessionStore.refreshSession(refreshSession)
     case PublishSessionInCluster(newSession) =>
       mediator ! Publish(ClusterTopicSession, newSession)
     case PublishRemoveSessionInCluster(sessionToRemove) =>
       mediator ! Publish(ClusterTopicSession, sessionToRemove)
+    case PublishRefreshSessionInCluster(sessionToRefresh) =>
+      mediator ! Publish(ClusterTopicSession, sessionToRefresh)
   }
 
 }
@@ -49,10 +53,14 @@ object ClusterSessionActor {
 
   case class NewSession(sessionId: String, identity: String, expires: Long) extends Notification
 
+  case class RefreshSession(sessionId: String, expirationTime: Long) extends Notification
+
   case class RemoveSession(sessionId: String) extends Notification
 
   case class PublishSessionInCluster(newSession: NewSession)
 
   case class PublishRemoveSessionInCluster(sessionToRemove: RemoveSession)
+
+  case class PublishRefreshSessionInCluster(sessionToRefresh: RefreshSession)
 
 }
