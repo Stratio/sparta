@@ -92,6 +92,16 @@ object SecurityHelper extends SLF4JLogging {
     else Map.empty[String, AnyRef]
   }
 
+  def addUserToConnectionURI(user: String, connectionURI: String) : String = {
+    if (connectionURI.contains("user=")) connectionURI
+    else {
+      if (connectionURI.contains("?"))
+        connectionURI + s"${if (!connectionURI.endsWith("&")) "&" else ""}user=$user"
+      else
+        connectionURI + s"?user=$user"
+    }
+  }
+
   /* PRIVATE METHODS */
 
   private def getDataStoreKeys(configDataStore: Map[String, String]): Map[String, AnyRef] =

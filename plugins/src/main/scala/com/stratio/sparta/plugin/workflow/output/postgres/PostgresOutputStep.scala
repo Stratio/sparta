@@ -18,6 +18,7 @@ import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.enumerations.TransactionTypes
 import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.helper.SecurityHelper._
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.workflow.lineage.JdbcLineage
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -50,7 +51,8 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
-  val urlWithSSL = if (tlsEnable) url + securityUri else url
+  lazy val urlWithUser = addUserToConnectionURI(spartaTenant, url)
+  val urlWithSSL = if (tlsEnable) urlWithUser + securityUri else url
 
   override lazy val lineageResource = ""
 

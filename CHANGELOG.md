@@ -6,6 +6,9 @@
     - [SPARTA-3128] Multitenant login
     - Integration with DCOS 1.12
     - Upgrade to new Gosec Facade version
+    
+* Bug fixing:
+    - [SPARTA-3093] Add user to jdbc connection string if not specified
 
 ## 2.8.1 (June 04, 2019)
 

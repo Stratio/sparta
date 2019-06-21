@@ -15,7 +15,8 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.InputStep
-import com.stratio.sparta.plugin.helper.SecurityHelper.getDataStoreUri
+import com.stratio.sparta.plugin.helper.SecurityHelper.{addUserToConnectionURI, getDataStoreUri}
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.workflow.lineage.JdbcLineage
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
@@ -39,7 +40,11 @@ class JdbcInputStepBatch(
 
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
-  val urlWithSSL = url.map(inputUrl => if (tlsEnable) inputUrl + securityUri else inputUrl)
+  val urlWithSSL = url.map(inputUrl =>
+    if (tlsEnable)
+      addUserToConnectionURI(spartaTenant, inputUrl) + securityUri
+    else
+      inputUrl)
 
   override lazy val lineageResource: String = table.getOrElse("")
 
