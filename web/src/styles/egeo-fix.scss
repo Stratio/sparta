@@ -118,3 +118,22 @@ workflows-manage-header .sth-breadcrumbs__item {
 .st-fullscreen-layout {
   position: fixed !important;
 }
+
+wizard-config-editor {
+
+  .st-fullscreen-layout {
+    position: inherit !important;
+  }
+
+  console-box {
+    position: absolute !important;
+  }
+
+  sp-select .options {
+    z-index: 99999 !important;
+  }
+
+}
+
+
+
