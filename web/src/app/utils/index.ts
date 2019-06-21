@@ -73,7 +73,7 @@ export function formatDate(stringDate: string, hours = true, complete = false) {
   if(!stringDate) {
     return '';
   }
-  
+
   try {
     const date: Date = new Date(stringDate);
     const todaysDate = new Date();
@@ -86,7 +86,7 @@ export function formatDate(stringDate: string, hours = true, complete = false) {
     } else {
       const date: Date = new Date(stringDate);
       const month: any = date.getMonth();
-      return hours ?  date.getDate() + ' ' + monthNames[month] + ' ' + 
+      return hours ?  date.getDate() + ' ' + monthNames[month] + ' ' +
       date.getFullYear() + ' - ' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2) :
         date.getDate() + ' ' + 'Jan' + ' ' + date.getFullYear();
 
@@ -173,13 +173,30 @@ export function mergeNoDuplicatedArrays(array1: any[], array2: any[], keyName: s
  * @param content [String] String to copy into the clipboard
  */
 export function copyIntoClipboard(content: string) {
+  try {
+    const copyText = document.createElement('textarea');
+    copyText.value = content;
+    copyText.style.opacity = '0';
+    const el = document.body.appendChild(copyText);
+    el.select();
+    document.execCommand('copy');
+    el.remove();
+  } catch (e) { }
+}
+
+export function getErrorMessage (error: any): string {
+  let message = '';
+  if (error && error.error) {
     try {
-      const copyText = document.createElement('textarea');
-      copyText.value = content;
-      copyText.style.opacity = '0';
-      const el = document.body.appendChild(copyText);
-      el.select();
-      document.execCommand('copy');
-      el.remove();
-    } catch (e) { }
+      const parsed = JSON.parse(error.error);
+      if (parsed.exception) {
+        message = parsed.exception;
+      }
+    } catch (e) {
+      message = error.error;
+    }
+  } else if (typeof error === 'string') {
+    message = error;
   }
+  return message;
+}

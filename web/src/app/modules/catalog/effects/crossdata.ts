@@ -14,6 +14,7 @@ import * as crossdataActions from './../actions/crossdata';
 import * as errorActions from 'actions/errors';
 
 import { CrossdataService } from 'app/services';
+import { getErrorMessage } from '@utils';
 
 
 @Injectable()
@@ -59,8 +60,8 @@ export class CrossdataEffect {
           return new crossdataActions.ExecuteQueryCompleteAction(queryResponse);
         })).pipe(catchError(function (error: any) {
           try {
-            const errorParsed: any = JSON.parse(error.error);
-            return of(new crossdataActions.ExecuteQueryErrorAction(errorParsed.exception));
+            const errorParsed: string = getErrorMessage(error);
+            return of(new crossdataActions.ExecuteQueryErrorAction(errorParsed));
           } catch (error) {
             return of(new crossdataActions.ExecuteQueryErrorAction('Unknow error'));
           }
