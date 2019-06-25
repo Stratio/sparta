@@ -238,15 +238,22 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
 
     steps = workflow.pipelineGraph.nodes.map { node =>
-      node.stepType.toLowerCase match {
+      val nodeToCreate = {
+        if (workflow.debugMode.getOrElse(false))
+          node
+        else
+          node.copy(configuration = node.configuration.filterKeys(key => key != "debugOptions"))
+      }
+
+      nodeToCreate.stepType.toLowerCase match {
         case InputStep.StepType =>
-          createInputStep(node)
+          createInputStep(nodeToCreate)
         case TransformStep.StepType =>
-          createTransformStep(node)
+          createTransformStep(nodeToCreate)
         case OutputStep.StepType =>
-          createOutputStep(node)
+          createOutputStep(nodeToCreate)
         case _ =>
-          throw new DriverException(s"Incorrect node step ${node.stepType}. Review the nodes in pipelineGraph")
+          throw new DriverException(s"Incorrect node step ${nodeToCreate.stepType}. Review the nodes in pipelineGraph")
       }
     }
 
