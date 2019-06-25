@@ -20,21 +20,27 @@ class SpartaQualityRuleParserTest extends FlatSpec
 
   it should "parse a GovernanceQualityRule as input to a QualityRule as output" in {
     import com.stratio.sparta.serving.core.models.governance.QualityRuleParser._
-    val governanceQualityRule = read[GovernanceQualityRule](GovernanceQualityRuleJson)
-    val expectedSpartaQualityRule = read[Seq[SpartaQualityRule]](SpartaQualityRuleJson)
+    val governanceQualityRule: GovernanceQualityRule = read[GovernanceQualityRule](GovernanceQualityRuleJson)
+    val expectedSpartaQualityRule: Seq[SpartaQualityRule] = read[Seq[SpartaQualityRule]](SpartaQualityRuleJson)
 
-    governanceQualityRule.parse("stepName","outputName") should be (expectedSpartaQualityRule)
+    val actualSpartaQualityRule: Seq[SpartaQualityRule] = governanceQualityRule.parse("stepName","outputName")
+
+    val rules: Seq[Cond] = governanceQualityRule.content.head.parameters.filter.cond
+    rules should have size(3)
+
+
+    actualSpartaQualityRule.seq.head.predicates should have size(3)
   }
 
   // TODO nistal move it to object when we will get a definitive structure from governance
   val GovernanceQualityRuleJson =
     """{
-      |"content": [
+      |  "content": [
       |    {
-      |      "id": 1,
-      |      "metadataPath": "postgreseos://postgreseos>/:writepeople:",
-      |      "name": "Quality Rule testing",
-      |      "description": "Quality Rule testing Quality Rule testing Quality Rule testing Quality Rule testing",
+      |      "id": 3,
+      |      "metadataPath": "postgreseos://postgreseos>/:sparta.test:",
+      |      "name": "final",
+      |      "description": "",
       |      "type": "SPARK",
       |      "catalogAttributeType": "RESOURCE",
       |      "parameters": {
@@ -42,27 +48,26 @@ class SpartaQualityRuleParserTest extends FlatSpec
       |          "cond": [
       |            {
       |              "order": 1,
-      |              "param": [
-      |                "20"
-      |              ],
-      |              "attribute": "age",
-      |              "operation": ">="
+      |              "param": [],
+      |              "attribute": "newColumn",
+      |              "operation": "is not null"
       |            },
       |            {
       |              "order": 2,
-      |              "attribute": "yearBirthday",
       |              "param": [
-      |                "19%"
+      |                {
+      |                  "name": "",
+      |                  "value": "11"
+      |                }
       |              ],
-      |              "operation": "like"
+      |              "attribute": "newColumn",
+      |              "operation": "<>"
       |            },
       |            {
       |              "order": 3,
-      |              "attribute": "gender",
-      |              "param": [
-      |                "Female"
-      |              ],
-      |              "operation": "in"
+      |              "param": [],
+      |              "attribute": "raw",
+      |              "operation": "is not null"
       |            }
       |          ],
       |          "type": "and",
@@ -72,21 +77,27 @@ class SpartaQualityRuleParserTest extends FlatSpec
       |      },
       |      "query": null,
       |      "active": true,
-      |      "resultUnit": 12,
-      |      "resultOperation": "=",
-      |      "resultOperationType": "abs",
+      |      "resultUnit": {
+      |        "name": "",
+      |        "value": "65"
+      |      },
+      |      "resultOperation": ">",
+      |      "resultOperationType": "%",
       |      "resultAction": {
-      |        "type": "ACT_PASS"
+      |        "path": "attribute-qr-failed",
+      |        "type": "ACT_MOV"
       |      },
       |      "resultExecute": {
+      |        "cron": null,
       |        "type": "EXE_REA"
       |      },
       |      "link": {
       |        "dashboards": []
       |      },
       |      "tenant": "NONE",
-      |      "createdAt": "2019-03-19T15:51:37.639Z",
-      |      "modifiedAt": "2019-03-19T15:51:37.639Z"
+      |      "createdAt": "2019-06-18T13:56:41.107Z",
+      |      "modifiedAt": "2019-06-18T13:56:41.107Z",
+      |      "userId": "admin"
       |    }
       |  ],
       |  "pageable": {
@@ -97,8 +108,8 @@ class SpartaQualityRuleParserTest extends FlatSpec
       |    "pageSize": 20,
       |    "pageNumber": 0,
       |    "offset": 0,
-      |    "unpaged": false,
-      |    "paged": true
+      |    "paged": true,
+      |    "unpaged": false
       |  },
       |  "totalElements": 1,
       |  "totalPages": 1,

@@ -28,24 +28,31 @@ case class Content(id: Long,
                    catalogAttributeType: String,
                    parameters: Parameters,
                    query: String,
-                   resultUnit: Double,
                    active: Boolean,
+                   resultUnit: NameValue,
                    resultOperation: String,
                    resultOperationType: String,
                    resultAction: ResultAction,
                    resultExecute: ResultExecute)
 
-case class Cond(`type`: Option[String],
-                order: Int,
-                param: Option[Seq[String]],
+case class Cond(order: Int,
                 attribute: String,
-                operation: String)
+                operation: String,
+                `type`: Option[String],
+                param: Option[Seq[NameValue]]
+                )
 
-case class Parameters(filter: Filter, catalogAttributeType: String)
+case class Parameters(catalogAttributeType: String,
+                      filter: Filter)
 
-case class Filter(cond: Seq[Cond],
+case class NameValue(name: String, value: String)
+
+case class TableParams(operation: String, params: Seq[NameValue])
+
+case class Filter(order: Double,
                   `type`: String,
-                  order: Double)
+                  cond: Seq[Cond]
+                 )
 
 case class ResultAction(path: Option[String],
                         `type`: String)

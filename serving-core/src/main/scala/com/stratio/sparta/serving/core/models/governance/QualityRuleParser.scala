@@ -20,7 +20,7 @@ object QualityRuleParser {
         val qualityRuleScope = x.catalogAttributeType
         val logicalOperator = x.parameters.filter.`type`
         val enabled = x.active
-        val thresholdValue = x.resultUnit
+        val thresholdValue = x.resultUnit.value.toDouble
         val thresholdOperation = x.resultOperation
         val thresholdOperationType = x.resultOperationType
         val thresholdActionType = SpartaQualityRuleThresholdActionType(`type` = x.resultAction.`type`)
@@ -28,10 +28,11 @@ object QualityRuleParser {
         val threshold = SpartaQualityRuleThreshold(thresholdValue, thresholdOperation, thresholdOperationType, thresholdActionType)
 
         val predicates: Seq[SpartaQualityRulePredicate] = x.parameters.filter.cond.map(x => {
+
           SpartaQualityRulePredicate(
             x.`type`,
             x.order,
-            x.param.getOrElse(Seq.empty[String]),
+            x.param.map{ seqNameValue => seqNameValue.map(_.value)}.getOrElse(Seq.empty[String]),
             x.attribute,
             x.operation)
         })
