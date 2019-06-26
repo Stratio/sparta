@@ -50,20 +50,26 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
 
   }
 
-  def createGlobalParameters(globalParameters: GlobalParameters): Future[GlobalParameters] =
+  def createGlobalParameters(globalParameters: GlobalParameters): Future[GlobalParameters] = {
+   validateGlobalParameters(globalParameters)
     for {
       _ <- createAndReturnList(globalParameters.variables)
     } yield globalParameters
+  }
 
-  def updateGlobalParameters(globalParameters: GlobalParameters): Future[GlobalParameters] =
+  def updateGlobalParameters(globalParameters: GlobalParameters): Future[GlobalParameters] = {
+    validateGlobalParameters(globalParameters)
     for {
       _ <- upsertList(globalParameters.variables)
     } yield globalParameters
+  }
 
-  def upsertParameterVariable(globalParametersVariable: ParameterVariable): Future[ParameterVariable] =
+  def upsertParameterVariable(globalParametersVariable: ParameterVariable): Future[ParameterVariable] = {
+    validateParameterVariable(globalParametersVariable)
     for {
       _ <- upsert(globalParametersVariable)
     } yield globalParametersVariable
+  }
 
   def deleteGlobalParameters(): Future[Boolean] = {
     log.debug(s"Deleting global parameters")
@@ -103,5 +109,14 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
     for {
       variable <- findByID(name)
     } yield variable.getOrElse(throw new ServerException(s"The global parameter variable $name doesn't exist"))
+
+  def validateGlobalParameters(request: GlobalParameters): Unit = request.variables.map(validateParameterVariable)
+
+  def validateParameterVariable(request: ParameterVariable): Unit =
+    for {
+      value <- request.value
+      if value.contains("\"\n")
+    } yield { throw new RuntimeException("Global and environment parameters can not contain quotes")}
+
 
 }

@@ -17,7 +17,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.dao.ParameterListDao
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
-import com.stratio.sparta.serving.core.models.parameters.{ParameterList, ParameterListAndContexts, ParameterListFromWorkflow, ParameterVariable}
+import com.stratio.sparta.serving.core.models.parameters._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.utils.JdbcSlickConnection
 
@@ -101,12 +101,14 @@ class ParameterListPostgresDao extends ParameterListDao {
 
   def findById(id: String): Future[ParameterList] = findByIdHead(id)
 
-  def createFromParameterList(parameterList: ParameterList): Future[ParameterList] =
+  def createFromParameterList(parameterList: ParameterList): Future[ParameterList] = {
+    validateEnvironmentParameters(parameterList)
     db.run(filterById(parameterList.name).result).flatMap { parameterLists =>
       if (parameterLists.nonEmpty)
         throw new ServerException(s"Unable to create parameter list ${parameterList.name} because it already exists")
       else createAndReturn(addId(addCreationDate(parameterList)))
     }
+  }
 
   def createFromWorkflow(parameterListFromWorkflow: ParameterListFromWorkflow): Future[ParameterList] = {
     val parametersInWorkflow = WorkflowPostgresDao.getParametersUsed(parameterListFromWorkflow.workflow)
@@ -137,6 +139,7 @@ class ParameterListPostgresDao extends ParameterListDao {
   }
 
   def update(parameterList: ParameterList): Future[Unit] = {
+    validateEnvironmentParameters(parameterList)
     updateActions(parameterList).flatMap { case (actions, (workflowsToUpdate, oldParameterListName, newParameterListName)) =>
       db.run(txHandler(DBIO.seq(actions: _*).transactionally)).map(_ =>
         if (cacheEnabled)
@@ -147,6 +150,7 @@ class ParameterListPostgresDao extends ParameterListDao {
 
   //scalastyle:off
   def updateActions(parameterList: ParameterList) = {
+    validateEnvironmentParameters(parameterList)
     val newParameterList = addCreationDate(addUpdateDate(parameterList))
     val id = newParameterList.id.getOrElse(
       throw new ServerException(s"No parameter list found by id ${newParameterList.id}"))
@@ -166,6 +170,7 @@ class ParameterListPostgresDao extends ParameterListDao {
   }
 
   def updateList(parameterLists: Seq[ParameterList]): Future[Unit] = {
+    parameterLists.map(validateEnvironmentParameters)
     val parentListsWithDates = parameterLists.map(element => addCreationDate(addUpdateDate(element)))
     val parentLists = parentListsWithDates.filter(_.parent.isEmpty)
     val childrenLists = parentListsWithDates.filter(_.parent.nonEmpty)
@@ -208,6 +213,14 @@ class ParameterListPostgresDao extends ParameterListDao {
       parametersLists <- findAll()
       response <- deleteYield(parametersLists)
     } yield response
+
+  def validateEnvironmentParameters(request: ParameterList): Unit = request.parameters.map(validateParameterVariable)
+
+  def validateParameterVariable(request: ParameterVariable): Unit =
+    for {
+      value <- request.value
+      if value.contains("\"\n")
+    } yield { throw new RuntimeException("Global and environment parameters can not contain quotes")}
 
   /** PRIVATE METHODS **/
 
