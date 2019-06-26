@@ -25,7 +25,6 @@ trait JdbcLineage extends SLF4JLogging {
   lazy val PostgresPrefix = "jdbc:postgresql://"
   lazy val SqlServerPrefix = "jdbc:sqlserver://"
   lazy val VipSuffix = ".marathon.l4lb.thisdcos.directory"
-  lazy val DomainSuffix = "." + Properties.envOrElse("EOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
   lazy val MesosDNSSuffix = ".mesos"
   lazy val PoolMesosDNSSuffix = ".marathon.mesos"
   lazy val OracleName = "oracle"
@@ -90,13 +89,6 @@ trait JdbcLineage extends SLF4JLogging {
 
             if (stripUrl.endsWith(VipSuffix)) {
               val parsedVip = stripUrl.stripSuffix(VipSuffix)
-              if (parsedVip.split("\\.").length > 1)
-                parsedVip.split("\\.", 2).lastOption
-              else
-                Option(parsedVip)
-            }
-            else if (stripUrl.endsWith(DomainSuffix)) {
-              val parsedVip = stripUrl.stripSuffix(DomainSuffix)
               if (parsedVip.split("\\.").length > 1)
                 parsedVip.split("\\.", 2).lastOption
               else

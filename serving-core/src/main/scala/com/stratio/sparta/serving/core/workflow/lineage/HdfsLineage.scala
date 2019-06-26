@@ -19,8 +19,6 @@ import scala.xml.XML
 
 object HdfsLineage extends SLF4JLogging {
 
-  lazy val DomainSuffix: String = "." + Properties.envOrElse("EOS_INTERNAL_DOMAIN", "paas.labs.stratio.com")
-
   lazy val defaultFsScheme: String =
     Try(
       FileSystem.get(HdfsService.configuration).getScheme
@@ -104,7 +102,8 @@ trait HdfsLineage {
       val propValues = (hdfsConfFile \\ "property" \ "value").map(_.toString.stripPrefix("<value>").stripSuffix("</value>"))
       val mapOfProps = propNames.zip(propValues).toMap
 
-      mapOfProps.get("fs.defaultFS").flatMap(_.stripPrefixWithIgnoreCase("hdfs://").split(":").headOption).map(_.stripSuffix(HdfsLineage.DomainSuffix))
+      mapOfProps.get("fs.defaultFS")
+        .flatMap(_.stripPrefixWithIgnoreCase("hdfs://").split(":").headOption)
     }
   }
 
