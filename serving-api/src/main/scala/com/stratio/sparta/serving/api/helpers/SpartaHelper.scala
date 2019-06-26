@@ -7,7 +7,6 @@
 package com.stratio.sparta.serving.api.helpers
 
 import scala.util.Try
-
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import akka.event.slf4j.SLF4JLogging
@@ -15,12 +14,11 @@ import akka.io.IO
 import com.typesafe.config.ConfigFactory
 import org.apache.ignite.Ignition
 import spray.can.Http
-
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.factory.{PostgresFactory, SparkContextFactory}
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.migration.hydra.HydraMigrationService
@@ -101,7 +99,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       }
 
       import com.stratio.sparta.serving.api.cluster.SpartaAkkaCluster._
-      startClusterSingletons(Seq((QualityRuleActor.name, QualityRuleActor.props)))
+      startClusterSingletons(Seq((AkkaConstant.QualityRuleResultSenderActorName, QualityRuleResultSenderActor.props)))
     }
     else log.info("Sparta configuration is not defined")
 

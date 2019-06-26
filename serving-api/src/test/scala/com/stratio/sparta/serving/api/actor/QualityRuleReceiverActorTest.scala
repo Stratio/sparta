@@ -8,8 +8,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.ActorSystem
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
-import com.stratio.sparta.core.models.SpartaQualityRule
-import com.stratio.sparta.serving.api.actor.QualityRuleActor._
+import com.stratio.sparta.serving.api.actor.QualityRuleReceiverActor._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow._
 import org.json4s.native.Serialization.read
@@ -19,10 +18,9 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.concurrent.duration._
 import scala.io.Source
-import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
-class QualityRuleActorTest extends TestKit(ActorSystem("QualityRuleActorTest"))
+class QualityRuleReceiverActorTest extends TestKit(ActorSystem("QualityRuleReceiverActorTest"))
   with ImplicitSender
   with FlatSpecLike
   with ShouldMatchers
@@ -35,16 +33,18 @@ class QualityRuleActorTest extends TestKit(ActorSystem("QualityRuleActorTest"))
     val predecessorsNamesWithTableNames = (for {
       predecessor <- predecessors
       (nodeGraph, (_, tableName)) <- predecessor
-    } yield { (nodeGraph.name,  tableName) }).toMap
-    predecessorsNamesWithTableNames.find {case (predecessorName, _) => predecessorName == "Postgres"} should be (Option(("Postgres", "mytable")))
-    predecessorsNamesWithTableNames.find {case (predecessorName, _) => predecessorName == "Postgres_1"} should be (Option(("Postgres_1", "append")))
+    } yield {
+      (nodeGraph.name, tableName)
+    }).toMap
+    predecessorsNamesWithTableNames.find { case (predecessorName, _) => predecessorName == "Postgres" } should be(Option(("Postgres", "mytable")))
+    predecessorsNamesWithTableNames.find { case (predecessorName, _) => predecessorName == "Postgres_1" } should be(Option(("Postgres_1", "append")))
   }
 
   it should "retrieve all inputs and outputs in a workflow" in {
     val inputOutputGraphNodes = retrieveInputOutputGraphNodes(workflow)
-    inputOutputGraphNodes.find {case (nodeGraph, _) => nodeGraph.name == "Test"}.isDefined should be (true)
-    inputOutputGraphNodes.find {case (nodeGraph, _) => nodeGraph.name == "Postgres"}.isDefined should be (true)
-    inputOutputGraphNodes.find {case (nodeGraph, _) => nodeGraph.name == "Postgres_1"}.isDefined should be (true)
+    inputOutputGraphNodes.find { case (nodeGraph, _) => nodeGraph.name == "Test" }.isDefined should be(true)
+    inputOutputGraphNodes.find { case (nodeGraph, _) => nodeGraph.name == "Postgres" }.isDefined should be(true)
+    inputOutputGraphNodes.find { case (nodeGraph, _) => nodeGraph.name == "Postgres_1" }.isDefined should be(true)
   }
 
   override def afterAll: Unit = {

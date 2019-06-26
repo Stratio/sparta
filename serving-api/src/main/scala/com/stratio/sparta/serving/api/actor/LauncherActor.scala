@@ -14,7 +14,7 @@ import com.stratio.sparta.core.enumerators.PhaseEnum
 import com.stratio.sparta.core.helpers.ExceptionHelper
 import com.stratio.sparta.core.models.{SpartaQualityRule, WorkflowError}
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.api.actor.QualityRuleActor.RetrieveQualityRules
+import com.stratio.sparta.serving.api.actor.QualityRuleReceiverActor.RetrieveQualityRules
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.ParametersListenerActor.{ValidateExecutionContextToWorkflow, ValidateExecutionContextToWorkflowId}
@@ -39,8 +39,7 @@ import scala.util.{Failure, Success, Try}
 class LauncherActor(
                      parametersStateActor: ActorRef,
                      localLauncherActor: ActorRef,
-                     debugLauncherActor: ActorRef,
-                     qualityRuleActor: ActorRef
+                     debugLauncherActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -49,11 +48,15 @@ class LauncherActor(
   private val workflowService = PostgresDaoFactory.workflowPgService
   private val debugPgService = PostgresDaoFactory.debugWorkflowPgService
 
-  private val marathonLauncherActor = context.actorOf(
+  val qualityRuleReceiverActor = context.actorOf(Props(new QualityRuleReceiverActor()),
+    s"$QualityRuleReceiverActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
+
+  val marathonLauncherActor = context.actorOf(
     Props(new MarathonLauncherActor),
     s"$MarathonLauncherActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
   )
-  private val clusterLauncherActor = context.actorOf(
+
+  val clusterLauncherActor = context.actorOf(
     Props(new ClusterLauncherActor()),
     s"$ClusterLauncherActorName-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}"
   )
@@ -443,7 +446,7 @@ class LauncherActor(
 
   def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
     if(qualityRulesEnabled)
-      (qualityRuleActor ? RetrieveQualityRules(workflow)).mapTo[Seq[SpartaQualityRule]]
+      (qualityRuleReceiverActor ? RetrieveQualityRules(workflow)).mapTo[Seq[SpartaQualityRule]]
     else Future.successful(Seq.empty[SpartaQualityRule])
   }
 

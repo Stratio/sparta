@@ -8,10 +8,7 @@ package com.stratio.sparta.serving.api.actor
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-import akka.actor.{Actor, Cancellable, Props}
-import akka.cluster.Cluster
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Subscribe, Unsubscribe}
+import akka.actor.Actor
 import akka.http.scaladsl.model.HttpMethods
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.stream.ActorMaterializer
@@ -22,74 +19,48 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.MetadataPath
-import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor
-import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
-import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.governance.{GovernanceQualityResult, GovernanceQualityRule, QualityRuleResult}
+import com.stratio.sparta.serving.core.models.governance.GovernanceQualityRule
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
-import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, SpartaClusterUtils}
+import com.stratio.sparta.serving.core.utils.HttpRequestUtils
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
 import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.dstream.DStream
-import org.json4s.jackson.Serialization.write
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 import scalax.collection.Graph
 import scalax.collection.edge.LDiEdge
 
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
+class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
 
-class QualityRuleActor extends Actor
-  with HttpRequestUtils with SpartaClusterUtils {
-
-  import QualityRuleActor._
+  import QualityRuleReceiverActor._
   import com.stratio.sparta.serving.core.models.governance.QualityRuleParser._
+
+  case class StepOutputRule(stepName: String, outputName: String, rule: String)
 
   implicit val executionContext: ExecutionContext = context.dispatcher
   implicit val system = context.system
   implicit val actorMaterializer = ActorMaterializer()
-  val cluster = Cluster(context.system)
-
-  implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
-
-  val mediator = DistributedPubSub(context.system).mediator
-
-  val qualityRuleResultsService = PostgresDaoFactory.qualityRuleResultPgService
-
-  private lazy val governancePushTickTask: Cancellable = context.system.scheduler.schedule(1 minutes, GovernancePushDuration, self, GovernancePushTick)
 
   lazy val enabled = Try(SpartaConfig.getDetailConfig().get.getString("lineage.enable").toBoolean).getOrElse(false)
-
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
-  lazy val postEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.post.endpoint"))
-    .getOrElse("v1/quality/metrics")
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.endpoint"))
     .getOrElse("v1/quality/quality/searchByMetadataPathLike")
-  val noTenant = Some("NONE")
-
-
-  override def preStart(): Unit = {
-    if ( enabled ) {
-      mediator ! Subscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
-      governancePushTickTask
-    }
-  }
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", "NONE"))
 
   override def receive: Receive = {
-
-    case RetrieveQualityRules(workflow) => {
+    case RetrieveQualityRules(workflow) =>
       log.debug(s"Received RetrieveQualityRules($workflow) and LINEAGE_ENABLED is set to $enabled")
       val currentSender = sender()
 
       val qualityRules: Future[Seq[SpartaQualityRule]] =
-        if ( enabled )
+        if (enabled)
           retrieveQualityRules(workflow)
         else Future(Seq.empty[SpartaQualityRule])
 
@@ -100,65 +71,7 @@ class QualityRuleActor extends Actor
           log.error(ex.getLocalizedMessage, ex)
           currentSender ! Seq.empty[SpartaQualityRule]
       }
-
-    }
-    case GovernancePushTick =>
-      log.debug(s"Received GovernancePushTickand LINEAGE_ENABLED is set to $enabled")
-      governancePushRest
-    case workflowExecutionStatusChange: ExecutionStatusChange =>
-      if (
-        (workflowExecutionStatusChange.executionChange.newExecution.lastStatus.state == StoppedByUser ||
-          workflowExecutionStatusChange.executionChange.newExecution.lastStatus.state == Finished) && workflowExecutionStatusChange.executionChange.originalExecution.lastStatus.state != workflowExecutionStatusChange.executionChange.newExecution.lastStatus.state
-      ) governancePushRest
   }
-
-  override def postStop(): Unit = {
-    if (enabled) {
-      mediator ! Unsubscribe(ExecutionStatusChangePublisherActor.ClusterTopicExecutionStatus, self)
-      governancePushTickTask.cancel()
-    }
-    super.postStop()
-  }
-
-  def sendResultsToApi(qualityRuleResult: QualityRuleResult): Future[(String, Boolean)] = {
-
-    val qualityRuleGovernance: GovernanceQualityResult =
-      GovernanceQualityResult.parseSpartaResult(qualityRuleResult, noTenant)
-
-    val qualityRuleResultJson = write(qualityRuleGovernance)
-
-    if (isThisNodeClusterLeader(cluster)) {
-      val resultPost = doRequest(
-        uri = uri,
-        resource = postEndpoint,
-        method = HttpMethods.POST,
-        body = Option(qualityRuleResultJson),
-        cookies = Seq.empty,
-        headers = rawHeaders
-      )
-
-      val result = for {
-        (status, response) <- resultPost
-        _ <- qualityRuleResultsService.upsert(qualityRuleResult.copy(sentToApi = true, warning = false))
-      } yield {
-        log.debug(s"Quality rule sent with requestBody $qualityRuleResultJson and receive status: ${status.value} and response: $response")
-        response
-      }
-
-      result.onComplete { completedAction: Try[String] =>
-        completedAction match {
-          case Success(response) =>
-            log.info(s"Sent results for quality rule ${qualityRuleResult.id.getOrElse("Without id!")} with response: $response")
-          case Failure(e) =>
-            log.error(s"Error sending data for quality rule ${qualityRuleResult.id.getOrElse("Without id!")} to API with POST method", e)
-        }
-      }
-      result.map(_ => (qualityRuleResult.id.getOrElse("Without id!"), true))
-    } else Future.successful(("None", true))
-  }
-
-  case class StepOutputRule(stepName: String, outputName: String, rule: String)
-
 
   def getQualityRulesfromApi(stepName: String,
                              outputName: String,
@@ -176,7 +89,7 @@ class QualityRuleActor extends Actor
       headers = rawHeaders
     )
 
-    resultGet.map{ case (status, response)  =>
+    resultGet.map { case (status, response) =>
       log.debug(s"Quality rule request for metadatapath ${metadataPath.toString} received with status ${status.value} and response $response")
       StepOutputRule(stepName, outputName, response)
     }
@@ -192,18 +105,20 @@ class QualityRuleActor extends Actor
 
     val resultF: Seq[Future[Seq[SpartaQualityRule]]] = for {
       predecessorsMetadataPath <- predecessorsMetadataPaths
-    } yield {retrieveQualityRulesFromGovernance(predecessorsMetadataPath)}
+    } yield {
+      retrieveQualityRulesFromGovernance(predecessorsMetadataPath)
+    }
 
     Future.sequence(resultF).map(_.flatten)
   }
 
 
-
   def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String, MetadataPath)]): Future[Seq[SpartaQualityRule]] = {
     import org.json4s.native.Serialization.read
 
-    val rulesFromApi: Seq[Future[StepOutputRule]] = metadataPaths.toSeq.map{
-      case (step, (output, meta)) => getQualityRulesfromApi(step, output, meta)}
+    val rulesFromApi: Seq[Future[StepOutputRule]] = metadataPaths.toSeq.map {
+      case (step, (output, meta)) => getQualityRulesfromApi(step, output, meta)
+    }
 
     val fromSeqFutureToFutureSeq: Future[Seq[StepOutputRule]] = Future.sequence(rulesFromApi)
 
@@ -216,48 +131,15 @@ class QualityRuleActor extends Actor
     seqQualityRules
   }
 
-  def governancePushRest: Unit = {
-    if (enabled) {
-      val finalResult: Future[List[String]] = for {
-        unsentRules <- qualityRuleResultsService.findAllUnsent()
-        result <- Future.sequence(
-          unsentRules.map(rule => sendResultsToApi(rule))
-        )
-      } yield {
-        result.map( res => res._1)
-      }
-
-      finalResult.onSuccess {
-        case list => log.debug(s"Correctly sent results for quality rules: ${list.mkString(",")}")
-      }
-    }
-  }
-
 }
 
-object QualityRuleActor extends ContextBuilderImplicits
-  with SpartaSerializer {
-
-  def props: Props =  Props[QualityRuleActor]
-  val name = "QualityRuleActor"
-
-  val ExecutionStatusQualityRuleKey = "execution-status-qualityRule"
-
-  val AllowedDataGovernanceOutputs = Seq("Postgres", "Jdbc", "Avro", "Csv", "FileSystem", "Parquet", "Xml", "Json", "Text")
-
-  val GovernancePushDuration: FiniteDuration = 15 minute
+object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSerializer {
 
   case class RetrieveQualityRules(workflow: Workflow)
 
-  case object GovernancePushTick
+  val AllowedDataGovernanceOutputs = Seq("Postgres", "Jdbc", "Avro", "Csv", "FileSystem", "Parquet", "Xml", "Json", "Text")
 
-  lazy val actorTypeKey = "SPARTA"
-
-  val rawHeaders = Seq(RawHeader("X-TenantID", "NONE"))
-  val HttpStatusOK = "200 OK"
-  val noTenant = Some("NONE")
-
-  def retrieveInputOutputGraphNodes(workflow: Workflow) : Seq[(NodeGraph, Map[String, String])] = {
+  def retrieveInputOutputGraphNodes(workflow: Workflow): Seq[(NodeGraph, Map[String, String])] = {
     import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
     val errorManager = PostgresNotificationManagerImpl(workflow)
 
@@ -269,7 +151,7 @@ object QualityRuleActor extends ContextBuilderImplicits
       val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.inputOutputGraphNodesWithLineageProperties(workflow)
-    } else Seq.empty[(NodeGraph, Map[String,String])]
+    } else Seq.empty[(NodeGraph, Map[String, String])]
   }
 
   def retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties: Seq[(String, (String, String, Map[String, String]))],
@@ -277,7 +159,7 @@ object QualityRuleActor extends ContextBuilderImplicits
   // Step, Out, Metadata
   {
     graphOutputPredecessorsWithTableNameAndProperties
-      .filter {case ((_,(_,nodePrettyName,_))) =>  AllowedDataGovernanceOutputs.contains(nodePrettyName)}
+      .filter { case ((_, (_, nodePrettyName, _))) => AllowedDataGovernanceOutputs.contains(nodePrettyName) }
       .flatMap { case (pluginName, (nodeName, _, props)) =>
         props.get(ServiceKey).map { serviceName =>
           val transformationStep = workflow.pipelineGraph.nodes.filter(_.name == nodeName).head
@@ -287,20 +169,24 @@ object QualityRuleActor extends ContextBuilderImplicits
           val dataStoreType = outputStep.classPrettyName
           val extraPath = props.get(PathKey)
             .map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), tableNameType))
-          Map(nodeName ->( pluginName, MetadataPath(serviceName, extraPath, tableNameType)))
+          Map(nodeName -> (pluginName, MetadataPath(serviceName, extraPath, tableNameType)))
         }
       }
   }
 
-  private def getTableNameWithSchema(nodeName: String, transformationStep: NodeGraph, outputStep: NodeGraph, props: Map[String, String]): Option[String] =  {
-    val tableName = transformationStep.writer.tableName.fold(nodeName){ nameFromWriter => nameFromWriter.toString }
+  private def getTableNameWithSchema(
+                                      nodeName: String,
+                                      transformationStep: NodeGraph,
+                                      outputStep: NodeGraph,
+                                      props: Map[String, String]
+                                    ): Option[String] = {
+    val tableName = transformationStep.writer.tableName.fold(nodeName) { nameFromWriter => nameFromWriter.toString }
     val schema = props.get(DefaultSchemaKey).notBlank.getOrElse("public")
     //The schema must be added only if it is a postgres or a jdbc output and if it was not specified by the user
     if ((outputStep.classPrettyName.equalsIgnoreCase("Postgres") || outputStep.classPrettyName.equalsIgnoreCase("Jdbc"))
-        && !tableName.contains(".")) Option(s"$schema.$tableName")
+      && !tableName.contains(".")) Option(s"$schema.$tableName")
     else Option(tableName)
   }
-
 
 
   def getOutputPredecessorsWithTableName(workflow: Workflow): Seq[Map[NodeGraph, (NodeGraph, String)]] = {
@@ -323,15 +209,19 @@ object QualityRuleActor extends ContextBuilderImplicits
   }
 
 
-  def retrieveGraphOutputPredecessorsWithTableNameAndProperties(graphOutputPredecessorsWithTableName: Seq[Map[NodeGraph, (NodeGraph, String)]],
-                                                                inputOutputGraphNodes: Seq[(NodeGraph, Map[String,String])]):
+  def retrieveGraphOutputPredecessorsWithTableNameAndProperties(
+                                                                 graphOutputPredecessorsWithTableName: Seq[Map[NodeGraph, (NodeGraph, String)]],
+                                                                 inputOutputGraphNodes: Seq[(NodeGraph, Map[String, String])]
+                                                               ):
   Seq[(String, (String, String, Map[String, String]))] =
   //outputName, (stepName, outputPrettyName, Properties)
     graphOutputPredecessorsWithTableName.flatMap { a =>
-      a.map { case(output, (predecessor, _)) =>
+      a.map { case (output, (predecessor, _)) =>
         (output.name, (predecessor.name, output.classPrettyName, inputOutputGraphNodes.find(_._1.name == output.name)
-          .headOption.map {case (_, properties) => properties}
+          .headOption.map { case (_, properties) => properties }
           .getOrElse(Map.empty[String, String])))
       }
     }
 }
+
+

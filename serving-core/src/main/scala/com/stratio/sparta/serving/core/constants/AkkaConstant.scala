@@ -42,6 +42,8 @@ object AkkaConstant {
   val RunWorkflowListenerActorName = "RunWorkflowListenerActorName"
   val ScheduledWorkflowTaskActorName = "ScheduledWorkflowTaskActorName"
   val ScheduledWorkflowTaskExecutorActorName = "ScheduledWorkflowTaskExecutorActorName"
+  val QualityRuleResultSenderActorName = "QualityRuleResultSenderActor"
+  val QualityRuleReceiverActorName = "QualityRuleReceiverActor"
 
 
   lazy val DefaultInstances = Try(SpartaConfig.getDetailConfig().get.getInt("actors.instances"))

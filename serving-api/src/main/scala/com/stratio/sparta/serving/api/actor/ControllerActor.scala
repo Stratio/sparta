@@ -11,7 +11,6 @@ import akka.event.slf4j.SLF4JLogging
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.api.cluster.SpartaAkkaCluster
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport, HeadersAuthSupport}
 import com.stratio.sparta.serving.api.oauth.OauthClient
@@ -56,9 +55,8 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
     .props(Props(new TemplateActor())), TemplateActorName)
   val localLauncherActor = context.actorOf(Props(new LocalLauncherActor()), LocalLauncherActorName)
   val debugLauncherActor = context.actorOf(Props(new DebugLauncherActor()), DebugLauncherActorName)
-  val qualityRuleActor = SpartaAkkaCluster.proxyInstanceForName(QualityRuleActor.name)(context.system)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(parametersListenerActor, localLauncherActor, debugLauncherActor, qualityRuleActor))), LauncherActorName)
+    .props(Props(new LauncherActor(parametersListenerActor, localLauncherActor, debugLauncherActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new WorkflowActor(launcherActor, parametersListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
