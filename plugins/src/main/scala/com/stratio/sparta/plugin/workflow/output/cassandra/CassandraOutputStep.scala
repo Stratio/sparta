@@ -9,11 +9,15 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.enumerators.SaveModeEnum.{Append, ErrorIfExists, Ignore, Overwrite}
-import com.stratio.sparta.core.models.ErrorValidations
+import com.stratio.sparta.core.models.{ErrorValidations, WorkflowValidationMessage}
+import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.common.cassandra.CassandraBase
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
+
+import scala.util.Try
 
 class CassandraOutputStep(
                            name: String,
@@ -21,6 +25,10 @@ class CassandraOutputStep(
                            properties: Map[String, JSerializable]
                          ) extends OutputStep(name, xDSession, properties) with CassandraBase {
 
+  lazy val tlsEnabled = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
+  val sparkConf = xDSession.conf.getAll
+  val securityOpts = if (tlsEnabled) SecurityHelper.cassandraSecurityOptions(sparkConf) else Map.empty
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] = Seq(Append, ErrorIfExists, Ignore, Overwrite)
 
@@ -31,25 +39,23 @@ class CassandraOutputStep(
     validateSaveMode(saveMode)
 
     val tableName = getTableNameFromOptions(options)
-    val sparkConfig = getSparkConfig(tableName)
 
     dataFrame.write
       .format(CassandraClass)
       .mode(getSparkSaveMode(saveMode))
-      .options(sparkConfig ++ getCustomProperties)
+      .options(getSparkConfig(tableName) ++ securityOpts ++ getCustomProperties)
       .save()
   }
 
-  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations =
+  override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     validateProperties(options)
+  }
 }
 
 object CassandraOutputStep {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    Seq(
-      ("spark.cassandra.connection.host", CassandraBase.getConnectionHostsConf(configuration))
-    )
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }
 

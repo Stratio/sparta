@@ -15,10 +15,13 @@ import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, Workflow
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.plugin.common.cassandra.CassandraBase
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
+
+import scala.util._
 
 class CassandraInputStepBatch(
                                name: String,
@@ -30,6 +33,10 @@ class CassandraInputStepBatch(
   extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with CassandraBase {
 
   lazy val table = properties.getString("table", None).notBlank
+  lazy val tlsKey = "tlsEnabled"
+  lazy val sparkConf = xDSession.conf.getAll
+  lazy val tlsEnabled = Try(properties.getString(tlsKey, "false").toBoolean).getOrElse(false)
+  lazy val securityOpts = if (tlsEnabled) SecurityHelper.cassandraSecurityOptions(sparkConf) else Map.empty
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = validateProperties(options)
@@ -73,7 +80,7 @@ class CassandraInputStepBatch(
     }
     val df = xDSession.sqlContext.read
       .format(CassandraClass)
-      .options(getSparkConfig(table.get) ++ userOptions)
+      .options(getSparkConfig(table.get) ++ securityOpts ++ userOptions)
       .load()
 
     (df.rdd, Option(df.schema))
@@ -83,9 +90,7 @@ class CassandraInputStepBatch(
 object CassandraInputStepBatch {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    Seq(
-      ("spark.cassandra.connection.host", CassandraBase.getConnectionHostsConf(configuration))
-    )
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 
 }

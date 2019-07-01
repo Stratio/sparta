@@ -44,6 +44,14 @@
         "tooltip": "",
         "qa": "fragment-details-cassandra-cluster"
       },
+      {
+        "propertyId": "tlsEnabled",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection.",
+        "default": false,
+        "qa": "fragment-details-cassandra-tls"
+      },
        {
           "propertyId": "errorSink",
           "propertyName": "_ERROR_SINK_",

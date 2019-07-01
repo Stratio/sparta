@@ -171,4 +171,32 @@ object SecurityHelper extends SLF4JLogging {
       mappedProps
     } else Map.empty[String, String]
   }
+
+  def cassandraSecurityOptions(sparkConf: Map[String, String]): Map[String, String] = {
+    val sparkConfPrefix = "spark.ssl.datastore."
+    val cassandraPrefix = "spark.cassandra.connection.ssl"
+
+    val cassandraConf = for {
+      (k, v) <- sparkConf
+      if k.startsWith(sparkConfPrefix)
+    } yield k.split(sparkConfPrefix, 2).apply(1) -> v
+
+    {
+      for {
+        enabled <- cassandraConf.get("enabled")
+        if enabled == "true"
+      } yield {
+        Map(
+          s"$cassandraPrefix.enabled" -> cassandraConf("enabled"),
+          s"$cassandraPrefix.keyStore.path" -> cassandraConf("keyStore"),
+          s"$cassandraPrefix.keyStore.password" -> cassandraConf("keyStorePassword"),
+          s"$cassandraPrefix.trustStore.path" -> cassandraConf("trustStore"),
+          s"$cassandraPrefix.trustStore.password" -> cassandraConf("trustStorePassword"),
+            s"$cassandraPrefix.clientAuth.enabled" -> "true",
+          "spark.cassandra.auth.username" -> "dummy",
+          "spark.cassandra.auth.password" -> "dummy"
+        )
+      }
+    } getOrElse Map.empty
+  }
 }
