@@ -57,13 +57,16 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     val result = new HashTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columnsToDuplicate" -> fields)
+      Map("columnsToHash" -> fields)
     ).transformWithDiscards(inputData)._1
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
@@ -72,18 +75,18 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      assert(dataOut.contains(row))
+    }
   }
 
 
@@ -119,13 +122,16 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     val result = new HashTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columnsToDuplicate" -> fields)
+      Map("columnsToHash" -> fields)
     ).transformWithDiscards(inputData)._1
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
@@ -134,18 +140,18 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      assert(dataOut.contains(row))
+    }
   }
 
 
@@ -181,13 +187,16 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     val result = new HashTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columnsToDuplicate" -> fields)
+      Map("columnsToHash" -> fields)
     ).transformWithDiscards(inputData)._1
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
@@ -196,18 +205,18 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      assert(dataOut.contains(row))
+    }
   }
 
   "A HashTransformStepStreamingIT" should "create an SHA2 hash with a length of 384 for the selected column" in {
@@ -242,13 +251,16 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     val result = new HashTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columnsToDuplicate" -> fields)
+      Map("columnsToHash" -> fields)
     ).transformWithDiscards(inputData)._1
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
@@ -257,18 +269,18 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      assert(dataOut.contains(row))
+    }
   }
 
   "A HashTransformStepStreamingIT" should "create an SHA2 hash with a length of 512 for the selected column" in {
@@ -303,13 +315,16 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
 
+    val streamingRegisters: scala.collection.mutable.ArrayBuffer[Row] = scala.collection.mutable.ArrayBuffer.empty[Row]
+    var actualSchema: Option[StructType] = None
+
     val result = new HashTransformStepStreaming(
       "dummy",
       outputOptions,
       TransformationStepManagement(),
       Option(ssc),
       sparkSession,
-      Map("columnsToDuplicate" -> fields)
+      Map("columnsToHash" -> fields)
     ).transformWithDiscards(inputData)._1
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
@@ -318,18 +333,18 @@ class HashTransformStepStreamingIT extends TemporalSparkContext with Matchers wi
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+      streamingRegisters.++=(rdd.collect())
+      if (!rdd.isEmpty()) actualSchema = Some(rdd.first().schema)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(timeoutStreaming)
     ssc.stop()
 
     assert(totalEvents.value === 2)
+    assert(actualSchema.fold(false)(schema => schema equals outputSchema))
+    streamingRegisters.foreach{ row =>
+      assert(dataOut.contains(row))
+    }
   }
 
 }

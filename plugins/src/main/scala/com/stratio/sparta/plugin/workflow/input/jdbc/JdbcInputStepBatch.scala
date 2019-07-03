@@ -36,7 +36,6 @@ class JdbcInputStepBatch(
 
   lazy val url = properties.getString("url", None)
   lazy val table = properties.getString("dbtable", None)
-  lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
 
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
@@ -49,6 +48,9 @@ class JdbcInputStepBatch(
   override lazy val lineageResource: String = table.getOrElse("")
 
   override lazy val lineageUri: String = url.getOrElse("")
+
+  override lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

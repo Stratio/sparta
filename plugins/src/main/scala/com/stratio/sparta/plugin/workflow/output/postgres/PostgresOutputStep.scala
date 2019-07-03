@@ -42,7 +42,6 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val quotesSubstitution = cleanPropertyChars(properties.getString("newQuotesSubstitution", "\b"))
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = TransactionTypes.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
-  lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
   lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(false)
   lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
   lazy val dropTemporalTableSuccess = Try(properties.getBoolean("dropTemporalTableSuccess")).getOrElse(true)
@@ -57,6 +56,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   override lazy val lineageResource = ""
 
   override lazy val lineageUri: String = url
+
+  override lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)

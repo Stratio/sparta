@@ -9,10 +9,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.StringHelper._
 import com.stratio.sparta.serving.core.services.CustomPostgresService
 import com.typesafe.config.{Config, ConfigFactory}
-
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -21,6 +21,7 @@ trait JdbcLineage extends SLF4JLogging {
 
   val lineageResource: String
   val lineageUri: String
+  val tlsEnable: Boolean
 
   lazy val PostgresPrefix = "jdbc:postgresql://"
   lazy val SqlServerPrefix = "jdbc:sqlserver://"
@@ -29,21 +30,29 @@ trait JdbcLineage extends SLF4JLogging {
   lazy val PoolMesosDNSSuffix = ".marathon.mesos"
   lazy val OracleName = "oracle"
   lazy val SqlServerName = "sqlserver"
+  val PostgresName = "postgres"
   lazy val DbServiceProperty = "stratio.serviceid"
+  val AllowedServices: Seq[String] = Seq(OracleName, SqlServerName, PostgresName)
 
-  lazy val config = getDBConfig
+  lazy val instancePostgresConfig = SpartaConfig.getPostgresConfig().get
+  lazy val config = getDBConfigOrUseDefault(instancePostgresConfig)
   lazy val basicPgService = new CustomPostgresService(lineageUri, config)
   lazy val showServiceSql = s"SHOW $DbServiceProperty;"
   lazy val showCurrentSchemaSql = "select current_schema();"
   lazy val PublicSchema = "public"
 
+
   def getJdbcLineageProperties(stepType: String): Map[String, String] = {
-    if (
-      lineageUri.containsIgnoreCase("postgres") ||
-        lineageUri.containsIgnoreCase("oracle") ||
-        lineageUri.containsIgnoreCase("sqlserver")
-    ) {
-      (getJdbcServiceName(lineageUri), getJdbcDatabase(lineageUri)) match {
+
+    val typeJdbcService = lineageUri match {
+      case uri if uri.containsIgnoreCase(PostgresName) => PostgresName
+      case uri if uri.containsIgnoreCase(OracleName) => OracleName
+      case uri if uri.containsIgnoreCase(SqlServerName) => SqlServerName
+      case _ => "Unknown"
+    }
+
+    if (AllowedServices.contains(typeJdbcService)) {
+      (getJdbcServiceName(typeJdbcService, lineageUri), getJdbcDatabase(lineageUri)) match {
         case (Some(serviceName), Some(path)) =>
           Map(
             ServiceKey -> serviceName,
@@ -75,42 +84,40 @@ trait JdbcLineage extends SLF4JLogging {
   }
 
   //scalastyle:off
-  private def getJdbcServiceName(url: String): Option[String] = {
+  private def getJdbcServiceName(serviceType: String, url: String): Option[String] = {
     Try {
-      Try(basicPgService.executeMetadataSql(showServiceSql)) match {
-        case Success(response) =>
-          response.headOption
-        case Failure(e) =>
-          log.warn(s"Error reading property $DbServiceProperty in database.", e)
-
-          if (url.contains(PostgresPrefix)) {
-            val stripUrl = url.stripPrefixWithIgnoreCase(PostgresPrefix).split("/").headOption.flatMap(_.split(":")
-              .headOption).getOrElse("")
-
-            if (stripUrl.endsWith(VipSuffix)) {
-              val parsedVip = stripUrl.stripSuffix(VipSuffix)
-              if (parsedVip.split("\\.").length > 1)
-                parsedVip.split("\\.", 2).lastOption
+      serviceType match {
+        case PostgresName =>
+          Try(basicPgService.executeMetadataSql(showServiceSql)) match {
+            case Success(response) =>
+              response.headOption
+            case Failure(e) =>
+              log.warn(s"Error reading property $DbServiceProperty in database.", e)
+              val stripUrl = url.stripPrefixWithIgnoreCase(PostgresPrefix).split("/").headOption.flatMap(_.split(":")
+                .headOption).getOrElse("")
+              if (stripUrl.endsWith(VipSuffix)) {
+                val parsedVip = stripUrl.stripSuffix(VipSuffix)
+                if (parsedVip.split("\\.").length > 1)
+                  parsedVip.split("\\.", 2).lastOption
+                else
+                  Option(parsedVip)
+              }
+              else if (stripUrl.endsWith(PoolMesosDNSSuffix))
+                Option(stripUrl.stripSuffix(PoolMesosDNSSuffix))
+              else if (stripUrl.endsWith(MesosDNSSuffix))
+                stripUrl.stripSuffix(MesosDNSSuffix).split("\\.", 2).lastOption
               else
-                Option(parsedVip)
-            }
-            else if (stripUrl.endsWith(PoolMesosDNSSuffix))
-              Option(stripUrl.stripSuffix(PoolMesosDNSSuffix))
-            else if (stripUrl.endsWith(MesosDNSSuffix))
-              stripUrl.stripSuffix(MesosDNSSuffix).split("\\.", 2).lastOption
-            else
-              None
+                None
           }
-          else {
-            if (url.containsIgnoreCase(OracleName))
-              url.split("@").lastOption.flatMap(_.stripPrefix("//").split(":", 2).headOption)
-            else if (url.containsIgnoreCase(SqlServerName))
-              url.stripPrefixWithIgnoreCase(SqlServerPrefix).split(";", 2).headOption.flatMap(_.split(":").headOption)
-            else
-              url.split("//").lastOption.flatMap(_.split("/").headOption.flatMap(_.split(":").headOption))
-          }
+        case OracleName =>
+          url.split("@").lastOption.flatMap(_.stripPrefix("//").split(":", 2).headOption)
+        case SqlServerName =>
+          url.stripPrefixWithIgnoreCase(SqlServerPrefix).split(";", 2).headOption.flatMap(_.split(":").headOption)
+        case _ =>
+          url.split("//").lastOption.flatMap(_.split("/").headOption.flatMap(_.split(":").headOption))
       }
-    } match {
+    }
+    match {
       case Success(serviceName) =>
         serviceName
       case Failure(e) =>
@@ -136,11 +143,62 @@ trait JdbcLineage extends SLF4JLogging {
     }
   }
 
-  private def getDBConfig:Config = {
-    val hostName = s""""${lineageUri.stripPrefixWithIgnoreCase(PostgresPrefix).split("/").headOption.getOrElse("")}""""
-    val customConfig = ConfigFactory.parseString(s"host = $hostName\n")
-    val mainConfig = SpartaConfig.getPostgresConfig().get
+  private def getDBConfigOrUseDefault(spartaInstanceConfig : Config): Config = {
 
-    customConfig.withFallback(mainConfig)
-  }
+    import java.net.URI
+    import scala.collection.JavaConversions.mapAsJavaMap
+
+    val formatToURI = lineageUri.stripPrefixWithIgnoreCase("jdbc:")
+
+    Try {
+      val parsedURI = new URI(formatToURI)
+      val extraParams = parsedURI.getQuery
+      val userRegex = "(?<=(user=))([\\w-]+)(?=\\&)".r
+      val user: Option[String] = userRegex.findFirstIn(extraParams)
+      val extraParamsWithoutUser =
+        if(extraParams.containsIgnoreCase("user="))
+          extraParams.replaceFirst("(user=[\\w-]+\\&)","")
+        else extraParams
+
+      val tlsConfigSparta =
+        Map(
+          "sslcert" -> Try(spartaInstanceConfig.getString("sslcert")).toOption,
+          "sslkey" -> Try(spartaInstanceConfig.getString("sslkey")).toOption,
+          "sslrootcert" -> Try(spartaInstanceConfig.getString("sslrootcert")).toOption,
+          "user" -> Try(spartaInstanceConfig.getString("user")).toOption.orElse(Option(AppConstant.spartaTenant))
+        ).filter{ case (_, v) => v.isDefined}.map{case (k, v) => (k, v.get)}
+
+      val hostAndDatabase = Map(
+        "host" -> s"${parsedURI.getHost}:${parsedURI.getPort}",
+        "database" -> s"${parsedURI.getPath.stripPrefix("/")}"
+      )
+
+      val commonPostgresConfig = Map(
+        "driver" -> Try(spartaInstanceConfig.getString("driver")).toOption,
+        "numThreads" -> Option(2),
+        "queueSize" -> Try(spartaInstanceConfig.getLong("queueSize")).toOption,
+        "executionContext.parallelism" -> Option(4),
+        "keepAliveConnection" -> Try(spartaInstanceConfig.getBoolean("keepAliveConnection")).toOption,
+        "initializationFailFast" -> Try(spartaInstanceConfig.getBoolean("initializationFailFast")).toOption,
+        "leakDetectionThreshold" -> Try(spartaInstanceConfig.getLong("leakDetectionThreshold")).toOption,
+        "maxConnections" -> Option(2),
+        "minConnections" -> Option(2),
+        "connectionTimeout" -> Try(spartaInstanceConfig.getLong("connectionTimeout")).toOption,
+        "validationTimeout" -> Try(spartaInstanceConfig.getLong("validationTimeout")).toOption
+      ).filter{ case (_, v) => v.isDefined}.map{case (k, v) => (k, v.get)}
+
+      val tlsOptionsAndExtraParams =
+        Map("sslenabled" -> tlsEnable) ++ {
+        if(tlsEnable) Map("extraParams"->s"$extraParamsWithoutUser") ++ tlsConfigSparta
+        else
+          user.fold(
+            Map("extraParams" -> s"$extraParams")) { u =>
+            Map("user" -> s"$u", "extraParams" -> s"$extraParamsWithoutUser")
+          }
+        }
+
+      val customConfigMap = hostAndDatabase ++ tlsOptionsAndExtraParams ++ commonPostgresConfig
+      ConfigFactory.parseMap(mapAsJavaMap(customConfigMap)).resolve
+    }
+  }.getOrElse(instancePostgresConfig)
 }

@@ -30,7 +30,6 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   extends OutputStep(name, xDSession, properties) with JdbcLineage {
 
   lazy val url = properties.getString("url")
-  lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
   lazy val jdbcSaveMode = TransactionTypes.withName(properties.getString("jdbcSaveMode", "STATEMENT"))
   lazy val isCaseSensitive = Try(properties.getBoolean("caseSensitiveEnabled")).getOrElse(false)
   lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
@@ -42,6 +41,8 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   override lazy val lineageResource = ""
 
   override lazy val lineageUri: String = url
+
+  override lazy val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
 
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
