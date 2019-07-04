@@ -3,10 +3,10 @@
 INFO "[MARATHON-SSO] Obtaining and setting Mesos security configuration"
 
 ### Get Mesos user and pass
-getPass "userland" "$TENANT_NAME" "sso"
+getPass "userland" "$SERVICE_ID_WITH_PATH" "sso"
 
-SSO_USER=${TENANT_NORM}_SSO_USER
-SSO_PASS=${TENANT_NORM}_SSO_PASS
+SSO_USER=${SERVICE_ID_WITH_PATH_NORM}_SSO_USER
+SSO_PASS=${SERVICE_ID_WITH_PATH_NORM}_SSO_PASS
 
 export MARATHON_SSO_USERNAME=${!SSO_USER}
 echo "export MARATHON_SSO_USERNAME=${MARATHON_SSO_USERNAME}" >> ${VARIABLES}

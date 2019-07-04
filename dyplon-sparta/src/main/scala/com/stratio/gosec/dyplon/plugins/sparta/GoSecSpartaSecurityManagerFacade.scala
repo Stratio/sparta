@@ -53,7 +53,7 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
   lazy val spartaVersion = Try(dyplonConfig.getString("version")).toOption.notBlank.getOrElse("2.4.0")
   lazy val tenantName = Try(dyplonConfig.getString("dyplon.tenant.name")).toOption
   lazy val serviceName = Try(dyplonConfig.getString("service.name")).getOrElse("sparta")
-  lazy val spartaInstance = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME").getOrElse("sparta")
+  lazy val spartaInstance = Properties.envOrNone("SPARTA_SERVICE_NAME").getOrElse("sparta") // TODO @fpesci tenant identity
 
   override def start: Unit = {
 

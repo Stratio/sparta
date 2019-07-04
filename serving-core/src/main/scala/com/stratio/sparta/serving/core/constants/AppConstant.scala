@@ -98,9 +98,10 @@ object AppConstant extends ZookeeperUtils {
   val PostgresDaos = "com.stratio.sparta.serving.core.services.dao"
 
   //Service variables to identify
-  val instanceName = Properties.envOrNone(MarathonConstant.DcosServiceName)
-  val instanceNameWithDefault = instanceName.getOrElse("sparta-server")
-  val instanceNameHttpService = instanceName.getOrElse("sparta")
+  val SpartaServiceName = "SPARTA_SERVICE_NAME"
+  val instanceServiceName = Properties.envOrNone(SpartaServiceName)
+  val instanceNameWithDefault = instanceServiceName.getOrElse("sparta-server")
+  val instanceNameHttpService = instanceServiceName.getOrElse("sparta")
   val virtualHost = Properties.envOrNone(MarathonConstant.ServerMarathonLBHostEnv).notBlank
   val virtualPath = Properties.envOrNone(MarathonConstant.ServerMarathonLBPathEnv).notBlank
 
@@ -112,7 +113,7 @@ object AppConstant extends ZookeeperUtils {
 
   //Zookeeper
   val DefaultZKPath = "/stratio/sparta/sparta"
-  lazy val BaseZkPath: String = (retrievePathFromEnv, instanceName, retrieveFromConf) match {
+  lazy val BaseZkPath: String = (retrievePathFromEnv, instanceServiceName, retrieveFromConf) match {
     case (Some(path), _, _ ) if checkIfValidPath(path) => path
     case (_, Some(instance), _)=> s"/stratio/sparta/$instance"
     case (_, _, Some(confPath)) if checkIfValidPath(confPath) => confPath

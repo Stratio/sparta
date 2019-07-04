@@ -67,6 +67,7 @@ object MarathonConstant {
   val TenantIdentity = "TENANT_IDENTITY"
   val TenantName = "TENANT_NAME"
   val ServerTenantName = "SERVER_TENANT_NAME"
+  val SpartaServerServiceIdWithPath = "SERVICE_ID_WITH_PATH"
   val DcosServiceBaseApplicationPath = "ROOT_SERVICE_PATH"
   val DcosServiceCompanyLabelPrefix = "MARATHON_COMPANY_LABEL_PREFIX"
   val HostnameConstraint = "MESOS_HOSTNAME_CONSTRAINT"

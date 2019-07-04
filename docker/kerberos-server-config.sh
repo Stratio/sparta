@@ -6,8 +6,8 @@ INFO "[KERBEROS] Downloading keytab from vault"
 #This will be saved in /etc/sds/sparta/security/sparta.keytab
 
 #The principal is saved to SPARTA_PRINCIPAL_NAME
-getKrb userland "$TENANT_NAME" "$TENANT_NAME" "/etc/sds/sparta/security" SPARTA_PRINCIPAL_NAME
-getKrb userland "$WORKFLOW_IDENTITY" "$WORKFLOW_IDENTITY" "/etc/sds/sparta/security/workflow" SPARTA_PRINCIPAL_NAME_WORKFLOW
+getKrb userland "$SERVICE_ID_WITH_PATH" "$TENANT_NAME" "/etc/sds/sparta/security" SPARTA_PRINCIPAL_NAME
+getKrb userland "$GENERIC_WORKFLOW_ID_VAULT_PATH" "$WORKFLOW_IDENTITY" "/etc/sds/sparta/security/workflow" SPARTA_PRINCIPAL_NAME_WORKFLOW
 INFO "[KERBEROS] Download ok , now exporting variables"
 
 export SPARTA_PRINCIPAL_NAME=${SPARTA_PRINCIPAL_NAME}

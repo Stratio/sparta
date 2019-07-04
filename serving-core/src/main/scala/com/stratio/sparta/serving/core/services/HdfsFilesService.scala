@@ -26,7 +26,7 @@ case class HdfsFilesService() extends CheckpointUtils {
   lazy private val instanceName = {
     val instancePrefix = Properties.envOrElse(
       MarathonConstant.ServerTenantName,
-      Properties.envOrElse(AppConstant.spartaTenant, "")
+      AppConstant.instanceServiceName.getOrElse("")
     )
 
     if (instancePrefix.nonEmpty && !instancePrefix.endsWith("/")) s"$instancePrefix/" else instancePrefix

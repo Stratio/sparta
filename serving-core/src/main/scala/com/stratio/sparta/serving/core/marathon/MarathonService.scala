@@ -423,8 +423,10 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
 
   private def appIdentity: Map[String, String] = {
     val workflowsIdentity = Properties.envOrNone(GenericWorkflowIdentity).getOrElse(spartaTenant)
+    val spartaServerServiceIdWithPath = Properties.envOrNone(SpartaServerServiceIdWithPath).getOrElse(spartaTenant)
     Map(
       ServerTenantName -> spartaTenant,
+      SpartaServerServiceIdWithPath -> spartaServerServiceIdWithPath,
       TenantIdentity -> workflowsIdentity,
       DcosServiceName -> workflowsIdentity,
       SpartaPostgresUser -> workflowsIdentity,
