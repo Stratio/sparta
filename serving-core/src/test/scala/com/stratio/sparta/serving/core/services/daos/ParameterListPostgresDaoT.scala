@@ -44,6 +44,8 @@ class ParameterListPostgresDaoT extends DAOConfiguration
   val paramVar_3 = ParameterVariable("pv3", Some("value3"))
   val paramVar_4 = ParameterVariable("pv4", Some("value4"))
   val paramVar_5 = ParameterVariable("pv5", Some("value5"))
+  val paramWithQuotes = ParameterVariable("PVQ", Some("\"value1\""))
+  val paramWithQuotesModified = ParameterVariable("PVQ", Some(""""value1""""))
 
   val paramList_1 = ParameterList(name = "pl1", parameters = Seq(paramVar_1))
   val paramList_1_mod = ParameterList(name = "pl1", parameters = Seq(paramVar_1_mod, paramVar_2))
@@ -51,6 +53,8 @@ class ParameterListPostgresDaoT extends DAOConfiguration
   val paramList_3 = ParameterList(name = "pl3", parameters = Seq(paramVar_1_mod, paramVar_2), parent = Some("pl1"))
   val paramList_4 = ParameterList(name = "pl4", parameters = Seq(paramVar_1), parent = Some("pl1"))
 
+  val paramListWithQuotes = ParameterList(name = "plWithQuotes", parameters = Seq(paramWithQuotes))
+  val paramListWithQuotesModified = ParameterList(name = "plWithQuotes", parameters= Seq(paramWithQuotesModified))
   val nodes = Seq(
     NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
     NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
@@ -94,6 +98,15 @@ class ParameterListPostgresDaoT extends DAOConfiguration
           result.size shouldBe 1
         }
       }
+    }
+
+    "Escape quotes when a workflow is created" in new ParameterListDaoTrait {
+      whenReady(parameterList.createFromParameterList(paramListWithQuotes), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+        whenReady(db.run(table.filter(_.name === paramListWithQuotesModified.name).result).map(_.toList)) { result =>
+          result.size shouldBe 1
+        }
+      }
+
     }
 
     "be created with the parameters used in a workflow" in new ParameterListDaoTrait {

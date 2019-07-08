@@ -44,8 +44,13 @@ class GlobalParametersPostgresDaoIT extends DAOConfiguration
   val paramVar_2_mod = ParameterVariable("PV2", Some("value2_modified"))
   val paramVar_3 = ParameterVariable("PV3", Some("value3"))
 
+  val paramWithQuotes = ParameterVariable("PVQ", Some("\"value1\""))
+  val paramWithQuotesModified = ParameterVariable("PVQ", Some(""""value1""""))
+
   val globalParams_1 = GlobalParameters(Seq(paramVar_1))
   val globalParams_2 = GlobalParameters(Seq(paramVar_1_mod, paramVar_2))
+  val globalParamsWithQuotes = GlobalParameters(Seq(paramWithQuotes))
+
 
   val globalParametersDao = new GlobalParametersPostgresDao()
 
@@ -75,6 +80,14 @@ class GlobalParametersPostgresDaoIT extends DAOConfiguration
           result.head.name shouldBe paramVar_1.name
         }
       }
+    }
+
+    "Escape quotes in global parameters value" in new GlobalParametersDaoTrait{
+        whenReady(globalParametersDao.createGlobalParameters(globalParamsWithQuotes), timeout(Span(queryTimeout, Milliseconds))) { _ =>
+          whenReady(db.run(table.filter(_.name === paramWithQuotes.name).result).map(_.toList)) { result =>
+            result.head.name shouldBe paramWithQuotesModified.name
+          }
+        }
     }
 
     "be returned if the find method is called" in new GlobalParametersDaoTrait {
@@ -140,6 +153,8 @@ class GlobalParametersPostgresDaoIT extends DAOConfiguration
           result.isEmpty shouldBe true
         }
     }
+
+
   }
 
   override def afterAll(): Unit = {

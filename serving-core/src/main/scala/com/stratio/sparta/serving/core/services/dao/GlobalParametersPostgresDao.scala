@@ -51,24 +51,24 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
   }
 
   def createGlobalParameters(globalParameters: GlobalParameters): Future[GlobalParameters] = {
-   validateGlobalParameters(globalParameters)
+   val quotedGlobalParameters = findAndEscapeGlobalParameters(globalParameters)
     for {
-      _ <- createAndReturnList(globalParameters.variables)
-    } yield globalParameters
+      _ <- createAndReturnList(quotedGlobalParameters.variables)
+    } yield quotedGlobalParameters
   }
 
   def updateGlobalParameters(globalParameters: GlobalParameters): Future[GlobalParameters] = {
-    validateGlobalParameters(globalParameters)
+    val quotedGlobalParameters = findAndEscapeGlobalParameters(globalParameters)
     for {
-      _ <- upsertList(globalParameters.variables)
-    } yield globalParameters
+      _ <- upsertList(quotedGlobalParameters.variables)
+    } yield quotedGlobalParameters
   }
 
   def upsertParameterVariable(globalParametersVariable: ParameterVariable): Future[ParameterVariable] = {
-    validateParameterVariable(globalParametersVariable)
+    val quotedGlobalParameters = globalParametersVariable.findAndEscapeQuotes()
     for {
-      _ <- upsert(globalParametersVariable)
-    } yield globalParametersVariable
+      _ <- upsert(quotedGlobalParameters)
+    } yield quotedGlobalParameters
   }
 
   def deleteGlobalParameters(): Future[Boolean] = {
@@ -110,13 +110,11 @@ class GlobalParametersPostgresDao extends GlobalParametersDao {
       variable <- findByID(name)
     } yield variable.getOrElse(throw new ServerException(s"The global parameter variable $name doesn't exist"))
 
-  def validateGlobalParameters(request: GlobalParameters): Unit = request.variables.map(validateParameterVariable)
 
-  def validateParameterVariable(request: ParameterVariable): Unit =
-    for {
-      value <- request.value
-      if value.contains("\"\n")
-    } yield { throw new RuntimeException("Global and environment parameters can not contain quotes")}
+  def findAndEscapeGlobalParameters(request: GlobalParameters): GlobalParameters= {
+    val escapedValues = request.variables.map(x => x.findAndEscapeQuotes())
 
+    request.copy(variables = escapedValues)
+  }
 
 }

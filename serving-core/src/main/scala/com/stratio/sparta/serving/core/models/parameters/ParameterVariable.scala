@@ -11,4 +11,15 @@ case class ParameterVariable(name: String, value: Option[String] = None) {
     this(name, Option(value))
   }
 
+  def findAndEscapeQuotes(): ParameterVariable = {
+    val regex = "(\"|\\\\\")".r
+
+    val quotedValues = this.value.map { x =>
+      regex.replaceAllIn(x, "\"")
+    }
+    this.copy(value = quotedValues)
+  }
+
 }
+
+

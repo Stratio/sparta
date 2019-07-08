@@ -102,11 +102,12 @@ class ParameterListPostgresDao extends ParameterListDao {
   def findById(id: String): Future[ParameterList] = findByIdHead(id)
 
   def createFromParameterList(parameterList: ParameterList): Future[ParameterList] = {
-    validateEnvironmentParameters(parameterList)
-    db.run(filterById(parameterList.name).result).flatMap { parameterLists =>
+    val quotedParameterList = findAndEscapeEnvironmentParameters(parameterList)
+
+    db.run(filterById(quotedParameterList.name).result).flatMap { parameterLists =>
       if (parameterLists.nonEmpty)
-        throw new ServerException(s"Unable to create parameter list ${parameterList.name} because it already exists")
-      else createAndReturn(addId(addCreationDate(parameterList)))
+        throw new ServerException(s"Unable to create parameter list ${quotedParameterList.name} because it already exists")
+      else createAndReturn(addId(addCreationDate(quotedParameterList)))
     }
   }
 
@@ -139,8 +140,8 @@ class ParameterListPostgresDao extends ParameterListDao {
   }
 
   def update(parameterList: ParameterList): Future[Unit] = {
-    validateEnvironmentParameters(parameterList)
-    updateActions(parameterList).flatMap { case (actions, (workflowsToUpdate, oldParameterListName, newParameterListName)) =>
+    val quotedParameterList = findAndEscapeEnvironmentParameters(parameterList)
+    updateActions(quotedParameterList).flatMap { case (actions, (workflowsToUpdate, oldParameterListName, newParameterListName)) =>
       db.run(txHandler(DBIO.seq(actions: _*).transactionally)).map(_ =>
         if (cacheEnabled)
           workflowService.upsertFromCacheByParameterList(oldParameterListName, newParameterListName, workflowsToUpdate)
@@ -150,8 +151,8 @@ class ParameterListPostgresDao extends ParameterListDao {
 
   //scalastyle:off
   def updateActions(parameterList: ParameterList) = {
-    validateEnvironmentParameters(parameterList)
-    val newParameterList = addCreationDate(addUpdateDate(parameterList))
+    val quotedParameterList = findAndEscapeEnvironmentParameters(parameterList)
+    val newParameterList = addCreationDate(addUpdateDate(quotedParameterList))
     val id = newParameterList.id.getOrElse(
       throw new ServerException(s"No parameter list found by id ${newParameterList.id}"))
 
@@ -170,8 +171,10 @@ class ParameterListPostgresDao extends ParameterListDao {
   }
 
   def updateList(parameterLists: Seq[ParameterList]): Future[Unit] = {
-    parameterLists.map(validateEnvironmentParameters)
-    val parentListsWithDates = parameterLists.map(element => addCreationDate(addUpdateDate(element)))
+
+    val quotedParameterLists = parameterLists.map(findAndEscapeEnvironmentParameters)
+
+    val parentListsWithDates = quotedParameterLists.map(element => addCreationDate(addUpdateDate(element)))
     val parentLists = parentListsWithDates.filter(_.parent.isEmpty)
     val childrenLists = parentListsWithDates.filter(_.parent.nonEmpty)
     for {
@@ -214,13 +217,14 @@ class ParameterListPostgresDao extends ParameterListDao {
       response <- deleteYield(parametersLists)
     } yield response
 
-  def validateEnvironmentParameters(request: ParameterList): Unit = request.parameters.map(validateParameterVariable)
 
-  def validateParameterVariable(request: ParameterVariable): Unit =
-    for {
-      value <- request.value
-      if value.contains("\"\n")
-    } yield { throw new RuntimeException("Global and environment parameters can not contain quotes")}
+  def findAndEscapeEnvironmentParameters(request: ParameterList): ParameterList= {
+    val escapedValues = request.parameters.map(x => x.findAndEscapeQuotes())
+
+    request.copy(parameters = escapedValues)
+  }
+
+
 
   /** PRIVATE METHODS **/
 
