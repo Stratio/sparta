@@ -65,7 +65,7 @@ class RowSerializer extends Serializer[Row] with SLF4JLogging{
         val schemaRegistryClient = Option(
           SchemaRegistryClientFactory.getOrCreate(
             serializerConfigs.getOrElse(s"$configPrefix.serializer.schema.registry.url", "").toString,
-            serializerConfigs.getOrElse("tlsEnabled", "false").toString.toBoolean,
+            serializerConfigs.getOrElse("tlsSchemaRegistryEnabled", "false").toString.toBoolean,
             configs
           )
         )

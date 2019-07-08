@@ -93,7 +93,7 @@ class RowDeserializer extends Deserializer[Row] {
         val schemaRegistryClient =
           SchemaRegistryClientFactory.getOrCreate(
             configs.getOrElse(s"$configPrefix.deserializer.schema.registry.url", "").toString,
-            configs.getOrElse("tlsEnabled", "false").toString.toBoolean,
+            configs.getOrElse("tlsSchemaRegistryEnabled", "false").toString.toBoolean,
             configs
           )
 

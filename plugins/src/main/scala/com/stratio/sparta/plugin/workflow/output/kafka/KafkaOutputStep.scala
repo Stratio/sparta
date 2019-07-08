@@ -31,6 +31,7 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
   extends OutputStep(name, xDSession, properties) with KafkaBase {
 
   lazy val tlsEnabled: Boolean = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
+  lazy val tlsSchemaRegistryEnabled: Boolean = Try(properties.getString("tlsSchemaRegistryEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList: Map[String, String] = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
   lazy val keySeparator: String = properties.getString("keySeparator", ",")
   lazy val producerConnectionKey: String = name + brokerList
@@ -46,8 +47,9 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
 
   val sparkConf: Map[String, String] = xDSession.conf.getAll
   val securityOpts: Map[String, AnyRef] = {
-    if (tlsEnabled)
-      SecurityHelper.getDataStoreSecurityOptions(sparkConf) + ("tlsEnabled" -> tlsEnabled.toString)
+    if (tlsEnabled || tlsSchemaRegistryEnabled)
+      SecurityHelper.getDataStoreSecurityOptions(sparkConf) ++
+        Seq("tlsEnabled" -> tlsEnabled.toString, "tlsSchemaRegistryEnabled" -> tlsSchemaRegistryEnabled.toString )
     else Map.empty
   }
 
@@ -55,6 +57,12 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
   override def validate(options: Map[String, String] = Map.empty[String, String]): ErrorValidations = {
     var validation = ErrorValidations(valid = true, messages = Seq.empty)
 
+    if (!tlsEnabled && tlsSchemaRegistryEnabled)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(
+          s"invalid configuration, schema registry TLS is enabled but the Kafka TLS is disabled", name)
+      )
 
     if (brokerList.isEmpty)
       validation = ErrorValidations(

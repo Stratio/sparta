@@ -55,6 +55,7 @@ class KafkaInputStepStreaming(
   var inputData : Option[Any] = None
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
+  lazy val tlsSchemaRegistryEnabled = Try(properties.getString("tlsSchemaRegistryEnabled", "false").toBoolean).getOrElse(false)
   lazy val brokerList = getBootstrapServers(BOOTSTRAP_SERVERS_CONFIG)
   lazy val serializers = getSerializers
   lazy val topics = extractTopics
@@ -135,6 +136,12 @@ class KafkaInputStepStreaming(
           WorkflowValidationMessage(s"the $consumerPollMsKey should be greater than $FETCH_MAX_WAIT_MS_CONFIG", name)
       )
 
+    if (!tlsEnabled && tlsSchemaRegistryEnabled)
+      validation = ErrorValidations(
+        valid = false,
+        messages = validation.messages :+ WorkflowValidationMessage(s"invalid configuration, schema registry TLS is enabled but the Kafka TLS is disabled", name)
+      )
+
     if (debugOptions.isDefined && !validDebuggingOptions)
       validation = ErrorValidations(
         valid = false,
@@ -149,11 +156,11 @@ class KafkaInputStepStreaming(
 
     require(validateResult.valid, validateResult.messages.mkString(","))
 
-    val kafkaSecurityOptions = if (tlsEnabled) {
+    val kafkaSecurityOptions = if (tlsEnabled || tlsSchemaRegistryEnabled) {
       val securityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
       require(securityOptions.nonEmpty,
         "The property TLS is enabled and the sparkConf does not contain security properties")
-      securityOptions + ("tlsEnabled" -> tlsEnabled.toString)
+      securityOptions ++ Seq("tlsEnabled" -> tlsEnabled.toString, "tlsSchemaRegistryEnabled" -> tlsSchemaRegistryEnabled.toString)
     } else Map.empty
     val kafkaConsumerParams = autoCommit ++ autoOffset ++ serializers ++ rowSerializerProps ++ brokerList ++ groupId ++
       partitionStrategy ++ kafkaSecurityOptions ++ consumerProperties

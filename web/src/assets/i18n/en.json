@@ -379,6 +379,7 @@
   "_DESERIALIZER_SCHEMAREGISTRY_SCHEMA_URL_": "Schema Registry URL",
   "_SERIALIZER_SCHEMAREGISTRY_SCHEMA_URL_": "Schema Registry URL",
   "_SERIALIZER_SCHEMAREGISTRY_AUTO_REGISTER_SCHEMA_": "Auto register schema",
+  "_TLS_SCHEMA_REGISTRY_ENABLE_": "Schema registry TLS enabled",
   "_KEY_SEPARATOR_": "Key separator",
   "_VAULT_TLS_ENABLE_": "Vault TLS enable",
   "_DESERIALIZER_INPUT_FORMAT_": "Deserializer input format",

@@ -295,6 +295,22 @@
         "qa": "fragment-details-kafka-deserializer-schemaRegistry-schema"
       },
       {
+        "propertyId": "tlsSchemaRegistryEnabled",
+        "propertyName": "_TLS_SCHEMA_REGISTRY_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect to Kafka schema registry",
+        "default": false,
+        "visible": [
+          [
+            {
+              "propertyId": "value.deserializer.inputFormat",
+              "value": "SCHEMAREGISTRY"
+            }
+          ]
+        ],
+        "qa": "fragment-details-kafka-tls-registry"
+      },
+      {
         "propertyId": "partition.assignment.strategy",
         "propertyName": "_PARTITION_STRATEGY_",
         "propertyType": "select",
