@@ -51,10 +51,10 @@ class MlPipelineOutputStep(
   lazy val serializationLib: MlPipelineSerializationLibs.Value =
     MlPipelineSerializationLibs.withName(properties.getString("serializationLib",
       if (outputMode.get == MlPipelineSaveMode.FILESYSTEM) {
-        "SPARK"
+        "spark"
       } else {
-        "SPARK_AND_MLEAP"
-      }).toUpperCase)
+        "spark_and_mleap"
+      }).toLowerCase)
 
   // => Pipeline related
   // · Pipeline Json descriptor --> deserialized into Array[PipelineStageDescriptor]

@@ -9,7 +9,9 @@ object MlPipelineSerializationLibs extends Enumeration {
 
   type MlPipelineSerializationLibs = Value
 
-  val SPARK, MLEAP, SPARK_AND_MLEAP = Value
+  val SPARK = Value("spark")
+  val MLEAP = Value("mleap")
+  val SPARK_AND_MLEAP = Value("spark_and_mleap")
 
 }
 

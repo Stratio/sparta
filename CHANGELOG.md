@@ -9,6 +9,7 @@
     
 * Bug fixing:
     - [SPARTA-3093] Add user to jdbc connection string if not specified
+    - [INTELL-2148] Fix Model repository method to download Spark pipeline models from repository
 
 ## 2.8.1 (June 04, 2019)
 
