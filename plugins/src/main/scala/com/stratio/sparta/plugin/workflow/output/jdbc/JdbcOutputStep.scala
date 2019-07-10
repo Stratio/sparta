@@ -37,6 +37,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   val securityUri = getDataStoreUri(sparkConf)
   lazy val urlWithUser = addUserToConnectionURI(spartaTenant, url)
   val urlWithSSL = if (tlsEnable) urlWithUser + securityUri else url
+  lazy val createSchemaIfNotExists = Try(properties.getBoolean("createSchemaIfNotExists")).getOrElse(true)
 
   override lazy val lineageResource = ""
 
@@ -83,7 +84,12 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
         jdbcPropertiesMap
       )
 
+
       Try {
+        if(createSchemaIfNotExists)
+          SpartaJdbcUtils.createSchemaIfNotExist(connectionProperties, name, tableName)
+
+
         if (sparkSaveMode == SaveMode.Overwrite)
           SpartaJdbcUtils.truncateTable(connectionProperties, name)
 
@@ -132,7 +138,8 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           }
         case Failure(e) =>
           closeConnection(name)
-          log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
+          val (schema, tableN) =  SpartaJdbcUtils.getSchemaAndTableName(tableName)
+          log.error(s"Error creating/dropping table ${ if(schema.isDefined) s"$tableN with schema ${schema.get}" else s"$tableName"} with Error: ${e.getLocalizedMessage}", e)
           throw e
       }
     }

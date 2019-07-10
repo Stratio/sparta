@@ -45,7 +45,7 @@ class PostgresOutputStepIT extends
     val tableCreate = createTable() _
 
     def createTableCaseSensitive(crossdataTableName: String, table: String, schema: String = "public") =
-      s"""CREATE TABLE $crossdataTableName USING org.apache.spark.sql.jdbc OPTIONS (url '$postgresURL', dbtable '\"public\".\"$table\"', driver 'org.postgresql.Driver')"""
+      s"""CREATE TABLE $crossdataTableName USING org.apache.spark.sql.jdbc OPTIONS (url '$postgresURL', dbtable '\"$schema\".\"$table\"', driver 'org.postgresql.Driver')"""
 
 
     var xdSession = sparkSession
@@ -464,4 +464,17 @@ class PostgresOutputStepIT extends
         "isolationLevel" ->
           "READ-COMMITED"))
   }
+
+  "If createSchemaIfNotExists has been enabled" should "create a schema" in new JdbcCommons {
+    var schemaTest = "rocket2"
+    val tableNameS = s"sparta${System.currentTimeMillis()}"
+    val tableNameQ = s"$schemaTest.$tableNameS"
+    val crossdTableName = "stratio"
+    val postgresOutputStep = new PostgresOutputStep("postgresOutSingle", xdSession, properties
+      ++ Map("postgresSaveMode" -> "STATEMENT", "caseSensitiveEnabled" -> "true", "createSchemaIfNotExists" -> "true"))
+    postgresOutputStep.save(okData, SaveModeEnum.Append, Map("tableName" -> tableNameQ))
+    xdSession.sql(createTableCaseSensitive(crossdTableName, tableNameS, schemaTest))
+    xdSession.sql(s"SELECT * FROM $crossdTableName").count() shouldBe 2
+  }
+
 }

@@ -46,7 +46,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val failFast = Try(properties.getBoolean("failFast")).getOrElse(false)
   lazy val dropTemporalTableSuccess = Try(properties.getBoolean("dropTemporalTableSuccess")).getOrElse(true)
   lazy val dropTemporalTableFailure = Try(properties.getBoolean("dropTemporalTableFailure")).getOrElse(false)
-
+  lazy val createSchemaIfNotExists = Try(properties.getBoolean("createSchemaIfNotExists")).getOrElse(true)
 
   val sparkConf = xDSession.conf.getAll
   val securityUri = getDataStoreUri(sparkConf)
@@ -185,10 +185,13 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       s"Writer SaveMode Delete could not be used with Postgres save mode $postgresSaveMode")
     validateSaveMode(saveMode)
     require(saveMode != SaveModeEnum.Ignore, s"Postgres saveMode $saveMode not supported")
+
+
     if (dataFrame.schema.fields.nonEmpty) {
       val tableName = getTableNameFromOptions(options)
       val sparkSaveMode = getSparkSaveMode(saveMode)
       val jdbcPropertiesMap = propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
+
       lazy val quotedTable =
         quoteTable(tableName, getConnection(new JDBCOptions(urlWithSSL, tableName, jdbcPropertiesMap), name))
 
@@ -200,6 +203,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
       val dialect = JdbcDialects.get(connectionProperties.url)
       Try {
+        if(createSchemaIfNotExists)
+          SpartaJdbcUtils.createSchemaIfNotExist(connectionProperties, name, tableName)
+
         if (sparkSaveMode == SaveMode.Overwrite)
           SpartaJdbcUtils.truncateTable(connectionProperties, name)
 
@@ -326,15 +332,16 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
             } else log.debug(s"Table not created in Postgres: $tableName")
           } catch {
             case e: Exception =>
-              closeConnection(name)
-              log.error(s"Error saving data into Postgres table $tableName with Error: ${e.getLocalizedMessage}")
+              val (schema, tableN) =  SpartaJdbcUtils.getSchemaAndTableName(tableName)
+              log.error(s"Error creating/dropping table ${ if(schema.isDefined) s"$tableN with schema ${schema.get}" else s"$tableName"} with Error: ${e.getLocalizedMessage}", e)
               throw e
           } finally {
             closeConnection(name)
           }
         case Failure(e) =>
           closeConnection(name)
-          log.error(s"Error creating/dropping table $tableName with Error: ${e.getLocalizedMessage}")
+          val (schema, tableN) =  SpartaJdbcUtils.getSchemaAndTableName(tableName)
+          log.error(s"Error creating/dropping table ${ if(schema.isDefined) s"$tableN with schema ${schema.get}" else s"$tableName"} with Error: ${e.getLocalizedMessage}", e)
           throw e
       }
     }

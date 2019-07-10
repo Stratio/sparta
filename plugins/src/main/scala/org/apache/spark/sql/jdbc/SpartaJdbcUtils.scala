@@ -52,6 +52,35 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
+  def createSchemaIfNotExist(connectionProperties: JDBCOptions, name: String,outputName: String): Unit = {
+
+    if(outputName.contains('.')) {
+      val schema = outputName.split('.').headOption.foreach{ schema =>
+      synchronized {
+        val conn = getConnection(connectionProperties, name)
+        conn.setAutoCommit(true)
+
+          val sql = s"""CREATE SCHEMA IF NOT EXISTS \"${schema}\""""
+          withStatement(conn){ statement =>
+            Try(statement.executeUpdate(sql)).recoverWith{
+              case NonFatal(e: Exception) =>
+                log.error(s"Error creating $schema ${e.getLocalizedMessage}", e)
+                Failure(e)
+            }
+          }
+        }
+      }
+    }else{
+      log.warn(s"Schema is not specified")
+    }
+  }
+
+  def getSchemaAndTableName(tableNameWithSchema: String): (Option[String], String) = {
+    val arr = tableNameWithSchema.split('.').slice(0, 2)
+    if (arr.length == 2) (Option(arr(0)), arr(1))
+    else (None, tableNameWithSchema)
+  }
+
   private[jdbc] def spartaTableExists(conn: Connection, options: JDBCOptions) = {
     val dialect = JdbcDialects.get(options.url)
     val statement = conn.prepareStatement(dialect.getTableExistsQuery(options.table))

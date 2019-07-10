@@ -135,6 +135,14 @@
           "default": false,
           "qa": "fragment-details-errorSink"
        },
+       {
+          "propertyId": "createSchemaIfNotExists",
+          "propertyName": "_CREATE_SCHEMA_IF_NOT_EXISTS_",
+          "propertyType": "boolean",
+          "tooltip": "If this option is enabled and the user has specified a schema (e.g. 'newSchema.table' as 'table name' inside the writer configuration), it will try to create the schema if it does not exist.",
+          "default": false,
+          "qa": "fragment-details-createSchemaIfNotExists"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",

@@ -683,6 +683,7 @@
   "_ERROR_TABLE_NAME_": "Errors table name",
   "_DISCARD_TABLE_NAME_": "Discards table name",
   "_ERROR_SINK_": "Available in errors management",
+  "_CREATE_SCHEMA_IF_NOT_EXISTS_": "Create schema if not exists",
   "_NEW_FILES_ONLY_": "New files only",
   "_FILTER_OUT_FILES_": "Filter",
   "_SCHEMA_FROM_ROW_": "Infer schema for each row",
