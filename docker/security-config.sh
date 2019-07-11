@@ -41,7 +41,7 @@ fi
 # All workflows will be executed with this identity(tenant_name) and DCOS service name
 if [ -v GENERIC_WORKFLOW_IDENTITY ] && [ ${#GENERIC_WORKFLOW_IDENTITY} != 0 ]; then
     export WORKFLOW_IDENTITY=${GENERIC_WORKFLOW_IDENTITY}
-    if [ -v GENERIC_WORKFLOW_ID_VAULT_PATH ] && [ ${#GENERIC_WORKFLOW_ID_VAULT_PATH} != 0 ]; then
+    if [ -v GENERIC_WORKFLOW_ID_VAULT_PATH ] && [ ${#GENERIC_WORKFLOW_ID_VAULT_PATH} == 0 ]; then
         INFO "[SECURITY-CONFIG] GENERIC_WORKFLOW_ID_VAULT_PATH must be defined when using a GENERIC_WORKFLOW_IDENTITY"
         exit 1
     fi

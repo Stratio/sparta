@@ -6,6 +6,7 @@
     - [SPARTA-3128] Multitenant login
     - Integration with DCOS 1.12
     - Upgrade to new Gosec Facade version
+    - Upgrade dyplon-crossdata version to 0.19.1-e67b2ab  
     
 * Bug fixing:
     - [SPARTA-3093] Add user to jdbc connection string if not specified

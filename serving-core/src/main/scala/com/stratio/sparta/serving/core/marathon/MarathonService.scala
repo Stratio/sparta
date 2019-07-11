@@ -380,12 +380,12 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       key.startsWith("CROSSDATA_SECURITY_MANAGER_ENABLED") ||
         key.startsWith("GOSEC_CROSSDATA_VERSION") ||
         key.startsWith("CROSSDATA_PLUGIN_SERVICE_NAME") ||
+        key.startsWith("CROSSDATA_DATASTORE_BIND_ENABLED") ||
         key.startsWith("DYPLON_SYSTEM_TENANT") ||
         key.startsWith("DYPLON_TENANT_NAME") ||
-        key.startsWith("SPARTA_TENANT_NAME")
-    } + (SpartaPluginInstance -> Properties.envOrElse(SpartaWorkflowsPluginInstance,
-      Properties.envOrElse(WorkflowIdentity, Properties.envOrElse(SpartaPluginInstance, "sparta")
-      )))
+        key.startsWith("SPARTA_TENANT_NAME") ||
+        key.startsWith("CROSSDATA_DYPLON_AUTHORIZER")
+    } + (SpartaPluginInstance -> Properties.envOrElse(SpartaWorkflowsPluginInstance, Properties.envOrElse(SpartaPluginInstance ,AppConstant.spartaServerMarathonAppId)))
   }
 
   private def postgresProperties: Map[String, String] =

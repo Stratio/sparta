@@ -335,7 +335,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val securityOptions = getSecurityConfigurations
 
     if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
-      (Properties.envOrNone(WorkflowIdentity).notBlank, Properties.envOrNone(VaultPasswordsPath).notBlank) match {
+      (Properties.envOrNone(WorkflowIdVaultPath).notBlank, Properties.envOrNone(VaultPasswordsPath).notBlank) match {
         case (Some(tenantName), Some(passwordPath)) =>
           Map(
             "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_ENABLE" -> "true",

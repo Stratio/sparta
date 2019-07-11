@@ -13,6 +13,7 @@ export const icons: any = {
     FileSystem: '\uE95E',
     FileUtils:'\uE95E',
     Jdbc: '\uE602',
+    Cassandra: '\uE62F',
     CharacterTrimmer: '\ue9c7',
     CSV: '\uE9AF',
     Csv: '\uE9AF',

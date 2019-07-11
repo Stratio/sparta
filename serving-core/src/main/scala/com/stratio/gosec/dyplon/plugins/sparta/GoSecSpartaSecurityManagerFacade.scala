@@ -8,18 +8,19 @@ package com.stratio.gosec.dyplon.plugins.sparta
 
 import java.io.InputStream
 import java.net.InetAddress
-import scala.io.Source
-import scala.util.{Failure, Properties, Success, Try}
 
 import com.stratio.gosec.facade.DyplonFacadeAuthorizer
 import com.stratio.sparta.security.{Action, AuditEvent, Resource, SpartaSecurityManager}
+import com.stratio.sparta.serving.core.constants.AppConstant
+
+import scala.io.Source
+import scala.util.Try
 //scalastyle:off
+import com.stratio.sparta.security.{Action => SpartaAction, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Select => SpartaSelect, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView}
 import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson.Serialization._
 import org.json4s.{DefaultFormats, Formats}
 import org.slf4j.LoggerFactory
-
-import com.stratio.sparta.security.{Action => SpartaAction, Create => SpartaCreate, Delete => SpartaDelete, Describe => SpartaDescribe, Download => SpartaDownload, Edit => SpartaEdit, Select => SpartaSelect, Status => SpartaStatus, Upload => SpartaUpload, View => SpartaView}
 
 case class ScopeHttp(`type`: String, actions: Seq[String])
 
@@ -50,29 +51,23 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
 
   lazy val logger = LoggerFactory.getLogger(classOf[GoSecSpartaSecurityManagerFacade])
 
-  lazy val spartaVersion = Try(dyplonConfig.getString("version")).toOption.notBlank.getOrElse("2.4.0")
-  lazy val tenantName = Try(dyplonConfig.getString("dyplon.tenant.name")).toOption
-  lazy val serviceName = Try(dyplonConfig.getString("service.name")).getOrElse("sparta")
-  lazy val spartaInstance = Properties.envOrNone("SPARTA_SERVICE_NAME").getOrElse("sparta") // TODO @fpesci tenant identity
+  lazy val spartaVersion = AppConstant.version
+  lazy val serviceName = Try(dyplonConfig.getString("service.name")).getOrElse(AppConstant.ConfigAppName)
+  lazy val spartaInstance = AppConstant.spartaServerMarathonAppId
+  val spartaAuthorizer = AppConstant.ConfigAppName
 
   override def start: Unit = {
 
     logger.info(s"Starting Sparta $spartaInstance plugin")
-    logger.info(s"Plugin registration parameters: tenant=$tenantName, serviceName=$serviceName, version=$spartaVersion")
-    DyplonFacadeAuthorizer.isPluginRegistered(tenantName, serviceName, spartaVersion, spartaInstance) match {
-      case Success(registered) if (registered) =>
-        logger.info(s"Sparta plugin instance $spartaInstance is already registered")
-      case Success(registered) if (!registered) => {
-        val spartaPlugin = parseSpartaPlugin.scope.flatMap(s => Map(s.`type` -> s.actions)).toMap
-        val successfullyRegistration = DyplonFacadeAuthorizer.registerPlugin(tenantName, serviceName, spartaVersion, spartaInstance, spartaPlugin)
-        if (successfullyRegistration)
-          logger.info("Sparta plugin registered successfully")
-        else
-          throw new RuntimeException("Sparta plugin registration failed")
-      }
-      case Failure(f) =>
-        logger.error(s"Error starting Sparta plugin", f)
-    }
+    logger.info(s"Plugin registration parameters: serviceName=$serviceName, version=$spartaVersion")
+
+    val spartaPlugin = parseSpartaPlugin.scope.flatMap(s => Map(s.`type` -> s.actions)).toMap
+
+    if ( DyplonFacadeAuthorizer.registerPlugin(serviceName, spartaVersion, spartaInstance, spartaPlugin, None, spartaAuthorizer, true ))
+      logger.info(s"Sparta plugin instance $spartaInstance is already registered")
+    else
+      throw new RuntimeException("Sparta plugin registration failed")
+
   }
 
   override def authorize(
@@ -82,7 +77,7 @@ class GoSecSpartaSecurityManagerFacade extends SpartaSecurityManager {
                           hierarchy: Boolean
                         ): Boolean =
 
-    DyplonFacadeAuthorizer.authorize(userId, action, tenantName, serviceName, spartaVersion, spartaInstance, resource.resourceType.name(), resource.name, getLocalIp, false)
+    DyplonFacadeAuthorizer.authorize(userId, action, serviceName, spartaVersion, spartaInstance, resource.resourceType.name(), resource.name, getLocalIp, false)
 
   /** PRIVATE METHODS */
 

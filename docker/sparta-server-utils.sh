@@ -56,11 +56,22 @@ function initJavaOptions() {
 
 function initPluginCrossdata() {
 
+ if [[ ! -v SPARTA_PLUGIN_INSTANCE ]]; then
+   export SPARTA_PLUGIN_INSTANCE=${MARATHON_APP_ID}
+ fi
+
  if [ -v CROSSDATA_SECURITY_MANAGER_ENABLED ] && [ $CROSSDATA_SECURITY_MANAGER_ENABLED == "true" ]; then
+
+    if [ -v SPARTA_SECURITY_MANAGER_HTTP_ENABLED ] && [ ${#SPARTA_SECURITY_MANAGER_HTTP_ENABLED} != 0 ] && [[ $SPARTA_SECURITY_MANAGER_HTTP_ENABLED == "true" ]] ; then
+        export GOSEC_CROSSDATA_VERSION=${GOSEC_CROSSDATA_HTTP_VERSION}
+     else
+        export GOSEC_CROSSDATA_VERSION=${GOSEC_CROSSDATA_LEGACY_VERSION}
+     fi
+
     INFO "[GOSEC-CROSSDATA-CONFIG] Choose version: OK"
     INFO "[GOSEC-CROSSDATA-CONFIG] dyplon-crossdata-${GOSEC_CROSSDATA_VERSION//./\\.}.*\.jar"
     PLUGIN_FILES=(`ls -d -1  /opt/sds/sparta/crossdata/{*,.*} | grep -e "dyplon-crossdata-${GOSEC_CROSSDATA_VERSION//./\\.}.*\.jar"`)
-    INFO "[GOSEC-CROSSDATA-CONFIG] Version choosed: ${PLUGIN_FILES} OK"
+    INFO "[GOSEC-CROSSDATA-CONFIG] Chosen version : ${PLUGIN_FILES} OK"
 
     case "${#PLUGIN_FILES[*]}" in
             0)

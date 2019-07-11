@@ -41,6 +41,11 @@ This software – including all its source code – contains proprietary informa
             <artifactId>crossdata-core_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.stratio.crossdata</groupId>
+            <artifactId>crossdata-auth-interface_${scala.binary.version}</artifactId>
+            <version>${crossdata-auth-iface.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
         </dependency>
