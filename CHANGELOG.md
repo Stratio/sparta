@@ -7,8 +7,21 @@
     - Integration with DCOS 1.12
     - Upgrade to new Gosec Facade version
     - Upgrade dyplon-crossdata version to 0.19.1-e67b2ab  
+    - Upgrade ml-modelrep version to 1.5.0-2460505
+    - Support Cassandra TLS in input and output
+    - Auto create schema in JDBC and Postgres output
+    - Integration with new QR API
+    - Support schema registry tls disabled with kafka tls enabled
+    - New column transformation - Mask
+    - New column transformation - Partial Info
+    - New column transformation - Character trimmer
+    - New column transformation - Left padding
     
 * Bug fixing:
+    - Fix marathon start with invalid status
+    - Set failed status before stop spark contexts
+    - AppStatus - fix postgres connection leak
+    - JDBC & Postgres output - Disable caseSensitive by default and retreive default schema
     - [SPARTA-3093] Add user to jdbc connection string if not specified
     - [INTELL-2148] Fix Model repository method to download Spark pipeline models from repository
 
