@@ -18,7 +18,7 @@ INFO "[KERBEROS] Setting configuration options needed for securized Zookeeper"
 
 ##In sparta keytab is expected in SPARTA_KEYTAB_PATH
 export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/$TENANT_NAME.keytab
-export SPARTA_KEYTAB_PATH_WORKFLOW=/etc/sds/sparta/security/$WORKFLOW_IDENTITY.keytab
+export SPARTA_KEYTAB_PATH_WORKFLOW=/etc/sds/sparta/security/workflow/$WORKFLOW_IDENTITY.keytab
 echo "export SPARTA_KEYTAB_PATH=${SPARTA_KEYTAB_PATH}" >> ${VARIABLES}
 echo "export SPARTA_KEYTAB_PATH_WORKFLOW=${SPARTA_KEYTAB_PATH_WORKFLOW}" >> ${VARIABLES}
 
