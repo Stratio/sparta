@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.9.0 (July 11, 2019)
+## 2.9.0 (July 13, 2019)
 
 * Improvements and new features:
     - [SPARTA-3128] Multitenant login
