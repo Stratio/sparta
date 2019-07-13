@@ -15,6 +15,10 @@ This software – including all its source code – contains proprietary informa
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <service.name>sparta</service.name>
+    </properties>
+
     <artifactId>serving-core</artifactId>
 
     <build>

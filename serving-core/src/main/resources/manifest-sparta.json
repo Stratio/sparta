@@ -1,5 +1,5 @@
 {
-  "type": "${service.name}",
+  "type": "sparta",
   "version": "${pom.version}",
   "scope": [
     {
