@@ -11,7 +11,7 @@ This software – including all its source code – contains proprietary informa
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparta</groupId>
-        <version>2.9.0-SNAPSHOT</version>
+        <version>2.10.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
