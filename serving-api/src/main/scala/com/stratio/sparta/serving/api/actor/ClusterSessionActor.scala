@@ -6,61 +6,96 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import akka.cluster.Cluster
-import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, Unsubscribe}
+import akka.cluster.ddata.{DistributedData, LWWMap, LWWMapKey}
+import akka.cluster.ddata.Replicator._
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.actor.ClusterSessionActor._
-import com.stratio.sparta.serving.api.oauth.SessionStore
 
-class ClusterSessionActor extends Actor {
+import scala.concurrent.duration._
+
+class ClusterSessionActor extends Actor with SLF4JLogging {
 
   implicit val ec = context.system.dispatchers.lookup("sparta-actors-dispatcher")
 
-  val cluster = Cluster(context.system)
-  val mediator = DistributedPubSub(context.system).mediator
+  implicit val cluster = Cluster(context.system)
 
-  override def preStart(): Unit = {
-    mediator ! Subscribe(ClusterTopicSession, self)
-  }
-
-  override def postStop(): Unit = {
-    mediator ! Unsubscribe(ClusterTopicSession, self)
-  }
+  val replicator = DistributedData(context.system).replicator
 
   override def receive: Receive = {
-    case newSession: NewSession =>
-      SessionStore.addSession(newSession)
-    case removeSession: RemoveSession =>
-      SessionStore.removeSession(removeSession)
-    case refreshSession: RefreshSession =>
-      SessionStore.refreshSession(refreshSession)
-    case PublishSessionInCluster(newSession) =>
-      mediator ! Publish(ClusterTopicSession, newSession)
-    case PublishRemoveSessionInCluster(sessionToRemove) =>
-      mediator ! Publish(ClusterTopicSession, sessionToRemove)
-    case PublishRefreshSessionInCluster(sessionToRefresh) =>
-      mediator ! Publish(ClusterTopicSession, sessionToRefresh)
+    case GetSession(sessionId) =>
+      replicator ! Get(dataKey(sessionId), ReadLocal, Some(SessionContext(sessionId, sender())))
+
+    case session@GetSuccess(_, Some(SessionContext(sessionId, replyTo))) =>
+      val maybeInfo: Option[SessionInfo] = session.dataValue match {
+        case sessionsMap: LWWMap[String, SessionInfo] => sessionsMap.get(sessionId)
+        case _ => None
+      }
+      replyTo ! maybeInfo
+
+    case GetFailure(_, Some(SessionContext(_, replyTo))) =>
+      log.debug("Failed to get session ID")
+      replyTo ! None
+
+    case NotFound(_, Some(SessionContext(_, replyTo))) =>
+      log.debug("Session ID not found")
+      replyTo ! None
+
+    case UpdateSuccess(_, Some(SessionContext(sessionId, replyTo))) =>
+      replyTo ! NewSessionCreated(sessionId)
+
+    case UpdateTimeout(_, Some(SessionContext(_, replyTo))) =>
+      log.debug("Update session ID timeout")
+      replyTo ! None
+
+    case NewSession(sessionId, identity, expires) =>
+      replicator ! Update(dataKey(sessionId), LWWMap(), writeAll, Some(SessionContext(sessionId, sender()))) {
+        _ + (sessionId -> SessionInfo(identity, expires))
+      }
+
+    case RefreshSession(sessionId, identity, expires) =>
+      replicator ! Update(dataKey(sessionId), LWWMap(), WriteLocal) {
+        _ + (sessionId -> SessionInfo(identity, expires))
+      }
+
+    case RemoveSession(sessionId) =>
+      replicator ! Delete(dataKey(sessionId), WriteLocal)
+
   }
+
+  def dataKey(key: String): LWWMapKey[String, SessionInfo] = LWWMapKey(key)
 
 }
 
 object ClusterSessionActor {
 
-  val ClusterTopicSession = "Session"
+  import java.util.UUID
 
-  trait Notification
+  import com.stratio.sparta.serving.core.config.SpartaConfig
+  import com.stratio.sparta.serving.core.constants.AppConstant
 
-  case class NewSession(sessionId: String, identity: String, expires: Long) extends Notification
+  import scala.util.Try
 
-  case class RefreshSession(sessionId: String, expirationTime: Long) extends Notification
+  private val timeout = Try(SpartaConfig.getDetailConfig().get.getInt("timeout"))
+    .getOrElse(AppConstant.DefaultApiTimeout) - 1
 
-  case class RemoveSession(sessionId: String) extends Notification
+  private val writeAll = WriteAll(timeout.seconds)
 
-  case class PublishSessionInCluster(newSession: NewSession)
+  case class NewSession(sessionId: String, identity: String, expires: Long)
 
-  case class PublishRemoveSessionInCluster(sessionToRemove: RemoveSession)
+  case class NewSessionCreated(sessionId: String)
 
-  case class PublishRefreshSessionInCluster(sessionToRefresh: RefreshSession)
+  case class RefreshSession(sessionId: String, identity: String, expirationTime: Long)
+
+  case class RemoveSession(sessionId: String)
+
+  case class GetSession(sessionId: String)
+
+  case class SessionInfo(identity: String, expiration: Long)
+
+  private final case class SessionContext(key: String, replyTo: ActorRef)
+
+  def getRandomSessionId: String = UUID.randomUUID().toString
 
 }

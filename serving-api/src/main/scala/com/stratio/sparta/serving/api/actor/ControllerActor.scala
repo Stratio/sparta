@@ -48,8 +48,7 @@ class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
 
   log.debug("Initializing actors in Controller Actor")
 
-  lazy val clusterSessionActor = context.actorOf(Props[ClusterSessionActor])
-
+  val clusterSessionActor = context.actorOf(Props[ClusterSessionActor])
   val parametersListenerActor = context.actorOf(Props[ParametersListenerActor])
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor())), TemplateActorName)
