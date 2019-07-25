@@ -79,7 +79,6 @@ trait OauthClient extends HttpService with SLF4JLogging {
           case Success(Some(SessionInfo(identity, expiration))) =>
             setCookie(authorizedCookie(sessionId, expiration)) & provide(identity)
           case _ =>
-            clusterSessionActor ! RemoveSession(sessionId)
             authorizeRedirect
         }
       case None => authorizeRedirect
@@ -113,8 +112,9 @@ trait OauthClient extends HttpService with SLF4JLogging {
   val logout = path("logout") {
     get {
       optionalCookie(configure.CookieName) {
-        case Some(x) =>
-          clusterSessionActor ! RemoveSession(x.content)
+        case Some(httpCookie) =>
+          val sessionId = httpCookie.content
+          clusterSessionActor ! RemoveSession(sessionId)
           deleteCookie(configure.CookieName, path = "/")(logoutRedirect)
         case None => logoutRedirect
       }
@@ -148,6 +148,10 @@ trait OauthClient extends HttpService with SLF4JLogging {
           val cookieExpiration = getCookieExpirationTime
           clusterSessionActor ! RefreshSession(sessionId, identity, cookieExpiration)
           Some(SessionInfo(identity, cookieExpiration))
+        case Some(_:SessionInfo)  =>
+          // Cookie expired, remove from the session list
+          clusterSessionActor ! RemoveSession(sessionId)
+          None
         case _ => None
       }
   }
