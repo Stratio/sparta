@@ -14,7 +14,7 @@ This software – including all its source code – contains proprietary informa
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>stratio-sparta</artifactId>
+    <artifactId>sparta</artifactId>
     <properties>
         <classpath.directory>lib</classpath.directory>
         <config.directory>src/main/resources</config.directory>
@@ -153,7 +153,7 @@ This software – including all its source code – contains proprietary informa
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
-                            <outputFileName>stratio-sparta</outputFileName>
+                            <outputFileName>sparta</outputFileName>
                             <contact><![CDATA[Stratio SpaRTA<sparta@stratio.com>]]></contact>
                             <contactEmail>sparta@stratio.com</contactEmail>
                             <deb>

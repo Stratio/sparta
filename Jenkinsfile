@@ -2,20 +2,16 @@
 
 hose {
     EMAIL = 'sparta'
-    MODULE = 'sparta-workflow'
+    MODULE = 'sparta'
     DEVTIMEOUT = 70
     RELEASETIMEOUT = 40
     FOSS = true
     REPOSITORY = 'sparta-workflow'
     PKGMODULES = ['dist']
-    PKGMODULESNAMES = ['stratio-sparta']
+    PKGMODULESNAMES = ['sparta']
     DEBARCH = 'all'
     MAVEN_THREADSPERCORE = 4
     EXPOSED_PORTS = [9090,10000,11000]
-    KMS_UTILS = '0.4.0'
-    BASEIMG = 'qa.stratio.com/stratio/spark-stratio-driver:2.2.0-2.4.0'
-    DOCKERFILECOMMAND = 'WORKDIR / \n RUN apt-get update -y && apt-get install -y htop xmlstarlet nginx realpath coreutils krb5-user libpam-krb5 libpam-ccreds auth-client-config curl wget php5-curl make jq vim && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && wget -qO- https://www.openssl.org/source/openssl-1.0.2l.tar.gz | tar xz && cd openssl-1.0.2l && sudo ./config && sudo make && sudo make install && sudo ln -sf /usr/local/ssl/bin/openssl /usr/bin/openssl && wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && chmod +x jq-linux64 && mv jq-linux64 /usr/bin/jq'
-    BUILDTOOLVERSION = '3.5.0'
     NEW_VERSIONING = 'true'
 
     ITSERVICES = [
@@ -127,23 +123,17 @@ hose {
             'env': ['HUB_HOST=selenium391.cd','HUB_PORT=4444','SE_OPTS="-browser browserName=chrome,version=64%%JUID "']
             ]
         ],
-        ['DCOSCLI': [
-                'image': 'stratio/dcos-cli:0.4.15-SNAPSHOT',
-                'volumes': ['stratio/paasintegrationpem:0.1.0'],
-                'env': [
-                    'DCOS_IP=10.130.15.11',
-                    'SSL=true',
-                    'SSH=true',
-                    'TOKEN_AUTHENTICATION=true',
-                    'DCOS_USER=admin',
-                    'DCOS_PASSWORD=1234',
-                    'CLI_BOOTSTRAP_USER=operador',
-                    'PEM_FILE_PATH=/paascerts/PaasIntegration.pem'
-                    ],
-                'sleep':  10,
-                'healthcheck': 5000
-                ]
-        ]
+        ['DCOSCLI':   ['image': 'stratio/dcos-cli:0.4.15-SNAPSHOT',
+                           'env':     ['DCOS_IP=10.200.0.205',
+                                      'SSL=true',
+                                      'SSH=true',
+                                      'TOKEN_AUTHENTICATION=true',
+                                      'DCOS_USER=admin',
+                                      'DCOS_PASSWORD=1234',
+                                      'CLI_BOOTSTRAP_USER=root',
+                                'CLI_BOOTSTRAP_PASSWORD=stratio'],
+                           'sleep':  120,
+                           'healthcheck': 5000]]
     ]
     INSTALLPARAMETERS = """
             | -DDCOS_SERVICE_NAME=sparta-server
@@ -168,7 +158,7 @@ hose {
             | -DPURGE_DATA=true
             | -DSKIP_USERS=true
             """
-            
+
     INSTALL = { config ->
         if (config.INSTALLPARAMETERS.contains('GROUPS_SPARTA')) {
             config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
