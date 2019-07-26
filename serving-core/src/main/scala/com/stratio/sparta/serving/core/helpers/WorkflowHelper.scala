@@ -81,7 +81,7 @@ object WorkflowHelper extends SLF4JLogging {
   def getMarathonBaseId: String = {
     val companyLabelPrefix = Properties.envOrNone(DcosServiceCompanyLabelPrefix)
     val basicApplicationPath = {
-      val baseApplicationPath = Properties.envOrElse(DcosServiceBaseApplicationPath, "sparta")
+      val baseApplicationPath = Properties.envOrElse(DcosServiceBaseApplicationPath, "/sparta")
       s"$baseApplicationPath/$instanceNameHttpService/workflows"
     }
 

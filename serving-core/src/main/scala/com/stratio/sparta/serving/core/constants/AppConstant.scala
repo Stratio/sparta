@@ -109,7 +109,7 @@ object AppConstant extends ZookeeperUtils {
   val spartaTenant = Properties.envOrElse(MarathonConstant.TenantName, "sparta")
 
   //Multi-tenant sid
-  lazy val spartaServerMarathonAppId = Properties.envOrElse(MarathonConstant.SpartaServerMarathonAppId, s"/sparta/$instanceServiceName/$instanceServiceName")
+  lazy val spartaServerMarathonAppId = Properties.envOrElse(MarathonConstant.SpartaServerMarathonAppId, s"/sparta/$instanceNameWithDefault/$instanceNameWithDefault")
 
   //Security ON/OFF
   val securityTLSEnable = Try(Properties.envOrElse(MarathonConstant.SpartaTLSEnableEnv, "false").toBoolean).getOrElse(false)

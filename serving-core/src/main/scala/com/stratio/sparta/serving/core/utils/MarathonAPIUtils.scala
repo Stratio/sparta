@@ -201,7 +201,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
-    val groupsPath = s"v2/groups/$getMarathonBaseId/workflows"
+    val groupsPath = s"v2/groups/$getMarathonBaseId"
     for {
       groups <- doRequest(marathonApiUri.get,
         groupsPath,
