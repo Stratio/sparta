@@ -166,13 +166,21 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
   def validatePlugins(implicit workflow: Workflow): WorkflowValidation = {
     val pluginsValidations = if (workflow.executionEngine == Streaming) {
-      val plugins = JarsHelper.localUserPluginJars(workflow)
+      val plugins = {
+        if(workflowHasPlugins)
+          JarsHelper.localUserPluginJars(workflow)
+        else Seq.empty
+      }
       val errorManager = PostgresNotificationManagerImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.validate()
     } else if (workflow.executionEngine == Batch) {
-      val plugins = JarsHelper.localUserPluginJars(workflow)
+      val plugins = {
+        if(workflowHasPlugins)
+          JarsHelper.localUserPluginJars(workflow)
+        else Seq.empty
+      }
       val errorManager = PostgresNotificationManagerImpl(workflow)
       val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager, plugins)
       spartaWorkflow.stages(execute = false)
@@ -417,4 +425,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[WorkflowValidationMe
 
   case class InvalidMessage(nodeName: String, relationType: String)
 
+  private def workflowHasPlugins(implicit workflow: Workflow) : Boolean =
+    workflow.settings.global.addAllUploadedPlugins || workflow.settings.global.userPluginsJars.nonEmpty
+  
 }
