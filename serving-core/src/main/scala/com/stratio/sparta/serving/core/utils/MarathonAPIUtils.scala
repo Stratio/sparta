@@ -201,7 +201,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[core] def retrieveEmptyGroups: Future[Seq[String]] = {
-    val groupsPath = s"v2/groups/$getMarathonBaseId"
+    val groupsPath = s"v2/groups$getMarathonBaseId"
     for {
       groups <- doRequest(marathonApiUri.get,
         groupsPath,
@@ -229,7 +229,7 @@ class MarathonAPIUtils(system: ActorSystem, materializer: ActorMaterializer)
   }
 
   private[utils] def retrieveIPandPorts: Future[Seq[AppParameters]] = {
-    val groupPath = s"v2/groups/$getMarathonBaseId"
+    val groupPath = s"v2/groups$getMarathonBaseId"
 
     import oauthUtils._
 

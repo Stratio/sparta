@@ -157,7 +157,7 @@ class SchedulerMonitorActorTest extends TestKit(ActorSystem("SchedulerActorSpec"
       None,
       None,
       None,
-      Option(MarathonExecution("sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234")),
+      Option(MarathonExecution("/sparta/sparta-fl/workflows/home/test-input-print/test-input-print-v0/1234")),
       None
     )
 

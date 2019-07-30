@@ -582,7 +582,7 @@ object SchedulerMonitorActor {
         !notRunningStates.contains(execution.lastStatus.state)
     }.flatMap { execution =>
       execution.marathonExecution match {
-        case Some(marathonExecution) => Option(s"/${marathonExecution.marathonId}", execution.getExecutionId)
+        case Some(marathonExecution) => Option(s"${marathonExecution.marathonId}", execution.getExecutionId)
         case None => None
       }
     }.toMap
