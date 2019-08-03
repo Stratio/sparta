@@ -51,9 +51,9 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
 
   lazy val actorTypeKey = "SPARTA"
 
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", "NONE"))
   lazy val noTenant = Some("NONE")
-
+  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
 
   override def preStart(): Unit = {
     extractStatusChanges()
@@ -168,7 +168,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
             `type` = LineageUtils.mapSparta2GovernanceStepType(stepType),
             metaDataPath = metaDataPath,
             dataStoreType = LineageUtils.mapSparta2GovernanceDataStoreType(dataStoreType),
-            tenant = noTenant,
+            tenant = current_tenant,
             properties = Map.empty
           )
         }
@@ -178,7 +178,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
         id = -1,
         name = workflow.name,
         description = workflow.description,
-        tenant = noTenant,
+        tenant = current_tenant,
         properties = executionProperties,
         transactionId = executionId,
         actorType = actorTypeKey,

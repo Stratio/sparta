@@ -20,6 +20,7 @@ import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.MetadataPath
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -52,7 +53,9 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     .getOrElse("https://governance.labs.stratio.com/dictionary")
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.endpoint"))
     .getOrElse("v1/quality/quality/searchByMetadataPathLike")
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", "NONE"))
+  lazy val noTenant = Some("NONE")
+  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
 
   override def receive: Receive = {
     case RetrieveQualityRules(workflow) =>

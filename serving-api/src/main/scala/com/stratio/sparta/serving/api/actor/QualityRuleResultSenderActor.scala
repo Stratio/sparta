@@ -15,6 +15,7 @@ import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangePublisherActor.ExecutionStatusChange
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.factory.PostgresDaoFactory
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
@@ -47,8 +48,9 @@ class QualityRuleResultSenderActor extends Actor with HttpRequestUtils with Spar
   lazy val postEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.post.endpoint"))
     .getOrElse("v1/quality/metrics")
   lazy val governancePushDuration: FiniteDuration = 15 minute
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", "NONE"))
   lazy val noTenant = Some("NONE")
+  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
 
   override def preStart(): Unit = {
     if (enabled) {
