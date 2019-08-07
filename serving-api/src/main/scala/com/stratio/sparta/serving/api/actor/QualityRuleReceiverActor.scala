@@ -20,7 +20,6 @@ import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.models.MetadataPath
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
 import com.stratio.sparta.serving.core.helpers.GraphHelper.createGraph
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -28,7 +27,7 @@ import com.stratio.sparta.serving.core.models.governance.GovernanceQualityRule
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
 import com.stratio.sparta.serving.core.utils.HttpRequestUtils
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
-import org.apache.spark.sql.Dataset
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.DStream
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,10 +51,10 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
   lazy val uri = Try(SpartaConfig.getGovernanceConfig().get.getString("http.uri"))
     .getOrElse("https://governance.labs.stratio.com/dictionary")
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.endpoint"))
-    .getOrElse("v1/quality/quality/searchByMetadataPathLike")
-  lazy val noTenant = Some("NONE")
-  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
+    .getOrElse("v1/quality/quality/searchByMetadataPathLike?metadataPathLike=")
+  lazy val getXDEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("qualityrules.http.get.crossdata.endpoint"))
+    .getOrElse("v1/quality/quality/searchFederationByMetadataPathLike?metadataPathLike=")
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", LineageUtils.currentTenant.getOrElse("NONE")))
 
   override def receive: Receive = {
     case RetrieveQualityRules(workflow) =>
@@ -76,11 +75,11 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
       }
   }
 
-  def getQualityRulesfromApi(stepName: String,
+  def getQualityRulesFromApi(stepName: String,
                              outputName: String,
-                             metadataPath: MetadataPath): Future[StepOutputRule] = {
+                             metadataPath: String): Future[StepOutputRule] = {
 
-    val metadataPathString = s"${metadataPath.toString}%"
+    val metadataPathString = metadataPath + "%"
     val query = URLEncoder.encode(metadataPathString, StandardCharsets.UTF_8.toString)
 
     val resultGet = doRequest(
@@ -98,29 +97,61 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     }
   }
 
+  def getXDQualityRulesFromApi(stepName: String,
+                               outputName: String,
+                               metadataPath: String): Future[StepOutputRule] = {
+
+    val metadataPathString = metadataPath + "%"
+    val query = URLEncoder.encode(metadataPathString, StandardCharsets.UTF_8.toString)
+
+    val resultGet = doRequest(
+      uri = uri,
+      resource = getXDEndpoint.concat(query),
+      method = HttpMethods.GET,
+      body = None,
+      cookies = Seq.empty,
+      headers = rawHeaders
+    )
+
+    resultGet.map { case (status, response) =>
+      log.debug(s"Quality rule request for metadatapath ${metadataPath.toString} received with status ${status.value} and response $response")
+      StepOutputRule(stepName, outputName, response)
+    }
+  }
+
   def retrieveQualityRules(workflow: Workflow): Future[Seq[SpartaQualityRule]] = {
     val inputOutputGraphNodes: Seq[(NodeGraph, Map[String, String])] = retrieveInputOutputGraphNodes(workflow)
     val graphOutputPredecessorsWithTableName: Seq[Map[NodeGraph, (NodeGraph, String)]] = getOutputPredecessorsWithTableName(workflow)
     val graphOutputPredecessorsWithTableNameAndProperties: Seq[(String, (String, String, Map[String, String]))] =
       retrieveGraphOutputPredecessorsWithTableNameAndProperties(graphOutputPredecessorsWithTableName, inputOutputGraphNodes)
-    val predecessorsMetadataPaths: Seq[Map[String, (String, MetadataPath)]] =
-      retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties, workflow)
+    val predecessorsMetadataPaths: Seq[Map[String, (String, String)]] =
+      retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties, workflow) ++
+        retrieveXDOutputMetadataPaths(workflow)
 
     val resultF: Seq[Future[Seq[SpartaQualityRule]]] = for {
       predecessorsMetadataPath <- predecessorsMetadataPaths
     } yield {
-      retrieveQualityRulesFromGovernance(predecessorsMetadataPath)
+      retrieveQualityRulesFromGovernance(predecessorsMetadataPath, false)
     }
 
-    Future.sequence(resultF).map(_.flatten)
+    val resultFXD: Seq[Future[Seq[SpartaQualityRule]]] = for {
+      xdPredecessorsMetadataPath <- retrieveXDOutputMetadataPaths(workflow)
+    } yield {
+      retrieveQualityRulesFromGovernance(xdPredecessorsMetadataPath, true)
+    }
+
+    Future.sequence(resultF ++ resultFXD).map(_.flatten)
   }
 
 
-  def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String, MetadataPath)]): Future[Seq[SpartaQualityRule]] = {
+  def retrieveQualityRulesFromGovernance(metadataPaths: Map[String, (String, String)], isXDMetadapaths: Boolean): Future[Seq[SpartaQualityRule]] = {
     import org.json4s.native.Serialization.read
 
     val rulesFromApi: Seq[Future[StepOutputRule]] = metadataPaths.toSeq.map {
-      case (step, (output, meta)) => getQualityRulesfromApi(step, output, meta)
+      case (step, (output, meta)) => if (isXDMetadapaths)
+        getXDQualityRulesFromApi(step, output, meta)
+        else
+        getQualityRulesFromApi(step, output, meta)
     }
 
     val fromSeqFutureToFutureSeq: Future[Seq[StepOutputRule]] = Future.sequence(rulesFromApi)
@@ -133,7 +164,6 @@ class QualityRuleReceiverActor extends Actor with HttpRequestUtils {
     }
     seqQualityRules
   }
-
 }
 
 object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSerializer {
@@ -151,15 +181,35 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.inputOutputGraphNodesWithLineageProperties(workflow)
     } else if (workflow.executionEngine == Batch) {
-      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.inputOutputGraphNodesWithLineageProperties(workflow)
     } else Seq.empty[(NodeGraph, Map[String, String])]
   }
 
+  def retrieveXDOutputMetadataPaths(workflow: Workflow): Seq[Map[String, (String, String)]] = {
+    import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
+    val errorManager = PostgresNotificationManagerImpl(workflow)
+    val outputNodesWithWriter = LineageUtils.getOutputNodeLineageEntities(workflow)
+    val xdOutNodesWithWriter = LineageUtils.getXDOutputNodesWithWriter(workflow, outputNodesWithWriter)
+
+    if (workflow.executionEngine == Streaming) {
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter)
+    } else if (workflow.executionEngine == Batch) {
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter)
+    } else
+      Seq.empty[(Map[String, (String,String)])]
+  }
+
   def retrievePredecessorsMetadataPaths(graphOutputPredecessorsWithTableNameAndProperties: Seq[(String, (String, String, Map[String, String]))],
-                                        workflow: Workflow): Seq[Map[String, (String, MetadataPath)]] =
-  // Step, Out, Metadata
+                                        workflow: Workflow): Seq[Map[String, (String, String)]] =
+  // Step, Out, Metadata0
   {
     graphOutputPredecessorsWithTableNameAndProperties
       .filter { case ((_, (_, nodePrettyName, _))) => AllowedDataGovernanceOutputs.contains(nodePrettyName) }
@@ -172,7 +222,7 @@ object QualityRuleReceiverActor extends ContextBuilderImplicits with SpartaSeria
           val dataStoreType = outputStep.classPrettyName
           val extraPath = props.get(PathKey)
             .map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), tableNameType))
-          Map(nodeName -> (pluginName, MetadataPath(serviceName, extraPath, tableNameType)))
+          Map(nodeName -> (pluginName, MetadataPath(serviceName, extraPath, tableNameType).toString))
         }
       }
   }

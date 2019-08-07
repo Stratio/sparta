@@ -10,9 +10,8 @@ import com.stratio.sparta.core.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.core.constants.SdkConstants._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.constants.SdkConstants._
-import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep}
-import com.stratio.sparta.dg.agent.models.LineageWorkflow
+import com.stratio.sparta.core.workflow.step.{InputStep, OutputStep, TransformStep}
+import com.stratio.sparta.dg.agent.models.{ActorMetadata, LineageWorkflow, MetadataPath}
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant.defaultWorkflowRelationSettings
 import com.stratio.sparta.serving.core.error.PostgresNotificationManagerImpl
@@ -22,18 +21,21 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.enumerators.{DataType, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.workflow.SpartaWorkflow
-import org.apache.spark.sql.Dataset
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.{Properties, Try}
+import scala.util.Try
 import scalax.collection._
 import scalax.collection.edge.LDiEdge
-import scala.util.{Properties, Try}
 
 //scalastyle:off
 object LineageUtils extends ContextBuilderImplicits {
 
-  case class OutputNodeLineageRelation(outputName: String, nodeTableName: String, outputClassPrettyName: String, outputStepType: String)
+  case class OutputNodeLineageEntity(outputName: String,
+                                     nodeTableName: String,
+                                     outputClassPrettyName: String,
+                                     outputStepType: String,
+                                     transformationName: Option[String] = None)
 
   val StartKey = "startedAt"
   val FinishedKey = "finishedAt"
@@ -41,8 +43,12 @@ object LineageUtils extends ContextBuilderImplicits {
   val ErrorKey = "error"
   val UrlKey = "link"
   val PublicSchema = "public"
+  val ActorTypeKey = "SPARTA"
+  val NoTenant = Some("NONE")
 
   lazy val spartaVHost = AppConstant.virtualHost.getOrElse("localhost")
+  lazy val currentTenant = AppConstant.EosTenant.orElse(NoTenant)
+
 
   def checkIfProcessableWorkflow(executionStatusChange: WorkflowExecutionStatusChange): Boolean = {
     val eventStatus = executionStatusChange.newExecution.lastStatus.state
@@ -54,7 +60,7 @@ object LineageUtils extends ContextBuilderImplicits {
         || eventStatus == WorkflowStatusEnum.Finished || eventStatus == WorkflowStatusEnum.Failed)
   }
 
-  def getOutputNodesWithWriter(workflow: Workflow): Seq[OutputNodeLineageRelation] = {
+  def getOutputNodeLineageEntities(workflow: Workflow): Seq[OutputNodeLineageEntity] = {
     import com.stratio.sparta.serving.core.helpers.GraphHelperImplicits._
 
     val graph: Graph[NodeGraph, LDiEdge] = createGraph(workflow)
@@ -77,13 +83,12 @@ object LineageUtils extends ContextBuilderImplicits {
             else node.name
           }
 
-          OutputNodeLineageRelation(outNodeGraph.name, tableName, outNodeGraph.classPrettyName, outputNode.stepType)
+          OutputNodeLineageEntity(outNodeGraph.name, tableName, outNodeGraph.classPrettyName, outputNode.stepType, Some(node.name))
         }
       }
   }
 
   def getAllStepsProperties(workflow: Workflow): Map[String, Map[String, String]] = {
-
     val errorManager = PostgresNotificationManagerImpl(workflow)
     val inOutNodes = workflow.pipelineGraph.nodes.filter(node =>
       node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType).map(_.name)
@@ -93,10 +98,110 @@ object LineageUtils extends ContextBuilderImplicits {
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.lineageProperties(inOutNodes)
     } else if (workflow.executionEngine == Batch) {
-      val spartaWorkflow = SpartaWorkflow[Dataset](workflow, errorManager)
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
       spartaWorkflow.stages(execute = false)
       spartaWorkflow.lineageProperties(inOutNodes)
     } else Map.empty
+  }
+
+  /**
+    *
+    * @param workflow Entity workflow built by the user
+    * @param xdOutNodesWithWriter Seq(outputName, tableName, Option(transformationName))
+    * @return A collection Seq(stepName, Map(metadataKey -> Seq(metadataPaths))) resulting from all the Crossdata input
+    *         and outputs and also the transformation steps in which a table from the catalog is being used.
+    *         A Seq[String] is used to store the metadataPaths given the situation in which a XD table could be built from
+    *         multiple tables, resulting in multiple metadataPaths.
+    */
+  def getAllXDStepsProperties(workflow: Workflow,
+                              xdOutNodesWithWriter: Seq[(String, String, Option[String])]):Seq[(String, Map[String, Seq[String]])] = {
+    val errorManager = PostgresNotificationManagerImpl(workflow)
+
+    if (workflow.executionEngine == Streaming) {
+      val spartaWorkflow = SpartaWorkflow[DStream](workflow, errorManager)
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.lineageXDProperties(xdOutNodesWithWriter)
+    } else if (workflow.executionEngine == Batch) {
+      val spartaWorkflow = SpartaWorkflow[RDD](workflow, errorManager)
+      spartaWorkflow.stages(execute = false)
+      spartaWorkflow.lineageXDProperties(xdOutNodesWithWriter)
+    } else Seq.empty
+  }
+
+  def getXDOutputNodesWithWriter(workflow: Workflow, nodesOutGraph: Seq[OutputNodeLineageEntity]): Seq[(String,String, Option[String])] = {
+    nodesOutGraph.filter(n => isCrossdataStepType(n.outputClassPrettyName)).map{ node =>
+      (node.outputName, node.nodeTableName, node.transformationName)
+    }
+  }
+
+  def generateLineageEventFromWfExecution(executionStatusChange: WorkflowExecutionStatusChange): Option[LineageWorkflow] = {
+    val workflow = executionStatusChange.newExecution.getWorkflowToExecute
+    val executionId = executionStatusChange.newExecution.getExecutionId
+
+    if (checkIfProcessableWorkflow(executionStatusChange)) {
+      val executionProperties = setExecutionProperties(executionStatusChange.newExecution)
+      val lineageProperties = getAllStepsProperties(workflow)
+      val nodesOutGraph = getOutputNodeLineageEntities(workflow)
+      val inputNodes = workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType).map(_.name).toSet
+      val inputNodesProperties = lineageProperties.filterKeys(inputNodes).toSeq
+      val parsedLineageProperties =
+        addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
+
+      val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
+        props.get(ServiceKey).map { serviceName =>
+          val stepType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.stepType).getOrElse("")
+          val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.classPrettyName).getOrElse("")
+          val extraPath = props.get(PathKey).map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), props.get(ResourceKey)))
+          val metaDataPath = MetadataPath(serviceName, extraPath, props.get(ResourceKey)).toString
+
+          ActorMetadata(
+            `type` = mapSparta2GovernanceStepType(stepType),
+            metaDataPath = metaDataPath,
+            dataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType),
+            tenant = currentTenant,
+            properties = Map.empty
+          )
+        }
+      }
+
+      Option(LineageWorkflow(
+        id = -1,
+        name = workflow.name,
+        description = workflow.description,
+        tenant = currentTenant,
+        properties = executionProperties,
+        transactionId = executionId,
+        actorType = ActorTypeKey,
+        jobType = mapSparta2GovernanceJobType(workflow.executionEngine),
+        statusCode = mapSparta2GovernanceStatuses(executionStatusChange.newExecution.lastStatus.state),
+        version = AppConstant.version,
+        listActorMetaData = listStepsMetadata.toList ++ getAllDataAssetsFromXDSteps(workflow)
+      ))
+
+    } else None
+  }
+
+  private def getAllDataAssetsFromXDSteps(workflow: Workflow): List[ActorMetadata] = {
+    val xdOutNodesWithWriter = getXDOutputNodesWithWriter(workflow, getOutputNodeLineageEntities(workflow))
+    val xdStepsLineageProperties = getAllXDStepsProperties(workflow, xdOutNodesWithWriter)
+
+    xdStepsLineageProperties.flatMap{ case(step, xdProps) =>
+      val metadataPaths = xdProps.getOrElse(ProvidedMetadatapathKey, Seq.empty[String])
+
+      metadataPaths.map{ xdMetaDataPath =>
+              val stepType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.stepType).getOrElse("")
+              val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.classPrettyName).getOrElse("")
+              val metaDataPath = xdMetaDataPath
+
+              ActorMetadata(
+                `type` = mapSparta2GovernanceStepType(stepType),
+                metaDataPath = metaDataPath,
+                dataStoreType = mapSparta2GovernanceDataStoreType(dataStoreType),
+                tenant = AppConstant.EosTenant,
+                properties = Map.empty
+              )
+          }
+    }.toList
   }
 
   def setExecutionUrl(executionId: String): String = {
@@ -128,8 +233,7 @@ object LineageUtils extends ContextBuilderImplicits {
     )
   }
 
-
-  def addTableNameFromWriterToOutput(nodesOutGraph: Seq[OutputNodeLineageRelation],
+  def addTableNameFromWriterToOutput(nodesOutGraph: Seq[OutputNodeLineageEntity],
                                      lineageProperties: Map[String, Map[String, String]]): Seq[(String, Map[String, String])] = {
     nodesOutGraph.map { outputNodeLineageRelation =>
       import outputNodeLineageRelation._
@@ -153,8 +257,6 @@ object LineageUtils extends ContextBuilderImplicits {
     }
   }
 
-
-
   def extraPathFromFilesystemOutput(stepType: String, stepClass: String, path: Option[String],
                                     resource: Option[String]): String =
     if (stepType.equals(OutputStep.StepType) && isFileSystemStepType(stepClass) && resource.nonEmpty) {
@@ -170,7 +272,7 @@ object LineageUtils extends ContextBuilderImplicits {
 
   def mapSparta2GovernanceStepType(stepType: String): String =
     stepType match {
-      case InputStep.StepType => "IN"
+      case InputStep.StepType | TransformStep.StepType => "IN"
       case OutputStep.StepType => "OUT"
     }
 
@@ -182,21 +284,28 @@ object LineageUtils extends ContextBuilderImplicits {
       case StoppedByUser => "FINISHED"
     }
 
-  def isFileSystemStepType(dataStoreType: String): Boolean =
-    dataStoreType match {
+  def isFileSystemStepType(stepClassType: String): Boolean =
+    stepClassType match {
       case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => true
       case _ => false
     }
 
-  def isJdbcStepType(dataStoreType: String): Boolean =
-    dataStoreType match {
+  def isJdbcStepType(stepClassType: String): Boolean =
+    stepClassType match {
       case "Jdbc" | "Postgres" => true
       case _ => false
     }
 
-  def mapSparta2GovernanceDataStoreType(dataStoreType: String): String =
-    dataStoreType match {
+  def isCrossdataStepType(stepClassType: String): Boolean =
+    stepClassType match {
+      case "Crossdata" | "Trigger" => true
+      case _ => false
+    }
+
+  def mapSparta2GovernanceDataStoreType(stepClassType: String): String =
+    stepClassType match {
       case "Avro" | "Csv" | "FileSystem" | "Parquet" | "Xml" | "Json" | "Text" => "HDFS"
       case "Jdbc" | "Postgres" => "SQL"
+      case "Crossdata" | "Trigger" => "XD"
     }
 }

@@ -65,6 +65,8 @@ trait GraphStep extends CustomProperties {
 
   def lineageProperties(): Map[String, String] = Map.empty
 
+  def lineageCatalogProperties(): Map[String, Seq[String]] = Map.empty
+
 }
 
 object GraphStep {

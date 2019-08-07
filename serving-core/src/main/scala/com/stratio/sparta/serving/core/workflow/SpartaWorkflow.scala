@@ -6,7 +6,7 @@
 
 package com.stratio.sparta.serving.core.workflow
 
-import java.io.{File, Serializable}
+import java.io.Serializable
 
 import akka.event.Logging
 import akka.util.Timeout
@@ -20,7 +20,6 @@ import com.stratio.sparta.core.models.qualityrule.SparkQualityRuleResults
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, SpartaQualityRule, TransformationStepManagement}
 import com.stratio.sparta.core.properties.JsoneyString
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
-import com.stratio.sparta.core.utils.UserFirstURLClassLoader
 import com.stratio.sparta.core.workflow.step._
 import com.stratio.sparta.core.{ContextBuilder, DistributedMonad, WorkflowContext}
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -41,14 +40,14 @@ import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.{Duration, StreamingContext}
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration._
+import scala.util.{Properties, Try}
 import scalax.collection.Graph
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
 import scalax.collection.edge.LDiEdge
-
-import scala.annotation.tailrec
-import scala.concurrent.duration._
-import scala.util.{Properties, Try}
-import scala.collection.mutable.ListBuffer
 
 case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
                                                              workflow: Workflow,
@@ -108,6 +107,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
   }
 
+  /**
+    * *
+    * @param inOutNodes sequence of input and output names cointained in the workflow
+    * @return a Map(stepName -> Map(xdLineageKey -> xdLineageValue)) for every input and output with a non-empty
+    *         lineage property map. The values contained in this map will be used to built the step metadataPath.
+    */
   def lineageProperties(inOutNodes: Seq[String]): Map[String, Map[String, String]] = {
     val phaseEnum = PhaseEnum.Lineage
     val errorMessage = s"An error was encountered while extracting the lineage properties."
@@ -119,6 +124,98 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     }
   }
 
+  /**
+    *
+    * @param xdOutNodesWithWriter a Seq(outputName, tableName, Option(transformationName))
+    * @return a Seq(stepName, Map(xdLineageKey -> xdLineageValue) resulting from all the Crossdata inputs, outputs and also
+    *         all the triggers using tables from the catalog.
+    *
+    *         `xDStepsWithFilteredMetadataPaths` returns a Map(stepName -> Map(xdLineageKey -> xdLineageValue)) in which
+    *         all the metadataPaths generated from a stepName are filtered out leaving only the ones generated
+    *         by catalog tableNames. First, all the outputs and its lineage maps are filtered out. Then,
+    *         for the remaining steps the second filtering is applied.
+    *
+    *         `xDStepsWithFilteredMetadataPaths` returns a Seq(stepName, Map(xdLineageKey -> xdLineageValue)).
+    *         Every outputName will appear as many times as predecessor it has. The XD metadataPath builder
+    *         "getLineageTable" is called for each outputName occurrence
+    *         using the tablename parameter and is stored in a Seq(metadataPath).
+    */
+  def lineageXDProperties(xdOutNodesWithWriter: Seq[(String, String, Option[String])]): Seq[(String, Map[String, Seq[String]])] = {
+    val phaseEnum = PhaseEnum.Lineage
+    val errorMessage = s"An error was encountered while extracting the lineage catalog properties."
+    val okMessage = s"Lineage catalog properties successfully extracted."
+
+    errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
+      val xdLineageOutProps = getXDOutStepsLineageProps(xdOutNodesWithWriter)
+      val xDStepsWithFilteredMetadataPaths = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
+        val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String,Seq[String]])
+
+        newXDProps.map{case prop@(k, v) =>
+          if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
+            ProvidedMetadatapathKey -> Seq(getXDSession().fold(EmptyMetadataPath)(_.getLineageTable(tableName)))
+          else
+            prop
+        }
+        stepName -> newXDProps
+      }
+
+      val xDOutputPropertiesWithMetadataPath = getStepsNonEmptyLineageProps.filterNot(
+        stepWithProps => xdLineageOutProps.contains(stepWithProps._1)).map { case (step, xdProps) =>
+        val newXDProps = xdProps.map { case prop@(k, v) =>
+          if (k.equals(ProvidedMetadatapathKey))
+            ProvidedMetadatapathKey ->
+              v.filterNot{ path => steps.map(step => path.endsWith(step.name + ":")).fold(false)(_|_)}
+          else
+            prop
+        }
+        step -> newXDProps
+      }
+
+      xDStepsWithFilteredMetadataPaths ++ xDOutputPropertiesWithMetadataPath
+    }
+  }
+
+  /**
+    *
+    * @param xdOutNodesWithWriter a Seq(outputName, tableName, Option(transformationName))
+    * @return a Map(stepName -> Map(xdLineageKey -> xdLineageValue)) resulting from all the non-empty Crossdata
+    *         lineage property maps from all the inputs, outputs and transformations which appear exactly once.
+    */
+  def getXDOutStepsLineageProps(xdOutNodesWithWriter: Seq[(String, String, Option[String])])
+  : Map[String, Map[String, Seq[String]]] =
+    getStepsNonEmptyLineageProps.filter { stepWithProps =>
+      xdOutNodesWithWriter.exists(_._1 == stepWithProps._1)
+    }
+
+
+  /**
+    *
+    * @param xdOutNodesWithWriter a Seq(outputName, tableName, Option(transformationName))
+    * @return a Seq(Map(predecessorName -> (outputName, metadataPath))) built by retrieving the step's Crossdata lineage
+    *         property map. If the map returns an empty value the XD metadataPath builder "getLineageTable"
+    *         is called for each outputName occurrence and is stored in a Seq(metadataPath).
+    *
+    *
+    * spartaWorkflow.getStepsWithXDOutputNodesAndProperties(
+        xdOutNodesWithWriter,
+        spartaWorkflow.getXDOutStepsLineageProps(xdOutNodesWithWriter))
+    */
+  def getStepsWithXDOutputNodesAndProperties(xdOutNodesWithWriter: Seq[(String, String, Option[String])])
+  :Seq[Map[String, (String, String)]] = {
+    xdOutNodesWithWriter.map { case (outputName, tableName, predecessorName) =>
+      val xdOutputWithProps = getXDOutStepsLineageProps(xdOutNodesWithWriter).getOrElse(outputName, Map.empty[String,Seq[String]])
+
+      xdOutputWithProps.map { case (k, v) =>
+          val metadataPath =
+            if (k.equals(ProvidedMetadatapathKey) && v.isEmpty)
+              getXDSession().fold("")(_.getLineageTable(tableName))
+            else
+              ""
+          predecessorName.getOrElse(tableName) -> (outputName, metadataPath)
+      }
+    }
+  }
+
   def inputOutputGraphNodesWithLineageProperties(workflow: Workflow): Seq[(NodeGraph, Map[String, String])] = {
     val phaseEnum = PhaseEnum.Lineage
     val errorMessage = s"An error was encountered while extracting the lineage properties."
@@ -126,7 +223,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       workflow.pipelineGraph.nodes
         .filter(node => node.stepType.toLowerCase == OutputStep.StepType || node.stepType.toLowerCase == InputStep.StepType)
-        .map(node => (node, steps.find(_.name == node.name).headOption.fold(Map.empty[String,String])(_.lineageProperties())))
+        .map(node => (node, steps.find(_.name == node.name).fold(Map.empty[String,String])(_.lineageProperties())))
     }
   }
 
@@ -520,6 +617,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         log.warn(s"Invalid node step type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
           s"\tWrong type: ${node.stepType}")
     }
+
+  private[core] def getStepsNonEmptyLineageProps: Map[String, Map[String,Seq[String]]] =
+    steps.map { step =>
+      step.name -> step.lineageCatalogProperties()
+    }.toMap.filter(_._2.nonEmpty)
+
 
   private[core] def relationDataTypeFromName(nodeName: String): DataType =
     if (nodeName.contains(SdkSchemaHelper.discardExtension)) DataType.DiscardedData

@@ -14,6 +14,7 @@ import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.models._
 import com.stratio.sparta.core.workflow.step.TransformStep
+import com.stratio.sparta.serving.core.workflow.lineage.CrossdataLineage
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
@@ -29,7 +30,8 @@ abstract class TriggerTransformStep[Underlying[Row]](
                                                       properties: Map[String, JSerializable]
                                                     )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
-    with SLF4JLogging {
+    with SLF4JLogging
+    with CrossdataLineage {
 
   lazy val sql = properties.getString("sql").trim
   lazy val executeSqlWhenEmpty = Try(properties.getBoolean("executeSqlWhenEmpty", default = true)).getOrElse(true)
@@ -86,5 +88,8 @@ abstract class TriggerTransformStep[Underlying[Row]](
 
     validation
   }
+
+  override def lineageCatalogProperties(): Map[String, Seq[String]] = getCrossdataLineageProperties(xDSession, sql)
+
 }
 

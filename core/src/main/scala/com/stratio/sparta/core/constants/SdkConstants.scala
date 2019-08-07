@@ -25,9 +25,12 @@ object SdkConstants {
   val ModelRepositoryUrl = "modelRepositoryUrl"
   val ModelRepositoryPath = "modelRepositoryPath"
 
+  val EmptyMetadataPath = ""
+
   private[sparta] lazy val PathKey = "path"
   private[sparta] lazy val ResourceKey = "resource"
   private[sparta] lazy val ServiceKey = "service"
   private[sparta] lazy val SourceKey = "source"
   private[sparta] lazy val DefaultSchemaKey = "defaultSchema"
+  private[sparta] lazy val ProvidedMetadatapathKey = "providedMetadatapath"
 }

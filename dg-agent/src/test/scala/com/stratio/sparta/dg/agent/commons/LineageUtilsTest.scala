@@ -29,12 +29,22 @@ class LineageUtilsTest extends WordSpec with Matchers {
     Option(JsoneyString("tableName"))
   )
 
+  val writerC = WriterGraph(
+    SaveModeEnum.Append,
+    Option(JsoneyString("tableName2"))
+  )
+
   val nodes = Seq(
     NodeGraph("a", "input", "ParquetInputStep", "Parquet", Seq(NodeArityEnum.NullaryToNary), writerA),
-    NodeGraph("b", "output", "PostgresOutputStep", "Postgres", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+    NodeGraph("b", "output", "PostgresOutputStep", "Postgres", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
+    NodeGraph("c", "transformation", "TriggerTransformStepBatch", "Trigger", Seq(NodeArityEnum.NullaryToNary), writerC),
+    NodeGraph("d", "output", "CrossdataOutputStep", "Crossdata", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+
   )
   val edges = Seq(
-    EdgeGraph("a", "b")
+    EdgeGraph("a", "b"),
+    EdgeGraph("a", "c"),
+    EdgeGraph("c", "d")
   )
 
   val settingsModel = Settings(
@@ -48,7 +58,7 @@ class LineageUtilsTest extends WordSpec with Matchers {
 
   val timestampEpochTest = 1519051473L
   val pipeline = PipelineGraph(nodes, edges)
-  val testWorkflow = Workflow(Option("qwerty12345"), "parquet-postgres",
+  val testWorkflow = Workflow(Option("qwerty12345"), "parquet-postgres-xd",
     settings = settingsModel,
     tags = Option(List.empty[String]),
     pipelineGraph = pipeline,
@@ -96,11 +106,22 @@ class LineageUtilsTest extends WordSpec with Matchers {
     }
   }
 
-  "getOutputNodesWithWriter" should {
+  "getOutputNodeLineageEntities" should {
     "return a list of output nodes and its writers" in {
       val workflow = statusEvent.newExecution.getWorkflowToExecute
 
-      LineageUtils.getOutputNodesWithWriter(workflow).head should be(OutputNodeLineageRelation("b", "tableName", "Postgres", "output"))
+      LineageUtils.getOutputNodeLineageEntities(workflow).head should be(OutputNodeLineageEntity(
+        "b", "tableName", "Postgres", "output", Some("a")))
+    }
+  }
+
+  "getXDOutputNodesWithWriter" should {
+    "return a sequence of xd output nodes, its predecessor table and step names" in {
+      val workflow = statusEvent.newExecution.getWorkflowToExecute
+      val nodesOutGraph = getOutputNodeLineageEntities(workflow)
+
+      LineageUtils.getXDOutputNodesWithWriter(workflow, nodesOutGraph).head should be(
+        "d", "tableName2", Some("c"))
     }
   }
 
@@ -179,6 +200,8 @@ class LineageUtilsTest extends WordSpec with Matchers {
       LineageUtils.mapSparta2GovernanceDataStoreType("Parquet") should be("HDFS")
       LineageUtils.mapSparta2GovernanceDataStoreType("Jdbc") should be("SQL")
       LineageUtils.mapSparta2GovernanceDataStoreType("Postgres") should be("SQL")
+      LineageUtils.mapSparta2GovernanceDataStoreType("Trigger") should be("XD")
+      LineageUtils.mapSparta2GovernanceDataStoreType("Crossdata") should be("XD")
     }
   }
 }

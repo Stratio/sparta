@@ -9,19 +9,15 @@ package com.stratio.sparta.dg.agent.lineage
 import akka.actor.{Actor, ActorRef, ActorRefFactory, Props}
 import akka.cluster.Cluster
 import akka.event.slf4j.SLF4JLogging
-import akka.http.scaladsl.model.{HttpMethod, HttpMethods, StatusCode, StatusCodes}
 import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.model.{HttpMethod, HttpMethods, StatusCode, StatusCodes}
 import akka.stream.ActorMaterializer
-import com.stratio.sparta.core.constants.SdkConstants._
-import com.stratio.sparta.core.workflow.step.InputStep
 import com.stratio.sparta.dg.agent.commons.LineageUtils
-import com.stratio.sparta.dg.agent.models.{ActorMetadata, LineageWorkflow, MetadataPath}
+import com.stratio.sparta.dg.agent.models.LineageWorkflow
 import com.stratio.sparta.serving.core.actor.ExecutionStatusChangeListenerActor.OnExecutionStatusesChangeDo
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
-import com.stratio.sparta.serving.core.models.workflow.WorkflowExecutionStatusChange
 import com.stratio.sparta.serving.core.utils.{HttpRequestUtils, SpartaClusterUtils}
 import org.json4s.jackson.Serialization._
 
@@ -49,11 +45,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   lazy val getEndpoint = Try(SpartaConfig.getGovernanceConfig().get.getString("lineage.http.get.endpoint"))
     .getOrElse("v1/lineage/actor/searchByTransactionId?transactionId=")
 
-  lazy val actorTypeKey = "SPARTA"
-
-  lazy val noTenant = Some("NONE")
-  lazy val current_tenant= AppConstant.EosTenant.orElse(noTenant)
-  lazy val rawHeaders = Seq(RawHeader("X-TenantID", current_tenant.getOrElse("NONE")))
+  lazy val rawHeaders = Seq(RawHeader("X-TenantID", LineageUtils.currentTenant.getOrElse("NONE")))
 
   override def preStart(): Unit = {
     extractStatusChanges()
@@ -94,7 +86,7 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
   def extractStatusChanges(): Unit =
     executionStatusChangeListenerActor ! OnExecutionStatusesChangeDo(ExecutionStatusLineageKey) { executionStatusChange =>
       Try {
-        val lineageWorkflow = extractWorkflowChanges(executionStatusChange)
+        val lineageWorkflow = LineageUtils.generateLineageEventFromWfExecution(executionStatusChange)
         val exEngine = executionStatusChange.newExecution.executionEngine.get
         val executionId = executionStatusChange.newExecution.getExecutionId
 
@@ -140,56 +132,6 @@ class LineageServiceActor(executionStatusChangeListenerActor: ActorRef) extends 
           log.error("Error sending data to lineage API", e)
       }
     }
-
-  //scalastyle:off
-  private def extractWorkflowChanges(executionStatusChange: WorkflowExecutionStatusChange): Option[LineageWorkflow] = {
-
-    val workflow = executionStatusChange.newExecution.getWorkflowToExecute
-    val executionId = executionStatusChange.newExecution.getExecutionId
-
-    if (LineageUtils.checkIfProcessableWorkflow(executionStatusChange)) {
-      val executionProperties = LineageUtils.setExecutionProperties(executionStatusChange.newExecution)
-      val lineageProperties = LineageUtils.getAllStepsProperties(workflow)
-      val nodesOutGraph = LineageUtils.getOutputNodesWithWriter(workflow)
-      val inputNodes = workflow.pipelineGraph.nodes.filter(_.stepType.toLowerCase == InputStep.StepType).map(_.name).toSet
-      val inputNodesProperties = lineageProperties.filterKeys(inputNodes).toSeq
-      val parsedLineageProperties =
-        LineageUtils.addTableNameFromWriterToOutput(nodesOutGraph, lineageProperties) ++ inputNodesProperties
-
-      // TODO nistal (QR)
-      val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
-        props.get(ServiceKey).map { serviceName =>
-          val stepType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.stepType.toLowerCase
-          val dataStoreType = workflow.pipelineGraph.nodes.filter(_.name == pluginName).head.classPrettyName
-          val extraPath = props.get(PathKey).map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), props.get(ResourceKey)))
-          val metaDataPath = MetadataPath(serviceName, extraPath, props.get(ResourceKey)).toString
-
-          ActorMetadata(
-            `type` = LineageUtils.mapSparta2GovernanceStepType(stepType),
-            metaDataPath = metaDataPath,
-            dataStoreType = LineageUtils.mapSparta2GovernanceDataStoreType(dataStoreType),
-            tenant = current_tenant,
-            properties = Map.empty
-          )
-        }
-      }
-
-      Option(LineageWorkflow(
-        id = -1,
-        name = workflow.name,
-        description = workflow.description,
-        tenant = current_tenant,
-        properties = executionProperties,
-        transactionId = executionId,
-        actorType = actorTypeKey,
-        jobType = LineageUtils.mapSparta2GovernanceJobType(workflow.executionEngine),
-        statusCode = LineageUtils.mapSparta2GovernanceStatuses(executionStatusChange.newExecution.lastStatus.state),
-        version = AppConstant.version,
-        listActorMetaData = listStepsMetadata.toList
-      ))
-
-    } else None
-  }
 }
 
 object LineageServiceActor {

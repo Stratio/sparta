@@ -42,9 +42,9 @@ class QualityRuleReceiverActorTest extends TestKit(ActorSystem("QualityRuleRecei
 
   it should "retrieve all inputs and outputs in a workflow" in {
     val inputOutputGraphNodes = retrieveInputOutputGraphNodes(workflow)
-    inputOutputGraphNodes.find { case (nodeGraph, _) => nodeGraph.name == "Test" }.isDefined should be(true)
-    inputOutputGraphNodes.find { case (nodeGraph, _) => nodeGraph.name == "Postgres" }.isDefined should be(true)
-    inputOutputGraphNodes.find { case (nodeGraph, _) => nodeGraph.name == "Postgres_1" }.isDefined should be(true)
+    inputOutputGraphNodes.exists{ case (nodeGraph, _) => nodeGraph.name == "Test" } should be(true)
+    inputOutputGraphNodes.exists{ case (nodeGraph, _) => nodeGraph.name == "Postgres" } should be(true)
+    inputOutputGraphNodes.exists{ case (nodeGraph, _) => nodeGraph.name == "Postgres_1" } should be(true)
   }
 
   override def afterAll: Unit = {

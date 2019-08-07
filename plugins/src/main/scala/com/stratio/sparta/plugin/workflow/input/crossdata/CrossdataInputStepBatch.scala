@@ -8,15 +8,15 @@ package com.stratio.sparta.plugin.workflow.input.crossdata
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.core.DistributedMonad
 import com.stratio.sparta.core.DistributedMonad.Implicits._
 import com.stratio.sparta.core.helpers.SdkSchemaHelper
 import com.stratio.sparta.core.models.{ErrorValidations, OutputOptions, WorkflowValidationMessage}
 import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.InputStep
+import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.serving.core.workflow.lineage.CrossdataLineage
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
@@ -31,7 +31,9 @@ class CrossdataInputStepBatch(
                                xDSession: XDSession,
                                properties: Map[String, JSerializable]
                              )
-  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties)
+    with CrossdataLineage
+    with SLF4JLogging {
 
   lazy val query: String = properties.getString("query", "").trim
 
@@ -78,6 +80,8 @@ class CrossdataInputStepBatch(
 
     (df.rdd, Option(df.schema))
   }
+
+  override def lineageCatalogProperties(): Map[String, Seq[String]] = getCrossdataLineageProperties(xDSession, query)
 
   def validateSql: Boolean =
     Try(xDSession.sessionState.sqlParser.parsePlan(query)) match {

@@ -10,11 +10,13 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.core.enumerators.SaveModeEnum
 import com.stratio.sparta.core.workflow.step.OutputStep
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.serving.core.workflow.lineage.CrossdataLineage
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
 class CrossdataOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
-  extends OutputStep(name, xDSession, properties) {
+  extends OutputStep(name, xDSession, properties)
+    with CrossdataLineage{
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite)
 
@@ -39,6 +41,9 @@ class CrossdataOutputStep(name: String, xDSession: XDSession, properties: Map[St
         s"\tTemporal fields: ${tempFields.map(fields => s"${fields._1}-${fields._2}").mkString(",")}")
     } else throw new RuntimeException(s"The table name $tableName does not exist in the Crossdata catalog")
   }
+
+  override def lineageCatalogProperties(): Map[String, Seq[String]] = getCrossdataLineageProperties
+
 }
 
 object CrossdataOutputStep {

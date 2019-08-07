@@ -17,6 +17,7 @@ import com.stratio.sparta.core.properties.ValidatingPropertyMap._
 import com.stratio.sparta.core.workflow.step.{InputStep, OneTransactionOffsetManager}
 import com.stratio.sparta.plugin.helper.{SchemaHelper, SecurityHelper}
 import com.stratio.sparta.plugin.models.{OffsetFieldItem, SqlModel}
+import com.stratio.sparta.serving.core.workflow.lineage.CrossdataLineage
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.crossdata.XDSession
@@ -41,7 +42,10 @@ class CrossdataInputStepStreaming(
                                    xDSession: XDSession,
                                    properties: Map[String, JSerializable]
                                  )
-  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging with OneTransactionOffsetManager {
+  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties)
+    with CrossdataLineage
+    with SLF4JLogging
+    with OneTransactionOffsetManager {
 
   import com.stratio.sparta.plugin.models.SerializationImplicits._
 
@@ -130,6 +134,9 @@ class CrossdataInputStepStreaming(
 
     validation
   }
+
+  override def lineageCatalogProperties(): Map[String, Seq[String]] = getCrossdataLineageProperties(xDSession, query)
+
 
   def init(): DistributedMonad[DStream] = {
     require(query.nonEmpty, "The input query cannot be empty")

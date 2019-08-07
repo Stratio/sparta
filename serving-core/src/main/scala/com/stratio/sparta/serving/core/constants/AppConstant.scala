@@ -93,6 +93,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultFSProperty = "fs.defaultFS"
 
   val EosTenant: Option[String] = Properties.envOrNone("EOS_TENANT").notBlank
+  val EosTenantHeader: String = EosTenant.getOrElse("NONE")
 
   //Postgres
   val PostgresDaos = "com.stratio.sparta.serving.core.services.dao"
