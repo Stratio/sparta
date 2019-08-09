@@ -149,7 +149,7 @@ object LineageUtils extends ContextBuilderImplicits {
 
       val listStepsMetadata: Seq[ActorMetadata] = parsedLineageProperties.flatMap { case (pluginName, props) =>
         props.get(ServiceKey).map { serviceName =>
-          val stepType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.stepType).getOrElse("")
+          val stepType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.stepType).getOrElse("").toLowerCase
           val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == pluginName).map(_.classPrettyName).getOrElse("")
           val extraPath = props.get(PathKey).map(_ ++ LineageUtils.extraPathFromFilesystemOutput(stepType, dataStoreType, props.get(PathKey), props.get(ResourceKey)))
           val metaDataPath = MetadataPath(serviceName, extraPath, props.get(ResourceKey)).toString
@@ -189,7 +189,7 @@ object LineageUtils extends ContextBuilderImplicits {
       val metadataPaths = xdProps.getOrElse(ProvidedMetadatapathKey, Seq.empty[String])
 
       metadataPaths.map{ xdMetaDataPath =>
-              val stepType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.stepType).getOrElse("")
+              val stepType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.stepType).getOrElse("").toLowerCase
               val dataStoreType = workflow.pipelineGraph.nodes.find(_.name == step).map(_.classPrettyName).getOrElse("")
               val metaDataPath = xdMetaDataPath
 
