@@ -147,7 +147,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
 
     errorManager.traceFunction(phaseEnum, okMessage, errorMessage) {
       val xdLineageOutProps = getXDOutStepsLineageProps(xdOutNodesWithWriter)
-      val xDStepsWithFilteredMetadataPaths = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
+      val  xDOutputPropertiesWithMetadataPath = xdOutNodesWithWriter.map { case (stepName, tableName, _) =>
         val newXDProps = xdLineageOutProps.getOrElse(stepName, Map.empty[String,Seq[String]])
 
         newXDProps.map{case prop@(k, v) =>
@@ -159,7 +159,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         stepName -> newXDProps
       }
 
-      val xDOutputPropertiesWithMetadataPath = getStepsNonEmptyLineageProps.filterNot(
+      val xDStepsWithFilteredMetadataPaths = getStepsNonEmptyLineageProps.filterNot(
         stepWithProps => xdLineageOutProps.contains(stepWithProps._1)).map { case (step, xdProps) =>
         val newXDProps = xdProps.map { case prop@(k, v) =>
           if (k.equals(ProvidedMetadatapathKey))
@@ -171,15 +171,15 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](
         step -> newXDProps
       }
 
-      xDStepsWithFilteredMetadataPaths ++ xDOutputPropertiesWithMetadataPath
+      xDOutputPropertiesWithMetadataPath ++ xDStepsWithFilteredMetadataPaths
     }
   }
 
   /**
     *
     * @param xdOutNodesWithWriter a Seq(outputName, tableName, Option(transformationName))
-    * @return a Map(stepName -> Map(xdLineageKey -> xdLineageValue)) resulting from all the non-empty Crossdata
-    *         lineage property maps from all the inputs, outputs and transformations which appear exactly once.
+    * @return a Map(outputStep -> Map(xdLineageKey -> xdLineageValue)) resulting from all the outputs with non-empty
+    *         lineageCatalogProperties maps.
     */
   def getXDOutStepsLineageProps(xdOutNodesWithWriter: Seq[(String, String, Option[String])])
   : Map[String, Map[String, Seq[String]]] =

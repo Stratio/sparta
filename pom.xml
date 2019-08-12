@@ -112,7 +112,7 @@ This software – including all its source code – contains proprietary informa
         <dg.commons.version>1.0.0-0c72260</dg.commons.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.17.0-M2</crossdata.version>
+        <crossdata.version>2.17.0-M4</crossdata.version>
         <postgres.version>42.2.5</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.3</scala.graph.version>
