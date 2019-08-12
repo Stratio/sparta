@@ -28,6 +28,7 @@ This software – including all its source code – contains proprietary informa
 
 
     <properties>
+        <arangodb.version>1.0.8</arangodb.version>
         <breeze.version>0.13.2</breeze.version>
         <amqp-client.version>3.5.1</amqp-client.version>
         <geo.version>0.6.7</geo.version>
@@ -191,6 +192,17 @@ This software – including all its source code – contains proprietary informa
                 <exclusion>
                     <groupId>org.apache.spark</groupId>
                     <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.arangodb</groupId>
+            <artifactId>arangodb-spark-connector</artifactId>
+            <version>${arangodb.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

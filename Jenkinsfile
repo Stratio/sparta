@@ -15,6 +15,13 @@ hose {
     NEW_VERSIONING = 'true'
 
     ITSERVICES = [
+            ['ARANGODB': [
+              'image': 'arangodb/arangodb:3.4.1',
+              'healthcheck': 8529,
+              'sleep': 30,
+              'env': ['ARANGO_ROOT_PASSWORD=openSesame']
+              ]
+            ],
             ['HDFS': [
               'image': 'stratio/hdfs:2.6.0',
               'sleep': 30,
@@ -95,6 +102,8 @@ hose {
       |    -Dsftp.port=22
       |    -Dsftp.volume=/home/foo/tmp
       |    -Dschemaregistry.host=%%SCHEMAREGISTRY
+      |    -Darangodb.host=%%ARANGODB
+      |    -Darandodb.port=8529
       | """
 
     DEV = { config ->
@@ -114,6 +123,7 @@ hose {
         }, DOCKER : {
             doDocker(config)
         }, failFast: config.FAILFAST)
+
 
     }
     INSTALLSERVICES = [

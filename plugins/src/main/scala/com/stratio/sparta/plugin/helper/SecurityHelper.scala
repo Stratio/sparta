@@ -199,4 +199,25 @@ object SecurityHelper extends SLF4JLogging {
       }
     } getOrElse Map.empty
   }
+
+  def arangoSecurityOptions(sparkConf: Map[String, String]): Map[String, String] = {
+    val sparkConfPrefix = "spark.ssl.datastore."
+    val arangoPrefix = "spark.arangodb.ssl"
+
+    val arangoConf = for {
+      (k,v) <- sparkConf
+      if k.startsWith(sparkConfPrefix)
+    } yield k.split(sparkConfPrefix, 2).apply(1) -> v
+
+    for {
+      enabled <- arangoConf.get("enabled")
+      if enabled == "true"
+    }yield {
+      Map(
+        s"$arangoPrefix.enabled" -> arangoConf("enabled"),
+        s"$arangoPrefix.keyStore.path" -> arangoConf("keyStore"),
+        s"$arangoPrefix.keyStore.password" -> arangoConf("keyStorePassword")
+      )
+    }
+  } getOrElse Map.empty
 }

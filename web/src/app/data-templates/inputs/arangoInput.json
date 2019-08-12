@@ -1,0 +1,200 @@
+{
+  "name": "ArangoDB",
+  "classPrettyName": "ArangoDB",
+  "className": "ArangoDBInputStep",
+  "icon": "ArangoDB",
+  "arity": ["NullaryToNary"],
+  "supportedEngines": ["Batch"],
+  "description": "ArangoDB input allows read from an ArangoDB database.",
+  "properties": [
+    {
+      "propertyId": "hosts",
+      "propertyName": "_ARANGODB_HOSTS_",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "tooltip": "List of host/port pairs to use for establishing the initial connection to ArangoDB",
+      "qa": "fragment-details-stratio-kafkadirect-bootstrap-servers",
+      "fields": [
+        {
+          "propertyId": "host",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "default": "{{{Environment.ARANGODB_HOST}}}",
+          "required": true,
+          "width": 6,
+          "tooltip": "Server address. Default value set to localhost",
+          "hidden": false,
+          "qa": "fragment-details-stratio-arangodb-host"
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "default": "{{{Environment.ARANGODB_PORT}}}",
+          "required": true,
+          "width": 5,
+          "tooltip": "Server port. Default value set to 8529",
+          "hidden": false,
+          "qa": "fragment-details-stratio-arangodb-port"
+        }
+      ]
+    },
+    {
+      "propertyId": "databaseName",
+      "propertyName": "_DATABASE_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "default": "_system",
+      "tooltip": "Name of the ArangoDb database.",
+      "qa": "fragment-details-arangodb-database-name"
+    },
+    {
+      "propertyId": "collection",
+      "propertyName": "_ARANGO_COLLECTION_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "ArangoDb username.",
+      "qa": "fragment-details-arangodb-username"
+    },
+    {
+      "propertyId": "username",
+      "propertyName": "_ARANGO_USERNAME_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "ArangoDb username.",
+      "qa": "fragment-details-arangodb-username"
+    },
+    {
+      "propertyId": "password",
+      "propertyName": "_ARANGO_PASSWORD_",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "ArangoDb password.",
+      "qa": "fragment-details-arangodb-password"
+    },
+    {
+      "propertyId": "tlsEnabled",
+      "propertyName": "_TLS_ENABLE_",
+      "propertyType": "boolean",
+      "tooltip": "Retrieves the necessary certificates from Vault and uses them to establish a TLS connection.",
+      "default": false,
+      "qa": "fragment-details-arangodb-tls"
+    },
+    {
+      "propertyId": "maxConnections",
+      "propertyName": "_MAX_CONNECTIONS_",
+      "propertyType": "text",
+      "default": "1",
+      "required": true,
+      "tooltip": "Max number of connections per host.",
+      "qa": "fragment-details-arangodb-max-connections"
+    },
+    {
+      "propertyId": "hasSchema",
+      "propertyName": "_PROVIDE_SCHEMA_",
+      "propertyType": "boolean",
+      "default": false,
+      "required": true,
+      "tooltip": "Choose if a schema is going to be specified.",
+      "qa": "fragment-details-arangodb-input-specified-schema"
+    },
+    {
+      "propertyId": "arangoSchema",
+      "propertyName": "_SCHEMA_",
+      "propertyType": "textarea",
+      "contentType": "JSON",
+      "width": 12,
+      "tooltip": "Schema in json format",
+      "default": "",
+      "visible": [
+        [
+          {
+            "propertyId": "hasSchema",
+            "value": true
+          }
+        ]
+      ],
+      "required": false,
+      "qa": "fragment-details-arangodb-schema"
+    },
+    {
+      "propertyId": "addFilterQuery",
+      "propertyName": "_ADD_FILTER_QUERY_",
+      "propertyType": "boolean",
+      "default": false,
+      "required": true,
+      "tooltip": "Choose if a filter query is going to be specified.",
+      "qa": "fragment-details-arangodb-input-specified-filter-query"
+    },
+    {
+      "propertyId": "filterQuery",
+      "propertyName": "_ARANGO_FILTER_",
+      "propertyType": "textarea",
+      "contentType": "SQL",
+      "width": 12,
+      "default": "",
+      "visible": [
+        [
+          {
+            "propertyId": "addFilterQuery",
+            "value": true
+          }
+        ]
+      ],
+      "tooltip": " The filter query should be similar to\"\"doc.field == \"Stark\"\"\"\"",
+      "required": false,
+      "qa": "fragment-details-arangodb-filter"
+    },
+    {
+      "propertyId": "addArangoId",
+      "propertyName": "_ADD_ARANGO_ID_",
+      "propertyType": "boolean",
+      "tooltip": ".",
+      "default": false,
+      "qa": "fragment-details-arangodb-internal-id"
+    },
+    {
+      "propertyId": "addArangoKey",
+      "propertyName": "_ADD_ARANGO_KEY_",
+      "propertyType": "boolean",
+      "tooltip": ".",
+      "default": false,
+      "qa": "fragment-details-arangodb-internal-key"
+    },
+    {
+      "propertyId": "addArangoRevision",
+      "propertyName": "_ADD_ARANGO_REVISION_",
+      "propertyType": "boolean",
+      "tooltip": ".",
+      "default": false,
+      "qa": "fragment-details-arangodb-internal-revision"
+    },
+    {
+      "propertyId": "jsonParserOptions",
+      "propertyName": "_JSON_PARSER_OPTIONS_",
+      "propertyType": "list",
+      "required": false,
+      "tooltip": "Values set here will override the ones in the default configuration.",
+      "qa": "fragment-details-arango-json-schema-properties",
+      "fields": [
+        {
+          "propertyId": "parserKey",
+          "propertyName": "_PARSER_PROPERTY_KEY_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-json-parser-key"
+        },
+        {
+          "propertyId": "parserValue",
+          "propertyName": "_PARSER_PROPERTY_VALUE_",
+          "propertyType": "text",
+          "width": 4,
+          "required": false,
+          "qa": "fragment-details-json-parser-value"
+        }
+      ]
+    }
+  ]
+}

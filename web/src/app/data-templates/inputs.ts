@@ -28,6 +28,7 @@ import filesystemBatchTemplate from './inputs/filesystemBatch.json';
 //import rabbitmqSingleTemplate from './inputs/rabbitmq-single-node.json';
 //import socketTemplate from './inputs/socket.json';
 //import twitterJsonTemplate from './inputs/twitter-json.json';
+import arangoDBTemplate from './inputs/arangoInput.json';
 import restBatchTemplate from './inputs/restBatch.json';
 import restStreamingTemplate from './inputs/restStreaming.json';
 import rowGeneratorBatchTemplate from './inputs/rowGeneratorBatch.json';
@@ -39,6 +40,7 @@ import websocketTemplate from './inputs/websocket.json';
 
 
 export const inputs = [
+    arangoDBTemplate,
     avroTemplate,
     binaryTemplate,
     cassandraBatchTemplate,

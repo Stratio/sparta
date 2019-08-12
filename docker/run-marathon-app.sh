@@ -54,5 +54,6 @@ exec "$JAVACMD" $SPARTA_MARATHON_OPTIONS \
   -Dapp.repo="$REPO" \
   -Dapp.home="$SPARTA_HOME" \
   -Dbasedir="$SPARTA_HOME" \
+  -Djavax.net.debug="all" \
   "$SPARTA_MARATHON_MAIN_CLASS" \
   "$SPARTA_EXECUTION_ID"

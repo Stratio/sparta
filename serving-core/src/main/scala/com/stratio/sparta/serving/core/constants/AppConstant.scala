@@ -170,6 +170,8 @@ object AppConstant extends ZookeeperUtils {
   val EnvironmentParameterListName = "Environment"
   val EnvironmentParameterListId = Option("f16e9034-ab81-11e8-98d0-529269fb1459")
   val DefaultEnvironmentParameters = Seq(
+    new ParameterVariable("ARANGODB_HOST", "localhost"),
+    new ParameterVariable("ARANGODB_PORT", "8529"),
     new ParameterVariable("CROSSDATA_ZOOKEEPER_CONNECTION", "localhost:2181"),
     new ParameterVariable("CROSSDATA_ZOOKEEPER_PATH", "/crossdata/offsets"),
     new ParameterVariable("KAFKA_BROKER_HOST", "localhost"),
