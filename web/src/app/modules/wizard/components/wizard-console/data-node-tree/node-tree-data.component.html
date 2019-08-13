@@ -4,10 +4,10 @@
 <div *ngIf="dataType === 'object'" class="object">
   <div *ngFor="let prop of objectProperties">
     <span (click)="toggleProp(prop)">
-      <span class="icon" [ngClass]="{'icon-arrow4_down': prop.type === 'object', 'open': prop.open}"></span>  
+      <span class="icon" [ngClass]="{'icon-arrow4_down': prop.type === 'object', 'open': prop.open}"></span>
       <span class="key-value">{{prop.key}}</span>
       <span *ngIf="prop.type === 'string'">: "<span class="string-value">{{prop.value}}</span>"</span>
-      <span *ngIf="prop.type === 'number'">: <span class="number-value">{{prop.value}}</span></span>
+      <span *ngIf="prop.type === 'number' || prop.type === 'boolean'">: <span class="number-value">{{prop.value}}</span></span>
       <span class="prop-type" *ngIf="prop.type === 'object' && isArray(prop.value)">[...] ({{prop.value.length}})</span>
       <span class="prop-type" *ngIf="prop.type === 'object' && !isArray(prop.value)">{{'{...}'}}</span>
     </span>
@@ -18,9 +18,9 @@
   <div *ngFor="let item of nodeData; let i = index;">
     <span (click)="toggleProp(item)">
       <span class="icon icon-arrow4_down" [ngClass]="{'open': item.open}"></span>
-      <span class="key-value">{{i}}</span> 
+      <span class="key-value">{{i}}</span>
       <span *ngIf="item.type === 'string'">: "<span class="string-value">{{item.value}}</span>"</span>
-      <span *ngIf="item.type === 'number'">: <span class="number-value">{{item.value}}</span></span>
+      <span *ngIf="item.type === 'number' || item.type === 'boolean'">: <span class="number-value">{{item.value}}</span></span>
       <span class="prop-type" *ngIf="item.type === 'object' && isArray(item.value)">[...]</span>
       <span class="prop-type" *ngIf="item.type === 'object' && !isArray(item.value)">{{'{...}'}}</span>
     </span>
