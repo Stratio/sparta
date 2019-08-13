@@ -20,6 +20,7 @@ import { FieldPositionDirective } from './directives/field-position.directive';
 import { NodeSchemaPathComponent } from './components/node-schema-path/node-schema-path.component';
 import { NodeJoinPathComponent } from '@app/wizard/components/query-builder/components/node-join-path/node-join-path.component';
 import { reducers } from './reducers/';
+import { QueryBuilderService } from './services/query-builder.service';
 
 
 @NgModule({
@@ -43,6 +44,9 @@ import { reducers } from './reducers/';
     TranslateModule,
     StDropdownMenuModule
   ],
+  providers: [
+    QueryBuilderService
+  ]
 })
 
 export class QueryBuilderModule { }

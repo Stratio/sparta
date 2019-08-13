@@ -12,8 +12,13 @@
 
  .query-builder-container{
    position: relative;
-   overflow: hidden;
- }
+
+   &:after {
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
+ }  }
 
  .output-schema{
    float: right;
@@ -28,6 +33,16 @@
    z-index: 1;
    pointer-events: none;
  }
+
+ .svg-join-path-container{
+  position: absolute;
+  top: 0;
+  left: -235px;
+  width: 300px;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
 
  .input-schemas{
    float: left;
@@ -49,7 +64,7 @@
       background-color: $action-secondary-04;
       width: 70px;
       position: absolute;
-      top: 300px;
+      top: 340px;
       left: -30px;
       border-radius: 4px;
       display: flex;
@@ -57,20 +72,20 @@
       padding: 3px 0px 7px 0px;
       align-items: center;
       span {
-          width: 50%;
-          text-align: center;
-          font-size: $egeo-font-size-xxxsmall;
-          color: $neutral-00;
-          margin-top: 2px;
+        width: 50%;
+        text-align: center;
+        font-size: $egeo-font-size-xxxsmall;
+        color: $neutral-00;
+        margin-top: 2px;
       }
       span.arrow {
           cursor: pointer;
       }
       .icon-join {
-          width: 25px;
-          padding-left: 8px;
-          margin-top: 3px;
-          font-size: 20px;
+        width: 25px;
+        padding-left: 8px;
+        margin-top: 3px;
+        font-size: 20px;
       }
   }
   st-dropdown-menu {
@@ -94,6 +109,7 @@
    margin: 40px 0;
    .text {
       color: #777777;
-      font-family: "Nunito Sans SemiBold";
-   }
+      font-family: Nunito Sans;
+      font-weight: 700;
+    }
 }

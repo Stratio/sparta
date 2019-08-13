@@ -5,28 +5,29 @@
  */
 
 import {
-   AfterViewInit,
-   ChangeDetectionStrategy,
-   ChangeDetectorRef,
-   Component,
-   ElementRef,
-   EventEmitter,
-   HostListener,
-   Input,
-   OnInit,
-   Output,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
 } from '@angular/core';
 import {
-   InputSchema,
-   InputSchemaField,
-   Join,
-   SchemaFieldPosition,
-} from '@app/wizard/components/query-builder/models/SchemaFields';
+  InputSchema,
+  InputSchemaField,
+  Join,
+  SchemaFieldPosition,
+  OutputSchemaFieldCopleteTable,
+} from '@app/wizard/components/query-builder/models/schema-fields';
 import { INPUT_SCHEMAS_MAX_HEIGHT } from '@app/wizard/components/query-builder/query-builder.constants';
 import { Store } from '@ngrx/store';
 import { Subject } from 'rxjs';
 
-import * as queryBuilderActions from './../../actions/queryBuilder';
+import * as queryBuilderActions from './../../actions/query-builder';
 import * as fromQueryBuilder from './../../reducers';
 
 
@@ -73,17 +74,17 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
   constructor(private _store: Store<fromQueryBuilder.State>, private _cd: ChangeDetectorRef, private elementRef: ElementRef) { }
 
   @HostListener('document:click', ['$event'])
-   public onDocumentClick(event: MouseEvent): void {
-      const targetElement = event.target as HTMLElement;
-      if (targetElement && !this.elementRef.nativeElement.contains(targetElement) ) {
-         this.headerMenu = false;
-      }
-   }
+  public onDocumentClick(event: MouseEvent): void {
+    const targetElement = event.target as HTMLElement;
+    if (targetElement && !this.elementRef.nativeElement.contains(targetElement)) {
+      this.headerMenu = false;
+    }
+  }
+
   ngOnInit(): void {
     this.img = new Image();
     this.img.src = '/assets/images/move.png';
-
-   }
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -95,8 +96,9 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
   public selectColumn(field: InputSchemaField) {
     document.removeEventListener('mouseup', this._unselectFnRef);
     if (this.selectedFieldsNames.indexOf(field.column) > -1) {
-      this._unselectFnRef = function() {
+      this._unselectFnRef = function () {
         this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction(field));
+        document.removeEventListener('mouseup', this._unselectFnRef);
       }.bind(this);
       document.addEventListener('mouseup', this._unselectFnRef);
     } else {
@@ -105,19 +107,19 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
   }
 
   public onChangeElementPosition(column: string, position: SchemaFieldPosition) {
-      this.fieldPositions[column] = position;
-      if (this.positionSubject) {
-         this.positionSubject.next(this.fieldPositions);
-      }
+    this.fieldPositions[column] = position;
+    if (this.positionSubject) {
+      this.positionSubject.next(this.fieldPositions);
+    }
   }
 
   public onDragstart(event: DragEvent) {
     document.removeEventListener('mouseup', this._unselectFnRef);
-    if (this.selectedFieldsNames.length < 1)  {
+    if (this.selectedFieldsNames.length < 1) {
       event.preventDefault();
     }
-   this.isDragging = true;
-    if (event.dataTransfer['setDragImage'] && this.selectedFieldsNames.length > 1 ) {
+    this.isDragging = true;
+    if (event.dataTransfer['setDragImage'] && this.selectedFieldsNames.length > 1) {
       event.dataTransfer['setDragImage'](this.img, -10, 30);
     }
   }
@@ -129,58 +131,54 @@ export class NodeSchemaInputBoxComponent implements OnInit, AfterViewInit {
     });
   }
 
-  public onScroll($event) {
+  public onScroll() {
     this.recalcPositionSubject.next();
     this._cd.markForCheck();
   }
 
   public onMoved() {
-    this.selectedFields = [];
-    this.selectedFieldsNames = [];
+    this._store.dispatch(new queryBuilderActions.RemoveSelectedInputSchemas());
   }
-  onHeaderMenu() {
-   this.headerMenu = !this.headerMenu;
-}
-onChangeOption(ev) {
-   switch (ev.value) {
-      case 'addFields':
-         if (this.schema.fields && this.schema.fields.length) {
-            const field = {
-               table: this.schema.fields[0].table,
-               expression: this.schema.fields[0].alias + '.*',
-               originFields: [{
-                  alias: this.schema.fields[0].alias,
-                  name: '*',
-                  table: this.schema.fields[0].table
-               }]
-            };
-            this._store.dispatch(new queryBuilderActions.AddOutputSchemaFieldsAction({
-               index: 0,
-               items: [field]
-            }));
-         }
-         break;
 
+  public onChangeOption(ev) {
+    switch (ev.value) {
+      case 'addFields':
+        if (this.schema.fields && this.schema.fields.length) {
+          const field: OutputSchemaFieldCopleteTable = {
+            table: this.schema.fields[0].table,
+            expression: this.schema.fields[0].alias + '.*',
+            originFields: [{
+              alias: this.schema.fields[0].alias,
+              name: '*',
+              table: this.schema.fields[0].table
+            }]
+          };
+          this._store.dispatch(new queryBuilderActions.AddOutputSchemaFieldsAction({
+            index: 0,
+            items: [field]
+          }));
+        }
+        break;
       default:
-         break;
-   }
-   this.headerMenu = false;
-}
+        break;
+    }
+    this.headerMenu = false;
+  }
 
   onDrop(event) {
-      this.isDragging = false;
-      const { item } = event;
-      if (item.length === 1 && item[0].fieldType !== '*' && item[0].alias && this.schema.fields[event.index].alias && item[0].alias !== this.schema.fields[event.index].alias && item[0].alias !== 't2') {
-         const join: Join = {
-            origin: event.item[0],
-            destination: this.schema.fields[event.index],
-            initData: {
-               tableName: event.item[0].table,
-               fieldName: event.item[0].column
-            },
-            fieldPositions: this.fieldPositions
-         };
-         this._store.dispatch(new queryBuilderActions.AddJoin(join));
-      }
-   }
+    this.isDragging = false;
+    const { item } = event;
+    if (item.length === 1 && item[0].fieldType !== '*' && item[0].alias && this.schema.fields[event.index].alias && item[0].alias !== this.schema.fields[event.index].alias && item[0].alias !== 't2') {
+      const join: Join = {
+        origin: event.item[0],
+        destination: this.schema.fields[event.index],
+        initData: {
+          tableName: event.item[0].table,
+          fieldName: event.item[0].column
+        },
+        fieldPositions: this.fieldPositions
+      };
+      this._store.dispatch(new queryBuilderActions.AddJoin(join));
+    }
+  }
 }

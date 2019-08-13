@@ -81,8 +81,7 @@
   &-header{
     padding: 23px 23px 15px 23px;
     &__title {
-      font-family: $egeo-nunito-sans-light;
-      font-size: $egeo-font-size-medium;
+      font-weight: 100;      font-size: $egeo-font-size-medium;
     }
 
     .icon {
@@ -125,6 +124,27 @@
       }
     }
 
+    &__menu {
+      position:absolute;
+      z-index:999;
+      min-width: 280px;
+    }
+
+    .icon {
+      position: absolute;
+      left: 7px;
+      font-size: 12px;
+      top: 14px;
+    }
+
+    .icon-lostfield {
+      position: absolute;
+      left: 7px;
+      font-size: 12px;
+      top: 14px;
+      display: none;
+    }
+
     .expression {
       padding-left: 23px;
       position: relative;
@@ -134,8 +154,7 @@
       .icon {
          position: absolute;
          left: 5px;
-         top: 12px;
-         color: $action-secondary-04;
+         top: 14px;
       }
     }
 
@@ -171,6 +190,8 @@
 
     &__row-container {
       border-collapse: collapse;
+      position: relative;
+
 
       textarea {
          background: white;
@@ -193,6 +214,15 @@
       padding: 10px 0;
       font-size: 14px;
     }
+    .lost-field{
+      .box-schema-body__field {
+        color: $status-critical-default;
+        .icon {
+          display: inline;
+        }
+      }
+    }
+
   }
   .no-fields-placeholder{
     padding: 60px 87px;

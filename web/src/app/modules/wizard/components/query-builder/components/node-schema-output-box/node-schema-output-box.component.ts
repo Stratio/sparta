@@ -12,16 +12,16 @@ import {
   EventEmitter,
   HostListener,
   Input,
-  Output
+  Output,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
-import { OutputSchemaField, OrderBy } from '@app/wizard/components/query-builder/models/SchemaFields';
+import { OutputSchemaField, OrderBy } from '@app/wizard/components/query-builder/models/schema-fields';
 import { Subject } from 'rxjs/';
 import { Store } from '@ngrx/store';
 
 import * as fromQueryBuilder from './../../reducers';
-import * as queryBuilderActions from './../../actions/queryBuilder';
-
-
+import * as queryBuilderActions from './../../actions/query-builder';
 
 @Component({
   selector: 'node-schema-output-box',
@@ -30,7 +30,7 @@ import * as queryBuilderActions from './../../actions/queryBuilder';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class NodeSchemaOutputBoxComponent implements AfterViewInit {
+export class NodeSchemaOutputBoxComponent implements AfterViewInit, OnChanges {
 
   @Input() schemaFields: OutputSchemaField[] = [];
   @Input() containerElement: HTMLElement;
@@ -71,8 +71,11 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
       targetElement.className !== 'filter-add') {
       this.showDropDown = undefined;
       this.editColumn = undefined;
-      this.editExpression = undefined;
-      this.deleteSelection();
+      if (this.editExpression) {
+        this.editExpression = undefined;
+        this._refreshPosition();
+      }
+      this._deleteSelection();
       this.editFilter = false;
       this.headerMenu = false;
       this.schemaFields.map(field => {
@@ -93,11 +96,17 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
       }
     });
   }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this._refreshPosition();
+  }
+
   onEditFilter() {
     this.editFilter = true;
     this.editColumn = undefined;
     this.editExpression = undefined;
   }
+
   isRepeat(column) {
     return this.schemaFields.filter(field => field.column === column).length > 1;
   }
@@ -165,12 +174,6 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
     setTimeout(() => this.schemaFieldsChange.emit(this.schemaFields));
   }
 
-  getData(index: number) {
-    return {
-      i: index
-    };
-  }
-
   saveFilter(ev) {
     this._store.dispatch(new queryBuilderActions.SaveFilter(ev.target.value));
     this.editFilter = false;
@@ -182,11 +185,11 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
   }
 
   onFocusOut(ev) {
+    console.log("a")
     this._store.dispatch(new queryBuilderActions.SaveFilter(this.filter));
   }
 
   onEditExpression(field, position) {
-
     this.editExpression = position;
     if (field.originFields.length) {
       this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction({
@@ -229,9 +232,7 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
     if (field.column === '') {
       field.column = 'columnName';
     }
-
     this._store.dispatch(new queryBuilderActions.UpdateField({ field, position }));
-
     this._refreshPosition();
     ev.preventDefault();
   }
@@ -239,16 +240,14 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
   contextMenu(ev, field, position) {
     const path = ev.path || (ev.composedPath && ev.composedPath());
     if (!['input', 'textarea'].includes(path[0].localName)) {
-      this.deleteSelection();
+      this._deleteSelection();
       this.dropDownCoords = {
-        x: ev.x,
-        y: ev.y
+        x: ev.offsetX,
+        y: ev.offsetY
       };
       ev.preventDefault();
       this.showDropDown = position;
-
       const dropDown = this.elementRef.nativeElement.querySelector('#dropdownMenu-' + position);
-
       const dropsDown = [].slice.call(this.elementRef.nativeElement.querySelectorAll('st-dropdown-menu'));
       dropsDown.map(element => {
         if (element.id.includes('dropdownMenu') && element.querySelector('.icon.icon-check.nuevo')) {
@@ -256,7 +255,6 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
         }
       });
       const newSpan = document.createElement('span');
-
       newSpan.style.display = field.order ? 'block' : 'none';
       newSpan.className = 'icon icon-check nuevo';
       newSpan.style.position = 'absolute';
@@ -264,8 +262,6 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
       newSpan.style.top = field.order === 'orderAsc' ? '15px' : '53px';
       newSpan.style.fontSize = '12px';
       dropDown.appendChild(newSpan);
-
-
       if (field.originFields.length) {
         this._store.dispatch(new queryBuilderActions.SelectInputSchemaFieldAction({
           ...field.originFields[0],
@@ -273,9 +269,7 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
         }));
       }
     }
-    console.log("right")
     return false;
-
   }
 
   onChangeOption(ev, field, position) {
@@ -290,14 +284,17 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
           column: 'newColumn',
           expression: 'newExpression',
           order: '',
-          position: { x: newPosition.x, y: newPosition.y + 40, height: newPosition.height },
+          position: {
+            x: newPosition.x,
+            y: newPosition.y + 40, height: newPosition.height
+          },
           originFields: []
         };
         this._store.dispatch(new queryBuilderActions.AddNewField(newField));
         this._refreshPosition();
         break;
       case 'remove':
-        this._store.dispatch(new queryBuilderActions.DeleteOutputField({ position }));
+        this._store.dispatch(new queryBuilderActions.DeleteOutputField(position));
         this._refreshPosition();
         break;
       case 'orderAsc':
@@ -320,9 +317,8 @@ export class NodeSchemaOutputBoxComponent implements AfterViewInit {
     });
   }
 
-  private deleteSelection() {
+  private _deleteSelection() {
     this._store.dispatch(new queryBuilderActions.RemoveSelectedInputSchemas());
-    this._refreshPosition();
   }
 
 }

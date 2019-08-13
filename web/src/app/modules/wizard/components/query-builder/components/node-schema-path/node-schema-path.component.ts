@@ -5,108 +5,107 @@
  */
 
 import { ChangeDetectionStrategy, Component, Input, ChangeDetectorRef, AfterContentInit, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
-import * as d3Shape from 'd3-shape';
+import { Selection } from 'd3';
 import { select as d3Select } from 'd3-selection';
 import { INPUT_SCHEMAS_MAX_HEIGHT } from '@app/wizard/components/query-builder/query-builder.constants';
+import { Path } from '../../models/schema-fields';
 
 @Component({
-   selector: '[node-schema-path]',
-   styleUrls: ['node-schema-path.component.scss'],
-   templateUrl: 'node-schema-path.component.html',
-   changeDetection: ChangeDetectionStrategy.OnPush
+  selector: '[node-schema-path]',
+  template: '<svg:g class="sparta-schema-path-container"></svg:g>',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class NodeSchemaPathComponent implements AfterContentInit, OnChanges {
 
-   @Input() pathNumber: number;
-   @Input() totalPath: number;
-   @Input() containerPosition: any;
-   @Input() get pathData() {
-      return this._pathData;
-   }
-   set pathData(value) {
-      this._pathData = value;
+  @Input() pathNumber: number;
+  @Input() totalPath: number;
+  @Input() containerPosition: any;
+  @Input() get pathData(): Path {
+    return this._pathData;
+  }
+  set pathData(value) {
+    this._pathData = value;
+    if (this._path) {
+      const pathData = this._getPath(this._pathData.coordinates);
+      this._path.attr('d', pathData);
+    }
+  }
+
+  @Input() selectedFieldNames;
+
+  public coordinates: any;
+  private _pathData: Path;
+  private _path: any;
+  private _active = false;
+  private _container: any;
+
+  constructor(private _cd: ChangeDetectorRef,
+    private elementRef: ElementRef) {
+    this._cd.detach();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.selectedFieldNames) {
+      const selectedTableFields = this.selectedFieldNames[this.pathData.initData.tableName];
+      this._active = selectedTableFields && selectedTableFields.indexOf(this.pathData.initData.fieldName) > -1 ? true : false;
       if (this._path) {
-         const points = this._getPoints(this._pathData.coordinates);
-         const pathData = this._lineGenerator(points);
-         this._path.attr('d', pathData);
+        this._getPathStyles();
       }
-   }
+    }
+  }
 
-   @Input() selectedFieldNames;
+  ngAfterContentInit(): void {
+    this._container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-schema-path-container'));
+    this._getPathStyles();
+  }
 
-   public coordinates: any;
-   private _pathData: any;
-   private _path: any;
-   private _lineGenerator: any;
-   private _active = false;
+  _getPath(position: any) {
+    const coordinates = {
+      x1: position.init.x,
+      y1: position.init.y + (position.init.height / 2),
+      x2: position.end.x - 2, // 2px border-width
+      y2: position.end.y + (position.end.height / 2)
+    };
+    if (coordinates.y1 < this.containerPosition.y) {
+      coordinates.y1 = this.containerPosition.y;
+    }
+    if (this.containerPosition.y + INPUT_SCHEMAS_MAX_HEIGHT < coordinates.y1) {
+      coordinates.y1 = this.containerPosition.y + INPUT_SCHEMAS_MAX_HEIGHT;
+    }
+    let curveWidth = (this.totalPath - 1) * 0.3;
+    if (curveWidth > 1.2) {
+      curveWidth = 1.2;
+    }
+    const op = curveWidth / (this.totalPath === 1 ? 2 : this.totalPath - 1);
+    const operator = -curveWidth / 2 + (op * this.pathNumber);
+    const diff = (coordinates.x2 - coordinates.x1) / 2;
+    const diffY = coordinates.y1 - coordinates.y2;
+    const absDiffY = Math.abs(diffY);
 
-   constructor(private _cd: ChangeDetectorRef,
-      private elementRef: ElementRef) {
-      this._cd.detach();
-   }
+    const inverse = diffY > 0;
+    const xdiff = diff - (inverse ? -1 : 1) *  diff * operator;
+    const xt = coordinates.x1 + xdiff;
 
-   ngOnChanges(changes: SimpleChanges): void {
-      if (changes.selectedFieldNames) {
-         const selectedTableFields = this.selectedFieldNames[this.pathData.initData.tableName];
-         this. _active = selectedTableFields && selectedTableFields.indexOf(this.pathData.initData.fieldName) > -1 ? true : false;
-         if (this._path) {
-            this._path
-               .attr('stroke', this. _active ? '#37b5e4' : '#aab7c4')
-               .attr('marker-end', this._active ? 'url(#arrow-schemas-active)' : 'url(#arrow-schemas)');
+    const rad =  absDiffY < 28 ? Math.floor( absDiffY / 2) : 14;
+    return `M${coordinates.x1},${coordinates.y1} L${xt - rad},${coordinates.y1} ` +
+      `A ${rad},${rad} 0 0 ${inverse ? 0 : 1} ${xt}, ${coordinates.y1 - (inverse ? rad : -rad)}` +
+      `L${xt},${coordinates.y2 + (inverse ? rad : -rad)}` +
+      `A ${rad},${rad} 0 0 ${inverse ? 1 : 0} ${xt + rad},${coordinates.y2} ` +
+      `L${coordinates.x2},${coordinates.y2}`;
+  }
 
-         }
-      }
-   }
+  private _getPathStyles() {
+    const pathData = this._getPath((this._pathData.coordinates));
+    this._path = this._container.append('path')
+      .attr('stroke', this._pathData.lostField ? '#ec445c' : (this._active ? '#37b5e4' : '#aab7c4'))
+      .attr('fill', 'none')
+      .attr('d', pathData)
+      .attr('marker-start', this._pathData.lostField  ? 'url(#box-connection-error)' : 'url(#box-connection)')
+      .attr('marker-end', this._pathData.lostField ? 'url(#arrow-schemas-error)' : (this._active ? 'url(#arrow-schemas-active)' : 'url(#arrow-schemas)'));
+  }
 
-   ngAfterContentInit(): void {
-      this._lineGenerator = d3Shape.line().curve(d3Shape.curveLinear);
-      const points = this._getPoints(this._pathData.coordinates);
-      const pathData = this._lineGenerator(points);
 
-      const container = d3Select(this.elementRef.nativeElement.querySelector('.sparta-schema-path-container'));
-      this._path = container.append('path')
-         .attr('stroke', this. _active ? '#37b5e4' : '#aab7c4')
-         .attr('fill', 'none')
-         .attr('d', pathData)
-         .attr('marker-start', 'url(#box-connection)')
-         .attr('marker-end', this._active ? 'url(#arrow-schemas-active)' : 'url(#arrow-schemas)');
-
-   }
-
-   _getPoints(position: any) {
-      const coordinates = {
-         x1: position.init.x,
-         y1: position.init.y + (position.init.height / 2),
-         x2: position.end.x - 2, // 2px border-width
-         y2: position.end.y + (position.end.height / 2)
-      };
-
-      if (coordinates.y1 < this.containerPosition.y) {
-         coordinates.y1 = this.containerPosition.y;
-      }
-      if (this.containerPosition.y + INPUT_SCHEMAS_MAX_HEIGHT < coordinates.y1) {
-         coordinates.y1 = this.containerPosition.y + INPUT_SCHEMAS_MAX_HEIGHT;
-      }
-      const points = [];
-      let curveWidth = (this.totalPath - 1)  * 0.3;
-      if (curveWidth > 1.2) {
-         curveWidth = 1.2;
-      }
-      const op = curveWidth / (this.totalPath === 1 ? 2 : this.totalPath - 1);
-      const operator = -curveWidth / 2 + (op * this.pathNumber);
-      /** First coord (input origin) */
-      points.push([coordinates.x1, coordinates.y1]);
-      const diff = (coordinates.x2 - coordinates.x1) / 2;
-      const xdiff = diff + diff * operator;
-      /** Second coord (middle point, same y coor than the input) */
-      points.push([coordinates.x1  + xdiff, coordinates.y1]);
-      /** Third coord (middle point, same y coor than the output)*/
-      points.push([coordinates.x1 + xdiff, coordinates.y2]);
-      /** Last coord (output) */
-      points.push([coordinates.x2, coordinates.y2]);
-      return points;
-   }
 }
 
 

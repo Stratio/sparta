@@ -7,31 +7,43 @@ import { createSelector } from 'reselect';
 import { createFeatureSelector } from '@ngrx/store';
 
 import * as fromRoot from 'reducers';
-import * as fromQueryBuilder from './queryBuilder';
+import * as fromQueryBuilder from './query-builder';
 
 export interface CrossdataState {
-   queryBuilder: fromQueryBuilder.State;
+  queryBuilder: fromQueryBuilder.State;
 }
 
 export interface State extends fromRoot.State {
-   queryBuilder: CrossdataState;
+  queryBuilder: CrossdataState;
 }
 
 export const reducers = {
-   queryBuilder: fromQueryBuilder.reducer
+  queryBuilder: fromQueryBuilder.reducer
 };
 
 export const getQueryBuilderState = createFeatureSelector<CrossdataState>('queryBuilder');
 
 export const getQueryBuilderInnerState = createSelector(
-   getQueryBuilderState,
-   state => state.queryBuilder
+  getQueryBuilderState,
+  state => state.queryBuilder
 );
 
 export const getSelectedFields = createSelector(
-   getQueryBuilderInnerState,
-   state => state.selectedInputSchemas
+  getQueryBuilderInnerState,
+  state => state.selectedInputSchemas
 );
+
+export const getSelectedInputFieldsNames = createSelector(
+  getSelectedFields,
+  selectedFields => {
+    const selectedInputFieldsNames = {};
+    for (const propertyName in selectedFields) {
+      if (selectedInputFieldsNames) {
+        selectedInputFieldsNames[propertyName] = selectedFields[propertyName].map(field => field.column);
+      }
+    }
+    return selectedInputFieldsNames;
+});
 
 export const getOutputSchemaFields = createSelector(
   getQueryBuilderInnerState,
@@ -44,8 +56,8 @@ export const getRelationPathVisibility = createSelector(
 );
 
 export const getJoin = createSelector(
-   getQueryBuilderInnerState,
-   state => state.join
+  getQueryBuilderInnerState,
+  state => state.join
 );
 
 export const getFilter = createSelector(
@@ -54,9 +66,9 @@ export const getFilter = createSelector(
 );
 
 export const getInputSchemaFields = createSelector(
-   getQueryBuilderInnerState,
-   state => state.inputSchemaFields
- );
+  getQueryBuilderInnerState,
+  state => state.inputSchemaFields
+);
 
 
 

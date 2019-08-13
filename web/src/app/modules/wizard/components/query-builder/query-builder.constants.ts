@@ -4,4 +4,15 @@
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
 
- export const INPUT_SCHEMAS_MAX_HEIGHT = 220;
+export const INPUT_SCHEMAS_MAX_HEIGHT = 220;
+
+export enum InnerJoinTypes {
+  Inner = 'INNER',
+  Left = 'LEFT',
+  LeftOnly = 'LEFT_ONLY',
+  Right = 'RIGHT',
+  RightOnly = 'RIGHT_ONLY',
+  Full = 'FULL',
+  Cross = 'CROSS',
+  RemoveJoin = 'removeJoin'
+}

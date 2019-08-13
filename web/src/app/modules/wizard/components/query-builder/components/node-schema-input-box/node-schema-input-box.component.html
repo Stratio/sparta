@@ -2,7 +2,7 @@
    <div class="box-schema-header">
      <span class="icon icon-grid4"></span>
      <span class="box-schema-header__title">{{schema.name}} as {{schema.alias}}</span>
-     <span *ngIf="!disableDrag" class="icon icon-waiting" (click)="onHeaderMenu()">
+     <span *ngIf="!disableDrag" class="icon icon-waiting" (click)="headerMenu = !headerMenu">
          <st-dropdown-menu
             [items]="inputOptions"
             [attr.id]="'inputOptions'"
@@ -22,9 +22,12 @@
            Type
          </div><!--
     --></div>
-      <div field-position [recalcPositionSubject]="containerPositionSubject" [containerElement]="containerElement"  (positionChange)="onChangeContainerPosition($event)">
-       <perfect-scrollbar [config]="config" (psScrollY)="onScroll($event)"
-         class="scroll-bar-sql-builder" [style.maxHeight.px]="listMaxHeight" [scrollIndicators]="false">
+      <div field-position
+        [recalcPositionSubject]="containerPositionSubject"
+        [containerElement]="containerElement"
+        (positionChange)="onChangeContainerPosition($event)">
+        <div (scroll)="onScroll()"
+         class="box-schema-body__scroll" [style.maxHeight.px]="listMaxHeight">
          <div class="box-schema-body__row-group" [dndList]=" isDragging ? schema.fields : false" (dndDrop)="onDrop($event)">
            <div class="box-schema-body__row"
              *ngFor="let field of schema.fields"
@@ -32,21 +35,22 @@
              [dndDraggable]="selectedFields"
              (dndDragstart)="onDragstart($event)"
              (dndMoved)="onMoved()"
-             [dndDisable]="disableDrag"
+             [dndDisable]="disableDrag || field.lostField"
+             [attr.title]="field.lostField ? 'This column does not exist in the current table schema' : ''"
              field-position
              (positionChange)="onChangeElementPosition(field.column, $event)"
              [containerElement]="containerElement"
              [recalcPositionSubject]="recalcPositionSubject"
-             (mousedown)="selectColumn(field)"><!--
-         --><div class="box-schema-body__field column">
-               {{field.column}}
+             (mousedown)="!field.lostField && selectColumn(field)"><!--
+         --><div class="box-schema-body__field column" [ngClass]="{'box-schema-body__field--lost-field' : field.lostField}">
+              <span class="icon icon-alert"></span> {{field.column}}
              </div><!--
-           --><div class="box-schema-body__field type">
+           --><div class="box-schema-body__field type" [ngClass]="{'box-schema-body__field--lost-field' : field.lostField}">
              {{field.fieldType.length ? field.fieldType : field.fieldType.type}}
              </div><!--
          --></div>
          </div>
-       </perfect-scrollbar>
+        </div>
        </div>
      </div>
    </div>

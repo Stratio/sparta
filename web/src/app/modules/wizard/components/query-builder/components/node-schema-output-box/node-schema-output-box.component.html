@@ -25,8 +25,7 @@
          placeholder="Type your filter and press enter to apply."
          *ngIf="editFilter" class="filters-input"
          (keydown.enter)="saveFilter($event)"
-         (focusout)="onFocusOut($event)"
-         >{{filter}}</textarea>
+         (focusout)="onFocusOut($event)">{{filter}}</textarea>
    </div>
    <div class="body-container">
      <div class="box-schema-body">
@@ -39,36 +38,35 @@
          </div><!--
     --></div>
        <div class="box-schema-body__row" [dndList]="schemaFields" (dndDrop)="onDrop($event)" >
-         <div class="box-schema-body__row-container"
-           *ngFor="let field of schemaFields; let i = index;"
-           [dndDraggable]="{index: i}"
-           (dndDragstart)="onReorder($event)"
-           (dndDragend)="onEndReorder()"
-           [containerElement]="containerElement"
-           field-position
-           [(position)]="field.position"
-           [recalcPositionSubject]="positionSubject"
-           (positionChange)="changePosition()"
-           (contextmenu)="contextMenu($event, field, i)"
-           >
+          <div class="box-schema-body__row-container"
+            [ngClass]="{'lost-field' : field.lostField}"
+            *ngFor="let field of schemaFields; let i = index;"
+            [dndDraggable]="{index: i}"
+            (dndDragstart)="onReorder($event)"
+            (dndDragend)="onEndReorder()"
+            [containerElement]="containerElement"
+            field-position
+            [(position)]="field.position"
+            [recalcPositionSubject]="positionSubject"
+            (positionChange)="changePosition()"
+            (contextmenu)="contextMenu($event, field, i)">
            <div *ngIf="editExpression !== i">
-               <st-dropdown-menu
-               [style.top.px]="dropDownCoords.y + 5"
-               [style.left.px]="dropDownCoords.x + 5"
-               style="position:fixed; z-index:999; min-width: 280px;"
+              <st-dropdown-menu
+               class="box-schema-body__menu"
+               [style.top.px]="dropDownCoords.y"
+               [style.left.px]="dropDownCoords.x"
                [items]="items"
                [attr.id]="'dropdownMenu-' + i"
                [active]="showDropDown === i"
                [offset]="{ x: 0, y: 10 }"
                (change)="onChangeOption($event, field, i)">
          </st-dropdown-menu><!--
-
          --><div class="box-schema-body__field expression" (click)="onEditExpression(field, i)">
                <i *ngIf="field.order" class="icon" [ngClass]="field.order === 'orderAsc'? 'icon-arrow-up' : 'icon-arrow-down'"></i>
+               <span class="icon-lostfield icon-alert"></span>
                <span>{{field.expression}}</span>
              </div><!--
          --><div class="box-schema-body__field column" >
-
                <span *ngIf="editColumn !== i" (click)="onEditColumn(field, i)" [ngClass]="{ repeat: isRepeat(field.column)}" >{{field.column}}</span>
                <input *ngIf="editColumn === i" type="text" (keydown.enter)="saveColumn($event,field, i)" [(ngModel)]="schemaFields[i].column"/>
              </div><!--
@@ -77,8 +75,8 @@
             <textarea *ngIf="editExpression === i" (keydown.enter)="saveExpression($event,field, i)"  [(ngModel)]="schemaFields[i].expression"></textarea>
           </div>
         </div>
-       </div>
-     <div class="no-fields-placeholder" *ngIf="!schemaFields.length" dndList (dndDrop)="onDrop($event)">
+      </div>
+    <div class="no-fields-placeholder" *ngIf="!schemaFields.length" dndList (dndDrop)="onDrop($event)">
        Drag and drop here a column of the input boxes at the left.
      </div>
    </div>
