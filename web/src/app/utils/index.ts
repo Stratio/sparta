@@ -186,7 +186,10 @@ export function copyIntoClipboard(content: string) {
 
 export function getErrorMessage (error: any): string {
   let message = '';
-  if (error && error.error) {
+
+  if (error.status === '503') {
+    message = 'Service temporarily unavailable';
+  } else if (error && error.error) {
     try {
       const parsed = JSON.parse(error.error);
       if (parsed.exception) {
