@@ -59,7 +59,6 @@ class NginxUtilsTest extends BaseUtilsTest {
                 |      "HADOOP_CONF_FROM_DFS": "true",
                 |      "CROSSDATA_CORE_CATALOG_CLASS": "org.apache.spark.sql.crossdata.catalyst.catalog.persistent.zookeeper.ZookeeperCatalog",
                 |      "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONTIMEOUT": "15000",
-                |      "SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH": "/v1/ca-trust/certificates/ca",
                 |      "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH": "128",
                 |      "CORE_SITE_FROM_URI": "false",
                 |      "SPARTA_ZOOKEEPER_CONFIG": "eyJ6b29rZWVwZXIiOnsiY29ubmVjdGlvblN0cmluZyI6InprLTAwMDEtemt1c2VybGFuZC5zZXJ2aWNlLnBhYXMubGFicy5zdHJhdGlvLmNvbToyMTgxLHprLTAwMDItemt1c2VybGFuZC5zZXJ2aWNlLnBhYXMubGFicy5zdHJhdGlvLmNvbToyMTgxLHprLTAwMDMtemt1c2VybGFuZC5zZXJ2aWNlLnBhYXMubGFicy5zdHJhdGlvLmNvbToyMTgxIiwiY29ubmVjdGlvblRpbWVvdXQiOjE1MDAwLCJyZXRyeUF0dGVtcHRzIjo1LCJyZXRyeUludGVydmFsIjoxMDAwMCwic2Vzc2lvblRpbWVvdXQiOjYwMDAwLCJzdG9yYWdlUGF0aCI6Ii9zdHJhdGlvL3NwYXJ0YS9zcGFydGEifX0=",

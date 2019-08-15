@@ -98,7 +98,6 @@ object MarathonConstant {
   val ServerMarathonLBPathEnv = "MARATHON_APP_LABEL_HAPROXY_0_PATH"
   val GosecAuthEnableEnv = "ENABLE_GOSEC_AUTH"
   val UserNameEnv = "USER_NAME"
-  val DatastoreCaNameEnv = "DATASTORE_TRUSTSTORE_CA_NAME"
   val SpartaTLSEnableEnv = "SECURITY_TLS_ENABLE"
   val sparkLogLevel = "SPARK_LOG_LEVEL"
   val spartaRedirectorLogLevel = "SPARTA_REDIRECTOR_LOG_LEVEL"

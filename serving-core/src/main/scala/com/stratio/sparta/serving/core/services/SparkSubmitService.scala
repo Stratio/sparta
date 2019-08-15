@@ -380,8 +380,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
             certPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH_WORKFLOW").notBlank
             certPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH_WORKFLOW").notBlank
             keyPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH_WORKFLOW").notBlank
-            trustStorePath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
-            trustStorePassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
             driverSecretFolder <- envOrNone("SPARK_DRIVER_SECRET_FOLDER").notBlank
           } yield {
             Map(
@@ -390,16 +388,12 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH" -> certPath,
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH" -> certPassPath,
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath,
-              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH" -> trustStorePath,
-              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH" -> trustStorePassPath,
               "spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE" -> "true",
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE" -> "true",
               "spark.executorEnv.SPARK_DRIVER_SECRET_FOLDER" -> driverSecretFolder,
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH" -> certPath,
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH" -> certPassPath,
-              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath,
-              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH" -> trustStorePath,
-              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH" -> trustStorePassPath
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath
             ) ++ securityOptions
           }
         } getOrElse {
@@ -563,8 +557,6 @@ object SparkSubmitService {
       "spark.executorEnv.SPARK_LOG_LEVEL",
       "spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY",
       "spark.executorEnv.SPARK_DRIVER_SECRET_FOLDER",
-      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH",
-      "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH",
       "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH",
       "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH",
       "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH"

@@ -51,12 +51,6 @@ else
 fi
 
 # Paths and variables used in secrets scripts
-if [ -v DATASTORE_TRUSTSTORE_CA_NAME ] && [ ${#DATASTORE_TRUSTSTORE_CA_NAME} != 0 ]; then
-    export TRUSTSTORE_CA_NAME=${DATASTORE_TRUSTSTORE_CA_NAME}
-else
-    export TRUSTSTORE_CA_NAME='ca'
-fi
-
 if [[ ! -v SPARTA_SECRET_FOLDER ]]; then
     export SPARTA_SECRET_FOLDER="/etc/sds/sparta/security"
 fi
@@ -73,14 +67,6 @@ if [[ ! -v SPARTA_SECURITY_VAULT_PASSWORDS_PATH ]]; then
     export SPARTA_SECURITY_VAULT_PASSWORDS_PATH="/v1/userland/passwords"
 fi
 
-if [[ ! -v SPARTA_SECURITY_VAULT_CA_PATH ]]; then
-    export SPARTA_SECURITY_VAULT_CA_PATH="/v1/ca-trust/certificates"
-fi
-
-if [[ ! -v SPARTA_SECURITY_VAULT_CA_KEY_PATH ]]; then
-    export SPARTA_SECURITY_VAULT_CA_KEY_PATH="/v1/ca-trust/passwords/default/keystore"
-fi
-
 # Setup service_id_with_path_normalized for access kms_utils
 export SERVICE_ID_WITH_PATH_UNDER=${SERVICE_ID_WITH_PATH//-/_}
 export SERVICE_ID_WITH_PATH_UNDERSCORE=${SERVICE_ID_WITH_PATH_UNDER//./_}
@@ -94,8 +80,6 @@ export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 export SPARTA_KEYTAB_NAME_WORKFLOW="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 
 # Vault paths used to obtain the secrets for the server and the workflows
-export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="$SPARTA_SECURITY_VAULT_CA_PATH/$TRUSTSTORE_CA_NAME"
-export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="$SPARTA_SECURITY_VAULT_CA_KEY_PATH"
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="$SPARTA_SECURITY_VAULT_CERTIFICATES_PATH/$SERVICE_ID_WITH_PATH"
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH_WORKFLOW="$SPARTA_SECURITY_VAULT_CERTIFICATES_PATH/$GENERIC_WORKFLOW_ID_VAULT_PATH"
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="$SPARTA_SECURITY_VAULT_PASSWORDS_PATH/$SERVICE_ID_WITH_PATH/keystore"

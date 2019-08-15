@@ -460,7 +460,6 @@ case class MarathonService(context: ActorContext) extends SpartaSerializer {
       SpartaFileEncoding -> Some(Properties.envOrElse(SpartaFileEncoding, DefaultFileEncodingSystemProperty)),
       AppHeapSizeEnv -> Option(s"-Xmx${marathonAppHeapSize}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
-      DatastoreCaNameEnv -> Properties.envOrSome(DatastoreCaNameEnv, Option("ca")),
       SpartaSecretFolderEnv -> Properties.envOrNone(SpartaSecretFolderEnv),
       GenericWorkflowIdentity -> Properties.envOrNone(GenericWorkflowIdentity),
       GosecAuthEnableEnv -> Properties.envOrNone(GosecAuthEnableEnv),
