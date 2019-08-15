@@ -74,7 +74,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     val dbName = "mydb"
     try {
       arangoDB.createDatabase(dbName)
-      System.out.println("Database created: " + dbName)
+      log.info("Database created: " + dbName)
     } catch {
       case e: ArangoDBException =>
         System.err.println("Failed to create database: " + dbName + "; " + e.getMessage)
@@ -83,7 +83,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     val collectionName = randomCollectionName
     try {
       val myArangoCollection = arangoDB.db(dbName).createCollection(collectionName)
-      System.out.println("Collection created: " + myArangoCollection.getName)
+      log.info("Collection created: " + myArangoCollection.getName)
     } catch {
       case e: ArangoDBException =>
         System.err.println("Failed to create collection: " + collectionName + "; " + e.getMessage)
@@ -130,7 +130,6 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     import com.stratio.sparta.plugin.models.SerializationImplicits._
     lazy val characters: Seq[Got] = read[Seq[Got]](data)
 
-
     val objects: Seq[BaseDocument] =
       characters.map {
         character =>
@@ -146,7 +145,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     objects.foreach(character =>
       try {
         arangoDB.db(dbName).collection(collectionName).insertDocument(character)
-        System.out.println("Document created");
+        log.info("Document created");
       } catch {
         case e: ArangoDBException =>
           System.err.println("Failed to create document. " + e.getMessage())
@@ -154,10 +153,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     )
   }
 
-
   "ArangodbInput" should "read a collection" in {
-
-    //val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
 
     val inputProperties = Map(
       "hosts" -> arangoHosts,
@@ -168,7 +164,6 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "tlsEnabled" -> "false"
     )
 
-    /*------------continuar, activar ssl---------------*/
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
@@ -198,7 +193,6 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "filterQuery" -> "doc.`surname` == \"Stark\""
     )
 
-    /*------------continuar, activar ssl y añadir filtro ---------------*/
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
@@ -216,7 +210,6 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
   "ArangodbInput" should "add id, key and revision to the schema when reads from a collection" in {
 
     val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
-
 
     val inputProperties = Map(
       "hosts" -> arangoHosts,
@@ -240,9 +233,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     )
 
     val (distMonad, schemaOpt) = arangoInput.initWithSchema()
-    println("Se va a imprimir el schema:" + schemaOpt)
     val df: DataFrame = xdSession.createDataFrame(distMonad.ds, schemaOpt.get)
-
 
     val rowIds = df.select("_id").collect()
     for (ids <- rowIds) {
@@ -265,9 +256,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
 
   "ArangodbInput" should "read a collection given a schema" in {
 
-    //val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
     val schema: StructType = StructType(Seq(StructField("age", LongType, true), StructField("alive", BooleanType, true), StructField("name", StringType, true), StructField("surname", StringType, true), StructField("traits", ArrayType(StringType, true))))
-
 
     val inputProperties = Map(
       "hosts" -> arangoHosts,
@@ -283,7 +272,6 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
       "arangoSchema" -> s"${schema.json}"
     )
 
-    /*------------continuar, activar ssl---------------*/
     val outputOptions = OutputOptions(SaveModeEnum.Append, "stepName", "tableName", None, None)
     val arangoInput = new ArangoDBInputStepBatch(
       "dummy",
@@ -296,10 +284,7 @@ class ArangoDBInputStepBatchIT extends TemporalSparkContext with ShouldMatchers 
     val finalSchema = Some(StructType(Seq(StructField("age", LongType, true), StructField("alive", BooleanType, true), StructField("name", StringType, true), StructField("surname", StringType, true), StructField("traits", ArrayType(StringType, true), true), StructField("_id", StringType, true), StructField("_key", StringType, true), StructField("_rev", StringType, true))))
     val (distMonad, schemaOpt) = arangoInput.initWithSchema()
 
-    println("Se va a imprimir el schema:" + schemaOpt)
     finalSchema shouldBe schemaOpt
-
-
   }
 
 }

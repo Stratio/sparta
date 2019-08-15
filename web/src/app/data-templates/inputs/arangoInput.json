@@ -150,7 +150,7 @@
       "propertyId": "addArangoId",
       "propertyName": "_ADD_ARANGO_ID_",
       "propertyType": "boolean",
-      "tooltip": ".",
+      "tooltip": "Add Arango '_id' field into the schema",
       "default": false,
       "qa": "fragment-details-arangodb-internal-id"
     },
@@ -158,7 +158,7 @@
       "propertyId": "addArangoKey",
       "propertyName": "_ADD_ARANGO_KEY_",
       "propertyType": "boolean",
-      "tooltip": ".",
+      "tooltip": "Add Arango '_key' field into the schema",
       "default": false,
       "qa": "fragment-details-arangodb-internal-key"
     },
@@ -166,7 +166,7 @@
       "propertyId": "addArangoRevision",
       "propertyName": "_ADD_ARANGO_REVISION_",
       "propertyType": "boolean",
-      "tooltip": ".",
+      "tooltip": "Add Arango '_rev' field into the schema",
       "default": false,
       "qa": "fragment-details-arangodb-internal-revision"
     },
