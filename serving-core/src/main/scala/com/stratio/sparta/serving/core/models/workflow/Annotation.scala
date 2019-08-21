@@ -3,6 +3,17 @@
  *
  * This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
  */
+
 package com.stratio.sparta.serving.core.models.workflow
 
-case class PipelineGraph(nodes: Seq[NodeGraph], edges: Seq[EdgeGraph], annotations: Option[Seq[Annotation]] = None)
+case class Annotation(
+                       date: Long,
+                       author: String,
+                       messages: Seq[AnnotationMessage],
+                       color: String,
+                       stepName: Option[String],
+                       edge: Option[EdgeGraph],
+                       position: Option[Position]
+                     )
+
+case class AnnotationMessage(text: String, author: String, date: Long)
