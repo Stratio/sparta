@@ -16,6 +16,7 @@ import akka.util.Timeout
 import com.stratio.sparta.security.{Action, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.models.EntityAuthorization
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
@@ -47,7 +48,7 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
                            user: Option[LoggedUser],
                            resourcesAndActions: ResourcesAndActions,
                            sendTo: Option[ActorRef] = None
-                         )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+                         )(actionFunction: => T): Unit =
     authorizeActionsByResourcesIds(user, resourcesAndActions, Seq.empty, sendTo)(actionFunction)
 
   /**
@@ -58,7 +59,7 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
                                        resourcesAndActions: ResourcesAndActions,
                                        resourceId: String,
                                        sendTo: Option[ActorRef] = None
-                                     )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit =
+                                     )(actionFunction: => T): Unit =
     authorizeActionsByResourcesIds(user, resourcesAndActions, Seq(resourceId), sendTo)(actionFunction)
 
   /**
@@ -69,10 +70,10 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
                                          resourcesAndActions: ResourcesAndActions,
                                          resourcesId: Seq[String],
                                          sendTo: Option[ActorRef] = None
-                                       )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit = {
+                                       )(actionFunction: => T): Unit = {
     val senderActor = sendTo.getOrElse(sender)
 
-    (secManagerOpt, user) match {
+    (SecurityManagerHelper.securityManager, user) match {
       case (Some(secManager), Some(userLogged)) =>
         val rejectedActions = authorizeResourcesAndActions(userLogged, resourcesAndActions, resourcesId, secManager)
         if (rejectedActions.nonEmpty) {
@@ -98,10 +99,10 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
                                          user: Option[LoggedUser],
                                          resourcesAndActions: ResourcesAndActions,
                                          sendTo: Option[ActorRef] = None
-                                       )(actionFunction: => T)(implicit secManagerOpt: Option[SpartaSecurityManager]): Unit = {
+                                       )(actionFunction: => T): Unit = {
     val senderActor = sendTo.getOrElse(sender)
 
-    (secManagerOpt, user) match {
+    (SecurityManagerHelper.securityManager, user) match {
       case (Some(secManager), Some(userLogged)) =>
         Try(actionFunction) match {
           case Success(actionResult) =>

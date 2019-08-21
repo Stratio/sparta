@@ -18,7 +18,6 @@ import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class ExecutionActor(launcherActor: ActorRef)
-                    (implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   import DtoModelImplicits._

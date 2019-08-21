@@ -77,7 +77,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       }
 
       log.info("Initializing Dyplon authorization plugins ...")
-      implicit val secManager = SecurityManagerHelper.securityManager
+      SecurityManagerHelper.initSpartaSecurityManager()
       SecurityManagerHelper.initCrossdataSecurityManager()
 
       log.debug("Initializing Sparta system ...")

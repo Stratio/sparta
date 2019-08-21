@@ -40,7 +40,7 @@ class LauncherActor(
                      parametersStateActor: ActorRef,
                      localLauncherActor: ActorRef,
                      debugLauncherActor: ActorRef
-                   )(implicit val secManagerOpt: Option[SpartaSecurityManager])
+                   )
   extends Actor with ActionUserAuthorize {
 
   private val ResourceWorkflow = "Workflows"

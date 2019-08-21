@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 import scala.util.Try
 
-class ScheduledWorkflowTaskActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class ScheduledWorkflowTaskActor()
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
   private val scheduledWorkflowTaskPgService = PostgresDaoFactory.scheduledWorkflowTaskPgService

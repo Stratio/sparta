@@ -24,7 +24,7 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Success, Try}
 
-class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+class PluginActor() extends Actor
   with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize {
 
   lazy val hdfsFilesService = HdfsFilesService()

@@ -16,7 +16,7 @@ import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import scala.concurrent.Future
 import scala.util.Try
 
-class ParameterListActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class ParameterListActor()
   extends Actor with ActionUserAuthorize {
 
   private val parameterListPostgresDao = PostgresDaoFactory.parameterListPostgresDao

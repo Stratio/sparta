@@ -19,7 +19,7 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
 
-class MlModelActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class MlModelActor()
   extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer with ActionUserAuthorize {
 
   val apiPath = HttpConstant.ConfigPath

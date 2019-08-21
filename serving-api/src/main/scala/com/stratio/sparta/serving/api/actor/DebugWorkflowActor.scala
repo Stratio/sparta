@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 class DebugWorkflowActor(
                           launcherActor: ActorRef
-                        )(implicit val secManagerOpt: Option[SpartaSecurityManager])
+                        )
   extends Actor with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize {
 
   import DebugWorkflowActor._

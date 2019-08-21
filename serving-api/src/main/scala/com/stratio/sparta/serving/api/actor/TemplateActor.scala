@@ -17,7 +17,7 @@ import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import scala.concurrent.Future
 import scala.util.Try
 
-class TemplateActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class TemplateActor()
   extends Actor with ActionUserAuthorize {
 
   private val templatePgService = PostgresDaoFactory.templatePgService

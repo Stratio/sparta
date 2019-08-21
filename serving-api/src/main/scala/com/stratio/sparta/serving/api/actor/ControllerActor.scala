@@ -29,7 +29,7 @@ import spray.routing._
 import scala.concurrent.duration._
 import scala.util.Try
 
-class ControllerActor()(implicit secManager: Option[SpartaSecurityManager])
+class ControllerActor()
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient with HeadersAuthSupport {
 
   override implicit def actorRefFactory: ActorContext = context

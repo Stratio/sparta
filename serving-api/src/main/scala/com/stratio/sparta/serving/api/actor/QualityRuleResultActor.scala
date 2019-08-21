@@ -14,7 +14,7 @@ import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
 import scala.util.Try
 
-class QualityRuleResultActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends ActionUserAuthorize{
+class QualityRuleResultActor() extends ActionUserAuthorize{
 
   private val qualityRuleResult = PostgresDaoFactory.qualityRuleResultPgService
 

@@ -15,7 +15,7 @@ import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.parameters.{GlobalParameters, ParameterVariable}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
-class GlobalParametersActor()(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class GlobalParametersActor()
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
   implicit val system = Option(context.system)

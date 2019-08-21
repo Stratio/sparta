@@ -7,9 +7,7 @@
 package com.stratio.sparta.serving.core.helpers
 
 import scala.util.{Failure, Success, Try}
-
 import spray.http.StatusCodes
-
 import com.stratio.crossdata.security.CrossdataSecurityManager
 import com.stratio.gosec.dyplon.plugins.sparta.{GoSecSpartaSecurityManager, GoSecSpartaSecurityManagerFacade}
 import com.stratio.sparta.security._
@@ -21,31 +19,63 @@ import com.stratio.sparta.serving.core.models.ErrorModel._
 
 object SecurityManagerHelper {
 
-  lazy val securityManager: Option[SpartaSecurityManager] =
+  private var crossdataSecurityManager: Option[CrossdataSecurityManager] = None
+  private val spartaSecurityManagerPool = scala.collection.mutable.ArrayBuffer.empty[SpartaSecurityManager]
+  private val randomManager = new scala.util.Random
+
+  private lazy val spartaSecurityManagerPoolSize = Try(SpartaConfig.getSecurityConfig().get.getInt("manager.poolSize")).getOrElse(3)
+
+  lazy val dyplonFacadeEnabled = Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)
+
+  def initSpartaSecurityManager(): Unit = {
     if (!isSecurityManagerEnabled) {
       log.info("Authorization is not enabled, configure a security manager if needed")
-      None
+    } else if (spartaSecurityManagerPool.nonEmpty) {
+      log.info("Sparta security manager was already initialized")
     } else {
-      log.info("Starting Gosec Sparta Dyplon security manager")
-      val secManager = if (Try(SpartaConfig.getSecurityConfig().get.getBoolean("manager.http.enabled")).getOrElse(false)) {
-        Some(new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager])
-      } else {
-        Some(new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager])
-      }
+      log.info(s"Starting Sparta Dyplon security managers with a pool size of $spartaSecurityManagerPoolSize instances")
+      for (instanceNumber <- 0 until spartaSecurityManagerPoolSize) {
+        val newSecManager = if (dyplonFacadeEnabled) {
+          new GoSecSpartaSecurityManagerFacade().asInstanceOf[SpartaSecurityManager]
+        } else new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
 
-      secManager.foreach { manager =>
-        manager.start()
-        log.info("Gosec Sparta Dyplon security manager started")
+        newSecManager.start()
+        spartaSecurityManagerPool += newSecManager
+
+        log.info(s"Sparta Dyplon security manager instance $instanceNumber started")
+
+        Runtime.getRuntime.addShutdownHook(new Thread() {
+          override def run(): Unit = {
+            stopSpartaSecurityManager()
+          }
+        })
       }
-      secManager
     }
+  }
+
+  def stopSpartaSecurityManager(): Unit = {
+    log.debug("Stopping Sparta Security managers")
+    spartaSecurityManagerPool.foreach(_.stop())
+  }
+
+
+  def stopCrossdataSecurityManager(): Unit = {
+    log.debug("Stopping Crossdata Security manager")
+    crossdataSecurityManager.foreach(_.stop())
+  }
+
+  def securityManager: Option[SpartaSecurityManager] = {
+    if (spartaSecurityManagerPool.nonEmpty)
+      Some(spartaSecurityManagerPool(randomManager.nextInt(spartaSecurityManagerPool.size)))
+    else None
+  }
 
   def initCrossdataSecurityManager(): Unit =
     if (!isCrossdataSecurityManagerEnabled) {
       log.info("Crossdata authorization is not enabled, configure a security manager if needed")
       None
-    } else{
-      log.debug("Starting Gosec Crossdata Dyplon security manager")
+    } else {
+      log.info("Starting Crossdata Dyplon security manager")
       JarsHelper.addDyplonCrossdataPluginsToClassPath()
       val finalClazzToInstance = Try(SpartaConfig.getCrossdataConfig().get.getString("security.manager.class"))
         .getOrElse("com.stratio.gosec.dyplon.plugins.crossdata.GoSecCrossdataSecurityManager")
@@ -53,8 +83,17 @@ object SecurityManagerHelper {
         Class.forName(finalClazzToInstance, true, Thread.currentThread().getContextClassLoader)
       val constr = securityManagerClass.getConstructor()
       val secManager = constr.newInstance().asInstanceOf[CrossdataSecurityManager]
+
       secManager.start()
-      log.debug("Gosec Crossdata Dyplon security manager started")
+      crossdataSecurityManager = Option(secManager)
+
+      log.info("Crossdata Dyplon security manager started")
+
+      Runtime.getRuntime.addShutdownHook(new Thread() {
+        override def run(): Unit = {
+          stopCrossdataSecurityManager()
+        }
+      })
     }
 
 
@@ -117,7 +156,7 @@ object SecurityManagerHelper {
     }
   }
 
-  implicit def resourceTupleParser(resource: (String,String)): Resource = {
+  implicit def resourceTupleParser(resource: (String, String)): Resource = {
     resource._1 match {
       case "Catalog" => Resource(CatalogResource, resource._2)
       case "Configuration" => Resource(ConfigurationResource, resource._2)

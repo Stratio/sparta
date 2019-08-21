@@ -16,7 +16,7 @@ import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfo
 import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
-class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+class CrossdataActor() extends Actor
   with SLF4JLogging
   with ActionUserAuthorize {
 

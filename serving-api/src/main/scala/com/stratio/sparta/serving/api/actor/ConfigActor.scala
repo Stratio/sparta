@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.core.models.authorization.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 
-class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class ConfigActor()
   extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer with ActionUserAuthorize {
 
   val apiPath = HttpConstant.ConfigPath
